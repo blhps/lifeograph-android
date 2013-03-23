@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    android:orientation="vertical" >
+
+    <RelativeLayout
+        android:id="@+id/horLayout"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="0.12"
+        android:baselineAligned="false"
+        android:gravity="top"
+        android:paddingLeft="5dp"
+        android:paddingRight="5dp" >
+
+        <EditText
+            android:id="@+id/editTextTag"
+            android:layout_width="fill_parent"
+            android:layout_height="wrap_content"
+            android:layout_alignParentLeft="true"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@+id/buttonAddTag"
+            android:ellipsize="end"
+            android:ems="10"
+            android:hint="@string/filter_tags"
+            android:inputType="textFilter"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/buttonAddTag"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:text="@string/create" />
+
+    </RelativeLayout>
+
+    <ListView
+        android:id="@+id/listViewTags"
+        android:layout_width="fill_parent"
+        android:layout_height="413dp"
+        android:layout_weight="0.18" >
+    </ListView>
+
+</LinearLayout>
