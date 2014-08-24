@@ -1,0 +1,429 @@
+<?xml version="1.0" encoding="utf-8"?>
+<merger version="2" >
+
+    <dataSet config="main" >
+        <source path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res" >
+            <file
+                name="ic_tag_dark"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_tag_dark.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_favorite"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_favorite.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_topic"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_topic.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_entry"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_entry.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_launcher.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_tag"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_tag.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_gear"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_gear.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_diary"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_diary.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_entry_dark"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_entry_dark.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_chapter"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-mdpi/ic_chapter.png"
+                qualifiers="mdpi-v4"
+                type="drawable" />
+            <file
+                name="entry"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/entry.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="calendar"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/calendar.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="imagelist"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/imagelist.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="dialog_new_diary"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/dialog_new_diary.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="main"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/main.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="dialog_tags"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/dialog_tags.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="diary"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/diary.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="dialog_about"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/dialog_about.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="cal_day"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout/cal_day.xml"
+                qualifiers=""
+                type="layout" />
+            <file
+                name="ic_tag_dark"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_tag_dark.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_favorite"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_favorite.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_topic"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_topic.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_entry"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_entry.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_launcher.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_tag"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_tag.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="icon_entry"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/icon_entry.xml"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_gear"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_gear.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_diary"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_diary.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_entry_dark"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_entry_dark.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_chapter"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/ic_chapter.png"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                name="icon_tag"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-hdpi/icon_tag.xml"
+                qualifiers="hdpi-v4"
+                type="drawable" />
+            <file
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/values/colors.xml"
+                qualifiers="" >
+                <color name="red" >#f00
+                </color>
+            </file>
+            <file
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/values/styles.xml"
+                qualifiers="" >
+
+                <style
+                    name="headingSpan"
+                    parent="@android:style/TextAppearance.Large" >
+                    <item name="android:textStyle">
+bold
+                    </item>
+                    <item name="android:textSize">
+30sp
+                    </item>
+                </style>
+
+                <style
+                    name="markupSpan"
+                    parent="@android:style/TextAppearance.Small" >
+                    <item name="android:textSize">
+10sp
+                    </item>
+                    <item name="android:textColor">
+#999
+                    </item>
+                </style>
+
+                <style
+                    name="commentSpan"
+                    parent="@android:style/TextAppearance.Small" >
+                    <item name="android:textSize">
+10sp
+                    </item>
+                </style>
+
+                <style
+                    name="normalText"
+                    parent="@android:style/TextAppearance.Medium" >
+                    <item name="android:textStyle">
+normal
+                    </item>
+                </style>
+
+                <style
+                    name="subheadingSpan"
+                    parent="@android:style/TextAppearance.Large" >
+                    <item name="android:textStyle">
+bold
+                    </item>
+                    <item name="android:textSize">
+25sp
+                    </item>
+                </style>
+
+                <style
+                    name="boldText"
+                    parent="@android:style/TextAppearance.Medium" >
+                    <item name="android:textStyle">
+bold
+                    </item>
+                </style>
+
+                <style
+                    name="italicText"
+                    parent="@android:style/TextAppearance.Medium" >
+                    <item name="android:textStyle">
+italic
+                    </item>
+                </style>
+            </file>
+            <file
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/values/strings.xml"
+                qualifiers="" >
+                <string name="create_diary" >Create a New Diary
+                </string>
+                <string name="rename_" >Rename..
+                </string>
+                <string name="dismiss" >Dismiss
+                </string>
+                <string name="favorite" >Favorite
+                </string>
+                <string name="add_topic" >Add Topic..
+                </string>
+                <string name="create_topic" >Create Topic
+                </string>
+                <string name="entry_dismiss_confirm" >Are you sure you want to dismiss the current entry?
+                </string>
+                <string name="toggle_favorite" >Toggle Favoredness
+                </string>
+                <string name="entry_last_changed_on" >Entry last changed on
+                </string>
+                <string name="storage_not_available" >External storage is not available or read-only
+                </string>
+                <string name="new_diary_name" >Enter a name for the new diary:
+                </string>
+                <string name="chapter_dismiss_confirm" >Are you sure you want to dismiss the current chapter?
+                </string>
+                <string name="empty_entry" >&lt;empty entry>
+                </string>
+                <string name="textview" >TextView
+                </string>
+                <string name="calendar" >Calendar
+                </string>
+                <string name="today" >Today
+                </string>
+                <string name="todo" >TODO
+                </string>
+                <string name="tag_dismiss_confirm" >Are you sure you want to dismiss the current tag?
+                </string>
+                <string name="version" >Version: 0.2 [ALPHA]
+                </string>
+                <string name="sort_by_size" >Sort by Size
+                </string>
+                <string name="add" >Add
+                </string>
+                <string name="format" >Format
+                </string>
+                <string name="create_entry" >Create Entry
+                </string>
+                <string name="entries" >Entries
+                </string>
+                <string name="quit" >Quit
+                </string>
+                <string name="placeholder" >placeholder text
+                </string>
+                <string name="import_" >Import
+                </string>
+                <string name="logoutwosaving" >Log out without Saving
+                </string>
+                <string name="tags" >Tags
+                </string>
+                <string name="rename" >Rename
+                </string>
+                <string name="sort_by_date" >Sort by date
+                </string>
+                <string name="cancel" >Cancel
+                </string>
+                <string name="logoutwosaving_confirm" >Are you sure you want to log out without saving?
+                </string>
+                <string name="welcome" >Welcome to Lifeograph for Android!
+                </string>
+                <string name="about" >About..
+                </string>
+                <string name="chapters" >Chapters
+                </string>
+                <string name="program_name" >Lifeograph for Android
+                </string>
+                <string name="add_entry" >Add Entry
+                </string>
+                <string name="create" >Create
+                </string>
+                <string name="icon" >icon
+                </string>
+                <string name="B" >B
+                </string>
+                <string name="diaries" >Diaries
+                </string>
+                <string name="caution_alpha" >THIS IS A TEST VERSION. DO NOT USE FOR SERIOUS PURPOSES.
+                </string>
+                <string name="filter_tags" >Filter or create
+                </string>
+                <string name="I" >I
+                </string>
+                <string name="H" >H
+                </string>
+                <string name="copyright" >© 2012, Ahmet Öztürk
+                </string>
+                <string name="checkbox_icon" >☑
+                </string>
+                <string name="create_chapter" >Create Chapter
+                </string>
+                <string name="S" >S
+                </string>
+                <string name="dismiss_" >Dismiss..
+                </string>
+                <string name="app_name" >Lifeograph
+                </string>
+                <string name="all_entries" >All Entries
+                </string>
+            </file>
+            <file
+                name="calendar"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/layout-land/calendar.xml"
+                qualifiers="land"
+                type="layout" />
+            <file
+                name="ic_tag_dark"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_tag_dark.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_favorite"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_favorite.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_topic"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_topic.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_entry"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_entry.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_launcher"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_launcher.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_tag"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_tag.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_gear"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_gear.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_diary"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_diary.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_entry_dark"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_entry_dark.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_chapter"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-ldpi/ic_chapter.png"
+                qualifiers="ldpi-v4"
+                type="drawable" />
+            <file
+                name="ic_favorite"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-xhdpi/ic_favorite.png"
+                qualifiers="xhdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_topic"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-xhdpi/ic_topic.png"
+                qualifiers="xhdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_diary"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-xhdpi/ic_diary.png"
+                qualifiers="xhdpi-v4"
+                type="drawable" />
+            <file
+                name="ic_chapter"
+                path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/main/res/drawable-xhdpi/ic_chapter.png"
+                qualifiers="xhdpi-v4"
+                type="drawable" />
+        </source>
+        <source path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/build/generated/res/rs/debug" />
+        <source path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/build/generated/res/generated/debug" />
+    </dataSet>
+    <dataSet config="debug" >
+        <source path="/home/ahmet/AndroidStudioProjects/LifeographAndroid/app/src/debug/res" />
+    </dataSet>
+
+</merger>
