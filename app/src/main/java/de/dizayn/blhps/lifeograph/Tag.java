@@ -25,11 +25,11 @@ import java.util.ArrayList;
 
 public class Tag extends DiaryElement {
 
-    public static class Category extends DiaryElement {
+    public static class Category extends DiaryElement
+    {
         public Category( Diary diary, String name ) {
-            super( diary, name );
+            super( diary, ES_EXPANDED, name );
             m_name = name;
-            m_flag_expanded = true;
         }
 
         @Override
@@ -53,11 +53,10 @@ public class Tag extends DiaryElement {
         }
 
         public boolean get_expanded() {
-            return m_flag_expanded;
+            return( ( m_status & ES_EXPANDED ) != 0 );
         }
-
         public void set_expanded( boolean expanded ) {
-            m_flag_expanded = expanded;
+            set_status_flag( ES_EXPANDED, expanded );
         }
 
         public void add( Tag tag ) {
@@ -68,16 +67,16 @@ public class Tag extends DiaryElement {
             mTags.remove( tag );
         }
 
-        protected boolean m_flag_expanded;
+        // CONTENTS
         protected java.util.List< Tag > mTags = new ArrayList< Tag >();
     }
 
-    public Tag( Diary diary ) {
-        super( diary, "" );
-    }
+//    public Tag( Diary diary ) {
+//        super( diary, ES_VOID, "" );
+//    }
 
     public Tag( Diary diary, String name, Category ctg ) {
-        super( diary, name );
+        super( diary, ES_VOID, name );
         m_ptr2category = ctg;
         if( ctg != null )
             ctg.add( this );

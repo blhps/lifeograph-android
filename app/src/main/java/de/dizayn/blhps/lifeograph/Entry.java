@@ -24,8 +24,8 @@ package de.dizayn.blhps.lifeograph;
 import java.util.ArrayList;
 
 public class Entry extends DiaryElement {
-    public Entry( Diary diary, int date, String text, boolean flag_favored ) {
-        super( diary, "" );
+    public Entry( Diary diary, int date, String text, boolean favored ) {
+        super( diary, favored ? ES_DEFAULT_FAVORED : ES_DEFAULT, "" );
         m_date = new Date( date );
 
         // java.util.Date jd = new java.util.Date();
@@ -38,15 +38,15 @@ public class Entry extends DiaryElement {
         calculate_title( text );
     }
 
-    public Entry( Diary diary, int date, boolean flag_favored ) {
-        super( diary, Lifeobase.getStr( R.string.empty_entry ) );
+    public Entry( Diary diary, int date, boolean favored ) {
+        super( diary, favored ? ES_DEFAULT_FAVORED : ES_DEFAULT,
+                Lifeobase.getStr( R.string.empty_entry ) );
         m_date = new Date( date );
 
         java.util.Date jd = new java.util.Date();
         m_date_created = ( int ) ( jd.getTime() / 1000L );
         m_date_changed = m_date_created;
 
-        m_option_favored = flag_favored;
         m_ptr2theme_tag = null;
     }
 
@@ -83,7 +83,7 @@ public class Entry extends DiaryElement {
 
     @Override
     public int get_icon() {
-        return( m_option_favored ? R.drawable.ic_favorite : R.drawable.ic_entry );
+        return( is_favored() ? R.drawable.ic_favorite : R.drawable.ic_entry );
     }
 
     public String get_text() {
@@ -96,12 +96,90 @@ public class Entry extends DiaryElement {
 
     // FILTERING
     boolean get_filtered_out() {
-        // TODO: recalculate here when necessary
-        return m_flag_filtered_out;
+        Filter filter = mDiary.get_filter();
+        int fs = filter.get_status();
+
+        boolean flag_filteredout = ( ( m_status & ES_FILTERED_OUT ) != 0 );
+
+        while( ( fs & ES_FILTER_OUTSTANDING) != 0 )  // this loop is meant for a single iteration
+        // loop used instead of if to be able to break out
+        {
+            flag_filteredout = ( ( fs & ES_FILTER_TRASHED & m_status ) == 0 );
+
+            // no need to continue if already filtered out
+            if( flag_filteredout )
+                break;
+
+            flag_filteredout = ( ( fs & ES_FILTER_FAVORED & m_status ) == 0 );
+            if( flag_filteredout )
+                break;
+
+            flag_filteredout = ( ( fs & ES_FILTER_TODO & m_status ) == 0 );
+            if( flag_filteredout )
+                break;
+
+            if( ( fs & ES_FILTER_DATE_BEGIN ) != 0 )
+                if( m_date.m_date < filter.get_date_begin() )
+                {
+                    flag_filteredout = true;
+                    break;
+                }
+
+            if( ( fs & ES_FILTER_DATE_END ) != 0 )
+                if( m_date.m_date > filter.get_date_end() )
+                {
+                    flag_filteredout = true;
+                    break;
+                }
+
+            if( ( fs & ES_FILTER_TAG ) != 0 )
+            {
+                if( filter.get_tag().get_type() == Type.TAG )
+                {
+                    if( ! m_tags.contains( filter.get_tag() ) )
+                    {
+                        flag_filteredout = true;
+                        break;
+                    }
+                }
+                else // untagged
+                {
+                    if( ! m_tags.isEmpty() )
+                    {
+                        flag_filteredout = true;
+                        break;
+                    }
+                }
+            }
+
+            if( ( fs & ES_FILTER_INDIVIDUAL ) != 0 )
+            {
+                if( filter.is_entry_filtered( this ) )
+                {
+                    flag_filteredout = true;
+                    break;
+                }
+            }
+
+            /* TODO
+            if( mDiary.is_search_active() )
+                flag_filteredout = ( m_text.lowercase().find( mDiary.get_search_text() )
+                        ==  );*/
+
+            break;
+        }
+
+        if( ( fs & ES_FILTER_OUTSTANDING ) != 0 )
+            set_filtered_out( flag_filteredout );
+
+        return flag_filteredout;
     }
 
     void set_filtered_out( boolean filteredout ) {
-        m_flag_filtered_out = filteredout;
+        if( filteredout )
+            m_status |= ES_FILTERED_OUT;
+        else if( ( m_status & ES_FILTERED_OUT ) != 0 )
+            m_status -= ES_FILTERED_OUT;
     }
 
     // FAVORITE ENTRY
@@ -141,11 +219,11 @@ public class Entry extends DiaryElement {
 
     // TRASH FUNCTIONALITY
     boolean is_trashed() {
-        return m_option_trashed;
+        return( ( m_status & ES_TRASHED ) != 0 );
     }
 
     void set_trashed( boolean trashed ) {
-        m_option_trashed = trashed;
+        set_status_flag( ES_TRASHED, trashed );
     }
 
     // TAGS
@@ -243,8 +321,5 @@ public class Entry extends DiaryElement {
     protected java.util.List< Tag > m_tags = new ArrayList< Tag >();
     protected Tag m_ptr2theme_tag;
 
-    protected boolean m_option_favored = false;
     protected String m_option_lang = Lifeobase.LANG_INHERIT_DIARY; // empty means off
-    protected boolean m_option_trashed = false;
-    protected boolean m_flag_filtered_out = false;
 }

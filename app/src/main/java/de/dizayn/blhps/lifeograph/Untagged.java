@@ -36,4 +36,8 @@ public class Untagged extends Tag
 
     // TODO: get_icon()
 
+    public void reset() {
+        mEntries.clear();
+        reset_theme();
+    }
 }

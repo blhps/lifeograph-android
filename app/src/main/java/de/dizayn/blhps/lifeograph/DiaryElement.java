@@ -47,7 +47,7 @@ public abstract class DiaryElement {
 
     public static enum Type {
         // CAUTION: order is significant and shouldn't be changed!
-        NONE, TAG, UNTAGGED, TAG_CTG, CHAPTER_CTG,
+        NONE, TAG, UNTAGGED, TAG_CTG, CHAPTER_CTG, FILTER,
         // entry list elements:
         DIARY, CHAPTER, TOPIC, SORTED, ENTRY, DATE,
         // additional (virtual) types:
@@ -95,8 +95,9 @@ public abstract class DiaryElement {
             ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO;
     public final static int ES_FILTER_MAX       = 0xFFFFFFFF;
 
-    public DiaryElement( Diary diary, String name ) {
+    public DiaryElement( Diary diary, int status, String name ) {
         mDiary = diary;
+        m_status = status;
         m_name = name;
         m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
     }
@@ -124,6 +125,19 @@ public abstract class DiaryElement {
     abstract public Type get_type();
 
     abstract public int get_size();
+
+    public int get_status() {
+        return m_status;
+    }
+    public void set_status( int status ) {
+        m_status = status;
+    }
+    public void set_status_flag( int flag, boolean add ) {
+        if( add )
+            m_status |= flag;
+        else if( ( m_status & flag ) != 0 )
+            m_status -= flag;
+    }
 
     protected String m_name;
     protected Diary mDiary = null;

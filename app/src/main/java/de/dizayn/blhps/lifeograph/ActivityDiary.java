@@ -532,7 +532,7 @@ public class ActivityDiary extends ListActivity {
         int mSize = 0;
 
         public ElemListAllEntries( Diary diary ) {
-            super( diary, getString( R.string.all_entries ) );
+            super( diary, ES_VOID, getString( R.string.all_entries ) );
             mType = Type.ALLBYDATE;
         }
 

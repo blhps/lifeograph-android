@@ -335,10 +335,8 @@ public class ActivityEntry extends Activity {
     }
 
     public void toggleFavorite() {
-        m_ptr2entry.m_option_favored = !m_ptr2entry.m_option_favored;
-
-        mImageEntry.setImageResource( m_ptr2entry.m_option_favored ? R.drawable.ic_favorite
-                                                                  : R.drawable.ic_entry );
+        m_ptr2entry.toggle_favored();
+        mImageEntry.setImageResource( m_ptr2entry.get_icon() );
     }
 
     public void dismiss() {

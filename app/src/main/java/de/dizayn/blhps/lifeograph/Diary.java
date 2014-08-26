@@ -251,22 +251,21 @@ public class Diary/* extends DiaryElement */{
         m_entries.clear();
         m_tags.clear();
         m_tag_categories.clear();
+        m_untagged.reset();
+
+        m_ptr2chapter_ctg_cur = null;
         m_chapter_categories.clear();
         m_topics.mMap.clear();
         m_custom_sorteds.mMap.clear();
 
-        m_ptr2chapter_ctg_cur = null;
-        // m_default_theme = ThemeSystem::get();
         m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
         m_last_elem_id = DiaryElement.DEID_MIN;
 
         m_passphrase = "";
 
-        m_filter_text = "";
-        m_filter_tag = null;
-        // m_filter_date_begin = 0;
-        // m_filter_date_end = Date::DATE_MAX;
-        // m_filtering_status = FS_CLEAR;
+        m_search_text = "";
+        m_filter_active.reset();
+        m_filter_default.reset();
 
         // NOTE: only reset body options here:
         m_language = "";
@@ -423,35 +422,19 @@ public class Diary/* extends DiaryElement */{
     }
 
     // FILTERING
-    void set_filter_text( String filter ) {
+    void set_search_text( String filter ) {
+        // TODO stub
     }
 
-    String get_filter_text() {
-        return m_filter_text;
+    String get_search_text() {
+        return m_search_text;
     }
 
-    void set_filter_tag( Tag t ) {
-
+    public Filter get_filter() {
+        return m_filter_active;
     }
 
-    Tag get_filter_tag() {
-        return m_filter_tag;
-    }
-
-    void toggle_filter_favorites() {
-
-    }
-
-    int get_filtering_status() {
-        return m_filtering_status;
-    }
-
-    void set_filtering_status_applied() {
-        if( ( m_filtering_status & DiaryElement.FS_NEW ) != 0 )
-            m_filtering_status -= DiaryElement.FS_NEW;
-    }
-
-    // ENTRIES ================================================================
+    // ENTRIES =====================================================================================
     Entry create_entry( Date dateObj, String content, boolean flag_favorite ) {
         // make it the last entry of its day:
         dateObj.reset_order_1();
@@ -483,6 +466,12 @@ public class Diary/* extends DiaryElement */{
         for( Tag tag : entry.m_tags )
             tag.mEntries.remove( entry );
 
+        // remove from filters:
+        if( m_filter_active.is_entry_filtered( entry ) )
+            m_filter_active.remove_entry( entry );
+        if( m_filter_default.is_entry_filtered( entry ) )
+            m_filter_default.remove_entry( entry );
+
         // erase entry from map:
         m_entries.remove( date );
 
@@ -498,7 +487,7 @@ public class Diary/* extends DiaryElement */{
         return true;
     }
 
-    // TAGS ===================================================================
+    // TAGS ========================================================================================
     java.util.Map< String, Tag > get_tags() {
         return m_tags;
     }
@@ -544,9 +533,11 @@ public class Diary/* extends DiaryElement */{
         if( tag.get_category() != null )
             tag.get_category().remove( tag );
 
-        // clear filter if necessary:
-        if( tag == m_filter_tag )
-            m_filter_tag = null;
+        // clear filters if necessary:
+        if( tag == m_filter_active.get_tag() )
+            m_filter_active.set_tag( null );
+        if( tag == m_filter_default.get_tag() )
+            m_filter_default.set_tag( null );
 
         m_tags.remove( tag.get_name() );
     }
@@ -557,7 +548,7 @@ public class Diary/* extends DiaryElement */{
         return( m_tags.put( new_name, tag ) == null );
     }
 
-    // CHAPTERS ===============================================================
+    // CHAPTERS ====================================================================================
     /*
      * PoolCategoriesChapters get_chapter_ctgs() { return m_chapter_categories; }
      * CategoryChapters get_current_chapter_ctg() { return m_ptr2chapter_ctg_cur; }
@@ -684,13 +675,13 @@ public class Diary/* extends DiaryElement */{
         return( m_passphrase.length() > 0 );
     }
 
-    // CONTENT ================================================================
+    // CONTENT =====================================================================================
     protected String m_path = new String();
     private String m_passphrase = new String();
 
     protected java.util.Map< Integer, Entry > m_entries =
             new TreeMap< Integer, Entry >( DiaryElement.compare_dates );
-    protected Untagged m_untagged;
+    protected Untagged m_untagged = new Untagged();
     protected java.util.Map< String, Tag > m_tags = new TreeMap< String, Tag >();
     protected java.util.Map< String, Tag.Category > m_tag_categories =
             new TreeMap< String, Tag.Category >( DiaryElement.compare_names );
@@ -710,9 +701,9 @@ public class Diary/* extends DiaryElement */{
     protected boolean m_flag_read_only;
     protected String m_language = new String();
     // filtering
-    String m_filter_text;
-    Tag m_filter_tag;
-    int m_filtering_status;
+    protected String m_search_text;
+    protected Filter m_filter_active = new Filter( null, "Active Filter" );
+    protected Filter m_filter_default = new Filter( null, "Default Filter" );
 
     protected int get_db_line_date( String line ) {
         int date = 0;

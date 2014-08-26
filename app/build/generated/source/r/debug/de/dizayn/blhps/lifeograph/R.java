@@ -19,13 +19,14 @@ public final class R {
         public static final int ic_entry=0x7f020002;
         public static final int ic_entry_dark=0x7f020003;
         public static final int ic_favorite=0x7f020004;
-        public static final int ic_gear=0x7f020005;
-        public static final int ic_launcher=0x7f020006;
-        public static final int ic_tag=0x7f020007;
-        public static final int ic_tag_dark=0x7f020008;
-        public static final int ic_topic=0x7f020009;
-        public static final int icon_entry=0x7f02000a;
-        public static final int icon_tag=0x7f02000b;
+        public static final int ic_filter=0x7f020005;
+        public static final int ic_gear=0x7f020006;
+        public static final int ic_launcher=0x7f020007;
+        public static final int ic_tag=0x7f020008;
+        public static final int ic_tag_dark=0x7f020009;
+        public static final int ic_topic=0x7f02000a;
+        public static final int icon_entry=0x7f02000b;
+        public static final int icon_tag=0x7f02000c;
     }
     public static final class id {
         public static final int buttonAboutClose=0x7f070009;

@@ -27,7 +27,7 @@ public class Chapter extends DiaryElement {
     public static class Category extends DiaryElement {
 
         public Category( Diary diary, String name ) {
-            super( diary, name );
+            super( diary, ES_VOID, name );
             mMap = new java.util.TreeMap< Integer, Chapter >( DiaryElement.compare_dates );
         }
 
@@ -125,12 +125,12 @@ public class Chapter extends DiaryElement {
     }
 
     public Chapter( Diary diary, String name ) {
-        super( diary, name );
+        super( diary, ES_NOT_TODO, name );
         m_date_begin = new Date();
     }
 
     public Chapter( Diary diary, String name, int date ) {
-        super( diary, name );
+        super( diary, ES_NOT_TODO, name );
         m_date_begin = new Date( date );
     }
 
@@ -167,11 +167,11 @@ public class Chapter extends DiaryElement {
     }
 
     public boolean get_expanded() {
-        return m_flag_expanded;
+        return( ( m_status & ES_EXPANDED ) != 0 );
     }
 
     public void set_expanded( boolean expanded ) {
-        m_flag_expanded = expanded;
+        set_status_flag( ES_EXPANDED, expanded );
     }
 
     public void set_date( int date ) {
@@ -207,5 +207,4 @@ public class Chapter extends DiaryElement {
     protected Date m_date_begin;
     int m_time_span = 0;
     protected int m_size = 0;
-    protected boolean m_flag_expanded = true;
 }
