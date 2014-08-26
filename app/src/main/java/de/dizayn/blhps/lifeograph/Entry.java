@@ -24,31 +24,30 @@ package de.dizayn.blhps.lifeograph;
 import java.util.ArrayList;
 
 public class Entry extends DiaryElement {
-    public Entry( Diary diary, Long date, String text, boolean flag_favored ) {
+    public Entry( Diary diary, int date, String text, boolean flag_favored ) {
         super( diary, "" );
         m_date = new Date( date );
 
         // java.util.Date jd = new java.util.Date();
         // m_date_created = jd.getTime() / 1000;
-        m_date_created = ( System.currentTimeMillis() / 1000L );
+        m_date_created = ( int ) ( System.currentTimeMillis() / 1000L );
         m_date_changed = m_date_created;
 
-        m_option_favored = flag_favored;
         m_text = new String( text );
-        m_ptr2theme = null;
+        m_ptr2theme_tag = null;
         calculate_title( text );
     }
 
-    public Entry( Diary diary, Long date, boolean flag_favored ) {
+    public Entry( Diary diary, int date, boolean flag_favored ) {
         super( diary, Lifeobase.getStr( R.string.empty_entry ) );
         m_date = new Date( date );
 
         java.util.Date jd = new java.util.Date();
-        m_date_created = jd.getTime() / 1000;
+        m_date_created = ( int ) ( jd.getTime() / 1000L );
         m_date_changed = m_date_created;
 
         m_option_favored = flag_favored;
-        m_ptr2theme = null;
+        m_ptr2theme_tag = null;
     }
 
     @Override
@@ -105,13 +104,34 @@ public class Entry extends DiaryElement {
         m_flag_filtered_out = filteredout;
     }
 
+    // FAVORITE ENTRY
+    public boolean is_favored()
+    { return( ( m_status & ES_FAVORED ) != 0 ); }
+
+    public void set_favored( boolean favored )
+    {
+        if( favored )
+        {
+            m_status |= ES_FAVORED;
+            m_status &= ( ~ES_NOT_FAVORED );
+        }
+        else
+        {
+            m_status |= ES_NOT_FAVORED;
+            m_status &= ( ~ES_FAVORED );
+        }
+    }
+
+    public void toggle_favored()
+    { m_status ^= ES_FILTER_FAVORED; }
+
     // LANGUAGE
     public String get_lang() {
         return m_option_lang;
     }
 
     public String get_lang_final() {
-        return m_option_lang.compareTo( Lifeobase.LANG_INHERIT_DIARY ) == 0 ? m_diary.get_lang()
+        return m_option_lang.compareTo( Lifeobase.LANG_INHERIT_DIARY ) == 0 ? mDiary.get_lang()
                                                                            : m_option_lang;
     }
 
@@ -160,24 +180,68 @@ public class Entry extends DiaryElement {
         }
     }
 
-    public Theme get_theme() {
-        return m_ptr2theme;
+    // THEME
+    public Theme get_theme()
+    {
+        return( m_ptr2theme_tag != null ?
+                m_ptr2theme_tag.get_theme() : mDiary.get_untagged().get_theme() );
+    }
+
+    public Tag get_theme_tag()
+    {
+        return m_ptr2theme_tag;
+    }
+
+    public void set_theme_tag( Tag tag )
+    {
+        // theme tag must be in the tag set
+        if( m_tags.contains( tag ) )
+            m_ptr2theme_tag = tag;
     }
 
     public boolean get_theme_is_set() {
-        return( m_ptr2theme != null );
+        return( m_ptr2theme_tag != null );
     }
 
-    public void set_theme( Theme theme ) {
-        m_ptr2theme = theme;
+    public void update_theme() // called when a tag gained or lost custom theme
+    {
+        if( m_ptr2theme_tag != null ) // if there already was a theme tag set
+        {
+            if( m_ptr2theme_tag.get_has_own_theme() == false ) // if it is no longer a theme tag
+                m_ptr2theme_tag = null;
+        }
+
+        if( m_ptr2theme_tag == null )
+        {
+            // check if another tag has its own theme and set it
+            for( Tag tag : m_tags )
+            {
+                if( tag.get_has_own_theme() )
+                {
+                    m_ptr2theme_tag = tag;
+                    break;
+                }
+            }
+        }
+    }
+
+    public int get_todo_status()
+    {
+        return( m_status & ES_FILTER_TODO );
+    }
+
+    public void set_todo_status( int s )
+    {
+        m_status -= ( m_status & ES_FILTER_TODO );
+        m_status |= s;
     }
 
     public Date m_date;
-    public long m_date_created;
-    public long m_date_changed;
+    public int m_date_created;
+    public int m_date_changed;
     public String m_text = new String();
     protected java.util.List< Tag > m_tags = new ArrayList< Tag >();
-    protected Theme m_ptr2theme;
+    protected Tag m_ptr2theme_tag;
 
     protected boolean m_option_favored = false;
     protected String m_option_lang = Lifeobase.LANG_INHERIT_DIARY; // empty means off

@@ -28,7 +28,7 @@ public class Chapter extends DiaryElement {
 
         public Category( Diary diary, String name ) {
             super( diary, name );
-            mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
+            mMap = new java.util.TreeMap< Integer, Chapter >( DiaryElement.compare_dates );
         }
 
         @Override
@@ -51,14 +51,14 @@ public class Chapter extends DiaryElement {
             return R.drawable.ic_diary;
         }
 
-        public Chapter create_chapter( String name, long date ) {
-            Chapter chapter = new Chapter( m_diary, name, date );
+        public Chapter create_chapter( String name, int date ) {
+            Chapter chapter = new Chapter( mDiary, name, date );
             mMap.put( date, chapter );
             return chapter;
         }
 
         public Chapter add_chapter( String name ) {
-            Chapter chapter = new Chapter( m_diary, name, get_free_order_ordinal().m_date );
+            Chapter chapter = new Chapter( mDiary, name, get_free_order_ordinal().m_date );
             chapter.set_expanded( true );
             mMap.put( chapter.m_date_begin.m_date, chapter );
             return chapter;
@@ -67,7 +67,7 @@ public class Chapter extends DiaryElement {
         public void dismiss_chapter( Chapter chapter ) {
             boolean found = false;
 
-            for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
+            for( Map.Entry< Integer, Chapter > e : mMap.entrySet() ) {
                 if( e.getKey() == chapter.m_date_begin.m_date ) {
                     found = true;
                 }
@@ -85,7 +85,7 @@ public class Chapter extends DiaryElement {
 
         Date get_free_order_ordinal() {
             if( mMap.size() > 0 ) {
-                Date d = new Date( ( Long ) mMap.keySet().toArray()[ 0 ] );
+                Date d = new Date( ( Integer ) mMap.keySet().toArray()[ 0 ] );
                 if( d.is_ordinal() ) {
                     d.forward_ordinal_order();
                     return d;
@@ -97,7 +97,7 @@ public class Chapter extends DiaryElement {
 
         public Chapter getChapterEarlier( Chapter chapter ) {
             boolean found = false;
-            for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
+            for( Map.Entry< Integer, Chapter > e : mMap.entrySet() ) {
                 if( e.getKey() == chapter.m_date_begin.m_date ) {
                     found = true;
                 }
@@ -110,7 +110,7 @@ public class Chapter extends DiaryElement {
 
         public Chapter getChapterLater( Chapter chapter ) {
             Chapter chapter_later = null;
-            for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
+            for( Map.Entry< Integer, Chapter > e : mMap.entrySet() ) {
                 if( e.getKey() == chapter.m_date_begin.m_date )
                     return chapter_later;
                 else if( e.getKey() < chapter.m_date_begin.m_date )
@@ -121,7 +121,7 @@ public class Chapter extends DiaryElement {
             return null;
         }
 
-        protected java.util.Map< Long, Chapter > mMap;
+        protected java.util.Map< Integer, Chapter > mMap;
     }
 
     public Chapter( Diary diary, String name ) {
@@ -129,7 +129,7 @@ public class Chapter extends DiaryElement {
         m_date_begin = new Date();
     }
 
-    public Chapter( Diary diary, String name, long date ) {
+    public Chapter( Diary diary, String name, int date ) {
         super( diary, name );
         m_date_begin = new Date( date );
     }
@@ -174,7 +174,7 @@ public class Chapter extends DiaryElement {
         m_flag_expanded = expanded;
     }
 
-    public void set_date( long date ) {
+    public void set_date( int date ) {
         m_date_begin.m_date = date;
     }
 
@@ -187,10 +187,21 @@ public class Chapter extends DiaryElement {
             m_time_span = m_date_begin.calculate_days_between( next.m_date_begin );
     }
 
-    Date get_free_order() {
+    public Date get_free_order() {
         Date date = new Date( m_date_begin.m_date );
         Diary.diary.make_free_entry_order( date );
         return date;
+    }
+
+    public int get_todo_status()
+    {
+        return( m_status & ES_FILTER_TODO );
+    }
+
+    public void set_todo_status( long s )
+    {
+        m_status -= ( m_status & ES_FILTER_TODO );
+        m_status |= s;
     }
 
     protected Date m_date_begin;

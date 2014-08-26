@@ -21,13 +21,15 @@
 
 package de.dizayn.blhps.lifeograph;
 
-public class Theme extends DiaryElement {
+public class Theme {
 
     public static class System extends Theme {
-        public System() {
-            super( null, NAME ); // null prevents taking an ID
+        public System()
+        {
+            // TODO
         }
 
+        @Override
         public boolean is_system() {
             return true;
         }
@@ -39,12 +41,10 @@ public class Theme extends DiaryElement {
             return system;
         }
 
-        public static System system = null;
-        public static final String NAME = new String( "[ - 0 - ]" );
+        protected static System system = null;
     }
 
-    public Theme( Diary diary, String name ) {
-        super( diary, name );
+    public Theme() {
         font = new String();
         // color_base = new Color();
         // color_text = new Color();
@@ -53,28 +53,14 @@ public class Theme extends DiaryElement {
         // color_highlight = new Color();
     }
 
-    @Override
-    public String getSubStr() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public int get_icon() {
-        // TODO Auto-generated method stub
-        return 0;
-    }
-
-    @Override
-    public Type get_type() {
-        // TODO Auto-generated method stub
-        return null;
-    }
-
-    @Override
-    public int get_size() {
-        // TODO Auto-generated method stub
-        return 0;
+    public Theme( Theme theme )
+    {
+        font = theme.font;
+        color_base = theme.color_base;
+        color_text = theme.color_text;
+        color_heading = theme.color_heading;
+        color_subheading = theme.color_subheading;
+        color_highlight = theme.color_highlight;
     }
 
     public boolean is_system() {

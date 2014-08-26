@@ -118,7 +118,7 @@ public class ActivityEntry extends Activity {
     protected enum ParSel {
         NULL, TR_HEAD, TR_SUBH, TR_BOLD, TR_ITLC, TR_STRK, TR_HILT, TR_CMNT, TR_LINK, TR_LNAT,
         TR_LNKD, TR_LIST, TR_IGNR, AP_HEND, AP_SUBH, AP_BOLD, AP_ITLC, AP_HILT, AP_STRK, AP_CMNT,
-        AP_LINK, JK_IGNR, JK_DDYM, JK_DDMD, JK_LNKD;
+        AP_LINK, JK_IGNR, JK_DDYM, JK_DDMD, JK_LNKD
     }
 
     protected enum LinkStatus {
@@ -296,7 +296,7 @@ public class ActivityEntry extends Activity {
 
     public void sync() {
         if( m_flag_entry_changed ) {
-            m_ptr2entry.m_date_changed = ( System.currentTimeMillis() / 1000L );
+            m_ptr2entry.m_date_changed = ( int ) ( System.currentTimeMillis() / 1000L );
             m_ptr2entry.m_text = mEditText.getText().toString();
             m_flag_entry_changed = false;
         }

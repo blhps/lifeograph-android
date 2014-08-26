@@ -29,11 +29,11 @@ import android.util.Log;
 public class Date {
     public static final int YEAR_MAX = 2199;
     public static final int YEAR_MIN = 1900;
-    public static final long ORDINAL_FLAG = 0x80000000;
-    public static final long NOTSET = 0xFFFFFFFF;
-    public static final long DATE_MAX = 0xFFFFFFFF;
-    public static final long ORDINAL_STEP = 0x400;
-    public static final long YEARMONTH_FILTER = 0x7FFF8000;
+    public static final int ORDINAL_FLAG = 0x80000000;
+    public static final int NOTSET = 0xFFFFFFFF;
+    public static final int DATE_MAX = 0xFFFFFFFF;
+    public static final int ORDINAL_STEP = 0x400;
+    public static final int YEARMONTH_FILTER = 0x7FFF8000;
 
     // private DateFormatSymbols symbols = new DateFormatSymbols();
     public static final String[] WEEKDAYS = ( new DateFormatSymbols() ).getWeekdays();
@@ -46,10 +46,10 @@ public class Date {
 
     protected static final int[] tm = { 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5 };
 
-    // long that holds the real value
-    public long m_date;
+    // int that holds the real value
+    public int m_date;
 
-    public Date( long d ) {
+    public Date( int d ) {
         m_date = d;
     }
 
@@ -66,7 +66,7 @@ public class Date {
         m_date = ( ORDINAL_FLAG | ( o1 << 10 ) | o2 );
     }
 
-    static long get_today( int order ) {
+    static int get_today( int order ) {
         Calendar cal = Calendar.getInstance();
 
         return make_date( cal.get( Calendar.YEAR ), cal.get( Calendar.MONTH ) + 1,
@@ -91,7 +91,7 @@ public class Date {
         }
     }
 
-    public static String format_string_do( long d ) {
+    public static String format_string_do( int d ) {
         java.util.Date date = new java.util.Date( d * 1000L );
         Calendar cal = Calendar.getInstance();
         cal.setTime( date );
@@ -100,31 +100,31 @@ public class Date {
     }
 
     public int get_day() {
-        return ( int ) ( ( m_date & 0x7C00 ) >> 10 );
+        return( ( m_date & 0x7C00 ) >> 10 );
     }
 
     public int get_month() {
-        return ( int ) ( ( m_date & 0x78000 ) >> 15 );
+        return( ( m_date & 0x78000 ) >> 15 );
     }
 
     public int get_year() {
-        return ( int ) ( ( m_date & 0x7FF80000 ) >> 19 );
+        return( ( m_date & 0x7FF80000 ) >> 19 );
     }
 
-    public long get_yearmonth() {
+    public int get_yearmonth() {
         return( m_date & YEARMONTH_FILTER );
     }
 
-    public long get_pure() {
+    public int get_pure() {
         return( m_date & 0xFFFFFC00 );
     }
 
     public int get_order() {
-        return ( int ) ( m_date & 0x3FF );
+        return( m_date & 0x3FF );
     }
 
     public int get_ordinal_order() {
-        return ( int ) ( ( m_date & 0x7FFFFC00 ) >> 10 );
+        return( ( m_date & 0x7FFFFC00 ) >> 10 );
     }
 
     public boolean is_ordinal() {
@@ -159,23 +159,23 @@ public class Date {
         m_date &= 0xFFFFFC01;
     }
 
-    public static long reset_order_1( long d ) {
+    public static int reset_order_1( int d ) {
         return( ( d | 0x1 ) & 0xFFFFFC01 );
     }
 
-    public static long make_year( int y ) {
+    public static int make_year( int y ) {
         return( y << 19 );
     }
 
-    public static long make_month( int m ) {
+    public static int make_month( int m ) {
         return( m << 15 );
     }
 
-    public static long make_day( int d ) {
+    public static int make_day( int d ) {
         return( d << 10 );
     }
 
-    public static long make_date( int y, int m, int d, int o ) {
+    public static int make_date( int y, int m, int d, int o ) {
         return( ( y << 19 ) | ( m << 15 ) | ( d << 10 ) | o );
     }
 

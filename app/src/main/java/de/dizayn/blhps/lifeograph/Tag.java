@@ -119,7 +119,59 @@ public class Tag extends DiaryElement {
         mEntries.remove( entry );
     }
 
+    // THEMES
+    public Theme get_theme()
+    {
+        return( m_theme != null ? m_theme : Theme.System.get() );
+    }
+
+    public boolean get_has_own_theme()
+    {
+        return( m_theme != null );
+    }
+
+    public Theme get_own_theme()
+    {
+        if( m_theme == null )
+        {
+            m_theme = new Theme( Theme.System.get() );
+
+            for( Entry entry : mEntries )
+            {
+                entry.update_theme();
+            }
+        }
+
+        return m_theme;
+    }
+
+    Theme create_own_theme_duplicating( Theme theme )
+    {
+        m_theme = new Theme( theme );
+
+        for( Entry entry : mEntries )
+        {
+            entry.update_theme();
+        }
+
+        return m_theme;
+    }
+
+    public void reset_theme()
+    {
+        if( m_theme != null )
+        {
+            m_theme = null;
+
+            for( Entry entry : mEntries )
+            {
+                entry.update_theme();
+            }
+        }
+    }
+
     // MEMBER VARIABLES
     protected Category m_ptr2category;
     protected java.util.List< Entry > mEntries = new ArrayList< Entry >();
+    protected Theme m_theme = null;
 }
