@@ -27,30 +27,30 @@ import java.util.Calendar;
 import android.util.Log;
 
 public class Date {
-    public static final int     NOTSET           = 0xFFFFFFFF;
-    public static final int     DATE_MAX         = 0xFFFFFFFF;
-    public static final int     YEAR_MAX         = 2199;
-    public static final int     YEAR_MIN         = 1900;
+    public static final long    NOTSET           = 0xFFFFFFFF;
+    public static final long    DATE_MAX         = 0xFFFFFFFF;
+    public static final long    YEAR_MAX         = 2199;
+    public static final long    YEAR_MIN         = 1900;
 
-    public static final int     ORDER_FILTER     =      0x3FF;
-    public static final int     DAY_FILTER       =     0x7C00;
-    public static final int     MONTH_FILTER     =    0x78000;
-    public static final int     YEAR_FILTER      = 0x7FF80000;
-    public static final int     ORDER_FILTER_INV = DATE_MAX ^ ORDER_FILTER;
-    public static final int     DAY_FILTER_INV   = DATE_MAX ^ DAY_FILTER;
-    public static final int     MONTH_FILTER_INV = DATE_MAX ^ MONTH_FILTER;
-    public static final int     YEAR_FILTER_INV  = DATE_MAX ^ YEAR_FILTER;
-    public static final int     YEARMONTH_FILTER = YEAR_FILTER|MONTH_FILTER;
-    public static final int     PURE_FILTER      = DATE_MAX ^ ORDER_FILTER;
+    public static final long    ORDER_FILTER     =      0x3FF;
+    public static final long    DAY_FILTER       =     0x7C00;
+    public static final long    MONTH_FILTER     =    0x78000;
+    public static final long    YEAR_FILTER      = 0x7FF80000;
+    public static final long    ORDER_FILTER_INV = DATE_MAX ^ ORDER_FILTER;
+    public static final long    DAY_FILTER_INV   = DATE_MAX ^ DAY_FILTER;
+    public static final long    MONTH_FILTER_INV = DATE_MAX ^ MONTH_FILTER;
+    public static final long    YEAR_FILTER_INV  = DATE_MAX ^ YEAR_FILTER;
+    public static final long    YEARMONTH_FILTER = YEAR_FILTER|MONTH_FILTER;
+    public static final long    PURE_FILTER      = DATE_MAX ^ ORDER_FILTER;
 
     // hidden elements are custom sorted and their sequence numbers are not shown
-    public static final int     VISIBLE_FLAG     = 0x40000000;  // only for ordinal items
+    public static final long    VISIBLE_FLAG     = 0x40000000;  // only for ordinal items
 
-    public static final int     ORDINAL_STEP     = 0x400;
-    public static final int     ORDINAL_FLAG     = 0x80000000;
-    public static final int     ORDINAL_FILTER   = 0x1FFFFC00;
-    public static final int     TOPIC_MAX        = ORDINAL_FILTER;
-    public static final int     TOPIC_NO_FLAGS_FILTER   = ORDINAL_FILTER|ORDER_FILTER;
+    public static final long    ORDINAL_STEP     = 0x400;
+    public static final long    ORDINAL_FLAG     = 0x80000000;
+    public static final long    ORDINAL_FILTER   = 0x1FFFFC00;
+    public static final long    TOPIC_MAX        = ORDINAL_FILTER;
+    public static final long    TOPIC_NO_FLAGS_FILTER   = ORDINAL_FILTER|ORDER_FILTER;
 
     // private DateFormatSymbols symbols = new DateFormatSymbols();
     public static final String[] WEEKDAYS = ( new DateFormatSymbols() ).getWeekdays();
@@ -64,9 +64,9 @@ public class Date {
     protected static final int[] tm = { 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5 };
 
     // int that holds the real value
-    public int m_date;
+    public long m_date;
 
-    public Date( int d ) {
+    public Date( long d ) {
         m_date = d;
     }
 
@@ -108,7 +108,7 @@ public class Date {
         }
     }
 
-    public static String format_string_do( int d ) {
+    public static String format_string_do( long d ) {
         java.util.Date date = new java.util.Date( d * 1000L );
         Calendar cal = Calendar.getInstance();
         cal.setTime( date );
@@ -117,31 +117,31 @@ public class Date {
     }
 
     public int get_day() {
-        return( ( m_date & DAY_FILTER ) >> 10 );
+        return (int) ( ( m_date & DAY_FILTER ) >> 10 );
     }
 
     public int get_month() {
-        return( ( m_date & MONTH_FILTER ) >> 15 );
+        return (int) ( ( m_date & MONTH_FILTER ) >> 15 );
     }
 
     public int get_year() {
-        return( ( m_date & YEAR_FILTER ) >> 19 );
+        return (int) ( ( m_date & YEAR_FILTER ) >> 19 );
     }
 
-    public int get_yearmonth() {
+    public long get_yearmonth() {
         return( m_date & YEARMONTH_FILTER );
     }
 
-    public int get_pure() {
+    public long get_pure() {
         return( m_date & PURE_FILTER );
     }
 
-    public int get_order() {
+    public long get_order() {
         return( m_date & ORDER_FILTER );
     }
 
     public int get_ordinal_order() {
-        return( ( m_date & ORDINAL_FILTER ) >> 10 );
+        return (int) ( ( m_date & ORDINAL_FILTER ) >> 10 );
     }
 
     public boolean is_ordinal() {
@@ -182,7 +182,7 @@ public class Date {
         m_date |= 0x1;
     }
 
-    public static int reset_order_1( int d ) {
+    public static long reset_order_1( long d ) {
         return( ( d | 0x1 ) & ORDER_FILTER_INV );
     }
 

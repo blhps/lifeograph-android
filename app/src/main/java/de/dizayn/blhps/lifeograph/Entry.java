@@ -24,7 +24,7 @@ package de.dizayn.blhps.lifeograph;
 import java.util.ArrayList;
 
 public class Entry extends DiaryElement {
-    public Entry( Diary diary, int date, String text, boolean favored ) {
+    public Entry( Diary diary, long date, String text, boolean favored ) {
         super( diary, favored ? ES_DEFAULT_FAVORED : ES_DEFAULT, "" );
         m_date = new Date( date );
 
@@ -38,7 +38,7 @@ public class Entry extends DiaryElement {
         calculate_title( text );
     }
 
-    public Entry( Diary diary, int date, boolean favored ) {
+    public Entry( Diary diary, long date, boolean favored ) {
         super( diary, favored ? ES_DEFAULT_FAVORED : ES_DEFAULT,
                 Lifeobase.getStr( R.string.empty_entry ) );
         m_date = new Date( date );
@@ -315,8 +315,8 @@ public class Entry extends DiaryElement {
     }
 
     public Date m_date;
-    public int m_date_created;
-    public int m_date_changed;
+    public long m_date_created;
+    public long m_date_changed;
     public String m_text = new String();
     protected java.util.List< Tag > m_tags = new ArrayList< Tag >();
     protected Tag m_ptr2theme_tag;

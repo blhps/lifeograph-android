@@ -28,7 +28,7 @@ public class Chapter extends DiaryElement {
 
         public Category( Diary diary, String name ) {
             super( diary, ES_VOID, name );
-            mMap = new java.util.TreeMap< Integer, Chapter >( DiaryElement.compare_dates );
+            mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
         }
 
         @Override
@@ -51,7 +51,7 @@ public class Chapter extends DiaryElement {
             return R.drawable.ic_diary;
         }
 
-        public Chapter create_chapter( String name, int date ) {
+        public Chapter create_chapter( String name, long date ) {
             Chapter chapter = new Chapter( mDiary, name, date );
             mMap.put( date, chapter );
             return chapter;
@@ -67,7 +67,7 @@ public class Chapter extends DiaryElement {
         public void dismiss_chapter( Chapter chapter ) {
             boolean found = false;
 
-            for( Map.Entry< Integer, Chapter > e : mMap.entrySet() ) {
+            for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
                 if( e.getKey() == chapter.m_date_begin.m_date ) {
                     found = true;
                 }
@@ -97,7 +97,7 @@ public class Chapter extends DiaryElement {
 
         public Chapter getChapterEarlier( Chapter chapter ) {
             boolean found = false;
-            for( Map.Entry< Integer, Chapter > e : mMap.entrySet() ) {
+            for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
                 if( e.getKey() == chapter.m_date_begin.m_date ) {
                     found = true;
                 }
@@ -110,7 +110,7 @@ public class Chapter extends DiaryElement {
 
         public Chapter getChapterLater( Chapter chapter ) {
             Chapter chapter_later = null;
-            for( Map.Entry< Integer, Chapter > e : mMap.entrySet() ) {
+            for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
                 if( e.getKey() == chapter.m_date_begin.m_date )
                     return chapter_later;
                 else if( e.getKey() < chapter.m_date_begin.m_date )
@@ -121,7 +121,7 @@ public class Chapter extends DiaryElement {
             return null;
         }
 
-        protected java.util.Map< Integer, Chapter > mMap;
+        protected java.util.Map< Long, Chapter > mMap;
     }
 
     public Chapter( Diary diary, String name ) {
@@ -129,7 +129,7 @@ public class Chapter extends DiaryElement {
         m_date_begin = new Date();
     }
 
-    public Chapter( Diary diary, String name, int date ) {
+    public Chapter( Diary diary, String name, long date ) {
         super( diary, ES_NOT_TODO, name );
         m_date_begin = new Date( date );
     }
@@ -174,7 +174,7 @@ public class Chapter extends DiaryElement {
         set_status_flag( ES_EXPANDED, expanded );
     }
 
-    public void set_date( int date ) {
+    public void set_date( long date ) {
         m_date_begin.m_date = date;
     }
 

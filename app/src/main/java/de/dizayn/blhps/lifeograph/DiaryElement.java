@@ -121,11 +121,6 @@ public abstract class DiaryElement {
     public int get_id() {
         return m_id;
     }
-    public long get_id_long() {     // Java only
-        long long_int = 0;
-        long_int |= m_id;
-        return long_int;
-    }
 
     abstract public Type get_type();
 
@@ -155,9 +150,9 @@ public abstract class DiaryElement {
         }
     }
 
-    static class CompareDates implements Comparator< Integer > {
-        public int compare( Integer date_l, Integer date_r ) {
-            return( date_r - date_l );
+    static class CompareDates implements Comparator< Long > {
+        public int compare( Long date_l, Long date_r ) {
+            return (int) ( date_r - date_l );
         }
     }
 

@@ -125,21 +125,21 @@ public class Filter extends DiaryElement
         m_status |= ES_FILTER_OUTSTANDING;
     }
 
-    public int get_date_begin()
+    public long get_date_begin()
     {
         return m_date_begin;
     }
-    public int get_date_end()
+    public long get_date_end()
     {
         return m_date_end;
     }
-    public void set_date_begin( int d )
+    public void set_date_begin( long d )
     {
         m_status |= ES_FILTER_DATE_BEGIN;
         m_status |= ES_FILTER_OUTSTANDING;
         m_date_begin = d;
     }
-    public void set_date_end( int d )
+    public void set_date_end( long d )
     {
         m_status |= ES_FILTER_DATE_END;
         m_status |= ES_FILTER_OUTSTANDING;
@@ -199,7 +199,7 @@ public class Filter extends DiaryElement
     }
 
     protected Tag m_tag;
-    protected int m_date_begin;
-    protected int m_date_end;
+    protected long m_date_begin;
+    protected long m_date_end;
     protected java.util.List< Entry > m_entries = new ArrayList< Entry >();
 }

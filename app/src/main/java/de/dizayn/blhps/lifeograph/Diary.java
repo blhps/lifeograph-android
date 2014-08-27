@@ -367,7 +367,7 @@ public class Diary/* extends DiaryElement */{
         return null;
     }
 
-    public Entry get_entry( int date ) {
+    public Entry get_entry( long date ) {
         Entry entry = m_entries.get( date );
         if( entry != null )
             if( entry.get_filtered_out() == false )
@@ -380,12 +380,12 @@ public class Diary/* extends DiaryElement */{
         return m_entries.get( Date.get_today( 1 ) ); // 1 is the order
     }
 
-    public Entry[] get_entries( int date ) {
+    public Entry[] get_entries( long date ) {
         return null;
     }
 
     boolean get_day_has_multiple_entries( Date date_impure ) {
-        int date = date_impure.get_pure();
+        long date = date_impure.get_pure();
         return( m_entries.get( date + 2 ) != null );
         // TODO:
         // if( iter == null || iter == m_entries.begin() )
@@ -438,7 +438,7 @@ public class Diary/* extends DiaryElement */{
     Entry create_entry( Date dateObj, String content, boolean flag_favorite ) {
         // make it the last entry of its day:
         dateObj.reset_order_1();
-        int date = dateObj.m_date;
+        long date = dateObj.m_date;
         while( m_entries.get( date ) != null )
             ++date;
 
@@ -456,7 +456,7 @@ public class Diary/* extends DiaryElement */{
     }
 
     boolean dismiss_entry( Entry entry ) {
-        int date = entry.m_date.m_date;
+        long date = entry.m_date.m_date;
 
         // fix startup element
         if( m_startup_elem_id == entry.get_id() )
@@ -581,10 +581,10 @@ public class Diary/* extends DiaryElement */{
 
             // CALCULATE HELPER VALUES
             Date d_chapter = chapter.m_date_begin;
-            int d_chapter_next = d_chapter.m_date + Date.ORDINAL_STEP;
+            long d_chapter_next = d_chapter.m_date + Date.ORDINAL_STEP;
             boolean flag_last_chapter = ( m_topics.mMap.get( d_chapter_next ) == null );
 
-            int last_order_of_prev_chapter = 0;
+            long last_order_of_prev_chapter = 0;
             if( flag_last_chapter ) {
                 Chapter chapter_prev = ( m_topics.mMap.get( d_chapter.m_date - Date.ORDINAL_STEP ) );
                 Date d_first_free = chapter_prev.get_free_order();
@@ -599,7 +599,7 @@ public class Diary/* extends DiaryElement */{
             m_topics.mMap.remove( chapter.m_date_begin.m_date );
 
             // SHIFT TOPICS
-            for( int d = d_chapter.m_date + Date.ORDINAL_STEP;; d += Date.ORDINAL_STEP ) {
+            for( long d = d_chapter.m_date + Date.ORDINAL_STEP;; d += Date.ORDINAL_STEP ) {
                 Chapter chpt = m_topics.mMap.get( d );
                 if( chpt == null )
                     break;
@@ -611,7 +611,7 @@ public class Diary/* extends DiaryElement */{
             // SHIFT ENTRIES
             if( m_entries.size() > 0 ) {
                 int date_first = ( Integer ) m_entries.keySet().toArray()[ 0 ];
-                for( int d = d_chapter.m_date + 1; d <= date_first; ) {
+                for( long d = d_chapter.m_date + 1; d <= date_first; ) {
                     Entry entry = m_entries.get( d );
                     if( entry == null ) {
                         d += Date.ORDINAL_STEP;
@@ -624,7 +624,7 @@ public class Diary/* extends DiaryElement */{
 
                     if( order_diff > 0 || ( order_diff == 0 && flag_last_chapter ) ) {
                         m_entries.remove( d );
-                        int d_new = ( d - Date.ORDINAL_STEP );
+                        long d_new = ( d - Date.ORDINAL_STEP );
                         if( order_diff == 1 || ( order_diff == 0 && flag_last_chapter ) )
                             d_new += last_order_of_prev_chapter;
                         entry.m_date.m_date = d_new;
@@ -647,7 +647,7 @@ public class Diary/* extends DiaryElement */{
     // FUNCTIONS TO GET NEAREST CHAPTERS / TOPICS
     public Chapter getPrevChapter( Chapter chapter ) {
         if( chapter.is_ordinal() ) {
-            int d_chapter_prev = chapter.m_date_begin.m_date - Date.ORDINAL_STEP;
+            long d_chapter_prev = chapter.m_date_begin.m_date - Date.ORDINAL_STEP;
             return m_topics.mMap.get( d_chapter_prev );
         }
         else
@@ -656,7 +656,7 @@ public class Diary/* extends DiaryElement */{
 
     public Chapter getNextChapter( Chapter chapter ) {
         if( chapter.is_ordinal() ) {
-            int d_chapter_next = chapter.m_date_begin.m_date + Date.ORDINAL_STEP;
+            long d_chapter_next = chapter.m_date_begin.m_date + Date.ORDINAL_STEP;
             return m_topics.mMap.get( d_chapter_next );
         }
         else
@@ -679,8 +679,8 @@ public class Diary/* extends DiaryElement */{
     protected String m_path = new String();
     private String m_passphrase = new String();
 
-    protected java.util.Map< Integer, Entry > m_entries =
-            new TreeMap< Integer, Entry >( DiaryElement.compare_dates );
+    protected java.util.Map< Long, Entry > m_entries =
+            new TreeMap< Long, Entry >( DiaryElement.compare_dates );
     protected Untagged m_untagged = new Untagged();
     protected java.util.Map< String, Tag > m_tags = new TreeMap< String, Tag >();
     protected java.util.Map< String, Tag.Category > m_tag_categories =
@@ -705,8 +705,8 @@ public class Diary/* extends DiaryElement */{
     protected Filter m_filter_active = new Filter( null, "Active Filter" );
     protected Filter m_filter_default = new Filter( null, "Default Filter" );
 
-    protected int get_db_line_date( String line ) {
-        int date = 0;
+    protected long get_db_line_date( String line ) {
+        long date = 0;
 
         for( int i = 2; i < line.length() && i < 12 && line.charAt( i ) >= '0'
                         && line.charAt( i ) <= '9'; i++ ) {
@@ -733,14 +733,6 @@ public class Diary/* extends DiaryElement */{
             return parse_db_body_text_1010();
         else
             return parse_db_body_text_110();
-    }
-
-    protected int parse_unsigned_int( String s )    // Java only
-    {
-        long long_int = Long.parseLong( s );
-        int integer = 0;
-        integer |= long_int;
-        return integer;
     }
 
     protected Result parse_db_body_text_1020() {
@@ -771,7 +763,7 @@ public class Diary/* extends DiaryElement */{
                     switch( line.charAt( 0 ) )
                     {
                         case 'I':
-                            set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
+                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
                             break;
                         case 'T': // tag category
                             ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
@@ -839,11 +831,11 @@ public class Diary/* extends DiaryElement */{
                                 }
                                 case 'b':   // begin date
                                     m_filter_default.set_date_begin(
-                                            parse_unsigned_int( line.substring( 2 ) ) );
+                                            Long.parseLong( line.substring( 2 ) ) );
                                     break;
                                 case 'e':   // end date
                                     m_filter_default.set_date_end(
-                                            parse_unsigned_int( line.substring( 2 ) ) );
+                                            Long.parseLong( line.substring( 2 ) ) );
                                     break;
                             }
                             break;
@@ -894,10 +886,10 @@ public class Diary/* extends DiaryElement */{
                             m_language = line.substring( 2 );
                             break;
                         case 'S': // startup action
-                            m_startup_elem_id = parse_unsigned_int( line.substring( 2 ) );
+                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         case 'L':
-                            m_last_elem_id = parse_unsigned_int( line.substring( 2 ) );
+                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
                             Log.w( "LFO", "unrecognized line:\n" + line );
@@ -915,14 +907,14 @@ public class Diary/* extends DiaryElement */{
                 switch( line.charAt( 0 ) )
                 {
                     case 'I':
-                        set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
+                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
                         break;
                     case 'E':   // new entry
                     case 'e':   // trashed
                         if( line.length() < 5 )
                             continue;
 
-                        int date = parse_unsigned_int( line.substring( 4 ) );
+                        long date = Long.parseLong( line.substring( 4 ) );
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
 
@@ -946,9 +938,9 @@ public class Diary/* extends DiaryElement */{
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
-                            entry_new.m_date_created = parse_unsigned_int( line.substring( 2 ) );
+                            entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
                         else    // it should be 'h'
-                            entry_new.m_date_changed = parse_unsigned_int( line.substring( 2 ) );
+                            entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
                         break;
                     case 'T':   // tag
                         if( entry_new == null )
@@ -1052,7 +1044,7 @@ public class Diary/* extends DiaryElement */{
                 else {
                     switch( line.charAt( 0 ) ) {
                         case 'I':
-                            set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
+                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
                             break;
                         case 'T': // tag category
                             ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
@@ -1122,10 +1114,10 @@ public class Diary/* extends DiaryElement */{
                             m_language = line.substring( 2 );
                             break;
                         case 'S': // startup action
-                            m_startup_elem_id = parse_unsigned_int( line.substring( 2 ) );
+                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         case 'L':
-                            m_last_elem_id = parse_unsigned_int( line.substring( 2 ) );
+                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
                             Log.w( "LFO", "unrecognized line:\n" + line );
@@ -1141,11 +1133,11 @@ public class Diary/* extends DiaryElement */{
 
                 switch( line.charAt( 0 ) ) {
                     case 'I':
-                        set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
+                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
                         break;
                     case 'E': // new entry
                     case 'e': // trashed
-                        int date = parse_unsigned_int( line.substring( 2 ) );
+                        long date = Long.parseLong( line.substring( 2 ) );
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         if( line.charAt( 0 ) == 'e' ) {
@@ -1161,10 +1153,10 @@ public class Diary/* extends DiaryElement */{
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
-                            entry_new.m_date_created = parse_unsigned_int( line.substring( 2 ) );
+                            entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
                         else
                             // it should be 'h'
-                            entry_new.m_date_changed = parse_unsigned_int( line.substring( 2 ) );
+                            entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
                         break;
                     case 'M': // themes are converted into tags
                     case 'T': // tag
@@ -1242,10 +1234,9 @@ public class Diary/* extends DiaryElement */{
         return true;
     }
 
-    protected void create_db_tag_text( char type, Tag tag )
-    {
+    protected void create_db_tag_text( char type, Tag tag ) {
         if( type == 'm' )
-            mStrIO += ( "ID" + tag.get_id_long() + "\nt " + tag.get_name() + '\n' );
+            mStrIO += ( "ID" + tag.get_id() + "\nt " + tag.get_name() + '\n' );
 
         if( tag.get_has_own_theme() )
         {
@@ -1260,11 +1251,10 @@ public class Diary/* extends DiaryElement */{
         }
     }
 
-    protected void create_db_chapterctg_text( char type, Chapter.Category ctg )
-    {
+    protected void create_db_chapterctg_text( char type, Chapter.Category ctg ) {
         for( Chapter chapter : ctg.mMap.values() )
         {
-            mStrIO += ( "ID" + chapter.get_id_long()
+            mStrIO += ( "ID" + chapter.get_id()
                     + "\nC" + type + chapter.m_date_begin.m_date // type + date
                     + '\t' + chapter.get_name()   // name
                     + "\nCp" + ( chapter.get_expanded() ? 'e' : '-' ) );
@@ -1293,7 +1283,7 @@ public class Diary/* extends DiaryElement */{
 
         // OPTIONS
         // dashed char used to be used for spell-checking before v110
-        mStrIO += ( "O -" + m_option_sorting_criteria + '\n' );
+        mStrIO += ( "O " + m_option_sorting_criteria + '\n' );
         if( m_language.length() > 0 )
             mStrIO += ( "l " + m_language + '\n' );
 
@@ -1311,7 +1301,7 @@ public class Diary/* extends DiaryElement */{
         for( Tag.Category ctg : m_tag_categories.values() ) {
             // tag category:
             mStrIO +=
-                    ( "ID" + ctg.get_id_long() + "\nT" + ( ctg.get_expanded() ? 'e' : ' ' )
+                    ( "ID" + ctg.get_id() + "\nT" + ( ctg.get_expanded() ? 'e' : ' ' )
                       + ctg.get_name() + '\n' );
             // tags in it:
             for( Tag tag : ctg.mTags )
@@ -1333,7 +1323,7 @@ public class Diary/* extends DiaryElement */{
         {
             // chapter category:
             mStrIO +=
-                    ( "ID" + ctg.get_id_long() + ( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC-" )
+                    ( "ID" + ctg.get_id() + ( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC-" )
                       + ctg.get_name() + '\n' );
             // chapters in it:
             create_db_chapterctg_text( 'T', ctg );
@@ -1371,10 +1361,10 @@ public class Diary/* extends DiaryElement */{
             // continue;
 
             // ENTRY DATE
-            mStrIO = ( "ID" + entry.get_id_long() + "\n" );
-            mStrIO += ( entry.is_trashed() ? 'e' : 'E'  +
-                      ( entry.is_favored() ? 'f' : '-' ) +
-                      '-' ); // TODO ( m_filter_default.is_entry_filtered( entry ) ? 'h' : '-' ) );
+            mStrIO += ( "ID" + entry.get_id() + "\n" );
+            mStrIO += ( ( entry.is_trashed() ? "e" : "E" )  +
+                        ( entry.is_favored() ? 'f' : '-' ) +
+                        ( m_filter_default.is_entry_filtered( entry ) ? 'h' : '-' ) );
             switch( entry.get_todo_status() )
             {
                 case DiaryElement.ES_NOT_TODO:
@@ -1390,7 +1380,7 @@ public class Diary/* extends DiaryElement */{
                     mStrIO += 'c';
                     break;
             }
-            mStrIO += entry.m_date.m_date + '\n';
+            mStrIO += ( entry.m_date.m_date + "\n" );
             mStrIO += ( "Dr" + entry.m_date_created + '\n' );
             mStrIO += ( "Dh" + entry.m_date_changed + '\n' );
 

@@ -50,7 +50,7 @@ public class DialogCalendar extends Dialog {
     protected DatePicker mDatePicker = null;
     protected Button mButtonCreateEntry = null;
     protected Button mButtonCreateChapter = null;
-    private List< Integer > mListDays;
+    private List< Long > mListDays;
     static public final int REQC_OPEN_ENTRY = 1001;
 
     @Override
@@ -141,7 +141,7 @@ public class DialogCalendar extends Dialog {
         public GridCalAdapter( Context context, Date date ) {
             super();
             this.mContext = context;
-            mListDays = new ArrayList< Integer >();
+            mListDays = new ArrayList< Long >();
 
             showMonth( date );
         }
@@ -171,7 +171,7 @@ public class DialogCalendar extends Dialog {
 
             // HEADER
             for( int i = 0; i < 7; i++ ) {
-                mListDays.add( 0 );
+                mListDays.add( 0L );
             }
 
             daysInMonth = date.get_days_in_month();
