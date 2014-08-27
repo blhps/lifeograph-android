@@ -33,7 +33,7 @@ import android.widget.Toast;
 
 enum Result {
     OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, COULD_NOT_FINISH, WRONG_PASSWORD,
-    APPEARENTLY_ENCRYTED_FILE, APPEARENTLY_PLAIN_FILE, INCOMPATIBLE_FILE, CORRUPT_FILE,
+    APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE, INCOMPATIBLE_FILE, CORRUPT_FILE,
     EMPTY_DATABASE, FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_LOCKED
 }
 
@@ -75,7 +75,7 @@ public class Diary/* extends DiaryElement */{
 
     protected int m_current_id;
     protected int m_force_id;
-    java.util.Map< Object, DiaryElement > m_ids = new TreeMap< Object, DiaryElement >();
+    java.util.Map< Integer, DiaryElement > m_ids = new TreeMap< Integer, DiaryElement >();
 
     public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
     public final static int DB_FILE_VERSION_INT = 1020;
@@ -352,7 +352,7 @@ public class Diary/* extends DiaryElement */{
     }
 
     public DiaryElement get_element( int id ) {
-        return null;
+        return m_ids.get( id );
     }
 
     public DiaryElement get_startup_elem() {
@@ -421,7 +421,7 @@ public class Diary/* extends DiaryElement */{
         m_option_sorting_criteria = sc;
     }
 
-    // FILTERING
+    // FILTERING ===================================================================================
     void set_search_text( String filter ) {
         // TODO stub
     }
@@ -770,7 +770,7 @@ public class Diary/* extends DiaryElement */{
                             ptr2tag_ctg.set_expanded( line.charAt( 1 ) == 'e' );
                             break;
                         case 't': // tag
-                            create_tag( line.substring( 2 ), ptr2tag_ctg );
+                            ptr2tag = create_tag( line.substring( 2 ), ptr2tag_ctg );
                             break;
                         case 'u': // untagged
                             ptr2tag = m_untagged;
@@ -1242,12 +1242,12 @@ public class Diary/* extends DiaryElement */{
         {
             Theme theme = tag.get_theme();
 
-            mStrIO += ( type + 'f' + theme.font + '\n' );
-            mStrIO += ( type + 'b' + theme.color_base + '\n' );
-            mStrIO += ( type + 't' + theme.color_text + '\n' );
-            mStrIO += ( type + 'h' + theme.color_heading + '\n' );
-            mStrIO += ( type + 's' + theme.color_subheading + '\n' );
-            mStrIO += ( type + 'l' + theme.color_highlight + '\n' );
+            mStrIO += ( type + "f" + theme.font + '\n' );
+            mStrIO += ( type + "b" + theme.color_base + '\n' );
+            mStrIO += ( type + "t" + theme.color_text + '\n' );
+            mStrIO += ( type + "h" + theme.color_heading + '\n' );
+            mStrIO += ( type + "s" + theme.color_subheading + '\n' );
+            mStrIO += ( type + "l" + theme.color_highlight + '\n' );
         }
     }
 
