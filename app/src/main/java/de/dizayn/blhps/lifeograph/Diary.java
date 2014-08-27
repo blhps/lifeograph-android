@@ -735,8 +735,15 @@ public class Diary/* extends DiaryElement */{
             return parse_db_body_text_110();
     }
 
-    protected Result parse_db_body_text_1020()
+    protected int parse_unsigned_int( String s )    // Java only
     {
+        long long_int = Long.parseLong( s );
+        int integer = 0;
+        integer |= long_int;
+        return integer;
+    }
+
+    protected Result parse_db_body_text_1020() {
         String line;
         Entry entry_new = null;
         Chapter.Category ptr2chapter_ctg = null;
@@ -764,7 +771,7 @@ public class Diary/* extends DiaryElement */{
                     switch( line.charAt( 0 ) )
                     {
                         case 'I':
-                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
+                            set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
                             break;
                         case 'T': // tag category
                             ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
@@ -804,7 +811,41 @@ public class Diary/* extends DiaryElement */{
                             }
                             break;
                         case 'f':
-                            // TODO
+                            switch( line.charAt( 1 ) )
+                            {
+                                case 's':   // status
+                                    if( line.length() < 9 )
+                                    {
+                                        Log.w( "LFO", "status filter length error" );
+                                        continue;
+                                    }
+                                    m_filter_default.set_trash( line.charAt( 2 ) == 'T',
+                                            line.charAt( 3 ) == 't' );
+                                    m_filter_default.set_favorites( line.charAt( 4 ) == 'F',
+                                            line.charAt( 5 ) == 'f' );
+                                    m_filter_default.set_todo( line.charAt( 6 ) == 'N',
+                                            line.charAt( 7 ) == 'T', line.charAt( 8 ) == 'D',
+                                            line.charAt( 9 ) == 'C' );
+                                    break;
+                                case 't':   // tag
+                                {
+                                    Tag tag = m_tags.get( line.substring( 2 ) );
+                                    if( tag != null )
+                                        m_filter_default.set_tag( tag );
+                                    else
+                                        Log.w( "LFO", "Reference to undefined tag: "
+                                                + line.substring( 2 ) );
+                                    break;
+                                }
+                                case 'b':   // begin date
+                                    m_filter_default.set_date_begin(
+                                            parse_unsigned_int( line.substring( 2 ) ) );
+                                    break;
+                                case 'e':   // end date
+                                    m_filter_default.set_date_end(
+                                            parse_unsigned_int( line.substring( 2 ) ) );
+                                    break;
+                            }
                             break;
                         case 'C': // chapters...
                             switch( line.charAt( 1 ) )
@@ -853,10 +894,10 @@ public class Diary/* extends DiaryElement */{
                             m_language = line.substring( 2 );
                             break;
                         case 'S': // startup action
-                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
+                            m_startup_elem_id = parse_unsigned_int( line.substring( 2 ) );
                             break;
                         case 'L':
-                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
+                            m_last_elem_id = parse_unsigned_int( line.substring( 2 ) );
                             break;
                         default:
                             Log.w( "LFO", "unrecognized line:\n" + line );
@@ -874,21 +915,21 @@ public class Diary/* extends DiaryElement */{
                 switch( line.charAt( 0 ) )
                 {
                     case 'I':
-                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
+                        set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
                         break;
                     case 'E':   // new entry
                     case 'e':   // trashed
                         if( line.length() < 5 )
                             continue;
 
-                        int date = Integer.parseInt( line.substring( 4 ) );
+                        int date = parse_unsigned_int( line.substring( 4 ) );
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
 
                         if( line.charAt( 0 ) == 'e' )
                             entry_new.set_trashed( true );
-                        // TODO if( line.charAt( 2 ) == 'h' )
-                            //m_filter_default.add_entry( entry_new );
+                        if( line.charAt( 2 ) == 'h' )
+                            m_filter_default.add_entry( entry_new );
                         if( line.charAt( 3 ) == 't' )
                             entry_new.set_todo_status( DiaryElement.ES_TODO );
                         else if( line.charAt( 3 ) == 'd' )
@@ -905,9 +946,9 @@ public class Diary/* extends DiaryElement */{
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
-                            entry_new.m_date_created = Integer.parseInt( line.substring( 2 ) );
+                            entry_new.m_date_created = parse_unsigned_int( line.substring( 2 ) );
                         else    // it should be 'h'
-                            entry_new.m_date_changed = Integer.parseInt( line.substring( 2 ) );
+                            entry_new.m_date_changed = parse_unsigned_int( line.substring( 2 ) );
                         break;
                     case 'T':   // tag
                         if( entry_new == null )
@@ -966,7 +1007,7 @@ public class Diary/* extends DiaryElement */{
                 m_startup_elem_id = DiaryElement.DEID_MIN;
             }
 
-        // TODO m_filter_active.set( m_filter_default );
+        m_filter_active.set( m_filter_default );
 
         if( m_entries.size() < 1 )
         {
@@ -982,6 +1023,7 @@ public class Diary/* extends DiaryElement */{
         // TODO
         return Result.ABORTED;
     }
+
     protected Result parse_db_body_text_110() {
         String line = "";
         Entry entry_new = null;
@@ -1010,7 +1052,7 @@ public class Diary/* extends DiaryElement */{
                 else {
                     switch( line.charAt( 0 ) ) {
                         case 'I':
-                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
+                            set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
                             break;
                         case 'T': // tag category
                             ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
@@ -1080,10 +1122,10 @@ public class Diary/* extends DiaryElement */{
                             m_language = line.substring( 2 );
                             break;
                         case 'S': // startup action
-                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
+                            m_startup_elem_id = parse_unsigned_int( line.substring( 2 ) );
                             break;
                         case 'L':
-                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
+                            m_last_elem_id = parse_unsigned_int( line.substring( 2 ) );
                             break;
                         default:
                             Log.w( "LFO", "unrecognized line:\n" + line );
@@ -1099,11 +1141,11 @@ public class Diary/* extends DiaryElement */{
 
                 switch( line.charAt( 0 ) ) {
                     case 'I':
-                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
+                        set_force_id( parse_unsigned_int( line.substring( 2 ) ) );
                         break;
                     case 'E': // new entry
                     case 'e': // trashed
-                        int date = Integer.parseInt( line.substring( 2 ) );
+                        int date = parse_unsigned_int( line.substring( 2 ) );
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         if( line.charAt( 0 ) == 'e' ) {
@@ -1119,10 +1161,10 @@ public class Diary/* extends DiaryElement */{
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
-                            entry_new.m_date_created = Integer.parseInt( line.substring( 2 ) );
+                            entry_new.m_date_created = parse_unsigned_int( line.substring( 2 ) );
                         else
                             // it should be 'h'
-                            entry_new.m_date_changed = Integer.parseInt( line.substring( 2 ) );
+                            entry_new.m_date_changed = parse_unsigned_int( line.substring( 2 ) );
                         break;
                     case 'M': // themes are converted into tags
                     case 'T': // tag
@@ -1203,7 +1245,7 @@ public class Diary/* extends DiaryElement */{
     protected void create_db_tag_text( char type, Tag tag )
     {
         if( type == 'm' )
-            mStrIO += ( "ID" + tag.get_id() + "\nt " + tag.get_name() + '\n' );
+            mStrIO += ( "ID" + tag.get_id_long() + "\nt " + tag.get_name() + '\n' );
 
         if( tag.get_has_own_theme() )
         {
@@ -1222,7 +1264,7 @@ public class Diary/* extends DiaryElement */{
     {
         for( Chapter chapter : ctg.mMap.values() )
         {
-            mStrIO += ( "ID" + chapter.get_id()
+            mStrIO += ( "ID" + chapter.get_id_long()
                     + "\nC" + type + chapter.m_date_begin.m_date // type + date
                     + '\t' + chapter.get_name()   // name
                     + "\nCp" + ( chapter.get_expanded() ? 'e' : '-' ) );
@@ -1269,7 +1311,7 @@ public class Diary/* extends DiaryElement */{
         for( Tag.Category ctg : m_tag_categories.values() ) {
             // tag category:
             mStrIO +=
-                    ( "ID" + ctg.get_id() + "\nT" + ( ctg.get_expanded() ? 'e' : ' ' )
+                    ( "ID" + ctg.get_id_long() + "\nT" + ( ctg.get_expanded() ? 'e' : ' ' )
                       + ctg.get_name() + '\n' );
             // tags in it:
             for( Tag tag : ctg.mTags )
@@ -1291,31 +1333,33 @@ public class Diary/* extends DiaryElement */{
         {
             // chapter category:
             mStrIO +=
-                    ( "ID" + ctg.get_id() + ( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC-" )
+                    ( "ID" + ctg.get_id_long() + ( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC-" )
                       + ctg.get_name() + '\n' );
             // chapters in it:
             create_db_chapterctg_text( 'T', ctg );
         }
 
-        // FILTER -- TODO
-        /*ElemStatus fs( m_filter_default->get_status() );
-        output << "fs" << ( fs & ES::SHOW_TRASHED ? 'T' : '-' )
-                << ( fs & ES::SHOW_NOT_TRASHED ? 't' : '-' )
-                << ( fs & ES::SHOW_FAVORED ? 'F' : '-' )
-                << ( fs & ES::SHOW_NOT_FAVORED ? 'f' : '-' )
-                << ( fs & ES::SHOW_NOT_TODO ? 'N' : '-' )
-                << ( fs & ES::SHOW_TODO ? 'T' : '-' )
-                << ( fs & ES::SHOW_DONE ? 'D' : '-' )
-                << ( fs & ES::SHOW_CANCELED ? 'C' : '-' )
-                << '\n';
-        if( m_filter_default->get_status() & ES::FILTER_TAG )
-            output << "ft" << m_filter_default->get_tag()->get_name_std() << '\n';
-        if( m_filter_default->get_status() & ES::FILTER_DATE_BEGIN )
-            output << "fb" << m_filter_default->get_date_begin() << '\n';
-        if( m_filter_default->get_status() & ES::FILTER_DATE_END )
-            output << "fe" << m_filter_default->get_date_end() << '\n';*/
+        // FILTER
+        final int fs = m_filter_default.get_status();
+        mStrIO += ( "fs"
+                + ( ( fs & DiaryElement.ES_SHOW_TRASHED ) != 0 ? 'T' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_NOT_TRASHED ) != 0 ? 't' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_FAVORED ) != 0 ? 'F' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_NOT_FAVORED ) != 0 ? 'f' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 ? 'N' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 ? 'T' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 ? 'D' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 ? 'C' : '-' )
+                + '\n' );
+        if( ( fs & DiaryElement.ES_FILTER_TAG ) != 0 )
+            mStrIO += ( "ft" + m_filter_default.get_tag().get_name() + '\n' );
+        if( ( fs & DiaryElement.ES_FILTER_DATE_BEGIN ) != 0 )
+            mStrIO += ( "fb" + m_filter_default.get_date_begin() + '\n' );
+        if( ( fs & DiaryElement.ES_FILTER_DATE_END ) != 0 )
+            mStrIO += ( "fe" + m_filter_default.get_date_end() + '\n' );
 
-        mStrIO += '\n'; // end of section
+        // END OF SECTION
+        mStrIO += '\n';
 
         // ENTRIES
         for( Entry entry : m_entries.values() ) {
@@ -1327,7 +1371,7 @@ public class Diary/* extends DiaryElement */{
             // continue;
 
             // ENTRY DATE
-            mStrIO = ( "ID" + entry.get_id() + "\n" );
+            mStrIO = ( "ID" + entry.get_id_long() + "\n" );
             mStrIO += ( entry.is_trashed() ? 'e' : 'E'  +
                       ( entry.is_favored() ? 'f' : '-' ) +
                       '-' ); // TODO ( m_filter_default.is_entry_filtered( entry ) ? 'h' : '-' ) );

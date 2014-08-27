@@ -27,13 +27,30 @@ import java.util.Calendar;
 import android.util.Log;
 
 public class Date {
-    public static final int YEAR_MAX = 2199;
-    public static final int YEAR_MIN = 1900;
-    public static final int ORDINAL_FLAG = 0x80000000;
-    public static final int NOTSET = 0xFFFFFFFF;
-    public static final int DATE_MAX = 0xFFFFFFFF;
-    public static final int ORDINAL_STEP = 0x400;
-    public static final int YEARMONTH_FILTER = 0x7FFF8000;
+    public static final int     NOTSET           = 0xFFFFFFFF;
+    public static final int     DATE_MAX         = 0xFFFFFFFF;
+    public static final int     YEAR_MAX         = 2199;
+    public static final int     YEAR_MIN         = 1900;
+
+    public static final int     ORDER_FILTER     =      0x3FF;
+    public static final int     DAY_FILTER       =     0x7C00;
+    public static final int     MONTH_FILTER     =    0x78000;
+    public static final int     YEAR_FILTER      = 0x7FF80000;
+    public static final int     ORDER_FILTER_INV = DATE_MAX ^ ORDER_FILTER;
+    public static final int     DAY_FILTER_INV   = DATE_MAX ^ DAY_FILTER;
+    public static final int     MONTH_FILTER_INV = DATE_MAX ^ MONTH_FILTER;
+    public static final int     YEAR_FILTER_INV  = DATE_MAX ^ YEAR_FILTER;
+    public static final int     YEARMONTH_FILTER = YEAR_FILTER|MONTH_FILTER;
+    public static final int     PURE_FILTER      = DATE_MAX ^ ORDER_FILTER;
+
+    // hidden elements are custom sorted and their sequence numbers are not shown
+    public static final int     VISIBLE_FLAG     = 0x40000000;  // only for ordinal items
+
+    public static final int     ORDINAL_STEP     = 0x400;
+    public static final int     ORDINAL_FLAG     = 0x80000000;
+    public static final int     ORDINAL_FILTER   = 0x1FFFFC00;
+    public static final int     TOPIC_MAX        = ORDINAL_FILTER;
+    public static final int     TOPIC_NO_FLAGS_FILTER   = ORDINAL_FILTER|ORDER_FILTER;
 
     // private DateFormatSymbols symbols = new DateFormatSymbols();
     public static final String[] WEEKDAYS = ( new DateFormatSymbols() ).getWeekdays();
@@ -100,15 +117,15 @@ public class Date {
     }
 
     public int get_day() {
-        return( ( m_date & 0x7C00 ) >> 10 );
+        return( ( m_date & DAY_FILTER ) >> 10 );
     }
 
     public int get_month() {
-        return( ( m_date & 0x78000 ) >> 15 );
+        return( ( m_date & MONTH_FILTER ) >> 15 );
     }
 
     public int get_year() {
-        return( ( m_date & 0x7FF80000 ) >> 19 );
+        return( ( m_date & YEAR_FILTER ) >> 19 );
     }
 
     public int get_yearmonth() {
@@ -116,15 +133,15 @@ public class Date {
     }
 
     public int get_pure() {
-        return( m_date & 0xFFFFFC00 );
+        return( m_date & PURE_FILTER );
     }
 
     public int get_order() {
-        return( m_date & 0x3FF );
+        return( m_date & ORDER_FILTER );
     }
 
     public int get_ordinal_order() {
-        return( ( m_date & 0x7FFFFC00 ) >> 10 );
+        return( ( m_date & ORDINAL_FILTER ) >> 10 );
     }
 
     public boolean is_ordinal() {
@@ -136,31 +153,37 @@ public class Date {
     }
 
     public void set_year( int y ) {
-        m_date &= 0x8007FFFF;
-        m_date |= ( y << 19 );
+        if( y >= YEAR_MIN && y <= YEAR_MAX ) {
+            m_date &= YEAR_FILTER_INV;
+            m_date |= ( y << 19 );
+        }
     }
 
     public void set_month( int m ) {
-        m_date &= 0xFFF87FFF;
-        m_date |= ( m << 15 );
+        if( m < 13 ) {
+            m_date &= MONTH_FILTER_INV;
+            m_date |= ( m << 15 );
+        }
     }
 
     public void set_day( int d ) {
-        m_date &= 0xFFFF83FF;
-        m_date |= ( d << 10 );
+        if( d < 32 ) {
+            m_date &= DAY_FILTER_INV;
+            m_date |= ( d << 10 );
+        }
     }
 
     public void reset_order_0() {
-        m_date &= 0xFFFFFC00;
+        m_date &= ORDER_FILTER_INV;
     }
 
     public void reset_order_1() {
+        m_date &= ORDER_FILTER_INV;
         m_date |= 0x1;
-        m_date &= 0xFFFFFC01;
     }
 
     public static int reset_order_1( int d ) {
-        return( ( d | 0x1 ) & 0xFFFFFC01 );
+        return( ( d | 0x1 ) & ORDER_FILTER_INV );
     }
 
     public static int make_year( int y ) {

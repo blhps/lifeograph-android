@@ -23,34 +23,11 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="app: de.dizayn.blhps.lifeograph" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="synchronized more parts with the Lifeograph trunk">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/ic_filter-web.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/res/drawable-hdpi/ic_filter.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/res/drawable-mdpi/ic_filter.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/res/drawable-xhdpi/ic_filter.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/res/drawable-xxhdpi/ic_filter.png" />
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Filter.java" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/codeStyleSettings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/compiler.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/encodings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/gradle.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/modules.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/scopes/scope_settings.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/vcs.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/app/build/generated/source/buildConfig/debug/de/dizayn/blhps/lifeograph/BuildConfig.java" afterPath="" />
-      <change type="DELETED" beforePath="$PROJECT_DIR$/app/build/generated/source/r/debug/de/dizayn/blhps/lifeograph/R.java" afterPath="" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.gitignore" afterPath="$PROJECT_DIR$/.gitignore" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" />
+    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="synchronized still more parts with the Lifeograph trunk.">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Tag.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Tag.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Untagged.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Untagged.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="LifeographAndroid.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -72,77 +49,46 @@
     <favorites_list name="LifeographAndroid" />
   </component>
   <component name="FileEditorManager">
-    <splitter split-orientation="horizontal" split-proportion="0.7091025">
+    <splitter split-orientation="horizontal" split-proportion="0.8243157">
       <split-first>
         <leaf>
           <file leaf-file-name="Diary.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="7885" max-vertical-offset="20940">
-                  <caret line="425" column="11" selection-start-line="425" selection-start-column="11" selection-end-line="425" selection-end-column="11" />
+                <state vertical-scroll-proportion="-3.137931" vertical-offset="9978" max-vertical-offset="18440">
+                  <caret line="1027" column="24" selection-start-line="1027" selection-start-column="24" selection-end-line="1027" selection-end-column="24" />
                   <folding>
-                    <element signature="n#!!doc" expanded="true" />
-                    <element signature="imports" expanded="true" />
-                    <element signature="e#2540#2564#0" expanded="true" />
-                    <element signature="e#8869#8870#0" expanded="true" />
-                    <element signature="e#8908#8909#0" expanded="true" />
-                    <element signature="e#9140#9141#0" expanded="true" />
-                    <element signature="e#9186#9187#0" expanded="true" />
-                    <element signature="e#10439#10440#0" expanded="true" />
-                    <element signature="e#10468#10469#0" expanded="true" />
-                    <element signature="e#10504#10505#0" expanded="true" />
-                    <element signature="e#10532#10533#0" expanded="true" />
-                    <element signature="e#10817#10818#0" expanded="true" />
-                    <element signature="e#10844#10845#0" expanded="true" />
-                    <element signature="e#10890#10891#0" expanded="true" />
-                    <element signature="e#10917#10918#0" expanded="true" />
-                    <element signature="e#10968#10969#0" expanded="true" />
-                    <element signature="e#10995#10996#0" expanded="true" />
-                    <element signature="e#11046#11047#0" expanded="true" />
-                    <element signature="e#11073#11074#0" expanded="true" />
-                    <element signature="e#11459#11460#0" expanded="true" />
-                    <element signature="e#11486#11487#0" expanded="true" />
+                    <element signature="method#set_path#0;class#Diary#0" expanded="false" />
+                    <element signature="method#set_passphrase#0;class#Diary#0" expanded="false" />
+                    <element signature="method#get_entry#0;class#Diary#0" expanded="false" />
                     <element signature="method#get_day_has_multiple_entries#0;class#Diary#0" expanded="false" />
-                    <element signature="e#12359#12360#0" expanded="true" />
-                    <element signature="e#12407#12408#0" expanded="true" />
-                    <element signature="e#12451#12452#0" expanded="true" />
-                    <element signature="e#12497#12498#0" expanded="true" />
-                    <element signature="e#12618#12619#0" expanded="true" />
-                    <element signature="e#12654#12655#0" expanded="true" />
-                    <element signature="e#12688#12689#0" expanded="true" />
-                    <element signature="e#12726#12727#0" expanded="true" />
-                    <element signature="e#14567#14568#0" expanded="true" />
-                    <element signature="e#14596#14597#0" expanded="true" />
-                    <element signature="e#14638#14639#0" expanded="true" />
-                    <element signature="e#14671#14672#0" expanded="true" />
+                    <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
+                    <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
                     <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
-                    <element signature="e#20841#20842#0" expanded="true" />
-                    <element signature="e#20874#20875#0" expanded="true" />
-                    <element signature="e#20910#20911#0" expanded="true" />
-                    <element signature="e#20943#20944#0" expanded="true" />
-                    <element signature="e#20973#20974#0" expanded="true" />
-                    <element signature="e#21024#21025#0" expanded="true" />
-                    <element signature="e#21302#21320#0" expanded="true" />
-                    <element signature="e#21467#21482#0" expanded="true" />
-                    <element signature="e#21580#21604#0" expanded="true" />
-                    <element signature="e#21738#21766#0" expanded="true" />
                     <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
                     <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
                     <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
                     <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
-                    <element signature="e#52322#52323#0" expanded="true" />
-                    <element signature="e#52365#52366#0" expanded="true" />
+                    <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
                   </folding>
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="Date.java" pinned="false" current="false" current-in-tab="false">
+          <file leaf-file-name="Date.java" pinned="false" current="true" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="1179" max-vertical-offset="4200">
-                  <caret line="126" column="14" selection-start-line="126" selection-start-column="14" selection-end-line="126" selection-end-column="14" />
-                  <folding />
+                <state vertical-scroll-proportion="0.37086093" vertical-offset="3696" max-vertical-offset="4300">
+                  <caret line="278" column="25" selection-start-line="278" selection-start-column="25" selection-end-line="278" selection-end-column="25" />
+                  <folding>
+                    <element signature="method#set_year#0;class#Date#0" expanded="false" />
+                    <element signature="method#set_month#0;class#Date#0" expanded="false" />
+                    <element signature="method#set_day#0;class#Date#0" expanded="false" />
+                    <element signature="method#reset_order_1#0;class#Date#0" expanded="false" />
+                    <element signature="e#6304#6305#0" expanded="true" />
+                    <element signature="e#6360#6361#0" expanded="true" />
+                    <element signature="method#make_date#0;class#Date#0" expanded="false" />
+                  </folding>
                 </state>
               </provider>
             </entry>
@@ -150,7 +96,7 @@
           <file leaf-file-name="DialogCalendar.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="1854" max-vertical-offset="4120">
+                <state vertical-scroll-proportion="0.0" vertical-offset="3460" max-vertical-offset="5260">
                   <caret line="173" column="31" selection-start-line="173" selection-start-column="31" selection-end-line="173" selection-end-column="31" />
                   <folding />
                 </state>
@@ -160,16 +106,9 @@
           <file leaf-file-name="Chapter.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="-6.8965516" vertical-offset="0" max-vertical-offset="3660">
+                <state vertical-scroll-proportion="0.0" vertical-offset="580" max-vertical-offset="4320">
                   <caret line="29" column="35" selection-start-line="29" selection-start-column="35" selection-end-line="29" selection-end-column="35" />
-                  <folding>
-                    <element signature="e#5294#5295#0" expanded="true" />
-                    <element signature="e#5351#5352#0" expanded="true" />
-                    <element signature="e#5403#5404#0" expanded="true" />
-                    <element signature="e#5459#5460#0" expanded="true" />
-                    <element signature="e#6080#6081#0" expanded="true" />
-                    <element signature="e#6131#6132#0" expanded="true" />
-                  </folding>
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -177,7 +116,7 @@
           <file leaf-file-name="ActivityEntry.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="4940" max-vertical-offset="24240">
+                <state vertical-scroll-proportion="0.0" vertical-offset="6740" max-vertical-offset="26640">
                   <caret line="337" column="27" selection-start-line="337" selection-start-column="27" selection-end-line="337" selection-end-column="27" />
                   <folding />
                 </state>
@@ -187,24 +126,11 @@
           <file leaf-file-name="DiaryElement.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="2406" max-vertical-offset="3480">
-                  <caret line="141" column="28" selection-start-line="141" selection-start-column="28" selection-end-line="141" selection-end-column="28" />
+                <state vertical-scroll-proportion="0.0" vertical-offset="300" max-vertical-offset="2960">
+                  <caret line="126" column="24" selection-start-line="126" selection-start-column="24" selection-end-line="126" selection-end-column="24" />
                   <folding>
-                    <element signature="n#!!doc" expanded="true" />
-                    <element signature="e#4550#4551#0" expanded="true" />
-                    <element signature="e#4579#4580#0" expanded="true" />
-                    <element signature="e#4654#4655#0" expanded="true" />
-                    <element signature="e#4683#4684#0" expanded="true" />
-                    <element signature="e#4726#4727#0" expanded="true" />
-                    <element signature="e#4760#4761#0" expanded="true" />
                     <element signature="e#4824#4825#0" expanded="true" />
                     <element signature="e#4851#4852#0" expanded="true" />
-                    <element signature="e#4957#4958#0" expanded="true" />
-                    <element signature="e#4988#4989#0" expanded="true" />
-                    <element signature="e#5031#5032#0" expanded="true" />
-                    <element signature="e#5064#5065#0" expanded="true" />
-                    <element signature="e#5731#5732#0" expanded="true" />
-                    <element signature="e#5780#5781#0" expanded="true" />
                   </folding>
                 </state>
               </provider>
@@ -213,56 +139,19 @@
           <file leaf-file-name="Tag.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Tag.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="577" max-vertical-offset="2620">
+                <state vertical-scroll-proportion="0.0" vertical-offset="1400" max-vertical-offset="3640">
                   <caret line="70" column="48" selection-start-line="70" selection-start-column="48" selection-end-line="70" selection-end-column="48" />
-                  <folding>
-                    <element signature="e#1661#1662#0" expanded="true" />
-                    <element signature="e#1726#1727#0" expanded="true" />
-                    <element signature="e#1781#1782#0" expanded="true" />
-                    <element signature="e#1845#1846#0" expanded="true" />
-                  </folding>
+                  <folding />
                 </state>
               </provider>
             </entry>
           </file>
-          <file leaf-file-name="Entry.java" pinned="false" current="true" current-in-tab="true">
+          <file leaf-file-name="Entry.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.19624573" vertical-offset="3065" max-vertical-offset="6620">
-                  <caret line="159" column="15" selection-start-line="159" selection-start-column="15" selection-end-line="159" selection-end-column="15" />
-                  <folding>
-                    <element signature="n#!!doc" expanded="true" />
-                    <element signature="e#1693#1713#0" expanded="true" />
-                    <element signature="e#1986#1987#0" expanded="true" />
-                    <element signature="e#2019#2020#0" expanded="true" />
-                    <element signature="e#2062#2063#0" expanded="true" />
-                    <element signature="e#2100#2101#0" expanded="true" />
-                    <element signature="e#2289#2356#0" expanded="true" />
-                    <element signature="e#2473#2474#0" expanded="true" />
-                    <element signature="e#2553#2554#0" expanded="true" />
-                    <element signature="e#2796#2797#0" expanded="true" />
-                    <element signature="e#2881#2882#0" expanded="true" />
-                    <element signature="e#2913#2914#0" expanded="true" />
-                    <element signature="e#2942#2943#0" expanded="true" />
-                    <element signature="e#2985#2986#0" expanded="true" />
-                    <element signature="e#3014#3015#0" expanded="true" />
-                    <element signature="e#6253#6254#0" expanded="true" />
-                    <element signature="e#6289#6290#0" expanded="true" />
-                    <element signature="e#6557#6558#0" expanded="true" />
-                    <element signature="e#6593#6594#0" expanded="true" />
-                    <element signature="e#6648#6649#0" expanded="true" />
-                    <element signature="e#6704#6705#0" expanded="true" />
-                    <element signature="e#6747#6748#0" expanded="true" />
-                    <element signature="e#6801#6802#0" expanded="true" />
-                    <element signature="e#7330#7350#0" expanded="true" />
-                    <element signature="e#7782#7783#0" expanded="true" />
-                    <element signature="e#7820#7821#0" expanded="true" />
-                    <element signature="e#8031#8032#0" expanded="true" />
-                    <element signature="e#8080#8081#0" expanded="true" />
-                    <element signature="e#8788#8789#0" expanded="true" />
-                    <element signature="e#8839#8840#0" expanded="true" />
-                    <element signature="e#9155#9162#0" expanded="true" />
-                  </folding>
+                <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="5680">
+                  <caret line="30" column="52" selection-start-line="30" selection-start-column="52" selection-end-line="30" selection-end-column="52" />
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -270,22 +159,9 @@
           <file leaf-file-name="Filter.java" pinned="false" current="false" current-in-tab="false">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Filter.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3100">
+                <state vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="4220">
                   <caret line="27" column="28" selection-start-line="27" selection-start-column="28" selection-end-line="27" selection-end-column="28" />
-                  <folding>
-                    <element signature="e#1348#1349#0" expanded="true" />
-                    <element signature="e#1379#1380#0" expanded="true" />
-                    <element signature="method#set_favorites#0;class#Filter#0" expanded="false" />
-                    <element signature="method#set_trash#0;class#Filter#0" expanded="false" />
-                    <element signature="method#set_todo#0;class#Filter#0" expanded="false" />
-                    <element signature="e#3585#3586#0" expanded="true" />
-                    <element signature="e#3620#3621#0" expanded="true" />
-                    <element signature="e#3656#3657#0" expanded="true" />
-                    <element signature="e#3689#3690#0" expanded="true" />
-                    <element signature="e#5235#5236#0" expanded="true" />
-                    <element signature="e#5281#5282#0" expanded="true" />
-                    <element signature="e#5434#5443#0" expanded="true" />
-                  </folding>
+                  <folding />
                 </state>
               </provider>
             </entry>
@@ -297,7 +173,7 @@
           <file leaf-file-name="Untagged.java" pinned="false" current="false" current-in-tab="true">
             <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Untagged.java">
               <provider selected="true" editor-type-id="text-editor">
-                <state vertical-scroll-proportion="0.5235602" vertical-offset="0" max-vertical-offset="573">
+                <state vertical-scroll-proportion="0.5076142" vertical-offset="0" max-vertical-offset="591">
                   <caret line="40" column="22" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
                   <folding />
                 </state>
@@ -994,18 +870,18 @@
         <option value="$USER_HOME$/Projects/Software/lifeograph/branches/LifeographAndroid/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java" />
         <option value="$USER_HOME$/Projects/Software/lifeograph/branches/LifeographAndroid/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Filter.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Untagged.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Tag.java" />
         <option value="$USER_HOME$/Projects/Software/lifeograph/branches/LifeographAndroid/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
         <option value="$USER_HOME$/Projects/Software/lifeograph/branches/LifeographAndroid/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" />
       </list>
     </option>
   </component>
@@ -1041,7 +917,8 @@
       <sortByType />
     </navigator>
     <panes>
-      <pane id="PackagesPane" />
+      <pane id="Scope" />
+      <pane id="AndroidView" />
       <pane id="ProjectPane">
         <subPane>
           <PATH>
@@ -1158,8 +1035,7 @@
           </PATH>
         </subPane>
       </pane>
-      <pane id="AndroidView" />
-      <pane id="Scope" />
+      <pane id="PackagesPane" />
     </panes>
   </component>
   <component name="PropertiesComponent">
@@ -1171,8 +1047,8 @@
     <property name="MemberChooser.copyJavadoc" value="false" />
     <property name="recentsLimit" value="5" />
     <property name="FullScreen" value="false" />
-    <property name="ANDROID_EXTENDED_DEVICE_CHOOSER_SERIALS" value="" />
-    <property name="options.lastSelected" value="preferences.sourceCode.Java" />
+    <property name="ANDROID_EXTENDED_DEVICE_CHOOSER_SERIALS" value="emulator-5554" />
+    <property name="options.lastSelected" value="preferences.keymap" />
     <property name="options.splitter.main.proportions" value="0.3" />
     <property name="options.splitter.details.proportions" value="0.39255702" />
     <property name="options.searchVisible" value="true" />
@@ -1195,7 +1071,6 @@
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder2" value="2" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeWidth3" value="730" />
     <property name="FileHistory.git4idea.history.GitHistoryProvider_treeOrder3" value="3" />
-    <property name="ANDROID_EXTENDED_DEVICE_CHOOSER_AVD" value="SmallScreen" />
   </component>
   <component name="RunManager" selected="Android Application.app">
     <configuration default="true" type="AndroidTestRunConfigurationType" factoryName="Android Tests">
@@ -1377,10 +1252,14 @@
       <created>1409061675629</created>
       <updated>1409061675629</updated>
     </task>
-    <option name="localTasksCounter" value="3" />
+    <task id="LOCAL-00003" summary="synchronized more parts with the Lifeograph trunk">
+      <created>1409082670289</created>
+      <updated>1409082670289</updated>
+    </task>
+    <option name="localTasksCounter" value="4" />
     <servers />
   </component>
-  <component name="TodoView" selected-index="4">
+  <component name="TodoView" selected-index="0">
     <todo-panel id="selected-file">
       <are-packages-shown value="false" />
       <are-modules-shown value="false" />
@@ -1415,10 +1294,10 @@
       <window_info id="Version Control" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293348" sideWeight="0.5" order="10" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
-      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30970556" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
+      <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.30970556" sideWeight="0.5" order="12" side_tool="false" content_ui="tabs" />
       <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293348" sideWeight="0.653125" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.3293348" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
+      <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293348" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Commander" active="false" anchor="right" auto_hide="false" internal_type="SLIDING" type="SLIDING" visible="false" weight="0.4" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Maven Projects" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
@@ -1428,8 +1307,8 @@
       <window_info id="Ant Build" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="2" side_tool="false" content_ui="tabs" />
       <window_info id="Hierarchy" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="3" side_tool="false" content_ui="combo" />
       <window_info id="Cvs" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.25" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
-      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Preview" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3296875" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
+      <window_info id="Message" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="0" side_tool="false" content_ui="tabs" />
       <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293348" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Inspection" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.4" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
     </layout>
@@ -1452,7 +1331,8 @@
     <MESSAGE value="updated the icon" />
     <MESSAGE value="mostly synchronized with the Lifeograph trunk" />
     <MESSAGE value="synchronized more parts with the Lifeograph trunk" />
-    <option name="LAST_COMMIT_MESSAGE" value="synchronized more parts with the Lifeograph trunk" />
+    <MESSAGE value="synchronized still more parts with the Lifeograph trunk." />
+    <option name="LAST_COMMIT_MESSAGE" value="synchronized still more parts with the Lifeograph trunk." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1468,11 +1348,122 @@
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Untagged.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="480">
+          <caret line="40" column="22" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="27980">
+          <caret line="425" column="11" selection-start-line="425" selection-start-column="11" selection-end-line="425" selection-end-column="11" />
+          <folding>
+            <element signature="method#set_path#0;class#Diary#0" expanded="false" />
+            <element signature="method#set_passphrase#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_entry#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_day_has_multiple_entries#0;class#Diary#0" expanded="false" />
+            <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
+            <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
+            <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2520" max-vertical-offset="5480">
+          <caret line="126" column="14" selection-start-line="126" selection-start-column="14" selection-end-line="126" selection-end-column="14" />
+          <folding>
+            <element signature="method#set_year#0;class#Date#0" expanded="false" />
+            <element signature="method#set_month#0;class#Date#0" expanded="false" />
+            <element signature="method#set_day#0;class#Date#0" expanded="false" />
+            <element signature="method#reset_order_1#0;class#Date#0" expanded="false" />
+            <element signature="e#6304#6305#0" expanded="true" />
+            <element signature="e#6360#6361#0" expanded="true" />
+            <element signature="method#make_date#0;class#Date#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3460" max-vertical-offset="5260">
+          <caret line="173" column="31" selection-start-line="173" selection-start-column="31" selection-end-line="173" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="580" max-vertical-offset="4320">
+          <caret line="29" column="35" selection-start-line="29" selection-start-column="35" selection-end-line="29" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="6740" max-vertical-offset="26640">
+          <caret line="337" column="27" selection-start-line="337" selection-start-column="27" selection-end-line="337" selection-end-column="27" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2406" max-vertical-offset="3480">
+          <caret line="141" column="28" selection-start-line="141" selection-start-column="28" selection-end-line="141" selection-end-column="28" />
+          <folding>
+            <element signature="e#4824#4825#0" expanded="true" />
+            <element signature="e#4851#4852#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Tag.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1400" max-vertical-offset="3640">
+          <caret line="70" column="48" selection-start-line="70" selection-start-column="48" selection-end-line="70" selection-end-column="48" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="1140" max-vertical-offset="6240">
+          <caret line="30" column="52" selection-start-line="30" selection-start-column="52" selection-end-line="30" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Filter.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="540" max-vertical-offset="4220">
+          <caret line="27" column="28" selection-start-line="27" selection-start-column="28" selection-end-line="27" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Untagged.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="980">
+          <caret line="40" column="22" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/drawable-hdpi/icon_entry.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="40" max-vertical-offset="160">
           <caret line="2" column="43" selection-start-line="2" selection-start-column="43" selection-end-line="2" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1480,7 +1471,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="260">
           <caret line="3" column="35" selection-start-line="3" selection-start-column="35" selection-end-line="3" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1496,14 +1486,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="500" max-vertical-offset="4340">
           <caret line="25" column="13" selection-start-line="25" selection-start-column="13" selection-end-line="25" selection-end-column="13" />
-          <folding>
-            <element signature="e#5294#5295#0" expanded="true" />
-            <element signature="e#5351#5352#0" expanded="true" />
-            <element signature="e#5403#5404#0" expanded="true" />
-            <element signature="e#5459#5460#0" expanded="true" />
-            <element signature="e#6080#6081#0" expanded="true" />
-            <element signature="e#6131#6132#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1512,21 +1495,8 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="1880" max-vertical-offset="3200">
           <caret line="94" column="49" selection-start-line="94" selection-start-column="49" selection-end-line="94" selection-end-column="49" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#4550#4551#0" expanded="true" />
-            <element signature="e#4579#4580#0" expanded="true" />
-            <element signature="e#4654#4655#0" expanded="true" />
-            <element signature="e#4683#4684#0" expanded="true" />
-            <element signature="e#4726#4727#0" expanded="true" />
-            <element signature="e#4760#4761#0" expanded="true" />
             <element signature="e#4824#4825#0" expanded="true" />
             <element signature="e#4851#4852#0" expanded="true" />
-            <element signature="e#4957#4958#0" expanded="true" />
-            <element signature="e#4988#4989#0" expanded="true" />
-            <element signature="e#5031#5032#0" expanded="true" />
-            <element signature="e#5064#5065#0" expanded="true" />
-            <element signature="e#5731#5732#0" expanded="true" />
-            <element signature="e#5780#5781#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1535,12 +1505,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="3120" max-vertical-offset="3680">
           <caret line="156" column="0" selection-start-line="156" selection-start-column="0" selection-end-line="156" selection-end-column="0" />
-          <folding>
-            <element signature="e#1661#1662#0" expanded="true" />
-            <element signature="e#1726#1727#0" expanded="true" />
-            <element signature="e#1781#1782#0" expanded="true" />
-            <element signature="e#1845#1846#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1548,7 +1513,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="316" max-vertical-offset="1160">
           <caret line="56" column="12" selection-start-line="56" selection-start-column="12" selection-end-line="56" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1556,39 +1520,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="4140" max-vertical-offset="4720">
           <caret line="207" column="33" selection-start-line="207" selection-start-column="33" selection-end-line="207" selection-end-column="33" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#1693#1713#0" expanded="true" />
-            <element signature="e#1986#1987#0" expanded="true" />
-            <element signature="e#2019#2020#0" expanded="true" />
-            <element signature="e#2062#2063#0" expanded="true" />
-            <element signature="e#2100#2101#0" expanded="true" />
-            <element signature="e#2289#2356#0" expanded="true" />
-            <element signature="e#2473#2474#0" expanded="true" />
-            <element signature="e#2553#2554#0" expanded="true" />
-            <element signature="e#2796#2797#0" expanded="true" />
-            <element signature="e#2881#2882#0" expanded="true" />
-            <element signature="e#2913#2914#0" expanded="true" />
-            <element signature="e#2942#2943#0" expanded="true" />
-            <element signature="e#2985#2986#0" expanded="true" />
-            <element signature="e#3014#3015#0" expanded="true" />
-            <element signature="e#6253#6254#0" expanded="true" />
-            <element signature="e#6289#6290#0" expanded="true" />
-            <element signature="e#6557#6558#0" expanded="true" />
-            <element signature="e#6593#6594#0" expanded="true" />
-            <element signature="e#6648#6649#0" expanded="true" />
-            <element signature="e#6704#6705#0" expanded="true" />
-            <element signature="e#6747#6748#0" expanded="true" />
-            <element signature="e#6801#6802#0" expanded="true" />
-            <element signature="e#7330#7350#0" expanded="true" />
-            <element signature="e#7782#7783#0" expanded="true" />
-            <element signature="e#7820#7821#0" expanded="true" />
-            <element signature="e#8031#8032#0" expanded="true" />
-            <element signature="e#8080#8081#0" expanded="true" />
-            <element signature="e#8788#8789#0" expanded="true" />
-            <element signature="e#8839#8840#0" expanded="true" />
-            <element signature="e#9155#9162#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1597,57 +1529,18 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="23829" max-vertical-offset="27200">
           <caret line="1213" column="9" selection-start-line="1213" selection-start-column="9" selection-end-line="1213" selection-end-column="9" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="imports" expanded="true" />
-            <element signature="e#2540#2564#0" expanded="true" />
-            <element signature="e#8869#8870#0" expanded="true" />
-            <element signature="e#8908#8909#0" expanded="true" />
-            <element signature="e#9140#9141#0" expanded="true" />
-            <element signature="e#9186#9187#0" expanded="true" />
-            <element signature="e#10439#10440#0" expanded="true" />
-            <element signature="e#10468#10469#0" expanded="true" />
-            <element signature="e#10504#10505#0" expanded="true" />
-            <element signature="e#10532#10533#0" expanded="true" />
-            <element signature="e#10817#10818#0" expanded="true" />
-            <element signature="e#10844#10845#0" expanded="true" />
-            <element signature="e#10890#10891#0" expanded="true" />
-            <element signature="e#10917#10918#0" expanded="true" />
-            <element signature="e#10968#10969#0" expanded="true" />
-            <element signature="e#10995#10996#0" expanded="true" />
-            <element signature="e#11046#11047#0" expanded="true" />
-            <element signature="e#11073#11074#0" expanded="true" />
-            <element signature="e#11459#11460#0" expanded="true" />
-            <element signature="e#11486#11487#0" expanded="true" />
+            <element signature="method#set_path#0;class#Diary#0" expanded="false" />
+            <element signature="method#set_passphrase#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_entry#0;class#Diary#0" expanded="false" />
             <element signature="method#get_day_has_multiple_entries#0;class#Diary#0" expanded="false" />
-            <element signature="e#12359#12360#0" expanded="true" />
-            <element signature="e#12407#12408#0" expanded="true" />
-            <element signature="e#12451#12452#0" expanded="true" />
-            <element signature="e#12497#12498#0" expanded="true" />
-            <element signature="e#12618#12619#0" expanded="true" />
-            <element signature="e#12654#12655#0" expanded="true" />
-            <element signature="e#12688#12689#0" expanded="true" />
-            <element signature="e#12726#12727#0" expanded="true" />
-            <element signature="e#14567#14568#0" expanded="true" />
-            <element signature="e#14596#14597#0" expanded="true" />
-            <element signature="e#14638#14639#0" expanded="true" />
-            <element signature="e#14671#14672#0" expanded="true" />
+            <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
+            <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
-            <element signature="e#20841#20842#0" expanded="true" />
-            <element signature="e#20874#20875#0" expanded="true" />
-            <element signature="e#20910#20911#0" expanded="true" />
-            <element signature="e#20943#20944#0" expanded="true" />
-            <element signature="e#20973#20974#0" expanded="true" />
-            <element signature="e#21024#21025#0" expanded="true" />
-            <element signature="e#21302#21320#0" expanded="true" />
-            <element signature="e#21467#21482#0" expanded="true" />
-            <element signature="e#21580#21604#0" expanded="true" />
-            <element signature="e#21738#21766#0" expanded="true" />
             <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
             <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
-            <element signature="e#52322#52323#0" expanded="true" />
-            <element signature="e#52365#52366#0" expanded="true" />
+            <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
           </folding>
         </state>
       </provider>
@@ -1690,7 +1583,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="120">
           <caret line="2" column="43" selection-start-line="2" selection-start-column="43" selection-end-line="2" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1698,7 +1590,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="195">
           <caret line="3" column="35" selection-start-line="3" selection-start-column="35" selection-end-line="3" selection-end-column="35" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1726,7 +1617,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33333334" vertical-offset="1223" max-vertical-offset="2540">
           <caret line="124" column="49" selection-start-line="124" selection-start-column="49" selection-end-line="124" selection-end-column="49" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1734,7 +1624,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33333334" vertical-offset="463" max-vertical-offset="3540">
           <caret line="60" column="43" selection-start-line="60" selection-start-column="43" selection-end-line="60" selection-end-column="43" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1742,7 +1631,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33278146" vertical-offset="139" max-vertical-offset="2620">
           <caret line="36" column="28" selection-start-line="36" selection-start-column="28" selection-end-line="36" selection-end-column="28" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1750,7 +1638,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33278146" vertical-offset="4199" max-vertical-offset="24280">
           <caret line="298" column="70" selection-start-line="298" selection-start-column="70" selection-end-line="298" selection-end-column="70" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1758,7 +1645,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.53637904" vertical-offset="83" max-vertical-offset="1340">
           <caret line="21" column="30" selection-start-line="21" selection-start-column="30" selection-end-line="21" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1766,7 +1652,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.8625828" vertical-offset="25179" max-vertical-offset="26800">
           <caret line="1351" column="34" selection-start-line="1351" selection-start-column="34" selection-end-line="1351" selection-end-column="34" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1774,7 +1659,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.4321192" vertical-offset="899" max-vertical-offset="4120">
           <caret line="109" column="21" selection-start-line="109" selection-start-column="21" selection-end-line="109" selection-end-column="21" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1782,15 +1666,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.4778157" vertical-offset="0" max-vertical-offset="1180">
           <caret line="35" column="0" selection-start-line="35" selection-start-column="0" selection-end-line="35" selection-end-column="0" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="1179" max-vertical-offset="4200">
-          <caret line="126" column="14" selection-start-line="126" selection-start-column="14" selection-end-line="126" selection-end-column="14" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1804,33 +1679,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Untagged.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.5235602" vertical-offset="0" max-vertical-offset="573">
+        <state vertical-scroll-proportion="0.5076142" vertical-offset="0" max-vertical-offset="591">
           <caret line="40" column="22" selection-start-line="40" selection-start-column="22" selection-end-line="40" selection-end-column="22" />
           <folding />
-        </state>
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2406" max-vertical-offset="3480">
-          <caret line="141" column="28" selection-start-line="141" selection-start-column="28" selection-end-line="141" selection-end-column="28" />
-          <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#4550#4551#0" expanded="true" />
-            <element signature="e#4579#4580#0" expanded="true" />
-            <element signature="e#4654#4655#0" expanded="true" />
-            <element signature="e#4683#4684#0" expanded="true" />
-            <element signature="e#4726#4727#0" expanded="true" />
-            <element signature="e#4760#4761#0" expanded="true" />
-            <element signature="e#4824#4825#0" expanded="true" />
-            <element signature="e#4851#4852#0" expanded="true" />
-            <element signature="e#4957#4958#0" expanded="true" />
-            <element signature="e#4988#4989#0" expanded="true" />
-            <element signature="e#5031#5032#0" expanded="true" />
-            <element signature="e#5064#5065#0" expanded="true" />
-            <element signature="e#5731#5732#0" expanded="true" />
-            <element signature="e#5780#5781#0" expanded="true" />
-          </folding>
         </state>
       </provider>
     </entry>
@@ -1838,12 +1689,7 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="577" max-vertical-offset="2620">
           <caret line="70" column="48" selection-start-line="70" selection-start-column="48" selection-end-line="70" selection-end-column="48" />
-          <folding>
-            <element signature="e#1661#1662#0" expanded="true" />
-            <element signature="e#1726#1727#0" expanded="true" />
-            <element signature="e#1781#1782#0" expanded="true" />
-            <element signature="e#1845#1846#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1851,7 +1697,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.2334437" vertical-offset="2499" max-vertical-offset="5880">
           <caret line="163" column="12" selection-start-line="163" selection-start-column="12" selection-end-line="165" selection-end-column="30" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1867,16 +1712,9 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-6.8965516" vertical-offset="0" max-vertical-offset="3660">
+        <state vertical-scroll-proportion="0.0" vertical-offset="580" max-vertical-offset="4320">
           <caret line="29" column="35" selection-start-line="29" selection-start-column="35" selection-end-line="29" selection-end-column="35" />
-          <folding>
-            <element signature="e#5294#5295#0" expanded="true" />
-            <element signature="e#5351#5352#0" expanded="true" />
-            <element signature="e#5403#5404#0" expanded="true" />
-            <element signature="e#5459#5460#0" expanded="true" />
-            <element signature="e#6080#6081#0" expanded="true" />
-            <element signature="e#6131#6132#0" expanded="true" />
-          </folding>
+          <folding />
         </state>
       </provider>
     </entry>
@@ -1884,7 +1722,6 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.33278146" vertical-offset="8939" max-vertical-offset="11060">
           <caret line="535" column="12" selection-start-line="535" selection-start-column="12" selection-end-line="535" selection-end-column="12" />
-          <folding />
         </state>
       </provider>
     </entry>
@@ -1900,119 +1737,62 @@
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="3100">
           <caret line="27" column="28" selection-start-line="27" selection-start-column="28" selection-end-line="27" selection-end-column="28" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="60" max-vertical-offset="5680">
+          <caret line="30" column="52" selection-start-line="30" selection-start-column="52" selection-end-line="30" selection-end-column="52" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="300" max-vertical-offset="2960">
+          <caret line="126" column="24" selection-start-line="126" selection-start-column="24" selection-end-line="126" selection-end-column="24" />
           <folding>
-            <element signature="e#1348#1349#0" expanded="true" />
-            <element signature="e#1379#1380#0" expanded="true" />
-            <element signature="method#set_favorites#0;class#Filter#0" expanded="false" />
-            <element signature="method#set_trash#0;class#Filter#0" expanded="false" />
-            <element signature="method#set_todo#0;class#Filter#0" expanded="false" />
-            <element signature="e#3585#3586#0" expanded="true" />
-            <element signature="e#3620#3621#0" expanded="true" />
-            <element signature="e#3656#3657#0" expanded="true" />
-            <element signature="e#3689#3690#0" expanded="true" />
-            <element signature="e#5235#5236#0" expanded="true" />
-            <element signature="e#5281#5282#0" expanded="true" />
-            <element signature="e#5434#5443#0" expanded="true" />
+            <element signature="e#4824#4825#0" expanded="true" />
+            <element signature="e#4851#4852#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="7885" max-vertical-offset="20940">
-          <caret line="425" column="11" selection-start-line="425" selection-start-column="11" selection-end-line="425" selection-end-column="11" />
+        <state vertical-scroll-proportion="-3.137931" vertical-offset="9978" max-vertical-offset="18440">
+          <caret line="1027" column="24" selection-start-line="1027" selection-start-column="24" selection-end-line="1027" selection-end-column="24" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="imports" expanded="true" />
-            <element signature="e#2540#2564#0" expanded="true" />
-            <element signature="e#8869#8870#0" expanded="true" />
-            <element signature="e#8908#8909#0" expanded="true" />
-            <element signature="e#9140#9141#0" expanded="true" />
-            <element signature="e#9186#9187#0" expanded="true" />
-            <element signature="e#10439#10440#0" expanded="true" />
-            <element signature="e#10468#10469#0" expanded="true" />
-            <element signature="e#10504#10505#0" expanded="true" />
-            <element signature="e#10532#10533#0" expanded="true" />
-            <element signature="e#10817#10818#0" expanded="true" />
-            <element signature="e#10844#10845#0" expanded="true" />
-            <element signature="e#10890#10891#0" expanded="true" />
-            <element signature="e#10917#10918#0" expanded="true" />
-            <element signature="e#10968#10969#0" expanded="true" />
-            <element signature="e#10995#10996#0" expanded="true" />
-            <element signature="e#11046#11047#0" expanded="true" />
-            <element signature="e#11073#11074#0" expanded="true" />
-            <element signature="e#11459#11460#0" expanded="true" />
-            <element signature="e#11486#11487#0" expanded="true" />
+            <element signature="method#set_path#0;class#Diary#0" expanded="false" />
+            <element signature="method#set_passphrase#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_entry#0;class#Diary#0" expanded="false" />
             <element signature="method#get_day_has_multiple_entries#0;class#Diary#0" expanded="false" />
-            <element signature="e#12359#12360#0" expanded="true" />
-            <element signature="e#12407#12408#0" expanded="true" />
-            <element signature="e#12451#12452#0" expanded="true" />
-            <element signature="e#12497#12498#0" expanded="true" />
-            <element signature="e#12618#12619#0" expanded="true" />
-            <element signature="e#12654#12655#0" expanded="true" />
-            <element signature="e#12688#12689#0" expanded="true" />
-            <element signature="e#12726#12727#0" expanded="true" />
-            <element signature="e#14567#14568#0" expanded="true" />
-            <element signature="e#14596#14597#0" expanded="true" />
-            <element signature="e#14638#14639#0" expanded="true" />
-            <element signature="e#14671#14672#0" expanded="true" />
+            <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
+            <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
-            <element signature="e#20841#20842#0" expanded="true" />
-            <element signature="e#20874#20875#0" expanded="true" />
-            <element signature="e#20910#20911#0" expanded="true" />
-            <element signature="e#20943#20944#0" expanded="true" />
-            <element signature="e#20973#20974#0" expanded="true" />
-            <element signature="e#21024#21025#0" expanded="true" />
-            <element signature="e#21302#21320#0" expanded="true" />
-            <element signature="e#21467#21482#0" expanded="true" />
-            <element signature="e#21580#21604#0" expanded="true" />
-            <element signature="e#21738#21766#0" expanded="true" />
             <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
             <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
-            <element signature="e#52322#52323#0" expanded="true" />
-            <element signature="e#52365#52366#0" expanded="true" />
+            <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.19624573" vertical-offset="3065" max-vertical-offset="6620">
-          <caret line="159" column="15" selection-start-line="159" selection-start-column="15" selection-end-line="159" selection-end-column="15" />
+        <state vertical-scroll-proportion="0.37086093" vertical-offset="3696" max-vertical-offset="4300">
+          <caret line="278" column="25" selection-start-line="278" selection-start-column="25" selection-end-line="278" selection-end-column="25" />
           <folding>
-            <element signature="n#!!doc" expanded="true" />
-            <element signature="e#1693#1713#0" expanded="true" />
-            <element signature="e#1986#1987#0" expanded="true" />
-            <element signature="e#2019#2020#0" expanded="true" />
-            <element signature="e#2062#2063#0" expanded="true" />
-            <element signature="e#2100#2101#0" expanded="true" />
-            <element signature="e#2289#2356#0" expanded="true" />
-            <element signature="e#2473#2474#0" expanded="true" />
-            <element signature="e#2553#2554#0" expanded="true" />
-            <element signature="e#2796#2797#0" expanded="true" />
-            <element signature="e#2881#2882#0" expanded="true" />
-            <element signature="e#2913#2914#0" expanded="true" />
-            <element signature="e#2942#2943#0" expanded="true" />
-            <element signature="e#2985#2986#0" expanded="true" />
-            <element signature="e#3014#3015#0" expanded="true" />
-            <element signature="e#6253#6254#0" expanded="true" />
-            <element signature="e#6289#6290#0" expanded="true" />
-            <element signature="e#6557#6558#0" expanded="true" />
-            <element signature="e#6593#6594#0" expanded="true" />
-            <element signature="e#6648#6649#0" expanded="true" />
-            <element signature="e#6704#6705#0" expanded="true" />
-            <element signature="e#6747#6748#0" expanded="true" />
-            <element signature="e#6801#6802#0" expanded="true" />
-            <element signature="e#7330#7350#0" expanded="true" />
-            <element signature="e#7782#7783#0" expanded="true" />
-            <element signature="e#7820#7821#0" expanded="true" />
-            <element signature="e#8031#8032#0" expanded="true" />
-            <element signature="e#8080#8081#0" expanded="true" />
-            <element signature="e#8788#8789#0" expanded="true" />
-            <element signature="e#8839#8840#0" expanded="true" />
-            <element signature="e#9155#9162#0" expanded="true" />
+            <element signature="method#set_year#0;class#Date#0" expanded="false" />
+            <element signature="method#set_month#0;class#Date#0" expanded="false" />
+            <element signature="method#set_day#0;class#Date#0" expanded="false" />
+            <element signature="method#reset_order_1#0;class#Date#0" expanded="false" />
+            <element signature="e#6304#6305#0" expanded="true" />
+            <element signature="e#6360#6361#0" expanded="true" />
+            <element signature="method#make_date#0;class#Date#0" expanded="false" />
           </folding>
         </state>
       </provider>

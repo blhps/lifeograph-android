@@ -121,6 +121,11 @@ public abstract class DiaryElement {
     public int get_id() {
         return m_id;
     }
+    public long get_id_long() {     // Java only
+        long long_int = 0;
+        long_int |= m_id;
+        return long_int;
+    }
 
     abstract public Type get_type();
 
