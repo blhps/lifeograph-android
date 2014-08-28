@@ -28,7 +28,7 @@ public class Tag extends DiaryElement {
     public static class Category extends DiaryElement
     {
         public Category( Diary diary, String name ) {
-            super( diary, ES_EXPANDED, name );
+            super( diary, name, ES_EXPANDED );
             m_name = name;
         }
 
@@ -76,7 +76,7 @@ public class Tag extends DiaryElement {
 //    }
 
     public Tag( Diary diary, String name, Category ctg ) {
-        super( diary, ES_VOID, name );
+        super( diary, name, ES_VOID );
         m_ptr2category = ctg;
         if( ctg != null )
             ctg.add( this );

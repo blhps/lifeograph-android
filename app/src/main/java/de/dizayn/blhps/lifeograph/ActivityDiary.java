@@ -532,15 +532,14 @@ public class ActivityDiary extends ListActivity {
         int mSize = 0;
 
         public ElemListAllEntries( Diary diary ) {
-            super( diary, ES_VOID, getString( R.string.all_entries ) );
+            super( diary, getString( R.string.all_entries ), ES_VOID );
             mType = Type.ALLBYDATE;
         }
 
         @Override
         public String getSubStr() {
             // TODO Auto-generated method stub
-            return( mType == Type.ALLBYDATE ? getString( R.string.sort_by_date )
-                                           : getString( R.string.sort_by_size ) );
+            return( mType == Type.ALLBYDATE ? getString( R.string.sort_by_date ) : getString( R.string.sort_by_size ) );
         }
 
         @Override

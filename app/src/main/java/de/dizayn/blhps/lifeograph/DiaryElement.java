@@ -96,7 +96,7 @@ public abstract class DiaryElement {
             ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO;
     public final static int ES_FILTER_MAX       = 0xFFFFFFFF;
 
-    public DiaryElement( Diary diary, int status, String name ) {
+    public DiaryElement( Diary diary, String name, int status ) {
         mDiary = diary;
         m_status = status;
         m_name = name;
