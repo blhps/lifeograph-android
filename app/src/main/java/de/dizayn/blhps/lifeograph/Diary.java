@@ -37,11 +37,109 @@ enum Result {
     FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_LOCKED
 }
 
-public class Diary/* extends DiaryElement */{
+public class Diary extends DiaryElement
+{
     public static final char SC_DATE = 'd';
     public static final char SC_SIZE = 's';
 
-    // BASE
+    protected int m_current_id;
+    protected int m_force_id;
+    java.util.Map< Integer, DiaryElement > m_ids = new TreeMap< Integer, DiaryElement >();
+
+    public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
+    public final static int DB_FILE_VERSION_INT = 1020;
+    public final static int DB_FILE_VERSION_INT_MIN = 110;
+    public static final String LOCK_SUFFIX = ".~LOCK~";
+
+    public final static int PASSPHRASE_MIN_SIZE = 4;
+    public static Diary diary = null;
+
+    public Diary() {
+        super( null, DiaryElement.DEID_DIARY, ES_VOID );
+        m_current_id = DiaryElement.DEID_FIRST;
+        m_force_id = DiaryElement.DEID_UNSET;
+    }
+
+    public Result init_new( String path ) {
+        clear();
+        if( set_path( path, true, false ) == Result.SUCCESS ) {
+            add_today();
+            // every diary must at least have one chapter category:
+            m_ptr2chapter_ctg_cur = create_chapter_ctg( "Default" );
+            return Result.SUCCESS;
+        }
+        else
+            return Result.FAILURE;
+    }
+
+    public void clear() {
+        m_path = "";
+        m_read_version = 0;
+
+        m_current_id = DiaryElement.DEID_FIRST;
+        m_force_id = DiaryElement.DEID_UNSET;
+        m_ids.clear();
+        m_ids.put( DiaryElement.DEID_DIARY, this );
+
+        m_entries.clear();
+        m_tags.clear();
+        m_tag_categories.clear();
+        m_untagged.reset();
+
+        m_ptr2chapter_ctg_cur = null;
+        m_chapter_categories.clear();
+        m_topics.mMap.clear();
+        m_custom_sorteds.mMap.clear();
+
+        m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
+        m_last_elem_id = DiaryElement.DEID_DIARY;
+
+        m_passphrase = "";
+
+        m_search_text = "";
+        m_filter_active.reset();
+        m_filter_default.reset();
+
+        // NOTE: only reset body options here:
+        m_language = "";
+        m_option_sorting_criteria = SC_DATE;
+
+        m_flag_changed = false;
+
+        // java specific:
+        mBufferedReader = null;
+    }
+
+    @Override
+    public int get_size() {
+        return m_entries.size();
+    }
+
+    @Override
+    public String get_name() {
+        int i = m_path.lastIndexOf( "/" );
+        if( i == -1 )
+            return m_path;
+        else
+            return m_path.substring( i + 1 );
+    }
+
+    @Override
+    public DiaryElement.Type get_type() {
+        return DiaryElement.Type.DIARY;
+    }
+
+    @Override
+    public String getSubStr() {
+        return m_path;
+    }
+
+    @Override
+    public int get_icon() {
+        return R.drawable.ic_diary;
+    }
+
+    // ID HANDLING =================================================================================
     protected int create_new_id( DiaryElement element ) {
         int retval;
         if( m_force_id == DiaryElement.DEID_UNSET )
@@ -59,7 +157,7 @@ public class Diary/* extends DiaryElement */{
     }
 
     protected boolean set_force_id( int id ) {
-        if( m_ids.get( id ) != null || id <= DiaryElement.DEID_MIN )
+        if( m_ids.get( id ) != null || id <= DiaryElement.DEID_DIARY )
             return false;
         m_force_id = id;
         return true;
@@ -73,35 +171,6 @@ public class Diary/* extends DiaryElement */{
         return true; // reserved for bounds checking
     }
 
-    protected int m_current_id;
-    protected int m_force_id;
-    java.util.Map< Integer, DiaryElement > m_ids = new TreeMap< Integer, DiaryElement >();
-
-    public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    public final static int DB_FILE_VERSION_INT = 1020;
-    public final static int DB_FILE_VERSION_INT_MIN = 110;
-    public static final String LOCK_SUFFIX = ".~LOCK~";
-
-    public final static int PASSPHRASE_MIN_SIZE = 4;
-    public static Diary diary = null;
-
-    public Diary() {
-        m_current_id = DiaryElement.DEID_MIN;
-        m_force_id = DiaryElement.DEID_UNSET;
-    }
-
-    public Result init_new( String path ) {
-        clear();
-        if( set_path( path, true, false ) == Result.SUCCESS ) {
-            add_today();
-            // every diary must at least have one chapter category:
-            m_ptr2chapter_ctg_cur = create_chapter_ctg( "Default" );
-            return Result.SUCCESS;
-        }
-        else
-            return Result.FAILURE;
-    }
-
     public String create_unique_chapter_ctg_name( String name0 ) {
         String name = name0;
         for( int i = 1; m_chapter_categories.get( name ) != null; i++ ) {
@@ -110,8 +179,8 @@ public class Diary/* extends DiaryElement */{
 
         return name;
     }
-
-    // DISK I/O
+    
+    // DISK I/O ====================================================================================
     // protected int m_body_offset;
     protected BufferedReader mBufferedReader = null;
     protected String mStrIO = new String();
@@ -237,68 +306,6 @@ public class Diary/* extends DiaryElement */{
             return Result.COULD_NOT_START;
         }
     }
-
-    public void clear() {
-        // BASE
-        m_force_id = DiaryElement.DEID_UNSET;
-        m_current_id = DiaryElement.DEID_MIN;
-        m_ids.clear();
-        // BODY
-        m_path = "";
-        m_read_version = 0;
-        // create_new_id( this ); // add DEID_MIN back to IDs pool
-        // create_new_id( m_topics ); // FIXME: do topics really need a deid?
-        m_entries.clear();
-        m_tags.clear();
-        m_tag_categories.clear();
-        m_untagged.reset();
-
-        m_ptr2chapter_ctg_cur = null;
-        m_chapter_categories.clear();
-        m_topics.mMap.clear();
-        m_custom_sorteds.mMap.clear();
-
-        m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
-        m_last_elem_id = DiaryElement.DEID_MIN;
-
-        m_passphrase = "";
-
-        m_search_text = "";
-        m_filter_active.reset();
-        m_filter_default.reset();
-
-        // NOTE: only reset body options here:
-        m_language = "";
-        m_option_sorting_criteria = SC_DATE;
-
-        m_flag_changed = false;
-
-        // java specific:
-        mBufferedReader = null;
-    }
-
-    // @Override
-    public int get_size() {
-        return m_entries.size();
-    }
-
-    public String get_name() {
-        int i = m_path.lastIndexOf( "/" );
-        if( i == -1 )
-            return m_path;
-        else
-            return m_path.substring( i + 1 );
-    }
-
-    public DiaryElement.Type get_type() {
-        return DiaryElement.Type.DIARY;
-    }
-
-    /*
-     * public String get_list_str() { TODO: return Glib::ustring::compose( "<b>%1</b>",
-     * Glib::Markup::escape_text( Glib::filename_display_basename( m_path ) ) ); return m_path;
-     * }
-     */
 
     public Result set_path( String path, boolean new_file, boolean read_only ) {
         // CHECK FOR SYSTEM PERMISSIONS
@@ -460,7 +467,7 @@ public class Diary/* extends DiaryElement */{
 
         // fix startup element
         if( m_startup_elem_id == entry.get_id() )
-            m_startup_elem_id = DiaryElement.DEID_MIN;
+            m_startup_elem_id = DiaryElement.DEID_DIARY;
 
         // remove from tags:
         for( Tag tag : entry.m_tags )
@@ -1199,7 +1206,7 @@ public class Diary/* extends DiaryElement */{
             if( get_element( m_startup_elem_id ) == null )
             {
                 Log.w( "LFO", "startup element cannot be found in db" );
-                m_startup_elem_id = DiaryElement.DEID_MIN;
+                m_startup_elem_id = DiaryElement.DEID_DIARY;
             }
 
         if( m_entries.size() < 1 )

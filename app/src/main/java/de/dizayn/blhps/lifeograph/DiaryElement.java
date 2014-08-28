@@ -33,7 +33,8 @@ public abstract class DiaryElement {
     public final static int FS_NEW = 1024;
 
     // DEID
-    public final static int DEID_MIN = 10000; // reserved for Diary itself
+    public final static int DEID_DIARY = 10000; // reserved for Diary
+    public final static int DEID_FIRST = 10001; // first sub item in the diary
     public final static int DEID_UNSET = 404; // :)
     public final static int HOME_CURRENT_ELEM = 1; // element shown at startup
     public final static int HOME_LAST_ELEM = 2; // element shown at startup
@@ -100,6 +101,12 @@ public abstract class DiaryElement {
         m_status = status;
         m_name = name;
         m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
+    }
+
+    public DiaryElement( Diary diary, int id, int status ) {
+        mDiary = diary;
+        m_status = status;
+        m_id = id;
     }
 
     public String get_name() {
