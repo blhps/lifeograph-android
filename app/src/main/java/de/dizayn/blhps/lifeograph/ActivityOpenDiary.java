@@ -209,7 +209,6 @@ public class ActivityOpenDiary extends ListActivity {
             }
 
             switch( Diary.diary.read_body() ) {
-                case EMPTY_DATABASE: // no special treatment for now:
                 case SUCCESS:
                     Intent i = new Intent( this, ActivityDiary.class );
                     startActivityForResult( i, 0 );

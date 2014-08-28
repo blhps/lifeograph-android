@@ -34,7 +34,7 @@ import android.widget.Toast;
 enum Result {
     OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, COULD_NOT_FINISH, WRONG_PASSWORD,
     APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE, INCOMPATIBLE_FILE, CORRUPT_FILE,
-    EMPTY_DATABASE, FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_LOCKED
+    FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_LOCKED
 }
 
 public class Diary/* extends DiaryElement */{
@@ -750,12 +750,7 @@ public class Diary/* extends DiaryElement */{
             while( ( line = mBufferedReader.readLine() ) != null )
             {
                 if( line.length() < 1 ) // end of section
-                {
-                    // every diary must at least have one chapter category:
-                    if( m_chapter_categories.size() < 1 )
-                        m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO: i18n
                     break;
-                }
                 else if( line.length() < 3 )
                     continue;
                 else
@@ -992,23 +987,11 @@ public class Diary/* extends DiaryElement */{
             return Result.CORRUPT_FILE;
         }
 
-        if( m_startup_elem_id > DiaryElement.HOME_FIXED_ELEM )
-            if( get_element( m_startup_elem_id ) == null )
-            {
-                Log.w( "LFO", "startup element cannot be found in db" );
-                m_startup_elem_id = DiaryElement.DEID_MIN;
-            }
+        do_standard_checks_after_parse();
 
         m_filter_active.set( m_filter_default );
 
-        if( m_entries.size() < 1 )
-        {
-            add_today();
-            Log.w( "LFO", "a dummy entry added to the diary" );
-            return Result.EMPTY_DATABASE;
-        }
-        else
-            return Result.SUCCESS;
+        return Result.SUCCESS;
     }
 
     protected Result parse_db_body_text_1010() {
@@ -1031,14 +1014,10 @@ public class Diary/* extends DiaryElement */{
 
         // TAG DEFINITIONS & CHAPTERS
         try {
-            while( ( line = mBufferedReader.readLine() ) != null ) {
-                if( line.length() < 1 ) { // end of section
-                    // every diary must at least have one chapter category:
-                    if( m_chapter_categories.size() < 1 )
-                        m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO:
-                                                                                 // i18n
+            while( ( line = mBufferedReader.readLine() ) != null )
+            {
+                if( line.length() < 1 ) // end of section
                     break;
-                }
                 else if( line.length() < 3 )
                     continue;
                 else {
@@ -1202,6 +1181,20 @@ public class Diary/* extends DiaryElement */{
             return Result.CORRUPT_FILE;
         }
 
+        do_standard_checks_after_parse();
+
+        // if default theme is different than the system theme, set the untagged accordingly
+        if( ptr2default_theme != null )
+            m_untagged.create_own_theme_duplicating( ptr2default_theme );
+
+        return Result.SUCCESS;
+    }
+
+    protected void do_standard_checks_after_parse() {
+        // every diary must at least have one chapter category:
+        if( m_chapter_categories.size() < 1 )
+            m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO: i18n
+
         if( m_startup_elem_id > DiaryElement.HOME_FIXED_ELEM )
             if( get_element( m_startup_elem_id ) == null )
             {
@@ -1209,22 +1202,12 @@ public class Diary/* extends DiaryElement */{
                 m_startup_elem_id = DiaryElement.DEID_MIN;
             }
 
-        // if default theme is different than the system theme, set the untagged accordingly
-        if( ptr2default_theme != null )
-        {
-            m_untagged.create_own_theme_duplicating( ptr2default_theme );
-        }
-
         if( m_entries.size() < 1 )
         {
             add_today();
             Log.w( "LFO", "a dummy entry added to the diary" );
-            return Result.EMPTY_DATABASE;
         }
-        else
-            return Result.SUCCESS;
     }
-
     protected boolean create_db_header_text( boolean encrypted ) {
         mStrIO = DB_FILE_HEADER; // clears string
         mStrIO += ( "\nV " + DB_FILE_VERSION_INT );
