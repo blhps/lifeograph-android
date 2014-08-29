@@ -124,11 +124,6 @@ public class Chapter extends DiaryElement {
         protected java.util.Map< Long, Chapter > mMap;
     }
 
-    public Chapter( Diary diary, String name ) {
-        super( diary, name, ES_NOT_TODO );
-        m_date_begin = new Date();
-    }
-
     public Chapter( Diary diary, String name, long date ) {
         super( diary, name, ES_NOT_TODO );
         m_date_begin = new Date( date );
