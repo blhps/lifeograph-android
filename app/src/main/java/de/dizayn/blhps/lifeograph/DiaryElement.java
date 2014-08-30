@@ -93,8 +93,9 @@ public abstract class DiaryElement {
 
     public final static int ES_FILTERED_OUT     = 0x80000000;
 
-    public final static int ES_FILTER_DEFAULT   =
-            ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO;
+    public final static int ES_FILTER_RESET     =
+            ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO
+                    |ES_FILTER_OUTSTANDING;
     public final static int ES_FILTER_MAX       = 0xFFFFFFFF;
 
     public DiaryElement( Diary diary, String name, int status ) {

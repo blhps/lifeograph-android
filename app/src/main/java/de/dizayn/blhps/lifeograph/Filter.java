@@ -27,7 +27,7 @@ public class Filter extends DiaryElement
 {
     public Filter( Diary d, String name )
     {
-        super( d, name, ES_FILTER_DEFAULT );
+        super( d, name, ES_FILTER_RESET );
         m_tag = null;
         m_date_begin = 0;
         m_date_end = Date.DATE_MAX;
@@ -52,7 +52,7 @@ public class Filter extends DiaryElement
 
     public void reset()
     {
-        m_status = ES_FILTER_DEFAULT;
+        m_status = ES_FILTER_RESET;
         m_tag = null;
         m_date_begin = 0;
         m_date_end = Date.DATE_MAX;

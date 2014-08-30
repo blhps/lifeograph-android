@@ -1105,6 +1105,17 @@ public class Diary extends DiaryElement
         return Result.SUCCESS;
     }
 
+    protected long fix_pre_1020_date( long d ) {
+        if( Date.is_ordinal( d ) ) {
+            if( ( d & Date.VISIBLE_FLAG ) != 0 )
+                d -= Date.VISIBLE_FLAG;
+            else
+                d |= Date.VISIBLE_FLAG;
+        }
+
+        return d;
+    }
+
     protected Result parse_db_body_text_1010() {
         // TODO
         return Result.ABORTED;
@@ -1151,7 +1162,7 @@ public class Diary extends DiaryElement
                         case 'o': // ordinal chapter (topic)
                             ptr2chapter =
                                     m_topics.create_chapter( get_db_line_name( line ),
-                                            get_db_line_date( line ) );
+                                            fix_pre_1020_date( get_db_line_date( line ) ) );
                             ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
                             break;
                         case 'c': // chapter
@@ -1160,11 +1171,13 @@ public class Diary extends DiaryElement
                                 break;
                             }
                             ptr2chapter =
-                                    ptr2chapter_ctg.create_chapter( get_db_line_name( line ),
-                                                                    get_db_line_date( line ) );
+                                    ptr2chapter_ctg.create_chapter(
+                                            get_db_line_name( line ),
+                                            fix_pre_1020_date( get_db_line_date( line ) ) );
                             ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
                             break;
                         case 'M':
+                            // themes with same name as tags are merged into existing tags
                             ptr2theme = create_tag( line.substring( 2 ), null ).get_own_theme();
                             if( line.charAt( 1 ) == 'd' )
                                 ptr2default_theme = ptr2theme;
@@ -1228,15 +1241,14 @@ public class Diary extends DiaryElement
                     case 'E': // new entry
                     case 'e': // trashed
                         long date = Long.parseLong( line.substring( 2 ) );
-                        entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
+                        entry_new = new Entry( this, fix_pre_1020_date( date ),
+                                line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         add_entry_to_related_chapter( entry_new );
 
-                        if( line.charAt( 0 ) == 'e' ) {
+                        if( line.charAt( 0 ) == 'e' )
                             entry_new.set_trashed( true );
-                            // trashed entries are always hidden at the login
-                            entry_new.set_filtered_out( true );
-                        }
+
                         flag_first_paragraph = true;
                         break;
                     case 'D': // creation & change dates (optional)
@@ -1252,7 +1264,9 @@ public class Diary extends DiaryElement
                         break;
                     case 'M': // themes are converted into tags
                     case 'T': // tag
-                        if( entry_new != null )
+                        if( entry_new == null )
+                            Log.w( "LFO", "No entry declared" );
+                        else
                         {
                             Tag tag = m_tags.get( line.substring( 2 ) );
                             if( tag != null )

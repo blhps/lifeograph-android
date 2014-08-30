@@ -150,6 +150,9 @@ public class Date {
     public boolean is_ordinal() {
         return( ( m_date & ORDINAL_FLAG ) != 0 );
     }
+    public static boolean is_ordinal( long d ) {
+        return( ( d & ORDINAL_FLAG ) != 0 );
+    }
 
     public boolean is_hidden() {
         return( is_ordinal() && ( m_date & VISIBLE_FLAG ) == 0 );
