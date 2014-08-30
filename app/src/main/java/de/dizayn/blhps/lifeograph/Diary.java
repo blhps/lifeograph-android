@@ -628,7 +628,7 @@ public class Diary extends DiaryElement
 
             // SHIFT ENTRIES
             if( m_entries.size() > 0 ) {
-                int date_first = ( Integer ) m_entries.keySet().toArray()[ 0 ];
+                long date_first = ( Long ) m_entries.keySet().toArray()[ 0 ];
                 for( long d = d_chapter.m_date + 1; d <= date_first; ) {
                     Entry entry = m_entries.get( d );
                     if( entry == null ) {

@@ -90,7 +90,7 @@ public class Chapter extends DiaryElement {
 
         Date get_free_order_ordinal() {
             if( mMap.size() > 0 ) {
-                Date d = new Date( ( Integer ) mMap.keySet().toArray()[ 0 ] );
+                Date d = new Date( ( Long ) mMap.keySet().toArray()[ 0 ] );
                 d.forward_ordinal_order();
                 return d;
             }
