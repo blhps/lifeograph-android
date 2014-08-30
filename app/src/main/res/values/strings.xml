@@ -29,6 +29,7 @@
     <string name="create_entry">Create Entry</string>
     <string name="create_chapter">Create Chapter</string>
     <string name="create_topic">Create Topic</string>
+    <string name="create_group">Create Group</string>
     <string name="add">Add</string>
     <string name="dismiss_">Dismiss..</string>
     <string name="dismiss">Dismiss</string>

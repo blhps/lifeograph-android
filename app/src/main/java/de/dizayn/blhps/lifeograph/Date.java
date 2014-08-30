@@ -148,6 +148,10 @@ public class Date {
         return( ( m_date & ORDINAL_FLAG ) != 0 );
     }
 
+    public boolean is_hidden() {
+        return( is_ordinal() && ( m_date & VISIBLE_FLAG ) == 0 );
+    }
+
     public boolean is_valid() {
         return( get_day() > 0 && get_day() <= get_days_in_month() );
     }

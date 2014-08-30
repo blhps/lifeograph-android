@@ -26,6 +26,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.TreeMap;
 
 import android.util.Log;
@@ -90,6 +94,7 @@ public class Diary extends DiaryElement
         m_chapter_categories.clear();
         m_topics.mMap.clear();
         m_custom_sorteds.mMap.clear();
+        m_orphaned_entries.clear();
 
         m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
         m_last_elem_id = DiaryElement.DEID_DIARY;
@@ -452,6 +457,7 @@ public class Diary extends DiaryElement
         Entry entry = new Entry( this, date, content, flag_favorite );
 
         m_entries.put( date, entry );
+        add_entry_to_related_chapter( entry );
 
         return( entry );
     }
@@ -472,6 +478,9 @@ public class Diary extends DiaryElement
         // remove from tags:
         for( Tag tag : entry.m_tags )
             tag.mEntries.remove( entry );
+
+        // remove from chapters:
+        remove_entry_from_chapters( entry );
 
         // remove from filters:
         if( m_filter_active.is_entry_filtered( entry ) )
@@ -670,6 +679,97 @@ public class Diary extends DiaryElement
             return m_ptr2chapter_ctg_cur.getChapterLater( chapter );
     }
 
+    public void update_entries_in_chapters() {
+        Log.w( "LFO", "update_entries_in_chapters()" );
+        Chapter.Category chapters[] = new Chapter.Category[] { m_topics, m_custom_sorteds,
+                m_ptr2chapter_ctg_cur };
+        Iterator itr_entry = m_entries.entrySet().iterator();
+        Entry entry = null;
+        if( itr_entry.hasNext() ) {
+            Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
+            entry = ( Entry ) mapEntry.getValue();
+        }
+
+        for( int i = 0; i < 3; i++ )
+        {
+            for( Chapter chapter : chapters[ i ].getMap().values() )
+            {
+                chapter.clear();
+
+                if( entry == null )
+                    continue;
+
+                while( entry.m_date.m_date > chapter.m_date_begin.m_date )
+                {
+                    chapter.insert( entry );
+
+                    if( !itr_entry.hasNext() )
+                    {
+                        entry = null;
+                        break;
+                    }
+                    else
+                    {
+                        Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
+                        entry = ( Entry ) mapEntry.getValue();
+                    }
+                }
+            }
+        }
+
+        m_orphaned_entries.clear();
+
+        while( itr_entry.hasNext() ) {
+            Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
+            m_orphaned_entries.add( ( Entry ) mapEntry.getValue() );
+        }
+    }
+
+    public void add_entry_to_related_chapter( Entry entry ) {
+        // NOTE: works as per the current listing options needs to be updated when something
+        // changes the arrangement such as a change in the current chapter category
+
+        Chapter.Category ptr2ctg;
+
+        if( entry.m_date.is_ordinal() ) // in custom_sorteds or topics
+            ptr2ctg = ( entry.m_date.is_hidden() ? m_custom_sorteds : m_topics );
+        else // in chapters
+            ptr2ctg = m_ptr2chapter_ctg_cur;
+
+        for( Chapter chapter : ptr2ctg.getMap().values() )
+        {
+            if( entry.m_date.m_date > chapter.m_date_begin.m_date )
+            {
+                chapter.insert( entry );
+                return;
+            }
+        }
+
+        // if does not belong to any of the defined chapters:
+        m_orphaned_entries.add( entry );
+    }
+
+    public void remove_entry_from_chapters( Entry entry ) {
+        Chapter.Category ptr2ctg;
+
+        if( entry.m_date.is_ordinal() ) // in custom_sorteds or topics
+            ptr2ctg = ( entry.m_date.is_hidden() ? m_custom_sorteds : m_topics );
+        else // in chapters
+            ptr2ctg = m_ptr2chapter_ctg_cur;
+
+        for( Chapter chapter : ptr2ctg.getMap().values() )
+        {
+            if( chapter.find( entry ) )
+            {
+                chapter.erase( entry );
+                return;
+            }
+        }
+
+        // if does not belong to any of the defined chapters:
+        m_orphaned_entries.remove( entry );
+    }
+
     public String get_lang() {
         return m_language;
     }
@@ -697,6 +797,7 @@ public class Diary extends DiaryElement
     protected Chapter.Category m_ptr2chapter_ctg_cur = null;
     protected Chapter.Category m_topics = new Chapter.Category( this, "" );
     protected Chapter.Category m_custom_sorteds = new Chapter.Category( this, "" );
+    protected List< Entry > m_orphaned_entries = new ArrayList< Entry >();
 
     int m_startup_elem_id; // DEID
     int m_last_elem_id; // DEID
@@ -919,6 +1020,7 @@ public class Diary extends DiaryElement
                         long date = Long.parseLong( line.substring( 4 ) );
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
+                        add_entry_to_related_chapter( entry_new );
 
                         if( line.charAt( 0 ) == 'e' )
                             entry_new.set_trashed( true );
@@ -1126,6 +1228,8 @@ public class Diary extends DiaryElement
                         long date = Long.parseLong( line.substring( 2 ) );
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
+                        add_entry_to_related_chapter( entry_new );
+
                         if( line.charAt( 0 ) == 'e' ) {
                             entry_new.set_trashed( true );
                             // trashed entries are always hidden at the login
@@ -1269,7 +1373,7 @@ public class Diary extends DiaryElement
     }
 
     protected boolean create_db_body_text() {
-        String content_std = new String();
+        String content_std;
 
         // OPTIONS
         // dashed char used to be used for spell-checking before v110

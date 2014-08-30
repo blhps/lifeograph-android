@@ -71,8 +71,9 @@ public abstract class DiaryElement {
     public final static int ES_CANCELED         = 0x8000;
     public final static int ES_FILTER_TODO      = ES_NOT_TODO|ES_TODO|ES_DONE|ES_CANCELED;
 
-    public final static int ES_DEFAULT          = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
-    public final static int ES_DEFAULT_FAVORED  = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
+    public final static int ES_ENTRY_DEFAULT        = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
+    public final static int ES_ENTRY_DEFAULT_FAV    = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
+    public final static int ES_CHAPTER_DEFAULT      = ES_EXPANDED|ES_NOT_TODO;
 
     // FILTER RELATED CONSTANTS AND ALIASES
     public final static int ES_SHOW_NOT_FAVORED = ES_NOT_FAVORED;

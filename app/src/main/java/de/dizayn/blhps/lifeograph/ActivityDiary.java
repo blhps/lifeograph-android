@@ -361,6 +361,9 @@ public class ActivityDiary extends ListActivity {
                 }
                 m_elems.add( mElemAllEntries );
 
+                for( Chapter c : Diary.diary.m_custom_sorteds.mMap.values() ) {
+                    m_elems.add( c );
+                }
                 for( Chapter c : Diary.diary.m_topics.mMap.values() ) {
                     m_elems.add( c );
                 }
@@ -369,6 +372,9 @@ public class ActivityDiary extends ListActivity {
                 }
                 for( Tag t : Diary.diary.m_tags.values() ) {
                     m_elems.add( t );
+                }
+                for( Entry e : Diary.diary.m_orphaned_entries ) {
+                    m_elems.add( e );
                 }
                 break;
             case TAG:
@@ -383,21 +389,15 @@ public class ActivityDiary extends ListActivity {
                 break;
             case CHAPTER:
             case TOPIC:
-                Chapter c = ( Chapter ) mParentElem;
-                Chapter c_next = Diary.diary.getNextChapter( c );
-                long date_next = Date.DATE_MAX;
-                if( c_next != null )
-                    date_next = c_next.m_date_begin.m_date;
-                c.m_size = 0;
-                for( Entry e : Diary.diary.m_entries.values() ) {
-                    if( e.m_date.m_date >= c.m_date_begin.m_date && e.m_date.m_date < date_next ) {
-                        m_elems.add( e );
-                        c.m_size++;
-                    }
-                }
+            case SORTED:
                 mImageView.setImageResource( mParentElem.get_icon() );
                 mTextViewTitle.setText( mParentElem.getListStr() );
                 mTextViewSub.setText( mParentElem.getSubStr() );
+
+                Chapter c = ( Chapter ) mParentElem;
+                for( Entry e : c.mEntries ) {
+                    m_elems.add( e );
+                }
                 break;
             case ALLBYDATE:
                 for( Entry e : Diary.diary.m_entries.values() ) {
@@ -414,18 +414,35 @@ public class ActivityDiary extends ListActivity {
         input.setText( "New topic" );
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
         dlg.setTitle( "Create Topic" )
-           // .setMessage(message)
-           .setView( input )
-           .setPositiveButton( R.string.create_topic, new DialogInterface.OnClickListener() {
-               public void onClick( DialogInterface di, int btn ) {
-                   mParentElem = Diary.diary.m_topics.add_chapter( input.getText().toString() );
-                   update_entry_list();
-               }
-           } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-               public void onClick( DialogInterface di, int btn ) {
-                   // do nothing
-               }
-           } ).show();
+                // .setMessage(message)
+                .setView( input )
+                .setPositiveButton( R.string.create_topic, new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface di, int btn ) {
+                        mParentElem = Diary.diary.m_topics.create_chapter( input.getText().toString() );
+                        Diary.diary.update_entries_in_chapters();
+                        update_entry_list(); }
+                } )
+                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface di, int btn ) {} // do nothing
+                } ).show();
+    }
+    protected void create_sorted() {
+        final EditText input = new EditText( this );
+        input.setText( "New group" );
+        AlertDialog.Builder dlg = new AlertDialog.Builder( this );
+        dlg.setTitle( "Create Group" )
+                // .setMessage(message)
+                .setView( input )
+                .setPositiveButton( R.string.create_group, new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface di, int btn ) {
+                        mParentElem = Diary.diary.m_custom_sorteds.create_chapter(
+                                input.getText().toString() );
+                        Diary.diary.update_entries_in_chapters();
+                        update_entry_list(); }
+                } )
+                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface di, int btn ) {} // do nothing
+                } ).show();
     }
 
     protected void rename_tag() {
@@ -475,6 +492,7 @@ public class ActivityDiary extends ListActivity {
                        Diary.diary.dismiss_chapter( ( Chapter ) mParentElem );
                        // go up:
                        mParentElem = null;
+                       Diary.diary.update_entries_in_chapters();
                        update_entry_list();
                    }
                } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
@@ -579,6 +597,7 @@ public class ActivityDiary extends ListActivity {
             TextView detail = null;
             ImageView i11 = null;
             DiaryElement elem = getItem( position );
+
             if( convertView == null ) {
                 convertView = mInflater.inflate( R.layout.imagelist, null );
                 holder = new ViewHolder( convertView );
@@ -591,7 +610,7 @@ public class ActivityDiary extends ListActivity {
             detail.setText( elem.getListStrSecondary() );
 
             i11 = holder.getImage();
-            i11.setImageResource( elem.get_icon() );// R.drawable.ic_entry );
+            i11.setImageResource( elem.get_icon() );
             return convertView;
         }
 

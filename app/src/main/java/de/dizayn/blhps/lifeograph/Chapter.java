@@ -21,6 +21,7 @@
 
 package de.dizayn.blhps.lifeograph;
 
+import java.util.ArrayList;
 import java.util.Map;
 
 public class Chapter extends DiaryElement {
@@ -57,9 +58,8 @@ public class Chapter extends DiaryElement {
             return chapter;
         }
 
-        public Chapter add_chapter( String name ) {
+        public Chapter create_chapter( String name ) {
             Chapter chapter = new Chapter( mDiary, name, get_free_order_ordinal().m_date );
-            chapter.set_expanded( true );
             mMap.put( chapter.m_date_begin.m_date, chapter );
             return chapter;
         }
@@ -121,11 +121,15 @@ public class Chapter extends DiaryElement {
             return null;
         }
 
+        public java.util.Map< Long, Chapter > getMap() {    // Java only
+            return mMap;
+        }
+
         protected java.util.Map< Long, Chapter > mMap;
     }
 
     public Chapter( Diary diary, String name, long date ) {
-        super( diary, name, ES_NOT_TODO );
+        super( diary, name, ES_CHAPTER_DEFAULT );
         m_date_begin = new Date( date );
     }
 
@@ -139,7 +143,7 @@ public class Chapter extends DiaryElement {
 
     @Override
     public int get_size() {
-        return m_size;
+        return mEntries.size();
     }
 
     boolean is_ordinal() {
@@ -153,12 +157,30 @@ public class Chapter extends DiaryElement {
 
     @Override
     public String getSubStr() {
-        return ( m_date_begin.is_ordinal() ? "Topic" : "Chapter" ) + " with " + m_size + " Entries";
+        return ( m_date_begin.is_ordinal() ? "Topic" : "Chapter" ) + " with "
+                 + get_size() + " Entries";
     }
 
     @Override
     public int get_icon() {
         return( m_date_begin.is_ordinal() ? R.drawable.ic_topic : R.drawable.ic_chapter );
+    }
+
+    // REFERRER RELATED METHODS
+    public void clear() {
+        mEntries.clear();
+    }
+
+    public void insert( Entry e ) {
+        mEntries.add( e );
+    }
+
+    public void erase( Entry e ) {
+        mEntries.remove( e );
+    }
+
+    public boolean find( Entry e ) {
+        return mEntries.contains( e );
     }
 
     public boolean get_expanded() {
@@ -201,5 +223,5 @@ public class Chapter extends DiaryElement {
 
     protected Date m_date_begin;
     int m_time_span = 0;
-    protected int m_size = 0;
+    protected java.util.List< Entry > mEntries = new ArrayList< Entry >();
 }

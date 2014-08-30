@@ -119,11 +119,11 @@ public class DialogCalendar extends Dialog {
     }
 
     protected void createChapter() {
-        Chapter chapter =
+        Lifeobase.activityDiary.mParentElem =
                 Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( "Untitled chapter",
                                                                   mAdapter.mDateCurrent.m_date );
-        Lifeobase.activityDiary.mParentElem = chapter;
         dismiss();
+        Diary.diary.update_entries_in_chapters();
         Lifeobase.activityDiary.update_entry_list();
         Lifeobase.activityDiary.rename_chapter();
     }

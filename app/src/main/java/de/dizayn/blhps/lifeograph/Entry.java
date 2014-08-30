@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 public class Entry extends DiaryElement {
     public Entry( Diary diary, long date, String text, boolean favored ) {
-        super( diary, "", favored ? ES_DEFAULT_FAVORED : ES_DEFAULT );
+        super( diary, "", favored ? ES_ENTRY_DEFAULT_FAV : ES_ENTRY_DEFAULT );
         m_date = new Date( date );
 
         // java.util.Date jd = new java.util.Date();
@@ -40,7 +40,7 @@ public class Entry extends DiaryElement {
 
     public Entry( Diary diary, long date, boolean favored ) {
         super( diary, Lifeobase.getStr( R.string.empty_entry ),
-                favored ? ES_DEFAULT_FAVORED : ES_DEFAULT );
+                favored ? ES_ENTRY_DEFAULT_FAV : ES_ENTRY_DEFAULT );
         m_date = new Date( date );
 
         java.util.Date jd = new java.util.Date();
