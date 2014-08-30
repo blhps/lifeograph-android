@@ -45,7 +45,7 @@ public final class R {
         public static final int buttonStrikethrough=0x7f07001b;
         public static final int buttonTags=0x7f07001d;
         public static final int buttonToday=0x7f070014;
-        public static final int button_create_diary=0x7f070022;
+        public static final int button_create_diary=0x7f070023;
         public static final int calendar_day_gridcell=0x7f070001;
         public static final int datePickerCalendar=0x7f070002;
         public static final int detail=0x7f070021;
@@ -54,9 +54,10 @@ public final class R {
         public static final int editTextTag=0x7f07000e;
         public static final int gridViewCalendar=0x7f070003;
         public static final int horLayout=0x7f07000d;
+        public static final int icon=0x7f07001f;
+        public static final int icon2=0x7f070022;
         public static final int imageViewDiary=0x7f070011;
         public static final int imageViewEntry=0x7f070016;
-        public static final int img=0x7f07001f;
         public static final int listViewTags=0x7f070010;
         public static final int num_events_per_day=0x7f070000;
         public static final int textView1=0x7f070006;

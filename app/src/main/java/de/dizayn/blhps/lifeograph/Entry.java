@@ -195,6 +195,7 @@ public class Entry extends DiaryElement {
     }
 
     // FAVORITE ENTRY
+    @Override
     public boolean is_favored()
     { return( ( m_status & ES_FAVORED ) != 0 ); }
 

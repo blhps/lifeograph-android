@@ -593,10 +593,11 @@ public class ActivityDiary extends ListActivity {
 
         @Override
         public View getView( int position, View convertView, ViewGroup parent ) {
-            ViewHolder holder = null;
-            TextView title = null;
-            TextView detail = null;
-            ImageView i11 = null;
+            ViewHolder holder;
+            TextView title;
+            TextView detail;
+            ImageView icon;
+            ImageView icon2;
             DiaryElement elem = getItem( position );
 
             if( convertView == null ) {
@@ -605,13 +606,20 @@ public class ActivityDiary extends ListActivity {
                 convertView.setTag( holder );
             }
             holder = ( ViewHolder ) convertView.getTag();
-            title = holder.gettitle();
+
+            title = holder.getName();
             title.setText( elem.getListStr() );
-            detail = holder.getdetail();
+
+            detail = holder.getDetail();
             detail.setText( elem.getListStrSecondary() );
 
-            i11 = holder.getImage();
-            i11.setImageResource( elem.get_icon() );
+            icon = holder.getIcon();
+            icon.setImageResource( elem.get_icon() );
+
+            icon2 = holder.getIcon2();
+            icon2.setImageResource( R.drawable.ic_favorite );
+            icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
+
             return convertView;
         }
 
@@ -619,31 +627,39 @@ public class ActivityDiary extends ListActivity {
             private View mRow;
             private TextView title = null;
             private TextView detail = null;
-            private ImageView i11 = null;
+            private ImageView icon = null;
+            private ImageView icon2 = null;
 
             public ViewHolder( View row ) {
                 mRow = row;
             }
 
-            public TextView gettitle() {
+            public TextView getName() {
                 if( null == title ) {
                     title = ( TextView ) mRow.findViewById( R.id.title );
                 }
                 return title;
             }
 
-            public TextView getdetail() {
+            public TextView getDetail() {
                 if( null == detail ) {
                     detail = ( TextView ) mRow.findViewById( R.id.detail );
                 }
                 return detail;
             }
 
-            public ImageView getImage() {
-                if( null == i11 ) {
-                    i11 = ( ImageView ) mRow.findViewById( R.id.img );
+            public ImageView getIcon() {
+                if( null == icon ) {
+                    icon = ( ImageView ) mRow.findViewById( R.id.icon );
                 }
-                return i11;
+                return icon;
+            }
+
+            public ImageView getIcon2() {
+                if( null == icon2 ) {
+                    icon2 = ( ImageView ) mRow.findViewById( R.id.icon2 );
+                }
+                return icon2;
             }
         }
     }

@@ -148,6 +148,9 @@ public abstract class DiaryElement {
             m_status -= flag;
     }
 
+    public boolean is_favored()
+    { return false; }
+
     protected String m_name;
     protected Diary mDiary = null;
     protected int m_id = 0;
