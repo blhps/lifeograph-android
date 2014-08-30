@@ -1367,7 +1367,7 @@ public class Diary extends DiaryElement
             mStrIO += ( "ID" + chapter.get_id()
                     + "\nC" + type + chapter.m_date_begin.m_date // type + date
                     + '\t' + chapter.get_name()   // name
-                    + "\nCp" + ( chapter.get_expanded() ? 'e' : '-' ) );
+                    + "\nCp" + ( chapter.get_expanded() ? 'e' : '_' ) );
 
             switch( chapter.get_todo_status() )
             {
@@ -1411,7 +1411,7 @@ public class Diary extends DiaryElement
         for( Tag.Category ctg : m_tag_categories.values() ) {
             // tag category:
             mStrIO +=
-                    ( "ID" + ctg.get_id() + "\nT" + ( ctg.get_expanded() ? 'e' : ' ' )
+                    ( "ID" + ctg.get_id() + "\nT" + ( ctg.get_expanded() ? 'e' : '_' )
                       + ctg.get_name() + '\n' );
             // tags in it:
             for( Tag tag : ctg.mTags )
@@ -1433,7 +1433,7 @@ public class Diary extends DiaryElement
         {
             // chapter category:
             mStrIO +=
-                    ( "ID" + ctg.get_id() + ( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC-" )
+                    ( "ID" + ctg.get_id() + ( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC_" )
                       + ctg.get_name() + '\n' );
             // chapters in it:
             create_db_chapterctg_text( 'T', ctg );
@@ -1442,14 +1442,14 @@ public class Diary extends DiaryElement
         // FILTER
         final int fs = m_filter_default.get_status();
         mStrIO += ( "fs"
-                + ( ( fs & DiaryElement.ES_SHOW_TRASHED ) != 0 ? 'T' : '-' )
-                + ( ( fs & DiaryElement.ES_SHOW_NOT_TRASHED ) != 0 ? 't' : '-' )
-                + ( ( fs & DiaryElement.ES_SHOW_FAVORED ) != 0 ? 'F' : '-' )
-                + ( ( fs & DiaryElement.ES_SHOW_NOT_FAVORED ) != 0 ? 'f' : '-' )
-                + ( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 ? 'N' : '-' )
-                + ( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 ? 'T' : '-' )
-                + ( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 ? 'D' : '-' )
-                + ( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 ? 'C' : '-' )
+                + ( ( fs & DiaryElement.ES_SHOW_TRASHED ) != 0 ? 'T' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_NOT_TRASHED ) != 0 ? 't' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_FAVORED ) != 0 ? 'F' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_NOT_FAVORED ) != 0 ? 'f' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 ? 'N' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 ? 'T' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 ? 'D' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 ? 'C' : '_' )
                 + '\n' );
         if( ( fs & DiaryElement.ES_FILTER_TAG ) != 0 )
             mStrIO += ( "ft" + m_filter_default.get_tag().get_name() + '\n' );
@@ -1473,8 +1473,8 @@ public class Diary extends DiaryElement
             // ENTRY DATE
             mStrIO += ( "ID" + entry.get_id() + "\n" );
             mStrIO += ( ( entry.is_trashed() ? "e" : "E" )  +
-                        ( entry.is_favored() ? 'f' : '-' ) +
-                        ( m_filter_default.is_entry_filtered( entry ) ? 'h' : '-' ) );
+                        ( entry.is_favored() ? 'f' : '_' ) +
+                        ( m_filter_default.is_entry_filtered( entry ) ? 'h' : '_' ) );
             switch( entry.get_todo_status() )
             {
                 case DiaryElement.ES_NOT_TODO:
@@ -1496,7 +1496,7 @@ public class Diary extends DiaryElement
 
             // TAGS
             for( Tag tag : entry.m_tags )
-                mStrIO += ( "T" + ( tag == entry.get_theme_tag() ? 'T' : '-' ) + tag.get_name() +
+                mStrIO += ( "T" + ( tag == entry.get_theme_tag() ? 'T' : '_' ) + tag.get_name() +
                         '\n' );
 
             // LANGUAGE

@@ -39,7 +39,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
@@ -68,12 +67,10 @@
       <file leaf-file-name="Diary.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.2874859" vertical-offset="9905" max-vertical-offset="27700">
-              <caret line="636" column="33" selection-start-line="636" selection-start-column="33" selection-end-line="636" selection-end-column="33" />
+            <state vertical-scroll-proportion="0.11580217" vertical-offset="3964" max-vertical-offset="29620">
+              <caret line="223" column="60" selection-start-line="223" selection-start-column="60" selection-end-line="223" selection-end-column="60" />
               <folding>
-                <element signature="method#read_header#0;class#Diary#0" expanded="false" />
-                <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
-                <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
+                <element signature="n#!!doc" expanded="true" />
                 <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
               </folding>
             </state>
@@ -1505,7 +1502,15 @@
       <created>1409415611477</created>
       <updated>1409415611477</updated>
     </task>
-    <option name="localTasksCounter" value="17" />
+    <task id="LOCAL-00017" summary="small date fixes (int-&gt;long)">
+      <created>1409416431384</created>
+      <updated>1409416431384</updated>
+    </task>
+    <task id="LOCAL-00018" summary="replaced '-' with '_' to avoid some confusions">
+      <created>1409417137991</created>
+      <updated>1409417137991</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -1593,7 +1598,9 @@
     <MESSAGE value="migrated to API 14 and fixed new diary init" />
     <MESSAGE value="updated parse_db_body_text_110()" />
     <MESSAGE value="added secondary icons to the list for favorite elements" />
-    <option name="LAST_COMMIT_MESSAGE" value="added secondary icons to the list for favorite elements" />
+    <MESSAGE value="small date fixes (int-&gt;long)" />
+    <MESSAGE value="replaced '-' with '_' to avoid some confusions" />
+    <option name="LAST_COMMIT_MESSAGE" value="replaced '-' with '_' to avoid some confusions" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -1648,9 +1655,7 @@
         <state vertical-scroll-proportion="0.0" vertical-offset="23829" max-vertical-offset="27200">
           <caret line="1213" column="9" selection-start-line="1213" selection-start-column="9" selection-end-line="1213" selection-end-column="9" />
           <folding>
-            <element signature="method#read_header#0;class#Diary#0" expanded="false" />
-            <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
-            <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
+            <element signature="n#!!doc" expanded="true" />
             <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
           </folding>
         </state>
@@ -1985,12 +1990,10 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.2874859" vertical-offset="9905" max-vertical-offset="27700">
-          <caret line="636" column="33" selection-start-line="636" selection-start-column="33" selection-end-line="636" selection-end-column="33" />
+        <state vertical-scroll-proportion="0.11580217" vertical-offset="3964" max-vertical-offset="29620">
+          <caret line="223" column="60" selection-start-line="223" selection-start-column="60" selection-end-line="223" selection-end-column="60" />
           <folding>
-            <element signature="method#read_header#0;class#Diary#0" expanded="false" />
-            <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
-            <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
+            <element signature="n#!!doc" expanded="true" />
             <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
           </folding>
         </state>
