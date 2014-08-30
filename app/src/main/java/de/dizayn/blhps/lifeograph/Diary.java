@@ -67,9 +67,11 @@ public class Diary extends DiaryElement
     public Result init_new( String path ) {
         clear();
         if( set_path( path, true, false ) == Result.SUCCESS ) {
-            add_today();
             // every diary must at least have one chapter category:
             m_ptr2chapter_ctg_cur = create_chapter_ctg( "Default" );
+
+            add_today(); // must come after m_ptr2chapter_ctg_cur is set
+
             return Result.SUCCESS;
         }
         else
@@ -783,8 +785,8 @@ public class Diary extends DiaryElement
     }
 
     // CONTENT =====================================================================================
-    protected String m_path = new String();
-    private String m_passphrase = new String();
+    protected String m_path;
+    private String m_passphrase;
 
     protected java.util.Map< Long, Entry > m_entries =
             new TreeMap< Long, Entry >( DiaryElement.compare_dates );
@@ -807,7 +809,7 @@ public class Diary extends DiaryElement
     protected boolean m_flag_only_save_filtered;
     protected boolean m_flag_changed;
     protected boolean m_flag_read_only;
-    protected String m_language = new String();
+    protected String m_language;
     // filtering
     protected String m_search_text;
     protected Filter m_filter_active = new Filter( null, "Active Filter" );

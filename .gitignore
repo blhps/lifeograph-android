@@ -19,7 +19,7 @@ local.properties
 .classpath
 .project
 
-.gradle/
-.idea/
-app/build/
+# Android Studio
+.gradle
+.idea
 build/
