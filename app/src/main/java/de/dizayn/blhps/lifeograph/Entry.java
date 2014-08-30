@@ -83,7 +83,19 @@ public class Entry extends DiaryElement {
 
     @Override
     public int get_icon() {
-        return( is_favored() ? R.drawable.ic_favorite : R.drawable.ic_entry );
+        //return( is_favored() ? R.drawable.ic_favorite : R.drawable.ic_entry );
+
+        switch( get_todo_status() )
+        {
+            case ES_TODO:
+                return R.drawable.ic_todo_open;
+            case ES_DONE:
+                return R.drawable.ic_todo_done;
+            case ES_CANCELED:
+                return R.drawable.ic_todo_canceled;
+            default:
+                return R.drawable.ic_entry;
+        }
     }
 
     public String get_text() {

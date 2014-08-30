@@ -167,7 +167,17 @@ public class Chapter extends DiaryElement {
 
     @Override
     public int get_icon() {
-        return( m_date_begin.is_ordinal() ? R.drawable.ic_topic : R.drawable.ic_chapter );
+        switch( m_status & ES_FILTER_TODO )
+        {
+            case ES_TODO:
+                return R.drawable.ic_todo_open;
+            case ES_DONE:
+                return R.drawable.ic_todo_done;
+            case ES_CANCELED:
+                return R.drawable.ic_todo_canceled;
+            default:
+                return( m_date_begin.is_ordinal() ? R.drawable.ic_topic : R.drawable.ic_chapter );
+        }
     }
 
     // REFERRER RELATED METHODS
