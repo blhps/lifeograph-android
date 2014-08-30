@@ -795,8 +795,8 @@ public class Diary extends DiaryElement
     protected java.util.Map< String, Chapter.Category > m_chapter_categories =
             new TreeMap< String, Chapter.Category >( DiaryElement.compare_names );
     protected Chapter.Category m_ptr2chapter_ctg_cur = null;
-    protected Chapter.Category m_topics = new Chapter.Category( this, "" );
-    protected Chapter.Category m_custom_sorteds = new Chapter.Category( this, "" );
+    protected Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
+    protected Chapter.Category m_custom_sorteds = new Chapter.Category( this, Date.SORTED_MIN );
     protected List< Entry > m_orphaned_entries = new ArrayList< Entry >();
 
     int m_startup_elem_id; // DEID

@@ -418,7 +418,8 @@ public class ActivityDiary extends ListActivity {
                 .setView( input )
                 .setPositiveButton( R.string.create_topic, new DialogInterface.OnClickListener() {
                     public void onClick( DialogInterface di, int btn ) {
-                        mParentElem = Diary.diary.m_topics.create_chapter( input.getText().toString() );
+                        mParentElem = Diary.diary.m_topics.create_chapter_ordinal(
+                                input.getText().toString() );
                         Diary.diary.update_entries_in_chapters();
                         update_entry_list(); }
                 } )
@@ -435,7 +436,7 @@ public class ActivityDiary extends ListActivity {
                 .setView( input )
                 .setPositiveButton( R.string.create_group, new DialogInterface.OnClickListener() {
                     public void onClick( DialogInterface di, int btn ) {
-                        mParentElem = Diary.diary.m_custom_sorteds.create_chapter(
+                        mParentElem = Diary.diary.m_custom_sorteds.create_chapter_ordinal(
                                 input.getText().toString() );
                         Diary.diary.update_entries_in_chapters();
                         update_entry_list(); }

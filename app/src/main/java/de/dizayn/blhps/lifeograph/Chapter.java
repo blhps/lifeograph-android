@@ -30,6 +30,13 @@ public class Chapter extends DiaryElement {
         public Category( Diary diary, String name ) {
             super( diary, name, ES_VOID );
             mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
+            m_date_min = 0;
+        }
+        // for topics and custom sorteds which do not have names:
+        public Category( Diary diary, long date_min ) {
+            super( diary, DEID_UNSET, ES_VOID );
+            mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
+            m_date_min = date_min;
         }
 
         @Override
@@ -58,10 +65,8 @@ public class Chapter extends DiaryElement {
             return chapter;
         }
 
-        public Chapter create_chapter( String name ) {
-            Chapter chapter = new Chapter( mDiary, name, get_free_order_ordinal().m_date );
-            mMap.put( chapter.m_date_begin.m_date, chapter );
-            return chapter;
+        public Chapter create_chapter_ordinal( String name ) {
+            return create_chapter( name, get_free_order_ordinal().m_date );
         }
 
         public void dismiss_chapter( Chapter chapter ) {
@@ -86,10 +91,8 @@ public class Chapter extends DiaryElement {
         Date get_free_order_ordinal() {
             if( mMap.size() > 0 ) {
                 Date d = new Date( ( Integer ) mMap.keySet().toArray()[ 0 ] );
-                if( d.is_ordinal() ) {
-                    d.forward_ordinal_order();
-                    return d;
-                }
+                d.forward_ordinal_order();
+                return d;
             }
 
             return( new Date( 0, 0 ) );
@@ -126,6 +129,7 @@ public class Chapter extends DiaryElement {
         }
 
         protected java.util.Map< Long, Chapter > mMap;
+        protected final long m_date_min;
     }
 
     public Chapter( Diary diary, String name, long date ) {

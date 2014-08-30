@@ -52,6 +52,9 @@ public class Date {
     public static final long    TOPIC_MAX        = ORDINAL_FILTER;
     public static final long    TOPIC_NO_FLAGS_FILTER   = ORDINAL_FILTER|ORDER_FILTER;
 
+    public static final long    TOPIC_MIN        = VISIBLE_FLAG|ORDINAL_FLAG;
+    public static final long    SORTED_MIN       = ORDINAL_FLAG;
+
     // private DateFormatSymbols symbols = new DateFormatSymbols();
     public static final String[] WEEKDAYS = ( new DateFormatSymbols() ).getWeekdays();
     public static final String[] WEEKDAYSSHORT = ( new DateFormatSymbols() ).getShortWeekdays();
