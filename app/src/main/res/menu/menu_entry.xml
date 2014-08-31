@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/add_tag"
+          android:title="@string/tags"
+          android:icon="@drawable/ic_action_tag"
+          android:orderInCategory="90"
+          android:showAsAction="ifRoom" />
+    <item android:id="@+id/toggle_favorite"
+          android:title="@string/toggle_favorite"
+          android:icon="@drawable/ic_action_favorite"
+          android:orderInCategory="90"
+          android:showAsAction="ifRoom" />
+    <item android:id="@+id/dismiss"
+          android:title="@string/dismiss_"
+          android:orderInCategory="100" />
+</menu>

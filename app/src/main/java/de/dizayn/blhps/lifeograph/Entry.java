@@ -61,7 +61,7 @@ public class Entry extends DiaryElement {
     }
 
     public String getHeadStr() {
-        return( m_date.is_ordinal() ? getListStr() : m_date.format_string( true ) );
+        return( m_date.format_string( true ) );
     }
 
     @Override
@@ -199,8 +199,7 @@ public class Entry extends DiaryElement {
     public boolean is_favored()
     { return( ( m_status & ES_FAVORED ) != 0 ); }
 
-    public void set_favored( boolean favored )
-    {
+    public void set_favored( boolean favored ) {
         if( favored )
         {
             m_status |= ES_FAVORED;
@@ -213,8 +212,9 @@ public class Entry extends DiaryElement {
         }
     }
 
-    public void toggle_favored()
-    { m_status ^= ES_FILTER_FAVORED; }
+    public void toggle_favored() {
+        m_status ^= ES_FILTER_FAVORED;
+    }
 
     // LANGUAGE
     public String get_lang() {

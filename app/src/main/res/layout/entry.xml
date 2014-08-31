@@ -26,13 +26,6 @@
             android:orientation="vertical" >
 
             <TextView
-                android:id="@+id/textViewElemTitle"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/placeholder"
-                android:textAppearance="?android:attr/textAppearanceMedium" />
-
-            <TextView
                 android:id="@+id/textViewElemSub"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

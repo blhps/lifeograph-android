@@ -12,6 +12,7 @@
     <string name="format">Format</string>
     <string name="favorite">Favorite</string>
     <string name="tags">Tags</string>
+    <string name="edit_tags">Edit Tags</string>
     <string name="entries">Entries</string>
     <string name="chapters">Chapters</string>
     <string name="all_entries">All Entries</string>

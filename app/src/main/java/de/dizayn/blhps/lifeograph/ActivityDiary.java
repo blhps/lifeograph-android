@@ -62,10 +62,6 @@ public class ActivityDiary extends ListActivity {
 
     protected boolean mFlagSaveOnLogOut = true;
 
-    // MENU ITEM IDS
-    public static final int ID_DISMISS = 205;
-    public static final int ID_TOGGLE_FAVORITE = 212;
-
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
@@ -242,7 +238,7 @@ public class ActivityDiary extends ListActivity {
     public boolean onCreateOptionsMenu( Menu menu ) {
         super.onCreateOptionsMenu( menu );
 
-        getMenuInflater().inflate(R.menu.menu_diary, menu);
+        getMenuInflater().inflate( R.menu.menu_diary, menu );
 
         return true;
     }
@@ -259,9 +255,12 @@ public class ActivityDiary extends ListActivity {
                     mParentElem = null;
                     update_entry_list();
                 }
-                break;
+                return true;
             case R.id.today:
                 goToToday();
+                return true;
+            case R.id.calendar:
+                showCalendar();
                 return true;
             case R.id.add_topic:
                 create_topic();

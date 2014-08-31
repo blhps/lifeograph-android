@@ -23,6 +23,7 @@ package de.dizayn.blhps.lifeograph;
 
 import java.util.ArrayList;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
@@ -127,8 +128,8 @@ public class ActivityEntry extends Activity {
         LS_CYCLIC, LS_FILE_OK, LS_FILE_INVALID, LS_FILE_UNAVAILABLE, LS_FILE_UNKNOWN
     }
 
+    protected ActionBar mActionBar = null;
     protected ImageView mImageEntry = null;
-    protected TextView mTextViewElemTitle = null;
     protected TextView mTextViewElemSub = null;
     public EditText mEditText = null;
     public Button mButtonBold = null;
@@ -148,6 +149,10 @@ public class ActivityEntry extends Activity {
         super.onCreate( savedInstanceState );
         Lifeobase.activityEntry = this;
         setContentView( R.layout.entry );
+
+        mActionBar = getActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled( true );
+
         mImageEntry = ( ImageView ) findViewById( R.id.imageViewEntry );
         mEditText = ( EditText ) findViewById( R.id.editTextEntry );
         // mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
@@ -186,7 +191,6 @@ public class ActivityEntry extends Activity {
             }
         } );
 
-        mTextViewElemTitle = ( TextView ) findViewById( R.id.textViewElemTitle );
         mTextViewElemSub = ( TextView ) findViewById( R.id.textViewElemSub );
         mImageEntry.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
@@ -270,19 +274,23 @@ public class ActivityEntry extends Activity {
 
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
-        // super.onCreateOptionsMenu( menu );
-        menu.add( 0, ActivityDiary.ID_TOGGLE_FAVORITE, 0, R.string.toggle_favorite );
-        menu.add( 0, ActivityDiary.ID_DISMISS, 0, R.string.dismiss_ );
+        super.onCreateOptionsMenu( menu );
+
+        getMenuInflater().inflate( R.menu.menu_entry, menu );
         return true;
     }
 
     @Override
     public boolean onMenuItemSelected( int featureId, MenuItem item ) {
         switch( item.getItemId() ) {
-            case ActivityDiary.ID_TOGGLE_FAVORITE:
+            case android.R.id.home:
+                //NavUtils.navigateUpFromSameTask( this );
+                finish();
+                return true;
+            case R.id.toggle_favorite:
                 toggleFavorite();
                 return true;
-            case ActivityDiary.ID_DISMISS:
+            case R.id.dismiss:
                 dismiss();
                 return true;
         }
@@ -324,9 +332,9 @@ public class ActivityEntry extends Activity {
         // if( flagParse )
         // parse_text();
 
-        mTextViewElemTitle.setText( entry.getHeadStr() );
+        setTitle( entry.getHeadStr() );
+        mActionBar.setIcon( entry.get_icon() );
         mTextViewElemSub.setText( entry.getSubStr() );
-        mImageEntry.setImageResource( entry.get_icon() );
         update_tag_button();
     }
 
@@ -361,7 +369,7 @@ public class ActivityEntry extends Activity {
         dialog.show();
     }
 
-    // TAG DIALOG =============================================================
+    // TAG DIALOG =================================================================================
     public class DialogTags extends Dialog {
         protected EditText editText;
         protected Button buttonAdd;
@@ -626,7 +634,7 @@ public class ActivityEntry extends Activity {
                                                                              mEditText.length() ) != -1 );
     }
 
-    // PARSING VARIABLES ======================================================
+    // PARSING VARIABLES ==========================================================================
     protected int pos_start, pos_current, pos_end, pos_word, pos_regular;
     protected char char_current;
     protected int char_last, char_req = CC_ANY;
@@ -782,7 +790,7 @@ public class ActivityEntry extends Activity {
                                   | LF_MORE | LF_TAB, LF_EOT, ParSel.NULL, CC_NEWLINE );
     }
 
-    // SELECT PARSING FUNCTION ================================================
+    // SELECT PARSING FUNCTION ====================================================================
     protected void selectParsingFunc( ParSel ps ) {
         switch( ps ) {
             case TR_SUBH:
@@ -854,7 +862,7 @@ public class ActivityEntry extends Activity {
         }
     }
 
-    // PROCESS CHAR ===========================================================
+    // PROCESS CHAR ===============================================================================
     protected void process_char( int satisfies, int breaks, int triggers, ParSel ps, int cc ) {
         int lf = lookingfor.get( 0 );
 
@@ -916,7 +924,7 @@ public class ActivityEntry extends Activity {
         char_last = cc;
     }
 
-    // PROCESS NEWLINE ========================================================
+    // PROCESS NEWLINE ============================================================================
     protected void process_newline() {
         if( m_applier_nl != ParSel.NULL ) {
             selectParsingFunc( m_applier_nl );
@@ -924,7 +932,7 @@ public class ActivityEntry extends Activity {
         }
     }
 
-    // HANDLE NUMBER ==========================================================
+    // HANDLE NUMBER ==============================================================================
     void handle_number() {
         if( char_last == CC_NUMBER ) {
             int_last *= 10;
@@ -934,7 +942,7 @@ public class ActivityEntry extends Activity {
             int_last = ( char_current - '0' );
     }
 
-    // PARSING TRIGGERERS =====================================================
+    // PARSING TRIGGERERS =========================================================================
     protected void trigger_subheading() {
         if( char_last == CC_NEWLINE ) {
             lookingfor.clear();

@@ -199,7 +199,9 @@ public class DialogCalendar extends Dialog {
             }
 
             // Next Month days
-            final int numSlotAfter = 7 - ( ( numSlotBefore + daysInMonth ) % 7 );
+            //final int numSlotAfter = 7 - ( ( numSlotBefore + daysInMonth ) % 7 );
+            // always use 6 rows:
+            final int numSlotAfter = 42 - ( numSlotBefore + daysInMonth );
             for( int i = 1; i <= numSlotAfter; i++ ) {
                 mListDays.add( nextMonth.m_date + Date.make_day( i ) );
             }
@@ -245,7 +247,7 @@ public class DialogCalendar extends Dialog {
                 }
                 else {
                     buttonDay.setTextAppearance( mContext, R.style.normalText );
-                    buttonDay.setTextColor( within_month ? Color.WHITE : Color.GRAY );
+                    buttonDay.setTextColor( within_month ? Color.BLACK : Color.GRAY );
                 }
                 // holidays:
                 // if( date.get_weekday() == 0 )
