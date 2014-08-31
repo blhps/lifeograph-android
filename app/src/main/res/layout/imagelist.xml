@@ -21,12 +21,10 @@ android:layout_height="wrap_content" >
 		android:id="@+id/title"
 		android:layout_height="wrap_content"
 		android:textStyle="bold"
-		android:textColor="#ffffff"
 		android:textSize="16sp" />
 		<TextView
 		android:layout_width="fill_parent"
 		android:id="@+id/detail"
-		android:textColor="#ffffff"
 		android:layout_height="wrap_content" />
     </LinearLayout>
     <ImageView

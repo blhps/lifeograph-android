@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:id="@+id/today"
+          android:title="@string/today"
+          android:icon="@drawable/ic_add"
+          android:orderInCategory="90"
+          android:showAsAction="ifRoom" />
+    <item android:id="@+id/add_entry"
+          android:title="@string/add_entry"
+          android:icon="@drawable/ic_add"
+          android:orderInCategory="90"
+          android:showAsAction="ifRoom" />
+    <item android:id="@+id/calendar"
+          android:title="@string/calendar"
+          android:icon="@drawable/ic_action_calendar"
+          android:orderInCategory="90"
+          android:showAsAction="ifRoom" />
+    <item android:id="@+id/add_topic"
+          android:title="@string/add_topic"
+          android:orderInCategory="100"
+          android:showAsAction="ifRoom" />
+    <item android:id="@+id/change_sort_type"
+          android:title="@string/change_sorting"
+          android:orderInCategory="100" />
+    <item android:id="@+id/import_sms"
+          android:title="@string/import_sms"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
+    <item android:id="@+id/rename"
+          android:title="@string/rename_"
+          android:orderInCategory="100" />
+    <item android:id="@+id/dismiss"
+          android:title="@string/dismiss_"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
+    <item android:id="@+id/logout_wo_save"
+          android:title="@string/logoutwosaving"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
+</menu>

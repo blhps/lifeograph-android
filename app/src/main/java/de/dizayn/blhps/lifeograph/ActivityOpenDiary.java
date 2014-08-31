@@ -63,7 +63,7 @@ public class ActivityOpenDiary extends ListActivity {
         if( Diary.diary == null )
             Diary.diary = new Diary();
 
-        setContentView( R.layout.main );
+        setContentView( R.layout.open_diary );
         // setTitle( "Diaries" );
 
         Lifeobase.context = getApplicationContext();
@@ -133,7 +133,7 @@ public class ActivityOpenDiary extends ListActivity {
     }
 
     @Override
-    public boolean onMenuItemSelected( int featureId, MenuItem item ) {
+    public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case ID_ABOUT:
                 DialogAbout dialog = new DialogAbout( this );
@@ -144,7 +144,7 @@ public class ActivityOpenDiary extends ListActivity {
                 return true;
         }
 
-        return super.onMenuItemSelected( featureId, item );
+        return super.onOptionsItemSelected( item );
     }
 
     /*

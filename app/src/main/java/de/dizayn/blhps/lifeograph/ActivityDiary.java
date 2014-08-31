@@ -24,6 +24,7 @@ package de.dizayn.blhps.lifeograph;
 import java.util.ArrayList;
 import java.util.Calendar;
 
+import android.app.ActionBar;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.ListActivity;
@@ -33,6 +34,7 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+//import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -40,7 +42,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
@@ -53,30 +54,17 @@ public class ActivityDiary extends ListActivity {
 
     public static Entry entry_current = null;
     protected DiaryElement mParentElem = null;
-    protected ImageView mImageView = null;
-    protected TextView mTextViewTitle = null;
+
+    protected ActionBar mActionBar = null;
     protected TextView mTextViewSub = null;
-    protected Button mButtonToday = null;
-    protected Button mButtonCalendar = null;
 
     static protected ElemListAllEntries mElemAllEntries = null;
 
     protected boolean mFlagSaveOnLogOut = true;
 
     // MENU ITEM IDS
-    public static final int ID_RENAME = 201;
     public static final int ID_DISMISS = 205;
     public static final int ID_TOGGLE_FAVORITE = 212;
-    public static final int ID_SORTING_TYPE = 230;
-    public static final int ID_LOG_OUT_WO_SAVING = 233;
-    public static final int ID_CREATE_TOPIC = 240;
-    public static final int ID_ADD_ENTRY = 241;
-    public static final int ID_IMPORT = 270;
-
-    // XXX too hard to interoperate with int:
-    // private enum MenuID {
-    // RENAME, DISMISS, LOG_OUT_WO_SAVING, CREATE_TOPIC
-    // }
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
@@ -87,30 +75,12 @@ public class ActivityDiary extends ListActivity {
             Diary.diary = new Diary();
 
         setContentView( R.layout.diary );
+
+        mActionBar = getActionBar();
+        mActionBar.setDisplayHomeAsUpEnabled( true );
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
-        mImageView = ( ImageView ) findViewById( R.id.imageViewDiary );
-        mImageView.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                mParentElem = null;
-                update_entry_list();
-            }
-        } );
-
-        mTextViewTitle = ( TextView ) findViewById( R.id.textViewDiaryTitle );
         mTextViewSub = ( TextView ) findViewById( R.id.textViewDiarySub );
-        mButtonToday = ( Button ) findViewById( R.id.buttonToday );
-        mButtonToday.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                goToToday();
-            }
-        } );
-        mButtonCalendar = ( Button ) findViewById( R.id.buttonCalendar );
-        mButtonCalendar.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                showCalendar();
-            }
-        } );
 
         m_adapter_entries = new DiaryElemAdapter( this, R.layout.imagelist, R.id.title, m_elems );
         this.setListAdapter( m_adapter_entries );
@@ -240,23 +210,29 @@ public class ActivityDiary extends ListActivity {
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        MenuItem item = menu.findItem( ID_CREATE_TOPIC );
+        MenuItem item = menu.findItem( R.id.today );
         item.setVisible( mParentElem == null );
 
-        item = menu.findItem( ID_SORTING_TYPE );
+        item = menu.findItem( R.id.calendar );
+        item.setVisible( mParentElem == null );
+
+        item = menu.findItem( R.id.add_topic );
+        item.setVisible( mParentElem == null );
+
+        item = menu.findItem( R.id.change_sort_type );
         item.setVisible( mParentElem != null );
 
         DiaryElement.Type type = DiaryElement.Type.NONE;
         if( mParentElem != null )
             type = mParentElem.get_type();
 
-        item = menu.findItem( ID_ADD_ENTRY );
+        item = menu.findItem( R.id.add_entry );
         item.setVisible( type == DiaryElement.Type.TOPIC );
 
-        item = menu.findItem( ID_DISMISS );
+        item = menu.findItem( R.id.dismiss );
         item.setVisible( mParentElem != null );
 
-        item = menu.findItem( ID_RENAME );
+        item = menu.findItem( R.id.rename );
         item.setVisible( mParentElem != null );
 
         return true;
@@ -266,56 +242,35 @@ public class ActivityDiary extends ListActivity {
     public boolean onCreateOptionsMenu( Menu menu ) {
         super.onCreateOptionsMenu( menu );
 
-        menu.add( 0, ID_CREATE_TOPIC, 0, R.string.create_topic );
-
-        menu.add( 0, ID_SORTING_TYPE, 0, R.string.sort_by_size );
-        menu.add( 0, ID_ADD_ENTRY, 0, R.string.add_entry );
-        menu.add( 0, ID_DISMISS, 0, R.string.dismiss_ );
-        menu.add( 0, ID_RENAME, 0, R.string.rename_ );
-
-        menu.add( 0, ID_LOG_OUT_WO_SAVING, 0, R.string.logoutwosaving );
-        menu.add( 0, ID_IMPORT, 0, R.string.import_ );
+        getMenuInflater().inflate(R.menu.menu_diary, menu);
 
         return true;
     }
 
     @Override
-    public boolean onMenuItemSelected( int featureId, MenuItem item ) {
-        switch( item.getItemId() ) {
-            case ID_LOG_OUT_WO_SAVING:
-                AlertDialog.Builder builder = new AlertDialog.Builder( this );
-                builder.setMessage( R.string.logoutwosaving_confirm )
-                       .setCancelable( false )
-                       .setPositiveButton( R.string.logoutwosaving,
-                                           new DialogInterface.OnClickListener() {
-                                               public void onClick( DialogInterface dialog, int id ) {
-                                                   // unlike desktop version Android version
-                                                   // does
-                                                   // not back up changes
-                                                   mFlagSaveOnLogOut = false;
-                                                   ActivityDiary.this.finish();
-                                               }
-                                           } )
-                       .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-                           public void onClick( DialogInterface dialog, int id ) {
-                               mFlagSaveOnLogOut = true;
-                               dialog.cancel();
-                           }
-                       } );
-                AlertDialog alert = builder.create();
-                alert.show();
+    public boolean onOptionsItemSelected( MenuItem item ) {
+        switch( item.getItemId() )
+        {
+            case android.R.id.home:
+                if( mParentElem == null )
+                    //NavUtils.navigateUpFromSameTask( this );
+                    finish();
+                else {
+                    mParentElem = null;
+                    update_entry_list();
+                }
+                break;
+            case R.id.today:
+                goToToday();
                 return true;
-            case ID_IMPORT:
-                import_messages();
-                return true;
-            case ID_CREATE_TOPIC:
+            case R.id.add_topic:
                 create_topic();
                 return true;
-            case ID_ADD_ENTRY:
+            case R.id.add_entry:
                 showEntry( Diary.diary.create_entry( ( ( Chapter ) mParentElem ).get_free_order(),
-                                                     "", false ) );
+                        "", false ) );
                 return true;
-            case ID_RENAME:
+            case R.id.rename:
                 switch( mParentElem.get_type() ) {
                     case TAG:
                         rename_tag();
@@ -328,7 +283,7 @@ public class ActivityDiary extends ListActivity {
                         break;
                 }
                 return true;
-            case ID_DISMISS:
+            case R.id.dismiss:
                 switch( mParentElem.get_type() ) {
                     case TAG:
                         dismiss_tag();
@@ -341,9 +296,34 @@ public class ActivityDiary extends ListActivity {
                         break;
                 }
                 return true;
+            case R.id.logout_wo_save:
+                AlertDialog.Builder builder = new AlertDialog.Builder( this );
+                builder.setMessage( R.string.logoutwosaving_confirm )
+                        .setCancelable( false )
+                        .setPositiveButton( R.string.logoutwosaving,
+                                new DialogInterface.OnClickListener() {
+                                    public void onClick( DialogInterface dialog, int id ) {
+                                        // unlike desktop version Android version
+                                        // does
+                                        // not back up changes
+                                        mFlagSaveOnLogOut = false;
+                                        ActivityDiary.this.finish();
+                                    }
+                                } )
+                        .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+                            public void onClick( DialogInterface dialog, int id ) {
+                                mFlagSaveOnLogOut = true;
+                                dialog.cancel();
+                            }
+                        } );
+                AlertDialog alert = builder.create();
+                alert.show();
+                return true;
+            case R.id.import_sms:
+                import_messages();
+                return true;
         }
-
-        return super.onMenuItemSelected( featureId, item );
+        return super.onOptionsItemSelected(item);
     }
 
     public void update_entry_list() {
@@ -352,8 +332,8 @@ public class ActivityDiary extends ListActivity {
         DiaryElement.Type type = mParentElem == null ? Type.NONE : mParentElem.get_type();
         switch( type ) {
             case NONE:
-                mImageView.setImageResource( R.drawable.ic_diary );
-                mTextViewTitle.setText( Diary.diary.get_name() );
+                mActionBar.setIcon( R.drawable.ic_diary );
+                setTitle( Diary.diary.get_name() );
                 mTextViewSub.setText( "Diary with " + Diary.diary.m_entries.size() + " Entries" );
 
                 if( mElemAllEntries == null ) {
@@ -378,8 +358,8 @@ public class ActivityDiary extends ListActivity {
                 }
                 break;
             case TAG:
-                mImageView.setImageResource( mParentElem.get_icon() );
-                mTextViewTitle.setText( mParentElem.getListStr() );
+                mActionBar.setIcon( mParentElem.get_icon() );
+                setTitle( mParentElem.getListStr() );
                 mTextViewSub.setText( mParentElem.getSubStr() );
 
                 Tag t = ( Tag ) mParentElem;
@@ -390,8 +370,8 @@ public class ActivityDiary extends ListActivity {
             case CHAPTER:
             case TOPIC:
             case SORTED:
-                mImageView.setImageResource( mParentElem.get_icon() );
-                mTextViewTitle.setText( mParentElem.getListStr() );
+                mActionBar.setIcon( mParentElem.get_icon() );
+                setTitle( mParentElem.getListStr() );
                 mTextViewSub.setText( mParentElem.getSubStr() );
 
                 Chapter c = ( Chapter ) mParentElem;
@@ -407,6 +387,9 @@ public class ActivityDiary extends ListActivity {
             default:
                 break;
         }
+
+        // force menu update
+        invalidateOptionsMenu();
     }
 
     protected void create_topic() {
@@ -416,15 +399,21 @@ public class ActivityDiary extends ListActivity {
         dlg.setTitle( "Create Topic" )
                 // .setMessage(message)
                 .setView( input )
-                .setPositiveButton( R.string.create_topic, new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface di, int btn ) {
+                .setPositiveButton( R.string.create_topic, new DialogInterface.OnClickListener()
+                {
+                    public void onClick( DialogInterface di, int btn )
+                    {
                         mParentElem = Diary.diary.m_topics.create_chapter_ordinal(
                                 input.getText().toString() );
                         Diary.diary.update_entries_in_chapters();
-                        update_entry_list(); }
+                        update_entry_list();
+                    }
                 } )
-                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface di, int btn ) {} // do nothing
+                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener()
+                {
+                    public void onClick( DialogInterface di, int btn )
+                    {
+                    } // do nothing
                 } ).show();
     }
     protected void create_sorted() {
@@ -434,15 +423,21 @@ public class ActivityDiary extends ListActivity {
         dlg.setTitle( "Create Group" )
                 // .setMessage(message)
                 .setView( input )
-                .setPositiveButton( R.string.create_group, new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface di, int btn ) {
+                .setPositiveButton( R.string.create_group, new DialogInterface.OnClickListener()
+                {
+                    public void onClick( DialogInterface di, int btn )
+                    {
                         mParentElem = Diary.diary.m_custom_sorteds.create_chapter_ordinal(
                                 input.getText().toString() );
                         Diary.diary.update_entries_in_chapters();
-                        update_entry_list(); }
+                        update_entry_list();
+                    }
                 } )
-                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface di, int btn ) {} // do nothing
+                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener()
+                {
+                    public void onClick( DialogInterface di, int btn )
+                    {
+                    } // do nothing
                 } ).show();
     }
 
@@ -453,10 +448,12 @@ public class ActivityDiary extends ListActivity {
         dlg.setTitle( "Rename Tag" )
            // .setMessage(message)
            .setView( input )
-           .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener() {
-               public void onClick( DialogInterface di, int btn ) {
+           .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener()
+           {
+               public void onClick( DialogInterface di, int btn )
+               {
                    Diary.diary.rename_tag( ( Tag ) mParentElem, input.getText().toString() );
-                   mTextViewTitle.setText( mParentElem.m_name );
+                   setTitle( mParentElem.m_name );
                }
            } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
                public void onClick( DialogInterface di, int btn ) {
@@ -473,10 +470,12 @@ public class ActivityDiary extends ListActivity {
         dlg.setTitle( "Rename Chapter/Topic" )
            // .setMessage(message)
            .setView( input )
-           .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener() {
-               public void onClick( DialogInterface di, int btn ) {
+           .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener()
+           {
+               public void onClick( DialogInterface di, int btn )
+               {
                    ( ( Chapter ) mParentElem ).m_name = input.getText().toString();
-                   mTextViewTitle.setText( mParentElem.m_name );
+                   setTitle( mParentElem.m_name );
                }
            } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
                public void onClick( DialogInterface di, int btn ) {
