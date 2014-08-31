@@ -27,15 +27,15 @@ import java.util.Calendar;
 import android.util.Log;
 
 public class Date {
-    public static final long    NOTSET           = 0xFFFFFFFF;
-    public static final long    DATE_MAX         = 0xFFFFFFFF;
-    public static final long    YEAR_MAX         = 2199;
-    public static final long    YEAR_MIN         = 1900;
+    public static final long    NOTSET           = 0xFFFFFFFFL;
+    public static final long    DATE_MAX         = 0xFFFFFFFFL;
+    public static final long    YEAR_MAX         = 2199L;
+    public static final long    YEAR_MIN         = 1900L;
 
-    public static final long    ORDER_FILTER     =      0x3FF;
-    public static final long    DAY_FILTER       =     0x7C00;
-    public static final long    MONTH_FILTER     =    0x78000;
-    public static final long    YEAR_FILTER      = 0x7FF80000;
+    public static final long    ORDER_FILTER     =      0x3FFL;
+    public static final long    DAY_FILTER       =     0x7C00L;
+    public static final long    MONTH_FILTER     =    0x78000L;
+    public static final long    YEAR_FILTER      = 0x7FF80000L;
     public static final long    ORDER_FILTER_INV = DATE_MAX ^ ORDER_FILTER;
     public static final long    DAY_FILTER_INV   = DATE_MAX ^ DAY_FILTER;
     public static final long    MONTH_FILTER_INV = DATE_MAX ^ MONTH_FILTER;
@@ -44,11 +44,11 @@ public class Date {
     public static final long    PURE_FILTER      = DATE_MAX ^ ORDER_FILTER;
 
     // hidden elements are custom sorted and their sequence numbers are not shown
-    public static final long    VISIBLE_FLAG     = 0x40000000;  // only for ordinal items
+    public static final long    VISIBLE_FLAG     = 0x40000000L;  // only for ordinal items
 
-    public static final long    ORDINAL_STEP     = 0x400;
-    public static final long    ORDINAL_FLAG     = 0x80000000;
-    public static final long    ORDINAL_FILTER   = 0x1FFFFC00;
+    public static final long    ORDINAL_STEP     = 0x400L;
+    public static final long    ORDINAL_FLAG     = 0x80000000L;
+    public static final long    ORDINAL_FILTER   = 0x1FFFFC00L;
     public static final long    TOPIC_MAX        = ORDINAL_FILTER;
     public static final long    TOPIC_NO_FLAGS_FILTER   = ORDINAL_FILTER|ORDER_FILTER;
 
@@ -86,7 +86,7 @@ public class Date {
         m_date = ( ORDINAL_FLAG | ( o1 << 10 ) | o2 );
     }
 
-    static int get_today( int order ) {
+    static long get_today( int order ) {
         Calendar cal = Calendar.getInstance();
 
         return make_date( cal.get( Calendar.YEAR ), cal.get( Calendar.MONTH ) + 1,
@@ -196,19 +196,19 @@ public class Date {
         return( ( d | 0x1 ) & ORDER_FILTER_INV );
     }
 
-    public static int make_year( int y ) {
+    public static long make_year( int y ) {
         return( y << 19 );
     }
 
-    public static int make_month( int m ) {
+    public static long make_month( int m ) {
         return( m << 15 );
     }
 
-    public static int make_day( int d ) {
+    public static long make_day( int d ) {
         return( d << 10 );
     }
 
-    public static int make_date( int y, int m, int d, int o ) {
+    public static long make_date( int y, int m, int d, int o ) {
         return( ( y << 19 ) | ( m << 15 ) | ( d << 10 ) | o );
     }
 

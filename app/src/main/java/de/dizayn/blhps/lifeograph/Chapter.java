@@ -66,7 +66,7 @@ public class Chapter extends DiaryElement {
         }
 
         public Chapter create_chapter_ordinal( String name ) {
-            return create_chapter( name, get_free_order_ordinal().m_date );
+            return create_chapter( name, get_free_order_ordinal() );
         }
 
         public void dismiss_chapter( Chapter chapter ) {
@@ -88,14 +88,13 @@ public class Chapter extends DiaryElement {
             mMap.remove( chapter.m_date_begin.m_date );
         }
 
-        Date get_free_order_ordinal() {
-            if( mMap.size() > 0 ) {
-                Date d = new Date( ( Long ) mMap.keySet().toArray()[ 0 ] );
-                d.forward_ordinal_order();
-                return d;
-            }
+        long get_free_order_ordinal() {
+            if( mMap.isEmpty() )
+                return( m_date_min );
 
-            return( new Date( 0, 0 ) );
+            Date d = new Date( ( Long ) mMap.keySet().toArray()[ 0 ] );
+            d.forward_ordinal_order();
+            return d.m_date;
         }
 
         public Chapter getChapterEarlier( Chapter chapter ) {
