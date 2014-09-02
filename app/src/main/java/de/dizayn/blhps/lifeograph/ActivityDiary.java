@@ -56,7 +56,6 @@ public class ActivityDiary extends ListActivity {
     protected DiaryElement mParentElem = null;
 
     protected ActionBar mActionBar = null;
-    protected TextView mTextViewSub = null;
 
     static protected ElemListAllEntries mElemAllEntries = null;
 
@@ -75,8 +74,6 @@ public class ActivityDiary extends ListActivity {
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
-
-        mTextViewSub = ( TextView ) findViewById( R.id.textViewDiarySub );
 
         m_adapter_entries = new DiaryElemAdapter( this, R.layout.imagelist, R.id.title, m_elems );
         this.setListAdapter( m_adapter_entries );
@@ -333,7 +330,7 @@ public class ActivityDiary extends ListActivity {
             case NONE:
                 mActionBar.setIcon( R.drawable.ic_diary );
                 setTitle( Diary.diary.get_name() );
-                mTextViewSub.setText( "Diary with " + Diary.diary.m_entries.size() + " Entries" );
+                mActionBar.setSubtitle( "Diary with " + Diary.diary.m_entries.size() + " Entries" );
 
                 if( mElemAllEntries == null ) {
                     mElemAllEntries = new ElemListAllEntries( Diary.diary );
@@ -359,7 +356,7 @@ public class ActivityDiary extends ListActivity {
             case TAG:
                 mActionBar.setIcon( mParentElem.get_icon() );
                 setTitle( mParentElem.getListStr() );
-                mTextViewSub.setText( mParentElem.getSubStr() );
+                mActionBar.setSubtitle( mParentElem.getSubStr() );
 
                 Tag t = ( Tag ) mParentElem;
                 for( Entry e : t.mEntries ) {
@@ -371,7 +368,7 @@ public class ActivityDiary extends ListActivity {
             case SORTED:
                 mActionBar.setIcon( mParentElem.get_icon() );
                 setTitle( mParentElem.getListStr() );
-                mTextViewSub.setText( mParentElem.getSubStr() );
+                mActionBar.setSubtitle( mParentElem.getSubStr() );
 
                 Chapter c = ( Chapter ) mParentElem;
                 for( Entry e : c.mEntries ) {

@@ -45,11 +45,6 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ActivityOpenDiary extends ListActivity {
-
-    public static final int ID_QUIT = 100;
-    public static final int ID_ABOUT = 102;
-    public static final int ID_BROWSE_DIARY = 105;
-
     protected java.util.List< String > m_paths = new ArrayList< String >();
     protected ArrayAdapter< String > m_adapter_diaries;
 
@@ -68,18 +63,10 @@ public class ActivityOpenDiary extends ListActivity {
 
         Lifeobase.context = getApplicationContext();
 
-        Button buttonCreateDiary = ( Button ) findViewById( R.id.button_create_diary );
-
         m_adapter_diaries =
                 new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
                                             android.R.id.text1 );
         this.setListAdapter( m_adapter_diaries );
-
-        buttonCreateDiary.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                createNewDiary();
-            }
-        } );
 
         registerForContextMenu( getListView() );
 
@@ -127,20 +114,21 @@ public class ActivityOpenDiary extends ListActivity {
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
         super.onCreateOptionsMenu( menu );
-        menu.add( 0, ID_QUIT, 0, R.string.quit );
-        menu.add( 0, ID_ABOUT, 0, R.string.about );
+
+        getMenuInflater().inflate( R.menu.menu_login, menu );
+
         return true;
     }
 
     @Override
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
-            case ID_ABOUT:
+            case R.id.about:
                 DialogAbout dialog = new DialogAbout( this );
                 dialog.show();
                 return true;
-            case ID_QUIT:
-                finish();
+            case R.id.new_diary:
+                createNewDiary();
                 return true;
         }
 

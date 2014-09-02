@@ -129,14 +129,11 @@ public class ActivityEntry extends Activity {
     }
 
     protected ActionBar mActionBar = null;
-    protected ImageView mImageEntry = null;
-    protected TextView mTextViewElemSub = null;
     public EditText mEditText = null;
     public Button mButtonBold = null;
     public Button mButtonItalic = null;
     public Button mButtonStrikethrough = null;
     public Button mButtonHighlight = null;
-    public Button mButtonTags = null;
     boolean m_flag_settextoperation = false;
     boolean m_flag_entry_changed = false;
     boolean mFlagDismissOnExit = false;
@@ -153,7 +150,6 @@ public class ActivityEntry extends Activity {
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
 
-        mImageEntry = ( ImageView ) findViewById( R.id.imageViewEntry );
         mEditText = ( EditText ) findViewById( R.id.editTextEntry );
         // mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
 
@@ -188,13 +184,6 @@ public class ActivityEntry extends Activity {
                     m_flag_entry_changed = true;
                 }
                 parse_text();
-            }
-        } );
-
-        mTextViewElemSub = ( TextView ) findViewById( R.id.textViewElemSub );
-        mImageEntry.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                changeView();
             }
         } );
 
@@ -245,12 +234,6 @@ public class ActivityEntry extends Activity {
         // }
         // } );
 
-        mButtonTags = ( Button ) findViewById( R.id.buttonTags );
-        mButtonTags.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                showTagDialog();
-            }
-        } );
         m_adapter_tags =
                 new ArrayAdapter< String >( this,
                                             android.R.layout.simple_list_item_multiple_choice,
@@ -273,29 +256,60 @@ public class ActivityEntry extends Activity {
     }
 
     @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        super.onCreateOptionsMenu( menu );
+    public boolean onPrepareOptionsMenu( Menu menu ) {
+        super.onPrepareOptionsMenu( menu );
 
-        getMenuInflater().inflate( R.menu.menu_entry, menu );
+        MenuItem item = menu.findItem( R.id.add_tag );
+        item.setTitle( m_ptr2entry.m_tags.size() + " Tag(s)" );
+
         return true;
     }
 
     @Override
-    public boolean onMenuItemSelected( int featureId, MenuItem item ) {
+    public boolean onCreateOptionsMenu( Menu menu ) {
+        super.onCreateOptionsMenu( menu );
+
+        getMenuInflater().inflate( R.menu.menu_entry, menu );
+
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case android.R.id.home:
                 //NavUtils.navigateUpFromSameTask( this );
                 finish();
                 return true;
+            case R.id.add_tag:
+                showTagDialog();
+                return true;
             case R.id.toggle_favorite:
                 toggleFavorite();
+                return true;
+            case R.id.change_todo_status:
+                switch( m_ptr2entry.get_todo_status() ) {
+                    case DiaryElement.ES_NOT_TODO:
+                        m_ptr2entry.set_todo_status( DiaryElement.ES_TODO );
+                        break;
+                    case DiaryElement.ES_TODO:
+                        m_ptr2entry.set_todo_status( DiaryElement.ES_DONE );
+                        break;
+                    case DiaryElement.ES_DONE:
+                        m_ptr2entry.set_todo_status( DiaryElement.ES_CANCELED );
+                        break;
+                    case DiaryElement.ES_CANCELED:
+                        m_ptr2entry.set_todo_status( DiaryElement.ES_NOT_TODO );
+                        break;
+                }
+                mActionBar.setIcon( m_ptr2entry.get_icon() );
                 return true;
             case R.id.dismiss:
                 dismiss();
                 return true;
         }
 
-        return super.onMenuItemSelected( featureId, item );
+        return super.onOptionsItemSelected( item );
     }
 
     public void changeView() {
@@ -333,18 +347,15 @@ public class ActivityEntry extends Activity {
         // parse_text();
 
         setTitle( entry.getHeadStr() );
+        mActionBar.setSubtitle( entry.getSubStr() );
         mActionBar.setIcon( entry.get_icon() );
-        mTextViewElemSub.setText( entry.getSubStr() );
-        update_tag_button();
-    }
-
-    public void update_tag_button() {
-        mButtonTags.setText( m_ptr2entry.m_tags.size() + " Tag(s)..." );
+        //mTextViewElemSub.setText( entry.getSubStr() );
+        invalidateOptionsMenu(); // may be redundant here
     }
 
     public void toggleFavorite() {
         m_ptr2entry.toggle_favored();
-        mImageEntry.setImageResource( m_ptr2entry.get_icon() );
+        invalidateOptionsMenu();
     }
 
     public void dismiss() {
@@ -387,7 +398,7 @@ public class ActivityEntry extends Activity {
             setCancelable( true );
             setOnDismissListener( new android.content.DialogInterface.OnDismissListener() {
                 public void onDismiss( android.content.DialogInterface dialog ) {
-                    update_tag_button();
+                    invalidateOptionsMenu();
                 }
             } );
 
@@ -1180,7 +1191,7 @@ public class ActivityEntry extends Activity {
         apply_ignore();
     }
 
-    // APPLIERS ===============================================================
+    // APPLIERS ===================================================================================
     protected void apply_heading() {
         int end = 0;
         if( mEditText.getText().charAt( 0 ) != '\n' )

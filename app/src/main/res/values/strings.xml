@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lifeograph</string>
-    <string name="create_diary">Create a New Diary</string>
+    <string name="new_diary">New Diary</string>
     <string name="about">About..</string>
     <string name="quit">Quit</string>
     <string name="cancel">Cancel</string>
@@ -38,6 +38,7 @@
     <string name="rename_">Rename..</string>
     <string name="rename">Rename</string>
     <string name="toggle_favorite">Toggle Favoredness</string>
+    <string name="change_todo_status">Change Todo Status</string>
     <string name="todo">TODO</string>
     <string name="new_diary_name">Enter a name for the new diary:</string>
     <string name="create">Create</string>

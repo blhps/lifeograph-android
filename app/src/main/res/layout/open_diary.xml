@@ -15,13 +15,6 @@
         android:text="@string/welcome"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
-    <Button
-        android:id="@+id/button_create_diary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:text="@string/create_diary" />
-
     <TextView
         android:id="@+id/textView2"
         android:layout_width="fill_parent"
@@ -55,8 +48,6 @@
             android:text="@string/diaries"
             android:textSize="25sp"
             android:textAppearance="?android:attr/textAppearanceLarge" />
-
-
 
     </RelativeLayout>
 

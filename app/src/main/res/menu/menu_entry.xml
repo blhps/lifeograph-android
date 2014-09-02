@@ -5,13 +5,18 @@
           android:title="@string/tags"
           android:icon="@drawable/ic_action_tag"
           android:orderInCategory="90"
-          android:showAsAction="ifRoom" />
+          android:showAsAction="ifRoom|withText" />
     <item android:id="@+id/toggle_favorite"
           android:title="@string/toggle_favorite"
           android:icon="@drawable/ic_action_favorite"
           android:orderInCategory="90"
           android:showAsAction="ifRoom" />
+    <item android:id="@+id/change_todo_status"
+          android:title="@string/change_todo_status"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
     <item android:id="@+id/dismiss"
           android:title="@string/dismiss_"
-          android:orderInCategory="100" />
+          android:orderInCategory="100"
+          android:showAsAction="never" />
 </menu>
