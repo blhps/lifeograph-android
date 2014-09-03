@@ -66,16 +66,19 @@ public class Diary extends DiaryElement
 
     public Result init_new( String path ) {
         clear();
-        if( set_path( path, true, false ) == Result.SUCCESS ) {
-            // every diary must at least have one chapter category:
-            m_ptr2chapter_ctg_cur = create_chapter_ctg( "Default" );
+        Result result = set_path( path, true, false );
 
-            add_today(); // must come after m_ptr2chapter_ctg_cur is set
-
-            return Result.SUCCESS;
+        if( result != Result.SUCCESS ) {
+            clear();
+            return result;
         }
-        else
-            return Result.FAILURE;
+
+        // every diary must at least have one chapter category:
+        m_ptr2chapter_ctg_cur = create_chapter_ctg( "Default" );
+
+        add_today(); // must come after m_ptr2chapter_ctg_cur is set
+
+        return Result.SUCCESS;
     }
 
     public void clear() {

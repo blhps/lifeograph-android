@@ -346,10 +346,14 @@ public class ActivityOpenDiary extends ListActivity {
             dismiss();
 
             if( name.length() > 0 )
-                if( Diary.diary.init_new( "/mnt/sdcard/Diaries/" + name ) == Result.SUCCESS ) {
+            {
+                if( Diary.diary.init_new( "/mnt/sdcard/Diaries/" + name ) == Result.SUCCESS )
+                {
                     Intent i = new Intent( ActivityOpenDiary.this, ActivityDiary.class );
                     startActivityForResult( i, 0 );
                 }
+                // TODO else inform the user about the problem
+            }
         }
     }
 
