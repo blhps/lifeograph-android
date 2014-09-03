@@ -155,7 +155,10 @@ public class Chapter extends DiaryElement {
 
     @Override
     public String getListStr() {
-        return( m_date_begin.format_string( false ) + STR_SEPARATOR + m_name );
+        if( m_date_begin.is_hidden() )
+            return m_name;
+//    else
+            return( m_date_begin.format_string( false ) + STR_SEPARATOR + m_name );
     }
 
     @Override

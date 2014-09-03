@@ -72,7 +72,10 @@ public class Entry extends DiaryElement {
 
     @Override
     public String getListStr() {
-        return( m_date.format_string( false ) + STR_SEPARATOR + m_name );
+        if( m_date.is_hidden() )
+            return m_name;
+        // else
+            return( m_date.format_string( false ) + STR_SEPARATOR + m_name );
     }
 
     @Override
@@ -113,7 +116,7 @@ public class Entry extends DiaryElement {
 
         boolean flag_filteredout = ( ( m_status & ES_FILTERED_OUT ) != 0 );
 
-        while( ( fs & ES_FILTER_OUTSTANDING) != 0 )  // this loop is meant for a single iteration
+        while( ( fs & ES_FILTER_OUTSTANDING ) != 0 )  // this loop is meant for a single iteration
         // loop used instead of if to be able to break out
         {
             flag_filteredout = ( ( fs & ES_FILTER_TRASHED & m_status ) == 0 );
