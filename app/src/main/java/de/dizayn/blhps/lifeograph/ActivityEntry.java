@@ -53,7 +53,6 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -380,7 +379,7 @@ public class ActivityEntry extends Activity {
         dialog.show();
     }
 
-    // TAG DIALOG =================================================================================
+    // TAG DIALOG ==================================================================================
     public class DialogTags extends Dialog {
         protected EditText editText;
         protected Button buttonAdd;
@@ -451,6 +450,12 @@ public class ActivityEntry extends Activity {
             } );
 
             update_list( null );
+        }
+
+        @Override
+        public void onStop() {
+            // update tags label:
+            ActivityEntry.this.invalidateOptionsMenu();
         }
 
         private void create_tag() {
@@ -645,7 +650,7 @@ public class ActivityEntry extends Activity {
                                                                              mEditText.length() ) != -1 );
     }
 
-    // PARSING VARIABLES ==========================================================================
+    // PARSING VARIABLES ===========================================================================
     protected int pos_start, pos_current, pos_end, pos_word, pos_regular;
     protected char char_current;
     protected int char_last, char_req = CC_ANY;
@@ -801,7 +806,7 @@ public class ActivityEntry extends Activity {
                                   | LF_MORE | LF_TAB, LF_EOT, ParSel.NULL, CC_NEWLINE );
     }
 
-    // SELECT PARSING FUNCTION ====================================================================
+    // SELECT PARSING FUNCTION =====================================================================
     protected void selectParsingFunc( ParSel ps ) {
         switch( ps ) {
             case TR_SUBH:
@@ -873,7 +878,7 @@ public class ActivityEntry extends Activity {
         }
     }
 
-    // PROCESS CHAR ===============================================================================
+    // PROCESS CHAR ================================================================================
     protected void process_char( int satisfies, int breaks, int triggers, ParSel ps, int cc ) {
         int lf = lookingfor.get( 0 );
 
@@ -935,7 +940,7 @@ public class ActivityEntry extends Activity {
         char_last = cc;
     }
 
-    // PROCESS NEWLINE ============================================================================
+    // PROCESS NEWLINE =============================================================================
     protected void process_newline() {
         if( m_applier_nl != ParSel.NULL ) {
             selectParsingFunc( m_applier_nl );
@@ -943,7 +948,7 @@ public class ActivityEntry extends Activity {
         }
     }
 
-    // HANDLE NUMBER ==============================================================================
+    // HANDLE NUMBER ===============================================================================
     void handle_number() {
         if( char_last == CC_NUMBER ) {
             int_last *= 10;
@@ -953,7 +958,7 @@ public class ActivityEntry extends Activity {
             int_last = ( char_current - '0' );
     }
 
-    // PARSING TRIGGERERS =========================================================================
+    // PARSING TRIGGERERS ==========================================================================
     protected void trigger_subheading() {
         if( char_last == CC_NEWLINE ) {
             lookingfor.clear();
