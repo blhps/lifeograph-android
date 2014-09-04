@@ -77,6 +77,7 @@ public class ActivityOpenDiary extends ListActivity {
     public void onResume() {
         super.onResume();
         populate_diaries();
+        Log.w( "LFO", "onResume ActivityOpenDairy" );
     }
 
     public void createNewDiary() {
@@ -256,8 +257,7 @@ public class ActivityOpenDiary extends ListActivity {
             Toast.makeText( this, R.string.storage_not_available, Toast.LENGTH_LONG ).show();
     }
 
-    // ABOUT DIALOG
-    // ================================================================================
+    // ABOUT DIALOG ================================================================================
     public class DialogAbout extends Dialog {
         protected Button buttonClose;
 
@@ -287,7 +287,7 @@ public class ActivityOpenDiary extends ListActivity {
         }
     }
 
-    // CREATE DIARY DIALOG ====================================================
+    // CREATE DIARY DIALOG =========================================================================
     public class DialogNewDiary extends Dialog {
         protected EditText eTextName;
         protected Button buttonCreate, buttonCancel;

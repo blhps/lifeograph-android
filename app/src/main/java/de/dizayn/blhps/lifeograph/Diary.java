@@ -299,7 +299,6 @@ public class Diary extends DiaryElement
     protected Result write_plain( String path, boolean flag_header_only ) {
         try {
             FileWriter fwr = new FileWriter( path );
-            // file( path.c_str(), std::ios::out | std::ios::trunc );
             create_db_header_text( flag_header_only );
             // header only mode is for encrypted diaries
             if( !flag_header_only ) {

@@ -60,6 +60,7 @@ public class ActivityDiary extends ListActivity {
     static protected ElemListAllEntries mElemAllEntries = null;
 
     protected boolean mFlagSaveOnLogOut = true;
+    protected boolean mFlagLogoutOnPause = false;
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
@@ -86,22 +87,25 @@ public class ActivityDiary extends ListActivity {
     @Override
     public void onPause() {
         super.onPause();
+        if( mFlagLogoutOnPause )
+            handleLogout(); // TODO: save backup if not successful
         Log.d( "LFO", "onPause - ActivityDiary" );
     }
 
+    /* onDestroy is called after next Activity gets started so this is not useful
     @Override
     public void onDestroy() {
         super.onDestroy();
-        handleLogout(); // TODO: save backup if not successful
         Log.d( "LFO", "onDestroy - ActivityDiary" );
-    }
+    }*/
 
-    // @Override
-    // public void onResume() {
-    // super.onResume();
-    // update_entry_list();
-    // Log.i( "L", "onResume - Actv.Diary" );
-    // }
+    @Override
+    public void onResume() {
+        super.onResume();
+        mFlagLogoutOnPause = false;
+        //update_entry_list();
+        Log.i( "L", "onResume - ActivityDiary" );
+    }
 
     boolean handleLogout() {
         // SAVING
@@ -168,8 +172,10 @@ public class ActivityDiary extends ListActivity {
 
     @Override
     public void onBackPressed() {
-        if( mParentElem == null )
+        if( mParentElem == null ) {
+            mFlagLogoutOnPause = true;
             super.onBackPressed();
+        }
         else {
             mParentElem = null;
             update_entry_list();
@@ -245,9 +251,11 @@ public class ActivityDiary extends ListActivity {
         switch( item.getItemId() )
         {
             case android.R.id.home:
-                if( mParentElem == null )
+                if( mParentElem == null ) {
+                    mFlagLogoutOnPause = true;
                     //NavUtils.navigateUpFromSameTask( this );
                     finish();
+                }
                 else {
                     mParentElem = null;
                     update_entry_list();
