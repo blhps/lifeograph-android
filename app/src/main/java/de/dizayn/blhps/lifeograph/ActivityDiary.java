@@ -65,7 +65,7 @@ public class ActivityDiary extends ListActivity {
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
-        Lifeobase.activityDiary = this;
+        Lifeograph.activityDiary = this;
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
@@ -115,13 +115,13 @@ public class ActivityDiary extends ListActivity {
 
         if( mFlagSaveOnLogOut ) {
             if( Diary.diary.write() != Result.SUCCESS ) {
-                Toast.makeText( Lifeobase.activityOpenDiary, "Cannot write back changes",
+                Toast.makeText( Lifeograph.activityLogin, "Cannot write back changes",
                                 Toast.LENGTH_LONG ).show();
                 return false;
             }
             else {
                 // ActivityDiary.this.finish();
-                Toast.makeText( Lifeobase.activityOpenDiary, "Diary saved successfully",
+                Toast.makeText( Lifeograph.activityLogin, "Diary saved successfully",
                                 Toast.LENGTH_LONG ).show();
                 return true;
             }

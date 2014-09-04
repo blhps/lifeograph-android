@@ -39,7 +39,7 @@ public class Entry extends DiaryElement {
     }
 
     public Entry( Diary diary, long date, boolean favored ) {
-        super( diary, Lifeobase.getStr( R.string.empty_entry ),
+        super( diary, Lifeograph.getStr( R.string.empty_entry ),
                 favored ? ES_ENTRY_DEFAULT_FAV : ES_ENTRY_DEFAULT );
         m_date = new Date( date );
 
@@ -66,7 +66,7 @@ public class Entry extends DiaryElement {
 
     @Override
     public String getSubStr() {
-        return Lifeobase.activityDiary.getString( R.string.entry_last_changed_on ) + " "
+        return Lifeograph.activityDiary.getString( R.string.entry_last_changed_on ) + " "
                + Date.format_string_do( m_date_changed );
     }
 
@@ -225,7 +225,7 @@ public class Entry extends DiaryElement {
     }
 
     public String get_lang_final() {
-        return m_option_lang.compareTo( Lifeobase.LANG_INHERIT_DIARY ) == 0 ? mDiary.get_lang()
+        return m_option_lang.compareTo( Lifeograph.LANG_INHERIT_DIARY ) == 0 ? mDiary.get_lang()
                                                                            : m_option_lang;
     }
 
@@ -263,7 +263,7 @@ public class Entry extends DiaryElement {
 
     protected void calculate_title( String text ) {
         if( text.length() < 1 ) {
-            m_name = Lifeobase.getStr( R.string.empty_entry );
+            m_name = Lifeograph.getStr( R.string.empty_entry );
         }
         else {
             int pos = text.indexOf( '\n' );
@@ -337,5 +337,5 @@ public class Entry extends DiaryElement {
     protected java.util.List< Tag > m_tags = new ArrayList< Tag >();
     protected Tag m_ptr2theme_tag;
 
-    protected String m_option_lang = Lifeobase.LANG_INHERIT_DIARY; // empty means off
+    protected String m_option_lang = Lifeograph.LANG_INHERIT_DIARY; // empty means off
 }

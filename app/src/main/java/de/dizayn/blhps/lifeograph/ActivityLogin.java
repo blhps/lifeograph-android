@@ -44,7 +44,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ActivityOpenDiary extends ListActivity {
+public class ActivityLogin extends ListActivity {
     protected java.util.List< String > m_paths = new ArrayList< String >();
     protected ArrayAdapter< String > m_adapter_diaries;
 
@@ -53,7 +53,7 @@ public class ActivityOpenDiary extends ListActivity {
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
-        Lifeobase.activityOpenDiary = this;
+        Lifeograph.activityLogin = this;
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
@@ -61,7 +61,7 @@ public class ActivityOpenDiary extends ListActivity {
         setContentView( R.layout.open_diary );
         // setTitle( "Diaries" );
 
-        Lifeobase.context = getApplicationContext();
+        Lifeograph.context = getApplicationContext();
 
         m_adapter_diaries =
                 new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
@@ -99,7 +99,7 @@ public class ActivityOpenDiary extends ListActivity {
         //
         // if( name.length() > 0 ) {
         // diary.init_new( "/mnt/sdcard/Diaries/" + name );
-        // Intent i = new Intent( ActivityOpenDiary.this, ActivityDiary.class );
+        // Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
         // startActivityForResult( i, 0 );
         // }
         // }
@@ -349,7 +349,7 @@ public class ActivityOpenDiary extends ListActivity {
             {
                 if( Diary.diary.init_new( "/mnt/sdcard/Diaries/" + name ) == Result.SUCCESS )
                 {
-                    Intent i = new Intent( ActivityOpenDiary.this, ActivityDiary.class );
+                    Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
                     startActivityForResult( i, 0 );
                 }
                 // TODO else inform the user about the problem

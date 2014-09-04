@@ -62,7 +62,7 @@ public class DialogCalendar extends Dialog {
 
         Date date_today = new Date( Date.get_today( 0 ) );
 
-        mAdapter = new GridCalAdapter( Lifeobase.context, date_today );
+        mAdapter = new GridCalAdapter( Lifeograph.context, date_today );
         mAdapter.notifyDataSetChanged();
         mGridCalendar.setAdapter( mAdapter );
         mGridCalendar.setOnItemClickListener( new OnItemClickListener() {
@@ -104,7 +104,7 @@ public class DialogCalendar extends Dialog {
         Entry e = Diary.diary.m_entries.get( mListDays.get( pos ) + 1 );
         if( e != null ) {
             dismiss();
-            Lifeobase.activityDiary.showEntry( e );
+            Lifeograph.activityDiary.showEntry( e );
         }
         else {
             Date d = new Date( mListDays.get( pos ) );
@@ -115,17 +115,17 @@ public class DialogCalendar extends Dialog {
     protected void createEntry() {
         Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
         dismiss();
-        Lifeobase.activityDiary.showEntry( e );
+        Lifeograph.activityDiary.showEntry( e );
     }
 
     protected void createChapter() {
-        Lifeobase.activityDiary.mParentElem =
+        Lifeograph.activityDiary.mParentElem =
                 Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( "Untitled chapter",
                                                                   mAdapter.mDateCurrent.m_date );
         dismiss();
         Diary.diary.update_entries_in_chapters();
-        Lifeobase.activityDiary.update_entry_list();
-        Lifeobase.activityDiary.rename_chapter();
+        Lifeograph.activityDiary.update_entry_list();
+        Lifeograph.activityDiary.rename_chapter();
     }
 
     public class GridCalAdapter extends BaseAdapter {

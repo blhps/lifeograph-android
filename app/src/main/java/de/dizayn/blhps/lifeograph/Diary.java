@@ -328,7 +328,7 @@ public class Diary extends DiaryElement
         }
 
         if( fp.canWrite() == false ) {
-            Toast.makeText( Lifeobase.activityOpenDiary,
+            Toast.makeText( Lifeograph.activityLogin,
                             "File is not writable, opening read-only..", Toast.LENGTH_LONG ).show();
             read_only = true;
         }
@@ -1502,7 +1502,7 @@ public class Diary extends DiaryElement
                         '\n' );
 
             // LANGUAGE
-            if( entry.get_lang().compareTo( Lifeobase.LANG_INHERIT_DIARY ) != 0 )
+            if( entry.get_lang().compareTo( Lifeograph.LANG_INHERIT_DIARY ) != 0 )
                 mStrIO += ( "l " + entry.get_lang() + '\n' );
 
             // CONTENT

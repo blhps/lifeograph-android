@@ -143,7 +143,7 @@ public class ActivityEntry extends Activity {
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
-        Lifeobase.activityEntry = this;
+        Lifeograph.activityEntry = this;
         setContentView( R.layout.entry );
 
         mActionBar = getActionBar();
@@ -250,7 +250,7 @@ public class ActivityEntry extends Activity {
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
             sync();
-        Lifeobase.activityDiary.update_entry_list();
+        Lifeograph.activityDiary.update_entry_list();
         super.onPause();
     }
 
@@ -1334,7 +1334,7 @@ public class ActivityEntry extends Activity {
             // else
             {
                 m_spans.add( new ClickableSpan() {
-                    // Entry entry = ActivityOpenDiary.diary.get( date_last );
+                    // Entry entry = ActivityLogin.diary.get( date_last );
 
                     @Override
                     public void onClick( View widget ) {

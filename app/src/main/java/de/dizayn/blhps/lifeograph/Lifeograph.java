@@ -25,8 +25,9 @@ import java.util.Locale;
 
 import android.content.Context;
 
-public class Lifeobase {
-    public static ActivityOpenDiary activityOpenDiary = null;
+public class Lifeograph
+{
+    public static ActivityLogin activityLogin = null;
     public static ActivityDiary activityDiary = null;
     public static ActivityEntry activityEntry = null;
 
