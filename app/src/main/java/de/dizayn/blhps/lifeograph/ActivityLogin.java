@@ -150,7 +150,7 @@ public class ActivityLogin extends ListActivity {
 
         Diary.diary.clear();
 
-        switch( Diary.diary.set_path( m_paths.get( pos ), false, false ) ) {
+        switch( Diary.diary.set_path( m_paths.get( pos ), Diary.SetPathType.NORMAL ) ) {
             case SUCCESS:
                 flag_open_ready = true;
                 break;

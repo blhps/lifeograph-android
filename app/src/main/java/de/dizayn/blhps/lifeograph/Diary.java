@@ -38,7 +38,7 @@ import android.widget.Toast;
 enum Result {
     OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, COULD_NOT_FINISH, WRONG_PASSWORD,
     APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE, INCOMPATIBLE_FILE, CORRUPT_FILE,
-    FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_LOCKED
+    FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_LOCKED
 }
 
 public class Diary extends DiaryElement
@@ -58,6 +58,8 @@ public class Diary extends DiaryElement
     public final static int PASSPHRASE_MIN_SIZE = 4;
     public static Diary diary = null;
 
+    public enum SetPathType { NORMAL, READ_ONLY, NEW }
+
     public Diary() {
         super( null, DiaryElement.DEID_DIARY, ES_VOID );
         m_current_id = DiaryElement.DEID_FIRST;
@@ -66,7 +68,7 @@ public class Diary extends DiaryElement
 
     public Result init_new( String path ) {
         clear();
-        Result result = set_path( path, true, false );
+        Result result = set_path( path, SetPathType.NEW );
 
         if( result != Result.SUCCESS ) {
             clear();
@@ -123,15 +125,6 @@ public class Diary extends DiaryElement
     @Override
     public int get_size() {
         return m_entries.size();
-    }
-
-    @Override
-    public String get_name() {
-        int i = m_path.lastIndexOf( "/" );
-        if( i == -1 )
-            return m_path;
-        else
-            return m_path.substring( i + 1 );
     }
 
     @Override
@@ -316,36 +309,70 @@ public class Diary extends DiaryElement
         }
     }
 
-    public Result set_path( String path, boolean new_file, boolean read_only ) {
+    public Result set_path( String path, SetPathType type ) {
         // CHECK FOR SYSTEM PERMISSIONS
         File fp = new File( path );
-        if( new_file == false ) {
-            if( fp.exists() == false )
+        if( !fp.exists() ) {
+            if( type != SetPathType.NEW )
+            {
+                Log.w( "LFO", "File is not found" );
                 return Result.FILE_NOT_FOUND;
-
-            if( fp.canRead() == false )
-                return Result.FILE_NOT_READABLE;
+            }
         }
+        else if( !fp.canRead() ) {
+            Log.w( "LFO", "File is not readable" );
+            return Result.FILE_NOT_READABLE;
+        }
+        else if( type != SetPathType.READ_ONLY && !fp.canWrite() ) {
+            if( type == SetPathType.NEW )
+            {
+                Log.w( "LFO", "File is not writable" );
+                return Result.FILE_NOT_WRITABLE;
+            }
 
-        if( fp.canWrite() == false ) {
             Toast.makeText( Lifeograph.activityLogin,
                             "File is not writable, opening read-only..", Toast.LENGTH_LONG ).show();
-            read_only = true;
+            type = SetPathType.READ_ONLY;
         }
 
-        // CHECK LOCK
-        File lockFile = new File( path + LOCK_SUFFIX );
-        if( !new_file && lockFile.exists() && !read_only ) {
-            return Result.FILE_LOCKED;
+        // CHECK AND "TOUCH" THE NEW LOCK
+        if( type != SetPathType.READ_ONLY )
+        {
+            File lockFile = new File( path + LOCK_SUFFIX );
+            if( lockFile.exists() )
+            {
+                /* option for ignoring locks may never come to Android
+                if( s_flag_ignore_locks )
+                    Log.w( "LFO", "Ignored file lock" );
+                else*/
+                    return Result.FILE_LOCKED;
+            }
+
+            /* TODO - locking will be implemented in 0.3
+            if( type == SetPathType.NORMAL )
+            {
+                try {
+                    lockFile.createNewFile();
+                }
+                catch( IOException ex ) {
+                    Log.w( "LFO", "Could not create lock file" );
+                }
+            }*/
         }
 
         // TODO: REMOVE PREVIOUS LOCK IF ANY
 
         // ACCEPT PATH
         m_path = path;
-        m_flag_read_only = read_only;
 
-        // TODO: "TOUCH" THE NEW LOCK
+        // update m_name
+        int i = m_path.lastIndexOf( "/" );
+        if( i == -1 )
+            m_name = m_path;
+        else
+            m_name = m_path.substring( i + 1 );
+
+        m_flag_read_only = ( type == SetPathType.READ_ONLY );
 
         return Result.SUCCESS;
     }
@@ -1337,6 +1364,7 @@ public class Diary extends DiaryElement
             Log.w( "LFO", "a dummy entry added to the diary" );
         }
     }
+
     protected boolean create_db_header_text( boolean encrypted ) {
         mStrIO = DB_FILE_HEADER; // clears string
         mStrIO += ( "\nV " + DB_FILE_VERSION_INT );
