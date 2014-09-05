@@ -23,10 +23,8 @@ package de.dizayn.blhps.lifeograph;
 
 import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -38,7 +36,6 @@ import android.content.Intent;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-//import android.support.v4.app.NavUtils;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -53,7 +50,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import de.dizayn.blhps.lifeograph.DiaryElement.Type;
 
-public class ActivityDiary extends ListActivity {
+public class ActivityDiary extends ListActivity
+{
     private LayoutInflater mInflater;
 
     public static Entry entry_current = null;
@@ -85,7 +83,7 @@ public class ActivityDiary extends ListActivity {
         update_entry_list();
 
         mFlagSaveOnLogOut = true;
-        Log.d( "LFO", "RESET MFLAGSAVEONLOGOUT" );
+        Log.d( Lifeograph.TAG, "RESET MFLAGSAVEONLOGOUT" );
     }
 
     @Override
@@ -93,14 +91,14 @@ public class ActivityDiary extends ListActivity {
         super.onPause();
         if( mFlagLogoutOnPause )
             handleLogout(); // TODO: save backup if not successful
-        Log.d( "LFO", "onPause - ActivityDiary" );
+        Log.d( Lifeograph.TAG, "onPause - ActivityDiary" );
     }
 
     /* onDestroy is called after next Activity gets started so this is not useful
     @Override
     public void onDestroy() {
         super.onDestroy();
-        Log.d( "LFO", "onDestroy - ActivityDiary" );
+        Log.d( Lifeograph.TAG, "onDestroy - ActivityDiary" );
     }*/
 
     @Override
@@ -131,7 +129,7 @@ public class ActivityDiary extends ListActivity {
             }
         }
         else {
-            Log.d( "LFO", "Logged out without saving" );
+            Log.d( Lifeograph.TAG, "Logged out without saving" );
             return true;
         }
     }
@@ -555,7 +553,8 @@ public class ActivityDiary extends ListActivity {
 
     }
 
-    private class ElemListAllEntries extends DiaryElement {
+    // ALL ENTRIES PSEUDO ELEMENT CLASS ============================================================
+    protected class ElemListAllEntries extends DiaryElement {
         int mSize = 0;
 
         public ElemListAllEntries( Diary diary ) {

@@ -56,7 +56,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ActivityEntry extends Activity {
+public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     // ENTRY PARSER ENUMS
     public final int LF_NOTHING = 0x1;
     public final int LF_NEWLINE = 0x2;
@@ -255,20 +255,22 @@ public class ActivityEntry extends Activity {
     }
 
     @Override
-    public boolean onPrepareOptionsMenu( Menu menu ) {
-        super.onPrepareOptionsMenu( menu );
+    public boolean onCreateOptionsMenu( Menu menu ) {
+        super.onCreateOptionsMenu( menu );
 
-        MenuItem item = menu.findItem( R.id.add_tag );
-        item.setTitle( m_ptr2entry.m_tags.size() + " Tag(s)" );
+        getMenuInflater().inflate( R.menu.menu_entry, menu );
 
         return true;
     }
 
     @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        super.onCreateOptionsMenu( menu );
+    public boolean onPrepareOptionsMenu( Menu menu ) {
+        super.onPrepareOptionsMenu( menu );
 
-        getMenuInflater().inflate( R.menu.menu_entry, menu );
+        MenuItem item = menu.findItem( R.id.add_tag );
+        item.setTitle( String.valueOf( m_ptr2entry.m_tags.size() ) );
+
+        ToDoAction.mObject = this;
 
         return true;
     }
@@ -287,22 +289,7 @@ public class ActivityEntry extends Activity {
                 toggleFavorite();
                 return true;
             case R.id.change_todo_status:
-                switch( m_ptr2entry.get_todo_status() ) {
-                    case DiaryElement.ES_NOT_TODO:
-                        m_ptr2entry.set_todo_status( DiaryElement.ES_TODO );
-                        break;
-                    case DiaryElement.ES_TODO:
-                        m_ptr2entry.set_todo_status( DiaryElement.ES_DONE );
-                        break;
-                    case DiaryElement.ES_DONE:
-                        m_ptr2entry.set_todo_status( DiaryElement.ES_CANCELED );
-                        break;
-                    case DiaryElement.ES_CANCELED:
-                        m_ptr2entry.set_todo_status( DiaryElement.ES_NOT_TODO );
-                        break;
-                }
-                mActionBar.setIcon( m_ptr2entry.get_icon() );
-                return true;
+                return false;
             case R.id.dismiss:
                 dismiss();
                 return true;
@@ -377,6 +364,11 @@ public class ActivityEntry extends Activity {
     public void showTagDialog() {
         Dialog dialog = new DialogTags( this );
         dialog.show();
+    }
+
+    public void set_todo_status( int s ) {
+        m_ptr2entry.set_todo_status( s );
+        mActionBar.setIcon( m_ptr2entry.get_icon() );
     }
 
     // TAG DIALOG ==================================================================================

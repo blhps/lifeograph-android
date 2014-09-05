@@ -235,7 +235,7 @@ public class Diary extends DiaryElement
                     // fr.close();
 
                     default:
-                        Log.w( "LFO", "unrecognized header line: " + line );
+                        Log.w( Lifeograph.TAG, "unrecognized header line: " + line );
                         break;
                 }
             }
@@ -245,7 +245,7 @@ public class Diary extends DiaryElement
         catch( IOException e ) {
             // Unable to create file, likely because external storage is
             // not currently mounted.
-            Log.w( "LFO", "Failed to open diary file " + m_path, e );
+            Log.w( Lifeograph.TAG, "Failed to open diary file " + m_path, e );
         }
 
         m_path = "";
@@ -315,18 +315,18 @@ public class Diary extends DiaryElement
         if( !fp.exists() ) {
             if( type != SetPathType.NEW )
             {
-                Log.w( "LFO", "File is not found" );
+                Log.w( Lifeograph.TAG, "File is not found" );
                 return Result.FILE_NOT_FOUND;
             }
         }
         else if( !fp.canRead() ) {
-            Log.w( "LFO", "File is not readable" );
+            Log.w( Lifeograph.TAG, "File is not readable" );
             return Result.FILE_NOT_READABLE;
         }
         else if( type != SetPathType.READ_ONLY && !fp.canWrite() ) {
             if( type == SetPathType.NEW )
             {
-                Log.w( "LFO", "File is not writable" );
+                Log.w( Lifeograph.TAG, "File is not writable" );
                 return Result.FILE_NOT_WRITABLE;
             }
 
@@ -343,7 +343,7 @@ public class Diary extends DiaryElement
             {
                 /* option for ignoring locks may never come to Android
                 if( s_flag_ignore_locks )
-                    Log.w( "LFO", "Ignored file lock" );
+                    Log.w( Lifeograph.TAG, "Ignored file lock" );
                 else*/
                     return Result.FILE_LOCKED;
             }
@@ -355,7 +355,7 @@ public class Diary extends DiaryElement
                     lockFile.createNewFile();
                 }
                 catch( IOException ex ) {
-                    Log.w( "LFO", "Could not create lock file" );
+                    Log.w( Lifeograph.TAG, "Could not create lock file" );
                 }
             }*/
         }
@@ -563,7 +563,7 @@ public class Diary extends DiaryElement
     public Tag create_tag( String name, Tag.Category ctg ) {
         Tag tag = m_tags.get( name );
         if( tag != null ) {
-            Log.w( "LFO", "Tag already exists: " + name );
+            Log.w( Lifeograph.TAG, "Tag already exists: " + name );
             return( tag );
         }
         tag = new Tag( this, name, ctg );
@@ -711,7 +711,7 @@ public class Diary extends DiaryElement
     }
 
     public void update_entries_in_chapters() {
-        Log.w( "LFO", "update_entries_in_chapters()" );
+        Log.w( Lifeograph.TAG, "update_entries_in_chapters()" );
         Chapter.Category chapters[] = new Chapter.Category[] { m_topics, m_custom_sorteds,
                 m_ptr2chapter_ctg_cur };
         Iterator itr_entry = m_entries.entrySet().iterator();
@@ -911,7 +911,7 @@ public class Diary extends DiaryElement
                         case 'm':
                             if( ptr2tag == null )
                             {
-                                Log.w( "LFO", "No tag declared for theme" );
+                                Log.w( Lifeograph.TAG, "No tag declared for theme" );
                                 break;
                             }
                             switch( line.charAt( 1 ) )
@@ -942,7 +942,7 @@ public class Diary extends DiaryElement
                                 case 's':   // status
                                     if( line.length() < 9 )
                                     {
-                                        Log.w( "LFO", "status filter length error" );
+                                        Log.w( Lifeograph.TAG, "status filter length error" );
                                         continue;
                                     }
                                     m_filter_default.set_trash( line.charAt( 2 ) == 'T',
@@ -959,7 +959,7 @@ public class Diary extends DiaryElement
                                     if( tag != null )
                                         m_filter_default.set_tag( tag );
                                     else
-                                        Log.w( "LFO", "Reference to undefined tag: "
+                                        Log.w( Lifeograph.TAG, "Reference to undefined tag: "
                                                 + line.substring( 2 ) );
                                     break;
                                 }
@@ -984,7 +984,7 @@ public class Diary extends DiaryElement
                                 case 'T':   // temporal chapter
                                     if( ptr2chapter_ctg == null )
                                     {
-                                        Log.w( "LFO", "No chapter category defined" );
+                                        Log.w( Lifeograph.TAG, "No chapter category defined" );
                                         break;
                                     }
                                     ptr2chapter =
@@ -1026,7 +1026,7 @@ public class Diary extends DiaryElement
                             m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
-                            Log.w( "LFO", "unrecognized line:\n" + line );
+                            Log.w( Lifeograph.TAG, "unrecognized line:\n" + line );
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1069,7 +1069,7 @@ public class Diary extends DiaryElement
                     case 'D':   // creation & change dates (optional)
                         if( entry_new == null )
                         {
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
@@ -1079,7 +1079,7 @@ public class Diary extends DiaryElement
                         break;
                     case 'T':   // tag
                         if( entry_new == null )
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                         else
                         {
                             Tag tag = m_tags.get( line.substring( 2 ) );
@@ -1089,19 +1089,19 @@ public class Diary extends DiaryElement
                                 if( line.charAt( 1 ) == 'T' )
                                     entry_new.set_theme_tag( tag );
                             } else
-                                Log.w( "LFO", "Reference to undefined tag: " + line.substring( 2 ) );
+                                Log.w( Lifeograph.TAG, "Reference to undefined tag: " + line.substring( 2 ) );
                         }
                         break;
                     case 'l':   // language
                         if( entry_new == null )
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                         else
                             entry_new.set_lang( line.substring( 2 ) );
                         break;
                     case 'P':    // paragraph
                         if( entry_new == null )
                         {
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
                         if( flag_first_paragraph )
@@ -1117,7 +1117,7 @@ public class Diary extends DiaryElement
                         }
                         break;
                     default:
-                        Log.w( "LFO", "Unrecognized line:\n" + line );
+                        Log.w( Lifeograph.TAG, "Unrecognized line:\n" + line );
                         return Result.CORRUPT_FILE;
                 }
             }
@@ -1196,7 +1196,7 @@ public class Diary extends DiaryElement
                             break;
                         case 'c': // chapter
                             if( ptr2chapter_ctg == null ) {
-                                Log.w( "LFO", "No chapter category defined" );
+                                Log.w( Lifeograph.TAG, "No chapter category defined" );
                                 break;
                             }
                             ptr2chapter =
@@ -1213,7 +1213,7 @@ public class Diary extends DiaryElement
                             break;
                         case 'm':
                             if( ptr2theme == null ) {
-                                Log.w( "LFO", "No theme declared" );
+                                Log.w( Lifeograph.TAG, "No theme declared" );
                                 break;
                             }
                             switch( line.charAt( 1 ) ) {
@@ -1252,7 +1252,7 @@ public class Diary extends DiaryElement
                             m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
-                            Log.w( "LFO", "unrecognized line:\n" + line );
+                            Log.w( Lifeograph.TAG, "unrecognized line:\n" + line );
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1282,7 +1282,7 @@ public class Diary extends DiaryElement
                         break;
                     case 'D': // creation & change dates (optional)
                         if( entry_new == null ) {
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
@@ -1294,26 +1294,26 @@ public class Diary extends DiaryElement
                     case 'M': // themes are converted into tags
                     case 'T': // tag
                         if( entry_new == null )
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                         else
                         {
                             Tag tag = m_tags.get( line.substring( 2 ) );
                             if( tag != null )
                                 entry_new.add_tag( tag );
                             else
-                                Log.w( "LFO", "Reference to undefined tag: " + line.substring( 2
+                                Log.w( Lifeograph.TAG, "Reference to undefined tag: " + line.substring( 2
                                 ) );
                         }
                         break;
                     case 'l': // language
                         if( entry_new == null )
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                         else
                             entry_new.set_lang( line.substring( 2 ) );
                         break;
                     case 'P': // paragraph
                         if( entry_new == null ) {
-                            Log.w( "LFO", "No entry declared" );
+                            Log.w( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
                         if( flag_first_paragraph ) {
@@ -1328,7 +1328,7 @@ public class Diary extends DiaryElement
                         }
                         break;
                     default:
-                        Log.w( "LFO", "Unrecognized line (110):\n" + line );
+                        Log.w( Lifeograph.TAG, "Unrecognized line (110):\n" + line );
                         return Result.CORRUPT_FILE;
                 }
             }
@@ -1354,14 +1354,14 @@ public class Diary extends DiaryElement
         if( m_startup_elem_id > DiaryElement.HOME_FIXED_ELEM )
             if( get_element( m_startup_elem_id ) == null )
             {
-                Log.w( "LFO", "startup element cannot be found in db" );
+                Log.w( Lifeograph.TAG, "startup element cannot be found in db" );
                 m_startup_elem_id = DiaryElement.DEID_DIARY;
             }
 
         if( m_entries.size() < 1 )
         {
             add_today();
-            Log.w( "LFO", "a dummy entry added to the diary" );
+            Log.w( Lifeograph.TAG, "a dummy entry added to the diary" );
         }
     }
 

@@ -34,6 +34,7 @@ public class Lifeograph
     public static Context context = null;
 
     public static final String PROGRAM_NAME = "Lifeograph";
+    public static final String TAG = "LFO";
 
     public static final String LANG_INHERIT_DIARY = "d";
 

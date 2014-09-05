@@ -280,8 +280,7 @@ public class Entry extends DiaryElement {
     }
 
     // THEME
-    public Theme get_theme()
-    {
+    public Theme get_theme() {
         return( m_ptr2theme_tag != null ?
                 m_ptr2theme_tag.get_theme() : mDiary.get_untagged().get_theme() );
     }

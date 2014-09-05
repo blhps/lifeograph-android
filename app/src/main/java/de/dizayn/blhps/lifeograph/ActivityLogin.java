@@ -77,7 +77,7 @@ public class ActivityLogin extends ListActivity {
     public void onResume() {
         super.onResume();
         populate_diaries();
-        Log.w( "LFO", "onResume ActivityOpenDairy" );
+        Log.w( Lifeograph.TAG, "onResume ActivityOpenDairy" );
     }
 
     public void createNewDiary() {
@@ -239,7 +239,7 @@ public class ActivityLogin extends ListActivity {
 
         if( mExternalStorageAvailable && mExternalStorageWriteable ) {
             File dir = new File( Environment.getExternalStorageDirectory(), "Diaries/" );
-            Log.i( "LFO", dir.getPath() );
+            Log.i( Lifeograph.TAG, dir.getPath() );
             if( !dir.exists() ) {
                 dir.mkdir();
             }

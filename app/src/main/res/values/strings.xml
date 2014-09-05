@@ -40,6 +40,10 @@
     <string name="toggle_favorite">Toggle Favoredness</string>
     <string name="change_todo_status">Change Todo Status</string>
     <string name="todo">TODO</string>
+    <string name="todo_not">Not To Do</string>
+    <string name="todo_open">To Do</string>
+    <string name="todo_done">Done</string>
+    <string name="todo_canceled">Canceled</string>
     <string name="new_diary_name">Enter a name for the new diary:</string>
     <string name="create">Create</string>
     <string name="program_name">Lifeograph for Android</string>
