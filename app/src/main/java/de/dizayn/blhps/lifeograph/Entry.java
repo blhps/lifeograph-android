@@ -51,6 +51,11 @@ public class Entry extends DiaryElement {
     }
 
     @Override
+    public Date get_date() {
+        return m_date;
+    }
+
+    @Override
     public Type get_type() {
         return Type.ENTRY;
     }

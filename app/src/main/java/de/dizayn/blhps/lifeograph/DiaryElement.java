@@ -131,6 +131,10 @@ public abstract class DiaryElement {
         return m_id;
     }
 
+    public Date get_date() {
+        return new Date( 0 );
+    }
+
     abstract public Type get_type();
 
     abstract public int get_size();
@@ -174,7 +178,7 @@ public abstract class DiaryElement {
         }
     }
 
-    static public final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
-    static public final CompareDates compare_dates = new CompareDates();
-    static public final CompareNames compare_names = new CompareNames();
+    public static final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
+    public static final CompareDates compare_dates = new CompareDates();
+    public static final CompareNames compare_names = new CompareNames();
 }

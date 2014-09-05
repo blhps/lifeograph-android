@@ -23,6 +23,10 @@ package de.dizayn.blhps.lifeograph;
 
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -394,6 +398,7 @@ public class ActivityDiary extends ListActivity {
 
         // force menu update
         invalidateOptionsMenu();
+        Collections.sort( m_elems, compare_elems );
     }
 
     protected void create_topic() {
@@ -573,6 +578,11 @@ public class ActivityDiary extends ListActivity {
         protected Type mType;
 
         @Override
+        public Date get_date() {
+            return new Date( 0x100000000L );
+        }
+
+        @Override
         public Type get_type() {
             return mType;
         }
@@ -587,6 +597,31 @@ public class ActivityDiary extends ListActivity {
     protected java.util.List< DiaryElement > m_elems = new ArrayList< DiaryElement >();
     protected DiaryElemAdapter m_adapter_entries;
 
+    // COMPARATOR ==================================================================================
+    static class CompareListElems implements Comparator< DiaryElement >
+    {
+        public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
+
+            // SORT BY DATE (ONLY DESCENDINGLY FOR NOW)
+            if( elem_l.get_type() == Type.DIARY )
+                return -1;
+
+            int direction = ( elem_l.get_date().is_ordinal() && elem_r.get_date().is_ordinal() ) ?
+                            -1 : 1;
+
+            if( elem_l.get_date().m_date > elem_r.get_date().m_date )
+                return( -1 * direction );
+            else
+            if( elem_l.get_date().m_date < elem_r.get_date().m_date )
+                return( 1 * direction );
+            else
+                return 0;
+        }
+    }
+
+    protected static final CompareListElems compare_elems = new CompareListElems();
+
+    // ADAPTER CLASS ===============================================================================
     private class DiaryElemAdapter extends ArrayAdapter< DiaryElement > {
 
         public DiaryElemAdapter( Context context, int resource, int textViewResourceId,

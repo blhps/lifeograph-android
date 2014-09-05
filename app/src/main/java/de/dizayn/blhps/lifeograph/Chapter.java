@@ -137,6 +137,11 @@ public class Chapter extends DiaryElement {
     }
 
     @Override
+    public Date get_date() {
+        return m_date_begin;
+    }
+
+    @Override
     public Type get_type() {
         if( m_date_begin != null )
             if( m_date_begin.is_ordinal() )
