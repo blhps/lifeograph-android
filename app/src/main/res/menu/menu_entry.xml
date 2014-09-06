@@ -8,7 +8,8 @@
           android:showAsAction="always|withText" />
     <item android:id="@+id/change_todo_status"
           android:title="@string/change_todo_status"
-          android:orderInCategory="100"
+          android:icon="@drawable/ic_action_todo"
+          android:orderInCategory="90"
           android:actionProviderClass="de.dizayn.blhps.lifeograph.ToDoAction"
           android:showAsAction="always" />
     <item android:id="@+id/toggle_favorite"
