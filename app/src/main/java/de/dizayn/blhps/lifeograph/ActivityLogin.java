@@ -32,6 +32,7 @@ import android.os.Bundle;
 import android.os.Environment;
 import android.text.Editable;
 import android.text.TextWatcher;
+import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -258,9 +259,8 @@ public class ActivityLogin extends ListActivity {
     }
 
     // ABOUT DIALOG ================================================================================
-    public class DialogAbout extends Dialog {
-        protected Button buttonClose;
-
+    public class DialogAbout extends Dialog
+    {
         public DialogAbout( Context context ) {
             super( context );
         }
@@ -270,25 +270,20 @@ public class ActivityLogin extends ListActivity {
             super.onCreate( savedInstanceState );
 
             setContentView( R.layout.dialog_about );
-            // setTitle( "About..." );
+            setTitle( R.string.program_name );
             setCancelable( true );
 
-            buttonClose = ( Button ) findViewById( R.id.buttonAboutClose );
-            buttonClose.setOnClickListener( new View.OnClickListener() {
-                public void onClick( View v ) {
-                    dismiss();
-                }
-            } );
+            TextView tv = ( TextView ) findViewById( R.id.textViewWebsite );
+            tv.setMovementMethod( LinkMovementMethod.getInstance() );
 
-            // TODO:
-            // textView.setText( getPackageManager().getPackageInfo(getPackageName(),
-            // 0).versionName );
-
+            tv = ( TextView ) findViewById( R.id.textViewVersion );
+            tv.setText( BuildConfig.VERSION_NAME );
         }
     }
 
     // CREATE DIARY DIALOG =========================================================================
-    public class DialogNewDiary extends Dialog {
+    public class DialogNewDiary extends Dialog
+    {
         protected EditText eTextName;
         protected Button buttonCreate, buttonCancel;
 
