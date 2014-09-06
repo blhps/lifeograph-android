@@ -251,8 +251,6 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         // flag_rotation = false;
     }
 
-    // boolean flag_rotation = false;
-
     @Override
     public void onPause() {
         if( mFlagDismissOnExit )
@@ -502,7 +500,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
     }
 
-    // FORMATTING BUTTONS
+    // FORMATTING BUTTONS ==========================================================================
     public void toggleFormat( String markup ) {
         int iter_start, iter_end;
         if( mEditText.hasSelection() ) {

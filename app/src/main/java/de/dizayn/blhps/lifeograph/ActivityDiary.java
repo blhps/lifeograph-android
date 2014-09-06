@@ -244,24 +244,22 @@ public class ActivityDiary extends ListActivity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        MenuItem item = menu.findItem( R.id.today );
+        DiaryElement.Type type = ( mParentElem == null ? Type.NONE : mParentElem.get_type() );
+
+        MenuItem item = menu.findItem( R.id.add_elem );
         item.setVisible( mParentElem == null );
+
+        item = menu.findItem( R.id.change_todo_status );
+        item.setVisible( type == Type.TOPIC || type == Type.SORTED );
 
         item = menu.findItem( R.id.calendar );
-        item.setVisible( mParentElem == null );
-
-        item = menu.findItem( R.id.add_topic );
         item.setVisible( mParentElem == null );
 
         item = menu.findItem( R.id.change_sort_type );
         item.setVisible( mParentElem != null );
 
-        DiaryElement.Type type = DiaryElement.Type.NONE;
-        if( mParentElem != null )
-            type = mParentElem.get_type();
-
         item = menu.findItem( R.id.add_entry );
-        item.setVisible( type == DiaryElement.Type.TOPIC );
+        item.setVisible( type == Type.TOPIC || type == Type.SORTED );
 
         item = menu.findItem( R.id.dismiss );
         item.setVisible( mParentElem != null );
@@ -296,14 +294,8 @@ public class ActivityDiary extends ListActivity
                     update_entry_list();
                 }
                 return true;
-            case R.id.today:
-                goToToday();
-                return true;
             case R.id.calendar:
                 showCalendar();
-                return true;
-            case R.id.add_topic:
-                create_topic();
                 return true;
             case R.id.add_entry:
                 showEntry( Diary.diary.create_entry( ( ( Chapter ) mParentElem ).get_free_order(),
@@ -358,9 +350,10 @@ public class ActivityDiary extends ListActivity
                 AlertDialog alert = builder.create();
                 alert.show();
                 return true;
-            case R.id.import_sms:
-                import_messages();
-                return true;
+// TODO WILL BE IMPLEMENTED IN 0.3
+//            case R.id.import_sms:
+//                import_messages();
+//                return true;
         }
         return super.onOptionsItemSelected(item);
     }

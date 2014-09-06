@@ -7,7 +7,7 @@
     <string name="cancel">Cancel</string>
     <string name="logoutwosaving">Log out without Saving</string>
     <string name="logoutwosaving_confirm">Are you sure you want to log out without saving?</string>
-    <string name="today">Today</string>
+    <string name="add_today">Entry to Today</string>
     <string name="calendar">Calendar</string>
     <string name="format">Format</string>
     <string name="favorite">Favorite</string>
@@ -15,6 +15,9 @@
     <string name="edit_tags">Edit Tags</string>
     <string name="entries">Entries</string>
     <string name="chapters">Chapters</string>
+    <string name="chapter">Dated Chapter</string>
+    <string name="topic">Numbered Chapter</string>
+    <string name="sorted">Free Chapter</string>
     <string name="all_entries">All Entries</string>
     <string name="entry_last_changed_on">Entry last changed on</string>
     <string name="entry_dismiss_confirm">Are you sure you want to dismiss the current entry?</string>
@@ -26,7 +29,6 @@
     <string name="sort_by_size">Sort by Size</string>
     <string name="change_sorting">Change Sorting Type</string>
     <string name="empty_entry">&lt;empty entry&gt;</string>
-    <string name="add_topic">Add Topic..</string>
     <string name="add_entry">Add Entry</string>
     <string name="create_entry">Create Entry</string>
     <string name="create_chapter">Create Chapter</string>
