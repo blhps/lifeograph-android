@@ -22,7 +22,6 @@
 package de.dizayn.blhps.lifeograph;
 
 import java.util.ArrayList;
-import java.util.Calendar;
 import java.util.Collections;
 import java.util.Comparator;
 
@@ -33,8 +32,6 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
-import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -86,28 +83,28 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
         mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
-                handle_todo_changed();
+                handleFilterTodoChanged();
             }
         } );
 
         mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
         mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
-                handle_todo_changed();
+                handleFilterTodoChanged();
             }
         } );
 
         mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
         mButtonShowTodoDone.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
-                handle_todo_changed();
+                handleFilterTodoChanged();
             }
         } );
 
         mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
         mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
-                handle_todo_changed();
+                handleFilterTodoChanged();
             }
         } );
 
@@ -142,69 +139,6 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         Log.i( "L", "onResume - ActivityDiary" );
     }
 
-    boolean handleLogout() {
-        // SAVING
-        // sync_entry();
-
-        // Diary.diary.m_last_elem = get_cur_elem()->get_id();
-
-        if( mFlagSaveOnLogOut ) {
-            if( Diary.diary.write() != Result.SUCCESS ) {
-                Toast.makeText( Lifeograph.activityLogin, "Cannot write back changes",
-                                Toast.LENGTH_LONG ).show();
-                return false;
-            }
-            else {
-                // ActivityDiary.this.finish();
-                Toast.makeText( Lifeograph.activityLogin, "Diary saved successfully",
-                                Toast.LENGTH_LONG ).show();
-                return true;
-            }
-        }
-        else {
-            Log.d( Lifeograph.TAG, "Logged out without saving" );
-            return true;
-        }
-    }
-
-    public void showEntry( Entry entry ) {
-        if( entry != null ) {
-            entry_current = entry;
-            Intent i = new Intent( this, ActivityEntry.class );
-            startActivity( i );
-        }
-    }
-
-    public void goToToday() {
-        Entry entry = Diary.diary.get_entry_today();
-
-        if( entry == null ) // add new entry if no entry exists on selected date
-        {
-            entry = Diary.diary.add_today();
-            // update_entry_list();
-        }
-
-        showEntry( entry );
-    }
-
-    public void showCalendar() {
-        // Intent i = new Intent( this, ActivityCalendar.class );
-        // startActivityForResult( i, ActivityCalendar.REQC_OPEN_ENTRY );
-        DialogCalendar dialog = new DialogCalendar( this );
-        dialog.show();
-    }
-
-    // @Override
-    // protected void onActivityResult( int reqCode, int resultCode, Intent data ) {
-    // super.onActivityResult( reqCode, resultCode, data );
-    // if( resultCode == ActivityCalendar.REQC_OPEN_ENTRY ) {
-    // changeView();
-    // }
-    // else {
-    // Toast.makeText( this, "Fail", Toast.LENGTH_LONG ).show();
-    // }
-    // }
-
     @Override
     public void onBackPressed() {
         if( mParentElem == null ) {
@@ -215,7 +149,6 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
             mParentElem = null;
             update_entry_list();
         }
-        return;
     }
 
     @Override
@@ -360,7 +293,70 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         return super.onOptionsItemSelected(item);
     }
 
-    public void handle_todo_changed() {
+    boolean handleLogout() {
+        // SAVING
+        // sync_entry();
+
+        // Diary.diary.m_last_elem = get_cur_elem()->get_id();
+
+        if( mFlagSaveOnLogOut ) {
+            if( Diary.diary.write() != Result.SUCCESS ) {
+                Toast.makeText( Lifeograph.activityLogin, "Cannot write back changes",
+                        Toast.LENGTH_LONG ).show();
+                return false;
+            }
+            else {
+                // ActivityDiary.this.finish();
+                Toast.makeText( Lifeograph.activityLogin, "Diary saved successfully",
+                        Toast.LENGTH_LONG ).show();
+                return true;
+            }
+        }
+        else {
+            Log.d( Lifeograph.TAG, "Logged out without saving" );
+            return true;
+        }
+    }
+
+    public void showEntry( Entry entry ) {
+        if( entry != null ) {
+            entry_current = entry;
+            Intent i = new Intent( this, ActivityEntry.class );
+            startActivity( i );
+        }
+    }
+
+    public void goToToday() {
+        Entry entry = Diary.diary.get_entry_today();
+
+        if( entry == null ) // add new entry if no entry exists on selected date
+        {
+            entry = Diary.diary.add_today();
+            // update_entry_list();
+        }
+
+        showEntry( entry );
+    }
+
+    public void showCalendar() {
+        // Intent i = new Intent( this, ActivityCalendar.class );
+        // startActivityForResult( i, ActivityCalendar.REQC_OPEN_ENTRY );
+        DialogCalendar dialog = new DialogCalendar( this );
+        dialog.show();
+    }
+
+    // @Override
+    // protected void onActivityResult( int reqCode, int resultCode, Intent data ) {
+    // super.onActivityResult( reqCode, resultCode, data );
+    // if( resultCode == ActivityCalendar.REQC_OPEN_ENTRY ) {
+    // changeView();
+    // }
+    // else {
+    // Toast.makeText( this, "Fail", Toast.LENGTH_LONG ).show();
+    // }
+    // }
+
+    public void handleFilterTodoChanged() {
         Diary.diary.m_filter_active.set_todo(
                 mButtonShowTodoNot.isChecked(),
                 mButtonShowTodoOpen.isChecked(),
@@ -586,32 +582,33 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                } ).show();
     }
 
-    protected void import_messages() {
-        Cursor cursor =
-                getContentResolver().query( Uri.parse( "content://sms/inbox" ), null, null, null,
-                                            null );
-        cursor.moveToFirst();
-
-        do {
-            String body = new String();
-            Calendar cal = Calendar.getInstance();
-
-            for( int idx = 0; idx < cursor.getColumnCount(); idx++ ) {
-                String msgData = cursor.getColumnName( idx );
-
-                if( msgData.compareTo( "body" ) == 0 )
-                    body = cursor.getString( idx );
-                else if( msgData.compareTo( "date" ) == 0 )
-                    cal.setTimeInMillis( cursor.getLong( idx ) );
-            }
-
-            Diary.diary.create_entry( new Date( cal.get( Calendar.YEAR ),
-                                                cal.get( Calendar.MONTH ) + 1,
-                                                cal.get( Calendar.DAY_OF_MONTH ) ), body, false );
-        }
-        while( cursor.moveToNext() );
-
-    }
+// TODO WILL BE IMPLEMENTED IN 0.3
+//    protected void import_messages() {
+//        Cursor cursor =
+//                getContentResolver().query( Uri.parse( "content://sms/inbox" ), null, null, null,
+//                                            null );
+//        cursor.moveToFirst();
+//
+//        do {
+//            String body = new String();
+//            Calendar cal = Calendar.getInstance();
+//
+//            for( int idx = 0; idx < cursor.getColumnCount(); idx++ ) {
+//                String msgData = cursor.getColumnName( idx );
+//
+//                if( msgData.compareTo( "body" ) == 0 )
+//                    body = cursor.getString( idx );
+//                else if( msgData.compareTo( "date" ) == 0 )
+//                    cal.setTimeInMillis( cursor.getLong( idx ) );
+//            }
+//
+//            Diary.diary.create_entry( new Date( cal.get( Calendar.YEAR ),
+//                                                cal.get( Calendar.MONTH ) + 1,
+//                                                cal.get( Calendar.DAY_OF_MONTH ) ), body, false );
+//        }
+//        while( cursor.moveToNext() );
+//
+//    }
 
     // ALL ENTRIES PSEUDO ELEMENT CLASS ============================================================
     protected class ElemListAllEntries extends DiaryElement {
@@ -669,10 +666,10 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                             -1 : 1;
 
             if( elem_l.get_date().m_date > elem_r.get_date().m_date )
-                return( -1 * direction );
+                return -direction;
             else
             if( elem_l.get_date().m_date < elem_r.get_date().m_date )
-                return( 1 * direction );
+                return direction;
             else
                 return 0;
         }
