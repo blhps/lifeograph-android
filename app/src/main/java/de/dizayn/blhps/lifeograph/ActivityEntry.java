@@ -235,20 +235,12 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
             }
         } );
 
-        // mButtonFavorite = ( Button ) findViewById( R.id.buttonFavorite );
-        // mButtonFavorite.setOnClickListener( new View.OnClickListener() {
-        // public void onClick( View v ) {
-        // toggleFavorite();
-        // }
-        // } );
-
         m_adapter_tags =
                 new ArrayAdapter< String >( this,
                                             android.R.layout.simple_list_item_multiple_choice,
                                             android.R.id.text1 );
-        // if( savedInstanceState == null )
+
         show( ActivityDiary.entry_current, savedInstanceState == null );
-        // flag_rotation = false;
     }
 
     @Override
@@ -326,10 +318,6 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
         else
             mActionBar.setIcon( m_ptr2entry.get_icon() );
-    }
-
-    public void changeView() {
-        finish();
     }
 
     public void sync() {
