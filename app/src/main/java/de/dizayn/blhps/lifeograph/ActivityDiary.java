@@ -33,7 +33,9 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -55,6 +57,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     protected DiaryElement mParentElem = null;
 
     protected ActionBar mActionBar = null;
+    protected DrawerLayout mDrawerLayout = null;
     protected ToggleImageButton mButtonShowTodoNot = null;
     protected ToggleImageButton mButtonShowTodoOpen = null;
     protected ToggleImageButton mButtonShowTodoDone = null;
@@ -77,6 +80,9 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
+
+        mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
+
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
         // FILTERING
@@ -174,6 +180,15 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     }
 
     @Override
+    public boolean onCreateOptionsMenu( Menu menu ) {
+        super.onCreateOptionsMenu( menu );
+
+        getMenuInflater().inflate( R.menu.menu_diary, menu );
+
+        return true;
+    }
+
+    @Override
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
@@ -206,15 +221,6 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     }
 
     @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        super.onCreateOptionsMenu( menu );
-
-        getMenuInflater().inflate( R.menu.menu_diary, menu );
-
-        return true;
-    }
-
-    @Override
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() )
         {
@@ -231,6 +237,9 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 return true;
             case R.id.calendar:
                 showCalendar();
+                return true;
+            case R.id.filter:
+                mDrawerLayout.openDrawer( Gravity.RIGHT );
                 return true;
             case R.id.add_entry:
                 showEntry( Diary.diary.create_entry( ( ( Chapter ) mParentElem ).get_free_order(),

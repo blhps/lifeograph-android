@@ -49,7 +49,7 @@ public class Tag extends DiaryElement {
 
         @Override
         public int get_icon() {
-            return R.drawable.icon_tag;
+            return R.drawable.ic_tag;
         }
 
         public boolean get_expanded() {
@@ -99,7 +99,7 @@ public class Tag extends DiaryElement {
 
     @Override
     public int get_icon() {
-        return R.drawable.icon_tag;
+        return R.drawable.ic_tag;
     }
 
     public Category get_category() {

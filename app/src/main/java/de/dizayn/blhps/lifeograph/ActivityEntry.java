@@ -156,7 +156,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
 
-        mDrawerLayout = ( DrawerLayout ) findViewById(R.id.drawer_layout);
+        mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
 
         mEditText = ( EditText ) findViewById( R.id.editTextEntry );
         // mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
