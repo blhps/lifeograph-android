@@ -30,8 +30,13 @@ import android.app.Dialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
 import android.graphics.Color;
+import android.graphics.Rect;
 import android.graphics.Typeface;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -302,6 +307,29 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         return super.onOptionsItemSelected( item );
     }
 
+    public void updateIcon() {
+        if( m_ptr2entry.is_favored() ) {
+            Bitmap imBitmap = BitmapFactory.decodeResource(
+                    getResources(), m_ptr2entry.get_icon() );
+            // make the bitmap mutable
+            Bitmap bitmap = imBitmap.copy( Bitmap.Config.ARGB_8888, true );
+
+            Canvas canvas = new Canvas( bitmap );
+
+            Bitmap bitmap2 = BitmapFactory.decodeResource( getResources(), R.drawable.ic_favorite );
+
+            Rect rectDest = new Rect(
+                    bitmap.getWidth()/2, bitmap.getHeight()/2,
+                    bitmap.getWidth()-1, bitmap.getHeight()-1 );
+
+            canvas.drawBitmap( bitmap2, null, rectDest, null );
+
+            mActionBar.setIcon( new BitmapDrawable( bitmap ) );
+        }
+        else
+            mActionBar.setIcon( m_ptr2entry.get_icon() );
+    }
+
     public void changeView() {
         finish();
     }
@@ -338,14 +366,13 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
         setTitle( entry.getHeadStr() );
         mActionBar.setSubtitle( entry.getSubStr() );
-        mActionBar.setIcon( entry.get_icon() );
-        //mTextViewElemSub.setText( entry.getSubStr() );
+        updateIcon();
         invalidateOptionsMenu(); // may be redundant here
     }
 
     public void toggleFavorite() {
         m_ptr2entry.toggle_favored();
-        invalidateOptionsMenu();
+        updateIcon();
     }
 
     public void dismiss() {
@@ -372,7 +399,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
     public void set_todo_status( int s ) {
         m_ptr2entry.set_todo_status( s );
-        mActionBar.setIcon( m_ptr2entry.get_icon() );
+        updateIcon();
     }
 
     // TAG DIALOG ==================================================================================
