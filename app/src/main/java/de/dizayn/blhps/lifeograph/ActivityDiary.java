@@ -58,6 +58,10 @@ public class ActivityDiary extends ListActivity
     protected DiaryElement mParentElem = null;
 
     protected ActionBar mActionBar = null;
+    protected ToggleImageButton mButtonShowTodoNot = null;
+    protected ToggleImageButton mButtonShowTodoOpen = null;
+    protected ToggleImageButton mButtonShowTodoDone = null;
+    protected ToggleImageButton mButtonShowTodoCanceled = null;
 
     static protected ElemListAllEntries mElemAllEntries = null;
 
@@ -77,6 +81,35 @@ public class ActivityDiary extends ListActivity
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
+
+        // FILTERING
+        mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
+        mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handle_todo_changed();
+            }
+        } );
+
+        mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
+        mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handle_todo_changed();
+            }
+        } );
+
+        mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
+        mButtonShowTodoDone.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handle_todo_changed();
+            }
+        } );
+
+        mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
+        mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handle_todo_changed();
+            }
+        } );
 
         m_adapter_entries = new DiaryElemAdapter( this, R.layout.imagelist, R.id.title, m_elems );
         this.setListAdapter( m_adapter_entries );
@@ -332,6 +365,16 @@ public class ActivityDiary extends ListActivity
         return super.onOptionsItemSelected(item);
     }
 
+    public void handle_todo_changed() {
+        Diary.diary.m_filter_active.set_todo(
+                mButtonShowTodoNot.isChecked(),
+                mButtonShowTodoOpen.isChecked(),
+                mButtonShowTodoDone.isChecked(),
+                mButtonShowTodoCanceled.isChecked() );
+
+        update_entry_list();
+    }
+
     public void update_entry_list() {
         m_adapter_entries.clear();
         m_elems.clear();
@@ -360,7 +403,8 @@ public class ActivityDiary extends ListActivity
                     m_elems.add( t );
                 }
                 for( Entry e : Diary.diary.m_orphaned_entries ) {
-                    m_elems.add( e );
+                    if( !e.get_filtered_out() )
+                        m_elems.add( e );
                 }
                 break;
             case TAG:
@@ -370,7 +414,8 @@ public class ActivityDiary extends ListActivity
 
                 Tag t = ( Tag ) mParentElem;
                 for( Entry e : t.mEntries ) {
-                    m_elems.add( e );
+                    if( !e.get_filtered_out() )
+                        m_elems.add( e );
                 }
                 break;
             case CHAPTER:
@@ -382,12 +427,14 @@ public class ActivityDiary extends ListActivity
 
                 Chapter c = ( Chapter ) mParentElem;
                 for( Entry e : c.mEntries ) {
-                    m_elems.add( e );
+                    if( !e.get_filtered_out() )
+                        m_elems.add( e );
                 }
                 break;
             case ALLBYDATE:
                 for( Entry e : Diary.diary.m_entries.values() ) {
-                    m_elems.add( e );
+                    if( !e.get_filtered_out() )
+                        m_elems.add( e );
                 }
                 break;
             default:

@@ -58,7 +58,7 @@ public class ActivityLogin extends ListActivity {
         if( Diary.diary == null )
             Diary.diary = new Diary();
 
-        setContentView( R.layout.open_diary );
+        setContentView( R.layout.login );
         // setTitle( "Diaries" );
 
         Lifeograph.context = getApplicationContext();

@@ -34,6 +34,7 @@ import android.graphics.Color;
 import android.graphics.Typeface;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -128,6 +129,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     protected ActionBar mActionBar = null;
+    protected DrawerLayout mDrawerLayout = null;
     public EditText mEditText = null;
     public Button mButtonBold = null;
     public Button mButtonItalic = null;
@@ -148,6 +150,8 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
+
+        mDrawerLayout = ( DrawerLayout ) findViewById(R.id.drawer_layout);
 
         mEditText = ( EditText ) findViewById( R.id.editTextEntry );
         // mEditText.setMovementMethod( LinkMovementMethod.getInstance() );

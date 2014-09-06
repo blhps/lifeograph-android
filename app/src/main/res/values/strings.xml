@@ -62,4 +62,16 @@
     <string name="diaries">Diaries</string>
     <string name="import_sms">Import SMS</string>
 
+    <string-array name="array_filter_trash">
+        <item>Only Trash</item>
+        <item>Only Out of Trash</item>
+        <item>All Entries</item>
+    </string-array>
+
+    <string-array name="array_filter_favorite">
+        <item>Only Favorites</item>
+        <item>Only Regular Entries</item>
+        <item>All Entries</item>
+    </string-array>
+
 </resources>
