@@ -203,8 +203,9 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         item = menu.findItem( R.id.calendar );
         item.setVisible( mParentElem == null );
 
-        item = menu.findItem( R.id.change_sort_type );
-        item.setVisible( mParentElem != null );
+// TODO WILL BE IMPLEMENTED IN 0.3
+//        item = menu.findItem( R.id.change_sort_type );
+//        item.setVisible( mParentElem != null );
 
         item = menu.findItem( R.id.add_entry );
         item.setVisible( type == Type.TOPIC || type == Type.SORTED );
