@@ -50,7 +50,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 import de.dizayn.blhps.lifeograph.DiaryElement.Type;
 
-public class ActivityDiary extends ListActivity
+public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 {
     private LayoutInflater mInflater;
 
@@ -267,6 +267,8 @@ public class ActivityDiary extends ListActivity
         item = menu.findItem( R.id.rename );
         item.setVisible( mParentElem != null );
 
+        ToDoAction.mObject = this;
+
         return true;
     }
 
@@ -366,6 +368,24 @@ public class ActivityDiary extends ListActivity
                 mButtonShowTodoCanceled.isChecked() );
 
         update_entry_list();
+    }
+
+    public void set_todo_status( int s ) {
+        if( mParentElem != null ) {
+            switch( mParentElem.get_type() ) {
+                case CHAPTER:
+                case TOPIC:
+                case SORTED:
+                    Chapter chapter = ( Chapter ) mParentElem;
+                    chapter.set_todo_status( s );
+                    mActionBar.setIcon( mParentElem.get_icon() );
+                    return;
+                default:
+                    break;
+            }
+        }
+
+        Log.d( Lifeograph.TAG, "Cannot set todo status" );
     }
 
     public void update_entry_list() {

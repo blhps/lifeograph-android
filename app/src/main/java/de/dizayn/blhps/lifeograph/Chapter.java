@@ -236,8 +236,7 @@ public class Chapter extends DiaryElement {
         return( m_status & ES_FILTER_TODO );
     }
 
-    public void set_todo_status( long s )
-    {
+    public void set_todo_status( long s ) {
         m_status -= ( m_status & ES_FILTER_TODO );
         m_status |= s;
     }
