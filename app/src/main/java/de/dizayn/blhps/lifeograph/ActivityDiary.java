@@ -199,7 +199,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         item.setVisible( mParentElem == null );
 
         item = menu.findItem( R.id.change_todo_status );
-        item.setVisible( type == Type.TOPIC || type == Type.SORTED );
+        item.setVisible( type == Type.TOPIC || type == Type.SORTED || type == Type.CHAPTER );
 
         item = menu.findItem( R.id.calendar );
         item.setVisible( mParentElem == null );

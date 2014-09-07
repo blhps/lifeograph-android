@@ -48,12 +48,21 @@ public abstract class DiaryElement {
 
     public static enum Type {
         // CAUTION: order is significant and shouldn't be changed!
-        NONE( "" ), TAG( "Tag" ), UNTAGGED( "Untagged" ), TAG_CTG( "Tag Category" ),
-        CHAPTER_CTG( "Chapter category" ), FILTER( "Filter" ),
+        NONE( "" ),
+        TAG( Lifeograph.context.getString( R.string.tag ) ),
+        UNTAGGED( Lifeograph.context.getString( R.string.untagged ) ),
+        TAG_CTG( Lifeograph.context.getString( R.string.tag_ctg ) ),
+        CHAPTER_CTG( Lifeograph.context.getString( R.string.chapter_ctg ) ),
+        FILTER( Lifeograph.context.getString( R.string.filter ) ),
         // entry list elements:
-        DIARY( "Diary" ), CHAPTER( "Dated Chapter" ), TOPIC( "Numbered Chapter" ),
-        SORTED( "Free Chapter" ), ENTRY( "Entry" ), DATE( "" ),
-        // additional (virtual) types:
+        DIARY( Lifeograph.context.getString( R.string.diary ) ),
+        CHAPTER( Lifeograph.context.getString( R.string.chapter ) ),
+        TOPIC( Lifeograph.context.getString( R.string.topic ) ),
+        SORTED( Lifeograph.context.getString( R.string.sorted ) ),
+        ENTRY( Lifeograph.context.getString( R.string.entry ) ),
+        // extras:
+        DATE( "" ),
+        // virtual types:
         ALLBYDATE( "" ), ALLBYSIZE( "" );
 
         public final String str;

@@ -29,7 +29,7 @@
           android:orderInCategory="90"
           android:showAsAction="ifRoom" /-->
     <item android:id="@+id/filter"
-          android:title="@string/filter"
+          android:title="@string/search_and_filter"
           android:icon="@drawable/ic_action_search"
           android:orderInCategory="100"
           android:showAsAction="ifRoom" />

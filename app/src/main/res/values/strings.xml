@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Lifeograph</string>
     <string name="new_diary">New Diary</string>
-    <string name="about">About..</string>
+    <string name="about">About</string>
     <string name="quit">Quit</string>
     <string name="cancel">Cancel</string>
     <string name="logoutwosaving">Log out without Saving</string>
@@ -11,14 +11,24 @@
     <string name="calendar">Calendar</string>
     <string name="format">Format</string>
     <string name="favorite">Favorite</string>
-    <string name="tags">Tags</string>
     <string name="edit_tags">Edit Tags</string>
+
     <string name="entries">Entries</string>
+    <string name="tags">Tags</string>
     <string name="chapters">Chapters</string>
+
+    <string name="diary">Diary</string>
+    <string name="entry">Entry</string>
+    <string name="tag_ctg">Tag Category</string>
+    <string name="tag">Tag</string>
+    <string name="untagged">Untagged</string>
+    <string name="chapter_ctg">Chapter Category</string>
     <string name="chapter">Dated Chapter</string>
     <string name="topic">Numbered Chapter</string>
     <string name="sorted">Free Chapter</string>
-    <string name="filter">Search &amp; Filter</string>
+    <string name="filter">Filter</string>
+
+    <string name="search_and_filter">Search &amp; Filter</string>
     <string name="all_entries">All Entries</string>
     <string name="entry_last_changed_on">Entry last changed on</string>
     <string name="entry_dismiss_confirm">Are you sure you want to dismiss the current entry?</string>
