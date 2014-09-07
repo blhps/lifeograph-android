@@ -86,7 +86,7 @@ public class Date {
         m_date = ( ORDINAL_FLAG | ( o1 << 10 ) | o2 );
     }
 
-    static long get_today( int order ) {
+    public static long get_today( int order ) {
         Calendar cal = Calendar.getInstance();
 
         return make_date( cal.get( Calendar.YEAR ), cal.get( Calendar.MONTH ) + 1,
@@ -212,12 +212,12 @@ public class Date {
         return( ( y << 19 ) | ( m << 15 ) | ( d << 10 ) | o );
     }
 
-    void backward_ordinal_order() {
+    public void backward_ordinal_order() {
         if( get_ordinal_order() > 0 )
             m_date -= ORDINAL_STEP;
     }
 
-    void forward_ordinal_order() {
+    public void forward_ordinal_order() {
         m_date += ORDINAL_STEP;
     }
 
@@ -293,7 +293,7 @@ public class Date {
             return false;
     }
 
-    int calculate_days_between( Date date2 ) {
+    public int calculate_days_between( Date date2 ) {
         // TODO: STUB!
         Log.w( Lifeograph.TAG, "STUB! STUB! STUB!" );
         return( 0 );

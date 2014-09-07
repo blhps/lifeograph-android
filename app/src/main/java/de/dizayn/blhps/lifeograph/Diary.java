@@ -46,10 +46,6 @@ public class Diary extends DiaryElement
     public static final char SC_DATE = 'd';
     public static final char SC_SIZE = 's';
 
-    protected int m_current_id;
-    protected int m_force_id;
-    java.util.Map< Integer, DiaryElement > m_ids = new TreeMap< Integer, DiaryElement >();
-
     public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
     public final static int DB_FILE_VERSION_INT = 1020;
     public final static int DB_FILE_VERSION_INT_MIN = 110;
@@ -123,18 +119,13 @@ public class Diary extends DiaryElement
     }
 
     @Override
-    public int get_size() {
-        return m_entries.size();
-    }
-
-    @Override
     public DiaryElement.Type get_type() {
         return DiaryElement.Type.DIARY;
     }
 
     @Override
-    public String getSubStr() {
-        return m_path;
+    public int get_size() {
+        return m_entries.size();
     }
 
     @Override
@@ -142,8 +133,13 @@ public class Diary extends DiaryElement
         return R.drawable.ic_diary;
     }
 
+    @Override
+    public String get_info_str() {
+        return m_path;
+    }
+
     // ID HANDLING =================================================================================
-    protected int create_new_id( DiaryElement element ) {
+    public int create_new_id( DiaryElement element ) {
         int retval;
         if( m_force_id == DiaryElement.DEID_UNSET )
             retval = m_current_id;
@@ -159,14 +155,14 @@ public class Diary extends DiaryElement
         return retval;
     }
 
-    protected boolean set_force_id( int id ) {
+    public boolean set_force_id( int id ) {
         if( m_ids.get( id ) != null || id <= DiaryElement.DEID_DIARY )
             return false;
         m_force_id = id;
         return true;
     }
 
-    boolean make_free_entry_order( Date date ) {
+    public boolean make_free_entry_order( Date date ) {
         date.reset_order_1();
         while( m_entries.get( date.m_date ) != null )
             date.m_date += 1;
@@ -182,11 +178,119 @@ public class Diary extends DiaryElement
 
         return name;
     }
+
+    // MEMBER RELATED FUNCS ========================================================================
+    public boolean set_passphrase( String passphrase ) {
+        if( passphrase.length() >= PASSPHRASE_MIN_SIZE ) {
+            m_passphrase = passphrase;
+            return true;
+        }
+        else
+            return false;
+    }
+
+    public DiaryElement get_element( int id ) {
+        return m_ids.get( id );
+    }
+
+// NOT USED NOW
+//    public DiaryElement get_startup_elem() {
+//        return null;
+//    }
+//
+//    public DiaryElement get_most_current_elem() {
+//        return null;
+//    }
+//
+//    public DiaryElement get_prev_session_elem() {
+//        return null;
+//    }
+
+    public char get_sorting_criteria() {
+        return m_option_sorting_criteria;
+    }
+
+    public void set_sorting_criteria( char sc ) {
+        m_option_sorting_criteria = sc;
+    }
     
     // DISK I/O ====================================================================================
-    // protected int m_body_offset;
-    protected BufferedReader mBufferedReader = null;
-    protected String mStrIO = new String();
+    public Result set_path( String path, SetPathType type ) {
+        // CHECK FOR SYSTEM PERMISSIONS
+        File fp = new File( path );
+        if( !fp.exists() ) {
+            if( type != SetPathType.NEW )
+            {
+                Log.w( Lifeograph.TAG, "File is not found" );
+                return Result.FILE_NOT_FOUND;
+            }
+        }
+        else if( !fp.canRead() ) {
+            Log.w( Lifeograph.TAG, "File is not readable" );
+            return Result.FILE_NOT_READABLE;
+        }
+        else if( type != SetPathType.READ_ONLY && !fp.canWrite() ) {
+            if( type == SetPathType.NEW )
+            {
+                Log.w( Lifeograph.TAG, "File is not writable" );
+                return Result.FILE_NOT_WRITABLE;
+            }
+
+            Toast.makeText( Lifeograph.activityLogin,
+                    "File is not writable, opening read-only..", Toast.LENGTH_LONG ).show();
+            type = SetPathType.READ_ONLY;
+        }
+
+        // CHECK AND "TOUCH" THE NEW LOCK
+        if( type != SetPathType.READ_ONLY )
+        {
+            File lockFile = new File( path + LOCK_SUFFIX );
+            if( lockFile.exists() )
+            {
+                /* option for ignoring locks may never come to Android
+                if( s_flag_ignore_locks )
+                    Log.w( Lifeograph.TAG, "Ignored file lock" );
+                else*/
+                return Result.FILE_LOCKED;
+            }
+
+            /* TODO - locking will be implemented in 0.3
+            if( type == SetPathType.NORMAL )
+            {
+                try {
+                    lockFile.createNewFile();
+                }
+                catch( IOException ex ) {
+                    Log.w( Lifeograph.TAG, "Could not create lock file" );
+                }
+            }*/
+        }
+
+        // TODO: REMOVE PREVIOUS LOCK IF ANY
+
+        // ACCEPT PATH
+        m_path = path;
+
+        // update m_name
+        int i = m_path.lastIndexOf( "/" );
+        if( i == -1 )
+            m_name = m_path;
+        else
+            m_name = m_path.substring( i + 1 );
+
+        m_flag_read_only = ( type == SetPathType.READ_ONLY );
+
+        return Result.SUCCESS;
+    }
+
+    public String get_path() {
+        return m_path;
+    }
+
+// NOT NEEDED NOW
+//    public boolean is_path_set() {
+//        return false;
+//    }
 
     public Result read_header() {
         // File file = new File( m_path );
@@ -289,127 +393,20 @@ public class Diary extends DiaryElement
         // return write_encrypted( path );
     }
 
-    protected Result write_plain( String path, boolean flag_header_only ) {
-        try {
-            FileWriter fwr = new FileWriter( path );
-            create_db_header_text( flag_header_only );
-            // header only mode is for encrypted diaries
-            if( !flag_header_only ) {
-                create_db_body_text();
-            }
-
-            fwr.append( mStrIO );
-            fwr.close();
-
-            return Result.SUCCESS;
-        }
-        catch( IOException ex ) {
-            Log.e( "L", "failed to save diary: " + ex.getMessage() );
-            return Result.COULD_NOT_START;
-        }
+    // FILTERING ===================================================================================
+    public void set_search_text( String filter ) {
+        // TODO stub
     }
 
-    public Result set_path( String path, SetPathType type ) {
-        // CHECK FOR SYSTEM PERMISSIONS
-        File fp = new File( path );
-        if( !fp.exists() ) {
-            if( type != SetPathType.NEW )
-            {
-                Log.w( Lifeograph.TAG, "File is not found" );
-                return Result.FILE_NOT_FOUND;
-            }
-        }
-        else if( !fp.canRead() ) {
-            Log.w( Lifeograph.TAG, "File is not readable" );
-            return Result.FILE_NOT_READABLE;
-        }
-        else if( type != SetPathType.READ_ONLY && !fp.canWrite() ) {
-            if( type == SetPathType.NEW )
-            {
-                Log.w( Lifeograph.TAG, "File is not writable" );
-                return Result.FILE_NOT_WRITABLE;
-            }
-
-            Toast.makeText( Lifeograph.activityLogin,
-                            "File is not writable, opening read-only..", Toast.LENGTH_LONG ).show();
-            type = SetPathType.READ_ONLY;
-        }
-
-        // CHECK AND "TOUCH" THE NEW LOCK
-        if( type != SetPathType.READ_ONLY )
-        {
-            File lockFile = new File( path + LOCK_SUFFIX );
-            if( lockFile.exists() )
-            {
-                /* option for ignoring locks may never come to Android
-                if( s_flag_ignore_locks )
-                    Log.w( Lifeograph.TAG, "Ignored file lock" );
-                else*/
-                    return Result.FILE_LOCKED;
-            }
-
-            /* TODO - locking will be implemented in 0.3
-            if( type == SetPathType.NORMAL )
-            {
-                try {
-                    lockFile.createNewFile();
-                }
-                catch( IOException ex ) {
-                    Log.w( Lifeograph.TAG, "Could not create lock file" );
-                }
-            }*/
-        }
-
-        // TODO: REMOVE PREVIOUS LOCK IF ANY
-
-        // ACCEPT PATH
-        m_path = path;
-
-        // update m_name
-        int i = m_path.lastIndexOf( "/" );
-        if( i == -1 )
-            m_name = m_path;
-        else
-            m_name = m_path.substring( i + 1 );
-
-        m_flag_read_only = ( type == SetPathType.READ_ONLY );
-
-        return Result.SUCCESS;
+    public String get_search_text() {
+        return m_search_text;
     }
 
-    public String get_path() {
-        return m_path;
+    public Filter get_filter() {
+        return m_filter_active;
     }
 
-    public boolean is_path_set() {
-        return false;
-    }
-
-    public boolean set_passphrase( String passphrase ) {
-        if( passphrase.length() >= PASSPHRASE_MIN_SIZE ) {
-            m_passphrase = passphrase;
-            return true;
-        }
-        else
-            return false;
-    }
-
-    public DiaryElement get_element( int id ) {
-        return m_ids.get( id );
-    }
-
-    public DiaryElement get_startup_elem() {
-        return null;
-    }
-
-    public DiaryElement get_most_current_elem() {
-        return null;
-    }
-
-    public DiaryElement get_prev_session_elem() {
-        return null;
-    }
-
+    // ENTRIES =====================================================================================
     public Entry get_entry( long date ) {
         Entry entry = m_entries.get( date );
         if( entry != null )
@@ -423,62 +420,7 @@ public class Diary extends DiaryElement
         return m_entries.get( Date.get_today( 1 ) ); // 1 is the order
     }
 
-    public Entry[] get_entries( long date ) {
-        return null;
-    }
-
-    boolean get_day_has_multiple_entries( Date date_impure ) {
-        long date = date_impure.get_pure();
-        return( m_entries.get( date + 2 ) != null );
-        // TODO:
-        // if( iter == null || iter == m_entries.begin() )
-        // return false;
-        //
-        // do
-        // {
-        // --iter;
-        // if( iter->second->get_date().get_pure() == date )
-        // {
-        // if( iter->second->get_filtered_out() == false )
-        // return true;
-        // }
-        // else
-        // break;
-        // }
-        // while( iter != m_entries.begin() );
-        //
-        // return false;
-    }
-
-    // Entry get_entry_next_in_day( Date date );
-    // Entry get_entry_first();
-    // void set_entry_date( Entry entry, Date date );
-
-    // boolean is_first( Entry e );
-    // boolean is_last( Entry e );
-    public char get_sorting_criteria() {
-        return m_option_sorting_criteria;
-    }
-
-    void set_sorting_criteria( char sc ) {
-        m_option_sorting_criteria = sc;
-    }
-
-    // FILTERING ===================================================================================
-    void set_search_text( String filter ) {
-        // TODO stub
-    }
-
-    String get_search_text() {
-        return m_search_text;
-    }
-
-    public Filter get_filter() {
-        return m_filter_active;
-    }
-
-    // ENTRIES =====================================================================================
-    Entry create_entry( Date dateObj, String content, boolean flag_favorite ) {
+    public Entry create_entry( Date dateObj, String content, boolean flag_favorite ) {
         // make it the last entry of its day:
         dateObj.reset_order_1();
         long date = dateObj.m_date;
@@ -499,7 +441,7 @@ public class Diary extends DiaryElement
         return create_entry( date, "", false );
     }
 
-    boolean dismiss_entry( Entry entry ) {
+    public boolean dismiss_entry( Entry entry ) {
         long date = entry.m_date.m_date;
 
         // fix startup element
@@ -534,8 +476,31 @@ public class Diary extends DiaryElement
         return true;
     }
 
+    public boolean get_day_has_multiple_entries( Date date_impure ) {
+        long date = date_impure.get_pure();
+        return( m_entries.get( date + 2 ) != null );
+        // TODO:
+        // if( iter == null || iter == m_entries.begin() )
+        // return false;
+        //
+        // do
+        // {
+        // --iter;
+        // if( iter->second->get_date().get_pure() == date )
+        // {
+        // if( iter->second->get_filtered_out() == false )
+        // return true;
+        // }
+        // else
+        // break;
+        // }
+        // while( iter != m_entries.begin() );
+        //
+        // return false;
+    }
+
     // TAGS ========================================================================================
-    java.util.Map< String, Tag > get_tags() {
+    public java.util.Map< String, Tag > get_tags() {
         return m_tags;
     }
 
@@ -601,22 +566,22 @@ public class Diary extends DiaryElement
      * CategoryChapters get_current_chapter_ctg() { return m_ptr2chapter_ctg_cur; }
      * CategoryChapters create_chapter_ctg();
      */
-    Chapter.Category create_chapter_ctg( String name ) {
+    public Chapter.Category create_chapter_ctg( String name ) {
         Chapter.Category category = new Chapter.Category( this, name );
         m_chapter_categories.put( name, category );
         return category;
     }
 
-    void dismiss_chapter_ctg( Chapter.Category ctg ) {
+    public void dismiss_chapter_ctg( Chapter.Category ctg ) {
         // TODO
     }
 
-    boolean rename_chapter_ctg( Chapter.Category ctg, String name ) {
+    public boolean rename_chapter_ctg( Chapter.Category ctg, String name ) {
         // TODO
         return false;
     }
 
-    void dismiss_chapter( Chapter chapter ) {
+    public void dismiss_chapter( Chapter chapter ) {
         // TODO: add an option to also delete entries within the chapter
         if( chapter.is_ordinal() ) {
             // ORDER SHIFTING TO PRESERVE CONTINUITY
@@ -805,46 +770,16 @@ public class Diary extends DiaryElement
         return m_language;
     }
 
-    void set_lang( String lang ) {
+    public void set_lang( String lang ) {
         m_language = lang;
     }
 
-    boolean is_encrypted() {
+    public boolean is_encrypted() {
         return( m_passphrase.length() > 0 );
     }
 
-    // CONTENT =====================================================================================
-    protected String m_path;
-    private String m_passphrase;
-
-    protected java.util.Map< Long, Entry > m_entries =
-            new TreeMap< Long, Entry >( DiaryElement.compare_dates );
-    protected Untagged m_untagged = new Untagged();
-    protected java.util.Map< String, Tag > m_tags = new TreeMap< String, Tag >();
-    protected java.util.Map< String, Tag.Category > m_tag_categories =
-            new TreeMap< String, Tag.Category >( DiaryElement.compare_names );
-    protected java.util.Map< String, Chapter.Category > m_chapter_categories =
-            new TreeMap< String, Chapter.Category >( DiaryElement.compare_names );
-    protected Chapter.Category m_ptr2chapter_ctg_cur = null;
-    protected Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
-    protected Chapter.Category m_custom_sorteds = new Chapter.Category( this, Date.SORTED_MIN );
-    protected List< Entry > m_orphaned_entries = new ArrayList< Entry >();
-
-    int m_startup_elem_id; // DEID
-    int m_last_elem_id; // DEID
-    // options & flags
-    char m_option_sorting_criteria;
-    int m_read_version;
-    protected boolean m_flag_only_save_filtered;
-    protected boolean m_flag_changed;
-    protected boolean m_flag_read_only;
-    protected String m_language;
-    // filtering
-    protected String m_search_text;
-    protected Filter m_filter_active = new Filter( null, "Active Filter" );
-    protected Filter m_filter_default = new Filter( null, "Default Filter" );
-
-    protected long get_db_line_date( String line ) {
+    // INTERNAL DB RELATED FUNCTIONS ===============================================================
+    private long get_db_line_date( String line ) {
         long date = 0;
 
         for( int i = 2; i < line.length() && i < 12 && line.charAt( i ) >= '0'
@@ -855,7 +790,7 @@ public class Diary extends DiaryElement
         return date;
     }
 
-    protected String get_db_line_name( String line ) {
+    private String get_db_line_name( String line ) {
         int begin = line.indexOf( '\t' );
         if( begin == -1 )
             begin = 2;
@@ -865,7 +800,7 @@ public class Diary extends DiaryElement
         return( line.substring( begin ) );
     }
 
-    protected Result parse_db_body_text() {
+    private Result parse_db_body_text() {
         if( m_read_version == 1020 )
             return parse_db_body_text_1020();
         else if( m_read_version == 1010 || m_read_version == 1011 )
@@ -874,7 +809,7 @@ public class Diary extends DiaryElement
             return parse_db_body_text_110();
     }
 
-    protected Result parse_db_body_text_1020() {
+    private Result parse_db_body_text_1020() {
         String line;
         Entry entry_new = null;
         Chapter.Category ptr2chapter_ctg = null;
@@ -1134,7 +1069,7 @@ public class Diary extends DiaryElement
         return Result.SUCCESS;
     }
 
-    protected long fix_pre_1020_date( long d ) {
+    private long fix_pre_1020_date( long d ) {
         if( Date.is_ordinal( d ) ) {
             if( ( d & Date.VISIBLE_FLAG ) != 0 )
                 d -= Date.VISIBLE_FLAG;
@@ -1145,12 +1080,12 @@ public class Diary extends DiaryElement
         return d;
     }
 
-    protected Result parse_db_body_text_1010() {
+    private Result parse_db_body_text_1010() {
         // TODO
         return Result.ABORTED;
     }
 
-    protected Result parse_db_body_text_110() {
+    private Result parse_db_body_text_110() {
         String line = "";
         Entry entry_new = null;
         Chapter.Category ptr2chapter_ctg = null;
@@ -1346,7 +1281,7 @@ public class Diary extends DiaryElement
         return Result.SUCCESS;
     }
 
-    protected void do_standard_checks_after_parse() {
+    private void do_standard_checks_after_parse() {
         // every diary must at least have one chapter category:
         if( m_chapter_categories.size() < 1 )
             m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO: i18n
@@ -1365,7 +1300,7 @@ public class Diary extends DiaryElement
         }
     }
 
-    protected boolean create_db_header_text( boolean encrypted ) {
+    private boolean create_db_header_text( boolean encrypted ) {
         mStrIO = DB_FILE_HEADER; // clears string
         mStrIO += ( "\nV " + DB_FILE_VERSION_INT );
         mStrIO += ( encrypted ? "\nE yes" : "\nE no" );
@@ -1374,7 +1309,7 @@ public class Diary extends DiaryElement
         return true;
     }
 
-    protected void create_db_tag_text( char type, Tag tag ) {
+    private void create_db_tag_text( char type, Tag tag ) {
         if( type == 'm' )
             mStrIO += ( "ID" + tag.get_id() + "\nt " + tag.get_name() + '\n' );
 
@@ -1391,7 +1326,7 @@ public class Diary extends DiaryElement
         }
     }
 
-    protected void create_db_chapterctg_text( char type, Chapter.Category ctg ) {
+    private void create_db_chapterctg_text( char type, Chapter.Category ctg ) {
         for( Chapter chapter : ctg.mMap.values() )
         {
             mStrIO += ( "ID" + chapter.get_id()
@@ -1418,7 +1353,7 @@ public class Diary extends DiaryElement
         }
     }
 
-    protected boolean create_db_body_text() {
+    private boolean create_db_body_text() {
         String content_std;
 
         // OPTIONS
@@ -1561,7 +1496,66 @@ public class Diary extends DiaryElement
         return true;
     }
 
-    protected Result read_plain() {
+    private Result read_plain() {
         return parse_db_body_text();
     }
+
+    private Result write_plain( String path, boolean flag_header_only ) {
+        try {
+            FileWriter fwr = new FileWriter( path );
+            create_db_header_text( flag_header_only );
+            // header only mode is for encrypted diaries
+            if( !flag_header_only ) {
+                create_db_body_text();
+            }
+
+            fwr.append( mStrIO );
+            fwr.close();
+
+            return Result.SUCCESS;
+        }
+        catch( IOException ex ) {
+            Log.e( "L", "failed to save diary: " + ex.getMessage() );
+            return Result.COULD_NOT_START;
+        }
+    }
+
+    // VARIABLES ===================================================================================
+    private String m_path;
+    private String m_passphrase;
+
+    private int m_current_id;
+    private int m_force_id;
+    private java.util.Map< Integer, DiaryElement > m_ids = new TreeMap< Integer, DiaryElement >();
+
+    java.util.Map< Long, Entry > m_entries = new TreeMap< Long, Entry >( DiaryElement.compare_dates );
+    Untagged m_untagged = new Untagged();
+    java.util.Map< String, Tag > m_tags = new TreeMap< String, Tag >();
+    java.util.Map< String, Tag.Category > m_tag_categories =
+            new TreeMap< String, Tag.Category >( DiaryElement.compare_names );
+    java.util.Map< String, Chapter.Category > m_chapter_categories =
+            new TreeMap< String, Chapter.Category >( DiaryElement.compare_names );
+    Chapter.Category m_ptr2chapter_ctg_cur = null;
+    Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
+    Chapter.Category m_custom_sorteds = new Chapter.Category( this, Date.SORTED_MIN );
+    List< Entry > m_orphaned_entries = new ArrayList< Entry >();
+
+    private int m_startup_elem_id; // DEID
+    private int m_last_elem_id; // DEID
+    // options & flags
+    private char m_option_sorting_criteria;
+    private int m_read_version;
+    private boolean m_flag_only_save_filtered;
+    private boolean m_flag_changed;
+    private boolean m_flag_read_only;
+    private String m_language;
+    // filtering
+    private String m_search_text;
+    Filter m_filter_active = new Filter( null, "Active Filter" );
+    Filter m_filter_default = new Filter( null, "Default Filter" );
+
+    // i/o
+    // protected int m_body_offset;
+    private BufferedReader mBufferedReader = null;
+    private String mStrIO;
 }

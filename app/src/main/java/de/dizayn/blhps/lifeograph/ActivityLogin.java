@@ -46,12 +46,12 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 public class ActivityLogin extends ListActivity {
-    protected java.util.List< String > m_paths = new ArrayList< String >();
-    protected ArrayAdapter< String > m_adapter_diaries;
+    private java.util.List< String > m_paths = new ArrayList< String >();
+    private ArrayAdapter< String > m_adapter_diaries;
 
     // Called when the activity is first created
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
         Lifeograph.activityLogin = this;
@@ -75,42 +75,10 @@ public class ActivityLogin extends ListActivity {
     }
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         populate_diaries();
         Log.w( Lifeograph.TAG, "onResume ActivityOpenDairy" );
-    }
-
-    public void createNewDiary() {
-        // ask for name
-        DialogNewDiary dialog = new DialogNewDiary( this );
-        dialog.show();
-        // AlertDialog.Builder alert = new AlertDialog.Builder( this );
-        // alert.setTitle( "Create New Diary" );
-        // alert.setMessage( "Enter name of the diay file:" );
-
-        // Set an EditText view to get user input
-        // final EditText input = new EditText( this );
-        // input.setInputType( InputType.TYPE_TEXT_FLAG_MULTI_LINE );
-        // alert.setView( input );
-        //
-        // alert.setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
-        // public void onClick( DialogInterface dialog, int whichButton ) {
-        // String name = new String( input.getText().toString() );
-        //
-        // if( name.length() > 0 ) {
-        // diary.init_new( "/mnt/sdcard/Diaries/" + name );
-        // Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
-        // startActivityForResult( i, 0 );
-        // }
-        // }
-        // } );
-        // alert.setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
-        // public void onClick( DialogInterface dialog, int which ) {
-        // diary.init_new( "" );
-        // }
-        // } );
-        // alert.show();
     }
 
     @Override
@@ -144,7 +112,7 @@ public class ActivityLogin extends ListActivity {
      */
 
     @Override
-    protected void onListItemClick( ListView l, View v, int pos, long id ) {
+    public void onListItemClick( ListView l, View v, int pos, long id ) {
         super.onListItemClick( l, v, pos, id );
 
         boolean flag_open_ready = false;
@@ -216,29 +184,61 @@ public class ActivityLogin extends ListActivity {
         }
     }
 
-    protected boolean mExternalStorageAvailable = false;
-    protected boolean mExternalStorageWriteable = false;
+    void createNewDiary() {
+        // ask for name
+        DialogNewDiary dialog = new DialogNewDiary( this );
+        dialog.show();
+        // AlertDialog.Builder alert = new AlertDialog.Builder( this );
+        // alert.setTitle( "Create New Diary" );
+        // alert.setMessage( "Enter name of the diay file:" );
 
-    protected void populate_diaries() {
+        // Set an EditText view to get user input
+        // final EditText input = new EditText( this );
+        // input.setInputType( InputType.TYPE_TEXT_FLAG_MULTI_LINE );
+        // alert.setView( input );
+        //
+        // alert.setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
+        // public void onClick( DialogInterface dialog, int whichButton ) {
+        // String name = new String( input.getText().toString() );
+        //
+        // if( name.length() > 0 ) {
+        // diary.init_new( "/mnt/sdcard/Diaries/" + name );
+        // Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
+        // startActivityForResult( i, 0 );
+        // }
+        // }
+        // } );
+        // alert.setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
+        // public void onClick( DialogInterface dialog, int which ) {
+        // diary.init_new( "" );
+        // }
+        // } );
+        // alert.show();
+    }
+
+    void populate_diaries() {
+        boolean ExternalStorageAvailable = false;
+        boolean ExternalStorageWritable = false;
+
         m_adapter_diaries.clear();
         String state = Environment.getExternalStorageState();
 
         if( Environment.MEDIA_MOUNTED.equals( state ) ) {
             // We can read and write the media
-            mExternalStorageAvailable = mExternalStorageWriteable = true;
+            ExternalStorageAvailable = ExternalStorageWritable = true;
         }
         else if( Environment.MEDIA_MOUNTED_READ_ONLY.equals( state ) ) {
             // We can only read the media
-            mExternalStorageAvailable = true;
-            mExternalStorageWriteable = false;
+            ExternalStorageAvailable = true;
+            ExternalStorageWritable = false;
         }
         else {
             // Something else is wrong. It may be one of many other states, but
             // all we need to know is we can neither read nor write
-            mExternalStorageAvailable = mExternalStorageWriteable = false;
+            ExternalStorageAvailable = ExternalStorageWritable = false;
         }
 
-        if( mExternalStorageAvailable && mExternalStorageWriteable ) {
+        if( ExternalStorageAvailable && ExternalStorageWritable ) {
             File dir = new File( Environment.getExternalStorageDirectory(), "Diaries/" );
             Log.i( Lifeograph.TAG, dir.getPath() );
             if( !dir.exists() ) {
@@ -266,7 +266,7 @@ public class ActivityLogin extends ListActivity {
         }
 
         @Override
-        public void onCreate( Bundle savedInstanceState ) {
+        protected void onCreate( Bundle savedInstanceState ) {
             super.onCreate( savedInstanceState );
 
             setContentView( R.layout.dialog_about );
@@ -284,15 +284,15 @@ public class ActivityLogin extends ListActivity {
     // CREATE DIARY DIALOG =========================================================================
     public class DialogNewDiary extends Dialog
     {
-        protected EditText eTextName;
-        protected Button buttonCreate, buttonCancel;
+        private EditText eTextName;
+        private Button buttonCreate, buttonCancel;
 
         public DialogNewDiary( Context context ) {
             super( context );
         }
 
         @Override
-        public void onCreate( Bundle savedInstanceState ) {
+        protected void onCreate( Bundle savedInstanceState ) {
             super.onCreate( savedInstanceState );
 
             setContentView( R.layout.dialog_new_diary );

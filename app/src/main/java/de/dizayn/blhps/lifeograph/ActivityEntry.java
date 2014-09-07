@@ -121,34 +121,35 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     public final int CC_ANY = 0xFFFF;
 
     // PARSER SELECTOR (NEEDED DUE TO LACK OF FUNCTION POINTERS IN JAVA)
-    protected enum ParSel {
+    private enum ParSel {
         NULL, TR_HEAD, TR_SUBH, TR_BOLD, TR_ITLC, TR_STRK, TR_HILT, TR_CMNT, TR_LINK, TR_LNAT,
         TR_LNKD, TR_LIST, TR_IGNR, AP_HEND, AP_SUBH, AP_BOLD, AP_ITLC, AP_HILT, AP_STRK, AP_CMNT,
         AP_LINK, JK_IGNR, JK_DDYM, JK_DDMD, JK_LNKD
     }
 
-    protected enum LinkStatus {
+    private enum LinkStatus {
         LS_OK, LS_ENTRY_UNAVAILABLE, LS_INVALID, // separator: to check a valid entry link:
                                                  // linkstatus < LS_INVALID
         LS_CYCLIC, LS_FILE_OK, LS_FILE_INVALID, LS_FILE_UNAVAILABLE, LS_FILE_UNKNOWN
     }
 
-    protected ActionBar mActionBar = null;
-    protected DrawerLayout mDrawerLayout = null;
-    public EditText mEditText = null;
-    public Button mButtonBold = null;
-    public Button mButtonItalic = null;
-    public Button mButtonStrikethrough = null;
-    public Button mButtonHighlight = null;
+    private ActionBar mActionBar = null;
+    private DrawerLayout mDrawerLayout = null;
+    private EditText mEditText = null;
+    private Button mButtonBold = null;
+    private Button mButtonItalic = null;
+    private Button mButtonStrikethrough = null;
+    private Button mButtonHighlight = null;
+    private ListView mListViewTags = null;
+    private Entry m_ptr2entry = null;
+    private ArrayAdapter< String > m_adapter_tags;
+
     boolean m_flag_settextoperation = false;
     boolean m_flag_entry_changed = false;
     boolean mFlagDismissOnExit = false;
-    protected ListView mListViewTags = null;
-    public Entry m_ptr2entry = null;
-    protected ArrayAdapter< String > m_adapter_tags;
 
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         Lifeograph.activityEntry = this;
         setContentView( R.layout.entry );
@@ -244,7 +245,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         if( mFlagDismissOnExit )
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
@@ -297,7 +298,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         return super.onOptionsItemSelected( item );
     }
 
-    public void updateIcon() {
+    void updateIcon() {
         if( m_ptr2entry.is_favored() ) {
             Bitmap imBitmap = BitmapFactory.decodeResource(
                     getResources(), m_ptr2entry.get_icon() );
@@ -320,7 +321,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
             mActionBar.setIcon( m_ptr2entry.get_icon() );
     }
 
-    public void sync() {
+    void sync() {
         if( m_flag_entry_changed ) {
             m_ptr2entry.m_date_changed = ( int ) ( System.currentTimeMillis() / 1000L );
             m_ptr2entry.m_text = mEditText.getText().toString();
@@ -333,7 +334,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
      * work to define the pause Dialog break; default: dialog = null; } return dialog; }
      */
 
-    public void show( Entry entry, boolean flagParse ) {
+    void show( Entry entry, boolean flagParse ) {
         mFlagDismissOnExit = false;
         m_ptr2entry = entry;
 
@@ -350,18 +351,18 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         // if( flagParse )
         // parse_text();
 
-        setTitle( entry.getHeadStr() );
-        mActionBar.setSubtitle( entry.getSubStr() );
+        setTitle( entry.get_title() );
+        mActionBar.setSubtitle( entry.get_info_str() );
         updateIcon();
         invalidateOptionsMenu(); // may be redundant here
     }
 
-    public void toggleFavorite() {
+    private void toggleFavorite() {
         m_ptr2entry.toggle_favored();
         updateIcon();
     }
 
-    public void dismiss() {
+    private void dismiss() {
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( R.string.entry_dismiss_confirm ).setCancelable( false )
                .setPositiveButton( R.string.dismiss, new DialogInterface.OnClickListener() {
@@ -378,7 +379,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         alert.show();
     }
 
-    public void showTagDialog() {
+    private void showTagDialog() {
         Dialog dialog = new DialogTags( this );
         dialog.show();
     }
@@ -389,7 +390,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // TAG DIALOG ==================================================================================
-    public class DialogTags extends Dialog {
+    class DialogTags extends Dialog {
         protected EditText editText;
         protected Button buttonAdd;
 
@@ -489,7 +490,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // FORMATTING BUTTONS ==========================================================================
-    public void toggleFormat( String markup ) {
+    private void toggleFormat( String markup ) {
         int iter_start, iter_end;
         if( mEditText.hasSelection() ) {
             int pos_start = -2, pos_end = -1;
@@ -626,7 +627,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
      */
 
     // TODO: to be improved to handle corner cases
-    protected int find_markup( char char_markup, int pos, int step, int limit ) {
+    private int find_markup( char char_markup, int pos, int step, int limit ) {
         char char_current;
         boolean last_is_space = false;
         for( int i = pos; i != limit; i += step ) {
@@ -646,33 +647,33 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         return -1;
     }
 
-    protected int find_markup_begin( char char_markup, int pos ) {
+    private int find_markup_begin( char char_markup, int pos ) {
         return find_markup( char_markup, pos, -1, 0 );
     }
 
-    protected int find_markup_end( char char_markup, int pos ) {
+    private int find_markup_end( char char_markup, int pos ) {
         return find_markup( char_markup, pos, 1, mEditText.length() );
     }
 
-    protected boolean is_marked_up_region( char char_markup, int pos ) {
+    private boolean is_marked_up_region( char char_markup, int pos ) {
         return( find_markup( char_markup, pos, -1, 0 ) != -1 && find_markup( char_markup, pos, 1,
                                                                              mEditText.length() ) != -1 );
     }
 
     // PARSING VARIABLES ===========================================================================
-    protected int pos_start, pos_current, pos_end, pos_word, pos_regular;
-    protected char char_current;
-    protected int char_last, char_req = CC_ANY;
-    protected String word_last;
-    protected long int_last, id_last;
-    protected Date date_last = new Date();
-    protected java.util.List< Integer > lookingfor = new ArrayList< Integer >();
-    protected java.util.List< ParSel > m_appliers = new ArrayList< ParSel >();
-    protected ParSel m_applier_nl;
-    protected java.util.Vector< java.lang.Object > m_spans =
+    private int pos_start, pos_current, pos_end, pos_word, pos_regular;
+    private char char_current;
+    private int char_last, char_req = CC_ANY;
+    private String word_last;
+    private long int_last, id_last;
+    private Date date_last = new Date();
+    private java.util.List< Integer > lookingfor = new ArrayList< Integer >();
+    private java.util.List< ParSel > m_appliers = new ArrayList< ParSel >();
+    private ParSel m_applier_nl;
+    private java.util.Vector< java.lang.Object > m_spans =
             new java.util.Vector< java.lang.Object >();
 
-    protected void reset( int start, int end ) {
+    private void reset( int start, int end ) {
         // pos_start = start;
         // pos_end = end;
         pos_current = pos_word = pos_regular = start;
@@ -702,7 +703,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    public void parse_text( /* int start, int end */) {
+    void parse_text( /* int start, int end */) {
         // everything below should go to Parser when there is one (and there is nothing above
         // as of yet...)
         reset( pos_start, pos_end );
@@ -816,7 +817,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // SELECT PARSING FUNCTION =====================================================================
-    protected void selectParsingFunc( ParSel ps ) {
+    private void selectParsingFunc( ParSel ps ) {
         switch( ps ) {
             case TR_SUBH:
                 trigger_subheading();
@@ -888,7 +889,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // PROCESS CHAR ================================================================================
-    protected void process_char( int satisfies, int breaks, int triggers, ParSel ps, int cc ) {
+    private void process_char( int satisfies, int breaks, int triggers, ParSel ps, int cc ) {
         int lf = lookingfor.get( 0 );
 
         if( ( satisfies & LF_NEWLINE ) != 0 ) {
@@ -950,7 +951,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // PROCESS NEWLINE =============================================================================
-    protected void process_newline() {
+    private void process_newline() {
         if( m_applier_nl != ParSel.NULL ) {
             selectParsingFunc( m_applier_nl );
             m_applier_nl = ParSel.NULL;
@@ -958,7 +959,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // HANDLE NUMBER ===============================================================================
-    void handle_number() {
+    private void handle_number() {
         if( char_last == CC_NUMBER ) {
             int_last *= 10;
             int_last += ( char_current - '0' );
@@ -968,7 +969,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // PARSING TRIGGERERS ==========================================================================
-    protected void trigger_subheading() {
+    private void trigger_subheading() {
         if( char_last == CC_NEWLINE ) {
             lookingfor.clear();
             lookingfor.add( LF_NONSPACE | LF_APPLY );
@@ -979,7 +980,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    protected void trigger_markup( int lf, ParSel ps ) {
+    private void trigger_markup( int lf, ParSel ps ) {
         if( ( char_last & CC_NOT_SEPARATOR ) != 0 )
             return;
 
@@ -992,23 +993,23 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         m_appliers.add( ps );
     }
 
-    protected void trigger_bold() {
+    private void trigger_bold() {
         trigger_markup( LF_ASTERISK, ParSel.AP_BOLD );
     }
 
-    protected void trigger_italic() {
+    private void trigger_italic() {
         trigger_markup( LF_UNDERSCORE, ParSel.AP_ITLC );
     }
 
-    protected void trigger_strikethrough() {
+    private void trigger_strikethrough() {
         trigger_markup( LF_EQUALS, ParSel.AP_STRK );
     }
 
-    protected void trigger_highlight() {
+    private void trigger_highlight() {
         trigger_markup( LF_HASH, ParSel.AP_HILT );
     }
 
-    protected void trigger_comment() {
+    private void trigger_comment() {
         lookingfor.clear();
         lookingfor.add( LF_SBB | LF_IMMEDIATE );
         lookingfor.add( LF_SBE );
@@ -1019,7 +1020,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         m_appliers.add( ParSel.AP_CMNT );
     }
 
-    protected void trigger_link() {
+    private void trigger_link() {
         // TODO:
         // m_flag_hidden_link = word_last[ 0 ] == '<';
         // if( m_flag_hidden_link )
@@ -1080,7 +1081,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         pos_start = pos_word;
     }
 
-    protected void trigger_link_at() {
+    private void trigger_link_at() {
         if( ( char_last & CC_SEPARATOR ) != 0 )
             return;
 
@@ -1095,7 +1096,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         m_appliers.add( ParSel.AP_LINK );
     }
 
-    protected void trigger_link_date() {
+    private void trigger_link_date() {
         char_req = CC_ANY;
         lookingfor.clear();
         lookingfor.add( LF_NUMBER );
@@ -1131,11 +1132,11 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    protected void trigger_list() {
+    private void trigger_list() {
 
     }
 
-    protected void trigger_ignore() {
+    private void trigger_ignore() {
         if( char_last == CC_NEWLINE ) {
             lookingfor.clear();
             lookingfor.add( LF_TAB | LF_IMMEDIATE | LF_JUNCTION );
@@ -1146,15 +1147,15 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    protected void junction_link_hidden_tab() {
+    private void junction_link_hidden_tab() {
 
     }
 
-    protected void junction_list() {
+    private void junction_list() {
 
     }
 
-    protected void junction_date_dotym() { // dot between year and month
+    private void junction_date_dotym() { // dot between year and month
         if( int_last >= Date.YEAR_MIN && int_last <= Date.YEAR_MAX ) {
             date_last.set_year( ( int ) int_last );
             lookingfor.remove( 0 );
@@ -1166,7 +1167,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    protected void junction_date_dotmd() { // dot between month and day
+    private void junction_date_dotmd() { // dot between month and day
         if( int_last >= 1 && int_last <= 12
         // two separators must be the same:
             && char_current == word_last.charAt( word_last.length() - 3 ) ) {
@@ -1180,7 +1181,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    protected void junction_link_date() {
+    private void junction_link_date() {
         date_last.set_day( ( int ) int_last );
 
         if( date_last.is_valid() ) {
@@ -1198,7 +1199,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         lookingfor.add( LF_NOTHING );
     }
 
-    protected void junction_ignore() {
+    private void junction_ignore() {
         lookingfor.clear();
         lookingfor.add( LF_IGNORE );
         m_appliers.clear();
@@ -1206,7 +1207,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // APPLIERS ===================================================================================
-    protected void apply_heading() {
+    private void apply_heading() {
         int end = 0;
         if( mEditText.getText().charAt( 0 ) != '\n' )
             end = mEditText.getText().toString().indexOf( '\n' );
@@ -1229,7 +1230,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    protected void apply_subheading() {
+    private void apply_subheading() {
         int end = mEditText.getText().toString().indexOf( '\n', pos_start );
         if( end != -1 ) {
             m_spans.add( new TextAppearanceSpan( this, R.style.subheadingSpan ) );
@@ -1240,23 +1241,23 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    protected void apply_bold() {
+    private void apply_bold() {
         apply_markup( new StyleSpan( Typeface.BOLD ) );
     }
 
-    protected void apply_italic() {
+    private void apply_italic() {
         apply_markup( new StyleSpan( Typeface.ITALIC ) );
     }
 
-    protected void apply_strikethrough() {
+    private void apply_strikethrough() {
         apply_markup( new StrikethroughSpan() );
     }
 
-    protected void apply_highlight() {
+    private void apply_highlight() {
         apply_markup( new BackgroundColorSpan( Color.YELLOW ) );
     }
 
-    protected void apply_markup( Object span ) {
+    private void apply_markup( Object span ) {
         m_spans.add( new TextAppearanceSpan( this, R.style.markupSpan ) );
         mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_start + 1, 0 );
 
@@ -1267,7 +1268,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         mEditText.getText().setSpan( m_spans.lastElement(), pos_current, pos_current + 1, 0 );
     }
 
-    protected void apply_comment() {
+    private void apply_comment() {
         m_spans.add( new TextAppearanceSpan( this, R.style.commentSpan ) );
         mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_current + 1,
                                      Spanned.SPAN_INTERMEDIATE );
@@ -1278,7 +1279,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_current + 1, 0 );
     }
 
-    protected void apply_ignore() {
+    private void apply_ignore() {
         int end = pos_current;
         if( mEditText.getText().charAt( end ) != '\n' )
             end = mEditText.getText().toString().indexOf( '\n' ) - 1;
@@ -1289,7 +1290,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         // mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end, 0 );
     }
 
-    protected void apply_link() {
+    private void apply_link() {
         // if( m_flag_hidden_link )
         // {
         // Gtk::TextIter iter_end( get_iter_at_offset( pos_current + 1 ) );
@@ -1317,7 +1318,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    void apply_link_date() {
+    private void apply_link_date() {
         LinkStatus status = LinkStatus.LS_OK;
         Entry ptr2entry = Diary.diary.get_entry( date_last.m_date + 1 ); // + 1
                                                                          // fixes

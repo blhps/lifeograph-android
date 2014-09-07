@@ -111,33 +111,34 @@ public abstract class DiaryElement {
         m_id = id;
     }
 
-    public String get_name() {
-        return m_name;
-    }
-
-    abstract public String getSubStr();
-
-    public String getListStr() {
-        return m_name;
-    }
-
-    public String getListStrSecondary() {
-        return getSubStr();
-    }
-
-    abstract public int get_icon();
-
     public int get_id() {
         return m_id;
-    }
-
-    public Date get_date() {
-        return new Date( 0 );
     }
 
     abstract public Type get_type();
 
     abstract public int get_size();
+
+    abstract public int get_icon();
+
+    public Date get_date() {
+        return new Date( 0 );
+    }
+
+    // STRING METHODS
+    public String get_name() {
+        return m_name;
+    }
+
+    abstract public String get_info_str();
+
+    public String get_list_str() {
+        return m_name;
+    }
+
+    public String getListStrSecondary() {
+        return get_info_str();
+    }
 
     public int get_status() {
         return m_status;
@@ -155,10 +156,10 @@ public abstract class DiaryElement {
     public boolean is_favored()
     { return false; }
 
-    protected String m_name;
-    protected Diary mDiary = null;
-    protected int m_id = 0;
-    protected int m_status;
+    String m_name;
+    Diary mDiary = null;
+    int m_id = 0;
+    int m_status;
 
     static class CompareElemsByName implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
@@ -178,7 +179,7 @@ public abstract class DiaryElement {
         }
     }
 
-    public static final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
-    public static final CompareDates compare_dates = new CompareDates();
-    public static final CompareNames compare_names = new CompareNames();
+    static final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
+    static final CompareDates compare_dates = new CompareDates();
+    static final CompareNames compare_names = new CompareNames();
 }

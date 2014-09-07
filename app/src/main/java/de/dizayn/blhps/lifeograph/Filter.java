@@ -34,32 +34,34 @@ public class Filter extends DiaryElement
     }
 
     @Override
-    public int get_size()
-    { return 0; }
-
-    @Override
-    public Type get_type()
-    { return Type.FILTER; }
-
-    @Override
-    public String getSubStr() {
-        return "Filter";
+    public Type get_type() {
+        return Type.FILTER;
     }
 
     @Override
-    public int get_icon()
-    { return R.drawable.ic_filter; }
+    public int get_size() {
+        return 0;
+    }
 
-    public void reset()
-    {
+    @Override
+    public int get_icon() {
+        return R.drawable.ic_filter;
+    }
+
+    @Override
+    public String get_info_str() {
+        return "Filter";
+    }
+
+    public void reset() {
         m_status = ES_FILTER_RESET;
         m_tag = null;
         m_date_begin = 0;
         m_date_end = Date.DATE_MAX;
         m_entries.clear();
     }
-    public void set( Filter source )
-    {
+
+    public void set( Filter source ) {
         m_status = source.m_status;
         m_tag = source.m_tag;
         m_date_begin = source.m_date_begin;
@@ -67,12 +69,11 @@ public class Filter extends DiaryElement
         m_entries = source.m_entries;   // is this OK?
     }
 
-    public Tag get_tag()
-    {
+    public Tag get_tag() {
         return m_tag;
     }
-    public void set_tag( Tag tag )
-    {
+
+    public void set_tag( Tag tag ) {
         m_tag = tag;
 
         if( tag == null )
@@ -83,8 +84,7 @@ public class Filter extends DiaryElement
         m_status |= ES_FILTER_OUTSTANDING;
     }
 
-    public void set_favorites( boolean flag_show_fav, boolean flag_show_not_fav )
-    {
+    public void set_favorites( boolean flag_show_fav, boolean flag_show_not_fav ) {
         // clear previous values
         m_status &= ( ES_FILTER_FAVORED ^ ES_FILTER_MAX );
 
@@ -95,8 +95,8 @@ public class Filter extends DiaryElement
 
         m_status |= ES_FILTER_OUTSTANDING;
     }
-    public void set_trash( boolean flag_show_trashed, boolean flag_show_not_trashed )
-    {
+
+    public void set_trash( boolean flag_show_trashed, boolean flag_show_not_trashed ) {
         // clear previous values
         m_status &= ( ES_FILTER_TRASHED ^ ES_FILTER_MAX );
 
@@ -107,9 +107,9 @@ public class Filter extends DiaryElement
 
         m_status |= ES_FILTER_OUTSTANDING;
     }
+
     public void set_todo( boolean flag_show_not_todo, boolean flag_show_todo,
-                          boolean flag_show_done, boolean flag_show_canceled )
-    {
+                          boolean flag_show_done, boolean flag_show_canceled ) {
         // clear previous values
         m_status &= ( ES_FILTER_TODO ^ ES_FILTER_MAX );
 
@@ -125,28 +125,27 @@ public class Filter extends DiaryElement
         m_status |= ES_FILTER_OUTSTANDING;
     }
 
-    public long get_date_begin()
-    {
+    public long get_date_begin() {
         return m_date_begin;
     }
-    public long get_date_end()
-    {
+
+    public long get_date_end() {
         return m_date_end;
     }
-    public void set_date_begin( long d )
-    {
+
+    public void set_date_begin( long d ) {
         m_status |= ES_FILTER_DATE_BEGIN;
         m_status |= ES_FILTER_OUTSTANDING;
         m_date_begin = d;
     }
-    public void set_date_end( long d )
-    {
+
+    public void set_date_end( long d ) {
         m_status |= ES_FILTER_DATE_END;
         m_status |= ES_FILTER_OUTSTANDING;
         m_date_end = d;
     }
-    public void clear_dates()
-    {
+
+    public void clear_dates() {
         m_date_begin = 0;
         m_date_end = Date.DATE_MAX;
         if( ( m_status & ES_FILTER_DATE_BEGIN ) != 0 )
@@ -157,49 +156,47 @@ public class Filter extends DiaryElement
         m_status |= ES_FILTER_OUTSTANDING;
     }
 
-    public void set_status_applied()
-    {
+    public void set_status_applied() {
         if( ( m_status & ES_FILTER_OUTSTANDING ) != 0 )
             m_status -= ES_FILTER_OUTSTANDING;
     }
 
-    public void set_status_outstanding()
-    { m_status |= ES_FILTER_OUTSTANDING; }
-
+    public void set_status_outstanding() {
+        m_status |= ES_FILTER_OUTSTANDING;
+    }
 
     /*public final EntrySet get_entries()
     {
         return m_entries;
     }*/
-    void add_entry( Entry e )
-    {
+
+    public void add_entry( Entry e ) {
         m_status |= ES_FILTER_INDIVIDUAL;
         m_status |= ES_FILTER_OUTSTANDING;
         m_entries.add( e );
     }
-    void remove_entry( Entry e )
-    {
-        if( m_entries.contains( e ) )
-        {
+
+    public void remove_entry( Entry e ) {
+        if( m_entries.contains( e ) ) {
             m_status |= ES_FILTER_OUTSTANDING;
             m_entries.remove( e );
         }
     }
-    void clear_entries()
-    {
-        if( ! m_entries.isEmpty() )
-        {
+
+    void clear_entries() {
+        if( !m_entries.isEmpty() ) {
             m_status |= ES_FILTER_OUTSTANDING;
             m_entries.clear();
         }
     }
-    boolean is_entry_filtered( Entry e )
+
+    public boolean is_entry_filtered( Entry e )
     {
         return m_entries.contains( e );
     }
 
-    protected Tag m_tag;
-    protected long m_date_begin;
-    protected long m_date_end;
-    protected java.util.List< Entry > m_entries = new ArrayList< Entry >();
+    private Tag m_tag;
+    private long m_date_begin;
+    private long m_date_end;
+    private java.util.List< Entry > m_entries = new ArrayList< Entry >();
 }

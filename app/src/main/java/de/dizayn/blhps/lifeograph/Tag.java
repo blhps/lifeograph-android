@@ -43,13 +43,13 @@ public class Tag extends DiaryElement {
         }
 
         @Override
-        public String getSubStr() {
-            return "Size: " + mTags.size();
+        public int get_icon() {
+            return R.drawable.ic_tag;
         }
 
         @Override
-        public int get_icon() {
-            return R.drawable.ic_tag;
+        public String get_info_str() {
+            return "Size: " + mTags.size();
         }
 
         public boolean get_expanded() {
@@ -68,7 +68,7 @@ public class Tag extends DiaryElement {
         }
 
         // CONTENTS
-        protected java.util.List< Tag > mTags = new ArrayList< Tag >();
+        java.util.List< Tag > mTags = new ArrayList< Tag >();
     }
 
 //    public Tag( Diary diary ) {
@@ -93,13 +93,13 @@ public class Tag extends DiaryElement {
     }
 
     @Override
-    public String getSubStr() {
-        return( "Tag with " + mEntries.size() + " Entrie(s)" );
+    public int get_icon() {
+        return R.drawable.ic_tag;
     }
 
     @Override
-    public int get_icon() {
-        return R.drawable.ic_tag;
+    public String get_info_str() {
+        return( "Tag with " + mEntries.size() + " Entrie(s)" );
     }
 
     public Category get_category() {
@@ -143,7 +143,7 @@ public class Tag extends DiaryElement {
         return m_theme;
     }
 
-    Theme create_own_theme_duplicating( Theme theme ) {
+    public Theme create_own_theme_duplicating( Theme theme ) {
         m_theme = new Theme( theme );
 
         for( Entry entry : mEntries )
@@ -167,7 +167,7 @@ public class Tag extends DiaryElement {
     }
 
     // MEMBER VARIABLES
-    protected Category m_ptr2category;
-    protected java.util.List< Entry > mEntries = new ArrayList< Entry >();
-    protected Theme m_theme = null;
+    Category m_ptr2category;
+    java.util.List< Entry > mEntries = new ArrayList< Entry >();
+    private Theme m_theme = null;
 }

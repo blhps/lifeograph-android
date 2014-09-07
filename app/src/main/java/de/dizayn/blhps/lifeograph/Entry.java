@@ -51,11 +51,6 @@ public class Entry extends DiaryElement {
     }
 
     @Override
-    public Date get_date() {
-        return m_date;
-    }
-
-    @Override
     public Type get_type() {
         return Type.ENTRY;
     }
@@ -63,30 +58,6 @@ public class Entry extends DiaryElement {
     @Override
     public int get_size() {
         return m_text.length();
-    }
-
-    public String getHeadStr() {
-        return( m_date.format_string( true ) );
-    }
-
-    @Override
-    public String getSubStr() {
-        return Lifeograph.activityDiary.getString( R.string.entry_last_changed_on ) + " "
-               + Date.format_string_do( m_date_changed );
-    }
-
-    @Override
-    public String getListStr() {
-        if( m_date.is_hidden() )
-            return m_name;
-        // else
-            return( m_date.format_string( false ) + STR_SEPARATOR + m_name );
-    }
-
-    @Override
-    public String getListStrSecondary() {
-        return m_date.is_ordinal() ? Date.format_string_do( m_date_changed )
-                                  : m_date.getWeekdayStr();
     }
 
     @Override
@@ -106,6 +77,35 @@ public class Entry extends DiaryElement {
         }
     }
 
+    @Override
+    public Date get_date() {
+        return m_date;
+    }
+
+    public String get_title() {
+        return( m_date.format_string( true ) );
+    }
+
+    @Override
+    public String get_info_str() {
+        return Lifeograph.activityDiary.getString( R.string.entry_last_changed_on ) + " "
+               + Date.format_string_do( m_date_changed );
+    }
+
+    @Override
+    public String get_list_str() {
+        if( m_date.is_hidden() )
+            return m_name;
+        // else
+            return( m_date.format_string( false ) + STR_SEPARATOR + m_name );
+    }
+
+    @Override
+    public String getListStrSecondary() {
+        return m_date.is_ordinal() ? Date.format_string_do( m_date_changed )
+                                  : m_date.getWeekdayStr();
+    }
+
     public String get_text() {
         return m_text;
     }
@@ -115,7 +115,7 @@ public class Entry extends DiaryElement {
     }
 
     // FILTERING
-    boolean get_filtered_out() {
+    public boolean get_filtered_out() {
         Filter filter = mDiary.get_filter();
         int fs = filter.get_status();
 
@@ -195,7 +195,7 @@ public class Entry extends DiaryElement {
         return flag_filteredout;
     }
 
-    void set_filtered_out( boolean filteredout ) {
+    public void set_filtered_out( boolean filteredout ) {
         if( filteredout )
             m_status |= ES_FILTERED_OUT;
         else if( ( m_status & ES_FILTERED_OUT ) != 0 )
@@ -234,16 +234,16 @@ public class Entry extends DiaryElement {
                                                                            : m_option_lang;
     }
 
-    void set_lang( String lang ) {
+    public void set_lang( String lang ) {
         m_option_lang = lang;
     }
 
     // TRASH FUNCTIONALITY
-    boolean is_trashed() {
+    public boolean is_trashed() {
         return( ( m_status & ES_TRASHED ) != 0 );
     }
 
-    void set_trashed( boolean trashed ) {
+    public void set_trashed( boolean trashed ) {
         set_status_flag( ES_TRASHED, trashed );
     }
 
@@ -266,19 +266,6 @@ public class Entry extends DiaryElement {
             return false;
     }
 
-    protected void calculate_title( String text ) {
-        if( text.length() < 1 ) {
-            m_name = Lifeograph.getStr( R.string.empty_entry );
-        }
-        else {
-            int pos = text.indexOf( '\n' );
-            if( pos == -1 )
-                m_name = text;
-            else
-                m_name = text.substring( 0, pos );
-        }
-    }
-
     // THEME
     public Theme get_theme() {
         return( m_ptr2theme_tag != null ?
@@ -290,8 +277,7 @@ public class Entry extends DiaryElement {
         return m_ptr2theme_tag;
     }
 
-    public void set_theme_tag( Tag tag )
-    {
+    public void set_theme_tag( Tag tag ) {
         // theme tag must be in the tag set
         if( m_tags.contains( tag ) )
             m_ptr2theme_tag = tag;
@@ -334,12 +320,24 @@ public class Entry extends DiaryElement {
         m_status |= s;
     }
 
-    public Date m_date;
-    public long m_date_created;
-    public long m_date_changed;
-    public String m_text = new String();
-    protected java.util.List< Tag > m_tags = new ArrayList< Tag >();
-    protected Tag m_ptr2theme_tag;
+    private void calculate_title( String text ) {
+        if( text.length() < 1 ) {
+            m_name = Lifeograph.getStr( R.string.empty_entry );
+        }
+        else {
+            int pos = text.indexOf( '\n' );
+            if( pos == -1 )
+                m_name = text;
+            else
+                m_name = text.substring( 0, pos );
+        }
+    }
 
-    protected String m_option_lang = Lifeograph.LANG_INHERIT_DIARY; // empty means off
+    Date m_date;
+    long m_date_created;
+    long m_date_changed;
+    String m_text;
+    java.util.List< Tag > m_tags = new ArrayList< Tag >();
+    private Tag m_ptr2theme_tag;
+    private String m_option_lang = Lifeograph.LANG_INHERIT_DIARY; // empty means off
 }

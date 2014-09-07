@@ -50,7 +50,7 @@ public class Chapter extends DiaryElement {
         }
 
         @Override
-        public String getSubStr() {
+        public String get_info_str() {
             return "Size: " + mMap.size();
         }
 
@@ -88,7 +88,7 @@ public class Chapter extends DiaryElement {
             mMap.remove( chapter.m_date_begin.m_date );
         }
 
-        long get_free_order_ordinal() {
+        public long get_free_order_ordinal() {
             if( mMap.isEmpty() )
                 return( m_date_min );
 
@@ -127,8 +127,8 @@ public class Chapter extends DiaryElement {
             return mMap;
         }
 
-        protected java.util.Map< Long, Chapter > mMap;
-        protected final long m_date_min;
+        java.util.Map< Long, Chapter > mMap;
+        final long m_date_min;
     }
 
     public Chapter( Diary diary, String name, long date ) {
@@ -154,12 +154,8 @@ public class Chapter extends DiaryElement {
         return mEntries.size();
     }
 
-    boolean is_ordinal() {
-        return m_date_begin.is_ordinal();
-    }
-
     @Override
-    public String getListStr() {
+    public String get_list_str() {
         if( m_date_begin.is_hidden() )
             return m_name;
 //    else
@@ -167,7 +163,7 @@ public class Chapter extends DiaryElement {
     }
 
     @Override
-    public String getSubStr() {
+    public String get_info_str() {
         return ( m_date_begin.is_ordinal() ? "Topic" : "Chapter" ) + " with "
                  + get_size() + " Entries";
     }
@@ -185,6 +181,10 @@ public class Chapter extends DiaryElement {
             default:
                 return( m_date_begin.is_ordinal() ? R.drawable.ic_topic : R.drawable.ic_chapter );
         }
+    }
+
+    public boolean is_ordinal() {
+        return m_date_begin.is_ordinal();
     }
 
     // REFERRER RELATED METHODS
@@ -216,7 +216,7 @@ public class Chapter extends DiaryElement {
         m_date_begin.m_date = date;
     }
 
-    void recalculate_span( Chapter next ) {
+    private void recalculate_span( Chapter next ) {
         if( next == null )
             m_time_span = 0; // unlimited
         else if( next.m_date_begin.is_ordinal() )
@@ -241,7 +241,7 @@ public class Chapter extends DiaryElement {
         m_status |= s;
     }
 
-    protected Date m_date_begin;
+    Date m_date_begin;
     int m_time_span = 0;
-    protected java.util.List< Entry > mEntries = new ArrayList< Entry >();
+    java.util.List< Entry > mEntries = new ArrayList< Entry >();
 }

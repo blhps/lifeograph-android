@@ -45,7 +45,6 @@ public class Theme {
     }
 
     public Theme() {
-        font = new String();
         // color_base = new Color();
         // color_text = new Color();
         // color_heading = new Color();

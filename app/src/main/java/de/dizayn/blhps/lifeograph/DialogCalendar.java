@@ -39,34 +39,28 @@ import android.widget.DatePicker;
 import android.widget.GridView;
 import android.widget.TextView;
 
-public class DialogCalendar extends Dialog {
-
+public class DialogCalendar extends Dialog
+{
     public DialogCalendar( Context context ) {
         super( context );
     }
 
-    protected GridView mGridCalendar = null;
-    protected GridCalAdapter mAdapter = null;
-    protected DatePicker mDatePicker = null;
-    protected Button mButtonCreateEntry = null;
-    protected Button mButtonCreateChapter = null;
-    protected List< Long > mListDays;
-
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.calendar );
 
         setTitle( R.string.calendar );
 
-        mGridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
+        GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
 
         Date date_today = new Date( Date.get_today( 0 ) );
 
         mAdapter = new GridCalAdapter( Lifeograph.context, date_today );
         mAdapter.notifyDataSetChanged();
-        mGridCalendar.setAdapter( mAdapter );
-        mGridCalendar.setOnItemClickListener( new OnItemClickListener() {
+        gridCalendar.setAdapter( mAdapter );
+        gridCalendar.setOnItemClickListener( new OnItemClickListener()
+        {
             public void onItemClick( AdapterView< ? > parent, View v, int pos, long id ) {
                 handleDayClicked( pos );
             }
@@ -80,26 +74,44 @@ public class DialogCalendar extends Dialog {
                               }
                           } );
 
-        mButtonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
-        mButtonCreateEntry.setOnClickListener( new View.OnClickListener() {
+        Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
+        buttonCreateEntry.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) {
                 createEntry();
             }
         } );
 
-        mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
-        mButtonCreateChapter.setOnClickListener( new View.OnClickListener() {
+        Button buttonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
+        buttonCreateChapter.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) {
                 createChapter();
             }
         } );
     }
 
-    public void handleDayChanged( Date date ) {
+    void createEntry() {
+        Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
+        dismiss();
+        Lifeograph.activityDiary.showEntry( e );
+    }
+
+    void createChapter() {
+        Lifeograph.activityDiary.mParentElem =
+                Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( "Untitled chapter",
+                        mAdapter.mDateCurrent.m_date );
+        dismiss();
+        Diary.diary.update_entries_in_chapters();
+        Lifeograph.activityDiary.update_entry_list();
+        Lifeograph.activityDiary.rename_chapter();
+    }
+
+    private void handleDayChanged( Date date ) {
         mAdapter.showMonth( date );
     }
 
-    public void handleDayClicked( int pos ) {
+    private void handleDayClicked( int pos ) {
         if( pos < 7 )
             return;
         Entry e = Diary.diary.m_entries.get( mListDays.get( pos ) + 1 );
@@ -113,26 +125,10 @@ public class DialogCalendar extends Dialog {
         }
     }
 
-    protected void createEntry() {
-        Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
-        dismiss();
-        Lifeograph.activityDiary.showEntry( e );
-    }
-
-    protected void createChapter() {
-        Lifeograph.activityDiary.mParentElem =
-                Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( "Untitled chapter",
-                                                                  mAdapter.mDateCurrent.m_date );
-        dismiss();
-        Diary.diary.update_entries_in_chapters();
-        Lifeograph.activityDiary.update_entry_list();
-        Lifeograph.activityDiary.rename_chapter();
-    }
-
-    public class GridCalAdapter extends BaseAdapter {
-        protected final Context mContext;
-        protected int daysInMonth;
-        protected Date mDateCurrent;
+    private class GridCalAdapter extends BaseAdapter {
+        final Context mContext;
+        int mDaysInMonth;
+        Date mDateCurrent;
 
         // Days in Current Month
         public GridCalAdapter( Context context, Date date ) {
@@ -171,7 +167,7 @@ public class DialogCalendar extends Dialog {
                 mListDays.add( 0L );
             }
 
-            daysInMonth = date.get_days_in_month();
+            mDaysInMonth = date.get_days_in_month();
             Date date2 = new Date( date.m_date );
             date2.set_day( 1 );
             final int numSlotBefore = date2.get_weekday();
@@ -191,14 +187,14 @@ public class DialogCalendar extends Dialog {
             }
 
             // Current Month Days
-            for( int i = 0; i < daysInMonth; i++ ) {
+            for( int i = 0; i < mDaysInMonth; i++ ) {
                 mListDays.add( date2.m_date + Date.make_day( i ) );
             }
 
             // Next Month days
-            //final int numSlotAfter = 7 - ( ( numSlotBefore + daysInMonth ) % 7 );
+            //final int numSlotAfter = 7 - ( ( numSlotBefore + mDaysInMonth ) % 7 );
             // always use 6 rows:
-            final int numSlotAfter = 42 - ( numSlotBefore + daysInMonth );
+            final int numSlotAfter = 42 - ( numSlotBefore +mDaysInMonth );
             for( int i = 1; i <= numSlotAfter; i++ ) {
                 mListDays.add( nextMonth.m_date + Date.make_day( i ) );
             }
@@ -256,4 +252,8 @@ public class DialogCalendar extends Dialog {
             return row;
         }
     }
+
+    private GridCalAdapter mAdapter = null;
+    private DatePicker mDatePicker = null;
+    private List< Long > mListDays;
 }

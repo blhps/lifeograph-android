@@ -51,25 +51,25 @@ import de.dizayn.blhps.lifeograph.DiaryElement.Type;
 
 public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 {
-    private LayoutInflater mInflater;
-
     public static Entry entry_current = null;
-    protected DiaryElement mParentElem = null;
 
-    protected ActionBar mActionBar = null;
-    protected DrawerLayout mDrawerLayout = null;
-    protected ToggleImageButton mButtonShowTodoNot = null;
-    protected ToggleImageButton mButtonShowTodoOpen = null;
-    protected ToggleImageButton mButtonShowTodoDone = null;
-    protected ToggleImageButton mButtonShowTodoCanceled = null;
+    DiaryElement mParentElem = null;
 
-    static protected ElemListAllEntries mElemAllEntries = null;
+    private LayoutInflater mInflater;
+    private ActionBar mActionBar = null;
+    private DrawerLayout mDrawerLayout = null;
+    private ToggleImageButton mButtonShowTodoNot = null;
+    private ToggleImageButton mButtonShowTodoOpen = null;
+    private ToggleImageButton mButtonShowTodoDone = null;
+    private ToggleImageButton mButtonShowTodoCanceled = null;
 
-    protected boolean mFlagSaveOnLogOut = true;
-    protected boolean mFlagLogoutOnPause = false;
+    private ElemListAllEntries mElemAllEntries = null;
+
+    private boolean mFlagSaveOnLogOut = true;
+    private boolean mFlagLogoutOnPause = false;
 
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         Lifeograph.activityDiary = this;
 
@@ -123,7 +123,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     }
 
     @Override
-    public void onPause() {
+    protected void onPause() {
         super.onPause();
         if( mFlagLogoutOnPause )
             handleLogout(); // TODO: save backup if not successful
@@ -132,13 +132,13 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 
     /* onDestroy is called after next Activity gets started so this is not useful
     @Override
-    public void onDestroy() {
+    protected void onDestroy() {
         super.onDestroy();
         Log.d( Lifeograph.TAG, "onDestroy - ActivityDiary" );
     }*/
 
     @Override
-    public void onResume() {
+    protected void onResume() {
         super.onResume();
         mFlagLogoutOnPause = false;
         //update_entry_list();
@@ -303,7 +303,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         return super.onOptionsItemSelected(item);
     }
 
-    boolean handleLogout() {
+    private boolean handleLogout() {
         // SAVING
         // sync_entry();
 
@@ -328,7 +328,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         }
     }
 
-    public void showEntry( Entry entry ) {
+    void showEntry( Entry entry ) {
         if( entry != null ) {
             entry_current = entry;
             Intent i = new Intent( this, ActivityEntry.class );
@@ -336,7 +336,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         }
     }
 
-    public void goToToday() {
+    void goToToday() {
         Entry entry = Diary.diary.get_entry_today();
 
         if( entry == null ) // add new entry if no entry exists on selected date
@@ -348,7 +348,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         showEntry( entry );
     }
 
-    public void showCalendar() {
+    private void showCalendar() {
         // Intent i = new Intent( this, ActivityCalendar.class );
         // startActivityForResult( i, ActivityCalendar.REQC_OPEN_ENTRY );
         DialogCalendar dialog = new DialogCalendar( this );
@@ -366,7 +366,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     // }
     // }
 
-    public void handleFilterTodoChanged() {
+    void handleFilterTodoChanged() {
         Diary.diary.m_filter_active.set_todo(
                 mButtonShowTodoNot.isChecked(),
                 mButtonShowTodoOpen.isChecked(),
@@ -394,7 +394,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         Log.d( Lifeograph.TAG, "Cannot set todo status" );
     }
 
-    public void update_entry_list() {
+    void update_entry_list() {
         m_adapter_entries.clear();
         m_elems.clear();
         DiaryElement.Type type = mParentElem == null ? Type.NONE : mParentElem.get_type();
@@ -428,8 +428,8 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 break;
             case TAG:
                 mActionBar.setIcon( mParentElem.get_icon() );
-                setTitle( mParentElem.getListStr() );
-                mActionBar.setSubtitle( mParentElem.getSubStr() );
+                setTitle( mParentElem.get_list_str() );
+                mActionBar.setSubtitle( mParentElem.get_info_str() );
 
                 Tag t = ( Tag ) mParentElem;
                 for( Entry e : t.mEntries ) {
@@ -441,8 +441,8 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
             case TOPIC:
             case SORTED:
                 mActionBar.setIcon( mParentElem.get_icon() );
-                setTitle( mParentElem.getListStr() );
-                mActionBar.setSubtitle( mParentElem.getSubStr() );
+                setTitle( mParentElem.get_list_str() );
+                mActionBar.setSubtitle( mParentElem.get_info_str() );
 
                 Chapter c = ( Chapter ) mParentElem;
                 for( Entry e : c.mEntries ) {
@@ -465,7 +465,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         Collections.sort( m_elems, compare_elems );
     }
 
-    protected void create_topic() {
+    void create_topic() {
         final EditText input = new EditText( this );
         input.setText( "New topic" );
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
@@ -489,7 +489,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                     } // do nothing
                 } ).show();
     }
-    protected void create_sorted() {
+    void create_sorted() {
         final EditText input = new EditText( this );
         input.setText( "New group" );
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
@@ -514,7 +514,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 } ).show();
     }
 
-    protected void rename_tag() {
+    private void rename_tag() {
         final EditText input = new EditText( this );
         input.setText( mParentElem.m_name );
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
@@ -535,7 +535,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
            } ).show();
     }
 
-    protected void rename_chapter() {
+    void rename_chapter() {
         final EditText input = new EditText( this );
         input.setText( mParentElem.m_name );
         // input.selectAll();
@@ -557,7 +557,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
            } ).show();
     }
 
-    protected void dismiss_chapter() {
+    private void dismiss_chapter() {
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( R.string.chapter_dismiss_confirm )
                .setPositiveButton( R.string.dismiss, new DialogInterface.OnClickListener() {
@@ -575,7 +575,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                } ).show();
     }
 
-    protected void dismiss_tag() {
+    private void dismiss_tag() {
         AlertDialog.Builder builder = new AlertDialog.Builder( this );
         builder.setMessage( R.string.tag_dismiss_confirm )
                .setPositiveButton( R.string.dismiss, new DialogInterface.OnClickListener() {
@@ -621,7 +621,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 //    }
 
     // ALL ENTRIES PSEUDO ELEMENT CLASS ============================================================
-    protected class ElemListAllEntries extends DiaryElement {
+    class ElemListAllEntries extends DiaryElement {
         int mSize = 0;
 
         public ElemListAllEntries( Diary diary ) {
@@ -630,7 +630,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         }
 
         @Override
-        public String getSubStr() {
+        public String get_info_str() {
             // TODO Auto-generated method stub
             return( mType == Type.ALLBYDATE ? getString( R.string.sort_by_date ) : getString( R.string.sort_by_size ) );
         }
@@ -660,8 +660,8 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 
     }
 
-    protected java.util.List< DiaryElement > m_elems = new ArrayList< DiaryElement >();
-    protected DiaryElemAdapter m_adapter_entries;
+    private java.util.List< DiaryElement > m_elems = new ArrayList< DiaryElement >();
+    private DiaryElemAdapter m_adapter_entries;
 
     // COMPARATOR ==================================================================================
     static class CompareListElems implements Comparator< DiaryElement >
@@ -685,7 +685,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         }
     }
 
-    protected static final CompareListElems compare_elems = new CompareListElems();
+    static final CompareListElems compare_elems = new CompareListElems();
 
     // ADAPTER CLASS ===============================================================================
     private class DiaryElemAdapter extends ArrayAdapter< DiaryElement > {
@@ -712,7 +712,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
             holder = ( ViewHolder ) convertView.getTag();
 
             title = holder.getName();
-            title.setText( elem.getListStr() );
+            title.setText( elem.get_list_str() );
 
             detail = holder.getDetail();
             detail.setText( elem.getListStrSecondary() );

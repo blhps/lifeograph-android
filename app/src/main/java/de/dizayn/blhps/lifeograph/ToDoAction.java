@@ -33,7 +33,7 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
 {
     public ToDoAction( Context context ) {
         super( context );
-        mContext = context;
+        //mContext = context;
     }
 
     @Override
@@ -98,6 +98,6 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
         public void set_todo_status( int s );
     }
 
-    protected Context mContext; // not used now
+    //private Context mContext; // not used now
     public static ToDoObject mObject;
 }

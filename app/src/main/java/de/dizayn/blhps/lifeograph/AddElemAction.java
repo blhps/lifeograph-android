@@ -82,5 +82,5 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
         return null;
     }
 
-    //protected Context mContext; // not used now
+    //private Context mContext; // not used now
 }
