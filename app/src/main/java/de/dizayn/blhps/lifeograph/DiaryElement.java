@@ -48,11 +48,18 @@ public abstract class DiaryElement {
 
     public static enum Type {
         // CAUTION: order is significant and shouldn't be changed!
-        NONE, TAG, UNTAGGED, TAG_CTG, CHAPTER_CTG, FILTER,
+        NONE( "" ), TAG( "Tag" ), UNTAGGED( "Untagged" ), TAG_CTG( "Tag Category" ),
+        CHAPTER_CTG( "Chapter category" ), FILTER( "Filter" ),
         // entry list elements:
-        DIARY, CHAPTER, TOPIC, SORTED, ENTRY, DATE,
+        DIARY( "Diary" ), CHAPTER( "Dated Chapter" ), TOPIC( "Numbered Chapter" ),
+        SORTED( "Free Chapter" ), ENTRY( "Entry" ), DATE( "" ),
         // additional (virtual) types:
-        ALLBYDATE, ALLBYSIZE
+        ALLBYDATE( "" ), ALLBYSIZE( "" );
+
+        public final String str;
+        private Type( String v ) {
+            this.str = v;
+        }
     }
 
     // ELEMENT STATUSES
@@ -99,14 +106,14 @@ public abstract class DiaryElement {
     public final static int ES_FILTER_MAX       = 0xFFFFFFFF;
 
     public DiaryElement( Diary diary, String name, int status ) {
-        mDiary = diary;
+        m_ptr2diary = diary;
         m_status = status;
         m_name = name;
         m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
     }
 
     public DiaryElement( Diary diary, int id, int status ) {
-        mDiary = diary;
+        m_ptr2diary = diary;
         m_status = status;
         m_id = id;
     }
@@ -116,6 +123,10 @@ public abstract class DiaryElement {
     }
 
     abstract public Type get_type();
+
+    public String get_type_name() {
+        return get_type().str;
+    }
 
     abstract public int get_size();
 
@@ -157,7 +168,7 @@ public abstract class DiaryElement {
     { return false; }
 
     String m_name;
-    Diary mDiary = null;
+    Diary m_ptr2diary = null;
     int m_id = 0;
     int m_status;
 

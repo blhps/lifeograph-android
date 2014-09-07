@@ -171,6 +171,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
             case TAG:
             case CHAPTER:
             case TOPIC:
+            case SORTED:
                 mParentElem = m_elems.get( pos );
                 update_entry_list();
                 break;
@@ -631,13 +632,12 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 
         @Override
         public String get_info_str() {
-            // TODO Auto-generated method stub
-            return( mType == Type.ALLBYDATE ? getString( R.string.sort_by_date ) : getString( R.string.sort_by_size ) );
+            return( mType == Type.ALLBYDATE ?
+                    getString( R.string.sort_by_date ) : getString( R.string.sort_by_size ) );
         }
 
         @Override
         public int get_icon() {
-            // TODO Auto-generated method stub
             return R.drawable.ic_diary;
         }
 

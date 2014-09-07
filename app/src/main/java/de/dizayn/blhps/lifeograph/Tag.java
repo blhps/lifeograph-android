@@ -99,7 +99,7 @@ public class Tag extends DiaryElement {
 
     @Override
     public String get_info_str() {
-        return( "Tag with " + mEntries.size() + " Entrie(s)" );
+        return( "Tag with " + mEntries.size() + " Entries" );
     }
 
     public Category get_category() {

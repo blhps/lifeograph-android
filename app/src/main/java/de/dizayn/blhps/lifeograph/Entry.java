@@ -83,7 +83,14 @@ public class Entry extends DiaryElement {
     }
 
     public String get_title() {
-        return( m_date.format_string( true ) );
+        if( m_date.is_hidden() ) {
+            if( m_ptr2diary.m_custom_sorteds.getMap().containsKey( m_date.get_pure() ) )
+                return m_ptr2diary.m_custom_sorteds.getMap().get( m_date.get_pure() ).get_name();
+            else
+                return "/"; // TODO find a better name
+        }
+        else
+            return( m_date.format_string( true ) );
     }
 
     @Override
@@ -96,14 +103,13 @@ public class Entry extends DiaryElement {
     public String get_list_str() {
         if( m_date.is_hidden() )
             return m_name;
-        // else
+        else
             return( m_date.format_string( false ) + STR_SEPARATOR + m_name );
     }
 
     @Override
     public String getListStrSecondary() {
-        return m_date.is_ordinal() ? Date.format_string_do( m_date_changed )
-                                  : m_date.getWeekdayStr();
+        return( m_date.is_ordinal() ? get_info_str() : m_date.getWeekdayStr() );
     }
 
     public String get_text() {
@@ -116,7 +122,7 @@ public class Entry extends DiaryElement {
 
     // FILTERING
     public boolean get_filtered_out() {
-        Filter filter = mDiary.get_filter();
+        Filter filter = m_ptr2diary.get_filter();
         int fs = filter.get_status();
 
         boolean flag_filteredout = ( ( m_status & ES_FILTERED_OUT ) != 0 );
@@ -182,8 +188,8 @@ public class Entry extends DiaryElement {
             }
 
             /* TODO
-            if( mDiary.is_search_active() )
-                flag_filteredout = ( m_text.lowercase().find( mDiary.get_search_text() )
+            if( m_ptr2diary.is_search_active() )
+                flag_filteredout = ( m_text.lowercase().find( m_ptr2diary.get_search_text() )
                         ==  );*/
 
             break;
@@ -230,7 +236,7 @@ public class Entry extends DiaryElement {
     }
 
     public String get_lang_final() {
-        return m_option_lang.compareTo( Lifeograph.LANG_INHERIT_DIARY ) == 0 ? mDiary.get_lang()
+        return m_option_lang.compareTo( Lifeograph.LANG_INHERIT_DIARY ) == 0 ? m_ptr2diary.get_lang()
                                                                            : m_option_lang;
     }
 
@@ -269,7 +275,7 @@ public class Entry extends DiaryElement {
     // THEME
     public Theme get_theme() {
         return( m_ptr2theme_tag != null ?
-                m_ptr2theme_tag.get_theme() : mDiary.get_untagged().get_theme() );
+                m_ptr2theme_tag.get_theme() : m_ptr2diary.get_untagged().get_theme() );
     }
 
     public Tag get_theme_tag()

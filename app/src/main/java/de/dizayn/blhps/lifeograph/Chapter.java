@@ -50,17 +50,17 @@ public class Chapter extends DiaryElement {
         }
 
         @Override
-        public String get_info_str() {
-            return "Size: " + mMap.size();
-        }
-
-        @Override
         public int get_icon() {
             return R.drawable.ic_diary;
         }
 
+        @Override
+        public String get_info_str() {
+            return "Size: " + mMap.size();
+        }
+
         public Chapter create_chapter( String name, long date ) {
-            Chapter chapter = new Chapter( mDiary, name, date );
+            Chapter chapter = new Chapter( m_ptr2diary, name, date );
             mMap.put( date, chapter );
             return chapter;
         }
@@ -134,6 +134,7 @@ public class Chapter extends DiaryElement {
     public Chapter( Diary diary, String name, long date ) {
         super( diary, name, ES_CHAPTER_DEFAULT );
         m_date_begin = new Date( date );
+        update_type();
     }
 
     @Override
@@ -143,29 +144,12 @@ public class Chapter extends DiaryElement {
 
     @Override
     public Type get_type() {
-        if( m_date_begin != null )
-            if( m_date_begin.is_ordinal() )
-                return Type.TOPIC;
-        return Type.CHAPTER;
+        return m_type;
     }
 
     @Override
     public int get_size() {
         return mEntries.size();
-    }
-
-    @Override
-    public String get_list_str() {
-        if( m_date_begin.is_hidden() )
-            return m_name;
-//    else
-            return( m_date_begin.format_string( false ) + STR_SEPARATOR + m_name );
-    }
-
-    @Override
-    public String get_info_str() {
-        return ( m_date_begin.is_ordinal() ? "Topic" : "Chapter" ) + " with "
-                 + get_size() + " Entries";
     }
 
     @Override
@@ -183,8 +167,30 @@ public class Chapter extends DiaryElement {
         }
     }
 
+    @Override
+    public String get_info_str() {
+        return( get_type_name() + " with " + get_size() + " Entries" );
+    }
+
+    @Override
+    public String get_list_str() {
+        if( m_date_begin.is_hidden() )
+            return m_name;
+//    else
+            return( m_date_begin.format_string( false ) + STR_SEPARATOR + m_name );
+    }
+
     public boolean is_ordinal() {
         return m_date_begin.is_ordinal();
+    }
+
+    public void update_type() {
+        if( m_date_begin.is_hidden() )
+            m_type = Type.SORTED;
+        else if( m_date_begin.is_ordinal() )
+            m_type = Type.TOPIC;
+        else
+            m_type = Type.CHAPTER;
     }
 
     // REFERRER RELATED METHODS
@@ -214,15 +220,7 @@ public class Chapter extends DiaryElement {
 
     public void set_date( long date ) {
         m_date_begin.m_date = date;
-    }
-
-    private void recalculate_span( Chapter next ) {
-        if( next == null )
-            m_time_span = 0; // unlimited
-        else if( next.m_date_begin.is_ordinal() )
-            m_time_span = 0; // last temporal chapter: unlimited
-        else
-            m_time_span = m_date_begin.calculate_days_between( next.m_date_begin );
+        update_type();
     }
 
     public Date get_free_order() {
@@ -241,7 +239,17 @@ public class Chapter extends DiaryElement {
         m_status |= s;
     }
 
+    private void recalculate_span( Chapter next ) {
+        if( next == null )
+            m_time_span = 0; // unlimited
+        else if( next.m_date_begin.is_ordinal() )
+            m_time_span = 0; // last temporal chapter: unlimited
+        else
+            m_time_span = m_date_begin.calculate_days_between( next.m_date_begin );
+    }
+
     Date m_date_begin;
     int m_time_span = 0;
+    Type m_type;
     java.util.List< Entry > mEntries = new ArrayList< Entry >();
 }
