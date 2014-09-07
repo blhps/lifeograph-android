@@ -50,13 +50,14 @@ public class DialogCalendar extends Dialog {
     protected DatePicker mDatePicker = null;
     protected Button mButtonCreateEntry = null;
     protected Button mButtonCreateChapter = null;
-    private List< Long > mListDays;
-    static public final int REQC_OPEN_ENTRY = 1001;
+    protected List< Long > mListDays;
 
     @Override
     public void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setContentView( R.layout.calendar );
+
+        setTitle( R.string.calendar );
 
         mGridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
 
@@ -129,12 +130,8 @@ public class DialogCalendar extends Dialog {
     }
 
     public class GridCalAdapter extends BaseAdapter {
-        private final Context mContext;
-
-        private int daysInMonth;
-        // private Button buttonDay;
-        private TextView buttonDay;
-        private TextView num_events_per_day;
+        protected final Context mContext;
+        protected int daysInMonth;
         protected Date mDateCurrent;
 
         // Days in Current Month
@@ -156,7 +153,7 @@ public class DialogCalendar extends Dialog {
             return mListDays.size();
         }
 
-        private void showMonth( Date date ) {
+        protected void showMonth( Date date ) {
             boolean nothing2show = false;
             if( mDateCurrent != null )
                 if( date.get_yearmonth() != mDateCurrent.get_yearmonth() )
@@ -220,38 +217,41 @@ public class DialogCalendar extends Dialog {
                 row = inflater.inflate( R.layout.cal_day, parent, false );
             }
 
-            buttonDay = ( TextView ) row.findViewById( R.id.calendar_day_gridcell );
-
-            num_events_per_day = ( TextView ) row.findViewById( R.id.num_events_per_day );
+            TextView tvDayNo = ( TextView ) row.findViewById( R.id.calendar_day_gridcell );
+            //TextView num_events_per_day = ( TextView ) row.findViewById( R.id.num_events_per_day );
+            //num_events_per_day.setTextColor( Color.GREEN );
 
             if( position < 7 ) {
-                buttonDay.setText( Date.WEEKDAYSSHORT[ position + 1 ] );
-                buttonDay.setTextScaleX( ( float ) 0.6 );
+                tvDayNo.setText( Date.WEEKDAYSSHORT[ position+1 ] );
+                tvDayNo.setTextAppearance( mContext, R.style.boldText );
+                tvDayNo.setTextColor( Color.DKGRAY );
+                tvDayNo.setTextScaleX( 0.6f );
             }
             else {
                 Date date = new Date( mListDays.get( position ) );
                 date.m_date += 1; // fixes order
 
-                if( Diary.diary.m_ptr2chapter_ctg_cur.mMap.get( date.m_date ) != null )
-                    num_events_per_day.setText( "C" );
-                else
-                    num_events_per_day.setText( "" );
+// TODO EXTRA WIDGET WILL BE INVESTIGATED IN 0.3
+//                if( Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date.get_pure() ) )
+//                    num_events_per_day.setText( "C" );
+//                else
+//                    num_events_per_day.setText( "" );
 
-                buttonDay.setText( String.valueOf( date.get_day() ) );
+                tvDayNo.setText( String.valueOf( date.get_day() ) );
 
                 boolean within_month = ( date.get_month() == mDateCurrent.get_month() );
 
-                if( Diary.diary.m_entries.get( date.m_date ) != null ) {
-                    buttonDay.setTextAppearance( mContext, R.style.boldText );
-                    buttonDay.setTextColor( within_month ? Color.BLUE : Color.GRAY );
+                if( Diary.diary.m_entries.containsKey( date.m_date ) ) {
+                    tvDayNo.setTextAppearance( mContext, R.style.boldText );
+                    tvDayNo.setTextColor( within_month ? Color.BLUE : Color.GRAY );
                 }
                 else {
-                    buttonDay.setTextAppearance( mContext, R.style.normalText );
-                    buttonDay.setTextColor( within_month ? Color.BLACK : Color.GRAY );
+                    tvDayNo.setTextAppearance( mContext, R.style.normalText );
+                    tvDayNo.setTextColor( within_month ? Color.BLACK : Color.GRAY );
                 }
                 // holidays:
                 // if( date.get_weekday() == 0 )
-                // buttonDay.setBackgroundColor( Color.LTGRAY );
+                // tvDayNo.setBackgroundColor( Color.LTGRAY );
             }
             return row;
         }
