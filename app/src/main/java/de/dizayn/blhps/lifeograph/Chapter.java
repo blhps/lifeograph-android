@@ -158,6 +158,8 @@ public class Chapter extends DiaryElement {
         {
             case ES_TODO:
                 return R.drawable.ic_todo_open;
+            case ES_PROGRESSED:
+                return R.drawable.ic_todo_progressed;
             case ES_DONE:
                 return R.drawable.ic_todo_done;
             case ES_CANCELED:
@@ -227,16 +229,6 @@ public class Chapter extends DiaryElement {
         Date date = new Date( m_date_begin.m_date );
         Diary.diary.make_free_entry_order( date );
         return date;
-    }
-
-    public int get_todo_status()
-    {
-        return( m_status & ES_FILTER_TODO );
-    }
-
-    public void set_todo_status( long s ) {
-        m_status -= ( m_status & ES_FILTER_TODO );
-        m_status |= s;
     }
 
     private void recalculate_span( Chapter next ) {

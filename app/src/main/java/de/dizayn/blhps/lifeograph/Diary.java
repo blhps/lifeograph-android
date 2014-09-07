@@ -778,7 +778,7 @@ public class Diary extends DiaryElement
         return( m_passphrase.length() > 0 );
     }
 
-    // INTERNAL DB RELATED FUNCTIONS ===============================================================
+    // DB PARSING HELPER FUNCTIONS =================================================================
     private long get_db_line_date( String line ) {
         long date = 0;
 
@@ -800,6 +800,54 @@ public class Diary extends DiaryElement
         return( line.substring( begin ) );
     }
 
+    private long fix_pre_1020_date( long d ) {
+        if( Date.is_ordinal( d ) ) {
+            if( ( d & Date.VISIBLE_FLAG ) != 0 )
+                d -= Date.VISIBLE_FLAG;
+            else
+                d |= Date.VISIBLE_FLAG;
+        }
+
+        return d;
+    }
+
+    private void do_standard_checks_after_parse() {
+        // every diary must at least have one chapter category:
+        if( m_chapter_categories.size() < 1 )
+            m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO: i18n
+
+        if( m_startup_elem_id > DiaryElement.HOME_FIXED_ELEM )
+            if( get_element( m_startup_elem_id ) == null )
+            {
+                Log.w( Lifeograph.TAG, "startup element cannot be found in db" );
+                m_startup_elem_id = DiaryElement.DEID_DIARY;
+            }
+
+        if( m_entries.size() < 1 )
+        {
+            add_today();
+            Log.w( Lifeograph.TAG, "a dummy entry added to the diary" );
+        }
+    }
+
+    private void parse_todo_status( DiaryElement elem, char c ) {
+        switch( c ) {
+            case 't':
+                elem.set_todo_status( ES_TODO );
+                break;
+            case 'p':
+                elem.set_todo_status( ES_PROGRESSED );
+                break;
+            case 'd':
+                elem.set_todo_status( ES_DONE );
+                break;
+            case 'c':
+                elem.set_todo_status( ES_CANCELED );
+                break;
+        }
+    }
+
+    // DB PARSING MAIN FUNCTIONS ===================================================================
     private Result parse_db_body_text() {
         if( m_read_version == 1020 )
             return parse_db_body_text_1020();
@@ -875,18 +923,20 @@ public class Diary extends DiaryElement
                             switch( line.charAt( 1 ) )
                             {
                                 case 's':   // status
-                                    if( line.length() < 9 )
+                                    if( line.length() < 11 )
                                     {
-                                        Log.w( Lifeograph.TAG, "status filter length error" );
+                                        Log.e( Lifeograph.TAG, "status filter length error" );
                                         continue;
                                     }
                                     m_filter_default.set_trash( line.charAt( 2 ) == 'T',
                                             line.charAt( 3 ) == 't' );
                                     m_filter_default.set_favorites( line.charAt( 4 ) == 'F',
                                             line.charAt( 5 ) == 'f' );
-                                    m_filter_default.set_todo( line.charAt( 6 ) == 'N',
-                                            line.charAt( 7 ) == 'T', line.charAt( 8 ) == 'D',
-                                            line.charAt( 9 ) == 'C' );
+                                    m_filter_default.set_todo( line.charAt( 6 )  == 'N',
+                                                               line.charAt( 7 )  == 'T',
+                                                               line.charAt( 8 )  == 'P',
+                                                               line.charAt( 9 )  == 'D',
+                                                               line.charAt( 10 ) == 'C' );
                                     break;
                                 case 't':   // tag
                                 {
@@ -894,7 +944,7 @@ public class Diary extends DiaryElement
                                     if( tag != null )
                                         m_filter_default.set_tag( tag );
                                     else
-                                        Log.w( Lifeograph.TAG, "Reference to undefined tag: "
+                                        Log.e( Lifeograph.TAG, "Reference to undefined tag: "
                                                 + line.substring( 2 ) );
                                     break;
                                 }
@@ -937,12 +987,7 @@ public class Diary extends DiaryElement
                                     break;
                                 case 'p':   // chapter preferences
                                     ptr2chapter.set_expanded( line.charAt( 2 ) == 'e' );
-                                    if( line.charAt( 3 ) == 't' )
-                                        ptr2chapter.set_todo_status( DiaryElement.ES_TODO );
-                                    else if( line.charAt( 3 ) == 'd' )
-                                        ptr2chapter.set_todo_status( DiaryElement.ES_DONE );
-                                    else if( line.charAt( 3 ) == 'c' )
-                                        ptr2chapter.set_todo_status( DiaryElement.ES_CANCELED );
+                                    parse_todo_status( ptr2chapter, line.charAt( 3 ) );
                                     break;
                             }
                             break;
@@ -992,12 +1037,8 @@ public class Diary extends DiaryElement
                             entry_new.set_trashed( true );
                         if( line.charAt( 2 ) == 'h' )
                             m_filter_default.add_entry( entry_new );
-                        if( line.charAt( 3 ) == 't' )
-                            entry_new.set_todo_status( DiaryElement.ES_TODO );
-                        else if( line.charAt( 3 ) == 'd' )
-                            entry_new.set_todo_status( DiaryElement.ES_DONE );
-                        else if( line.charAt( 3 ) == 'c' )
-                            entry_new.set_todo_status( DiaryElement.ES_CANCELED );
+
+                        parse_todo_status( entry_new, line.charAt( 3 ) );
 
                         flag_first_paragraph = true;
                         break;
@@ -1067,17 +1108,6 @@ public class Diary extends DiaryElement
         m_filter_active.set( m_filter_default );
 
         return Result.SUCCESS;
-    }
-
-    private long fix_pre_1020_date( long d ) {
-        if( Date.is_ordinal( d ) ) {
-            if( ( d & Date.VISIBLE_FLAG ) != 0 )
-                d -= Date.VISIBLE_FLAG;
-            else
-                d |= Date.VISIBLE_FLAG;
-        }
-
-        return d;
     }
 
     private Result parse_db_body_text_1010() {
@@ -1281,32 +1311,25 @@ public class Diary extends DiaryElement
         return Result.SUCCESS;
     }
 
-    private void do_standard_checks_after_parse() {
-        // every diary must at least have one chapter category:
-        if( m_chapter_categories.size() < 1 )
-            m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO: i18n
-
-        if( m_startup_elem_id > DiaryElement.HOME_FIXED_ELEM )
-            if( get_element( m_startup_elem_id ) == null )
-            {
-                Log.w( Lifeograph.TAG, "startup element cannot be found in db" );
-                m_startup_elem_id = DiaryElement.DEID_DIARY;
-            }
-
-        if( m_entries.size() < 1 )
-        {
-            add_today();
-            Log.w( Lifeograph.TAG, "a dummy entry added to the diary" );
+    // DB CREATING HELPER FUNCTIONS ================================================================
+    private void create_db_todo_status_text( DiaryElement elem ) {
+        switch( elem.get_todo_status() ) {
+            case ES_NOT_TODO:
+                mStrIO += 'n';
+                break;
+            case ES_TODO:
+                mStrIO += 't';
+                break;
+            case ES_PROGRESSED:
+                mStrIO += 'p';
+                break;
+            case ES_DONE:
+                mStrIO += 'd';
+                break;
+            case ES_CANCELED:
+                mStrIO += 'c';
+                break;
         }
-    }
-
-    private boolean create_db_header_text( boolean encrypted ) {
-        mStrIO = DB_FILE_HEADER; // clears string
-        mStrIO += ( "\nV " + DB_FILE_VERSION_INT );
-        mStrIO += ( encrypted ? "\nE yes" : "\nE no" );
-        mStrIO += "\n\n"; // end of header
-
-        return true;
     }
 
     private void create_db_tag_text( char type, Tag tag ) {
@@ -1327,30 +1350,24 @@ public class Diary extends DiaryElement
     }
 
     private void create_db_chapterctg_text( char type, Chapter.Category ctg ) {
-        for( Chapter chapter : ctg.mMap.values() )
-        {
+        for( Chapter chapter : ctg.mMap.values() ) {
             mStrIO += ( "ID" + chapter.get_id()
                     + "\nC" + type + chapter.m_date_begin.m_date // type + date
                     + '\t' + chapter.get_name()   // name
                     + "\nCp" + ( chapter.get_expanded() ? 'e' : '_' ) );
-
-            switch( chapter.get_todo_status() )
-            {
-                case DiaryElement.ES_NOT_TODO:
-                    mStrIO += 'n';
-                    break;
-                case DiaryElement.ES_TODO:
-                    mStrIO += 't';
-                    break;
-                case DiaryElement.ES_DONE:
-                    mStrIO += 'd';
-                    break;
-                case DiaryElement.ES_CANCELED:
-                    mStrIO += 'c';
-                    break;
-            }
+            create_db_todo_status_text( chapter );
             mStrIO += '\n';
         }
+    }
+
+    // DB CREATING HELPER FUNCTIONS ================================================================
+    private boolean create_db_header_text( boolean encrypted ) {
+        mStrIO = DB_FILE_HEADER; // clears string
+        mStrIO += ( "\nV " + DB_FILE_VERSION_INT );
+        mStrIO += ( encrypted ? "\nE yes" : "\nE no" );
+        mStrIO += "\n\n"; // end of header
+
+        return true;
     }
 
     private boolean create_db_body_text() {
@@ -1413,6 +1430,7 @@ public class Diary extends DiaryElement
                 + ( ( fs & DiaryElement.ES_SHOW_NOT_FAVORED ) != 0 ? 'f' : '_' )
                 + ( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 ? 'N' : '_' )
                 + ( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 ? 'T' : '_' )
+                + ( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 ? 'P' : '_' )
                 + ( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 ? 'D' : '_' )
                 + ( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 ? 'C' : '_' )
                 + '\n' );
@@ -1440,22 +1458,9 @@ public class Diary extends DiaryElement
             mStrIO += ( ( entry.is_trashed() ? "e" : "E" )  +
                         ( entry.is_favored() ? 'f' : '_' ) +
                         ( m_filter_default.is_entry_filtered( entry ) ? 'h' : '_' ) );
-            switch( entry.get_todo_status() )
-            {
-                case DiaryElement.ES_NOT_TODO:
-                    mStrIO += 'n';
-                    break;
-                case DiaryElement.ES_TODO:
-                    mStrIO += 't';
-                    break;
-                case DiaryElement.ES_DONE:
-                    mStrIO += 'd';
-                    break;
-                case DiaryElement.ES_CANCELED:
-                    mStrIO += 'c';
-                    break;
-            }
+            create_db_todo_status_text( entry );
             mStrIO += ( entry.m_date.m_date + "\n" );
+
             mStrIO += ( "Dr" + entry.m_date_created + '\n' );
             mStrIO += ( "Dh" + entry.m_date_changed + '\n' );
 

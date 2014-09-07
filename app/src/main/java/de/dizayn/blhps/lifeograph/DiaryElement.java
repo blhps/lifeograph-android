@@ -83,9 +83,11 @@ public abstract class DiaryElement {
     public final static int ES_FILTER_TRASHED   = ES_NOT_TRASHED|ES_TRASHED;
     public final static int ES_NOT_TODO         = 0x1000;
     public final static int ES_TODO             = 0x2000;
-    public final static int ES_DONE             = 0x4000;
-    public final static int ES_CANCELED         = 0x8000;
-    public final static int ES_FILTER_TODO      = ES_NOT_TODO|ES_TODO|ES_DONE|ES_CANCELED;
+    public final static int ES_PROGRESSED       = 0x4000;
+    public final static int ES_DONE             = 0x8000;
+    public final static int ES_CANCELED         = 0x10000;
+    public final static int ES_FILTER_TODO      =
+            ES_NOT_TODO|ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
 
     public final static int ES_ENTRY_DEFAULT        = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
     public final static int ES_ENTRY_DEFAULT_FAV    = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
@@ -98,6 +100,7 @@ public abstract class DiaryElement {
     public final static int ES_SHOW_TRASHED     = ES_TRASHED;
     public final static int ES_SHOW_NOT_TODO    = ES_NOT_TODO;
     public final static int ES_SHOW_TODO        = ES_TODO;
+    public final static int ES_SHOW_PROGRESSED  = ES_PROGRESSED;
     public final static int ES_SHOW_DONE        = ES_DONE;
     public final static int ES_SHOW_CANCELED    = ES_CANCELED;
 
@@ -110,7 +113,7 @@ public abstract class DiaryElement {
     public final static int ES_FILTERED_OUT         = 0x40000000;
 
     public final static int ES_FILTER_RESET         =
-            ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO
+            ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO|ES_SHOW_PROGRESSED
                     |ES_FILTER_OUTSTANDING;
     public final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
 
@@ -166,11 +169,20 @@ public abstract class DiaryElement {
     public void set_status( int status ) {
         m_status = status;
     }
+
     public void set_status_flag( int flag, boolean add ) {
         if( add )
             m_status |= flag;
         else if( ( m_status & flag ) != 0 )
             m_status -= flag;
+    }
+    // only for entries and chapters:
+    public int get_todo_status() {
+        return ( m_status & ES_FILTER_TODO );
+    }
+    public void set_todo_status( int s ) {
+        m_status -= ( m_status & ES_FILTER_TODO );
+        m_status |= s;
     }
 
     public boolean is_favored()

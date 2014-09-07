@@ -109,7 +109,8 @@ public class Filter extends DiaryElement
     }
 
     public void set_todo( boolean flag_show_not_todo, boolean flag_show_todo,
-                          boolean flag_show_done, boolean flag_show_canceled ) {
+                          boolean flag_show_progressed, boolean flag_show_done,
+                          boolean flag_show_canceled ) {
         // clear previous values
         m_status &= ( ES_FILTER_TODO ^ ES_FILTER_MAX );
 
@@ -117,6 +118,8 @@ public class Filter extends DiaryElement
             m_status |= ES_SHOW_NOT_TODO;
         if( flag_show_todo )
             m_status |= ES_SHOW_TODO;
+        if( flag_show_progressed )
+            m_status |= ES_SHOW_PROGRESSED;
         if( flag_show_done )
             m_status |= ES_SHOW_DONE;
         if( flag_show_canceled )

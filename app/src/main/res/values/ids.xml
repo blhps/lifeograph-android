@@ -5,6 +5,7 @@
     <item name="add_sorted" type="id"/>
     <item name="todo_not" type="id"/>
     <item name="todo_open" type="id"/>
+    <item name="todo_progressed" type="id"/>
     <item name="todo_done" type="id"/>
     <item name="todo_canceled" type="id"/>
 </resources>

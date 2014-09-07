@@ -72,6 +72,12 @@
             <de.dizayn.blhps.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:id="@+id/show_todo_progressed"
+                android:src="@drawable/icon_todo_progressed" />
+
+            <de.dizayn.blhps.lifeograph.ToggleImageButton
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
                 android:id="@+id/show_todo_done"
                 android:src="@drawable/icon_todo_done" />
 

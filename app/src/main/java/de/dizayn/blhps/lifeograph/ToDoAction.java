@@ -54,6 +54,10 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
                 .setIcon( R.drawable.ic_todo_open )
                 .setOnMenuItemClickListener( this );
 
+        menu.add( 0, R.id.todo_progressed, 1, R.string.todo_progressed )
+                .setIcon( R.drawable.ic_todo_progressed )
+                .setOnMenuItemClickListener( this );
+
         menu.add( 0, R.id.todo_done, 1, R.string.todo_done )
                 .setIcon( R.drawable.ic_todo_done )
                 .setOnMenuItemClickListener( this );
@@ -76,6 +80,9 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
             case R.id.todo_open:
                 Log.d( Lifeograph.TAG, "open" );
                 mObject.set_todo_status( DiaryElement.ES_TODO );
+                return true;
+            case R.id.todo_progressed:
+                mObject.set_todo_status( DiaryElement.ES_PROGRESSED );
                 return true;
             case R.id.todo_done:
                 Log.d( Lifeograph.TAG, "done" );

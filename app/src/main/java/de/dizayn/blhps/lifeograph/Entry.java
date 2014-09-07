@@ -68,6 +68,8 @@ public class Entry extends DiaryElement {
         {
             case ES_TODO:
                 return R.drawable.ic_todo_open;
+            case ES_PROGRESSED:
+                return R.drawable.ic_todo_progressed;
             case ES_DONE:
                 return R.drawable.ic_todo_done;
             case ES_CANCELED:
@@ -313,17 +315,6 @@ public class Entry extends DiaryElement {
                 }
             }
         }
-    }
-
-    public int get_todo_status()
-    {
-        return( m_status & ES_FILTER_TODO );
-    }
-
-    public void set_todo_status( int s )
-    {
-        m_status -= ( m_status & ES_FILTER_TODO );
-        m_status |= s;
     }
 
     private void calculate_title( String text ) {

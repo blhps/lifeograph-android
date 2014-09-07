@@ -60,6 +60,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     private DrawerLayout mDrawerLayout = null;
     private ToggleImageButton mButtonShowTodoNot = null;
     private ToggleImageButton mButtonShowTodoOpen = null;
+    private ToggleImageButton mButtonShowTodoProgressed = null;
     private ToggleImageButton mButtonShowTodoDone = null;
     private ToggleImageButton mButtonShowTodoCanceled = null;
 
@@ -95,6 +96,13 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 
         mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
         mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handleFilterTodoChanged();
+            }
+        } );
+
+        mButtonShowTodoProgressed = ( ToggleImageButton ) findViewById( R.id.show_todo_progressed );
+        mButtonShowTodoProgressed.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
             }
@@ -371,6 +379,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         Diary.diary.m_filter_active.set_todo(
                 mButtonShowTodoNot.isChecked(),
                 mButtonShowTodoOpen.isChecked(),
+                mButtonShowTodoProgressed.isChecked(),
                 mButtonShowTodoDone.isChecked(),
                 mButtonShowTodoCanceled.isChecked() );
 
