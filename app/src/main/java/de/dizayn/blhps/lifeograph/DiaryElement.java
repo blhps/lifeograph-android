@@ -101,18 +101,18 @@ public abstract class DiaryElement {
     public final static int ES_SHOW_DONE        = ES_DONE;
     public final static int ES_SHOW_CANCELED    = ES_CANCELED;
 
-    public final static int ES_FILTER_TAG       = 0x100000;
-    public final static int ES_FILTER_DATE_BEGIN   = 0x200000;
-    public final static int ES_FILTER_DATE_END  = 0x400000;
-    public final static int ES_FILTER_INDIVIDUAL   = 0x800000;
-    public final static int ES_FILTER_OUTSTANDING  = 0x10000000;
+    public final static int ES_FILTER_TAG           = 0x100000;
+    public final static int ES_FILTER_DATE_BEGIN    = 0x200000;
+    public final static int ES_FILTER_DATE_END      = 0x400000;
+    public final static int ES_FILTER_INDIVIDUAL    = 0x800000;
+    public final static int ES_FILTER_OUTSTANDING   = 0x20000000;
 
-    public final static int ES_FILTERED_OUT     = 0x80000000;
+    public final static int ES_FILTERED_OUT         = 0x40000000;
 
-    public final static int ES_FILTER_RESET     =
+    public final static int ES_FILTER_RESET         =
             ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO
                     |ES_FILTER_OUTSTANDING;
-    public final static int ES_FILTER_MAX       = 0xFFFFFFFF;
+    public final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
 
     public DiaryElement( Diary diary, String name, int status ) {
         m_ptr2diary = diary;
