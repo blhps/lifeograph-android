@@ -90,7 +90,8 @@
         </LinearLayout>
 
         <!-- separator -->
-        <TextView
+        <!-- TODO WILL BE IMPLEMENTED IN 0.3
+        TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
@@ -117,7 +118,7 @@
                 android:id="@+id/spinnerTrash"
                 android:layout_weight="1"
                 android:entries="@array/array_filter_trash" />
-        </LinearLayout>
+        </LinearLayout-->
 
         <!-- separator -->
         <TextView
@@ -144,7 +145,7 @@
             <Spinner
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:id="@+id/spinnerFavorite"
+                android:id="@+id/spinnerFavorites"
                 android:layout_weight="1"
                 android:entries="@array/array_filter_favorite" />
         </LinearLayout>

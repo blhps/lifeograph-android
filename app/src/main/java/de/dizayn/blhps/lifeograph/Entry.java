@@ -132,11 +132,12 @@ public class Entry extends DiaryElement {
         while( ( fs & ES_FILTER_OUTSTANDING ) != 0 )  // this loop is meant for a single iteration
         // loop used instead of if to be able to break out
         {
-            flag_filteredout = ( ( fs & ES_FILTER_TRASHED & m_status ) == 0 );
-
-            // no need to continue if already filtered out
-            if( flag_filteredout )
-                break;
+//            TODO WILL BE IMPLEMENTED IN 0.3
+//            flag_filteredout = ( ( fs & ES_FILTER_TRASHED & m_status ) == 0 );
+//
+//            // no need to continue if already filtered out
+//            if( flag_filteredout )
+//                break;
 
             flag_filteredout = ( ( fs & ES_FILTER_FAVORED & m_status ) == 0 );
             if( flag_filteredout )

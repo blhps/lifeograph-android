@@ -40,9 +40,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.TextView;
 import android.widget.Toast;
 import de.dizayn.blhps.lifeograph.DiaryElement.Type;
@@ -62,6 +64,7 @@ public class ActivityDiary extends ListActivity
     private ToggleImageButton mButtonShowTodoProgressed = null;
     private ToggleImageButton mButtonShowTodoDone = null;
     private ToggleImageButton mButtonShowTodoCanceled = null;
+    private Spinner mSpinnerShowFavorite = null;
 
     private ElemListAllEntries mElemAllEntries = null;
 
@@ -123,6 +126,17 @@ public class ActivityDiary extends ListActivity
             }
         } );
 
+        mSpinnerShowFavorite = ( Spinner ) findViewById( R.id.spinnerFavorites );
+        mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
+            public void onItemSelected( AdapterView<?> pv, View v, int pos, long id ) {
+                handleFilterFavoriteChanged( pos );
+            }
+            public void onNothingSelected( AdapterView<?> arg0 ) {
+                Log.d( Lifeograph.TAG, "Filter Favorites onNothingSelected" );
+            }
+        } );
+
+        // LIST ADAPTER
         m_adapter_entries = new DiaryElemAdapter( this, R.layout.imagelist, R.id.title, m_elems );
         this.setListAdapter( m_adapter_entries );
         update_entry_list();
@@ -422,6 +436,30 @@ public class ActivityDiary extends ListActivity
                 mButtonShowTodoProgressed.isChecked(),
                 mButtonShowTodoDone.isChecked(),
                 mButtonShowTodoCanceled.isChecked() );
+
+        update_entry_list();
+    }
+
+    void handleFilterFavoriteChanged( int i ) {
+        boolean showFav = true;
+        boolean showNotFav = true;
+
+        switch( i ) {
+            case 0:
+                showFav = true;
+                showNotFav = true;
+                break;
+            case 1:
+                showFav = false;
+                showNotFav = true;
+                break;
+            case 2:
+                showFav = true;
+                showNotFav = false;
+                break;
+        }
+
+        Diary.diary.m_filter_active.set_favorites( showFav, showNotFav );
 
         update_entry_list();
     }
