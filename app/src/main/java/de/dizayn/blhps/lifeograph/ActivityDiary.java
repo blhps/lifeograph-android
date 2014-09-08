@@ -287,27 +287,22 @@ public class ActivityDiary extends ListActivity
                 }
                 return true;
             case R.id.logout_wo_save:
-                AlertDialog.Builder builder = new AlertDialog.Builder( this );
-                builder.setMessage( R.string.logoutwosaving_confirm )
-                        .setCancelable( false )
-                        .setPositiveButton( R.string.logoutwosaving,
-                                new DialogInterface.OnClickListener() {
-                                    public void onClick( DialogInterface dialog, int id ) {
-                                        // unlike desktop version Android version
-                                        // does
-                                        // not back up changes
-                                        mFlagSaveOnLogOut = false;
-                                        ActivityDiary.this.finish();
-                                    }
-                                } )
-                        .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+                Lifeograph.showConfirmationPromt( this,
+                        R.string.logoutwosaving_confirm,
+                        R.string.logoutwosaving,
+                        new DialogInterface.OnClickListener() {
+                            public void onClick( DialogInterface dialog, int id ) {
+                                // unlike desktop version Android version
+                                // does not back up changes
+                                mFlagSaveOnLogOut = false;
+                                ActivityDiary.this.finish();
+                            }
+                        },
+                        new DialogInterface.OnClickListener() {
                             public void onClick( DialogInterface dialog, int id ) {
                                 mFlagSaveOnLogOut = true;
-                                dialog.cancel();
                             }
                         } );
-                AlertDialog alert = builder.create();
-                alert.show();
                 return true;
 //  TODO WILL BE IMPLEMENTED IN 0.3
 //            case R.id.import_sms:
@@ -554,38 +549,30 @@ public class ActivityDiary extends ListActivity
     }
 
     private void dismiss_chapter() {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( R.string.chapter_dismiss_confirm )
-               .setPositiveButton( R.string.dismiss, new DialogInterface.OnClickListener() {
-                   public void onClick( DialogInterface dialog, int id ) {
-                       Diary.diary.dismiss_chapter( ( Chapter ) mParentElem );
-                       // go up:
-                       mParentElem = null;
-                       Diary.diary.update_entries_in_chapters();
-                       update_entry_list();
-                   }
-               } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-                   public void onClick( DialogInterface dialog, int id ) {
-                       dialog.cancel();
-                   }
-               } ).show();
+        Lifeograph.showConfirmationPromt( this,
+                R.string.chapter_dismiss_confirm, R.string.dismiss,
+                new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface dialog, int id ) {
+                        Diary.diary.dismiss_chapter( ( Chapter ) mParentElem );
+                        // go up:
+                        mParentElem = null;
+                        Diary.diary.update_entries_in_chapters();
+                        update_entry_list();
+                    }
+                }, null );
     }
 
     private void dismiss_tag() {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( R.string.tag_dismiss_confirm )
-               .setPositiveButton( R.string.dismiss, new DialogInterface.OnClickListener() {
-                   public void onClick( DialogInterface dialog, int id ) {
-                       Diary.diary.dismiss_tag( ( Tag ) mParentElem );
-                       // go up:
-                       mParentElem = null;
-                       update_entry_list();
-                   }
-               } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-                   public void onClick( DialogInterface dialog, int id ) {
-                       dialog.cancel();
-                   }
-               } ).show();
+        Lifeograph.showConfirmationPromt( this,
+                R.string.tag_dismiss_confirm, R.string.dismiss,
+                new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface dialog, int id ) {
+                        Diary.diary.dismiss_tag( ( Tag ) mParentElem );
+                        // go up:
+                        mParentElem = null;
+                        update_entry_list();
+                    }
+                }, null );
     }
 
 // TODO WILL BE IMPLEMENTED IN 0.3

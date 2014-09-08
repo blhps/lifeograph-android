@@ -24,7 +24,9 @@ package de.dizayn.blhps.lifeograph;
 import java.io.File;
 import java.util.Locale;
 
+import android.app.AlertDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.util.Log;
 
 public class Lifeograph
@@ -45,6 +47,19 @@ public class Lifeograph
             return "CONTEXT IS NOT READY. SOMETHING IS WRONG!";
         else
             return context.getString( i );
+    }
+
+    public static void showConfirmationPromt( Context ctx, int message, int positiveText,
+                                              DialogInterface.OnClickListener posListener,
+                                              DialogInterface.OnClickListener negListener ) {
+        AlertDialog.Builder builder = new AlertDialog.Builder( ctx );
+        builder.setMessage( message )
+                .setCancelable( false )
+                .setPositiveButton( positiveText, posListener )
+                .setNegativeButton( R.string.cancel, negListener );
+
+        AlertDialog alert = builder.create();
+        alert.show();
     }
 
     public static String joinPath( String p1, String p2) {

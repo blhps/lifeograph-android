@@ -363,20 +363,13 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     private void dismiss() {
-        AlertDialog.Builder builder = new AlertDialog.Builder( this );
-        builder.setMessage( R.string.entry_dismiss_confirm ).setCancelable( false )
-               .setPositiveButton( R.string.dismiss, new DialogInterface.OnClickListener() {
-                   public void onClick( DialogInterface dialog, int id ) {
-                       mFlagDismissOnExit = true;
-                       ActivityEntry.this.finish();
-                   }
-               } ).setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
-                   public void onClick( DialogInterface dialog, int id ) {
-                       dialog.cancel();
-                   }
-               } );
-        AlertDialog alert = builder.create();
-        alert.show();
+        Lifeograph.showConfirmationPromt( this, R.string.entry_dismiss_confirm, R.string.dismiss,
+                new DialogInterface.OnClickListener() {
+                    public void onClick( DialogInterface dialog, int id ) {
+                        mFlagDismissOnExit = true;
+                        ActivityEntry.this.finish();
+                    }
+                }, null );
     }
 
     private void showTagDialog() {
