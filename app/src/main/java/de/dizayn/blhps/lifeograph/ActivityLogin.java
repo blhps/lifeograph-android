@@ -30,22 +30,18 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ArrayAdapter;
-import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-public class ActivityLogin extends ListActivity {
+public class ActivityLogin extends ListActivity implements DialogInquireText.InquireListener
+{
     private java.util.List< String > m_paths = new ArrayList< String >();
     private ArrayAdapter< String > mAdapterDiaries;
 
@@ -187,10 +183,25 @@ public class ActivityLogin extends ListActivity {
         return new File( Environment.getExternalStorageDirectory(), "Diaries" );
     }
 
+    // InquireListener method
+    public void onInquireAction( int id, String text ) {
+        switch( id ) {
+            case R.string.create_diary:
+                if( Diary.diary.init_new( Lifeograph.joinPath( getDiariesDir().getPath(), text ) )
+                        == Result.SUCCESS ) {
+                    Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
+                    startActivityForResult( i, 0 );
+                }
+                // TODO else inform the user about the problem
+                break;
+        }
+    }
+
     void createNewDiary() {
         // ask for name
-        DialogNewDiary dialog = new DialogNewDiary( this );
-        dialog.show();
+        DialogInquireText dlg = new DialogInquireText( this, R.string.create_diary,
+                R.string.new_diary, R.string.create, this );
+        dlg.show();
     }
 
     void populate_diaries() {
@@ -259,77 +270,4 @@ public class ActivityLogin extends ListActivity {
             tv.setText( BuildConfig.VERSION_NAME );
         }
     }
-
-    // CREATE DIARY DIALOG =========================================================================
-    public class DialogNewDiary extends Dialog
-    {
-        private EditText eTextName;
-        private Button buttonCreate, buttonCancel;
-
-        public DialogNewDiary( Context context ) {
-            super( context );
-        }
-
-        @Override
-        protected void onCreate( Bundle savedInstanceState ) {
-            super.onCreate( savedInstanceState );
-
-            setContentView( R.layout.dialog_new_diary );
-            setTitle( getResources().getText( R.string.new_diary_name ) );
-            setCancelable( true );
-
-            buttonCreate = ( Button ) findViewById( R.id.buttonCreateDiary );
-            buttonCreate.setOnClickListener( new View.OnClickListener() {
-                public void onClick( View v ) {
-                    create_diary();
-                }
-            } );
-
-            buttonCancel = ( Button ) findViewById( R.id.buttonCancelNewDiary );
-            buttonCancel.setOnClickListener( new View.OnClickListener() {
-                public void onClick( View v ) {
-                    dismiss();
-                }
-            } );
-
-            eTextName = ( EditText ) findViewById( R.id.editTextNewDiary );
-            eTextName.addTextChangedListener( new TextWatcher() {
-                public void afterTextChanged( Editable s ) {
-                }
-
-                public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
-                }
-
-                public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                    buttonCreate.setEnabled( s.length() > 0 );
-                }
-            } );
-            eTextName.setOnEditorActionListener( new TextView.OnEditorActionListener() {
-                public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                    if( v.getText().length() > 0 ) {
-                        create_diary();
-                        return true;
-                    }
-                    return false;
-                }
-            } );
-        }
-
-        private void create_diary() {
-            String name = eTextName.getText().toString();
-            dismiss();
-
-            if( name.length() > 0 )
-            {
-                if( Diary.diary.init_new( Lifeograph.joinPath( getDiariesDir().getPath(), name ) )
-                        == Result.SUCCESS )
-                {
-                    Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
-                    startActivityForResult( i, 0 );
-                }
-                // TODO else inform the user about the problem
-            }
-        }
-    }
-
 }

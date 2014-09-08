@@ -49,7 +49,8 @@ import android.widget.TextView;
 import android.widget.Toast;
 import de.dizayn.blhps.lifeograph.DiaryElement.Type;
 
-public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
+public class ActivityDiary extends ListActivity
+        implements ToDoAction.ToDoObject, DialogInquireText.InquireListener
 {
     public static Entry entry_current = null;
 
@@ -68,6 +69,8 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 
     private boolean mFlagSaveOnLogOut = true;
     private boolean mFlagLogoutOnPause = false;
+
+    private long mDateLast;
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -312,6 +315,29 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         return super.onOptionsItemSelected(item);
     }
 
+    // InquireListener method
+    public void onInquireAction( int id, String text ) {
+        switch( id ) {
+            case R.string.create_chapter:
+                Log.i( Lifeograph.TAG, "chapter Ok" );
+                mParentElem = Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( text, mDateLast );
+                Diary.diary.update_entries_in_chapters();
+                update_entry_list();
+                break;
+            case R.string.create_topic:
+                mParentElem = Diary.diary.m_topics.create_chapter_ordinal( text );
+                Diary.diary.update_entries_in_chapters();
+                update_entry_list();
+                break;
+            case R.string.create_group:
+                Log.i( Lifeograph.TAG, "group Ok" );
+                mParentElem = Diary.diary.m_groups.create_chapter_ordinal( text );
+                Diary.diary.update_entries_in_chapters();
+                update_entry_list();
+                break;
+        }
+    }
+
     private boolean handleLogout() {
         // SAVING
         // sync_entry();
@@ -479,77 +505,22 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         Collections.sort( m_elems, compare_elems );
     }
 
-    void createChapter( final long date ) {
-        final EditText input = new EditText( this );
-        input.setText( R.string.new_chapter );
-        input.selectAll();
-        AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( R.string.create_chapter )
-                .setView( input )
-                .setPositiveButton( R.string.create, new DialogInterface.OnClickListener()
-                {
-                    public void onClick( DialogInterface di, int btn ) {
-                        mParentElem =
-                                Diary.diary.m_ptr2chapter_ctg_cur.create_chapter(
-                                        input.getText().toString(), date );
-                        Diary.diary.update_entries_in_chapters();
-                        update_entry_list();
-                    }
-                } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-            public void onClick( DialogInterface di, int btn ) {
-                // do nothing
-            }
-        } ).show();
+    void createChapter( long date ) {
+        mDateLast = date;
+
+        DialogInquireText dlg = new DialogInquireText( this, R.string.create_chapter,
+                R.string.new_chapter, R.string.create, this );
+        dlg.show();
     }
     void createTopic() {
-        final EditText input = new EditText( this );
-        input.setText( R.string.new_chapter );
-        input.selectAll();
-        AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( R.string.create_topic )
-                // .setMessage(message)
-                .setView( input )
-                .setPositiveButton( R.string.create, new DialogInterface.OnClickListener()
-                {
-                    public void onClick( DialogInterface di, int btn )
-                    {
-                        mParentElem = Diary.diary.m_topics.create_chapter_ordinal(
-                                input.getText().toString() );
-                        Diary.diary.update_entries_in_chapters();
-                        update_entry_list();
-                    }
-                } )
-                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener()
-                {
-                    public void onClick( DialogInterface di, int btn )
-                    {
-                    } // do nothing
-                } ).show();
+        DialogInquireText dlg = new DialogInquireText( this, R.string.create_topic,
+                R.string.new_chapter, R.string.create, this );
+        dlg.show();
     }
     void createGroup() {
-        final EditText input = new EditText( this );
-        input.setText( R.string.new_chapter );
-        input.selectAll();
-        AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( R.string.create_group )
-                // .setMessage(message)
-                .setView( input )
-                .setPositiveButton( R.string.create, new DialogInterface.OnClickListener()
-                {
-                    public void onClick( DialogInterface di, int btn )
-                    {
-                        mParentElem = Diary.diary.m_groups.create_chapter_ordinal(
-                                input.getText().toString() );
-                        Diary.diary.update_entries_in_chapters();
-                        update_entry_list();
-                    }
-                } )
-                .setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener()
-                {
-                    public void onClick( DialogInterface di, int btn )
-                    {
-                    } // do nothing
-                } ).show();
+        DialogInquireText dlg = new DialogInquireText( this, R.string.create_group,
+                R.string.new_chapter, R.string.create, this );
+        dlg.show();
     }
 
     private void rename_tag() {

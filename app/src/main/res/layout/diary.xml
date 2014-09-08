@@ -41,7 +41,8 @@
             android:layout_height="wrap_content"
             android:id="@+id/editTextSeacrh"
             android:layout_gravity="center_horizontal"
-            android:hint="Search text"/>
+            android:hint="Search text"
+            android:singleLine="true" />
 
         <!-- separator -->
         <TextView

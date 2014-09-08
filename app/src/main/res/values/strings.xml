@@ -27,10 +27,11 @@
     <string name="new_chapter">New Chapter</string>
     <string name="new_tag">New Tag</string>
 
-    <string name="create_entry">Create Entry</string>
-    <string name="create_chapter">Create Dated Chapter</string>
-    <string name="create_topic">Create Numbered Chapter</string>
-    <string name="create_group">Create Free Chapter</string>
+    <string name="create_diary">Enter a name for the new diary</string>
+    <string name="create_entry">Create entry</string>
+    <string name="create_chapter">Create dated chapter</string>
+    <string name="create_topic">Create numbered chapter</string>
+    <string name="create_group">Create free chapter</string>
 
     <string name="rename_chapter">Rename Chapter</string>
     <string name="rename_tag">Rename Tag</string>
@@ -63,7 +64,6 @@
     <string name="todo_progressed">In Progress</string>
     <string name="todo_done">Done</string>
     <string name="todo_canceled">Canceled</string>
-    <string name="new_diary_name">Enter a name for the new diary:</string>
     <string name="create">Create</string>
     <string name="program_name">Lifeograph for Android</string>
     <string name="version">Version: 0.2 [BETA]</string>

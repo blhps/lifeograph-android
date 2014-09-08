@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    android:orientation="vertical" >
+              android:layout_width="match_parent"
+              android:layout_height="wrap_content"
+              android:orientation="vertical" >
 
     <EditText
-        android:id="@+id/editTextNewDiary"
+        android:id="@+id/inquireTextEdit"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_margin="5dp"
@@ -22,18 +22,18 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/buttonCancelNewDiary"
+            android:id="@+id/inquireTextButtonNegative"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
+            android:layout_weight=".5"
             android:text="@android:string/cancel" />
 
         <Button
-            android:id="@+id/buttonCreateDiary"
+            android:id="@+id/inquireTextButtonPositive"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/create" />
+            android:layout_weight=".5"
+            android:text="@android:string/ok" />
 
     </LinearLayout>
 
