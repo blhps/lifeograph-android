@@ -213,7 +213,7 @@ public class ActivityDiary extends ListActivity
         item.setVisible( type == Type.TOPIC || type == Type.GROUP || type == Type.CHAPTER );
 
         item = menu.findItem( R.id.calendar );
-        item.setVisible( mParentElem == null );
+        item.setVisible( mParentElem == null || type == Type.CHAPTER );
 
 //  TODO WILL BE IMPLEMENTED IN 0.3
 //        item = menu.findItem( R.id.change_sort_type );
