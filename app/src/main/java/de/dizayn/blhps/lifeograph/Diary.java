@@ -112,7 +112,7 @@ public class Diary extends DiaryElement
         m_language = "";
         m_option_sorting_criteria = SC_DATE;
 
-        m_flag_changed = false;
+        //m_flag_changed = false;
 
         // java specific:
         mBufferedReader = null;
@@ -189,8 +189,24 @@ public class Diary extends DiaryElement
             return false;
     }
 
+    public boolean is_encrypted() {
+        return( m_passphrase.length() > 0 );
+    }
+
+    public String get_lang() {
+        return m_language;
+    }
+
+    public void set_lang( String lang ) {
+        m_language = lang;
+    }
+
     public DiaryElement get_element( int id ) {
         return m_ids.get( id );
+    }
+
+    public boolean is_read_only() {
+        return m_flag_read_only;
     }
 
 // NOT USED NOW
@@ -287,7 +303,7 @@ public class Diary extends DiaryElement
         return m_path;
     }
 
-// NOT NEEDED NOW
+//  NOT NEEDED NOW
 //    public boolean is_path_set() {
 //        return false;
 //    }
@@ -365,11 +381,7 @@ public class Diary extends DiaryElement
     }
 
     public Result write() {
-        /*
-         * if( !m_flag_changed ) return Result.ABORTED; // XXX ???
-         */
-
-        m_flag_only_save_filtered = false;
+        assert( !m_flag_read_only );
 
         // File file_prev = new File( m_path + ".~previousversion~" );
         // File file = new File( m_path );
@@ -379,13 +391,15 @@ public class Diary extends DiaryElement
 
         Result result = write( m_path );
 
-        if( result == Result.SUCCESS )
-            m_flag_changed = false;
+//        if( result == Result.SUCCESS )
+//            m_flag_changed = false;
 
         return result;
     }
 
     public Result write( String path ) {
+        // m_flag_only_save_filtered = false;
+
         // TODO: implement encryption
         // if( m_passphrase.length() == 0 )
         return write_plain( path, false );
@@ -764,18 +778,6 @@ public class Diary extends DiaryElement
 
         // if does not belong to any of the defined chapters:
         m_orphaned_entries.remove( entry );
-    }
-
-    public String get_lang() {
-        return m_language;
-    }
-
-    public void set_lang( String lang ) {
-        m_language = lang;
-    }
-
-    public boolean is_encrypted() {
-        return( m_passphrase.length() > 0 );
     }
 
     // DB PARSING HELPER FUNCTIONS =================================================================
@@ -1550,8 +1552,8 @@ public class Diary extends DiaryElement
     // options & flags
     private char m_option_sorting_criteria;
     private int m_read_version;
-    private boolean m_flag_only_save_filtered;
-    private boolean m_flag_changed;
+    //private boolean m_flag_only_save_filtered;
+    //private boolean m_flag_changed;
     private boolean m_flag_read_only;
     private String m_language;
     // filtering
