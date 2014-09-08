@@ -34,7 +34,7 @@ import android.widget.TextView;
 
 public class DialogInquireText extends Dialog
 {
-    public DialogInquireText( Context context, int resTitle, int resDefName, int resActName,
+    public DialogInquireText( Context context, int resTitle, String resDefName, int resActName,
                               InquireListener listener ) {
         super( context );
 
@@ -42,7 +42,7 @@ public class DialogInquireText extends Dialog
         mListener = listener;
         mTitle = resTitle;
         mDefName = resDefName;
-        mActName = Lifeograph.getStr( resActName );
+        mActName = resActName;
     }
 
     @Override
@@ -55,19 +55,29 @@ public class DialogInquireText extends Dialog
         setTitle( mTitle );
         // setMessage( mMessage );
 
-        mEditInput = ( EditText ) findViewById( R.id.inquireTextEdit );
-        mEditInput.setText( mDefName );
-        mEditInput.selectAll();
-        mEditInput.addTextChangedListener( new TextWatcher() {
-            public void afterTextChanged( Editable s ) {}
+        // mButtonOk must come before mInput as it is referenced there
+        mButtonOk = ( Button ) findViewById( R.id.inquireTextButtonPositive );
+        mButtonOk.setText( mActName );
+        mButtonOk.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) { go(); }
+        } );
 
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {}
+        mInput = ( EditText ) findViewById( R.id.inquireTextEdit );
+        mInput.addTextChangedListener( new TextWatcher()
+        {
+            public void afterTextChanged( Editable s ) {
+            }
+
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
+            }
 
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                mButtonOk.setEnabled( s.length() > 0 );
+                mButtonOk.setEnabled( s.length() > 0 &&
+                        mListener.onInquireTextChanged( mTitle, mInput.getText().toString() ) );
             }
         } );
-        mEditInput.setOnEditorActionListener( new TextView.OnEditorActionListener() {
+        mInput.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        {
             public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
                 if( v.getText().length() > 0 ) {
                     go();
@@ -76,12 +86,8 @@ public class DialogInquireText extends Dialog
                 return false;
             }
         } );
-
-        mButtonOk = ( Button ) findViewById( R.id.inquireTextButtonPositive );
-        mButtonOk.setText( mActName );
-        mButtonOk.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) { go(); }
-        } );
+        mInput.setText( mDefName );
+        mInput.selectAll();
 
         Button buttonNegative = ( Button ) findViewById( R.id.inquireTextButtonNegative );
         buttonNegative.setOnClickListener( new View.OnClickListener()
@@ -93,20 +99,21 @@ public class DialogInquireText extends Dialog
     }
 
     private void go() {
-        mListener.onInquireAction( mTitle, mEditInput.getText().toString() );
+        mListener.onInquireAction( mTitle, mInput.getText().toString() );
         dismiss();
     }
 
     public interface InquireListener
     {
         public void onInquireAction( int id, String text );
+        public boolean onInquireTextChanged( int id, String text );
     }
 
     //private Context mContext;
-    private EditText mEditInput;
+    private EditText mInput;
     private Button mButtonOk;
     private InquireListener mListener;
     private int mTitle;
-    private int mDefName;
-    private String mActName;
+    private String mDefName;
+    private int mActName;
 }

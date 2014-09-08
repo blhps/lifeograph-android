@@ -196,11 +196,14 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                 break;
         }
     }
+    public boolean onInquireTextChanged( int id, String s ) {
+        return true;
+    }
 
     void createNewDiary() {
         // ask for name
         DialogInquireText dlg = new DialogInquireText( this, R.string.create_diary,
-                R.string.new_diary, R.string.create, this );
+                Lifeograph.getStr( R.string.new_diary ), R.string.create, this );
         dlg.show();
     }
 

@@ -265,6 +265,7 @@ public class ActivityDiary extends ListActivity
                         break;
                     case CHAPTER:
                     case TOPIC:
+                    case GROUP:
                         rename_chapter();
                         break;
                     default:
@@ -278,6 +279,7 @@ public class ActivityDiary extends ListActivity
                         break;
                     case CHAPTER:
                     case TOPIC:
+                    case GROUP:
                         dismiss_chapter();
                         break;
                     default:
@@ -315,11 +317,10 @@ public class ActivityDiary extends ListActivity
         return super.onOptionsItemSelected(item);
     }
 
-    // InquireListener method
+    // InquireListener methods
     public void onInquireAction( int id, String text ) {
         switch( id ) {
             case R.string.create_chapter:
-                Log.i( Lifeograph.TAG, "chapter Ok" );
                 mParentElem = Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( text, mDateLast );
                 Diary.diary.update_entries_in_chapters();
                 update_entry_list();
@@ -330,11 +331,28 @@ public class ActivityDiary extends ListActivity
                 update_entry_list();
                 break;
             case R.string.create_group:
-                Log.i( Lifeograph.TAG, "group Ok" );
                 mParentElem = Diary.diary.m_groups.create_chapter_ordinal( text );
                 Diary.diary.update_entries_in_chapters();
                 update_entry_list();
                 break;
+            case R.string.rename_tag:
+                Diary.diary.rename_tag( ( Tag ) mParentElem, text );
+                setTitle( mParentElem.m_name );
+                break;
+            case R.string.rename_chapter:
+                mParentElem.m_name = text;
+                setTitle( mParentElem.get_list_str() );
+                break;
+        }
+    }
+    public boolean onInquireTextChanged( int id, String s ) {
+        switch( id ) {
+            case R.string.rename_tag:
+                return !Diary.diary.m_tags.containsKey( s );
+            case R.string.rename_chapter:
+                return( mParentElem.m_name.compareTo( s ) != 0 );
+            default:
+                return true;
         }
     }
 
@@ -509,62 +527,30 @@ public class ActivityDiary extends ListActivity
         mDateLast = date;
 
         DialogInquireText dlg = new DialogInquireText( this, R.string.create_chapter,
-                R.string.new_chapter, R.string.create, this );
+                Lifeograph.getStr( R.string.new_chapter ), R.string.create, this );
         dlg.show();
     }
     void createTopic() {
         DialogInquireText dlg = new DialogInquireText( this, R.string.create_topic,
-                R.string.new_chapter, R.string.create, this );
+                Lifeograph.getStr( R.string.new_chapter ), R.string.create, this );
         dlg.show();
     }
     void createGroup() {
         DialogInquireText dlg = new DialogInquireText( this, R.string.create_group,
-                R.string.new_chapter, R.string.create, this );
+                Lifeograph.getStr( R.string.new_chapter ), R.string.create, this );
         dlg.show();
     }
 
     private void rename_tag() {
-        final EditText input = new EditText( this );
-        input.setText( mParentElem.m_name );
-        input.selectAll();
-        AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( R.string.rename_tag )
-           // .setMessage(message)
-           .setView( input )
-           .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener()
-           {
-               public void onClick( DialogInterface di, int btn )
-               {
-                   Diary.diary.rename_tag( ( Tag ) mParentElem, input.getText().toString() );
-                   setTitle( mParentElem.m_name );
-               }
-           } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-               public void onClick( DialogInterface di, int btn ) {
-                   // do nothing
-               }
-           } ).show();
+        DialogInquireText dlg = new DialogInquireText( this, R.string.rename_tag,
+                mParentElem.m_name, R.string.rename, this );
+        dlg.show();
     }
 
-    void rename_chapter() {
-        final EditText input = new EditText( this );
-        input.setText( mParentElem.m_name );
-        input.selectAll();
-        AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( R.string.rename_chapter )
-           // .setMessage(message)
-           .setView( input )
-           .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener()
-           {
-               public void onClick( DialogInterface di, int btn )
-               {
-                   ( ( Chapter ) mParentElem ).m_name = input.getText().toString();
-                   setTitle( mParentElem.m_name );
-               }
-           } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
-               public void onClick( DialogInterface di, int btn ) {
-                   // do nothing
-               }
-           } ).show();
+    private void rename_chapter() {
+        DialogInquireText dlg = new DialogInquireText( this, R.string.rename_chapter,
+                mParentElem.m_name, R.string.rename, this );
+        dlg.show();
     }
 
     private void dismiss_chapter() {
