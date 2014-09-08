@@ -27,7 +27,6 @@ import java.util.Comparator;
 
 import android.app.ActionBar;
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -42,7 +41,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -54,7 +52,7 @@ public class ActivityDiary extends ListActivity
 {
     public static Entry entry_current = null;
 
-    DiaryElement mParentElem = null;
+    DiaryElement mParentElem = Diary.diary;
 
     private LayoutInflater mInflater;
     private ActionBar mActionBar = null;
@@ -158,12 +156,12 @@ public class ActivityDiary extends ListActivity
 
     @Override
     public void onBackPressed() {
-        if( mParentElem == null ) {
+        if( mParentElem == Diary.diary ) {
             mFlagLogoutOnPause = true;
             super.onBackPressed();
         }
         else {
-            mParentElem = null;
+            mParentElem = Diary.diary;
             update_entry_list();
         }
     }
@@ -175,7 +173,7 @@ public class ActivityDiary extends ListActivity
             case ENTRY:
                 showEntry( ( Entry ) m_elems.get( pos ) );
                 break;
-            case ALLBYDATE:
+            case ALL_ENTRIES:
                 mParentElem = mElemAllEntries;
                 update_entry_list();
                 break;
@@ -204,16 +202,19 @@ public class ActivityDiary extends ListActivity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        DiaryElement.Type type = ( mParentElem == null ? Type.NONE : mParentElem.get_type() );
+        DiaryElement.Type type = ( mParentElem == Diary.diary.m_orphans ?
+                 Type.ALL_ENTRIES : mParentElem.get_type() );
+        // orphans chapter is treated as if all_entries pseudo element
+        // this is OK as they both are pseudo elements
 
         MenuItem item = menu.findItem( R.id.add_elem );
-        item.setVisible( mParentElem == null );
+        item.setVisible( type == Type.DIARY );
 
         item = menu.findItem( R.id.change_todo_status );
         item.setVisible( type == Type.TOPIC || type == Type.GROUP || type == Type.CHAPTER );
 
         item = menu.findItem( R.id.calendar );
-        item.setVisible( mParentElem == null || type == Type.CHAPTER );
+        item.setVisible( type == Type.DIARY || type == Type.CHAPTER );
 
 //  TODO WILL BE IMPLEMENTED IN 0.3
 //        item = menu.findItem( R.id.change_sort_type );
@@ -223,10 +224,10 @@ public class ActivityDiary extends ListActivity
         item.setVisible( type == Type.TOPIC || type == Type.GROUP );
 
         item = menu.findItem( R.id.dismiss );
-        item.setVisible( mParentElem != null );
+        item.setVisible( type != Type.DIARY && type != Type.ALL_ENTRIES );
 
         item = menu.findItem( R.id.rename );
-        item.setVisible( mParentElem != null );
+        item.setVisible( type != Type.DIARY && type != Type.ALL_ENTRIES );
 
         ToDoAction.mObject = this;
 
@@ -238,13 +239,13 @@ public class ActivityDiary extends ListActivity
         switch( item.getItemId() )
         {
             case android.R.id.home:
-                if( mParentElem == null ) {
+                if( mParentElem == Diary.diary ) {
                     mFlagLogoutOnPause = true;
                     //NavUtils.navigateUpFromSameTask( this );
                     finish();
                 }
                 else {
-                    mParentElem = null;
+                    mParentElem = Diary.diary;
                     update_entry_list();
                 }
                 return true;
@@ -446,9 +447,9 @@ public class ActivityDiary extends ListActivity
     void update_entry_list() {
         m_adapter_entries.clear();
         m_elems.clear();
-        DiaryElement.Type type = mParentElem == null ? Type.NONE : mParentElem.get_type();
-        switch( type ) {
-            case NONE:
+
+        switch( mParentElem.get_type() ) {
+            case DIARY:
                 mActionBar.setIcon( R.drawable.ic_diary );
                 setTitle( Diary.diary.get_name() );
                 mActionBar.setSubtitle( "Diary with " + Diary.diary.m_entries.size() + " Entries" );
@@ -503,7 +504,7 @@ public class ActivityDiary extends ListActivity
                         m_elems.add( e );
                 }
                 break;
-            case ALLBYDATE:
+            case ALL_ENTRIES:
                 for( Entry e : Diary.diary.m_entries.values() ) {
                     if( !e.get_filtered_out() )
                         m_elems.add( e );
@@ -555,7 +556,7 @@ public class ActivityDiary extends ListActivity
                     public void onClick( DialogInterface dialog, int id ) {
                         Diary.diary.dismiss_chapter( ( Chapter ) mParentElem );
                         // go up:
-                        mParentElem = null;
+                        mParentElem = Diary.diary;
                         Diary.diary.update_entries_in_chapters();
                         update_entry_list();
                     }
@@ -569,7 +570,7 @@ public class ActivityDiary extends ListActivity
                     public void onClick( DialogInterface dialog, int id ) {
                         Diary.diary.dismiss_tag( ( Tag ) mParentElem );
                         // go up:
-                        mParentElem = null;
+                        mParentElem = Diary.diary;
                         update_entry_list();
                     }
                 }, null );
@@ -605,25 +606,20 @@ public class ActivityDiary extends ListActivity
 
     // ALL ENTRIES PSEUDO ELEMENT CLASS ============================================================
     class ElemListAllEntries extends DiaryElement {
-        int mSize = 0;
 
         public ElemListAllEntries( Diary diary ) {
             super( diary, getString( R.string.all_entries ), ES_VOID );
-            mType = Type.ALLBYDATE;
         }
 
         @Override
         public String get_info_str() {
-            return( mType == Type.ALLBYDATE ?
-                    getString( R.string.sort_by_date ) : getString( R.string.sort_by_size ) );
+            return "";
         }
 
         @Override
         public int get_icon() {
             return R.drawable.ic_diary;
         }
-
-        protected Type mType;
 
         @Override
         public Date get_date() {
@@ -632,7 +628,7 @@ public class ActivityDiary extends ListActivity
 
         @Override
         public Type get_type() {
-            return mType;
+            return Type.ALL_ENTRIES;
         }
 
         @Override
@@ -640,6 +636,7 @@ public class ActivityDiary extends ListActivity
             return mSize;
         }
 
+        int mSize = 0;
     }
 
     private java.util.List< DiaryElement > m_elems = new ArrayList< DiaryElement >();
