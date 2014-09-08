@@ -26,9 +26,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.ArrayList;
 import java.util.Iterator;
-import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 
@@ -97,7 +95,8 @@ public class Diary extends DiaryElement
         m_chapter_categories.clear();
         m_topics.mMap.clear();
         m_groups.mMap.clear();
-        m_orphaned_entries.clear();
+        m_orphans.clear();
+        m_orphans.set_date( Date.DATE_MAX );
 
         m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
         m_last_elem_id = DiaryElement.DEID_DIARY;
@@ -727,11 +726,15 @@ public class Diary extends DiaryElement
             }
         }
 
-        m_orphaned_entries.clear();
+        m_orphans.clear();
+        m_orphans.set_date( Date.DATE_MAX );
 
         while( itr_entry.hasNext() ) {
             Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
-            m_orphaned_entries.add( ( Entry ) mapEntry.getValue() );
+            Entry e = ( Entry ) mapEntry.getValue();
+            m_orphans.insert( e );
+            if( e.m_date.m_date < m_orphans.get_date().m_date )
+                m_orphans.set_date( e.m_date.m_date );
         }
     }
 
@@ -756,7 +759,9 @@ public class Diary extends DiaryElement
         }
 
         // if does not belong to any of the defined chapters:
-        m_orphaned_entries.add( entry );
+        m_orphans.insert( entry );
+        if( entry.m_date.m_date < m_orphans.get_date().m_date )
+            m_orphans.set_date( entry.m_date.m_date );
     }
 
     public void remove_entry_from_chapters( Entry entry ) {
@@ -775,7 +780,7 @@ public class Diary extends DiaryElement
         }
 
         // if does not belong to any of the defined chapters:
-        m_orphaned_entries.remove( entry );
+        m_orphans.erase( entry );
     }
 
     // DB PARSING HELPER FUNCTIONS =================================================================
@@ -1117,7 +1122,7 @@ public class Diary extends DiaryElement
     }
 
     private Result parse_db_body_text_110() {
-        String line = "";
+        String line;
         Entry entry_new = null;
         Chapter.Category ptr2chapter_ctg = null;
         Chapter ptr2chapter = null;
@@ -1544,8 +1549,7 @@ public class Diary extends DiaryElement
     Chapter.Category m_ptr2chapter_ctg_cur = null;
     Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
     Chapter.Category m_groups = new Chapter.Category( this, Date.GROUP_MIN );
-    List< Entry > m_orphaned_entries = new ArrayList< Entry >();
-    //Chapter m_orphans = new Chapter( this, "<Other Entries>", 0 );
+    Chapter m_orphans = new Chapter( this, "<Other Entries>", Date.DATE_MAX );
 
     private int m_startup_elem_id; // DEID
     private int m_last_elem_id; // DEID

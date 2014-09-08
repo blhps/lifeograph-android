@@ -59,6 +59,10 @@ public class Chapter extends DiaryElement {
             return "Size: " + mMap.size();
         }
 
+        public boolean empty() {
+            return mMap.isEmpty();
+        }
+
         public Chapter create_chapter( String name, long date ) {
             Chapter chapter = new Chapter( m_ptr2diary, name, date );
             mMap.put( date, chapter );
@@ -195,7 +199,7 @@ public class Chapter extends DiaryElement {
             m_type = Type.CHAPTER;
     }
 
-    // REFERRER RELATED METHODS
+    // REFERRER RELATED METHODS ====================================================================
     public void clear() {
         mEntries.clear();
     }
@@ -212,6 +216,7 @@ public class Chapter extends DiaryElement {
         return mEntries.contains( e );
     }
 
+    // CHAPTER FUNCTIONS ===========================================================================
     public boolean get_expanded() {
         return( ( m_status & ES_EXPANDED ) != 0 );
     }

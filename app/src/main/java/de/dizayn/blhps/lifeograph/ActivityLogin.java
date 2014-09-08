@@ -54,6 +54,7 @@ public class ActivityLogin extends ListActivity {
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
+        Lifeograph.context = getApplicationContext();   // must be first
         Lifeograph.activityLogin = this;
 
         if( Diary.diary == null )
@@ -61,8 +62,6 @@ public class ActivityLogin extends ListActivity {
 
         setContentView( R.layout.login );
         // setTitle( "Diaries" );
-
-        Lifeograph.context = getApplicationContext();
 
         m_adapter_diaries =
                 new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
@@ -337,7 +336,7 @@ public class ActivityLogin extends ListActivity {
         }
 
         private void create_diary() {
-            String name = new String( eTextName.getText().toString() );
+            String name = eTextName.getText().toString();
             dismiss();
 
             if( name.length() > 0 )

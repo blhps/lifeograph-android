@@ -431,10 +431,14 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 for( Tag t : Diary.diary.m_tags.values() ) {
                     m_elems.add( t );
                 }
-                for( Entry e : Diary.diary.m_orphaned_entries ) {
-                    if( !e.get_filtered_out() )
+                if( Diary.diary.m_groups.empty() &&
+                    Diary.diary.m_topics.empty() &&
+                    Diary.diary.m_ptr2chapter_ctg_cur.get_size() == 0 ) {
+                    for( Entry e : Diary.diary.m_orphans.mEntries )
                         m_elems.add( e );
                 }
+                else if( Diary.diary.m_orphans.get_size() > 0 )
+                    m_elems.add( Diary.diary.m_orphans );
                 break;
             case TAG:
                 mActionBar.setIcon( mParentElem.get_icon() );

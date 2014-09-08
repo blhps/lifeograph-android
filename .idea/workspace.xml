@@ -49,16 +49,11 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="app: de.dizayn.blhps.lifeograph" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="">
+    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="store orphaned entries in a pseudo chapter rather than a list and show that chapter when listing the diary">
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/AddElemAction.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/AddElemAction.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityLogin.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityLogin.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Entry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build/generated/source/r/debug/de/dizayn/blhps/lifeograph/R.java" afterPath="$PROJECT_DIR$/app/build/generated/source/r/debug/de/dizayn/blhps/lifeograph/R.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/values/ids.xml" afterPath="$PROJECT_DIR$/app/src/main/res/values/ids.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="LifeographAndroid.iws" />
@@ -86,9 +81,35 @@
       <file leaf-file-name="DiaryElement.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="625" max-vertical-offset="3640">
-              <caret line="60" column="13" selection-start-line="60" selection-start-column="13" selection-end-line="60" selection-end-column="13" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="445" max-vertical-offset="3640">
+              <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
+              <folding>
+                <element signature="e#2051#2095#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="ActivityLogin.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityLogin.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.49063033" vertical-offset="1872" max-vertical-offset="2760">
+              <caret line="286" column="50" selection-start-line="286" selection-start-column="50" selection-end-line="286" selection-end-column="50" />
+              <folding>
+                <element signature="method#onResume#0;class#ActivityLogin#0" expanded="false" />
+                <element signature="method#onCreateOptionsMenu#0;class#ActivityLogin#0" expanded="false" />
+                <element signature="method#onOptionsItemSelected#0;class#ActivityLogin#0" expanded="false" />
+                <element signature="method#onListItemClick#0;class#ActivityLogin#0" expanded="false" />
+                <element signature="e#6274#6337#0" expanded="false" />
+                <element signature="e#8074#8141#0" expanded="false" />
+                <element signature="class#DialogAbout#0;class#ActivityLogin#0" expanded="false" />
+                <element signature="method#onCreate#0;class#DialogAbout#0;class#ActivityLogin#0" expanded="false" />
+                <element signature="method#onCreate#0;class#DialogNewDiary#0;class#ActivityLogin#0" expanded="false" />
+                <element signature="class#11121:11525" expanded="false" />
+                <element signature="method#afterTextChanged#0;class#11121:11525" expanded="false" />
+                <element signature="method#beforeTextChanged#0;class#11121:11525" expanded="false" />
+                <element signature="method#onTextChanged#0;class#11121:11525" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -117,18 +138,23 @@
       <file leaf-file-name="Chapter.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="85" max-vertical-offset="4020">
-              <caret line="34" column="31" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
-              <folding />
+            <state vertical-scroll-proportion="0.0" vertical-offset="407" max-vertical-offset="3760">
+              <caret line="62" column="34" selection-start-line="62" selection-start-column="34" selection-end-line="62" selection-end-column="34" />
+              <folding>
+                <element signature="method#Category#0;class#Category#0;class#Chapter#0" expanded="false" />
+                <element signature="e#2064#2065#0" expanded="true" />
+                <element signature="e#2109#2110#0" expanded="true" />
+                <element signature="method#get_icon#0;class#Chapter#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Date.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Date.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.22998296" vertical-offset="265" max-vertical-offset="4480">
-              <caret line="42" column="56" selection-start-line="42" selection-start-column="56" selection-end-line="42" selection-end-column="56" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="265" max-vertical-offset="4480">
+              <caret line="50" column="63" selection-start-line="50" selection-start-column="63" selection-end-line="50" selection-end-column="63" />
               <folding>
                 <element signature="method#format_string#0;class#Date#0" expanded="false" />
                 <element signature="method#backward_ordinal_order#0;class#Date#0" expanded="false" />
@@ -140,33 +166,32 @@
       <file leaf-file-name="Diary.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2846" max-vertical-offset="7200">
-              <caret line="780" column="70" selection-start-line="780" selection-start-column="70" selection-end-line="780" selection-end-column="70" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="6899" max-vertical-offset="12100">
+              <caret line="1127" column="30" selection-start-line="1127" selection-start-column="30" selection-end-line="1127" selection-end-column="30" />
               <folding>
                 <element signature="class#Result#0" expanded="false" />
                 <element signature="class#SetPathType#0;class#Diary#0" expanded="false" />
                 <element signature="method#init_new#0;class#Diary#0" expanded="false" />
-                <element signature="method#clear#0;class#Diary#0" expanded="false" />
-                <element signature="e#3988#3989#0" expanded="true" />
-                <element signature="e#4017#4018#0" expanded="true" />
+                <element signature="e#3973#3974#0" expanded="true" />
+                <element signature="e#4002#4003#0" expanded="true" />
                 <element signature="method#create_new_id#0;class#Diary#0" expanded="false" />
                 <element signature="method#set_force_id#0;class#Diary#0" expanded="false" />
                 <element signature="method#make_free_entry_order#0;class#Diary#0" expanded="false" />
                 <element signature="method#create_unique_chapter_ctg_name#0;class#Diary#0" expanded="false" />
                 <element signature="method#set_passphrase#0;class#Diary#0" expanded="false" />
-                <element signature="e#5939#5954#0" expanded="false" />
+                <element signature="e#5924#5939#0" expanded="false" />
                 <element signature="method#set_path#0;class#Diary#0" expanded="false" />
-                <element signature="e#8296#8332#0" expanded="false" />
-                <element signature="e#8724#8742#0" expanded="false" />
+                <element signature="e#8281#8317#0" expanded="false" />
+                <element signature="e#8709#8727#0" expanded="false" />
                 <element signature="method#read_header#0;class#Diary#0" expanded="false" />
-                <element signature="e#10127#10181#0" expanded="false" />
-                <element signature="e#10514#10541#0" expanded="false" />
-                <element signature="e#10912#10972#0" expanded="false" />
+                <element signature="e#10112#10166#0" expanded="false" />
+                <element signature="e#10499#10526#0" expanded="false" />
+                <element signature="e#10897#10957#0" expanded="false" />
                 <element signature="method#read_body#0;class#Diary#0" expanded="false" />
                 <element signature="method#write#0;class#Diary#0" expanded="false" />
-                <element signature="e#11440#11502#0" expanded="false" />
+                <element signature="e#11425#11487#0" expanded="false" />
                 <element signature="method#write#1;class#Diary#0" expanded="false" />
-                <element signature="e#11991#11998#0" expanded="false" />
+                <element signature="e#11976#11983#0" expanded="false" />
                 <element signature="method#set_search_text#0;class#Diary#0" expanded="false" />
                 <element signature="method#get_entry#0;class#Diary#0" expanded="false" />
                 <element signature="method#get_entry_today#0;class#Diary#0" expanded="false" />
@@ -174,7 +199,7 @@
                 <element signature="method#add_today#0;class#Diary#0" expanded="false" />
                 <element signature="method#dismiss_entry#0;class#Diary#0" expanded="false" />
                 <element signature="method#get_day_has_multiple_entries#0;class#Diary#0" expanded="false" />
-                <element signature="e#14729#14737#0" expanded="false" />
+                <element signature="e#14714#14722#0" expanded="false" />
                 <element signature="method#create_tag_ctg#0;class#Diary#0" expanded="false" />
                 <element signature="method#create_tag_ctg#1;class#Diary#0" expanded="false" />
                 <element signature="method#create_tag#0;class#Diary#0" expanded="false" />
@@ -183,13 +208,10 @@
                 <element signature="method#create_chapter_ctg#0;class#Diary#0" expanded="false" />
                 <element signature="method#dismiss_chapter_ctg#0;class#Diary#0" expanded="false" />
                 <element signature="method#rename_chapter_ctg#0;class#Diary#0" expanded="false" />
-                <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
-                <element signature="e#20770#20812#0" expanded="false" />
+                <element signature="e#20755#20797#0" expanded="false" />
                 <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
                 <element signature="method#getNextChapter#0;class#Diary#0" expanded="false" />
-                <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
-                <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
-                <element signature="e#23193#23277#0" expanded="false" />
+                <element signature="e#23352#23436#0" expanded="false" />
                 <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
                 <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
                 <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
@@ -199,26 +221,15 @@
                 <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
                 <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
                 <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
-                <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
                 <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
                 <element signature="method#create_db_tag_text#0;class#Diary#0" expanded="false" />
                 <element signature="method#create_db_chapterctg_text#0;class#Diary#0" expanded="false" />
                 <element signature="method#create_db_header_text#0;class#Diary#0" expanded="false" />
-                <element signature="e#51450#51460#0" expanded="false" />
-                <element signature="e#54542#54618#0" expanded="false" />
+                <element signature="method#create_db_body_text#0;class#Diary#0" expanded="false" />
+                <element signature="e#51707#51717#0" expanded="false" />
+                <element signature="e#54799#54875#0" expanded="false" />
                 <element signature="method#write_plain#0;class#Diary#0" expanded="false" />
-                <element signature="e#58276#58285#0" expanded="true" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="ids.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/values/ids.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="0" max-vertical-offset="340">
-              <caret line="4" column="25" selection-start-line="4" selection-start-column="16" selection-end-line="4" selection-end-column="25" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -226,84 +237,61 @@
       <file leaf-file-name="ActivityDiary.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="2885" max-vertical-offset="9540">
-              <caret line="209" column="60" selection-start-line="209" selection-start-column="60" selection-end-line="209" selection-end-column="60" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="3373" max-vertical-offset="6140">
+              <caret line="430" column="60" selection-start-line="430" selection-start-column="60" selection-end-line="430" selection-end-column="60" />
               <folding>
+                <element signature="method#onCreateOptionsMenu#0;class#ActivityDiary#0" expanded="false" />
+                <element signature="method#onPrepareOptionsMenu#0;class#ActivityDiary#0" expanded="false" />
+                <element signature="method#onOptionsItemSelected#0;class#ActivityDiary#0" expanded="false" />
                 <element signature="e#9643#9674#0" expanded="true" />
                 <element signature="e#9769#9792#0" expanded="true" />
                 <element signature="e#10405#10420#0" expanded="true" />
+                <element signature="method#handleLogout#0;class#ActivityDiary#0" expanded="false" />
                 <element signature="method#showEntry#0;class#ActivityDiary#0" expanded="false" />
                 <element signature="method#goToToday#0;class#ActivityDiary#0" expanded="false" />
                 <element signature="method#showCalendar#0;class#ActivityDiary#0" expanded="false" />
                 <element signature="e#12610#12622#0" expanded="false" />
                 <element signature="method#handleFilterTodoChanged#0;class#ActivityDiary#0" expanded="false" />
                 <element signature="method#set_todo_status#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="method#update_entry_list#0;class#ActivityDiary#0" expanded="false" />
                 <element signature="method#createChapter#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="e#16689#16709#0" expanded="true" />
-                <element signature="e#16829#16852#0" expanded="true" />
-                <element signature="e#16925#16940#0" expanded="true" />
-                <element signature="e#17439#17454#0" expanded="true" />
+                <element signature="e#16943#16963#0" expanded="true" />
+                <element signature="e#17083#17106#0" expanded="true" />
+                <element signature="e#17179#17194#0" expanded="true" />
+                <element signature="e#17693#17708#0" expanded="true" />
                 <element signature="method#createTopic#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="e#17732#17752#0" expanded="true" />
-                <element signature="e#17872#17893#0" expanded="true" />
-                <element signature="e#18006#18021#0" expanded="true" />
-                <element signature="e#18506#18521#0" expanded="true" />
+                <element signature="e#17986#18006#0" expanded="true" />
+                <element signature="e#18126#18147#0" expanded="true" />
+                <element signature="e#18260#18275#0" expanded="true" />
+                <element signature="e#18760#18775#0" expanded="true" />
                 <element signature="method#createGroup#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="e#18843#18863#0" expanded="true" />
-                <element signature="e#18983#19004#0" expanded="true" />
-                <element signature="e#19117#19132#0" expanded="true" />
-                <element signature="e#19617#19632#0" expanded="true" />
+                <element signature="e#19097#19117#0" expanded="true" />
+                <element signature="e#19237#19258#0" expanded="true" />
+                <element signature="e#19371#19386#0" expanded="true" />
+                <element signature="e#19871#19886#0" expanded="true" />
                 <element signature="method#rename_tag#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="e#20100#20119#0" expanded="true" />
-                <element signature="e#20217#20232#0" expanded="true" />
-                <element signature="e#20564#20579#0" expanded="true" />
+                <element signature="e#20354#20373#0" expanded="true" />
+                <element signature="e#20471#20486#0" expanded="true" />
+                <element signature="e#20818#20833#0" expanded="true" />
                 <element signature="method#rename_chapter#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="e#21011#21034#0" expanded="true" />
-                <element signature="e#21132#21147#0" expanded="true" />
-                <element signature="e#21469#21484#0" expanded="true" />
+                <element signature="e#21265#21288#0" expanded="true" />
+                <element signature="e#21386#21401#0" expanded="true" />
+                <element signature="e#21723#21738#0" expanded="true" />
                 <element signature="method#dismiss_chapter#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="e#21810#21842#0" expanded="true" />
-                <element signature="e#21880#21896#0" expanded="true" />
-                <element signature="e#22336#22351#0" expanded="true" />
+                <element signature="e#22064#22096#0" expanded="true" />
+                <element signature="e#22134#22150#0" expanded="true" />
+                <element signature="e#22590#22605#0" expanded="true" />
                 <element signature="method#dismiss_tag#0;class#ActivityDiary#0" expanded="false" />
-                <element signature="e#22695#22723#0" expanded="true" />
-                <element signature="e#22761#22777#0" expanded="true" />
-                <element signature="e#23144#23159#0" expanded="true" />
-                <element signature="e#24751#24784#0" expanded="true" />
-                <element signature="e#24967#25001#0" expanded="true" />
-                <element signature="e#25004#25038#0" expanded="true" />
+                <element signature="e#22949#22977#0" expanded="true" />
+                <element signature="e#23015#23031#0" expanded="true" />
+                <element signature="e#23398#23413#0" expanded="true" />
+                <element signature="e#23625#23659#0" expanded="false" />
+                <element signature="e#25005#25038#0" expanded="true" />
+                <element signature="e#25221#25255#0" expanded="true" />
+                <element signature="e#25258#25292#0" expanded="true" />
+                <element signature="class#CompareListElems#0;class#ActivityDiary#0" expanded="false" />
+                <element signature="method#getView#0;class#DiaryElemAdapter#0;class#ActivityDiary#0" expanded="false" />
+                <element signature="class#ViewHolder#0;class#DiaryElemAdapter#0;class#ActivityDiary#0" expanded="false" />
               </folding>
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="strings.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/values/strings.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="2060">
-              <caret line="35" column="28" selection-start-line="35" selection-start-column="28" selection-end-line="35" selection-end-column="28" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="menu_diary.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/menu/menu_diary.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="272" max-vertical-offset="1160">
-              <caret line="44" column="40" selection-start-line="44" selection-start-column="40" selection-end-line="44" selection-end-column="40" />
-              <folding />
-            </state>
-          </provider>
-        </entry>
-      </file>
-      <file leaf-file-name="menu_entry.xml" pinned="false" current="false" current-in-tab="false">
-        <entry file="file://$PROJECT_DIR$/app/src/main/res/menu/menu_entry.xml">
-          <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="400" max-vertical-offset="600">
-              <caret line="20" column="40" selection-start-line="20" selection-start-column="40" selection-end-line="20" selection-end-column="40" />
-              <folding />
             </state>
           </provider>
         </entry>
@@ -1404,7 +1392,6 @@
         <option value="$PROJECT_DIR$/app/src/main/res/layout/calendar.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityLogin.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/AddElemAction.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Theme.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Tag.java" />
@@ -1419,15 +1406,16 @@
         <option value="$PROJECT_DIR$/app/src/main/res/layout/dialog_new_diary.xml" />
         <option value="$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/values/ids.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityLogin.java" />
       </list>
     </option>
   </component>
@@ -2136,7 +2124,11 @@
       <created>1410156480985</created>
       <updated>1410156480985</updated>
     </task>
-    <option name="localTasksCounter" value="52" />
+    <task id="LOCAL-00052" summary="renamed sorted to group">
+      <created>1410158786668</created>
+      <updated>1410158786668</updated>
+    </task>
+    <option name="localTasksCounter" value="53" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2168,7 +2160,7 @@
       <window_info id="Designer" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="7" side_tool="false" content_ui="tabs" />
       <window_info id="Palette" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="5" side_tool="false" content_ui="tabs" />
       <window_info id="Terminal" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293348" sideWeight="0.5" order="14" side_tool="false" content_ui="tabs" />
-      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32824427" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
+      <window_info id="Find" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
       <window_info id="Debug" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.39803708" sideWeight="0.5" order="3" side_tool="false" content_ui="tabs" />
       <window_info id="Event Log" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.5" order="8" side_tool="true" content_ui="tabs" />
       <window_info id="Favorites" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="true" content_ui="tabs" />
@@ -2176,7 +2168,7 @@
       <window_info id="Gradle Console" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="9" side_tool="true" content_ui="tabs" />
       <window_info id="Build Variants" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="3" side_tool="true" content_ui="tabs" />
       <window_info id="Messages" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.30861506" sideWeight="0.59010416" order="12" side_tool="false" content_ui="tabs" />
-      <window_info id="Android" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.32824427" sideWeight="0.65260416" order="13" side_tool="false" content_ui="tabs" />
+      <window_info id="Android" active="true" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="true" weight="0.32824427" sideWeight="0.65260416" order="13" side_tool="false" content_ui="tabs" />
       <window_info id="Gradle" active="false" anchor="right" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.33" sideWeight="0.5" order="4" side_tool="false" content_ui="tabs" />
       <window_info id="TODO" active="false" anchor="bottom" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.3293348" sideWeight="0.5" order="6" side_tool="false" content_ui="tabs" />
       <window_info id="Structure" active="false" anchor="left" auto_hide="false" internal_type="DOCKED" type="DOCKED" visible="false" weight="0.24973932" sideWeight="0.5" order="1" side_tool="false" content_ui="tabs" />
@@ -2208,8 +2200,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="completed migration to ActionBar. moved login menu to xml." />
-    <MESSAGE value="hide dates (numbers) of custom sorted groups and entries" />
     <MESSAGE value="Diary::init_new returns the result of Dairy::set_path()" />
     <MESSAGE value="update tags label after tag dialog is closed" />
     <MESSAGE value="corrected saving point of a diary file on logout" />
@@ -2233,7 +2223,9 @@
     <MESSAGE value="added in progress todo state" />
     <MESSAGE value="fixed and improved alert dialogs used for creating and renaming certain elements" />
     <MESSAGE value="code cleanup" />
-    <option name="LAST_COMMIT_MESSAGE" value="code cleanup" />
+    <MESSAGE value="renamed sorted to group" />
+    <MESSAGE value="store orphaned entries in a pseudo chapter rather than a list and show that chapter when listing the diary" />
+    <option name="LAST_COMMIT_MESSAGE" value="store orphaned entries in a pseudo chapter rather than a list and show that chapter when listing the diary" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -2718,31 +2710,6 @@
         <state />
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityLogin.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="1.5332198" vertical-offset="180" max-vertical-offset="1320">
-          <caret line="294" column="0" selection-start-line="294" selection-start-column="0" selection-end-line="294" selection-end-column="0" />
-          <folding>
-            <element signature="method#onCreate#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="method#onResume#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="method#onCreateOptionsMenu#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="method#onOptionsItemSelected#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="method#onListItemClick#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="e#6256#6319#0" expanded="false" />
-            <element signature="method#populate_diaries#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="e#8056#8123#0" expanded="false" />
-            <element signature="class#DialogAbout#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="method#onCreate#0;class#DialogAbout#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="method#onCreate#0;class#DialogNewDiary#0;class#ActivityLogin#0" expanded="false" />
-            <element signature="class#11103:11507" expanded="false" />
-            <element signature="method#afterTextChanged#0;class#11103:11507" expanded="false" />
-            <element signature="method#beforeTextChanged#0;class#11103:11507" expanded="false" />
-            <element signature="method#onTextChanged#0;class#11103:11507" expanded="false" />
-            <element signature="method#create_diary#0;class#DialogNewDiary#0;class#ActivityLogin#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/values/strings.xml">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="285" max-vertical-offset="2060">
@@ -2794,104 +2761,128 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="625" max-vertical-offset="3640">
-          <caret line="60" column="13" selection-start-line="60" selection-start-column="13" selection-end-line="60" selection-end-column="13" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="265" max-vertical-offset="4480">
+          <caret line="50" column="63" selection-start-line="50" selection-start-column="63" selection-end-line="50" selection-end-column="63" />
+          <folding>
+            <element signature="method#format_string#0;class#Date#0" expanded="false" />
+            <element signature="method#backward_ordinal_order#0;class#Date#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2885" max-vertical-offset="9540">
-          <caret line="209" column="60" selection-start-line="209" selection-start-column="60" selection-end-line="209" selection-end-column="60" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="445" max-vertical-offset="3640">
+          <caret line="51" column="0" selection-start-line="51" selection-start-column="0" selection-end-line="51" selection-end-column="0" />
           <folding>
-            <element signature="e#9643#9674#0" expanded="true" />
-            <element signature="e#9769#9792#0" expanded="true" />
-            <element signature="e#10405#10420#0" expanded="true" />
-            <element signature="method#showEntry#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="method#goToToday#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="method#showCalendar#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#12610#12622#0" expanded="false" />
-            <element signature="method#handleFilterTodoChanged#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="method#set_todo_status#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="method#update_entry_list#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="method#createChapter#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#16689#16709#0" expanded="true" />
-            <element signature="e#16829#16852#0" expanded="true" />
-            <element signature="e#16925#16940#0" expanded="true" />
-            <element signature="e#17439#17454#0" expanded="true" />
-            <element signature="method#createTopic#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#17732#17752#0" expanded="true" />
-            <element signature="e#17872#17893#0" expanded="true" />
-            <element signature="e#18006#18021#0" expanded="true" />
-            <element signature="e#18506#18521#0" expanded="true" />
-            <element signature="method#createGroup#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#18843#18863#0" expanded="true" />
-            <element signature="e#18983#19004#0" expanded="true" />
-            <element signature="e#19117#19132#0" expanded="true" />
-            <element signature="e#19617#19632#0" expanded="true" />
-            <element signature="method#rename_tag#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#20100#20119#0" expanded="true" />
-            <element signature="e#20217#20232#0" expanded="true" />
-            <element signature="e#20564#20579#0" expanded="true" />
-            <element signature="method#rename_chapter#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#21011#21034#0" expanded="true" />
-            <element signature="e#21132#21147#0" expanded="true" />
-            <element signature="e#21469#21484#0" expanded="true" />
-            <element signature="method#dismiss_chapter#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#21810#21842#0" expanded="true" />
-            <element signature="e#21880#21896#0" expanded="true" />
-            <element signature="e#22336#22351#0" expanded="true" />
-            <element signature="method#dismiss_tag#0;class#ActivityDiary#0" expanded="false" />
-            <element signature="e#22695#22723#0" expanded="true" />
-            <element signature="e#22761#22777#0" expanded="true" />
-            <element signature="e#23144#23159#0" expanded="true" />
-            <element signature="e#24751#24784#0" expanded="true" />
-            <element signature="e#24967#25001#0" expanded="true" />
-            <element signature="e#25004#25038#0" expanded="true" />
+            <element signature="e#2051#2095#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Chapter.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="85" max-vertical-offset="4020">
-          <caret line="34" column="31" selection-start-line="34" selection-start-column="31" selection-end-line="34" selection-end-column="31" />
-          <folding />
+        <state vertical-scroll-proportion="0.0" vertical-offset="407" max-vertical-offset="3760">
+          <caret line="62" column="34" selection-start-line="62" selection-start-column="34" selection-end-line="62" selection-end-column="34" />
+          <folding>
+            <element signature="method#Category#0;class#Category#0;class#Chapter#0" expanded="false" />
+            <element signature="e#2064#2065#0" expanded="true" />
+            <element signature="e#2109#2110#0" expanded="true" />
+            <element signature="method#get_icon#0;class#Chapter#0" expanded="false" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="3373" max-vertical-offset="6140">
+          <caret line="430" column="60" selection-start-line="430" selection-start-column="60" selection-end-line="430" selection-end-column="60" />
+          <folding>
+            <element signature="method#onCreateOptionsMenu#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#onPrepareOptionsMenu#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#onOptionsItemSelected#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#9643#9674#0" expanded="true" />
+            <element signature="e#9769#9792#0" expanded="true" />
+            <element signature="e#10405#10420#0" expanded="true" />
+            <element signature="method#handleLogout#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#showEntry#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#goToToday#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#showCalendar#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#12610#12622#0" expanded="false" />
+            <element signature="method#handleFilterTodoChanged#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#set_todo_status#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#createChapter#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#16943#16963#0" expanded="true" />
+            <element signature="e#17083#17106#0" expanded="true" />
+            <element signature="e#17179#17194#0" expanded="true" />
+            <element signature="e#17693#17708#0" expanded="true" />
+            <element signature="method#createTopic#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#17986#18006#0" expanded="true" />
+            <element signature="e#18126#18147#0" expanded="true" />
+            <element signature="e#18260#18275#0" expanded="true" />
+            <element signature="e#18760#18775#0" expanded="true" />
+            <element signature="method#createGroup#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#19097#19117#0" expanded="true" />
+            <element signature="e#19237#19258#0" expanded="true" />
+            <element signature="e#19371#19386#0" expanded="true" />
+            <element signature="e#19871#19886#0" expanded="true" />
+            <element signature="method#rename_tag#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#20354#20373#0" expanded="true" />
+            <element signature="e#20471#20486#0" expanded="true" />
+            <element signature="e#20818#20833#0" expanded="true" />
+            <element signature="method#rename_chapter#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#21265#21288#0" expanded="true" />
+            <element signature="e#21386#21401#0" expanded="true" />
+            <element signature="e#21723#21738#0" expanded="true" />
+            <element signature="method#dismiss_chapter#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#22064#22096#0" expanded="true" />
+            <element signature="e#22134#22150#0" expanded="true" />
+            <element signature="e#22590#22605#0" expanded="true" />
+            <element signature="method#dismiss_tag#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="e#22949#22977#0" expanded="true" />
+            <element signature="e#23015#23031#0" expanded="true" />
+            <element signature="e#23398#23413#0" expanded="true" />
+            <element signature="e#23625#23659#0" expanded="false" />
+            <element signature="e#25005#25038#0" expanded="true" />
+            <element signature="e#25221#25255#0" expanded="true" />
+            <element signature="e#25258#25292#0" expanded="true" />
+            <element signature="class#CompareListElems#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="method#getView#0;class#DiaryElemAdapter#0;class#ActivityDiary#0" expanded="false" />
+            <element signature="class#ViewHolder#0;class#DiaryElemAdapter#0;class#ActivityDiary#0" expanded="false" />
+          </folding>
         </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="2846" max-vertical-offset="7200">
-          <caret line="780" column="70" selection-start-line="780" selection-start-column="70" selection-end-line="780" selection-end-column="70" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="6899" max-vertical-offset="12100">
+          <caret line="1127" column="30" selection-start-line="1127" selection-start-column="30" selection-end-line="1127" selection-end-column="30" />
           <folding>
             <element signature="class#Result#0" expanded="false" />
             <element signature="class#SetPathType#0;class#Diary#0" expanded="false" />
             <element signature="method#init_new#0;class#Diary#0" expanded="false" />
-            <element signature="method#clear#0;class#Diary#0" expanded="false" />
-            <element signature="e#3988#3989#0" expanded="true" />
-            <element signature="e#4017#4018#0" expanded="true" />
+            <element signature="e#3973#3974#0" expanded="true" />
+            <element signature="e#4002#4003#0" expanded="true" />
             <element signature="method#create_new_id#0;class#Diary#0" expanded="false" />
             <element signature="method#set_force_id#0;class#Diary#0" expanded="false" />
             <element signature="method#make_free_entry_order#0;class#Diary#0" expanded="false" />
             <element signature="method#create_unique_chapter_ctg_name#0;class#Diary#0" expanded="false" />
             <element signature="method#set_passphrase#0;class#Diary#0" expanded="false" />
-            <element signature="e#5939#5954#0" expanded="false" />
+            <element signature="e#5924#5939#0" expanded="false" />
             <element signature="method#set_path#0;class#Diary#0" expanded="false" />
-            <element signature="e#8296#8332#0" expanded="false" />
-            <element signature="e#8724#8742#0" expanded="false" />
+            <element signature="e#8281#8317#0" expanded="false" />
+            <element signature="e#8709#8727#0" expanded="false" />
             <element signature="method#read_header#0;class#Diary#0" expanded="false" />
-            <element signature="e#10127#10181#0" expanded="false" />
-            <element signature="e#10514#10541#0" expanded="false" />
-            <element signature="e#10912#10972#0" expanded="false" />
+            <element signature="e#10112#10166#0" expanded="false" />
+            <element signature="e#10499#10526#0" expanded="false" />
+            <element signature="e#10897#10957#0" expanded="false" />
             <element signature="method#read_body#0;class#Diary#0" expanded="false" />
             <element signature="method#write#0;class#Diary#0" expanded="false" />
-            <element signature="e#11440#11502#0" expanded="false" />
+            <element signature="e#11425#11487#0" expanded="false" />
             <element signature="method#write#1;class#Diary#0" expanded="false" />
-            <element signature="e#11991#11998#0" expanded="false" />
+            <element signature="e#11976#11983#0" expanded="false" />
             <element signature="method#set_search_text#0;class#Diary#0" expanded="false" />
             <element signature="method#get_entry#0;class#Diary#0" expanded="false" />
             <element signature="method#get_entry_today#0;class#Diary#0" expanded="false" />
@@ -2899,7 +2890,7 @@
             <element signature="method#add_today#0;class#Diary#0" expanded="false" />
             <element signature="method#dismiss_entry#0;class#Diary#0" expanded="false" />
             <element signature="method#get_day_has_multiple_entries#0;class#Diary#0" expanded="false" />
-            <element signature="e#14729#14737#0" expanded="false" />
+            <element signature="e#14714#14722#0" expanded="false" />
             <element signature="method#create_tag_ctg#0;class#Diary#0" expanded="false" />
             <element signature="method#create_tag_ctg#1;class#Diary#0" expanded="false" />
             <element signature="method#create_tag#0;class#Diary#0" expanded="false" />
@@ -2908,13 +2899,10 @@
             <element signature="method#create_chapter_ctg#0;class#Diary#0" expanded="false" />
             <element signature="method#dismiss_chapter_ctg#0;class#Diary#0" expanded="false" />
             <element signature="method#rename_chapter_ctg#0;class#Diary#0" expanded="false" />
-            <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
-            <element signature="e#20770#20812#0" expanded="false" />
+            <element signature="e#20755#20797#0" expanded="false" />
             <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
             <element signature="method#getNextChapter#0;class#Diary#0" expanded="false" />
-            <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
-            <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
-            <element signature="e#23193#23277#0" expanded="false" />
+            <element signature="e#23352#23436#0" expanded="false" />
             <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
             <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
@@ -2924,26 +2912,36 @@
             <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
-            <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
             <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
             <element signature="method#create_db_tag_text#0;class#Diary#0" expanded="false" />
             <element signature="method#create_db_chapterctg_text#0;class#Diary#0" expanded="false" />
             <element signature="method#create_db_header_text#0;class#Diary#0" expanded="false" />
-            <element signature="e#51450#51460#0" expanded="false" />
-            <element signature="e#54542#54618#0" expanded="false" />
+            <element signature="method#create_db_body_text#0;class#Diary#0" expanded="false" />
+            <element signature="e#51707#51717#0" expanded="false" />
+            <element signature="e#54799#54875#0" expanded="false" />
             <element signature="method#write_plain#0;class#Diary#0" expanded="false" />
-            <element signature="e#58276#58285#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java">
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityLogin.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.22998296" vertical-offset="265" max-vertical-offset="4480">
-          <caret line="42" column="56" selection-start-line="42" selection-start-column="56" selection-end-line="42" selection-end-column="56" />
+        <state vertical-scroll-proportion="0.49063033" vertical-offset="1872" max-vertical-offset="2760">
+          <caret line="286" column="50" selection-start-line="286" selection-start-column="50" selection-end-line="286" selection-end-column="50" />
           <folding>
-            <element signature="method#format_string#0;class#Date#0" expanded="false" />
-            <element signature="method#backward_ordinal_order#0;class#Date#0" expanded="false" />
+            <element signature="method#onResume#0;class#ActivityLogin#0" expanded="false" />
+            <element signature="method#onCreateOptionsMenu#0;class#ActivityLogin#0" expanded="false" />
+            <element signature="method#onOptionsItemSelected#0;class#ActivityLogin#0" expanded="false" />
+            <element signature="method#onListItemClick#0;class#ActivityLogin#0" expanded="false" />
+            <element signature="e#6274#6337#0" expanded="false" />
+            <element signature="e#8074#8141#0" expanded="false" />
+            <element signature="class#DialogAbout#0;class#ActivityLogin#0" expanded="false" />
+            <element signature="method#onCreate#0;class#DialogAbout#0;class#ActivityLogin#0" expanded="false" />
+            <element signature="method#onCreate#0;class#DialogNewDiary#0;class#ActivityLogin#0" expanded="false" />
+            <element signature="class#11121:11525" expanded="false" />
+            <element signature="method#afterTextChanged#0;class#11121:11525" expanded="false" />
+            <element signature="method#beforeTextChanged#0;class#11121:11525" expanded="false" />
+            <element signature="method#onTextChanged#0;class#11121:11525" expanded="false" />
           </folding>
         </state>
       </provider>
