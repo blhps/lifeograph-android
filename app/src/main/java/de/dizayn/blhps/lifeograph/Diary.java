@@ -96,7 +96,7 @@ public class Diary extends DiaryElement
         m_ptr2chapter_ctg_cur = null;
         m_chapter_categories.clear();
         m_topics.mMap.clear();
-        m_custom_sorteds.mMap.clear();
+        m_groups.mMap.clear();
         m_orphaned_entries.clear();
 
         m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
@@ -691,7 +691,7 @@ public class Diary extends DiaryElement
 
     public void update_entries_in_chapters() {
         Log.w( Lifeograph.TAG, "update_entries_in_chapters()" );
-        Chapter.Category chapters[] = new Chapter.Category[] { m_topics, m_custom_sorteds,
+        Chapter.Category chapters[] = new Chapter.Category[] { m_topics, m_groups,
                 m_ptr2chapter_ctg_cur };
         Iterator itr_entry = m_entries.entrySet().iterator();
         Entry entry = null;
@@ -741,8 +741,8 @@ public class Diary extends DiaryElement
 
         Chapter.Category ptr2ctg;
 
-        if( entry.m_date.is_ordinal() ) // in custom_sorteds or topics
-            ptr2ctg = ( entry.m_date.is_hidden() ? m_custom_sorteds : m_topics );
+        if( entry.m_date.is_ordinal() ) // in groups or topics
+            ptr2ctg = ( entry.m_date.is_hidden() ? m_groups : m_topics );
         else // in chapters
             ptr2ctg = m_ptr2chapter_ctg_cur;
 
@@ -762,15 +762,13 @@ public class Diary extends DiaryElement
     public void remove_entry_from_chapters( Entry entry ) {
         Chapter.Category ptr2ctg;
 
-        if( entry.m_date.is_ordinal() ) // in custom_sorteds or topics
-            ptr2ctg = ( entry.m_date.is_hidden() ? m_custom_sorteds : m_topics );
+        if( entry.m_date.is_ordinal() ) // in groups or topics
+            ptr2ctg = ( entry.m_date.is_hidden() ? m_groups : m_topics );
         else // in chapters
             ptr2ctg = m_ptr2chapter_ctg_cur;
 
-        for( Chapter chapter : ptr2ctg.getMap().values() )
-        {
-            if( chapter.find( entry ) )
-            {
+        for( Chapter chapter : ptr2ctg.getMap().values() ) {
+            if( chapter.find( entry ) ) {
                 chapter.erase( entry );
                 return;
             }
@@ -978,13 +976,14 @@ public class Diary extends DiaryElement
                                             ptr2chapter_ctg.create_chapter( get_db_line_name( line ),
                                                     get_db_line_date( line ) );
                                     break;
-                                case 'O':   // ordinal chapter (topic)
+                                case 'O':   // ordinal chapter (used to be called topic)
                                     ptr2chapter =
                                             m_topics.create_chapter( get_db_line_name( line ),
                                                     get_db_line_date( line ) );
                                     break;
-                                case 'S':   // sorted chapter
-                                    ptr2chapter = m_custom_sorteds.create_chapter(
+                                case 'S':   // free chapter
+                                case 'G':
+                                    ptr2chapter = m_groups.create_chapter(
                                             get_db_line_name( line ), get_db_line_date( line ) );
                                     break;
                                 case 'p':   // chapter preferences
@@ -1409,8 +1408,8 @@ public class Diary extends DiaryElement
         // TOPICS
         create_db_chapterctg_text( 'O', m_topics );
 
-        // CUSTOM SORTED ENTRY GROUPS
-        create_db_chapterctg_text( 'S', m_custom_sorteds );
+        // FREE CHAPTERS
+        create_db_chapterctg_text( 'G', m_groups );
 
         // CHAPTERS
         for( Chapter.Category ctg : m_chapter_categories.values() )
@@ -1544,8 +1543,9 @@ public class Diary extends DiaryElement
             new TreeMap< String, Chapter.Category >( DiaryElement.compare_names );
     Chapter.Category m_ptr2chapter_ctg_cur = null;
     Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
-    Chapter.Category m_custom_sorteds = new Chapter.Category( this, Date.SORTED_MIN );
+    Chapter.Category m_groups = new Chapter.Category( this, Date.GROUP_MIN );
     List< Entry > m_orphaned_entries = new ArrayList< Entry >();
+    //Chapter m_orphans = new Chapter( this, "<Other Entries>", 0 );
 
     private int m_startup_elem_id; // DEID
     private int m_last_elem_id; // DEID

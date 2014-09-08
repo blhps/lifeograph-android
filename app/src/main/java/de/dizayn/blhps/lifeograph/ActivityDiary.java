@@ -179,7 +179,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
             case TAG:
             case CHAPTER:
             case TOPIC:
-            case SORTED:
+            case GROUP:
                 mParentElem = m_elems.get( pos );
                 update_entry_list();
                 break;
@@ -207,7 +207,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         item.setVisible( mParentElem == null );
 
         item = menu.findItem( R.id.change_todo_status );
-        item.setVisible( type == Type.TOPIC || type == Type.SORTED || type == Type.CHAPTER );
+        item.setVisible( type == Type.TOPIC || type == Type.GROUP || type == Type.CHAPTER );
 
         item = menu.findItem( R.id.calendar );
         item.setVisible( mParentElem == null );
@@ -217,7 +217,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
 //        item.setVisible( mParentElem != null );
 
         item = menu.findItem( R.id.add_entry );
-        item.setVisible( type == Type.TOPIC || type == Type.SORTED );
+        item.setVisible( type == Type.TOPIC || type == Type.GROUP );
 
         item = menu.findItem( R.id.dismiss );
         item.setVisible( mParentElem != null );
@@ -391,7 +391,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
             switch( mParentElem.get_type() ) {
                 case CHAPTER:
                 case TOPIC:
-                case SORTED:
+                case GROUP:
                     Chapter chapter = ( Chapter ) mParentElem;
                     chapter.set_todo_status( s );
                     mActionBar.setIcon( mParentElem.get_icon() );
@@ -419,7 +419,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 }
                 m_elems.add( mElemAllEntries );
 
-                for( Chapter c : Diary.diary.m_custom_sorteds.mMap.values() ) {
+                for( Chapter c : Diary.diary.m_groups.mMap.values() ) {
                     m_elems.add( c );
                 }
                 for( Chapter c : Diary.diary.m_topics.mMap.values() ) {
@@ -449,7 +449,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 break;
             case CHAPTER:
             case TOPIC:
-            case SORTED:
+            case GROUP:
                 mActionBar.setIcon( mParentElem.get_icon() );
                 setTitle( mParentElem.get_list_str() );
                 mActionBar.setSubtitle( mParentElem.get_info_str() );
@@ -534,7 +534,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 {
                     public void onClick( DialogInterface di, int btn )
                     {
-                        mParentElem = Diary.diary.m_custom_sorteds.create_chapter_ordinal(
+                        mParentElem = Diary.diary.m_groups.create_chapter_ordinal(
                                 input.getText().toString() );
                         Diary.diary.update_entries_in_chapters();
                         update_entry_list();

@@ -43,7 +43,7 @@ public class Date {
     public static final long    YEARMONTH_FILTER = YEAR_FILTER|MONTH_FILTER;
     public static final long    PURE_FILTER      = DATE_MAX ^ ORDER_FILTER;
 
-    // hidden elements are custom sorted and their sequence numbers are not shown
+    // hidden elements' sequence numbers are not shown
     public static final long    VISIBLE_FLAG     = 0x40000000L;  // only for ordinal items
 
     public static final long    ORDINAL_STEP     = 0x400L;
@@ -53,7 +53,7 @@ public class Date {
     public static final long    TOPIC_NO_FLAGS_FILTER   = ORDINAL_FILTER|ORDER_FILTER;
 
     public static final long    TOPIC_MIN        = VISIBLE_FLAG|ORDINAL_FLAG;
-    public static final long    SORTED_MIN       = ORDINAL_FLAG;
+    public static final long    GROUP_MIN        = ORDINAL_FLAG;
 
     // private DateFormatSymbols symbols = new DateFormatSymbols();
     public static final String[] WEEKDAYS = ( new DateFormatSymbols() ).getWeekdays();

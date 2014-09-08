@@ -2,7 +2,7 @@
 <resources>
     <item name="add_today" type="id"/>
     <item name="add_topic" type="id"/>
-    <item name="add_sorted" type="id"/>
+    <item name="add_group" type="id"/>
     <item name="todo_not" type="id"/>
     <item name="todo_open" type="id"/>
     <item name="todo_progressed" type="id"/>

@@ -56,7 +56,7 @@ public final class R {
         public static final int about=0x7f06003b;
         public static final int add_elem=0x7f060030;
         public static final int add_entry=0x7f060031;
-        public static final int add_sorted=0x7f060000;
+        public static final int add_group=0x7f060000;
         public static final int add_tag=0x7f060038;
         public static final int add_today=0x7f060001;
         public static final int add_topic=0x7f060002;

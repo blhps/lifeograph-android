@@ -86,8 +86,8 @@ public class Entry extends DiaryElement {
 
     public String get_title() {
         if( m_date.is_hidden() ) {
-            if( m_ptr2diary.m_custom_sorteds.getMap().containsKey( m_date.get_pure() ) )
-                return m_ptr2diary.m_custom_sorteds.getMap().get( m_date.get_pure() ).get_name();
+            if( m_ptr2diary.m_groups.getMap().containsKey( m_date.get_pure() ) )
+                return m_ptr2diary.m_groups.getMap().get( m_date.get_pure() ).get_name();
             else
                 return "/"; // TODO find a better name
         }

@@ -32,7 +32,7 @@ public class Chapter extends DiaryElement {
             mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
             m_date_min = 0;
         }
-        // for topics and custom sorteds which do not have names:
+        // for topics and groups which do not have names:
         public Category( Diary diary, long date_min ) {
             super( diary, DEID_UNSET, ES_VOID );
             mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
@@ -188,7 +188,7 @@ public class Chapter extends DiaryElement {
 
     public void update_type() {
         if( m_date_begin.is_hidden() )
-            m_type = Type.SORTED;
+            m_type = Type.GROUP;
         else if( m_date_begin.is_ordinal() )
             m_type = Type.TOPIC;
         else
