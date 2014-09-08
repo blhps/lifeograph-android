@@ -212,7 +212,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         item = menu.findItem( R.id.calendar );
         item.setVisible( mParentElem == null );
 
-// TODO WILL BE IMPLEMENTED IN 0.3
+//  TODO WILL BE IMPLEMENTED IN 0.3
 //        item = menu.findItem( R.id.change_sort_type );
 //        item.setVisible( mParentElem != null );
 
@@ -304,7 +304,7 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                 AlertDialog alert = builder.create();
                 alert.show();
                 return true;
-// TODO WILL BE IMPLEMENTED IN 0.3
+//  TODO WILL BE IMPLEMENTED IN 0.3
 //            case R.id.import_sms:
 //                import_messages();
 //                return true;
@@ -475,14 +475,37 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
         Collections.sort( m_elems, compare_elems );
     }
 
-    void create_topic() {
+    void createChapter( final long date ) {
         final EditText input = new EditText( this );
-        input.setText( "New topic" );
+        input.setText( R.string.new_chapter );
+        input.selectAll();
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( "Create Topic" )
+        dlg.setTitle( R.string.create_chapter )
+                .setView( input )
+                .setPositiveButton( R.string.create, new DialogInterface.OnClickListener()
+                {
+                    public void onClick( DialogInterface di, int btn ) {
+                        mParentElem =
+                                Diary.diary.m_ptr2chapter_ctg_cur.create_chapter(
+                                        input.getText().toString(), date );
+                        Diary.diary.update_entries_in_chapters();
+                        update_entry_list();
+                    }
+                } ).setNegativeButton( R.string.cancel, new DialogInterface.OnClickListener() {
+            public void onClick( DialogInterface di, int btn ) {
+                // do nothing
+            }
+        } ).show();
+    }
+    void createTopic() {
+        final EditText input = new EditText( this );
+        input.setText( R.string.new_chapter );
+        input.selectAll();
+        AlertDialog.Builder dlg = new AlertDialog.Builder( this );
+        dlg.setTitle( R.string.create_topic )
                 // .setMessage(message)
                 .setView( input )
-                .setPositiveButton( R.string.create_topic, new DialogInterface.OnClickListener()
+                .setPositiveButton( R.string.create, new DialogInterface.OnClickListener()
                 {
                     public void onClick( DialogInterface di, int btn )
                     {
@@ -499,14 +522,15 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
                     } // do nothing
                 } ).show();
     }
-    void create_sorted() {
+    void createGroup() {
         final EditText input = new EditText( this );
-        input.setText( "New group" );
+        input.setText( R.string.new_chapter );
+        input.selectAll();
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( "Create Group" )
+        dlg.setTitle( R.string.create_group )
                 // .setMessage(message)
                 .setView( input )
-                .setPositiveButton( R.string.create_group, new DialogInterface.OnClickListener()
+                .setPositiveButton( R.string.create, new DialogInterface.OnClickListener()
                 {
                     public void onClick( DialogInterface di, int btn )
                     {
@@ -527,8 +551,9 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     private void rename_tag() {
         final EditText input = new EditText( this );
         input.setText( mParentElem.m_name );
+        input.selectAll();
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( "Rename Tag" )
+        dlg.setTitle( R.string.rename_tag )
            // .setMessage(message)
            .setView( input )
            .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener()
@@ -548,9 +573,9 @@ public class ActivityDiary extends ListActivity implements ToDoAction.ToDoObject
     void rename_chapter() {
         final EditText input = new EditText( this );
         input.setText( mParentElem.m_name );
-        // input.selectAll();
+        input.selectAll();
         AlertDialog.Builder dlg = new AlertDialog.Builder( this );
-        dlg.setTitle( "Rename Chapter/Topic" )
+        dlg.setTitle( R.string.rename_chapter )
            // .setMessage(message)
            .setView( input )
            .setPositiveButton( R.string.rename, new DialogInterface.OnClickListener()

@@ -54,7 +54,7 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
                 .setIcon( R.drawable.ic_topic )
                 .setOnMenuItemClickListener( this );
 
-        menu.add( 0, R.id.add_sorted, 1, R.string.sorted )
+        menu.add( 0, R.id.add_sorted, 1, R.string.group )
                 .setIcon( R.drawable.ic_topic )
                 .setOnMenuItemClickListener( this );
     }
@@ -68,10 +68,10 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
                 Lifeograph.activityDiary.goToToday();
                 return true;
             case R.id.add_topic:
-                Lifeograph.activityDiary.create_topic();
+                Lifeograph.activityDiary.createTopic();
                 return true;
             case R.id.add_sorted:
-                Lifeograph.activityDiary.create_sorted();
+                Lifeograph.activityDiary.createGroup();
                 return true;
         }
         return true;

@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="app_name">Lifeograph</string>
-    <string name="new_diary">New Diary</string>
     <string name="about">About</string>
     <string name="quit">Quit</string>
     <string name="cancel">Cancel</string>
@@ -13,10 +12,6 @@
     <string name="favorite">Favorite</string>
     <string name="edit_tags">Edit Tags</string>
 
-    <string name="entries">Entries</string>
-    <string name="tags">Tags</string>
-    <string name="chapters">Chapters</string>
-
     <string name="diary">Diary</string>
     <string name="entry">Entry</string>
     <string name="tag_ctg">Tag Category</string>
@@ -25,8 +20,24 @@
     <string name="chapter_ctg">Chapter Category</string>
     <string name="chapter">Dated Chapter</string>
     <string name="topic">Numbered Chapter</string>
-    <string name="sorted">Free Chapter</string>
+    <string name="group">Free Chapter</string>
     <string name="filter">Filter</string>
+
+    <string name="new_diary">New Diary</string>
+    <string name="new_chapter">New Chapter</string>
+    <string name="new_tag">New Tag</string>
+
+    <string name="create_entry">Create Entry</string>
+    <string name="create_chapter">Create Dated Chapter</string>
+    <string name="create_topic">Create Numbered Chapter</string>
+    <string name="create_group">Create Free Chapter</string>
+
+    <string name="rename_chapter">Rename Chapter</string>
+    <string name="rename_tag">Rename Tag</string>
+
+    <string name="entries">Entries</string>
+    <string name="tags">Tags</string>
+    <string name="chapters">Chapters</string>
 
     <string name="search_and_filter">Search &amp; Filter</string>
     <string name="all_entries">All Entries</string>
@@ -41,14 +52,8 @@
     <string name="change_sorting">Change Sorting Type</string>
     <string name="empty_entry">&lt;empty entry&gt;</string>
     <string name="add_entry">Add Entry</string>
-    <string name="create_entry">Create Entry</string>
-    <string name="create_chapter">Create Chapter</string>
-    <string name="create_topic">Create Topic</string>
-    <string name="create_group">Create Group</string>
     <string name="add">Add</string>
-    <string name="dismiss_">Dismiss..</string>
     <string name="dismiss">Dismiss</string>
-    <string name="rename_">Rename..</string>
     <string name="rename">Rename</string>
     <string name="toggle_favorite">Toggle Favoredness</string>
     <string name="change_todo_status">Change Todo Status</string>

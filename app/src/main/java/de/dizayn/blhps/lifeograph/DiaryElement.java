@@ -58,7 +58,7 @@ public abstract class DiaryElement {
         DIARY( Lifeograph.context.getString( R.string.diary ) ),
         CHAPTER( Lifeograph.context.getString( R.string.chapter ) ),
         TOPIC( Lifeograph.context.getString( R.string.topic ) ),
-        SORTED( Lifeograph.context.getString( R.string.sorted ) ),
+        SORTED( Lifeograph.context.getString( R.string.group ) ),
         ENTRY( Lifeograph.context.getString( R.string.entry ) ),
         // extras:
         DATE( "" ),

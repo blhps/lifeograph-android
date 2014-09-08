@@ -18,7 +18,7 @@
           android:orderInCategory="90"
           android:showAsAction="ifRoom" />
     <item android:id="@+id/dismiss"
-          android:title="@string/dismiss_"
+          android:title="@string/dismiss"
           android:orderInCategory="100"
           android:showAsAction="never" />
 </menu>

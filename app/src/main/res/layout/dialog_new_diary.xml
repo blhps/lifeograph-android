@@ -22,18 +22,18 @@
         android:layout_height="wrap_content" >
 
         <Button
-            android:id="@+id/buttonCreateDiary"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="@string/create" />
-
-        <Button
             android:id="@+id/buttonCancelNewDiary"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="@android:string/cancel" />
+
+        <Button
+            android:id="@+id/buttonCreateDiary"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/create" />
 
     </LinearLayout>
 

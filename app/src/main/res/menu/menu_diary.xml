@@ -39,10 +39,10 @@
           android:orderInCategory="100"
           android:showAsAction="never" /-->
     <item android:id="@+id/rename"
-          android:title="@string/rename_"
+          android:title="@string/rename"
           android:orderInCategory="100" />
     <item android:id="@+id/dismiss"
-          android:title="@string/dismiss_"
+          android:title="@string/dismiss"
           android:orderInCategory="100"
           android:showAsAction="never" />
     <item android:id="@+id/logout_wo_save"
