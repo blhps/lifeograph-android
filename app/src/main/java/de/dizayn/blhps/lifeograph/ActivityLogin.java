@@ -197,6 +197,11 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         }
     }
     public boolean onInquireTextChanged( int id, String s ) {
+        switch( id ) {
+            case R.string.create_diary:
+                File fp = new File( getDiariesDir().getPath(), s );
+                return( !fp.exists() );
+        }
         return true;
     }
 
