@@ -47,7 +47,7 @@ import android.widget.Toast;
 
 public class ActivityLogin extends ListActivity {
     private java.util.List< String > m_paths = new ArrayList< String >();
-    private ArrayAdapter< String > m_adapter_diaries;
+    private ArrayAdapter< String > mAdapterDiaries;
 
     // Called when the activity is first created
     @Override
@@ -63,10 +63,10 @@ public class ActivityLogin extends ListActivity {
         setContentView( R.layout.login );
         // setTitle( "Diaries" );
 
-        m_adapter_diaries =
+        mAdapterDiaries =
                 new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
                                             android.R.id.text1 );
-        this.setListAdapter( m_adapter_diaries );
+        this.setListAdapter( mAdapterDiaries );
 
         registerForContextMenu( getListView() );
 
@@ -183,43 +183,23 @@ public class ActivityLogin extends ListActivity {
         }
     }
 
+    File getDiariesDir() {
+        return new File( Environment.getExternalStorageDirectory(), "Diaries" );
+    }
+
     void createNewDiary() {
         // ask for name
         DialogNewDiary dialog = new DialogNewDiary( this );
         dialog.show();
-        // AlertDialog.Builder alert = new AlertDialog.Builder( this );
-        // alert.setTitle( "Create New Diary" );
-        // alert.setMessage( "Enter name of the diay file:" );
-
-        // Set an EditText view to get user input
-        // final EditText input = new EditText( this );
-        // input.setInputType( InputType.TYPE_TEXT_FLAG_MULTI_LINE );
-        // alert.setView( input );
-        //
-        // alert.setPositiveButton( "Ok", new DialogInterface.OnClickListener() {
-        // public void onClick( DialogInterface dialog, int whichButton ) {
-        // String name = new String( input.getText().toString() );
-        //
-        // if( name.length() > 0 ) {
-        // diary.init_new( "/mnt/sdcard/Diaries/" + name );
-        // Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
-        // startActivityForResult( i, 0 );
-        // }
-        // }
-        // } );
-        // alert.setNegativeButton( "Cancel", new DialogInterface.OnClickListener() {
-        // public void onClick( DialogInterface dialog, int which ) {
-        // diary.init_new( "" );
-        // }
-        // } );
-        // alert.show();
     }
 
     void populate_diaries() {
         boolean ExternalStorageAvailable = false;
         boolean ExternalStorageWritable = false;
 
-        m_adapter_diaries.clear();
+        mAdapterDiaries.clear();
+        m_paths.clear();
+
         String state = Environment.getExternalStorageState();
 
         if( Environment.MEDIA_MOUNTED.equals( state ) ) {
@@ -238,7 +218,7 @@ public class ActivityLogin extends ListActivity {
         }
 
         if( ExternalStorageAvailable && ExternalStorageWritable ) {
-            File dir = new File( Environment.getExternalStorageDirectory(), "Diaries/" );
+            File dir = getDiariesDir();
             Log.i( Lifeograph.TAG, dir.getPath() );
             if( !dir.exists() ) {
                 dir.mkdir();
@@ -247,7 +227,7 @@ public class ActivityLogin extends ListActivity {
                 File[] dirs = dir.listFiles();
                 for( File ff : dirs ) {
                     if( !ff.isDirectory() ) {
-                        m_adapter_diaries.add( ff.getName() );
+                        mAdapterDiaries.add( ff.getName() );
                         m_paths.add( ff.getPath() );
                     }
                 }
@@ -341,7 +321,8 @@ public class ActivityLogin extends ListActivity {
 
             if( name.length() > 0 )
             {
-                if( Diary.diary.init_new( "/mnt/sdcard/Diaries/" + name ) == Result.SUCCESS )
+                if( Diary.diary.init_new( Lifeograph.joinPath( getDiariesDir().getPath(), name ) )
+                        == Result.SUCCESS )
                 {
                     Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
                     startActivityForResult( i, 0 );

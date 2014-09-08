@@ -49,17 +49,17 @@ public abstract class DiaryElement {
     public static enum Type {
         // CAUTION: order is significant and shouldn't be changed!
         NONE( "" ),
-        TAG( Lifeograph.context.getString( R.string.tag ) ),
-        UNTAGGED( Lifeograph.context.getString( R.string.untagged ) ),
-        TAG_CTG( Lifeograph.context.getString( R.string.tag_ctg ) ),
-        CHAPTER_CTG( Lifeograph.context.getString( R.string.chapter_ctg ) ),
-        FILTER( Lifeograph.context.getString( R.string.filter ) ),
+        TAG( Lifeograph.getStr( R.string.tag ) ),
+        UNTAGGED( Lifeograph.getStr( R.string.untagged ) ),
+        TAG_CTG( Lifeograph.getStr( R.string.tag_ctg ) ),
+        CHAPTER_CTG( Lifeograph.getStr( R.string.chapter_ctg ) ),
+        FILTER( Lifeograph.getStr( R.string.filter ) ),
         // entry list elements:
-        DIARY( Lifeograph.context.getString( R.string.diary ) ),
-        CHAPTER( Lifeograph.context.getString( R.string.chapter ) ),
-        TOPIC( Lifeograph.context.getString( R.string.topic ) ),
-        GROUP( Lifeograph.context.getString( R.string.group ) ),
-        ENTRY( Lifeograph.context.getString( R.string.entry ) ),
+        DIARY( Lifeograph.getStr( R.string.diary ) ),
+        CHAPTER( Lifeograph.getStr( R.string.chapter ) ),
+        TOPIC( Lifeograph.getStr( R.string.topic ) ),
+        GROUP( Lifeograph.getStr( R.string.group ) ),
+        ENTRY( Lifeograph.getStr( R.string.entry ) ),
         // extras:
         DATE( "" ),
         // virtual types:

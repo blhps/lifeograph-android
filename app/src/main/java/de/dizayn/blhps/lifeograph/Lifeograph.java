@@ -21,9 +21,11 @@
 
 package de.dizayn.blhps.lifeograph;
 
+import java.io.File;
 import java.util.Locale;
 
 import android.content.Context;
+import android.util.Log;
 
 public class Lifeograph
 {
@@ -40,9 +42,14 @@ public class Lifeograph
 
     public static String getStr( int i ) {
         if( context == null )
-            return "n/a";
+            return "CONTEXT IS NOT READY. SOMETHING IS WRONG!";
         else
             return context.getString( i );
+    }
+
+    public static String joinPath( String p1, String p2) {
+        File file1 = new File( p1 );
+        return new File( file1, p2 ).getPath();
     }
 
     public static String get_env_lang() {

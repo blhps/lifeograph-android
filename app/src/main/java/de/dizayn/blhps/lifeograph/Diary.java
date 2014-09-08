@@ -61,6 +61,7 @@ public class Diary extends DiaryElement
     }
 
     public Result init_new( String path ) {
+        Log.d( Lifeograph.TAG, path );
         clear();
         Result result = set_path( path, SetPathType.NEW );
 
