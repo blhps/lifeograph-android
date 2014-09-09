@@ -92,6 +92,20 @@ public class ActivityDiary extends ListActivity
             mActionBar.setDisplayHomeAsUpEnabled( true );
 
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
+        mDrawerLayout.setDrawerListener( new DrawerLayout.DrawerListener()
+        {
+            public void onDrawerSlide( View view, float v ) { }
+
+            public void onDrawerOpened( View view ) {
+                ActivityDiary.this.getListView().setEnabled( false );
+            }
+
+            public void onDrawerClosed( View view ) {
+                ActivityDiary.this.getListView().setEnabled( true );
+            }
+
+            public void onDrawerStateChanged( int i ) { }
+        } );
 
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
@@ -150,17 +164,20 @@ public class ActivityDiary extends ListActivity
                 handleFilterTodoChanged();
             }
         } );
-        mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener() {
+        mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
             }
         } );
 
-        mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
-            public void onItemSelected( AdapterView<?> pv, View v, int pos, long id ) {
+        mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected( AdapterView< ? > pv, View v, int pos, long id ) {
                 handleFilterFavoriteChanged( pos );
             }
-            public void onNothingSelected( AdapterView<?> arg0 ) {
+
+            public void onNothingSelected( AdapterView< ? > arg0 ) {
                 Log.d( Lifeograph.TAG, "Filter Favorites onNothingSelected" );
             }
         } );
