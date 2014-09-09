@@ -555,6 +555,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
             iter_start = iter_end = mEditText.getSelectionStart();
             if( iter_start == 0 )
                 return;
+            iter_start--;
             char ch_st = mEditText.getText().charAt( iter_start );
             if( ch_st == '\n' || ch_st == '\t' || ch_st == ' ' ) {
                 if( iter_start == mEditText.length() - 1 )
@@ -566,19 +567,22 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
             if( is_marked_up_region( markup.charAt( 0 ), iter_start ) ) {
                 // TODO (if necessary) m_flag_ongoingoperation = true;
 
-                iter_start = mEditText.getText().toString().lastIndexOf( markup, iter_start );
                 // iter_start.backward_to_tag_toggle( tag );
+                iter_start = mEditText.getText().toString().lastIndexOf( markup, iter_start );
                 if( iter_start == -1 )
                     return;
-                mEditText.getText().delete( iter_start, iter_start + 1 );
                 // backspace( iter_start );
+                mEditText.getText().delete( iter_start, iter_start + 1 );
 
+                // iter_start.backward_to_tag_toggle( tag );
                 iter_end = mEditText.getText().toString().indexOf( markup, iter_start );
+                if( iter_end == -1 )
+                    return;
 
                 // TODO (if necessary) m_flag_ongoingoperation = false;
 
-                mEditText.getText().delete( iter_end, iter_end + 1 );
                 // backspace( ++iter_end );
+                mEditText.getText().delete( iter_end, iter_end + 1 );
             }
             // nested tags are not supported atm:
             else if( mEditText.getText().getSpans( iter_start, iter_end, StyleSpan.class ).length == 0 ) {
