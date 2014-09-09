@@ -70,7 +70,7 @@ public final class R {
         public static final int calendar_day_gridcell=0x7f060008;
         public static final int change_todo_status=0x7f06002f;
         public static final int datePickerCalendar=0x7f060009;
-        public static final int detail=0x7f060028;
+        public static final int detail=0x7f060029;
         public static final int dismiss=0x7f060033;
         public static final int drawer_layout=0x7f060016;
         public static final int editTextEntry=0x7f060025;
@@ -80,7 +80,7 @@ public final class R {
         public static final int gridViewCalendar=0x7f06000a;
         public static final int horLayout=0x7f060012;
         public static final int icon=0x7f060026;
-        public static final int icon2=0x7f060029;
+        public static final int icon2=0x7f060027;
         public static final int inquireTextButtonNegative=0x7f060010;
         public static final int inquireTextButtonPositive=0x7f060011;
         public static final int inquireTextEdit=0x7f06000f;
@@ -99,7 +99,7 @@ public final class R {
         public static final int textView3=0x7f06002c;
         public static final int textViewVersion=0x7f06000d;
         public static final int textViewWebsite=0x7f06000e;
-        public static final int title=0x7f060027;
+        public static final int title=0x7f060028;
         public static final int todo_canceled=0x7f060003;
         public static final int todo_done=0x7f060004;
         public static final int todo_not=0x7f060005;

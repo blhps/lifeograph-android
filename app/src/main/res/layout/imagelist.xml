@@ -4,35 +4,50 @@ android:orientation="horizontal"
 android:layout_width="match_parent"
 android:layout_height="wrap_content" >
 
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="32dp"
-        android:layout_height="32dp"
+    <RelativeLayout
+        android:layout_width="48dp"
+        android:layout_height="48dp"
         android:layout_marginLeft="3dp"
-        android:scaleType="centerInside"
-        android:layout_gravity="center_vertical" />
+        android:layout_gravity="center_vertical" >
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical"
-    android:paddingLeft="10dp"
-    android:layout_width="0dp"
-    android:layout_weight=".99"
-    android:layout_height="wrap_content" >
-        <TextView
-        android:layout_width="match_parent"
-        android:id="@+id/title"
+        <ImageView
+            android:id="@+id/icon"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:scaleType="centerInside"
+            android:contentDescription="@string/icon" />
+
+        <ImageView
+            android:id="@+id/icon2"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignBottom="@id/icon"
+            android:layout_alignRight="@id/icon"
+            android:src="@drawable/ic_favorite"
+            android:scaleType="centerInside" />
+
+    </RelativeLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:paddingLeft="10dp"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:textStyle="bold"
-        android:textSize="16sp" />
+        android:layout_weight=".99"
+        android:layout_gravity="center_vertical" >
+
         <TextView
-        android:layout_width="match_parent"
-        android:id="@+id/detail"
-        android:layout_height="wrap_content" />
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textStyle="bold"
+            android:textSize="16sp" />
+
+        <TextView
+            android:layout_width="match_parent"
+            android:id="@+id/detail"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
-    <ImageView
-        android:id="@+id/icon2"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerInside" />
+
 </LinearLayout>
