@@ -24,14 +24,6 @@ package de.dizayn.blhps.lifeograph;
 import java.util.Comparator;
 
 public abstract class DiaryElement {
-    // FILTERING STATUS
-    public final static int FS_CLEAR = 0;
-    public final static int FS_FILTER_TEXT = 2;
-    public final static int FS_FILTER_FAVORITES = 4;
-    public final static int FS_FILTER_TAG = 8;
-    public final static int FS_FILTER_DATE = 16;
-    public final static int FS_NEW = 1024;
-
     // DEID
     public final static int DEID_DIARY = 10000; // reserved for Diary
     public final static int DEID_FIRST = 10001; // first sub item in the diary

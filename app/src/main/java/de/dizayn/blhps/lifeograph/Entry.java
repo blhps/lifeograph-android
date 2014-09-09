@@ -147,48 +147,49 @@ public class Entry extends DiaryElement {
             if( flag_filteredout )
                 break;
 
-            if( ( fs & ES_FILTER_DATE_BEGIN ) != 0 )
-                if( m_date.m_date < filter.get_date_begin() )
-                {
-                    flag_filteredout = true;
-                    break;
-                }
-
-            if( ( fs & ES_FILTER_DATE_END ) != 0 )
-                if( m_date.m_date > filter.get_date_end() )
-                {
-                    flag_filteredout = true;
-                    break;
-                }
-
-            if( ( fs & ES_FILTER_TAG ) != 0 )
-            {
-                if( filter.get_tag().get_type() == Type.TAG )
-                {
-                    if( ! m_tags.contains( filter.get_tag() ) )
-                    {
-                        flag_filteredout = true;
-                        break;
-                    }
-                }
-                else // untagged
-                {
-                    if( ! m_tags.isEmpty() )
-                    {
-                        flag_filteredout = true;
-                        break;
-                    }
-                }
-            }
-
-            if( ( fs & ES_FILTER_INDIVIDUAL ) != 0 )
-            {
-                if( filter.is_entry_filtered( this ) )
-                {
-                    flag_filteredout = true;
-                    break;
-                }
-            }
+//          TODO WILL BE IMPLEMENTED IN 0.3
+//            if( ( fs & ES_FILTER_DATE_BEGIN ) != 0 )
+//                if( m_date.m_date < filter.get_date_begin() )
+//                {
+//                    flag_filteredout = true;
+//                    break;
+//                }
+//
+//            if( ( fs & ES_FILTER_DATE_END ) != 0 )
+//                if( m_date.m_date > filter.get_date_end() )
+//                {
+//                    flag_filteredout = true;
+//                    break;
+//                }
+//
+//            if( ( fs & ES_FILTER_TAG ) != 0 )
+//            {
+//                if( filter.get_tag().get_type() == Type.TAG )
+//                {
+//                    if( ! m_tags.contains( filter.get_tag() ) )
+//                    {
+//                        flag_filteredout = true;
+//                        break;
+//                    }
+//                }
+//                else // untagged
+//                {
+//                    if( ! m_tags.isEmpty() )
+//                    {
+//                        flag_filteredout = true;
+//                        break;
+//                    }
+//                }
+//            }
+//
+//            if( ( fs & ES_FILTER_INDIVIDUAL ) != 0 )
+//            {
+//                if( filter.is_entry_filtered( this ) )
+//                {
+//                    flag_filteredout = true;
+//                    break;
+//                }
+//            }
 
             /* TODO
             if( m_ptr2diary.is_search_active() )

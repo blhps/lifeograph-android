@@ -91,7 +91,9 @@ public class ActivityDiary extends ListActivity
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
         // FILTERING
+        final int fs = Diary.diary.m_filter_active.get_status();
         mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
+        mButtonShowTodoNot.setChecked( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 );
         mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
@@ -99,6 +101,7 @@ public class ActivityDiary extends ListActivity
         } );
 
         mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
+        mButtonShowTodoOpen.setChecked( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 );
         mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
@@ -106,6 +109,7 @@ public class ActivityDiary extends ListActivity
         } );
 
         mButtonShowTodoProgressed = ( ToggleImageButton ) findViewById( R.id.show_todo_progressed );
+        mButtonShowTodoProgressed.setChecked( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 );
         mButtonShowTodoProgressed.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
@@ -113,6 +117,7 @@ public class ActivityDiary extends ListActivity
         } );
 
         mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
+        mButtonShowTodoDone.setChecked( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 );
         mButtonShowTodoDone.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
@@ -120,6 +125,7 @@ public class ActivityDiary extends ListActivity
         } );
 
         mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
+        mButtonShowTodoCanceled.setChecked( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 );
         mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
@@ -127,6 +133,17 @@ public class ActivityDiary extends ListActivity
         } );
 
         mSpinnerShowFavorite = ( Spinner ) findViewById( R.id.spinnerFavorites );
+        switch( fs & DiaryElement.ES_FILTER_FAVORED ) {
+            case DiaryElement.ES_SHOW_FAVORED:
+                mSpinnerShowFavorite.setSelection( 2 );
+                break;
+            case DiaryElement.ES_SHOW_NOT_FAVORED:
+                mSpinnerShowFavorite.setSelection( 1 );
+                break;
+            case DiaryElement.ES_FILTER_FAVORED:
+                mSpinnerShowFavorite.setSelection( 0 );
+                break;
+        }
         mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
             public void onItemSelected( AdapterView<?> pv, View v, int pos, long id ) {
                 handleFilterFavoriteChanged( pos );
@@ -142,7 +159,7 @@ public class ActivityDiary extends ListActivity
         update_entry_list();
 
         mFlagSaveOnLogOut = true;
-        Log.d( Lifeograph.TAG, "RESET MFLAGSAVEONLOGOUT" );
+        Log.d( Lifeograph.TAG, "onCreate - ActivityDiary" );
     }
 
     @Override
@@ -165,7 +182,7 @@ public class ActivityDiary extends ListActivity
         super.onResume();
         mFlagLogoutOnPause = false;
         //update_entry_list();
-        Log.i( "L", "onResume - ActivityDiary" );
+        Log.d( Lifeograph.TAG, "onResume - ActivityDiary" );
     }
 
     @Override
@@ -176,6 +193,8 @@ public class ActivityDiary extends ListActivity
         }
         else {
             mParentElem = Diary.diary;
+
+            mButtonShowTodoNot.setChecked( true );
             update_entry_list();
         }
     }
@@ -705,8 +724,8 @@ public class ActivityDiary extends ListActivity
     static final CompareListElems compare_elems = new CompareListElems();
 
     // ADAPTER CLASS ===============================================================================
-    private class DiaryElemAdapter extends ArrayAdapter< DiaryElement > {
-
+    private class DiaryElemAdapter extends ArrayAdapter< DiaryElement >
+    {
         public DiaryElemAdapter( Context context, int resource, int textViewResourceId,
                                  java.util.List< DiaryElement > objects ) {
             super( context, resource, textViewResourceId, objects );
