@@ -53,6 +53,7 @@
                 android:layout_height="24dp"
                 android:layout_marginRight="8dp"
                 android:layout_gravity="right|center_vertical"
+                android:scaleType="centerInside"
                 android:background="@drawable/ic_clear"
                 android:visibility="invisible" />
 
