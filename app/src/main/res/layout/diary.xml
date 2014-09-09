@@ -150,6 +150,29 @@
                 android:entries="@array/array_filter_favorite" />
         </LinearLayout>
 
+        <!-- buttons -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center_horizontal">
+
+            <Button
+                android:layout_width="0.dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:id="@+id/buttonFilterReset"
+                android:text="@string/reset"/>
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:id="@+id/buttonFilterSave"
+                android:text="@string/save" />
+        </LinearLayout>
+
     </LinearLayout>
 
 </android.support.v4.widget.DrawerLayout>

@@ -28,6 +28,7 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.util.Log;
+import android.widget.Toast;
 
 public class Lifeograph
 {
@@ -60,6 +61,13 @@ public class Lifeograph
 
         AlertDialog alert = builder.create();
         alert.show();
+    }
+
+    public static void showToast( Context ctx, String message ) {
+        Toast.makeText( ctx, message, Toast.LENGTH_LONG ).show();
+    }
+    public static void showToast( Context ctx, int message ) {
+        Toast.makeText( ctx, message, Toast.LENGTH_LONG ).show();
     }
 
     public static String joinPath( String p1, String p2) {

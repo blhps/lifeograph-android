@@ -42,6 +42,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -65,6 +66,8 @@ public class ActivityDiary extends ListActivity
     private ToggleImageButton mButtonShowTodoDone = null;
     private ToggleImageButton mButtonShowTodoCanceled = null;
     private Spinner mSpinnerShowFavorite = null;
+    private Button mButtonFilterReset = null;
+    private Button mButtonFilterSave = null;
 
     private ElemListAllEntries mElemAllEntries = null;
 
@@ -91,65 +94,61 @@ public class ActivityDiary extends ListActivity
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
         // FILTERING
-        final int fs = Diary.diary.m_filter_active.get_status();
         mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
-        mButtonShowTodoNot.setChecked( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 );
+        mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
+        mButtonShowTodoProgressed = ( ToggleImageButton ) findViewById( R.id.show_todo_progressed );
+        mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
+        mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
+        mSpinnerShowFavorite = ( Spinner ) findViewById( R.id.spinnerFavorites );
+
+        // must come before listeners
+        updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
+
         mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
             }
         } );
-
-        mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
-        mButtonShowTodoOpen.setChecked( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 );
         mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
             }
         } );
-
-        mButtonShowTodoProgressed = ( ToggleImageButton ) findViewById( R.id.show_todo_progressed );
-        mButtonShowTodoProgressed.setChecked( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 );
         mButtonShowTodoProgressed.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
             }
         } );
-
-        mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
-        mButtonShowTodoDone.setChecked( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 );
         mButtonShowTodoDone.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
             }
         } );
-
-        mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
-        mButtonShowTodoCanceled.setChecked( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 );
         mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 handleFilterTodoChanged();
             }
         } );
 
-        mSpinnerShowFavorite = ( Spinner ) findViewById( R.id.spinnerFavorites );
-        switch( fs & DiaryElement.ES_FILTER_FAVORED ) {
-            case DiaryElement.ES_SHOW_FAVORED:
-                mSpinnerShowFavorite.setSelection( 2 );
-                break;
-            case DiaryElement.ES_SHOW_NOT_FAVORED:
-                mSpinnerShowFavorite.setSelection( 1 );
-                break;
-            case DiaryElement.ES_FILTER_FAVORED:
-                mSpinnerShowFavorite.setSelection( 0 );
-                break;
-        }
         mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener() {
             public void onItemSelected( AdapterView<?> pv, View v, int pos, long id ) {
                 handleFilterFavoriteChanged( pos );
             }
             public void onNothingSelected( AdapterView<?> arg0 ) {
                 Log.d( Lifeograph.TAG, "Filter Favorites onNothingSelected" );
+            }
+        } );
+
+        mButtonFilterReset = ( Button ) findViewById( R.id.buttonFilterReset );
+        mButtonFilterReset.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                resetFilter();
+            }
+        } );
+        mButtonFilterSave = ( Button ) findViewById( R.id.buttonFilterSave );
+        mButtonFilterSave.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                saveFilter();
             }
         } );
 
@@ -448,6 +447,26 @@ public class ActivityDiary extends ListActivity
     // }
     // }
 
+    void updateFilterWidgets( int fs ) {
+        mButtonShowTodoNot.setChecked( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 );
+        mButtonShowTodoOpen.setChecked( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 );
+        mButtonShowTodoProgressed.setChecked( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 );
+        mButtonShowTodoDone.setChecked( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 );
+        mButtonShowTodoCanceled.setChecked( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 );
+
+        switch( fs & DiaryElement.ES_FILTER_FAVORED ) {
+            case DiaryElement.ES_SHOW_FAVORED:
+                mSpinnerShowFavorite.setSelection( 2 );
+                break;
+            case DiaryElement.ES_SHOW_NOT_FAVORED:
+                mSpinnerShowFavorite.setSelection( 1 );
+                break;
+            case DiaryElement.ES_FILTER_FAVORED:
+                mSpinnerShowFavorite.setSelection( 0 );
+                break;
+        }
+    }
+
     void handleFilterTodoChanged() {
         Diary.diary.m_filter_active.set_todo(
                 mButtonShowTodoNot.isChecked(),
@@ -481,6 +500,17 @@ public class ActivityDiary extends ListActivity
         Diary.diary.m_filter_active.set_favorites( showFav, showNotFav );
 
         update_entry_list();
+    }
+
+    void resetFilter() {
+        updateFilterWidgets( Diary.diary.m_filter_default.get_status() );
+        Diary.diary.m_filter_active.set_status_outstanding();
+        update_entry_list();
+    }
+
+    void saveFilter() {
+        Lifeograph.showToast( this, R.string.filter_saved );
+        Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
     }
 
     public void set_todo_status( int s ) {
