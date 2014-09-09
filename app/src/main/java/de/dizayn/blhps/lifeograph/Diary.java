@@ -31,7 +31,6 @@ import java.util.Map;
 import java.util.TreeMap;
 
 import android.util.Log;
-import android.widget.Toast;
 
 enum Result {
     OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, COULD_NOT_FINISH, WRONG_PASSWORD,
@@ -252,8 +251,7 @@ public class Diary extends DiaryElement
                 return Result.FILE_NOT_WRITABLE;
             }
 
-            Toast.makeText( Lifeograph.activityLogin,
-                    "File is not writable, opening read-only..", Toast.LENGTH_LONG ).show();
+            Lifeograph.showToast( Lifeograph.activityLogin, R.string.resorting_to_read_only );
             type = SetPathType.READ_ONLY;
         }
 

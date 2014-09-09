@@ -38,7 +38,6 @@ import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
-import android.widget.Toast;
 
 public class ActivityLogin extends ListActivity implements DialogInquireText.InquireListener
 {
@@ -119,16 +118,16 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                 flag_open_ready = true;
                 break;
             case FILE_NOT_FOUND:
-                Toast.makeText( this, "File is not found", Toast.LENGTH_LONG ).show();
+                Lifeograph.showToast( this, "File is not found" );
                 break;
             case FILE_NOT_READABLE:
-                Toast.makeText( this, "File is not readable", Toast.LENGTH_LONG ).show();
+                Lifeograph.showToast( this, "File is not readable" );
                 break;
             case FILE_LOCKED:
-                Toast.makeText( this, "File is locked", Toast.LENGTH_LONG ).show();
+                Lifeograph.showToast( this, "File is locked" );
                 break;
             default:
-                Toast.makeText( this, "Failed to open the diary", Toast.LENGTH_SHORT ).show();
+                Lifeograph.showToast( this, "Failed to open the diary" );
                 break;
         }
 
@@ -142,7 +141,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                     // TODO: show info
                     break;
                 case CORRUPT_FILE:
-                    Toast.makeText( this, "Corrupt File", Toast.LENGTH_SHORT ).show();
+                    Lifeograph.showToast( this, "Corrupt file" );
                     break;
                 default:
                     // TODO: show info
@@ -253,7 +252,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
             }
         }
         else
-            Toast.makeText( this, R.string.storage_not_available, Toast.LENGTH_LONG ).show();
+            Lifeograph.showToast( this, R.string.storage_not_available );
     }
 
     // ABOUT DIALOG ================================================================================

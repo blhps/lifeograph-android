@@ -47,7 +47,6 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
 import de.dizayn.blhps.lifeograph.DiaryElement.Type;
 
 public class ActivityDiary extends ListActivity
@@ -392,14 +391,11 @@ public class ActivityDiary extends ListActivity
 
         if( mFlagSaveOnLogOut ) {
             if( Diary.diary.write() != Result.SUCCESS ) {
-                Toast.makeText( Lifeograph.activityLogin, "Cannot write back changes",
-                        Toast.LENGTH_LONG ).show();
+                Lifeograph.showToast( this, "Cannot write back changes" );
                 return false;
             }
             else {
-                // ActivityDiary.this.finish();
-                Toast.makeText( Lifeograph.activityLogin, "Diary saved successfully",
-                        Toast.LENGTH_LONG ).show();
+                Lifeograph.showToast( this, "Diary saved successfully" );
                 return true;
             }
         }
@@ -435,17 +431,6 @@ public class ActivityDiary extends ListActivity
         DialogCalendar dialog = new DialogCalendar( this );
         dialog.show();
     }
-
-    // @Override
-    // protected void onActivityResult( int reqCode, int resultCode, Intent data ) {
-    // super.onActivityResult( reqCode, resultCode, data );
-    // if( resultCode == ActivityCalendar.REQC_OPEN_ENTRY ) {
-    // changeView();
-    // }
-    // else {
-    // Toast.makeText( this, "Fail", Toast.LENGTH_LONG ).show();
-    // }
-    // }
 
     void updateFilterWidgets( int fs ) {
         mButtonShowTodoNot.setChecked( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 );

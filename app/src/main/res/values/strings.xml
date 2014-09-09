@@ -49,6 +49,7 @@
     <string name="chapter_dismiss_confirm">Are you sure you want to dismiss the current chapter?</string>
     <string name="storage_not_available">External storage is not available or read-only</string>
     <string name="filter_saved">Filter state will be saved with the diary</string>
+    <string name="resorting_to_read_only">File is not writable, opening read-only..</string>
 
     <string name="filter_tags">Filter or create</string>
     <string name="sort_by_date">Sort by date</string>
