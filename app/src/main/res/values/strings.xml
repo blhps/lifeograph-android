@@ -4,11 +4,15 @@
     <string name="about">About</string>
     <string name="quit">Quit</string>
     <string name="cancel">Cancel</string>
+    <string name="show">Show</string>
     <string name="add_today">Entry to Today</string>
     <string name="calendar">Calendar</string>
     <string name="format">Format</string>
     <string name="favorite">Favorite</string>
     <string name="edit_tags">Edit Tags</string>
+    <string name="active_filter">Active Filter</string>
+    <string name="todo_status">Todo status</string>
+    <string name="search_hint">Search text</string>
 
     <string name="diary">Diary</string>
     <string name="entry">Entry</string>

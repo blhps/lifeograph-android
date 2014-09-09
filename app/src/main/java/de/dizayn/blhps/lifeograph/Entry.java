@@ -191,10 +191,8 @@ public class Entry extends DiaryElement {
 //                }
 //            }
 
-            /* TODO
             if( m_ptr2diary.is_search_active() )
-                flag_filteredout = ( m_text.lowercase().find( m_ptr2diary.get_search_text() )
-                        ==  );*/
+                flag_filteredout = !m_text.toLowerCase().contains( m_ptr2diary.get_search_text() );
 
             break;
         }

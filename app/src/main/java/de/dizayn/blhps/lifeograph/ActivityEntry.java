@@ -382,7 +382,8 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // TAG DIALOG ==================================================================================
-    class DialogTags extends Dialog {
+    class DialogTags extends Dialog
+    {
         protected EditText editText;
         protected Button buttonAdd;
 

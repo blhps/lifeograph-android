@@ -33,6 +33,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
@@ -43,6 +45,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -59,15 +62,14 @@ public class ActivityDiary extends ListActivity
     private LayoutInflater mInflater;
     private ActionBar mActionBar = null;
     private DrawerLayout mDrawerLayout = null;
+    private EditText mEditSearch = null;
+    private Button mButtonSearchTextClear = null;
     private ToggleImageButton mButtonShowTodoNot = null;
     private ToggleImageButton mButtonShowTodoOpen = null;
     private ToggleImageButton mButtonShowTodoProgressed = null;
     private ToggleImageButton mButtonShowTodoDone = null;
     private ToggleImageButton mButtonShowTodoCanceled = null;
     private Spinner mSpinnerShowFavorite = null;
-    private Button mButtonFilterReset = null;
-    private Button mButtonFilterSave = null;
-
     private ElemListAllEntries mElemAllEntries = null;
 
     private boolean mFlagSaveOnLogOut = true;
@@ -86,11 +88,36 @@ public class ActivityDiary extends ListActivity
         setContentView( R.layout.diary );
 
         mActionBar = getActionBar();
-        mActionBar.setDisplayHomeAsUpEnabled( true );
+        if( mActionBar != null )
+            mActionBar.setDisplayHomeAsUpEnabled( true );
 
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
 
         mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
+
+        // SEARCHING
+        mEditSearch = ( EditText ) findViewById( R.id.editTextSearch );
+        mButtonSearchTextClear = ( Button ) findViewById( R.id.buttonClearText );
+
+        mEditSearch.addTextChangedListener( new TextWatcher() {
+            public void afterTextChanged( Editable s ) {
+            }
+
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
+            }
+
+            public void onTextChanged( CharSequence s, int start, int before, int count ) {
+                handleSearchTextChanged( s.toString() );
+                mButtonSearchTextClear.setVisibility(
+                        s.length() > 0 ? View.VISIBLE : View.INVISIBLE );
+            }
+        } );
+        mButtonSearchTextClear.setOnClickListener( new View.OnClickListener()
+        {
+            public void onClick( View v ) {
+                mEditSearch.setText( "" );
+            }
+        } );
 
         // FILTERING
         mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
@@ -138,14 +165,16 @@ public class ActivityDiary extends ListActivity
             }
         } );
 
-        mButtonFilterReset = ( Button ) findViewById( R.id.buttonFilterReset );
-        mButtonFilterReset.setOnClickListener( new View.OnClickListener() {
+        Button buttonFilterReset = ( Button ) findViewById( R.id.buttonFilterReset );
+        buttonFilterReset.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) {
                 resetFilter();
             }
         } );
-        mButtonFilterSave = ( Button ) findViewById( R.id.buttonFilterSave );
-        mButtonFilterSave.setOnClickListener( new View.OnClickListener() {
+        Button buttonFilterSave = ( Button ) findViewById( R.id.buttonFilterSave );
+        buttonFilterSave.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) {
                 saveFilter();
             }
@@ -432,6 +461,11 @@ public class ActivityDiary extends ListActivity
         dialog.show();
     }
 
+    void handleSearchTextChanged( String text ) {
+        Diary.diary.set_search_text( text.toLowerCase() );
+        update_entry_list();
+    }
+
     void updateFilterWidgets( int fs ) {
         mButtonShowTodoNot.setChecked( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 );
         mButtonShowTodoOpen.setChecked( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 );
@@ -546,8 +580,10 @@ public class ActivityDiary extends ListActivity
                 if( Diary.diary.m_groups.empty() &&
                     Diary.diary.m_topics.empty() &&
                     Diary.diary.m_ptr2chapter_ctg_cur.get_size() == 0 ) {
-                    for( Entry e : Diary.diary.m_orphans.mEntries )
-                        m_elems.add( e );
+                    for( Entry e : Diary.diary.m_orphans.mEntries ) {
+                        if( !e.get_filtered_out() )
+                            m_elems.add( e );
+                    }
                 }
                 else if( Diary.diary.m_orphans.get_size() > 0 )
                     m_elems.add( Diary.diary.m_orphans );

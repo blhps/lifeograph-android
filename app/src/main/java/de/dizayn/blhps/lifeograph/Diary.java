@@ -406,12 +406,17 @@ public class Diary extends DiaryElement
     }
 
     // FILTERING ===================================================================================
-    public void set_search_text( String filter ) {
-        // TODO stub
+    public void set_search_text( String text ) {
+        m_search_text = text;
+        m_filter_active.set_status_outstanding();
     }
 
     public String get_search_text() {
         return m_search_text;
+    }
+
+    public boolean is_search_active() {
+        return( !m_search_text.isEmpty() );
     }
 
     public Filter get_filter() {
@@ -422,7 +427,7 @@ public class Diary extends DiaryElement
     public Entry get_entry( long date ) {
         Entry entry = m_entries.get( date );
         if( entry != null )
-            if( entry.get_filtered_out() == false )
+            if( !entry.get_filtered_out() )
                 return entry;
 
         return null;

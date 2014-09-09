@@ -5,7 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent">
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:gravity="center_horizontal"
@@ -32,17 +32,31 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textAppearance="?android:attr/textAppearanceLarge"
-            android:text="Active Filter"
+            android:text="@string/active_filter"
             android:layout_margin="10dp"
             android:layout_gravity="center_horizontal"/>
 
-        <EditText
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:id="@+id/editTextSeacrh"
-            android:layout_gravity="center_horizontal"
-            android:hint="Search text"
-            android:singleLine="true" />
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:id="@+id/editTextSearch"
+                android:hint="@string/search_hint"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/buttonClearText"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginRight="8dp"
+                android:layout_gravity="right|center_vertical"
+                android:background="@drawable/ic_clear"
+                android:visibility="invisible" />
+
+        </FrameLayout>
 
         <!-- separator -->
         <TextView
@@ -50,7 +64,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="20dp"
             style="?android:attr/listSeparatorTextViewStyle"
-            android:text="Todo Status"
+            android:text="@string/todo_status"
             android:layout_gravity="start"/>
 
         <LinearLayout
@@ -62,30 +76,35 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_not"
+                style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_entry" />
 
             <de.dizayn.blhps.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_open"
+                style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_open" />
 
             <de.dizayn.blhps.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_progressed"
+                style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_progressed" />
 
             <de.dizayn.blhps.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_done"
+                style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_done" />
 
             <de.dizayn.blhps.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_canceled"
+                style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_canceled" />
         </LinearLayout>
 
@@ -140,7 +159,7 @@
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
                 android:textAppearance="?android:attr/textAppearanceSmall"
-                android:text="Show"/>
+                android:text="@string/show"/>
 
             <Spinner
                 android:layout_width="wrap_content"
@@ -163,7 +182,7 @@
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
                 android:id="@+id/buttonFilterReset"
-                android:text="@string/reset"/>
+                android:text="@string/reset" />
 
             <Button
                 android:layout_width="0dp"
