@@ -628,13 +628,13 @@ public class Diary extends DiaryElement
                                                .getValue();
 
                 // use the chapters date if it does not contain any entry
-                last_entry_date = chapter_p.mEntries.isEmpty() ? chapter_p.get_date().m_date
-                        : chapter_p.mEntries.first().m_date.m_date;
+                last_entry_date = chapter_p.mEntries.isEmpty() ? chapter_p.get_date_t()
+                        : chapter_p.mEntries.first().get_date_t();
             }
             else
             {
-                last_entry_date = chapter.mEntries.isEmpty() ? chapter.get_date().m_date
-                        : chapter.mEntries.first().get_date().m_date;
+                last_entry_date = chapter.mEntries.isEmpty() ? chapter.get_date_t()
+                        : chapter.mEntries.first().get_date_t();
             }
 
             // SHIFT ENTRY DATES
@@ -642,7 +642,7 @@ public class Diary extends DiaryElement
             boolean flag_dismiss_contained = false; // TODO WILL BE ADDED IN 0.3+
             for( Chapter chpt = chapter; chpt != null; )
             {
-                boolean flag_neighbor = ( chpt.get_date().m_date == chapter.get_date().m_date
+                boolean flag_neighbor = ( chpt.get_date_t() == chapter.get_date_t()
                     + Date.ORDINAL_STEP  );
 
                 for( Entry entry : chpt.mEntries )
@@ -651,12 +651,12 @@ public class Diary extends DiaryElement
                         dismiss_entry( entry );
                     else if( !flag_first || flag_erasing_oldest_cpt )
                     {
-                        m_entries.remove( entry.get_date().m_date );
+                        m_entries.remove( entry.get_date_t() );
                         if( !flag_dismiss_contained && ( flag_neighbor || flag_erasing_oldest_cpt ) )
                             entry.set_date( entry.get_date().get_order() + last_entry_date );
                         else
-                            entry.set_date( entry.get_date().m_date - Date.ORDINAL_STEP );
-                        m_entries.put( entry.get_date().m_date, entry );
+                            entry.set_date( entry.get_date_t() - Date.ORDINAL_STEP );
+                        m_entries.put( entry.get_date_t(), entry );
                     }
                 }
                 flag_first = false;
@@ -668,13 +668,13 @@ public class Diary extends DiaryElement
             }
 
             // REMOVE THE ACTUAL CHAPTER
-            ptr2ctg.mMap.remove( chapter.get_date().m_date );
+            ptr2ctg.mMap.remove( chapter.get_date_t() );
 
             // SHIFT OTHER CHAPTERS
             for( Chapter chpt = chapter_next; chpt != null; ) {
-                ptr2ctg.mMap.remove( chpt.get_date().m_date );
-                chpt.set_date( chpt.get_date().m_date - Date.ORDINAL_STEP );
-                ptr2ctg.mMap.put( chpt.get_date().m_date, chpt );
+                ptr2ctg.mMap.remove( chpt.get_date_t() );
+                chpt.set_date( chpt.get_date_t() - Date.ORDINAL_STEP );
+                ptr2ctg.mMap.put( chpt.get_date_t(), chpt );
 
                 if( ptr2ctg.mMap.lowerKey( chpt.m_date_begin.m_date ) != null )
                     chpt = ptr2ctg.mMap.lowerEntry( chpt.m_date_begin.m_date ).getValue();
@@ -707,7 +707,7 @@ public class Diary extends DiaryElement
 //                    dismiss_entry( entry );
 //            }
 
-            m_ptr2chapter_ctg_cur.mMap.remove( chapter.get_date().m_date );
+            m_ptr2chapter_ctg_cur.mMap.remove( chapter.get_date_t() );
         }
     }
 
@@ -756,7 +756,7 @@ public class Diary extends DiaryElement
                 if( entry == null )
                     continue;
 
-                while( entry.m_date.m_date > chapter.m_date_begin.m_date )
+                while( entry.get_date_t() > chapter.get_date_t() )
                 {
                     chapter.insert( entry );
 
@@ -781,8 +781,8 @@ public class Diary extends DiaryElement
             Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
             Entry e = ( Entry ) mapEntry.getValue();
             m_orphans.insert( e );
-            if( e.m_date.m_date < m_orphans.get_date().m_date )
-                m_orphans.set_date( e.m_date.m_date );
+            if( e.get_date_t() < m_orphans.get_date_t() )
+                m_orphans.set_date( e.get_date_t() );
         }
     }
 
@@ -799,7 +799,7 @@ public class Diary extends DiaryElement
 
         for( Chapter chapter : ptr2ctg.getMap().values() )
         {
-            if( entry.m_date.m_date > chapter.m_date_begin.m_date )
+            if( entry.get_date_t() > chapter.get_date_t() )
             {
                 chapter.insert( entry );
                 return;

@@ -138,6 +138,9 @@ public abstract class DiaryElement {
     public Date get_date() {
         return new Date( 0 );
     }
+    public long get_date_t() {
+        return get_date().m_date;
+    }
 
     // STRING METHODS
     public String get_name() {
@@ -192,7 +195,7 @@ public abstract class DiaryElement {
 
     static class CompareElemsByDate implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
-            return ( int ) ( elem_r.get_date().m_date - elem_l.get_date().m_date );
+            return ( int ) ( elem_r.get_date_t() - elem_l.get_date_t() );
         }
     }
 

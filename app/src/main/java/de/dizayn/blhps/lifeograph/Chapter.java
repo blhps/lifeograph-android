@@ -124,11 +124,6 @@ public class Chapter extends DiaryElement {
     }
 
     @Override
-    public Date get_date() {
-        return m_date_begin;
-    }
-
-    @Override
     public Type get_type() {
         return m_type;
     }
@@ -153,6 +148,11 @@ public class Chapter extends DiaryElement {
             default:
                 return( m_date_begin.is_ordinal() ? R.drawable.ic_topic : R.drawable.ic_chapter );
         }
+    }
+
+    @Override
+    public Date get_date() {
+        return m_date_begin;
     }
 
     @Override

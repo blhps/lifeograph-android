@@ -779,10 +779,10 @@ public class ActivityDiary extends ListActivity
             int direction = ( elem_l.get_date().is_ordinal() && elem_r.get_date().is_ordinal() ) ?
                             -1 : 1;
 
-            if( elem_l.get_date().m_date > elem_r.get_date().m_date )
+            if( elem_l.get_date_t() > elem_r.get_date_t() )
                 return -direction;
             else
-            if( elem_l.get_date().m_date < elem_r.get_date().m_date )
+            if( elem_l.get_date_t() < elem_r.get_date_t() )
                 return direction;
             else
                 return 0;
