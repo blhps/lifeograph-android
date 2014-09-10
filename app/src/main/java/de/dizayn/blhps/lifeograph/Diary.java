@@ -913,16 +913,13 @@ public class Diary extends DiaryElement
         try
         {
             // TAG DEFINITIONS & CHAPTERS
-            while( ( line = mBufferedReader.readLine() ) != null )
-            {
+            while( ( line = mBufferedReader.readLine() ) != null ) {
                 if( line.length() < 1 ) // end of section
                     break;
                 else if( line.length() < 3 )
                     continue;
-                else
-                {
-                    switch( line.charAt( 0 ) )
-                    {
+                else {
+                    switch( line.charAt( 0 ) ) {
                         case 'I':
                             set_force_id( Integer.parseInt( line.substring( 2 ) ) );
                             break;
@@ -935,6 +932,7 @@ public class Diary extends DiaryElement
                             break;
                         case 'u': // untagged
                             ptr2tag = m_untagged;
+                            // no break
                         case 'm':
                             if( ptr2tag == null )
                             {
@@ -964,11 +962,9 @@ public class Diary extends DiaryElement
                             }
                             break;
                         case 'f':
-                            switch( line.charAt( 1 ) )
-                            {
+                            switch( line.charAt( 1 ) ) {
                                 case 's':   // status
-                                    if( line.length() < 11 )
-                                    {
+                                    if( line.length() < 11 ) {
                                         Log.e( Lifeograph.TAG, "status filter length error" );
                                         continue;
                                     }
@@ -1013,7 +1009,7 @@ public class Diary extends DiaryElement
                                 case 'T':   // temporal chapter
                                     if( ptr2chapter_ctg == null )
                                     {
-                                        Log.w( Lifeograph.TAG, "No chapter category defined" );
+                                        Log.e( Lifeograph.TAG, "No chapter category defined" );
                                         break;
                                     }
                                     ptr2chapter =
@@ -1025,8 +1021,7 @@ public class Diary extends DiaryElement
                                             m_topics.create_chapter( get_db_line_name( line ),
                                                     get_db_line_date( line ) );
                                     break;
-                                case 'S':   // free chapter
-                                case 'G':
+                                case 'G':   // free chapter
                                     ptr2chapter = m_groups.create_chapter(
                                             get_db_line_name( line ), get_db_line_date( line ) );
                                     break;
@@ -1037,8 +1032,6 @@ public class Diary extends DiaryElement
                             }
                             break;
                         case 'O': // options
-                            if( line.length() < 4 )
-                                break;
                             m_option_sorting_criteria = line.charAt( 2 );
                             break;
                         case 'l': // language
@@ -1051,20 +1044,18 @@ public class Diary extends DiaryElement
                             m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
-                            Log.w( Lifeograph.TAG, "unrecognized line:\n" + line );
+                            Log.e( Lifeograph.TAG, "unrecognized line:\n" + line );
                             return Result.CORRUPT_FILE;
                     }
                 }
             }
 
             // ENTRIES
-            while( ( line = mBufferedReader.readLine() ) != null )
-            {
+            while( ( line = mBufferedReader.readLine() ) != null ) {
                 if( line.length() < 2 )
                     continue;
 
-                switch( line.charAt( 0 ) )
-                {
+                switch( line.charAt( 0 ) ) {
                     case 'I':
                         set_force_id( Integer.parseInt( line.substring( 2 ) ) );
                         break;
@@ -1088,9 +1079,8 @@ public class Diary extends DiaryElement
                         flag_first_paragraph = true;
                         break;
                     case 'D':   // creation & change dates (optional)
-                        if( entry_new == null )
-                        {
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                        if( entry_new == null ) {
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
@@ -1100,39 +1090,37 @@ public class Diary extends DiaryElement
                         break;
                     case 'T':   // tag
                         if( entry_new == null )
-                            Log.w( Lifeograph.TAG, "No entry declared" );
-                        else
-                        {
+                            Log.e( Lifeograph.TAG, "No entry declared" );
+                        else {
                             Tag tag = m_tags.get( line.substring( 2 ) );
-                            if( tag != null )
-                            {
+                            if( tag != null ) {
                                 entry_new.add_tag( tag );
                                 if( line.charAt( 1 ) == 'T' )
                                     entry_new.set_theme_tag( tag );
-                            } else
-                                Log.w( Lifeograph.TAG, "Reference to undefined tag: " + line.substring( 2 ) );
+                            }
+                            else
+                                Log.e( Lifeograph.TAG, "Reference to undefined tag: " +
+                                        line.substring( 2 ) );
                         }
                         break;
                     case 'l':   // language
                         if( entry_new == null )
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                         else
                             entry_new.set_lang( line.substring( 2 ) );
                         break;
                     case 'P':    // paragraph
-                        if( entry_new == null )
-                        {
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                        if( entry_new == null ) {
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
-                        if( flag_first_paragraph )
-                        {
+                        if( flag_first_paragraph ) {
                             if( line.length() > 2 )
                                 entry_new.m_text = line.substring( 2 );
                             entry_new.m_name = entry_new.m_text;
                             flag_first_paragraph = false;
-                        } else
-                        {
+                        }
+                        else {
                             entry_new.m_text += "\n";
                             entry_new.m_text += line.substring( 2 );
                         }
@@ -1156,8 +1144,256 @@ public class Diary extends DiaryElement
     }
 
     private Result parse_db_body_text_1010() {
-        // TODO
-        return Result.ABORTED;
+        String line;
+        Entry entry_new = null;
+        Chapter.Category ptr2chapter_ctg = null;
+        Chapter ptr2chapter = null;
+        Tag.Category ptr2tag_ctg = null;
+        Tag ptr2tag = null;
+        boolean flag_first_paragraph = false;
+
+        try {
+            // TAG DEFINITIONS & CHAPTERS
+            while( ( line = mBufferedReader.readLine() ) != null ) {
+                if( line.length() < 1 ) // end of section
+                    break;
+                else if( line.length() < 3 )
+                    continue;
+                else {
+                    switch( line.charAt( 0 ) ) {
+                        case 'I':
+                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
+                            break;
+                        case 'T': // tag category
+                            ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
+                            ptr2tag_ctg.set_expanded( line.charAt( 1 ) == 'e' );
+                            break;
+                        case 't': // tag
+                            ptr2tag = create_tag( line.substring( 2 ), ptr2tag_ctg );
+                            break;
+                        case 'u': // untagged
+                            ptr2tag = m_untagged;
+                            // no break
+                        case 'm':
+                            if( ptr2tag == null ) {
+                                Log.e( Lifeograph.TAG, "No tag declared for theme" );
+                                break;
+                            }
+                            switch( line.charAt( 1 ) ) {
+                                case 'f': // font
+                                    ptr2tag.get_own_theme().font = line.substring( 2 );
+                                    break;
+                                case 'b': // base color
+                                    ptr2tag.get_own_theme().color_base = line.substring( 2 );
+                                    break;
+                                case 't': // text color
+                                    ptr2tag.get_own_theme().color_text = line.substring( 2 );
+                                    break;
+                                case 'h': // heading color
+                                    ptr2tag.get_own_theme().color_heading = line.substring( 2 );
+                                    break;
+                                case 's': // subheading color
+                                    ptr2tag.get_own_theme().color_subheading = line.substring( 2 );
+                                    break;
+                                case 'l': // highlight color
+                                    ptr2tag.get_own_theme().color_highlight = line.substring( 2 );
+                                    break;
+                            }
+                            break;
+                        case 'f':
+                            switch( line.charAt( 1 ) ) {
+                                case 's':   // status
+                                    if( line.length() < 9 ) {
+                                        Log.e( Lifeograph.TAG, "status filter length error" );
+                                        continue;
+                                    }
+                                    m_filter_default.set_trash( line.charAt( 2 ) == 'T',
+                                                                line.charAt( 3 ) == 't' );
+                                    m_filter_default.set_favorites( line.charAt( 4 ) == 'F',
+                                                                    line.charAt( 5 ) == 'f' );
+                                    // made in-progress entries depend on the preference for open ones
+                                    m_filter_default.set_todo( true,
+                                                               line.charAt( 6 ) == 'T',
+                                                               line.charAt( 6 ) == 'T',
+                                                               line.charAt( 7 ) == 'D',
+                                                               line.charAt( 9 ) == 'C' );
+                                    break;
+                                case 't':   // tag
+                                {
+                                    Tag tag = m_tags.get( line.substring( 2 ) );
+                                    if( tag != null )
+                                        m_filter_default.set_tag( tag );
+                                    else
+                                        Log.e( Lifeograph.TAG, "Reference to undefined tag: "
+                                                +line.substring( 2 ) );
+                                    break;
+                                }
+                                case 'b':   // begin date
+                                    m_filter_default.set_date_begin(
+                                            Long.parseLong( line.substring( 2 ) ) );
+                                    break;
+                                case 'e':   // end date
+                                    m_filter_default.set_date_end(
+                                            Long.parseLong( line.substring( 2 ) ) );
+                                    break;
+                            }
+                            break;
+                        case 'o':   // ordinal chapter (topic)
+                            ptr2chapter =
+                                    m_topics.create_chapter( get_db_line_name( line ),
+                                                             fix_pre_1020_date( get_db_line_date( line ) ) );
+                            ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
+                            break;
+                        case 'd':   // to-do group
+                            if( line.charAt( 1 ) == ':' ) // declaration
+                            {
+                                ptr2chapter = m_groups.create_chapter(
+                                        get_db_line_name( line ),
+                                        fix_pre_1020_date( get_db_line_date( line ) ) );
+                            }
+                            else // options
+                            {
+                                ptr2chapter.set_expanded( line.charAt( 2 ) == 'e' );
+                                if( line.charAt( 3 ) == 'd' )
+                                    ptr2chapter.set_todo_status( ES_DONE );
+                                else if( line.charAt( 3 ) == 'c' )
+                                    ptr2chapter.set_todo_status( ES_CANCELED );
+                                else
+                                    ptr2chapter.set_todo_status( ES_TODO );
+                            }
+                            break;
+                        case 'C':   // chapter category
+                            ptr2chapter_ctg = create_chapter_ctg( line.substring( 2 ) );
+                            if( line.charAt( 1 ) == 'c' )
+                                m_ptr2chapter_ctg_cur = ptr2chapter_ctg;
+                            break;
+                        case 'c':   // chapter
+                            if( ptr2chapter_ctg == null ) {
+                                Log.e( Lifeograph.TAG, "No chapter category defined" );
+                                break;
+                            }
+                            ptr2chapter = ptr2chapter_ctg.create_chapter(
+                                    get_db_line_name( line ),
+                                    fix_pre_1020_date( get_db_line_date( line ) ) );
+                            ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
+                            break;
+                        case 'O':   // options
+                            m_option_sorting_criteria = line.charAt( 2 );
+                            break;
+                        case 'l':   // language
+                            m_language = line.substring( 2 );
+                            break;
+                        case 'S':   // startup action
+                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
+                            break;
+                        case 'L':
+                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
+                            break;
+                        default:
+                            Log.e( Lifeograph.TAG, "unrecognized line:\n"+line );
+                            return Result.CORRUPT_FILE;
+                    }
+                }
+            }
+
+            // ENTRIES
+            while( ( line = mBufferedReader.readLine() ) != null ) {
+                if( line.length() < 2 )
+                    continue;
+
+                switch( line.charAt( 0 ) ) {
+                    case 'I':
+                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
+                        break;
+                    case 'E':   // new entry
+                    case 'e':   // trashed
+                        if( line.length() < 5 )
+                            continue;
+
+                        long date = Long.parseLong( line.substring( 4 ) );
+                        entry_new = new Entry( this, fix_pre_1020_date( date ),
+                                               line.charAt( 1 ) == 'f' );
+                        m_entries.put( date, entry_new );
+                        add_entry_to_related_chapter( entry_new );
+
+                        if( line.charAt( 0 ) == 'e' )
+                            entry_new.set_trashed( true );
+                        if( line.charAt( 2 ) == 'h' )
+                            m_filter_default.add_entry( entry_new );
+                        if( line.charAt( 3 ) == 'd' )
+                            entry_new.set_todo_status( ES_DONE );
+                        else if( line.charAt( 3 ) == 'c' )
+                            entry_new.set_todo_status( ES_CANCELED );
+                            // hidden flag used to denote to do items:
+                        else if( entry_new.get_date().is_hidden() )
+                            entry_new.set_todo_status( ES_TODO );
+
+                        flag_first_paragraph = true;
+                        break;
+
+                    case 'D':   // creation & change dates (optional)
+                        if( entry_new == null ) {
+                            Log.e( Lifeograph.TAG, "No entry declared" );
+                            break;
+                        }
+                        if( line.charAt( 1 ) == 'r' )
+                            entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
+                        else    // it should be 'h'
+                            entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
+                        break;
+                    case 'T':   // tag
+                        if( entry_new == null )
+                            Log.e( Lifeograph.TAG, "No entry declared" );
+                        else {
+                            Tag tag = m_tags.get( line.substring( 2 ) );
+                            if( tag != null ) {
+                                entry_new.add_tag( tag );
+                                if( line.charAt( 1 ) == 'T' )
+                                    entry_new.set_theme_tag( tag );
+                            }
+                            else
+                                Log.e( Lifeograph.TAG, "Reference to undefined tag: "+
+                                        line.substring( 2 ) );
+                        }
+                        break;
+                    case 'l':   // language
+                        if( entry_new == null )
+                            Log.w( Lifeograph.TAG, "No entry declared" );
+                        else
+                            entry_new.set_lang( line.substring( 2 ) );
+                        break;
+                    case 'P':    // paragraph
+                        if( entry_new == null ) {
+                            Log.e( Lifeograph.TAG, "No entry declared" );
+                            break;
+                        }
+                        if( flag_first_paragraph ) {
+                            if( line.length() > 2 )
+                                entry_new.m_text = line.substring( 2 );
+                            entry_new.m_name = entry_new.m_text;
+                            flag_first_paragraph = false;
+                        }
+                        else {
+                            entry_new.m_text += "\n";
+                            entry_new.m_text += line.substring( 2 );
+                        }
+                        break;
+                    default:
+                        Log.w( Lifeograph.TAG, "Unrecognized line:\n"+line );
+                        return Result.CORRUPT_FILE;
+                }
+            }
+        }
+        catch( IOException e )
+        {
+            return Result.CORRUPT_FILE;
+        }
+
+        do_standard_checks_after_parse();
+
+        m_filter_active.set( m_filter_default );   // employ the default filter
+
+        return Result.SUCCESS;
     }
 
     private Result parse_db_body_text_110() {
