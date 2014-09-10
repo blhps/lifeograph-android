@@ -52,11 +52,14 @@ public class DialogCalendar extends Dialog
 
         setTitle( R.string.calendar );
 
-        GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
-
         Date date_today = new Date( Date.get_today( 0 ) );
 
+        GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
         mAdapter = new GridCalAdapter( Lifeograph.context, date_today );
+        mDatePicker = ( DatePicker ) findViewById( R.id.datePickerCalendar );
+        Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
+        mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
+
         mAdapter.notifyDataSetChanged();
         gridCalendar.setAdapter( mAdapter );
         gridCalendar.setOnItemClickListener( new OnItemClickListener()
@@ -65,8 +68,6 @@ public class DialogCalendar extends Dialog
                 handleDayClicked( pos );
             }
         } );
-
-        mDatePicker = ( DatePicker ) findViewById( R.id.datePickerCalendar );
         mDatePicker.init( date_today.get_year(), date_today.get_month() - 1, date_today.get_day(),
                           new DatePicker.OnDateChangedListener() {
                               public void onDateChanged( DatePicker view, int y, int m, int d ) {
@@ -74,21 +75,20 @@ public class DialogCalendar extends Dialog
                               }
                           } );
 
-        Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
         buttonCreateEntry.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {
                 createEntry();
             }
         } );
-
-        Button buttonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
-        buttonCreateChapter.setOnClickListener( new View.OnClickListener()
+        mButtonCreateChapter.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {
                 createChapter();
             }
         } );
+        mButtonCreateChapter.setEnabled(
+                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date_today.m_date ) );
     }
 
     void createEntry() {
@@ -104,6 +104,8 @@ public class DialogCalendar extends Dialog
 
     private void handleDayChanged( Date date ) {
         mAdapter.showMonth( date );
+        mButtonCreateChapter.setEnabled(
+                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date.m_date ) );
     }
 
     private void handleDayClicked( int pos ) {
@@ -250,5 +252,6 @@ public class DialogCalendar extends Dialog
 
     private GridCalAdapter mAdapter = null;
     private DatePicker mDatePicker = null;
+    private Button mButtonCreateChapter = null;
     private List< Long > mListDays;
 }

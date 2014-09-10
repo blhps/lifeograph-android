@@ -50,8 +50,7 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="LifeographAndroid.iws" />
@@ -79,9 +78,24 @@
       <file leaf-file-name="DiaryElement.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.0" vertical-offset="3072" max-vertical-offset="3860">
+            <state vertical-scroll-proportion="0.0" vertical-offset="2352" max-vertical-offset="3860">
               <caret line="200" column="31" selection-start-line="200" selection-start-column="31" selection-end-line="200" selection-end-column="31" />
               <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="DialogCalendar.java" pinned="false" current="true" current-in-tab="true">
+        <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.5536627" vertical-offset="495" max-vertical-offset="2320">
+              <caret line="86" column="21" selection-start-line="86" selection-start-column="21" selection-end-line="86" selection-end-column="21" />
+              <folding>
+                <element signature="e#3050#3185#0" expanded="true" />
+                <element signature="e#3174#3175#0" expanded="true" />
+                <element signature="method#showMonth#0;class#GridCalAdapter#0;class#DialogCalendar#0" expanded="false" />
+                <element signature="method#getView#0;class#GridCalAdapter#0;class#DialogCalendar#0" expanded="false" />
+              </folding>
             </state>
           </provider>
         </entry>
@@ -183,11 +197,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="Diary.java" pinned="false" current="true" current-in-tab="true">
+      <file leaf-file-name="Diary.java" pinned="false" current="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4003407" vertical-offset="9285" max-vertical-offset="19100">
-              <caret line="752" column="0" selection-start-line="752" selection-start-column="0" selection-end-line="752" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.0" vertical-offset="9046" max-vertical-offset="17800">
+              <caret line="739" column="45" selection-start-line="739" selection-start-column="45" selection-end-line="739" selection-end-column="45" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -202,6 +216,8 @@
                 <element signature="method#create_tag#0;class#Diary#0" expanded="false" />
                 <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
                 <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
+                <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
+                <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
                 <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
                 <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
                 <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
@@ -1342,7 +1358,6 @@
         <option value="$PROJECT_DIR$/app/src/main/res/layout/dialog_new_diary.xml" />
         <option value="$PROJECT_DIR$/app/src/main/res/values/ids.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Date.java" />
-        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/dialog_inquire_text.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogInquireText.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Lifeograph.java" />
@@ -1363,6 +1378,7 @@
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java" />
+        <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java" />
       </list>
     </option>
   </component>
@@ -2253,7 +2269,11 @@
       <created>1410331845767</created>
       <updated>1410331845767</updated>
     </task>
-    <option name="localTasksCounter" value="73" />
+    <task id="LOCAL-00073" summary="fixed comparators that compare Long. improved update_entries_in_chapters()">
+      <created>1410343770041</created>
+      <updated>1410343770041</updated>
+    </task>
+    <option name="localTasksCounter" value="74" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2325,7 +2345,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="unified strings for element names. enabled todo status editing for dated chapters" />
     <MESSAGE value="modified status constants to remain within int boundaries in Java" />
     <MESSAGE value="added in progress todo state" />
     <MESSAGE value="fixed and improved alert dialogs used for creating and renaming certain elements" />
@@ -2350,25 +2369,26 @@
     <MESSAGE value="fixed crashes on text format toggling (when cursor is at the end)" />
     <MESSAGE value="fixed and improved Diary.dismiss_chapter()" />
     <MESSAGE value="defined a DiaryElement.get_date_t() that returns long as a shortcut" />
-    <option name="LAST_COMMIT_MESSAGE" value="defined a DiaryElement.get_date_t() that returns long as a shortcut" />
+    <MESSAGE value="fixed comparators that compare Long. improved update_entries_in_chapters()" />
+    <option name="LAST_COMMIT_MESSAGE" value="fixed comparators that compare Long. improved update_entries_in_chapters()" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
       <breakpoints>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java</url>
-          <line>740</line>
+          <url>file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java</url>
+          <line>105</line>
           <properties />
-          <option name="timeStamp" value="27" />
+          <option name="timeStamp" value="31" />
         </line-breakpoint>
         <line-breakpoint enabled="true" type="java-line">
-          <url>file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java</url>
-          <line>770</line>
+          <url>file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java</url>
+          <line>149</line>
           <properties />
-          <option name="timeStamp" value="29" />
+          <option name="timeStamp" value="32" />
         </line-breakpoint>
       </breakpoints>
-      <option name="time" value="30" />
+      <option name="time" value="33" />
     </breakpoint-manager>
   </component>
   <component name="editorHistoryManager">
@@ -2463,6 +2483,8 @@
             <element signature="method#create_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
+            <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
+            <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
             <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
             <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
@@ -2693,6 +2715,8 @@
             <element signature="method#create_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
+            <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
+            <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
             <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
             <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
@@ -3114,14 +3138,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="660" max-vertical-offset="4000">
-          <caret line="101" column="40" selection-start-line="101" selection-start-column="40" selection-end-line="101" selection-end-column="40" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityDiary.java">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="0.0" vertical-offset="1246" max-vertical-offset="3160">
@@ -3209,18 +3225,10 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0" vertical-offset="3072" max-vertical-offset="3860">
-          <caret line="200" column="31" selection-start-line="200" selection-start-column="31" selection-end-line="200" selection-end-column="31" />
-          <folding />
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4003407" vertical-offset="9285" max-vertical-offset="19100">
-          <caret line="752" column="0" selection-start-line="752" selection-start-column="0" selection-end-line="752" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.0" vertical-offset="9046" max-vertical-offset="17800">
+          <caret line="739" column="45" selection-start-line="739" selection-start-column="45" selection-end-line="739" selection-end-column="45" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
@@ -3235,6 +3243,8 @@
             <element signature="method#create_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#dismiss_tag#0;class#Diary#0" expanded="false" />
             <element signature="method#rename_tag#0;class#Diary#0" expanded="false" />
+            <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
+            <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
             <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
             <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
@@ -3247,6 +3257,27 @@
             <element signature="e#59883#59898#0" expanded="true" />
             <element signature="e#59990#60014#0" expanded="true" />
             <element signature="e#60142#60170#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DiaryElement.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0" vertical-offset="2352" max-vertical-offset="3860">
+          <caret line="200" column="31" selection-start-line="200" selection-start-column="31" selection-end-line="200" selection-end-column="31" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogCalendar.java">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.5536627" vertical-offset="495" max-vertical-offset="2320">
+          <caret line="86" column="21" selection-start-line="86" selection-start-column="21" selection-end-line="86" selection-end-column="21" />
+          <folding>
+            <element signature="e#3050#3185#0" expanded="true" />
+            <element signature="e#3174#3175#0" expanded="true" />
+            <element signature="method#showMonth#0;class#GridCalAdapter#0;class#DialogCalendar#0" expanded="false" />
+            <element signature="method#getView#0;class#GridCalAdapter#0;class#DialogCalendar#0" expanded="false" />
           </folding>
         </state>
       </provider>
