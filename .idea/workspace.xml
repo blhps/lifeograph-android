@@ -49,9 +49,10 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="app: de.dizayn.blhps.lifeograph" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="Fixed ActionProvider interactions with related activities. Handled undesired initialization firing of onItemSelected gracefully">
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" afterPath="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" afterPath="$PROJECT_DIR$/.idea/copyright/profiles_settings.xml" />
+    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/build/generated/source/r/debug/de/dizayn/blhps/lifeograph/R.java" afterPath="$PROJECT_DIR$/app/build/generated/source/r/debug/de/dizayn/blhps/lifeograph/R.java" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/layout/login.xml" afterPath="$PROJECT_DIR$/app/src/main/res/layout/login.xml" />
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" afterPath="$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="LifeographAndroid.iws" />
@@ -196,8 +197,8 @@
       <file leaf-file-name="Diary.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.64735943" vertical-offset="12740" max-vertical-offset="26760">
-              <caret line="1185" column="55" selection-start-line="1185" selection-start-column="55" selection-end-line="1185" selection-end-column="55" />
+            <state vertical-scroll-proportion="0.65587735" vertical-offset="8415" max-vertical-offset="13900">
+              <caret line="1594" column="58" selection-start-line="1594" selection-start-column="58" selection-end-line="1594" selection-end-column="58" />
               <folding>
                 <element signature="n#!!doc" expanded="true" />
                 <element signature="imports" expanded="true" />
@@ -208,11 +209,22 @@
                 <element signature="method#write#0;class#Diary#0" expanded="false" />
                 <element signature="method#write#1;class#Diary#0" expanded="false" />
                 <element signature="method#set_search_text#0;class#Diary#0" expanded="false" />
+                <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
+                <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
+                <element signature="method#getNextChapter#0;class#Diary#0" expanded="false" />
                 <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
                 <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
                 <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
                 <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
+                <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
+                <element signature="method#fix_pre_1020_date#0;class#Diary#0" expanded="false" />
+                <element signature="method#do_standard_checks_after_parse#0;class#Diary#0" expanded="false" />
+                <element signature="method#parse_todo_status#0;class#Diary#0" expanded="false" />
+                <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
                 <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
+                <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
+                <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
+                <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
                 <element signature="e#74016#74041#0" expanded="true" />
                 <element signature="e#74118#74133#0" expanded="true" />
                 <element signature="e#74264#74279#0" expanded="true" />
@@ -1304,7 +1316,6 @@
         <option value="$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/layout/abc_action_bar_view_list_nav_layout.xml" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout-land/calendar.xml" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/dialog_tags.xml" />
-        <option value="$PROJECT_DIR$/app/src/main/res/layout/login.xml" />
         <option value="$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/layout/abc_action_mode_bar.xml" />
         <option value="$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/layout/abc_action_mode_close_item.xml" />
         <option value="$PROJECT_DIR$/app/build/intermediates/exploded-aar/com.android.support/appcompat-v7/20.0.0/res/layout/abc_popup_menu_item_layout.xml" />
@@ -1322,7 +1333,6 @@
         <option value="$PROJECT_DIR$/app/src/main/res/layout/dialog_inquire_text.xml" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/DialogInquireText.java" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/entry.xml" />
-        <option value="$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
         <option value="$PROJECT_DIR$/app/src/main/res/drawable/icon_clear.xml" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/diary.xml" />
         <option value="$PROJECT_DIR$/app/src/main/res/layout/imagelist.xml" />
@@ -1343,6 +1353,8 @@
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/ActivityEntry.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
         <option value="$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java" />
+        <option value="$PROJECT_DIR$/app/src/main/res/values/strings.xml" />
+        <option value="$PROJECT_DIR$/app/src/main/res/layout/login.xml" />
       </list>
     </option>
   </component>
@@ -2244,7 +2256,11 @@
       <created>1410373411831</created>
       <updated>1410373411831</updated>
     </task>
-    <option name="localTasksCounter" value="78" />
+    <task id="LOCAL-00078" summary="added support for parsing diaries of version 1010 and 1011.">
+      <created>1410384827291</created>
+      <updated>1410384827291</updated>
+    </task>
+    <option name="localTasksCounter" value="79" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2316,7 +2332,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="renamed sorted to group" />
     <MESSAGE value="store orphaned entries in a pseudo chapter rather than a list and show that chapter when listing the diary" />
     <MESSAGE value="fixed composing the diaries directory path. fixed path list update after a new diary is created. used Lifeograph.getStr() wherever possible" />
     <MESSAGE value="created a generic one line text input dialog and replaced all such dialogs with this new implementation" />
@@ -2341,7 +2356,8 @@
     <MESSAGE value="removed static references to activities and some other static references" />
     <MESSAGE value="fixed save operation slowness by replacing the stream string with an actual file. This seems to be the most logical way for Java" />
     <MESSAGE value="Fixed ActionProvider interactions with related activities. Handled undesired initialization firing of onItemSelected gracefully" />
-    <option name="LAST_COMMIT_MESSAGE" value="Fixed ActionProvider interactions with related activities. Handled undesired initialization firing of onItemSelected gracefully" />
+    <MESSAGE value="added support for parsing diaries of version 1010 and 1011." />
+    <option name="LAST_COMMIT_MESSAGE" value="added support for parsing diaries of version 1010 and 1011." />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -2480,11 +2496,22 @@
             <element signature="method#write#0;class#Diary#0" expanded="false" />
             <element signature="method#write#1;class#Diary#0" expanded="false" />
             <element signature="method#set_search_text#0;class#Diary#0" expanded="false" />
+            <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
+            <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
+            <element signature="method#getNextChapter#0;class#Diary#0" expanded="false" />
             <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
             <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
+            <element signature="method#fix_pre_1020_date#0;class#Diary#0" expanded="false" />
+            <element signature="method#do_standard_checks_after_parse#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_todo_status#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
+            <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
             <element signature="e#74016#74041#0" expanded="true" />
             <element signature="e#74118#74133#0" expanded="true" />
             <element signature="e#74264#74279#0" expanded="true" />
@@ -2525,17 +2552,6 @@
             <element signature="e#712#731#0" expanded="false" />
             <element signature="e#1074#1091#0" expanded="false" />
           </folding>
-        </state>
-      </provider>
-      <provider editor-type-id="android-designer">
-        <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/login.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.23255815" vertical-offset="480" max-vertical-offset="1340">
-          <caret line="34" column="33" selection-start-line="34" selection-start-column="33" selection-end-line="34" selection-end-column="33" />
-          <folding />
         </state>
       </provider>
       <provider editor-type-id="android-designer">
@@ -2742,14 +2758,6 @@
       </provider>
       <provider editor-type-id="android-designer">
         <state />
-      </provider>
-    </entry>
-    <entry file="file://$PROJECT_DIR$/app/src/main/res/values/strings.xml">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.3253833" vertical-offset="1389" max-vertical-offset="2260">
-          <caret line="79" column="18" selection-start-line="79" selection-start-column="18" selection-end-line="79" selection-end-column="18" />
-          <folding />
-        </state>
       </provider>
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/imagelist.xml">
@@ -2989,10 +2997,32 @@
         </state>
       </provider>
     </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/layout/login.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.8586762" vertical-offset="0" max-vertical-offset="1000">
+          <caret line="24" column="47" selection-start-line="24" selection-start-column="47" selection-end-line="24" selection-end-column="47" />
+          <folding>
+            <element signature="e#608#625#0" expanded="true" />
+            <element signature="e#1272#1289#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+      <provider editor-type-id="android-designer">
+        <state />
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/src/main/res/values/strings.xml">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.3253833" vertical-offset="1549" max-vertical-offset="2260">
+          <caret line="87" column="35" selection-start-line="87" selection-start-column="35" selection-end-line="87" selection-end-column="35" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/de/dizayn/blhps/lifeograph/Diary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.64735943" vertical-offset="12740" max-vertical-offset="26760">
-          <caret line="1185" column="55" selection-start-line="1185" selection-start-column="55" selection-end-line="1185" selection-end-column="55" />
+        <state vertical-scroll-proportion="0.65587735" vertical-offset="8415" max-vertical-offset="13900">
+          <caret line="1594" column="58" selection-start-line="1594" selection-start-column="58" selection-end-line="1594" selection-end-column="58" />
           <folding>
             <element signature="n#!!doc" expanded="true" />
             <element signature="imports" expanded="true" />
@@ -3003,11 +3033,22 @@
             <element signature="method#write#0;class#Diary#0" expanded="false" />
             <element signature="method#write#1;class#Diary#0" expanded="false" />
             <element signature="method#set_search_text#0;class#Diary#0" expanded="false" />
+            <element signature="method#dismiss_chapter#0;class#Diary#0" expanded="false" />
+            <element signature="method#getPrevChapter#0;class#Diary#0" expanded="false" />
+            <element signature="method#getNextChapter#0;class#Diary#0" expanded="false" />
             <element signature="method#update_entries_in_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#add_entry_to_related_chapter#0;class#Diary#0" expanded="false" />
             <element signature="method#remove_entry_from_chapters#0;class#Diary#0" expanded="false" />
             <element signature="method#get_db_line_date#0;class#Diary#0" expanded="false" />
+            <element signature="method#get_db_line_name#0;class#Diary#0" expanded="false" />
+            <element signature="method#fix_pre_1020_date#0;class#Diary#0" expanded="false" />
+            <element signature="method#do_standard_checks_after_parse#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_todo_status#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text#0;class#Diary#0" expanded="false" />
             <element signature="method#parse_db_body_text_1020#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text_1010#0;class#Diary#0" expanded="false" />
+            <element signature="method#parse_db_body_text_110#0;class#Diary#0" expanded="false" />
+            <element signature="method#create_db_todo_status_text#0;class#Diary#0" expanded="false" />
             <element signature="e#74016#74041#0" expanded="true" />
             <element signature="e#74118#74133#0" expanded="true" />
             <element signature="e#74264#74279#0" expanded="true" />

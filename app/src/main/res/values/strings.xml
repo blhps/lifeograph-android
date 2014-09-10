@@ -85,7 +85,7 @@
     <string name="S">S</string>
     <string name="H">H</string>
     <string name="welcome">Welcome to Lifeograph for Android!</string>
-    <string name="caution_alpha">THIS IS A BETA VERSION. DO NOT USE FOR SERIOUS PURPOSES.</string>
+    <string name="caution_not_final">PLEASE KEEP IN MIND THAT THIS IS A BETA VERSION</string>
     <string name="diaries">Diaries</string>
     <string name="import_sms">Import SMS</string>
     <string name="website"><a href="http://lifeograph.sourceforge.net">web site</a></string>
