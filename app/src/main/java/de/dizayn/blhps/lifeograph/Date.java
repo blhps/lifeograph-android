@@ -295,7 +295,7 @@ public class Date {
 
     public int calculate_days_between( Date date2 ) {
         // TODO: STUB!
-        Log.w( Lifeograph.TAG, "STUB! STUB! STUB!" );
+        Log.e( Lifeograph.TAG, "STUB! STUB! STUB!" );
         return( 0 );
     }
 }

@@ -549,7 +549,7 @@ public class ActivityDiary extends ListActivity
             }
         }
 
-        Log.d( Lifeograph.TAG, "Cannot set todo status" );
+        Log.w( Lifeograph.TAG, "cannot set todo status" );
     }
 
     void update_entry_list() {

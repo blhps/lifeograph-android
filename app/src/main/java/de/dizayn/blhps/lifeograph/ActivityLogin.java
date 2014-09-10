@@ -71,7 +71,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     protected void onResume() {
         super.onResume();
         populate_diaries();
-        Log.w( Lifeograph.TAG, "onResume ActivityOpenDairy" );
+        Log.d( Lifeograph.TAG, "onResume - ActivityLogin" );
     }
 
     @Override
@@ -236,7 +236,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         if( ExternalStorageAvailable && ExternalStorageWritable ) {
             File dir = getDiariesDir();
-            Log.i( Lifeograph.TAG, dir.getPath() );
+            Log.d( Lifeograph.TAG, dir.getPath() );
             if( !dir.exists() ) {
                 dir.mkdir();
             }

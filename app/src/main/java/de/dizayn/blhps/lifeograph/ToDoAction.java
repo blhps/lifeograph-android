@@ -74,22 +74,18 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
             case android.R.id.home:
                 return true;
             case R.id.todo_not:
-                Log.d( Lifeograph.TAG, "not todo" );
                 mObject.set_todo_status( DiaryElement.ES_NOT_TODO );
                 return true;
             case R.id.todo_open:
-                Log.d( Lifeograph.TAG, "open" );
                 mObject.set_todo_status( DiaryElement.ES_TODO );
                 return true;
             case R.id.todo_progressed:
                 mObject.set_todo_status( DiaryElement.ES_PROGRESSED );
                 return true;
             case R.id.todo_done:
-                Log.d( Lifeograph.TAG, "done" );
                 mObject.set_todo_status( DiaryElement.ES_DONE );
                 return true;
             case R.id.todo_canceled:
-                Log.d( Lifeograph.TAG, "canceled" );
                 mObject.set_todo_status( DiaryElement.ES_CANCELED );
                 return true;
         }

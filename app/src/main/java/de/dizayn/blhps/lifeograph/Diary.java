@@ -58,7 +58,6 @@ public class Diary extends DiaryElement
     }
 
     public Result init_new( String path ) {
-        Log.d( Lifeograph.TAG, path );
         clear();
         Result result = set_path( path, SetPathType.NEW );
 
@@ -234,12 +233,12 @@ public class Diary extends DiaryElement
         if( !fp.exists() ) {
             if( type != SetPathType.NEW )
             {
-                Log.w( Lifeograph.TAG, "File is not found" );
+                Log.e( Lifeograph.TAG, "File is not found" );
                 return Result.FILE_NOT_FOUND;
             }
         }
         else if( !fp.canRead() ) {
-            Log.w( Lifeograph.TAG, "File is not readable" );
+            Log.e( Lifeograph.TAG, "File is not readable" );
             return Result.FILE_NOT_READABLE;
         }
         else if( type != SetPathType.READ_ONLY && !fp.canWrite() ) {
@@ -352,7 +351,7 @@ public class Diary extends DiaryElement
                     // fr.close();
 
                     default:
-                        Log.w( Lifeograph.TAG, "unrecognized header line: " + line );
+                        Log.e( Lifeograph.TAG, "unrecognized header line: " + line );
                         break;
                 }
             }
@@ -362,7 +361,7 @@ public class Diary extends DiaryElement
         catch( IOException e ) {
             // Unable to create file, likely because external storage is
             // not currently mounted.
-            Log.w( Lifeograph.TAG, "Failed to open diary file " + m_path, e );
+            Log.e( Lifeograph.TAG, "Failed to open diary file " + m_path, e );
         }
 
         m_path = "";
@@ -544,7 +543,7 @@ public class Diary extends DiaryElement
     public Tag create_tag( String name, Tag.Category ctg ) {
         Tag tag = m_tags.get( name );
         if( tag != null ) {
-            Log.w( Lifeograph.TAG, "Tag already exists: " + name );
+            Log.e( Lifeograph.TAG, "Tag already exists: " + name );
             return( tag );
         }
         tag = new Tag( this, name, ctg );
@@ -867,10 +866,9 @@ public class Diary extends DiaryElement
                 m_startup_elem_id = DiaryElement.DEID_DIARY;
             }
 
-        if( m_entries.size() < 1 )
-        {
+        if( m_entries.size() < 1 ) {
             add_today();
-            Log.w( Lifeograph.TAG, "a dummy entry added to the diary" );
+            Log.i( Lifeograph.TAG, "a dummy entry added to the diary" );
         }
     }
 
@@ -936,7 +934,7 @@ public class Diary extends DiaryElement
                         case 'm':
                             if( ptr2tag == null )
                             {
-                                Log.w( Lifeograph.TAG, "No tag declared for theme" );
+                                Log.e( Lifeograph.TAG, "No tag declared for theme" );
                                 break;
                             }
                             switch( line.charAt( 1 ) )
@@ -1126,7 +1124,7 @@ public class Diary extends DiaryElement
                         }
                         break;
                     default:
-                        Log.w( Lifeograph.TAG, "Unrecognized line:\n" + line );
+                        Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
                         return Result.CORRUPT_FILE;
                 }
             }
@@ -1358,7 +1356,7 @@ public class Diary extends DiaryElement
                         break;
                     case 'l':   // language
                         if( entry_new == null )
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                         else
                             entry_new.set_lang( line.substring( 2 ) );
                         break;
@@ -1379,7 +1377,7 @@ public class Diary extends DiaryElement
                         }
                         break;
                     default:
-                        Log.w( Lifeograph.TAG, "Unrecognized line:\n"+line );
+                        Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
                         return Result.CORRUPT_FILE;
                 }
             }
@@ -1442,7 +1440,7 @@ public class Diary extends DiaryElement
                             break;
                         case 'c': // chapter
                             if( ptr2chapter_ctg == null ) {
-                                Log.w( Lifeograph.TAG, "No chapter category defined" );
+                                Log.e( Lifeograph.TAG, "No chapter category defined" );
                                 break;
                             }
                             ptr2chapter =
@@ -1459,7 +1457,7 @@ public class Diary extends DiaryElement
                             break;
                         case 'm':
                             if( ptr2theme == null ) {
-                                Log.w( Lifeograph.TAG, "No theme declared" );
+                                Log.e( Lifeograph.TAG, "No theme declared" );
                                 break;
                             }
                             switch( line.charAt( 1 ) ) {
@@ -1498,7 +1496,7 @@ public class Diary extends DiaryElement
                             m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
-                            Log.w( Lifeograph.TAG, "unrecognized line:\n" + line );
+                            Log.e( Lifeograph.TAG, "unrecognized line:\n" + line );
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1528,7 +1526,7 @@ public class Diary extends DiaryElement
                         break;
                     case 'D': // creation & change dates (optional)
                         if( entry_new == null ) {
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
                         if( line.charAt( 1 ) == 'r' )
@@ -1540,26 +1538,27 @@ public class Diary extends DiaryElement
                     case 'M': // themes are converted into tags
                     case 'T': // tag
                         if( entry_new == null )
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                         else
                         {
                             Tag tag = m_tags.get( line.substring( 2 ) );
                             if( tag != null )
                                 entry_new.add_tag( tag );
                             else
-                                Log.w( Lifeograph.TAG, "Reference to undefined tag: " + line.substring( 2
+                                Log.e( Lifeograph.TAG, "Reference to undefined tag: " + line
+                                        .substring( 2
                                 ) );
                         }
                         break;
                     case 'l': // language
                         if( entry_new == null )
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                         else
                             entry_new.set_lang( line.substring( 2 ) );
                         break;
                     case 'P': // paragraph
                         if( entry_new == null ) {
-                            Log.w( Lifeograph.TAG, "No entry declared" );
+                            Log.e( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
                         if( flag_first_paragraph ) {
@@ -1574,7 +1573,7 @@ public class Diary extends DiaryElement
                         }
                         break;
                     default:
-                        Log.w( Lifeograph.TAG, "Unrecognized line (110):\n" + line );
+                        Log.e( Lifeograph.TAG, "Unrecognized line (110):\n" + line );
                         return Result.CORRUPT_FILE;
                 }
             }
