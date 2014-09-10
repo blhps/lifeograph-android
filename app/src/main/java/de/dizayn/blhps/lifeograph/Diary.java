@@ -28,6 +28,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import java.util.Vector;
 
@@ -737,15 +738,12 @@ public class Diary extends DiaryElement
     }
 
     public void update_entries_in_chapters() {
-        Log.w( Lifeograph.TAG, "update_entries_in_chapters()" );
+        Log.d( Lifeograph.TAG, "update_entries_in_chapters()" );
+
         Chapter.Category chapters[] = new Chapter.Category[] { m_topics, m_groups,
-                m_ptr2chapter_ctg_cur };
-        Iterator itr_entry = m_entries.entrySet().iterator();
-        Entry entry = null;
-        if( itr_entry.hasNext() ) {
-            Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
-            entry = ( Entry ) mapEntry.getValue();
-        }
+                                                               m_ptr2chapter_ctg_cur };
+        long date_last = m_entries.isEmpty() ? 0 : m_entries.firstEntry().getKey();
+        boolean entries_finished = false;
 
         for( int i = 0; i < 3; i++ )
         {
@@ -753,22 +751,18 @@ public class Diary extends DiaryElement
             {
                 chapter.clear();
 
-                if( entry == null )
+                if( entries_finished )
                     continue;
 
-                while( entry.get_date_t() > chapter.get_date_t() )
-                {
-                    chapter.insert( entry );
+                entries_finished = true;
+                for( Entry entry : m_entries.tailMap( date_last ).values() ) {
+                    date_last = entry.get_date_t();
 
-                    if( !itr_entry.hasNext() )
-                    {
-                        entry = null;
+                    if( entry.get_date_t() > chapter.get_date_t() )
+                        chapter.insert( entry );
+                    else {
+                        entries_finished = false;
                         break;
-                    }
-                    else
-                    {
-                        Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
-                        entry = ( Entry ) mapEntry.getValue();
                     }
                 }
             }
@@ -777,12 +771,12 @@ public class Diary extends DiaryElement
         m_orphans.clear();
         m_orphans.set_date( Date.DATE_MAX );
 
-        while( itr_entry.hasNext() ) {
-            Map.Entry mapEntry = ( Map.Entry ) itr_entry.next();
-            Entry e = ( Entry ) mapEntry.getValue();
-            m_orphans.insert( e );
-            if( e.get_date_t() < m_orphans.get_date_t() )
-                m_orphans.set_date( e.get_date_t() );
+        if( !entries_finished ) {
+            for( Entry entry : m_entries.tailMap( date_last ).values() ) {
+                m_orphans.insert( entry );
+                if( entry.get_date_t() < m_orphans.get_date_t() )
+                    m_orphans.set_date( entry.get_date_t() );
+            }
         }
     }
 

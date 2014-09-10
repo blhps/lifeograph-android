@@ -195,13 +195,23 @@ public abstract class DiaryElement {
 
     static class CompareElemsByDate implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
-            return ( int ) ( elem_r.get_date_t() - elem_l.get_date_t() );
+            final long diff = ( elem_r.get_date_t() - elem_l.get_date_t() );
+            if( diff == 0 )
+                return 0;
+            else if( diff > 0 )
+                return 1;
+            else return -1;
         }
     }
 
     static class CompareDates implements Comparator< Long > {
         public int compare( Long date_l, Long date_r ) {
-            return ( int ) ( date_r - date_l );
+            final long diff = ( date_r - date_l );
+            if( diff == 0 )
+                return 0;
+            else if( diff > 0 )
+                return 1;
+            else return -1;
         }
     }
 
