@@ -100,7 +100,7 @@ public class Entry extends DiaryElement {
 
     @Override
     public String get_info_str() {
-        return Lifeograph.activityDiary.getString( R.string.entry_last_changed_on ) + " "
+        return Lifeograph.getStr( R.string.entry_last_changed_on ) + " "
                + Date.format_string_do( m_date_changed );
     }
 

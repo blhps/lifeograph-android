@@ -26,11 +26,7 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.SortedMap;
 import java.util.TreeMap;
-import java.util.Vector;
 
 import android.util.Log;
 
@@ -253,7 +249,8 @@ public class Diary extends DiaryElement
                 return Result.FILE_NOT_WRITABLE;
             }
 
-            Lifeograph.showToast( Lifeograph.activityLogin, R.string.resorting_to_read_only );
+            //Lifeograph.showToast( Lifeograph.activityLogin, R.string.resorting_to_read_only );
+            Log.w( Lifeograph.TAG, Lifeograph.getStr( R.string.resorting_to_read_only ) );
             type = SetPathType.READ_ONLY;
         }
 
@@ -1565,10 +1562,15 @@ public class Diary extends DiaryElement
             fwr.append( mStrIO );
             fwr.close();
 
+            mStrIO = "";
+
             return Result.SUCCESS;
         }
         catch( IOException ex ) {
-            Log.e( "L", "failed to save diary: " + ex.getMessage() );
+            Log.e( Lifeograph.TAG, "failed to save diary: " + ex.getMessage() );
+
+            mStrIO = "";
+
             return Result.COULD_NOT_START;
         }
     }

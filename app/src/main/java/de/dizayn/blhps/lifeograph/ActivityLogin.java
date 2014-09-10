@@ -50,7 +50,6 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         super.onCreate( savedInstanceState );
 
         Lifeograph.context = getApplicationContext();   // must be first
-        Lifeograph.activityLogin = this;
 
         if( Diary.diary == null )
             Diary.diary = new Diary();

@@ -50,6 +50,7 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
+import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -150,7 +151,6 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
-        Lifeograph.activityEntry = this;
         setContentView( R.layout.entry );
 
         mActionBar = getActionBar();
@@ -240,7 +240,8 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
                                             android.R.layout.simple_list_item_multiple_choice,
                                             android.R.id.text1 );
 
-        show( ActivityDiary.entry_current, savedInstanceState == null );
+        show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
+              savedInstanceState == null );
     }
 
     @Override
@@ -249,7 +250,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
             sync();
-        Lifeograph.activityDiary.update_entry_list();
+        ActivityDiary.flag_force_update_on_resume = true;
         super.onPause();
     }
 
@@ -334,6 +335,11 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
      */
 
     void show( Entry entry, boolean flagParse ) {
+        if( entry == null ) {
+            Log.e( Lifeograph.TAG, "empty entry passed to show" );
+            return;
+        }
+
         mFlagDismissOnExit = false;
         m_ptr2entry = entry;
 

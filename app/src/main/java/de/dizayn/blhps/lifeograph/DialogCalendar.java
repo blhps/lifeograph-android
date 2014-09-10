@@ -41,8 +41,9 @@ import android.widget.TextView;
 
 public class DialogCalendar extends Dialog
 {
-    public DialogCalendar( Context context ) {
-        super( context );
+    public DialogCalendar( ActivityDiary parent ) {
+        super( parent );
+        mParent = parent;
     }
 
     @Override
@@ -94,12 +95,12 @@ public class DialogCalendar extends Dialog
     void createEntry() {
         Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
         dismiss();
-        Lifeograph.activityDiary.showEntry( e );
+        mParent.showEntry( e );
     }
 
     void createChapter() {
         dismiss();
-        Lifeograph.activityDiary.createChapter( mAdapter.mDateCurrent.m_date );
+        mParent.createChapter( mAdapter.mDateCurrent.m_date );
     }
 
     private void handleDayChanged( Date date ) {
@@ -114,7 +115,7 @@ public class DialogCalendar extends Dialog
         Entry e = Diary.diary.m_entries.get( mListDays.get( pos ) + 1 );
         if( e != null ) {
             dismiss();
-            Lifeograph.activityDiary.showEntry( e );
+            mParent.showEntry( e );
         }
         else {
             Date d = new Date( mListDays.get( pos ) );
@@ -250,6 +251,7 @@ public class DialogCalendar extends Dialog
         }
     }
 
+    private ActivityDiary mParent = null;
     private GridCalAdapter mAdapter = null;
     private DatePicker mDatePicker = null;
     private Button mButtonCreateChapter = null;

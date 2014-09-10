@@ -22,7 +22,6 @@
 
 package de.dizayn.blhps.lifeograph;
 
-import android.content.Context;
 import android.view.ActionProvider;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -30,9 +29,9 @@ import android.view.View;
 
 public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItemClickListener
 {
-    public AddElemAction( Context context ) {
-        super( context );
-        //mContext = context;
+    public AddElemAction( ActivityDiary parent ) {
+        super( parent );
+        mParent = parent;
     }
 
     @Override
@@ -65,13 +64,13 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
             case android.R.id.home:
                 return true;
             case R.id.add_today:
-                Lifeograph.activityDiary.goToToday();
+                mParent.goToToday();
                 return true;
             case R.id.add_topic:
-                Lifeograph.activityDiary.createTopic();
+                mParent.createTopic();
                 return true;
             case R.id.add_group:
-                Lifeograph.activityDiary.createGroup();
+                mParent.createGroup();
                 return true;
         }
         return true;
@@ -82,5 +81,5 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
         return null;
     }
 
-    //private Context mContext; // not used now
+    private ActivityDiary mParent;
 }

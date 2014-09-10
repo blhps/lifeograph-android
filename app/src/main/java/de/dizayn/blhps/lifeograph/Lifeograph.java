@@ -32,10 +32,6 @@ import android.widget.Toast;
 
 public class Lifeograph
 {
-    public static ActivityLogin activityLogin = null;
-    public static ActivityDiary activityDiary = null;
-    public static ActivityEntry activityEntry = null;
-
     public static Context context = null;
 
     public static final String PROGRAM_NAME = "Lifeograph";

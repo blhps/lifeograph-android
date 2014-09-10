@@ -55,32 +55,10 @@ import de.dizayn.blhps.lifeograph.DiaryElement.Type;
 public class ActivityDiary extends ListActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener
 {
-    public static Entry entry_current = null;
-
-    DiaryElement mParentElem = Diary.diary;
-
-    private LayoutInflater mInflater;
-    private ActionBar mActionBar = null;
-    private DrawerLayout mDrawerLayout = null;
-    private EditText mEditSearch = null;
-    private Button mButtonSearchTextClear = null;
-    private ToggleImageButton mButtonShowTodoNot = null;
-    private ToggleImageButton mButtonShowTodoOpen = null;
-    private ToggleImageButton mButtonShowTodoProgressed = null;
-    private ToggleImageButton mButtonShowTodoDone = null;
-    private ToggleImageButton mButtonShowTodoCanceled = null;
-    private Spinner mSpinnerShowFavorite = null;
-    private ElemListAllEntries mElemAllEntries = null;
-
-    private boolean mFlagSaveOnLogOut = true;
-    private boolean mFlagLogoutOnPause = false;
-
-    private long mDateLast;
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
-        Lifeograph.activityDiary = this;
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
@@ -214,18 +192,13 @@ public class ActivityDiary extends ListActivity
         Log.d( Lifeograph.TAG, "onPause - ActivityDiary" );
     }
 
-    /* onDestroy is called after next Activity gets started so this is not useful
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-        Log.d( Lifeograph.TAG, "onDestroy - ActivityDiary" );
-    }*/
-
     @Override
     protected void onResume() {
         super.onResume();
         mFlagLogoutOnPause = false;
-        //update_entry_list();
+        if( flag_force_update_on_resume )
+            update_entry_list();
+        flag_force_update_on_resume = false;
         Log.d( Lifeograph.TAG, "onResume - ActivityDiary" );
     }
 
@@ -453,8 +426,8 @@ public class ActivityDiary extends ListActivity
 
     void showEntry( Entry entry ) {
         if( entry != null ) {
-            entry_current = entry;
             Intent i = new Intent( this, ActivityEntry.class );
+            i.putExtra( "entry", entry.get_date_t() );
             startActivity( i );
         }
     }
@@ -764,8 +737,30 @@ public class ActivityDiary extends ListActivity
         int mSize = 0;
     }
 
+    static boolean flag_force_update_on_resume = false;
+
+    private DiaryElement mParentElem = Diary.diary;
+
     private java.util.List< DiaryElement > m_elems = new ArrayList< DiaryElement >();
     private DiaryElemAdapter m_adapter_entries;
+
+    private LayoutInflater mInflater;
+    private ActionBar mActionBar = null;
+    private DrawerLayout mDrawerLayout = null;
+    private EditText mEditSearch = null;
+    private Button mButtonSearchTextClear = null;
+    private ToggleImageButton mButtonShowTodoNot = null;
+    private ToggleImageButton mButtonShowTodoOpen = null;
+    private ToggleImageButton mButtonShowTodoProgressed = null;
+    private ToggleImageButton mButtonShowTodoDone = null;
+    private ToggleImageButton mButtonShowTodoCanceled = null;
+    private Spinner mSpinnerShowFavorite = null;
+    private ElemListAllEntries mElemAllEntries = null;
+
+    private boolean mFlagSaveOnLogOut = true;
+    private boolean mFlagLogoutOnPause = false;
+
+    private long mDateLast;
 
     // COMPARATOR ==================================================================================
     static class CompareListElems implements Comparator< DiaryElement >
