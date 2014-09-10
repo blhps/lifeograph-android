@@ -69,7 +69,24 @@ public class ActivityDiary extends ListActivity
         if( mActionBar != null )
             mActionBar.setDisplayHomeAsUpEnabled( true );
 
+        // FILLING WIDGETS
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
+        mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
+
+        mEditSearch = ( EditText ) findViewById( R.id.editTextSearch );
+        mButtonSearchTextClear = ( Button ) findViewById( R.id.buttonClearText );
+
+        mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
+        mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
+        mButtonShowTodoProgressed = ( ToggleImageButton ) findViewById( R.id.show_todo_progressed );
+        mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
+        mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
+        mSpinnerShowFavorite = ( Spinner ) findViewById( R.id.spinnerFavorites );
+
+        // UI UPDATES (must come before listeners)
+        updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
+
+        // LISTENERS
         mDrawerLayout.setDrawerListener( new DrawerLayout.DrawerListener()
         {
             public void onDrawerSlide( View view, float v ) { }
@@ -84,12 +101,6 @@ public class ActivityDiary extends ListActivity
 
             public void onDrawerStateChanged( int i ) { }
         } );
-
-        mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
-
-        // SEARCHING
-        mEditSearch = ( EditText ) findViewById( R.id.editTextSearch );
-        mButtonSearchTextClear = ( Button ) findViewById( R.id.buttonClearText );
 
         mEditSearch.addTextChangedListener( new TextWatcher() {
             public void afterTextChanged( Editable s ) {
@@ -110,17 +121,6 @@ public class ActivityDiary extends ListActivity
                 mEditSearch.setText( "" );
             }
         } );
-
-        // FILTERING
-        mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
-        mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
-        mButtonShowTodoProgressed = ( ToggleImageButton ) findViewById( R.id.show_todo_progressed );
-        mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
-        mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
-        mSpinnerShowFavorite = ( Spinner ) findViewById( R.id.spinnerFavorites );
-
-        // must come before listeners
-        updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
 
         mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
@@ -152,12 +152,18 @@ public class ActivityDiary extends ListActivity
         mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener()
         {
             public void onItemSelected( AdapterView< ? > pv, View v, int pos, long id ) {
-                handleFilterFavoriteChanged( pos );
+                // onItemSelected() is fired unnecessarily during initialization, so:
+                if( initialized )
+                    handleFilterFavoriteChanged( pos );
+                else
+                    initialized = true;
             }
 
             public void onNothingSelected( AdapterView< ? > arg0 ) {
                 Log.d( Lifeograph.TAG, "Filter Favorites onNothingSelected" );
             }
+
+            private boolean initialized = false;
         } );
 
         Button buttonFilterReset = ( Button ) findViewById( R.id.buttonFilterReset );
@@ -245,6 +251,14 @@ public class ActivityDiary extends ListActivity
 
         getMenuInflater().inflate( R.menu.menu_diary, menu );
 
+        MenuItem item = menu.findItem( R.id.add_elem );
+        AddElemAction addElemAction = ( AddElemAction ) item.getActionProvider();
+        addElemAction.mParent = this;
+
+        item = menu.findItem( R.id.change_todo_status );
+        ToDoAction ToDoAction = ( ToDoAction ) item.getActionProvider();
+        ToDoAction.mObject = this;
+
         return true;
     }
 
@@ -278,8 +292,6 @@ public class ActivityDiary extends ListActivity
 
         item = menu.findItem( R.id.rename );
         item.setVisible( type != Type.DIARY && type != Type.ALL_ENTRIES );
-
-        ToDoAction.mObject = this;
 
         return true;
     }
@@ -742,7 +754,7 @@ public class ActivityDiary extends ListActivity
     private DiaryElement mParentElem = Diary.diary;
 
     private java.util.List< DiaryElement > m_elems = new ArrayList< DiaryElement >();
-    private DiaryElemAdapter m_adapter_entries;
+    private DiaryElemAdapter m_adapter_entries = null;
 
     private LayoutInflater mInflater;
     private ActionBar mActionBar = null;

@@ -22,6 +22,7 @@
 
 package de.dizayn.blhps.lifeograph;
 
+import android.content.Context;
 import android.view.ActionProvider;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -29,9 +30,8 @@ import android.view.View;
 
 public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItemClickListener
 {
-    public AddElemAction( ActivityDiary parent ) {
-        super( parent );
-        mParent = parent;
+    public AddElemAction( Context context ) {
+        super( context );
     }
 
     @Override
@@ -81,5 +81,5 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
         return null;
     }
 
-    private ActivityDiary mParent;
+    ActivityDiary mParent;
 }

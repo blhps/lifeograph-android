@@ -260,6 +260,10 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
         getMenuInflater().inflate( R.menu.menu_entry, menu );
 
+        MenuItem item = menu.findItem( R.id.change_todo_status );
+        ToDoAction ToDoAction = ( ToDoAction ) item.getActionProvider();
+        ToDoAction.mObject = this;
+
         return true;
     }
 
@@ -269,8 +273,6 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
         MenuItem item = menu.findItem( R.id.add_tag );
         item.setTitle( String.valueOf( m_ptr2entry.m_tags.size() ) );
-
-        ToDoAction.mObject = this;
 
         return true;
     }
@@ -1308,7 +1310,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         // else
         {
             m_spans.add( new ClickableSpan() {
-                String uri = new String( word_last );
+                String uri = word_last;
 
                 @Override
                 public void onClick( View widget ) {

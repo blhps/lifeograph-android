@@ -106,5 +106,5 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
     }
 
     //private Context mContext; // not used now
-    public static ToDoObject mObject;
+    ToDoObject mObject;
 }
