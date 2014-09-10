@@ -29,6 +29,7 @@ import java.io.IOException;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import android.util.Log;
 
@@ -599,72 +600,115 @@ public class Diary extends DiaryElement
     }
 
     public void dismiss_chapter( Chapter chapter ) {
-        // TODO: add an option to also delete entries within the chapter
-        if( chapter.is_ordinal() ) {
-            // ORDER SHIFTING TO PRESERVE CONTINUITY
-            if( m_topics.mMap.size() == 1 ) // must be handled separately
+        // BEWARE: higher means the earlier and lower means the later here!
+        if( chapter.is_ordinal() ) // topic or group
+        {
+            Chapter.Category ptr2ctg = ( chapter.get_date().is_hidden() ? m_groups : m_topics );
+
+            if( !ptr2ctg.mMap.containsKey( chapter.m_date_begin.m_date ) )
             {
-                m_topics.mMap.remove( chapter.m_date_begin.m_date );
+                Log.e( Lifeograph.TAG, "chapter could not be found in assumed category" );
                 return;
             }
 
-            // CALCULATE HELPER VALUES
-            Date d_chapter = chapter.m_date_begin;
-            long d_chapter_next = d_chapter.m_date + Date.ORDINAL_STEP;
-            boolean flag_last_chapter = ( m_topics.mMap.get( d_chapter_next ) == null );
+            Chapter chapter_next = ( ptr2ctg.mMap.lowerKey( chapter.m_date_begin.m_date ) != null ?
+                    ptr2ctg.mMap.lowerEntry( chapter.m_date_begin.m_date ).getValue() : null );
 
-            long last_order_of_prev_chapter = 0;
-            if( flag_last_chapter ) {
-                Chapter chapter_prev = ( m_topics.mMap.get( d_chapter.m_date - Date.ORDINAL_STEP ) );
-                Date d_first_free = chapter_prev.get_free_order();
-                last_order_of_prev_chapter = d_first_free.get_order() - 1;
+            final boolean flag_erasing_oldest_cpt = (
+                    chapter_next == null &&
+                    ptr2ctg.mMap.higherKey( chapter.m_date_begin.m_date ) != null );
+
+            // CALCULATE THE LAST ENTRY DATE
+            long last_entry_date;
+            // last entry date is taken from previous chapter's last entry when
+            // the chapter to be deleted is the last chapter
+            if( flag_erasing_oldest_cpt )
+            {
+                Chapter chapter_p = ptr2ctg.mMap.higherEntry( chapter.m_date_begin.m_date )
+                                               .getValue();
+
+                // use the chapters date if it does not contain any entry
+                last_entry_date = chapter_p.mEntries.isEmpty() ? chapter_p.get_date().m_date
+                        : chapter_p.mEntries.first().m_date.m_date;
             }
-            else {
-                Date d_first_free = chapter.get_free_order();
-                last_order_of_prev_chapter = d_first_free.get_order() - 1;
-            }
-
-            // ACTUALLY DISMISS THE TOPIC
-            m_topics.mMap.remove( chapter.m_date_begin.m_date );
-
-            // SHIFT TOPICS
-            for( long d = d_chapter.m_date + Date.ORDINAL_STEP;; d += Date.ORDINAL_STEP ) {
-                Chapter chpt = m_topics.mMap.get( d );
-                if( chpt == null )
-                    break;
-                m_topics.mMap.remove( d );
-                chpt.set_date( d - Date.ORDINAL_STEP );
-                m_topics.mMap.put( chpt.m_date_begin.m_date, chpt );
+            else
+            {
+                last_entry_date = chapter.mEntries.isEmpty() ? chapter.get_date().m_date
+                        : chapter.mEntries.first().get_date().m_date;
             }
 
-            // SHIFT ENTRIES
-            if( m_entries.size() > 0 ) {
-                long date_first = ( Long ) m_entries.keySet().toArray()[ 0 ];
-                for( long d = d_chapter.m_date + 1; d <= date_first; ) {
-                    Entry entry = m_entries.get( d );
-                    if( entry == null ) {
-                        d += Date.ORDINAL_STEP;
-                        d = Date.reset_order_1( d );
-                        continue;
+            // SHIFT ENTRY DATES
+            boolean flag_first = true;
+            boolean flag_dismiss_contained = false; // TODO WILL BE ADDED IN 0.3+
+            for( Chapter chpt = chapter; chpt != null; )
+            {
+                boolean flag_neighbor = ( chpt.get_date().m_date == chapter.get_date().m_date
+                    + Date.ORDINAL_STEP  );
+
+                for( Entry entry : chpt.mEntries )
+                {
+                    if( flag_first && flag_dismiss_contained )
+                        dismiss_entry( entry );
+                    else if( !flag_first || flag_erasing_oldest_cpt )
+                    {
+                        m_entries.remove( entry.get_date().m_date );
+                        if( !flag_dismiss_contained && ( flag_neighbor || flag_erasing_oldest_cpt ) )
+                            entry.set_date( entry.get_date().get_order() + last_entry_date );
+                        else
+                            entry.set_date( entry.get_date().m_date - Date.ORDINAL_STEP );
+                        m_entries.put( entry.get_date().m_date, entry );
                     }
-
-                    int order_diff =
-                            ( entry.m_date.get_ordinal_order() - d_chapter.get_ordinal_order() );
-
-                    if( order_diff > 0 || ( order_diff == 0 && flag_last_chapter ) ) {
-                        m_entries.remove( d );
-                        long d_new = ( d - Date.ORDINAL_STEP );
-                        if( order_diff == 1 || ( order_diff == 0 && flag_last_chapter ) )
-                            d_new += last_order_of_prev_chapter;
-                        entry.m_date.m_date = d_new;
-                        m_entries.put( d_new, entry );
-                    }
-                    d++;
                 }
+                flag_first = false;
+
+                if( ptr2ctg.mMap.lowerKey( chpt.m_date_begin.m_date ) != null )
+                    chpt = ptr2ctg.mMap.lowerEntry( chpt.m_date_begin.m_date ).getValue();
+                else
+                    chpt = null;
+            }
+
+            // REMOVE THE ACTUAL CHAPTER
+            ptr2ctg.mMap.remove( chapter.get_date().m_date );
+
+            // SHIFT OTHER CHAPTERS
+            for( Chapter chpt = chapter_next; chpt != null; ) {
+                ptr2ctg.mMap.remove( chpt.get_date().m_date );
+                chpt.set_date( chpt.get_date().m_date - Date.ORDINAL_STEP );
+                ptr2ctg.mMap.put( chpt.get_date().m_date, chpt );
+
+                if( ptr2ctg.mMap.lowerKey( chpt.m_date_begin.m_date ) != null )
+                    chpt = ptr2ctg.mMap.lowerEntry( chpt.m_date_begin.m_date ).getValue();
+                else
+                    chpt = null;
             }
         }
-        else
-            m_ptr2chapter_ctg_cur.dismiss_chapter( chapter );
+        else // TEMPORAL CHAPTER
+        {
+            if( !m_ptr2chapter_ctg_cur.mMap.containsKey( chapter.m_date_begin.m_date ) )
+            {
+                Log.e( Lifeograph.TAG, "chapter could not be found in assumed category" );
+                return;
+            }
+            // fix time span
+            else if( m_ptr2chapter_ctg_cur.mMap.higherKey( chapter.m_date_begin.m_date ) != null )
+            {
+                Chapter chapter_earlier =
+                        m_ptr2chapter_ctg_cur.mMap.higherEntry( chapter.m_date_begin.m_date )
+                                                  .getValue();
+                if( chapter.m_time_span > 0 )
+                    chapter_earlier.m_time_span += chapter.m_time_span;
+                else
+                    chapter_earlier.m_time_span = 0;
+            }
+
+//            if( flag_dismiss_contained )
+//            {
+//                for( Entry entry : chapter.mEntries )
+//                    dismiss_entry( entry );
+//            }
+
+            m_ptr2chapter_ctg_cur.mMap.remove( chapter.get_date().m_date );
+        }
     }
 
     // Date get_free_chapter_order_temporal();
@@ -1541,14 +1585,16 @@ public class Diary extends DiaryElement
 
     private int m_current_id;
     private int m_force_id;
-    private java.util.Map< Integer, DiaryElement > m_ids = new TreeMap< Integer, DiaryElement >();
+    private java.util.TreeMap< Integer, DiaryElement > m_ids =
+            new TreeMap< Integer, DiaryElement >();
 
-    java.util.Map< Long, Entry > m_entries = new TreeMap< Long, Entry >( DiaryElement.compare_dates );
+    java.util.TreeMap< Long, Entry > m_entries =
+            new TreeMap< Long, Entry >( DiaryElement.compare_dates );
     Untagged m_untagged = new Untagged();
-    java.util.Map< String, Tag > m_tags = new TreeMap< String, Tag >();
-    java.util.Map< String, Tag.Category > m_tag_categories =
+    java.util.TreeMap< String, Tag > m_tags = new TreeMap< String, Tag >();
+    java.util.TreeMap< String, Tag.Category > m_tag_categories =
             new TreeMap< String, Tag.Category >( DiaryElement.compare_names );
-    java.util.Map< String, Chapter.Category > m_chapter_categories =
+    java.util.TreeMap< String, Chapter.Category > m_chapter_categories =
             new TreeMap< String, Chapter.Category >( DiaryElement.compare_names );
     Chapter.Category m_ptr2chapter_ctg_cur = null;
     Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );

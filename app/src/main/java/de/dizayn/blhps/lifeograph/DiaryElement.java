@@ -190,9 +190,15 @@ public abstract class DiaryElement {
         }
     }
 
+    static class CompareElemsByDate implements Comparator< DiaryElement > {
+        public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
+            return ( int ) ( elem_r.get_date().m_date - elem_l.get_date().m_date );
+        }
+    }
+
     static class CompareDates implements Comparator< Long > {
         public int compare( Long date_l, Long date_r ) {
-            return (int) ( date_r - date_l );
+            return ( int ) ( date_r - date_l );
         }
     }
 
@@ -202,7 +208,8 @@ public abstract class DiaryElement {
         }
     }
 
-    static final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
+    //static final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
+    static final CompareElemsByDate compare_elems_by_date = new CompareElemsByDate();
     static final CompareDates compare_dates = new CompareDates();
     static final CompareNames compare_names = new CompareNames();
 }

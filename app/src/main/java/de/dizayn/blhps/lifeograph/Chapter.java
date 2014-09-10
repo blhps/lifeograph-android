@@ -23,6 +23,7 @@ package de.dizayn.blhps.lifeograph;
 
 import java.util.ArrayList;
 import java.util.Map;
+import java.util.TreeSet;
 
 public class Chapter extends DiaryElement {
     public static class Category extends DiaryElement {
@@ -73,25 +74,6 @@ public class Chapter extends DiaryElement {
             return create_chapter( name, get_free_order_ordinal() );
         }
 
-        public void dismiss_chapter( Chapter chapter ) {
-            boolean found = false;
-
-            for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
-                if( e.getKey() == chapter.m_date_begin.m_date ) {
-                    found = true;
-                }
-                else if( found ) {
-                    Chapter chapter_earlier = e.getValue();
-                    if( chapter.m_time_span > 0 )
-                        chapter_earlier.m_time_span += chapter.m_time_span;
-                    else
-                        chapter_earlier.m_time_span = 0;
-                    break;
-                }
-            }
-            mMap.remove( chapter.m_date_begin.m_date );
-        }
-
         public long get_free_order_ordinal() {
             if( mMap.isEmpty() )
                 return( m_date_min );
@@ -127,11 +109,11 @@ public class Chapter extends DiaryElement {
             return null;
         }
 
-        public java.util.Map< Long, Chapter > getMap() {    // Java only
+        public java.util.TreeMap< Long, Chapter > getMap() {    // Java only
             return mMap;
         }
 
-        java.util.Map< Long, Chapter > mMap;
+        java.util.TreeMap< Long, Chapter > mMap;
         final long m_date_min;
     }
 
@@ -248,5 +230,6 @@ public class Chapter extends DiaryElement {
     Date m_date_begin;
     int m_time_span = 0;
     Type m_type;
-    java.util.List< Entry > mEntries = new ArrayList< Entry >();
+    java.util.TreeSet< Entry > mEntries =
+            new TreeSet< Entry >( DiaryElement.compare_elems_by_date );
 }

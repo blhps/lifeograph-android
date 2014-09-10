@@ -84,6 +84,9 @@ public class Entry extends DiaryElement {
         return m_date;
     }
 
+    public void set_date( long date )
+    { m_date.m_date = date; }
+
     public String get_title() {
         if( m_date.is_hidden() ) {
             if( m_ptr2diary.m_groups.getMap().containsKey( m_date.get_pure() ) )
