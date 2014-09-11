@@ -145,7 +145,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         if( flag_open_ready ) {
             flag_open_ready = false;
-            switch( Diary.diary.read_header() ) {
+            switch( Diary.diary.read_header( getAssets() ) ) {
                 case SUCCESS:
                     flag_open_ready = true;
                     break;
@@ -265,6 +265,9 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         }
         else
             Lifeograph.showToast( this, R.string.storage_not_available );
+
+        m_paths.add( Diary.sExampleDiaryPath );
+        mAdapterDiaries.add( Diary.sExampleDiaryName );
     }
 
     void launchSettings() {

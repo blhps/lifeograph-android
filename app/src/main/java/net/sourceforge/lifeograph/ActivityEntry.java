@@ -239,7 +239,6 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
                 new ArrayAdapter< String >( this,
                                             android.R.layout.simple_list_item_multiple_choice,
                                             android.R.id.text1 );
-
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
     }

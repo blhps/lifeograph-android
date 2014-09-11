@@ -423,7 +423,7 @@ public class ActivityDiary extends ListActivity
 
         // Diary.diary.m_last_elem = get_cur_elem()->get_id();
 
-        if( mFlagSaveOnLogOut ) {
+        if( mFlagSaveOnLogOut && !Diary.diary.is_read_only() ) {
             if( Diary.diary.write() != Result.SUCCESS ) {
                 Lifeograph.showToast( this, "Cannot write back changes" );
                 return false;

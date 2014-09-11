@@ -26,8 +26,10 @@ import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.TreeMap;
 
+import android.content.res.AssetManager;
 import android.util.Log;
 
 enum Result {
@@ -46,7 +48,11 @@ public class Diary extends DiaryElement
     public final static int DB_FILE_VERSION_INT_MIN = 110;
     public static final String LOCK_SUFFIX = ".~LOCK~";
 
+    public static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
+    public static final String sExampleDiaryName = "*** Example Diary ***";
+
     public final static int PASSPHRASE_MIN_SIZE = 4;
+
     public static Diary diary = null;
 
     public enum SetPathType { NORMAL, READ_ONLY, NEW }
@@ -228,6 +234,14 @@ public class Diary extends DiaryElement
     
     // DISK I/O ====================================================================================
     public Result set_path( String path, SetPathType type ) {
+        // ANDROID ONLY:
+        if( path.equals( sExampleDiaryPath ) ) {
+            m_path = path;
+            m_name = sExampleDiaryName;
+            m_flag_read_only = true;
+            return Result.SUCCESS;
+        }
+
         // CHECK FOR SYSTEM PERMISSIONS
         File fp = new File( path );
         if( !fp.exists() ) {
@@ -304,19 +318,23 @@ public class Diary extends DiaryElement
 //        return false;
 //    }
 
-    public Result read_header() {
-        // File file = new File( m_path );
+    public Result read_header( AssetManager assetMan ) {
         String line;
 
         try {
-            FileReader fr = new FileReader( m_path );
-            if( mBufferedReader == null )
-                mBufferedReader = new BufferedReader( fr );
+            if( m_path.equals( sExampleDiaryPath ) ) {
+                mBufferedReader = new BufferedReader( new InputStreamReader(
+                        assetMan.open( "example.diary" ) ) );
+            }
+            else {
+                mFileReader = new FileReader( m_path );
+                mBufferedReader = new BufferedReader( mFileReader );
+            }
 
             line = mBufferedReader.readLine();
 
             if( line.equals( DB_FILE_HEADER ) == false ) {
-                fr.close();
+                mFileReader.close();
                 mBufferedReader = null;
                 return Result.CORRUPT_FILE;
             }
@@ -331,7 +349,7 @@ public class Diary extends DiaryElement
                         m_read_version = Integer.parseInt( line.substring( 2 ) );
                         if( m_read_version < DB_FILE_VERSION_INT_MIN
                             || m_read_version > DB_FILE_VERSION_INT ) {
-                            fr.close();
+                            mFileReader.close();
                             mBufferedReader = null;
                             return Result.INCOMPATIBLE_FILE;
                         }
@@ -348,7 +366,7 @@ public class Diary extends DiaryElement
                         break;
                     // case 0: // end of header
                     // m_body_position = br.position(); // not easy in java
-                    // fr.close();
+                    // mFileReader.close();
 
                     default:
                         Log.e( Lifeograph.TAG, "unrecognized header line: " + line );
@@ -356,11 +374,11 @@ public class Diary extends DiaryElement
                 }
             }
 
-            fr.close();
+            if( mFileReader != null )
+                mFileReader.close();
         }
         catch( IOException e ) {
-            // Unable to create file, likely because external storage is
-            // not currently mounted.
+            // Unable to create file, likely because external storage is not currently mounted.
             Log.e( Lifeograph.TAG, "Failed to open diary file " + m_path, e );
         }
 
@@ -369,11 +387,24 @@ public class Diary extends DiaryElement
     }
 
     public Result read_body() {
+        Result result;
         if( m_passphrase.length() == 0 )
-            return read_plain();
+            result = read_plain();
         else
             // return read_encrypted();
-            return Result.FAILURE;
+            result = Result.FAILURE;
+
+        try {
+            if( mFileReader != null ) {
+                mFileReader.close();
+                mFileReader = null;
+            }
+        }
+        catch( IOException e ) {
+            Log.e( Lifeograph.TAG, e.getMessage() );
+        }
+
+        return result;
     }
 
     public Result write() {
@@ -1214,7 +1245,7 @@ public class Diary extends DiaryElement
                                                                line.charAt( 6 ) == 'T',
                                                                line.charAt( 6 ) == 'T',
                                                                line.charAt( 7 ) == 'D',
-                                                               line.charAt( 9 ) == 'C' );
+                                                               line.charAt( 8 ) == 'C' );
                                     break;
                                 case 't':   // tag
                                 {
@@ -1308,9 +1339,8 @@ public class Diary extends DiaryElement
                         if( line.length() < 5 )
                             continue;
 
-                        long date = Long.parseLong( line.substring( 4 ) );
-                        entry_new = new Entry( this, fix_pre_1020_date( date ),
-                                               line.charAt( 1 ) == 'f' );
+                        long date = fix_pre_1020_date( Long.parseLong( line.substring( 4 ) ) );
+                        entry_new = new Entry( this,  date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         add_entry_to_related_chapter( entry_new );
 
@@ -1858,5 +1888,6 @@ public class Diary extends DiaryElement
     // i/o
     // protected int m_body_offset;
     private BufferedReader mBufferedReader = null;
+    private FileReader mFileReader = null;
     private FileWriter mFileWriter = null;
 }
