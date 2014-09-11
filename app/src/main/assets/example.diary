@@ -5,7 +5,7 @@ E no
 O d
 l en_US
 S 10034
-L 10049
+L 10034
 ID10043
 t example tag
 ID10036
@@ -58,49 +58,47 @@ Dr1339235057
 Dh1405889312
 T-example tag
 P Example Entry (Basics)
-P
+P 
 P As above, first paragraph of an entry is always formatted as heading
-P
+P 
 P  Subheadings
 P Paragraphs starting with a space (" ") are formatted as a subheading
-P
+P 
 P  wiki-style richtext formatting
 P 	• By using _special_ =characters= #you can# *format* text [[and add comments]]
 P 	• By placing a <dot> and <tab> at the beginning you can disable formatting in a paragraph:
 P .	By using _special_ =characters= #you can# *format* text
-P
+P 
 P  Links to other entries
 P Links to entries can be created by dragging and dropping entries from the list into editing area:
 P 	• <deid:10007	What is new in Lifeograph 0.8.2?>
-P
+P 
 P  Links to dates
 P Dates entered in YEAR/MONTH/DAY format are converted into links:
 P 	• existing: 2012.05.10, 2012/03/05
 P 	• non-existing: 2009.01.02 (creates a new entry)
-P
+P 
 P  Links to web sites, email addresses, etc...
 P web and email addresses in the text are detected and automatically converted to links:
 P http://web.address     email@ddress
-P
+P 
 P  Checklist (clicking boxes changes the state)
 P 	☑ this is done
 P 	☐ this item consists of two phases
 P 		☑ phase 1
 P 		☐ phase 2
 P 	☒ this is canceled
-P
+P 
 
 ID10034
 E---2147483649
 Dr1339235609
-Dh1409598309
-P Welcome to Lifeograph
-P
-P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph.
-P
-P <deid:10033	Entry Basics (example entry)>
-P
-P <deid:10003	What is new in this version (1.1.1)>
+Dh1410472193
+P Welcome to Lifeograph for Android
+P 
+P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph _for desktops_.
+P 
+P PLEASE NOTE THAT SOME FORMATTING FEATURES SUCH AS LINKS HAVE NOT BEEN IMPLEMENTED IN ANDROID VERSION YET.
 
 ID10003
 E---1056212993
@@ -109,14 +107,14 @@ Dh1409601487
 T-minor
 TTstable
 P 1.1.1 / wise men don't know how it feels to be thick as a brick
-P
+P 
 P  What is new?
 P 	• Added saving the theme of the Untagged meta-tag which was missing in v1.1.0. This required the diary version to be increased
 P 	• Enabled reordering of todo groups
 P 	• Many bug fixes
 P 	• Translation updates
-P
-P
+P 
+P 
 
 ID10049
 E---1056181249
@@ -125,11 +123,11 @@ Dh1409602144
 T-major
 TTstable
 P 1.1.0 / gaza
-P
+P 
 P  What is new?
 P 	• Added options for changing the format dates are displayed in
 P 	• Added a new entry type for todo items
-P 	• Added many new icons and updated some of the existing ones
+P 	• Added many new icons and updated some of the existing ones 
 P 	• Updated the main window layout
 P 	• Improved the presentation of favored and trashed entries in the list
 P 	• Merged themes into the tags
@@ -153,7 +151,7 @@ Dh1391259093
 T-minor
 TTstable
 P 1.0.1 / incident at neshabur
-P
+P 
 P  What is new?
 P 	• Bug fixes
 P 	• Small updates to the user manual
@@ -165,7 +163,7 @@ Dh1391259243
 T-major
 TTstable
 P 1.0.0 / expect anything
-P
+P 
 P  What is new?
 P 	• Brand new main icon
 P 	• Moved from Waf to Cmake for the build system
@@ -197,7 +195,7 @@ Dh1360178239
 T-minor
 TTstable
 P 0.11.1 / limerence in r'lyeh
-P
+P 
 P  What is new?
 P 	• Updated the look of the diary toolbar
 P 	• Slightly extended the user manual
@@ -211,7 +209,7 @@ Dh1356186189
 T-major
 TTstable
 P 0.11.0 / sheepish docility
-P
+P 
 P  What is new?
 P 	• Added trash can functionality to dismiss entries in two steps for increased safety
 P 	• Replaced the icon view for entry tags with a new custom widget
@@ -230,7 +228,7 @@ P 	• Implemented preserving maximized window state
 P 	• Updated and slightly extended the user manual
 P 	• Huge code reorganizations and cleanups
 P 	• Many bug fixes
-P 	• Added Ukrainian translation and updated existing translations
+P 	• Added Ukrainian translation and updated existing translations 
 
 ID10042
 E---1055216641
@@ -239,7 +237,7 @@ Dh1350801932
 T-major
 TTstable
 P 0.10.0 / sombrero
-P
+P 
 P  What is new?
 P 	• Added support for displaying image thumbnails in text editor for links to image files
 P 	• Added support for relative paths in links
@@ -264,7 +262,7 @@ Dh1341662473
 T-major
 TTstable
 P 0.9.0 / gog
-P
+P 
 P  What is new?
 P 	• Lifeograph upgraded to Gtk+ 3
 P 	• Improved login screen with an unlimited list of diaries
@@ -286,7 +284,7 @@ Dh1338846283
 T-minor
 TTstable
 P 0.8.2 / tom bombadil
-P
+P 
 P  What is new?
 P 	• Fixed numerous bugs
 P 	• Cleaned up source code
@@ -299,13 +297,13 @@ Dh1338846332
 T-minor
 TTstable
 P 0.8.1 / mazer rackham
-P
+P 
 P  What is new?
 P 	• Fixed/improved markup character handling
 P 	• Fixed numerous bugs
 P 	• Updated Czech translation
-P
-P
+P 
+P 
 
 ID10010
 E---1054946305
@@ -314,15 +312,15 @@ Dh1339187303
 T-major
 TTstable
 P 0.8.0 / timbuktu
-P
+P 
 P  What is new?
 P 	• Improved and fixed entry text parser
 P 	• Visually improved some of the icons
 P 	• Fixed compilation problems on relatively older systems
 P 	• Fixed numerous bugs
 P 	• Updated existing translations
-P
-P
+P 
+P 
 
 ID10011
 E---1054928897
@@ -331,7 +329,7 @@ Dh1339187307
 T-major
 TTunstable
 P 0.7.5 / the formidable creature
-P
+P 
 P  What is new?
 P 	• Added printing support
 P 	• Added the ability to add comments to text which can be hidden when not needed
@@ -357,7 +355,7 @@ Dh1339233559
 T-major
 TTunstable
 P 0.7.4 / sarajevo
-P
+P 
 P  What is new?
 P 	• Added time-independent chapters (topics) and entries for adding notes that are not related to a particular date
 P 	• Added drag and drop support to the entry list
@@ -377,7 +375,7 @@ P 	• Made some UI refinements
 P 	• Fixed numerous bugs
 P 	• Updated existing translations
 P 	• And many more...
-P
+P 
 
 ID10013
 E---1054603265
@@ -386,7 +384,7 @@ Dh1339233815
 T-major
 TTunstable
 P 0.7.3 / time is always against us
-P
+P 
 P  What is new?
 P 	• Added tag categorization for easier management of tags
 P 	• Added the ability to store multiple themes within a diary file
@@ -423,11 +421,11 @@ Dh1339233394
 T-major
 TTunstable
 P 0.7.2 / new horizons?
-P
-P  What is new?
+P 
+P  What is new? 
 P 	• Added support for three different types of lists to the editor:
 P 	    	• A basic bulleted list system,
-P 	    	• a basic numbered list system,
+P 	    	• a basic numbered list system, 
 P 	    	• and a very handy check list system.
 P 	• Added the ability to give links to the other entries of a day from within an entry of the same day
 P 	• Implemented saving daily backup files when compiled in debug mode
@@ -436,7 +434,7 @@ P 	• Added translator credits to the about box
 P 	• New translations: Arabic, Basque, Galician, and German
 P 	• Updated existing translations
 P 	• Numerous bug fixes and improvements
-P
+P 
 
 ID10016
 E---1054178305
@@ -445,7 +443,7 @@ Dh1339233509
 T-major
 TTunstable
 P 0.7.1 / the alchemy of happiness
-P
+P 
 P  What is new?
 P 	• Added an option to hide wiki markup characters in the entry editor
 P 	• Added charts to the month and tag views that show graphs of number of
@@ -458,8 +456,8 @@ P       existing translations
 P 	• Added a chapter icon and improved the month icon
 P 	• Improved infrastructure at some more points
 P 	• Numerous bug fixes and improvements
-P
-P
+P 
+P 
 
 ID10017
 E---1054118913
@@ -468,7 +466,7 @@ Dh1339233905
 T-major
 TTunstable
 P 0.7.0 / arpa emini
-P
+P 
 P  What is new?
 P 	• Switched the build system of choice to "Waf"
 P 	• Switched to a plain text file based settings storage system, thus
@@ -482,8 +480,8 @@ P 	• Added a month icon
 P 	• Tweaked main window layout to use less vertical space
 P 	• Added Italian and Polish translations and updated existing translations
 P 	• _[Regression]_ Temporarily disabled replace and replace all functionality
-P
-P
+P 
+P 
 
 ID10018
 E---1054013441
@@ -492,7 +490,7 @@ Dh1339234070
 T-minor
 TTstable
 P 0.6.3 / a night in ever-crowded streets
-P
+P 
 P  What is new?
 P 	• Fixed filtering in group by tag mode
 P 	• Some fixes to spell-checking
@@ -507,7 +505,7 @@ Dh1339234083
 T-minor
 TTstable
 P 0.6.2 / neopancartism
-P
+P 
 P  What is new?
 P 	• Fixed crash when trying to delete a tag
 P 	• Added Hebrew translation by Yaron
@@ -521,7 +519,7 @@ Dh1339234096
 T-minor
 TTstable
 P 0.6.1 / ad-dar al-bayda
-P
+P 
 P  What is new?
 P 	• Fixed initialization of new databases as encrypted
 P 	• Fixed shortcut handling in entry editor (as manifested in
@@ -536,7 +534,7 @@ Dh1339234170
 T-major
 TTstable
 P 0.6.0 / coactus volui
-P
+P 
 P  What is new?
 P 	• Updated some icons and added a new icon for the program
 P 	• Added replace functionality for filter text matches
@@ -549,7 +547,7 @@ P 	• Improved & fixed list of entries' listing behaviors to be more efficient 
 P 	• Removed character restrictions for tag names (< and > were not allowed in tag names)
 P 	• Added French and Czech translations from Launchpad
 P 	• Various other fixes
-P
+P 
 
 ID10023
 E---1053680641
@@ -558,7 +556,7 @@ Dh1339234318
 T-major
 TTunstable
 P 0.5.6 / IM, where are you?
-P
+P 
 P  What is new?
 P 	• Added basic theme customization support to entry editor
 P 	• Added shortcuts for making bold, italicizing, striking over, and highlighting text
@@ -573,8 +571,8 @@ P 	• Improved diary file format a little bit for more efficient i/o
 P     	• Diaries saved with this version cannot be opened with previous versions of Lifeograph
 P 	• Added Simplified Chinese translation by meng,shen, windwhinny, et al
 P 	• Some minor fixes
-P
-P
+P 
+P 
 
 ID10024
 E---1053617153
@@ -583,7 +581,7 @@ Dh1339234311
 T-major
 TTunstable
 P 0.5.5 / soldierth
-P
+P 
 P  What is new?
 P 	• Convert URIs into links (http:, ftp:, mailto:, file:, etc...)
 P 	• Show warning on window titlebar before logging out automatically
@@ -592,7 +590,7 @@ P 	• Fixed several minor bugs
 P 	• Added Russian translation by Igor "tigerman" Bekrenyov, Sergei Sedov, and aks-id
 P 	• Added Spanish translation by David Prieto, Federico Vera, Fuerteventura, and José Luis Jiménez Garay
 P 	• Added Swedish translation by Mikael Mildén
-P
+P 
 
 ID10025
 E---1053592577
@@ -601,7 +599,7 @@ Dh1339234355
 T-major
 TTunstable
 P 0.5.4 / kali yuga
-P
+P 
 P  What is new?
 P 	• Undo/redo support for entry text changes
 P 	• Convert YEAR/MONTH/DAY style dates in entries into links to that day
@@ -613,7 +611,7 @@ P 	• Back up previous version of diary before saving
 P 	• Save current changes temporarily every 30 seconds to minimize data loss on crashes
 P 	• Many functions re-factored
 P 	• Fixed a few bugs
-P
+P 
 
 ID10026
 E---1053572097
@@ -622,7 +620,7 @@ Dh1339234385
 T-major
 TTunstable
 P 0.5.3 / mavi marmara
-P
+P 
 P  What is new?
 P 	• Remember up to 8 recent diaries
 P 	• Wiki style rich text formatting (e.g. *bold*, _italic_, =strikeout=, etc...)
@@ -631,8 +629,8 @@ P 	• Case-insensitive search
 P 	• Simplified and polished user interface (especially login screen)
 P 	• Jump to current entry shortcut (Ctrl+J)
 P 	• Many fixes and re-factorings
-P
-P
+P 
+P 
 
 ID10028
 E---1053538305
@@ -641,7 +639,7 @@ Dh1339234415
 T-major
 TTunstable
 P 0.5.2 / Computer Liebe
-P
+P 
 P  What is new?
 P 	• New icons for tags, normal and favored entries
 P 	• Added ability to disable logging out automatically on idle
@@ -649,7 +647,7 @@ P 	• Added ability to tweak maximum idle time (only through gconf at the momen
 P 	• It is now possible to rename and delete defined tags
 P 	• Minor touches to the interface
 P 	• Fixed several bugs
-P
+P 
 
 ID10029
 E---1053503489
@@ -658,7 +656,7 @@ Dh1339234452
 T-major
 TTunstable
 P 0.5.1
-P
+P 
 P  What is new?
 P 	• Added entry tagging
 P 	• Revamped editing gui (vertical layout)
@@ -673,7 +671,7 @@ Dh1339238088
 T-minor
 TTstable
 P 0.4.1
-P
+P 
 P  What is new?
 P 	• Fixed a bug that prevents saving in x64 builds (thanks to Laszlo Boszormenyi)
 P 	• Fixed a crash when opening empty encrypted diaries
@@ -687,5 +685,6 @@ Dh1339238153
 T-major
 TTstable
 P 0.4.0
-P
+P 
 P Release 0.4.0 marks a milestone that constitutes a (more or less) stable base with a standard feature set, upon which more "revolutionary" features will be added in the future.
+

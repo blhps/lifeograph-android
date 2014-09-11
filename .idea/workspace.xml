@@ -53,12 +53,8 @@
     <option name="TOOL_WINDOW_CONFIGURED_FILTER" value="app: net.sourceforge.lifeograph" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="Added an example diary file as an asset">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/src/main/assets/example.diary" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityDiary.java" afterPath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityDiary.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityEntry.java" afterPath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityEntry.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityLogin.java" afterPath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityLogin.java" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/Diary.java" afterPath="$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/Diary.java" />
+    <list default="true" id="fb6b66a6-f0f7-4f8c-aa23-3155d87c483e" name="Default" comment="">
+      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/src/main/assets/example.diary" afterPath="$PROJECT_DIR$/app/src/main/assets/example.diary" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="LifeographAndroid.iws" />
@@ -164,8 +160,8 @@
       <file leaf-file-name="Diary.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/Diary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.430622" vertical-offset="2080" max-vertical-offset="6740">
-              <caret line="326" column="61" selection-start-line="326" selection-start-column="61" selection-end-line="326" selection-end-column="61" />
+            <state vertical-scroll-proportion="0.38277513" vertical-offset="2200" max-vertical-offset="6740">
+              <caret line="330" column="56" selection-start-line="330" selection-start-column="56" selection-end-line="330" selection-end-column="56" />
               <folding>
                 <element signature="class#Result#0" expanded="false" />
                 <element signature="class#SetPathType#0;class#Diary#0" expanded="false" />
@@ -2237,7 +2233,11 @@
       <created>1410439160573</created>
       <updated>1410439160573</updated>
     </task>
-    <option name="localTasksCounter" value="88" />
+    <task id="LOCAL-00088" summary="Added an example diary file to the assets. fixed parse_db v1010">
+      <created>1410470726616</created>
+      <updated>1410470726616</updated>
+    </task>
+    <option name="localTasksCounter" value="89" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2309,7 +2309,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="added filtering favorites. completely removed (commented out) filtering trash -just for now" />
     <MESSAGE value="reflect active filter on diary open" />
     <MESSAGE value="implemented saving and resetting active filter" />
     <MESSAGE value="use showToast helper for all toast messages" />
@@ -2334,7 +2333,8 @@
     <MESSAGE value="updated Date::format_string methods and implemented formatting the date according to the related settings" />
     <MESSAGE value="code cleanup" />
     <MESSAGE value="organized manifest and changed application id to net.sourceforge.lifeograph" />
-    <option name="LAST_COMMIT_MESSAGE" value="organized manifest and changed application id to net.sourceforge.lifeograph" />
+    <MESSAGE value="Added an example diary file to the assets. fixed parse_db v1010" />
+    <option name="LAST_COMMIT_MESSAGE" value="Added an example diary file to the assets. fixed parse_db v1010" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -2771,8 +2771,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/Diary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.430622" vertical-offset="2080" max-vertical-offset="6740">
-          <caret line="326" column="61" selection-start-line="326" selection-start-column="61" selection-end-line="326" selection-end-column="61" />
+        <state vertical-scroll-proportion="0.38277513" vertical-offset="2200" max-vertical-offset="6740">
+          <caret line="330" column="56" selection-start-line="330" selection-start-column="56" selection-end-line="330" selection-end-column="56" />
           <folding>
             <element signature="class#Result#0" expanded="false" />
             <element signature="class#SetPathType#0;class#Diary#0" expanded="false" />
