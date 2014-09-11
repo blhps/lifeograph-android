@@ -55,7 +55,6 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
             Diary.diary = new Diary();
 
         setContentView( R.layout.login );
-        // setTitle( "Diaries" );
 
         mAdapterDiaries =
                 new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
@@ -86,12 +85,15 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     @Override
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
+            case R.id.new_diary:
+                createNewDiary();
+                return true;
+            case R.id.settings:
+                launchSettings();
+                return true;
             case R.id.about:
                 DialogAbout dialog = new DialogAbout( this );
                 dialog.show();
-                return true;
-            case R.id.new_diary:
-                createNewDiary();
                 return true;
         }
 
@@ -252,6 +254,11 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         }
         else
             Lifeograph.showToast( this, R.string.storage_not_available );
+    }
+
+    void launchSettings() {
+        Intent i = new Intent( this, ActivitySettings.class );
+        startActivity( i );
     }
 
     // ABOUT DIALOG ================================================================================

@@ -2,7 +2,7 @@
 <resources>
     <string name="app_name">Lifeograph</string>
     <string name="about">About</string>
-    <string name="quit">Quit</string>
+    <string name="settings">Settings</string>
     <string name="cancel">Cancel</string>
     <string name="show">Show</string>
     <string name="add_today">Entry to Today</string>
