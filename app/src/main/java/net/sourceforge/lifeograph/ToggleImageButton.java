@@ -22,7 +22,7 @@
 // This Code is taken from
 // http://stackoverflow.com/questions/2604599/android-imagebutton-with-a-selected-state
 
-package de.dizayn.blhps.lifeograph;
+package net.sourceforge.lifeograph;
 
 import android.content.Context;
 import android.content.res.TypedArray;

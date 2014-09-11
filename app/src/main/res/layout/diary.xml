@@ -74,35 +74,35 @@
             android:layout_marginTop="3dp"
             android:orientation="horizontal" >
 
-            <de.dizayn.blhps.lifeograph.ToggleImageButton
+            <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_not"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_entry" />
 
-            <de.dizayn.blhps.lifeograph.ToggleImageButton
+            <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_open"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_open" />
 
-            <de.dizayn.blhps.lifeograph.ToggleImageButton
+            <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_progressed"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_progressed" />
 
-            <de.dizayn.blhps.lifeograph.ToggleImageButton
+            <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_done"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_done" />
 
-            <de.dizayn.blhps.lifeograph.ToggleImageButton
+            <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:id="@+id/show_todo_canceled"

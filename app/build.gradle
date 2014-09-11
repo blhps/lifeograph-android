@@ -3,7 +3,7 @@ android {
     compileSdkVersion 14
     buildToolsVersion '20.0.0'
     defaultConfig {
-        applicationId 'de.dizayn.blhps.lifeograph'
+        applicationId 'net.sourceforge.lifeograph'
         minSdkVersion 14
         targetSdkVersion 14
         compileOptions {
@@ -11,6 +11,7 @@ android {
             targetCompatibility JavaVersion.VERSION_1_5
         }
         versionName '0.2.0 [BETA]'
+        versionCode 2
     }
     buildTypes {
         release {

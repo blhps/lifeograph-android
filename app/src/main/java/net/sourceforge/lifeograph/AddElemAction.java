@@ -20,7 +20,7 @@
  ***********************************************************************************/
 
 
-package de.dizayn.blhps.lifeograph;
+package net.sourceforge.lifeograph;
 
 import android.content.Context;
 import android.view.ActionProvider;

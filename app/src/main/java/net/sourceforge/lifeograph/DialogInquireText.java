@@ -19,7 +19,7 @@
 
  ***********************************************************************************/
 
-package de.dizayn.blhps.lifeograph;
+package net.sourceforge.lifeograph;
 
 import android.app.Dialog;
 import android.content.Context;

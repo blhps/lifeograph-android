@@ -10,7 +10,7 @@
           android:title="@string/change_todo_status"
           android:icon="@drawable/ic_action_todo"
           android:orderInCategory="90"
-          android:actionProviderClass="de.dizayn.blhps.lifeograph.ToDoAction"
+          android:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
           android:showAsAction="always" />
     <item android:id="@+id/toggle_favorite"
           android:title="@string/toggle_favorite"

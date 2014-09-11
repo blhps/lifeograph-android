@@ -19,7 +19,7 @@
 
  ***********************************************************************************/
 
-package de.dizayn.blhps.lifeograph;
+package net.sourceforge.lifeograph;
 
 import java.util.ArrayList;
 import java.util.Map;

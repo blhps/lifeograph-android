@@ -19,7 +19,7 @@
 
  ***********************************************************************************/
 
-package de.dizayn.blhps.lifeograph;
+package net.sourceforge.lifeograph;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -50,7 +50,7 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
-import de.dizayn.blhps.lifeograph.DiaryElement.Type;
+import net.sourceforge.lifeograph.DiaryElement.Type;
 
 public class ActivityDiary extends ListActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener
