@@ -315,7 +315,10 @@ public class ActivityDiary extends ListActivity
                 showCalendar();
                 return true;
             case R.id.filter:
-                mDrawerLayout.openDrawer( Gravity.RIGHT );
+                if( mDrawerLayout.isDrawerOpen( Gravity.RIGHT ) )
+                    mDrawerLayout.closeDrawer( Gravity.RIGHT );
+                else
+                    mDrawerLayout.openDrawer( Gravity.RIGHT );
                 return true;
             case R.id.add_entry:
                 showEntry( Diary.diary.create_entry( ( ( Chapter ) mParentElem ).get_free_order(),

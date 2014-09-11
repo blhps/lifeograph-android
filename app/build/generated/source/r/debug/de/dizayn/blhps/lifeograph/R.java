@@ -136,7 +136,7 @@ public final class R {
         public static final int app_name=0x7f07000a;
         public static final int calendar=0x7f07000b;
         public static final int cancel=0x7f07000c;
-        public static final int caution_alpha=0x7f07000d;
+        public static final int caution_not_final=0x7f07000d;
         public static final int change_sorting=0x7f07000e;
         public static final int change_todo_status=0x7f07000f;
         public static final int chapter=0x7f070010;
