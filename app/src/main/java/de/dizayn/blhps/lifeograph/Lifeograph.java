@@ -27,6 +27,7 @@ import java.util.Locale;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.res.Configuration;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -38,6 +39,9 @@ public class Lifeograph
     public static final String TAG = "LFO";
 
     public static final String LANG_INHERIT_DIARY = "d";
+
+    public static final String setting_date_format_order = "date_format_order";
+    public static final String setting_date_format_separator = "date_format_separator";
 
     public static String getStr( int i ) {
         if( context == null )
@@ -73,5 +77,10 @@ public class Lifeograph
 
     public static String get_env_lang() {
         return Locale.getDefault().getLanguage();
+    }
+
+    private static boolean isXLargeTablet(Context context) {
+        return (context.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
     }
 }

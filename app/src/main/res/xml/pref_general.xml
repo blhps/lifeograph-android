@@ -10,7 +10,7 @@
         <ListPreference
             android:key="date_format_order"
             android:title="@string/pref_title_date_format_order"
-            android:defaultValue="-1"
+            android:defaultValue="@string/pref_date_format_order_default"
             android:entries="@array/pref_date_format_order_titles"
             android:entryValues="@array/pref_date_format_order_values"
             android:negativeButtonText="@null"
@@ -19,7 +19,7 @@
         <ListPreference
             android:key="date_format_separator"
             android:title="@string/pref_title_date_format_separator"
-            android:defaultValue="-1"
+            android:defaultValue="@string/pref_date_format_separator_default"
             android:entries="@array/pref_date_format_separator_titles"
             android:entryValues="@array/pref_date_format_separator_values"
             android:negativeButtonText="@null"

@@ -179,42 +179,44 @@ public final class R {
         public static final int new_diary=0x7f080030;
         public static final int new_tag=0x7f080031;
         public static final int placeholder=0x7f080032;
-        public static final int pref_header_date_format=0x7f080033;
-        public static final int pref_title_date_format_order=0x7f080034;
-        public static final int pref_title_date_format_separator=0x7f080035;
-        public static final int program_name=0x7f080036;
-        public static final int rename=0x7f080037;
-        public static final int rename_chapter=0x7f080038;
-        public static final int rename_tag=0x7f080039;
-        public static final int reset=0x7f08003a;
-        public static final int resorting_to_read_only=0x7f08003b;
-        public static final int save=0x7f08003c;
-        public static final int search_and_filter=0x7f08003d;
-        public static final int search_hint=0x7f08003e;
-        public static final int settings=0x7f08003f;
-        public static final int show=0x7f080040;
-        public static final int sort_by_date=0x7f080041;
-        public static final int sort_by_size=0x7f080042;
-        public static final int storage_not_available=0x7f080043;
-        public static final int tag=0x7f080044;
-        public static final int tag_ctg=0x7f080045;
-        public static final int tag_dismiss_confirm=0x7f080046;
-        public static final int tags=0x7f080047;
-        public static final int textview=0x7f080048;
-        public static final int title_activity_settings=0x7f080049;
-        public static final int todo=0x7f08004a;
-        public static final int todo_canceled=0x7f08004b;
-        public static final int todo_done=0x7f08004c;
-        public static final int todo_not=0x7f08004d;
-        public static final int todo_open=0x7f08004e;
-        public static final int todo_progressed=0x7f08004f;
-        public static final int todo_status=0x7f080050;
-        public static final int toggle_favorite=0x7f080051;
-        public static final int topic=0x7f080052;
-        public static final int untagged=0x7f080053;
-        public static final int version=0x7f080054;
-        public static final int website=0x7f080055;
-        public static final int welcome=0x7f080056;
+        public static final int pref_date_format_order_default=0x7f080033;
+        public static final int pref_date_format_separator_default=0x7f080034;
+        public static final int pref_header_date_format=0x7f080035;
+        public static final int pref_title_date_format_order=0x7f080036;
+        public static final int pref_title_date_format_separator=0x7f080037;
+        public static final int program_name=0x7f080038;
+        public static final int rename=0x7f080039;
+        public static final int rename_chapter=0x7f08003a;
+        public static final int rename_tag=0x7f08003b;
+        public static final int reset=0x7f08003c;
+        public static final int resorting_to_read_only=0x7f08003d;
+        public static final int save=0x7f08003e;
+        public static final int search_and_filter=0x7f08003f;
+        public static final int search_hint=0x7f080040;
+        public static final int settings=0x7f080041;
+        public static final int show=0x7f080042;
+        public static final int sort_by_date=0x7f080043;
+        public static final int sort_by_size=0x7f080044;
+        public static final int storage_not_available=0x7f080045;
+        public static final int tag=0x7f080046;
+        public static final int tag_ctg=0x7f080047;
+        public static final int tag_dismiss_confirm=0x7f080048;
+        public static final int tags=0x7f080049;
+        public static final int textview=0x7f08004a;
+        public static final int title_activity_settings=0x7f08004b;
+        public static final int todo=0x7f08004c;
+        public static final int todo_canceled=0x7f08004d;
+        public static final int todo_done=0x7f08004e;
+        public static final int todo_not=0x7f08004f;
+        public static final int todo_open=0x7f080050;
+        public static final int todo_progressed=0x7f080051;
+        public static final int todo_status=0x7f080052;
+        public static final int toggle_favorite=0x7f080053;
+        public static final int topic=0x7f080054;
+        public static final int untagged=0x7f080055;
+        public static final int version=0x7f080056;
+        public static final int website=0x7f080057;
+        public static final int welcome=0x7f080058;
     }
     public static final class style {
         /**  Customize your theme here. 
@@ -230,7 +232,6 @@ public final class R {
     }
     public static final class xml {
         public static final int pref_general=0x7f040000;
-        public static final int pref_headers=0x7f040001;
     }
     public static final class styleable {
         /** Attributes that can be used with a ToggleImageButton.

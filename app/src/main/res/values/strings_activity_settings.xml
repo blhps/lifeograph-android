@@ -9,6 +9,9 @@
     <string name="pref_title_date_format_order">Field Order</string>
     <string name="pref_title_date_format_separator">Field Separator</string>
 
+    <string name="pref_date_format_order_default">YMD</string>
+    <string name="pref_date_format_separator_default">.</string>
+
     <string-array name="pref_date_format_order_titles">
         <item>Year Month Day</item>
         <item>Day Month Year</item>

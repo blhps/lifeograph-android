@@ -28,8 +28,10 @@ import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
+import android.preference.PreferenceManager;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -53,6 +55,15 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
+
+        PreferenceManager.setDefaultValues( getApplicationContext(), R.xml.pref_general, false );
+
+        SharedPreferences appPreferences = PreferenceManager.getDefaultSharedPreferences(
+                getApplicationContext() );
+        String pref1 = appPreferences.getString( Lifeograph.setting_date_format_order,
+                                                 "NOT FOUND" );
+
+        Log.d( Lifeograph.TAG, pref1 );
 
         setContentView( R.layout.login );
 
