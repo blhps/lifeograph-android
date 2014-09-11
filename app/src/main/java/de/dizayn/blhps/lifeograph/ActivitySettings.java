@@ -21,12 +21,12 @@
 
 package de.dizayn.blhps.lifeograph;
 
-import android.content.Context;
 import android.os.Bundle;
 import android.preference.ListPreference;
 import android.preference.Preference;
 import android.preference.PreferenceActivity;
 import android.preference.PreferenceManager;
+import android.util.Log;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings. On
@@ -49,8 +49,8 @@ public class ActivitySettings extends PreferenceActivity
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue( findPreference( Lifeograph.setting_date_format_order ) );
-        bindPreferenceSummaryToValue( findPreference( Lifeograph.setting_date_format_separator ) );
+        bindPreferenceSummaryToValue( findPreference( Lifeograph.opt_date_format_order ) );
+        bindPreferenceSummaryToValue( findPreference( Lifeograph.opt_date_format_separator ) );
     }
 
     /**
@@ -62,6 +62,15 @@ public class ActivitySettings extends PreferenceActivity
     {
         public boolean onPreferenceChange( Preference preference, Object value ) {
             String stringValue = value.toString();
+
+            if( preference.getKey().equals( Lifeograph.opt_date_format_order ) ) {
+                Log.d( Lifeograph.TAG, "order pref stored" );
+                Date.s_format_order = stringValue;
+            }
+            else if( preference.getKey().equals( Lifeograph.opt_date_format_separator ) ) {
+                Log.d( Lifeograph.TAG, "sep pref stored" );
+                Date.s_format_separator = stringValue;
+            }
 
             if( preference instanceof ListPreference ) {
                 // For list preferences, look up the correct display value in

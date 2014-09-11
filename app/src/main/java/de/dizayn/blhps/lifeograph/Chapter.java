@@ -164,8 +164,8 @@ public class Chapter extends DiaryElement {
     public String get_list_str() {
         if( m_date_begin.is_hidden() )
             return m_name;
-//    else
-            return( m_date_begin.format_string( false ) + STR_SEPARATOR + m_name );
+        else
+            return( m_date_begin.format_string() + STR_SEPARATOR + m_name );
     }
 
     public boolean is_ordinal() {

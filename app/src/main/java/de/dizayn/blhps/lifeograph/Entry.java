@@ -88,20 +88,28 @@ public class Entry extends DiaryElement {
     { m_date.m_date = date; }
 
     public String get_title() {
-        if( m_date.is_hidden() ) {
+        StringBuffer title = new StringBuffer();
+
+        if( ! m_date.is_hidden() ) {
+            title.append( m_date.format_string() );
+
+            if( !m_date.is_ordinal() )
+                title.append( get_date().get_weekday_str() );
+        }
+        else {
             if( m_ptr2diary.m_groups.getMap().containsKey( m_date.get_pure() ) )
                 return m_ptr2diary.m_groups.getMap().get( m_date.get_pure() ).get_name();
             else
                 return "/"; // TODO find a better name
         }
-        else
-            return( m_date.format_string( true ) );
+
+        return title.toString();
     }
 
     @Override
     public String get_info_str() {
         return Lifeograph.getStr( R.string.entry_last_changed_on ) + " "
-               + Date.format_string_do( m_date_changed );
+               + Date.format_string_d( m_date_changed );
     }
 
     @Override
@@ -109,12 +117,12 @@ public class Entry extends DiaryElement {
         if( m_date.is_hidden() )
             return m_name;
         else
-            return( m_date.format_string( false ) + STR_SEPARATOR + m_name );
+            return( m_date.format_string() + STR_SEPARATOR + m_name );
     }
 
     @Override
     public String getListStrSecondary() {
-        return( m_date.is_ordinal() ? get_info_str() : m_date.getWeekdayStr() );
+        return( m_date.is_ordinal() ? get_info_str() : m_date.get_weekday_str() );
     }
 
     public String get_text() {

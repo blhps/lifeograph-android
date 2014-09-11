@@ -66,6 +66,9 @@ public class Date {
 
     protected static final int[] tm = { 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5 };
 
+    public static String s_format_order;
+    public static String s_format_separator;
+
     // int that holds the real value
     public long m_date;
 
@@ -97,21 +100,32 @@ public class Date {
         m_date = date;
     }
 
-    public String format_string( boolean weekDay ) {
-        if( ( m_date & ORDINAL_FLAG ) != 0 ) {
-            return String.format( get_order() != 0 ? "%d.%d" : "%d", get_ordinal_order() + 1,
-                                  get_order() );
-        }
-        else if( weekDay ) {
-            return String.format( "%02d.%02d.%02d, %s", get_year(), get_month(), get_day(),
-                                  getWeekdayStr() );
+    public static String format_string( long d ) {
+        if( ( d & ORDINAL_FLAG ) != 0 ) {
+            return String.format( get_order( d ) != 0 ? "%d.%d" : "%d",
+                                           get_ordinal_order( d ) + 1, get_order( d ) );
         }
         else {
-            return String.format( "%02d.%02d.%02d", get_year(), get_month(), get_day() );
+            return String.format( "%02d%s%02d%s%02d",
+                                  get_YMD( d, s_format_order.charAt( 0 ) ), s_format_separator,
+                                  get_YMD( d, s_format_order.charAt( 1 ) ), s_format_separator,
+                                  get_YMD( d, s_format_order.charAt( 2 ) ) );
         }
     }
+    public String format_string() {
+        return format_string(  m_date );
+    }
 
-    public static String format_string_do( long d ) {
+    public static String format_string_dt( long d ) {
+        java.util.Date date = new java.util.Date( d * 1000L );
+        Calendar cal = Calendar.getInstance();
+        cal.setTime( date );
+        return String.format( "%02d.%02d.%02d, %2d:%2d", cal.get( Calendar.YEAR ),
+                              cal.get( Calendar.MONTH ) + 1, cal.get( Calendar.DAY_OF_MONTH ),
+                              cal.get( Calendar.HOUR ), cal.get( Calendar.MINUTE ) );
+    }
+
+    public static String format_string_d( long d ) {
         java.util.Date date = new java.util.Date( d * 1000L );
         Calendar cal = Calendar.getInstance();
         cal.setTime( date );
@@ -122,13 +136,34 @@ public class Date {
     public int get_day() {
         return (int) ( ( m_date & DAY_FILTER ) >> 10 );
     }
+    public static int get_day( long d ) {
+        return (int) ( ( d & DAY_FILTER ) >> 10 );
+    }
 
     public int get_month() {
         return (int) ( ( m_date & MONTH_FILTER ) >> 15 );
     }
+    public static int get_month( long d ) {
+        return (int) ( ( d & MONTH_FILTER ) >> 15 );
+    }
 
     public int get_year() {
         return (int) ( ( m_date & YEAR_FILTER ) >> 19 );
+    }
+    public static int get_year( long d ) {
+        return (int) ( ( d & YEAR_FILTER ) >> 19 );
+    }
+
+    public static int get_YMD( long d, char c ) {
+        switch( c ) {
+            case 'Y':
+                return get_year( d );
+            case 'M':
+                return get_month( d );
+            case 'D':
+            default: // no error checking for now
+                return get_day( d );
+        }
     }
 
     public long get_yearmonth() {
@@ -142,9 +177,15 @@ public class Date {
     public long get_order() {
         return( m_date & ORDER_FILTER );
     }
+    public static long get_order( long d ) {
+        return( d & ORDER_FILTER );
+    }
 
     public int get_ordinal_order() {
         return (int) ( ( m_date & ORDINAL_FILTER ) >> 10 );
+    }
+    public static int get_ordinal_order( long d ) {
+        return (int) ( ( d & ORDINAL_FILTER ) >> 10 );
     }
 
     public boolean is_ordinal() {
@@ -267,7 +308,7 @@ public class Date {
         return( d % 7 );
     }
 
-    public String getWeekdayStr() {
+    public String get_weekday_str() {
         return WEEKDAYS[ get_weekday() + 1 ];
     }
 

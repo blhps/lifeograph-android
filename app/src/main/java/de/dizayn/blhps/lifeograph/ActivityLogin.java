@@ -56,20 +56,20 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         if( Diary.diary == null )
             Diary.diary = new Diary();
 
+        // PREFERENCES
         PreferenceManager.setDefaultValues( getApplicationContext(), R.xml.pref_general, false );
 
-        SharedPreferences appPreferences = PreferenceManager.getDefaultSharedPreferences(
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getApplicationContext() );
-        String pref1 = appPreferences.getString( Lifeograph.setting_date_format_order,
-                                                 "NOT FOUND" );
-
-        Log.d( Lifeograph.TAG, pref1 );
+        Date.s_format_order = prefs.getString( Lifeograph.opt_date_format_order, "N/A" );
+        Date.s_format_separator = prefs.getString( Lifeograph.opt_date_format_separator, "N/A" );
+        Log.d( Lifeograph.TAG, Date.s_format_order );
+        Log.d( Lifeograph.TAG, Date.s_format_separator );
 
         setContentView( R.layout.login );
 
-        mAdapterDiaries =
-                new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
-                                            android.R.id.text1 );
+        mAdapterDiaries = new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
+                                                      android.R.id.text1 );
         this.setListAdapter( mAdapterDiaries );
 
         registerForContextMenu( getListView() );
