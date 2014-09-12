@@ -301,22 +301,24 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
     void updateIcon() {
         if( m_ptr2entry.is_favored() ) {
-            Bitmap imBitmap = BitmapFactory.decodeResource(
-                    getResources(), m_ptr2entry.get_icon() );
-            // make the bitmap mutable
-            Bitmap bitmap = imBitmap.copy( Bitmap.Config.ARGB_8888, true );
+            Bitmap bmp = BitmapFactory.decodeResource(
+                    getResources(), m_ptr2entry.get_icon() )
+                            .copy( Bitmap.Config.ARGB_8888, true ); // make the bitmap mutable
 
-            Canvas canvas = new Canvas( bitmap );
+            Canvas canvas = new Canvas( bmp );
 
-            Bitmap bitmap2 = BitmapFactory.decodeResource( getResources(), R.drawable.ic_favorite );
+            Bitmap bmp2 = BitmapFactory.decodeResource( getResources(), R.drawable.ic_favorite );
 
             Rect rectDest = new Rect(
-                    bitmap.getWidth()/2, bitmap.getHeight()/2,
-                    bitmap.getWidth()-1, bitmap.getHeight()-1 );
+                    bmp.getWidth()/2, bmp.getHeight()/2,
+                    bmp.getWidth()-1, bmp.getHeight()-1 );
 
-            canvas.drawBitmap( bitmap2, null, rectDest, null );
+            canvas.drawBitmap( bmp2, null, rectDest, null );
 
-            mActionBar.setIcon( new BitmapDrawable( bitmap ) );
+            BitmapDrawable bd =  new BitmapDrawable( bmp );
+            bd.setTargetDensity( getResources().getDisplayMetrics().densityDpi );
+
+            mActionBar.setIcon( bd );
         }
         else
             mActionBar.setIcon( m_ptr2entry.get_icon() );
