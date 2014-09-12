@@ -50,12 +50,12 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
 import android.widget.TextView;
+
 import net.sourceforge.lifeograph.DiaryElement.Type;
 
 public class ActivityDiary extends ListActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener
 {
-
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
