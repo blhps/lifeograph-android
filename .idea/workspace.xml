@@ -83,8 +83,8 @@
       <file leaf-file-name="ActivityDiary.java" pinned="false" current="true" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityDiary.java">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.44567218" vertical-offset="1658" max-vertical-offset="5920">
-              <caret line="205" column="0" selection-start-line="205" selection-start-column="0" selection-end-line="205" selection-end-column="0" />
+            <state vertical-scroll-proportion="0.18600368" vertical-offset="5119" max-vertical-offset="5920">
+              <caret line="809" column="28" selection-start-line="809" selection-start-column="28" selection-end-line="809" selection-end-column="28" />
               <folding>
                 <element signature="class#3401:3850" expanded="false" />
                 <element signature="method#onDrawerOpened#0;class#3401:3850" expanded="false" />
@@ -2395,7 +2395,11 @@
       <created>1410513997479</created>
       <updated>1410513997480</updated>
     </task>
-    <option name="localTasksCounter" value="99" />
+    <task id="LOCAL-00099" summary="cleaned up usage of mFlagLogoutOnPause">
+      <created>1410515078845</created>
+      <updated>1410515078845</updated>
+    </task>
+    <option name="localTasksCounter" value="100" />
     <servers />
   </component>
   <component name="TodoView" selected-index="0">
@@ -2467,7 +2471,6 @@
     <option name="myTodoPanelSettings">
       <TodoPanelSettings />
     </option>
-    <MESSAGE value="greatly improved the favorite icon display in the main list by overlaying it on top of the main icon" />
     <MESSAGE value="fixed crashes on text format toggling (when cursor is at the end)" />
     <MESSAGE value="fixed and improved Diary.dismiss_chapter()" />
     <MESSAGE value="defined a DiaryElement.get_date_t() that returns long as a shortcut" />
@@ -2492,7 +2495,8 @@
     <MESSAGE value="improved the chance of calendar dialog being fitted into small screens by removing the title" />
     <MESSAGE value="fixed some issues in parse db v110. silenced some warnings. added incompatible diary message." />
     <MESSAGE value="tidied up logout system" />
-    <option name="LAST_COMMIT_MESSAGE" value="tidied up logout system" />
+    <MESSAGE value="cleaned up usage of mFlagLogoutOnPause" />
+    <option name="LAST_COMMIT_MESSAGE" value="cleaned up usage of mFlagLogoutOnPause" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
@@ -3238,8 +3242,8 @@
     </entry>
     <entry file="file://$PROJECT_DIR$/app/src/main/java/net/sourceforge/lifeograph/ActivityDiary.java">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.44567218" vertical-offset="1658" max-vertical-offset="5920">
-          <caret line="205" column="0" selection-start-line="205" selection-start-column="0" selection-end-line="205" selection-end-column="0" />
+        <state vertical-scroll-proportion="0.18600368" vertical-offset="5119" max-vertical-offset="5920">
+          <caret line="809" column="28" selection-start-line="809" selection-start-column="28" selection-end-line="809" selection-end-column="28" />
           <folding>
             <element signature="class#3401:3850" expanded="false" />
             <element signature="method#onDrawerOpened#0;class#3401:3850" expanded="false" />

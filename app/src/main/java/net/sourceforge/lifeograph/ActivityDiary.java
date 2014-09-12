@@ -811,7 +811,7 @@ public class ActivityDiary extends ListActivity
             DiaryElement elem = getItem( position );
 
             if( convertView == null ) {
-                convertView = mInflater.inflate( R.layout.imagelist, null );
+                convertView = mInflater.inflate( R.layout.imagelist, parent, false );
                 holder = new ViewHolder( convertView );
                 convertView.setTag( holder );
             }
