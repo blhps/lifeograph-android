@@ -42,7 +42,7 @@ import android.widget.TextView;
 public class DialogCalendar extends Dialog
 {
     public DialogCalendar( ActivityDiary parent ) {
-        super( parent );
+        super( parent, R.style.FullHeightDialog );
         mParent = parent;
     }
 
@@ -60,6 +60,9 @@ public class DialogCalendar extends Dialog
         mDatePicker = ( DatePicker ) findViewById( R.id.datePickerCalendar );
         Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
         mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
+
+        // TODO may be required on really small devices
+        //gridCalendar.setVisibility(  );
 
         mAdapter.notifyDataSetChanged();
         gridCalendar.setAdapter( mAdapter );

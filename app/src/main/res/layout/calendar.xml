@@ -28,15 +28,17 @@
             <Button
                 android:id="@+id/buttonCreateEntry"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight=".5"
+                android:layout_gravity="center"
                 android:text="@string/create_entry" />
 
             <Button
                 android:id="@+id/buttonCreateChapter"
                 android:layout_width="0dp"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_weight=".5"
+                android:layout_gravity="center"
                 android:text="@string/create_chapter" />
         </LinearLayout>
 

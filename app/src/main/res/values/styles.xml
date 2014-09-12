@@ -4,7 +4,12 @@
         <!-- Customize your theme here. -->
     </style>
 
-	<style name="boldText" parent="@android:style/TextAppearance.Medium">
+    <style name="FullHeightDialog" parent="AppTheme">
+        <item name="android:windowNoTitle">true</item>
+    </style>
+
+    <!-- text styles -->
+    <style name="boldText" parent="@android:style/TextAppearance.Medium">
         <item name="android:textStyle">bold</item>
     </style>
 
@@ -34,5 +39,5 @@
     <style name="commentSpan" parent="@android:style/TextAppearance.Small">
         <item name="android:textSize">10sp</item>
     </style>
-	
+
 </resources>
