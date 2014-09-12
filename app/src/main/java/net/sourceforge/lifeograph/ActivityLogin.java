@@ -150,13 +150,13 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                     flag_open_ready = true;
                     break;
                 case INCOMPATIBLE_FILE:
-                    // TODO: show info
+                    Lifeograph.showToast( this, "Incompatible diary version" );
                     break;
                 case CORRUPT_FILE:
                     Lifeograph.showToast( this, "Corrupt file" );
                     break;
                 default:
-                    // TODO: show info
+                    Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
                     break;
             }
         }

@@ -339,7 +339,7 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
     void show( Entry entry, boolean flagParse ) {
         if( entry == null ) {
-            Log.e( Lifeograph.TAG, "empty entry passed to show" );
+            Log.e( Lifeograph.TAG, "Empty entry passed to show" );
             return;
         }
 

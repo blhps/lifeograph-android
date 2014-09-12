@@ -33,8 +33,8 @@ import android.content.res.AssetManager;
 import android.util.Log;
 
 enum Result {
-    OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, COULD_NOT_FINISH, WRONG_PASSWORD,
-    APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE, INCOMPATIBLE_FILE, CORRUPT_FILE,
+    OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, /*COULD_NOT_FINISH,*/ WRONG_PASSWORD,
+    /*APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE,*/ INCOMPATIBLE_FILE, CORRUPT_FILE,
     FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_LOCKED
 }
 
@@ -192,7 +192,7 @@ public class Diary extends DiaryElement
     }
 
     public boolean is_encrypted() {
-        return( m_passphrase.length() > 0 );
+        return( !m_passphrase.isEmpty() );
     }
 
     public String get_lang() {
@@ -332,8 +332,12 @@ public class Diary extends DiaryElement
             }
 
             line = mBufferedReader.readLine();
-
-            if( line.equals( DB_FILE_HEADER ) == false ) {
+            if( line == null ) {
+                mFileReader.close();
+                mBufferedReader = null;
+                return Result.CORRUPT_FILE;
+            }
+            else if( !line.equals( DB_FILE_HEADER ) ) {
                 mFileReader.close();
                 mBufferedReader = null;
                 return Result.CORRUPT_FILE;
@@ -369,7 +373,7 @@ public class Diary extends DiaryElement
                     // mFileReader.close();
 
                     default:
-                        Log.e( Lifeograph.TAG, "unrecognized header line: " + line );
+                        Log.e( Lifeograph.TAG, "Unrecognized header line: " + line );
                         break;
                 }
             }
@@ -388,11 +392,10 @@ public class Diary extends DiaryElement
 
     public Result read_body() {
         Result result;
-        if( m_passphrase.length() == 0 )
+        if( m_passphrase.isEmpty() )
             result = read_plain();
         else
-            // return read_encrypted();
-            result = Result.FAILURE;
+            result = read_encrypted();
 
         try {
             if( mFileReader != null ) {
@@ -635,7 +638,7 @@ public class Diary extends DiaryElement
 
             if( !ptr2ctg.mMap.containsKey( chapter.m_date_begin.m_date ) )
             {
-                Log.e( Lifeograph.TAG, "chapter could not be found in assumed category" );
+                Log.e( Lifeograph.TAG, "Chapter could not be found in assumed category" );
                 return;
             }
 
@@ -714,7 +717,7 @@ public class Diary extends DiaryElement
         {
             if( !m_ptr2chapter_ctg_cur.mMap.containsKey( chapter.m_date_begin.m_date ) )
             {
-                Log.e( Lifeograph.TAG, "chapter could not be found in assumed category" );
+                Log.e( Lifeograph.TAG, "Chapter could not be found in assumed category" );
                 return;
             }
             // fix time span
@@ -893,13 +896,13 @@ public class Diary extends DiaryElement
         if( m_startup_elem_id > DiaryElement.HOME_FIXED_ELEM )
             if( get_element( m_startup_elem_id ) == null )
             {
-                Log.w( Lifeograph.TAG, "startup element cannot be found in db" );
+                Log.w( Lifeograph.TAG, "Startup element cannot be found in db" );
                 m_startup_elem_id = DiaryElement.DEID_DIARY;
             }
 
         if( m_entries.size() < 1 ) {
             add_today();
-            Log.i( Lifeograph.TAG, "a dummy entry added to the diary" );
+            Log.i( Lifeograph.TAG, "A dummy entry added to the diary" );
         }
     }
 
@@ -945,9 +948,7 @@ public class Diary extends DiaryElement
             while( ( line = mBufferedReader.readLine() ) != null ) {
                 if( line.length() < 1 ) // end of section
                     break;
-                else if( line.length() < 3 )
-                    continue;
-                else {
+                else if( line.length() >= 3 ) {
                     switch( line.charAt( 0 ) ) {
                         case 'I':
                             set_force_id( Integer.parseInt( line.substring( 2 ) ) );
@@ -994,7 +995,7 @@ public class Diary extends DiaryElement
                             switch( line.charAt( 1 ) ) {
                                 case 's':   // status
                                     if( line.length() < 11 ) {
-                                        Log.e( Lifeograph.TAG, "status filter length error" );
+                                        Log.e( Lifeograph.TAG, "Status filter length error" );
                                         continue;
                                     }
                                     m_filter_default.set_trash( line.charAt( 2 ) == 'T',
@@ -1073,7 +1074,7 @@ public class Diary extends DiaryElement
                             m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
-                            Log.e( Lifeograph.TAG, "unrecognized line:\n" + line );
+                            Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1186,9 +1187,7 @@ public class Diary extends DiaryElement
             while( ( line = mBufferedReader.readLine() ) != null ) {
                 if( line.length() < 1 ) // end of section
                     break;
-                else if( line.length() < 3 )
-                    continue;
-                else {
+                else if( line.length() >= 3 ) {
                     switch( line.charAt( 0 ) ) {
                         case 'I':
                             set_force_id( Integer.parseInt( line.substring( 2 ) ) );
@@ -1233,7 +1232,7 @@ public class Diary extends DiaryElement
                             switch( line.charAt( 1 ) ) {
                                 case 's':   // status
                                     if( line.length() < 9 ) {
-                                        Log.e( Lifeograph.TAG, "status filter length error" );
+                                        Log.e( Lifeograph.TAG, "Status filter length error" );
                                         continue;
                                     }
                                     m_filter_default.set_trash( line.charAt( 2 ) == 'T',
@@ -1319,7 +1318,7 @@ public class Diary extends DiaryElement
                             m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
-                            Log.e( Lifeograph.TAG, "unrecognized line:\n"+line );
+                            Log.e( Lifeograph.TAG, "Unrecognized line:\n"+line );
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1443,9 +1442,7 @@ public class Diary extends DiaryElement
             {
                 if( line.length() < 1 ) // end of section
                     break;
-                else if( line.length() < 3 )
-                    continue;
-                else {
+                else if( line.length() >= 3 ) {
                     switch( line.charAt( 0 ) ) {
                         case 'I':
                             set_force_id( Integer.parseInt( line.substring( 2 ) ) );
@@ -1526,7 +1523,7 @@ public class Diary extends DiaryElement
                             m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
                             break;
                         default:
-                            Log.e( Lifeograph.TAG, "unrecognized line:\n" + line );
+                            Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1543,9 +1540,8 @@ public class Diary extends DiaryElement
                         break;
                     case 'E': // new entry
                     case 'e': // trashed
-                        long date = Long.parseLong( line.substring( 2 ) );
-                        entry_new = new Entry( this, fix_pre_1020_date( date ),
-                                line.charAt( 1 ) == 'f' );
+                        long date = fix_pre_1020_date( Long.parseLong( line.substring( 2 ) ) );
+                        entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         add_entry_to_related_chapter( entry_new );
 
@@ -1690,7 +1686,7 @@ public class Diary extends DiaryElement
         // OPTIONS
         // dashed char used to be used for spell-checking before v110
         mFileWriter.append( "O " ).append( m_option_sorting_criteria ).append( '\n' );
-        if( m_language.length() > 0 )
+        if( m_language.isEmpty() )
             mFileWriter.append( "l " ).append( m_language ).append( '\n' );
 
         // STARTUP ACTION (HOME ITEM)
@@ -1794,7 +1790,7 @@ public class Diary extends DiaryElement
                 mFileWriter.append( "l " ).append( entry.get_lang() ).append( '\n' );
 
             // CONTENT
-            if( entry.m_text.length() == 0 )
+            if( entry.m_text.isEmpty() )
                 mFileWriter.append( '\n' );
             else {
                 int pt_start = 0, pt_end;
@@ -1826,6 +1822,11 @@ public class Diary extends DiaryElement
         return parse_db_body_text();
     }
 
+    private Result read_encrypted() {
+        // TODO: to be implemented
+        return Result.FAILURE;
+    }
+
     private Result write_plain( String path, boolean flag_header_only ) {
         try {
             mFileWriter = new FileWriter( path );
@@ -1841,7 +1842,7 @@ public class Diary extends DiaryElement
             return Result.SUCCESS;
         }
         catch( IOException ex ) {
-            Log.e( Lifeograph.TAG, "failed to save diary: " + ex.getMessage() );
+            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
 
             mFileWriter = null;
 
