@@ -60,9 +60,6 @@ public class ActivityDiary extends ListActivity
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
-        if( Diary.diary == null )
-            Diary.diary = new Diary();
-
         setContentView( R.layout.diary );
 
         mActionBar = getActionBar();
@@ -186,15 +183,14 @@ public class ActivityDiary extends ListActivity
         this.setListAdapter( m_adapter_entries );
         update_entry_list();
 
-        mFlagSaveOnLogOut = true;
         Log.d( Lifeograph.TAG, "onCreate - ActivityDiary" );
     }
 
     @Override
     protected void onPause() {
         super.onPause();
-        if( mFlagLogoutOnPause )
-            handleLogout(); // TODO: save backup if not successful
+        if( mFlagLogoutOnPause && mFlagDiaryIsOpen )
+            finishEditing( true );
         Log.d( Lifeograph.TAG, "onPause - ActivityDiary" );
     }
 
@@ -360,15 +356,10 @@ public class ActivityDiary extends ListActivity
                             public void onClick( DialogInterface dialog, int id ) {
                                 // unlike desktop version Android version
                                 // does not back up changes
-                                mFlagSaveOnLogOut = false;
-                                ActivityDiary.this.finish();
+                                logout( false );
+
                             }
-                        },
-                        new DialogInterface.OnClickListener() {
-                            public void onClick( DialogInterface dialog, int id ) {
-                                mFlagSaveOnLogOut = true;
-                            }
-                        } );
+                        }, null );
                 return true;
 //  TODO WILL BE IMPLEMENTED IN 0.3
 //            case R.id.import_sms:
@@ -417,26 +408,29 @@ public class ActivityDiary extends ListActivity
         }
     }
 
-    private boolean handleLogout() {
+    private void finishEditing( boolean opt_save ) {
         // SAVING
         // sync_entry();
 
         // Diary.diary.m_last_elem = get_cur_elem()->get_id();
 
-        if( mFlagSaveOnLogOut && !Diary.diary.is_read_only() ) {
-            if( Diary.diary.write() != Result.SUCCESS ) {
-                Lifeograph.showToast( this, "Cannot write back changes" );
-                return false;
-            }
-            else {
+        if( opt_save && !Diary.diary.is_read_only() ) {
+            if( Diary.diary.write() == Result.SUCCESS ) {
                 Lifeograph.showToast( this, "Diary saved successfully" );
-                return true;
+                // TODO: try to save backup
             }
+            else
+                Lifeograph.showToast( this, "Cannot write back changes" );
         }
-        else {
+        else
             Log.d( Lifeograph.TAG, "Logged out without saving" );
-            return true;
-        }
+
+        mFlagDiaryIsOpen = false;
+    }
+
+    public void logout( boolean opt_save ) {
+        finishEditing( opt_save );
+        ActivityDiary.this.finish();
     }
 
     void showEntry( Entry entry ) {
@@ -772,7 +766,7 @@ public class ActivityDiary extends ListActivity
     private Spinner mSpinnerShowFavorite = null;
     private ElemListAllEntries mElemAllEntries = null;
 
-    private boolean mFlagSaveOnLogOut = true;
+    private boolean mFlagDiaryIsOpen = true;
     private boolean mFlagLogoutOnPause = false;
 
     private long mDateLast;
