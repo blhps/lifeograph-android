@@ -197,7 +197,7 @@ public class ActivityDiary extends ListActivity
     @Override
     protected void onResume() {
         super.onResume();
-        mFlagLogoutOnPause = false;
+        mFlagLogoutOnPause = true;
         if( flag_force_update_on_resume )
             update_entry_list();
         flag_force_update_on_resume = false;
@@ -207,13 +207,10 @@ public class ActivityDiary extends ListActivity
     @Override
     public void onBackPressed() {
         if( mParentElem == Diary.diary ) {
-            mFlagLogoutOnPause = true;
             super.onBackPressed();
         }
         else {
             mParentElem = Diary.diary;
-
-            mButtonShowTodoNot.setChecked( true );
             update_entry_list();
         }
     }
@@ -298,7 +295,6 @@ public class ActivityDiary extends ListActivity
         {
             case android.R.id.home:
                 if( mParentElem == Diary.diary ) {
-                    mFlagLogoutOnPause = true;
                     //NavUtils.navigateUpFromSameTask( this );
                     finish();
                 }
@@ -409,6 +405,7 @@ public class ActivityDiary extends ListActivity
     }
 
     private void finishEditing( boolean opt_save ) {
+        Log.d( Lifeograph.TAG, "ActivityDiary.finishEditing()" );
         // SAVING
         // sync_entry();
 
@@ -437,6 +434,7 @@ public class ActivityDiary extends ListActivity
         if( entry != null ) {
             Intent i = new Intent( this, ActivityEntry.class );
             i.putExtra( "entry", entry.get_date_t() );
+            mFlagLogoutOnPause = false; // we are just showing an entry from the diary
             startActivity( i );
         }
     }
