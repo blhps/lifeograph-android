@@ -60,11 +60,19 @@
         <EditText
             android:id="@+id/editTextEntry"
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight=".99"
             android:gravity="top"
             android:inputType="textMultiLine" >
             <requestFocus />
         </EditText>
+
+        <fragment
+            android:id="@+id/adFragment"
+            android:name="net.sourceforge.lifeograph.AdFragment"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" />
+
     </LinearLayout>
 
     <!-- DRAWER MAY BE IN 0.3
