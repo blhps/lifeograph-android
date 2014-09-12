@@ -50,11 +50,11 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
                 .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.add_topic, 1, R.string.topic )
-                .setIcon( R.drawable.ic_topic )
+                .setIcon( R.drawable.ic_chapter_ord )
                 .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.add_group, 1, R.string.group )
-                .setIcon( R.drawable.ic_topic )
+                .setIcon( R.drawable.ic_chapter_ord )
                 .setOnMenuItemClickListener( this );
     }
 

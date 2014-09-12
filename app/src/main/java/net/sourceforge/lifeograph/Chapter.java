@@ -21,7 +21,6 @@
 
 package net.sourceforge.lifeograph;
 
-import java.util.ArrayList;
 import java.util.Map;
 import java.util.TreeSet;
 
@@ -146,7 +145,7 @@ public class Chapter extends DiaryElement {
             case ES_CANCELED:
                 return R.drawable.ic_todo_canceled;
             default:
-                return( m_date_begin.is_ordinal() ? R.drawable.ic_topic : R.drawable.ic_chapter );
+                return( m_date_begin.is_ordinal() ? R.drawable.ic_chapter_ord : R.drawable.ic_calendar );
         }
     }
 
