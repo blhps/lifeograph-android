@@ -82,36 +82,51 @@
             android:orientation="horizontal" >
 
             <net.sourceforge.lifeograph.ToggleImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
                 android:id="@+id/show_todo_not"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_entry" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
                 android:id="@+id/show_todo_open"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_open" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
                 android:id="@+id/show_todo_progressed"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_progressed" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
                 android:id="@+id/show_todo_done"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_done" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
-                android:layout_width="wrap_content"
+                android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
                 android:id="@+id/show_todo_canceled"
                 style="?android:attr/borderlessButtonStyle"
                 android:src="@drawable/icon_todo_canceled" />
