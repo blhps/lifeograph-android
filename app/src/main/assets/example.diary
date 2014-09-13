@@ -5,7 +5,7 @@ E no
 O d
 l en_US
 S 10034
-L 10034
+L 10033
 ID10043
 t example tag
 ID10036
@@ -55,9 +55,9 @@ fs-tFfT--
 ID10033
 Ef--2147483650
 Dr1339235057
-Dh1405889312
+Dh1410634577
 T-example tag
-P Example Entry (Basics)
+P Example Entry
 P 
 P As above, first paragraph of an entry is always formatted as heading
 P 
@@ -69,25 +69,14 @@ P 	• By using _special_ =characters= #you can# *format* text [[and add comment
 P 	• By placing a <dot> and <tab> at the beginning you can disable formatting in a paragraph:
 P .	By using _special_ =characters= #you can# *format* text
 P 
-P  Links to other entries
-P Links to entries can be created by dragging and dropping entries from the list into editing area:
-P 	• <deid:10007	What is new in Lifeograph 0.8.2?>
-P 
-P  Links to dates
+P  Links (not clickable in Android yet)
 P Dates entered in YEAR/MONTH/DAY format are converted into links:
-P 	• existing: 2012.05.10, 2012/03/05
+P 	• existing: 2012-05-10, 2012/03/05
 P 	• non-existing: 2009.01.02 (creates a new entry)
 P 
-P  Links to web sites, email addresses, etc...
-P web and email addresses in the text are detected and automatically converted to links:
-P http://web.address     email@ddress
-P 
-P  Checklist (clicking boxes changes the state)
-P 	☑ this is done
-P 	☐ this item consists of two phases
-P 		☑ phase 1
-P 		☐ phase 2
-P 	☒ this is canceled
+P Web and email addresses in the text are detected and automatically converted to links:
+P 	• http://web.address
+P 	• email@ddress
 P 
 
 ID10034
