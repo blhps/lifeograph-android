@@ -46,8 +46,9 @@
     <string name="all_entries">All Entries</string>
     <string name="entry_last_changed_on">Entry last changed on</string>
 
-    <string name="logoutwosaving">Log out without Saving</string>
-    <string name="logoutwosaving_confirm">Are you sure you want to log out without saving?</string>
+    <string name="logoutwosaving">Close without Saving</string>
+    <string name="logoutwosaving_confirm">Are you sure you want to close the diary without
+        saving?</string>
     <string name="entry_dismiss_confirm">Are you sure you want to dismiss the current entry?</string>
     <string name="tag_dismiss_confirm">Are you sure you want to dismiss the current tag?</string>
     <string name="chapter_dismiss_confirm">Are you sure you want to dismiss the current chapter?</string>
