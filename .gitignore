@@ -22,4 +22,5 @@ local.properties
 # Android Studio
 .gradle
 .idea
+.idea/workspace.xml
 build/
