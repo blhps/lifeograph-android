@@ -21,6 +21,6 @@ local.properties
 
 # Android Studio
 .gradle
-.idea
-.idea/workspace.xml
+.idea/
 build/
+app/build/
