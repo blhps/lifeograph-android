@@ -662,7 +662,6 @@ public class ActivityDiary extends ListActivity
                         Diary.diary.dismiss_chapter( ( Chapter ) mParentElem );
                         // go up:
                         mParentElem = Diary.diary;
-                        Diary.diary.update_entries_in_chapters();
                         update_entry_list();
                     }
                 }, null );

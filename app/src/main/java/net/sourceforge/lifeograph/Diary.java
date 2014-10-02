@@ -611,7 +611,6 @@ public class Diary extends DiaryElement
 
     // CHAPTERS ====================================================================================
     /*
-     * PoolCategoriesChapters get_chapter_ctgs() { return m_chapter_categories; }
      * CategoryChapters get_current_chapter_ctg() { return m_ptr2chapter_ctg_cur; }
      * CategoryChapters create_chapter_ctg();
      */
@@ -740,6 +739,8 @@ public class Diary extends DiaryElement
 
             m_ptr2chapter_ctg_cur.mMap.remove( chapter.get_date_t() );
         }
+
+        update_entries_in_chapters();
     }
 
     // Date get_free_chapter_order_temporal();
