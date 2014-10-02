@@ -182,7 +182,6 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                     break;
                 case CORRUPT_FILE:
                     // TODO: show info
-                    Diary.diary.clear(); // clear partially read content if any
                     break;
                 default:
                     break;

@@ -81,6 +81,8 @@ public class Diary extends DiaryElement
     }
 
     public void clear() {
+        close_file();
+
         m_path = "";
         m_read_version = 0;
 
@@ -333,13 +335,11 @@ public class Diary extends DiaryElement
 
             line = mBufferedReader.readLine();
             if( line == null ) {
-                mFileReader.close();
-                mBufferedReader = null;
+                clear();
                 return Result.CORRUPT_FILE;
             }
             else if( !line.equals( DB_FILE_HEADER ) ) {
-                mFileReader.close();
-                mBufferedReader = null;
+                clear();
                 return Result.CORRUPT_FILE;
             }
 
@@ -353,8 +353,7 @@ public class Diary extends DiaryElement
                         m_read_version = Integer.parseInt( line.substring( 2 ) );
                         if( m_read_version < DB_FILE_VERSION_INT_MIN
                             || m_read_version > DB_FILE_VERSION_INT ) {
-                            mFileReader.close();
-                            mBufferedReader = null;
+                            clear();
                             return Result.INCOMPATIBLE_FILE;
                         }
                         break;
@@ -377,35 +376,20 @@ public class Diary extends DiaryElement
                         break;
                 }
             }
-
-            if( mFileReader != null )
-                mFileReader.close();
         }
         catch( IOException e ) {
             // Unable to create file, likely because external storage is not currently mounted.
             Log.e( Lifeograph.TAG, "Failed to open diary file " + m_path, e );
         }
 
-        m_path = "";
+        clear();
         return Result.CORRUPT_FILE;
     }
 
     public Result read_body() {
-        Result result;
-        if( m_passphrase.isEmpty() )
-            result = read_plain();
-        else
-            result = read_encrypted();
+        Result result = m_passphrase.isEmpty() ? read_plain() : read_encrypted();
 
-        try {
-            if( mFileReader != null ) {
-                mFileReader.close();
-                mFileReader = null;
-            }
-        }
-        catch( IOException e ) {
-            Log.e( Lifeograph.TAG, e.getMessage() );
-        }
+        close_file();
 
         return result;
     }
@@ -1076,6 +1060,7 @@ public class Diary extends DiaryElement
                             break;
                         default:
                             Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
+                            clear();
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1158,6 +1143,7 @@ public class Diary extends DiaryElement
                         break;
                     default:
                         Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
+                        clear();
                         return Result.CORRUPT_FILE;
                 }
             }
@@ -1320,6 +1306,7 @@ public class Diary extends DiaryElement
                             break;
                         default:
                             Log.e( Lifeograph.TAG, "Unrecognized line:\n"+line );
+                            clear();
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1408,6 +1395,7 @@ public class Diary extends DiaryElement
                         break;
                     default:
                         Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
+                        clear();
                         return Result.CORRUPT_FILE;
                 }
             }
@@ -1525,6 +1513,7 @@ public class Diary extends DiaryElement
                             break;
                         default:
                             Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
+                            clear();
                             return Result.CORRUPT_FILE;
                     }
                 }
@@ -1601,6 +1590,7 @@ public class Diary extends DiaryElement
                         break;
                     default:
                         Log.e( Lifeograph.TAG, "Unrecognized line (110):\n" + line );
+                        clear();
                         return Result.CORRUPT_FILE;
                 }
             }
@@ -1817,6 +1807,19 @@ public class Diary extends DiaryElement
         }
 
         return true;
+    }
+
+    // DB READ/WRITE ===============================================================================
+    private void close_file() {
+        try {
+            if( mFileReader != null ) {
+                mFileReader.close();
+                mFileReader = null;
+            }
+        }
+        catch( IOException e ) {
+            Log.e( Lifeograph.TAG, e.getMessage() );
+        }
     }
 
     private Result read_plain() {
