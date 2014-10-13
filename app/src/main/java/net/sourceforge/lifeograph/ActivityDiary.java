@@ -227,6 +227,7 @@ public class ActivityDiary extends ListActivity
                 update_entry_list();
                 break;
             case TAG:
+            case UNTAGGED:
             case CHAPTER:
             case TOPIC:
             case GROUP:
@@ -574,6 +575,10 @@ public class ActivityDiary extends ListActivity
                 for( Tag t : Diary.diary.m_tags.values() ) {
                     m_elems.add( t );
                 }
+                if( Diary.diary.m_untagged.get_size() > 0 ) {
+                    m_elems.add( Diary.diary.m_untagged );
+                }
+
                 if( Diary.diary.m_groups.empty() &&
                     Diary.diary.m_topics.empty() &&
                     Diary.diary.m_ptr2chapter_ctg_cur.get_size() == 0 ) {
@@ -586,6 +591,7 @@ public class ActivityDiary extends ListActivity
                     m_elems.add( Diary.diary.m_orphans );
                 break;
             case TAG:
+            case UNTAGGED:
                 mActionBar.setIcon( mParentElem.get_icon() );
                 setTitle( mParentElem.get_list_str() );
                 mActionBar.setSubtitle( mParentElem.get_info_str() );

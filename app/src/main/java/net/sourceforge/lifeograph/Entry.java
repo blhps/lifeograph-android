@@ -36,6 +36,7 @@ public class Entry extends DiaryElement {
         m_text = new String( text );
         m_ptr2theme_tag = null;
         calculate_title( text );
+        m_ptr2diary.get_untagged().add_entry( this );
     }
 
     public Entry( Diary diary, long date, boolean favored ) {
@@ -48,6 +49,7 @@ public class Entry extends DiaryElement {
         m_date_changed = m_date_created;
 
         m_ptr2theme_tag = null;
+        m_ptr2diary.get_untagged().add_entry( this );
     }
 
     @Override
@@ -223,8 +225,9 @@ public class Entry extends DiaryElement {
 
     // FAVORITE ENTRY
     @Override
-    public boolean is_favored()
-    { return( ( m_status & ES_FAVORED ) != 0 ); }
+    public boolean is_favored() {
+        return( ( m_status & ES_FAVORED ) != 0 );
+    }
 
     public void set_favored( boolean favored ) {
         if( favored )
@@ -268,8 +271,12 @@ public class Entry extends DiaryElement {
 
     // TAGS
     public boolean add_tag( Tag tag ) {
-        if( m_tags.add( tag ) ) {
+        if( tag.get_type() == Type.UNTAGGED ) { // may not be used in android actually
+            return clear_tags();
+        }
+        else if( m_tags.add( tag ) ) {
             tag.add_entry( this );
+            m_ptr2diary.get_untagged().remove_entry( this );
             return true;
         }
         else
@@ -279,10 +286,26 @@ public class Entry extends DiaryElement {
     public boolean remove_tag( Tag tag ) {
         if( m_tags.remove( tag ) ) {
             tag.remove_entry( this );
+
+            if( m_tags.isEmpty() )
+                m_ptr2diary.get_untagged().add_entry( this );
+
             return true;
         }
         else
             return false;
+    }
+
+    public boolean clear_tags() {
+        if( m_tags.isEmpty() )
+            return false;
+
+        for( Tag tag : m_tags )
+            tag.remove_entry( this );
+
+        m_tags.clear();
+
+        return true;
     }
 
     // THEME

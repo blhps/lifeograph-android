@@ -34,7 +34,10 @@ public class Untagged extends Tag
         return Type.UNTAGGED;
     }
 
-    // TODO: get_icon()
+    @Override
+    public int get_icon() {
+        return R.drawable.ic_untagged;
+    }
 
     public void reset() {
         mEntries.clear();
