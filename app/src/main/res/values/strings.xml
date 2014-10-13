@@ -81,12 +81,14 @@
     <string name="icon">icon</string>
     <string name="copyright">&#169; 2012-2014, Ahmet Öztürk</string>
     <string name="checkbox_icon">☑</string>
-    <string name="B">B</string>
-    <string name="I">I</string>
-    <string name="S">S</string>
-    <string name="H">H</string>
+
+    <string name="bold">B</string>
+    <string name="italic">I</string>
+    <string name="strikethrough">S</string>
+    <string name="highlight">H</string>
+
     <string name="welcome">Welcome to Lifeograph for Android!</string>
-    <string name="caution_not_final">PLEASE KEEP IN MIND THAT THIS IS A BETA VERSION</string>
+    <!--string name="caution_not_final">PLEASE KEEP IN MIND THAT THIS IS A BETA VERSION</string-->
     <string name="diaries">Diaries</string>
     <string name="import_sms">Import SMS</string>
     <string name="website"><a href="http://lifeograph.sourceforge.net">web site</a></string>

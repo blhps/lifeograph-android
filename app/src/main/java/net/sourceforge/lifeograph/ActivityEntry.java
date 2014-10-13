@@ -196,9 +196,6 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         } );
 
         mButtonBold = ( Button ) findViewById( R.id.buttonBold );
-        SpannableString spanStringB = new SpannableString( "B" );
-        spanStringB.setSpan( new StyleSpan( Typeface.BOLD ), 0, 1, 0 );
-        mButtonBold.setText( spanStringB );
         mButtonBold.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleFormat( "*" );
@@ -206,9 +203,6 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         } );
 
         mButtonItalic = ( Button ) findViewById( R.id.buttonItalic );
-        SpannableString spanStringI = new SpannableString( "I" );
-        spanStringI.setSpan( new StyleSpan( Typeface.ITALIC ), 0, 1, 0 );
-        mButtonItalic.setText( spanStringI );
         mButtonItalic.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleFormat( "_" );
