@@ -52,9 +52,7 @@ public abstract class DiaryElement {
         TOPIC( Lifeograph.getStr( R.string.topic ) ),
         GROUP( Lifeograph.getStr( R.string.group ) ),
         ENTRY( Lifeograph.getStr( R.string.entry ) ),
-        DATE( "" ),
-        // virtual types:
-        ALL_ENTRIES( Lifeograph.getStr( R.string.all_entries ) );
+        DATE( "" );
 
         public final String str;
         private Type( String v ) {

@@ -27,10 +27,12 @@ import java.util.Comparator;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.FragmentTransaction;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
@@ -54,17 +56,14 @@ import android.widget.TextView;
 import net.sourceforge.lifeograph.DiaryElement.Type;
 
 public class ActivityDiary extends ListActivity
-        implements ToDoAction.ToDoObject, DialogInquireText.InquireListener
+        implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
+        ActionBar.TabListener
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.diary );
-
-        mActionBar = getActionBar();
-        if( mActionBar != null )
-            mActionBar.setDisplayHomeAsUpEnabled( true );
 
         // FILLING WIDGETS
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
@@ -181,7 +180,23 @@ public class ActivityDiary extends ListActivity
         // LIST ADAPTER
         m_adapter_entries = new DiaryElemAdapter( this, R.layout.imagelist, R.id.title, m_elems );
         this.setListAdapter( m_adapter_entries );
-        update_entry_list();
+
+        mActionBar = getActionBar();
+        if( mActionBar != null ) {
+            mActionBar.setDisplayHomeAsUpEnabled( true );
+            getActionBar().setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
+            getActionBar().addTab( getActionBar().newTab()
+                                                 .setText( R.string.all_entries )
+                                                 .setTabListener( this ) );
+            getActionBar().addTab( getActionBar().newTab()
+                                                 .setText( R.string.chapters )
+                                                 .setTabListener( this ) );
+            getActionBar().addTab( getActionBar().newTab()
+                                                 .setText( R.string.tags )
+                                                 .setTabListener( this ) );
+        }
+
+        //update_entry_list(); --tab listener updates the entry list
 
         Log.d( Lifeograph.TAG, "onCreate - ActivityDiary" );
     }
@@ -222,10 +237,6 @@ public class ActivityDiary extends ListActivity
             case ENTRY:
                 showEntry( ( Entry ) m_elems.get( pos ) );
                 break;
-            case ALL_ENTRIES:
-                mParentElem = mElemAllEntries;
-                update_entry_list();
-                break;
             case TAG:
             case UNTAGGED:
             case CHAPTER:
@@ -260,10 +271,8 @@ public class ActivityDiary extends ListActivity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        DiaryElement.Type type = ( mParentElem == Diary.diary.m_orphans ?
-                 Type.ALL_ENTRIES : mParentElem.get_type() );
-        // orphans chapter is treated as if all_entries pseudo element
-        // this is OK as they both are pseudo elements
+        boolean flagPseudoELement = ( mParentElem == Diary.diary.m_orphans );
+        DiaryElement.Type type = mParentElem.get_type();
 
         MenuItem item = menu.findItem( R.id.add_elem );
         item.setVisible( type == Type.DIARY );
@@ -282,10 +291,10 @@ public class ActivityDiary extends ListActivity
         item.setVisible( type == Type.TOPIC || type == Type.GROUP );
 
         item = menu.findItem( R.id.dismiss );
-        item.setVisible( type != Type.DIARY && type != Type.ALL_ENTRIES );
+        item.setVisible( type != Type.DIARY && !flagPseudoELement );
 
         item = menu.findItem( R.id.rename );
-        item.setVisible( type != Type.DIARY && type != Type.ALL_ENTRIES );
+        item.setVisible( type != Type.DIARY && !flagPseudoELement );
 
         return true;
     }
@@ -558,37 +567,33 @@ public class ActivityDiary extends ListActivity
                 setTitle( Diary.diary.get_name() );
                 mActionBar.setSubtitle( "Diary with " + Diary.diary.m_entries.size() + " Entries" );
 
-                if( mElemAllEntries == null ) {
-                    mElemAllEntries = new ElemListAllEntries( Diary.diary );
-                }
-                m_elems.add( mElemAllEntries );
-
-                for( Chapter c : Diary.diary.m_groups.mMap.values() ) {
-                    m_elems.add( c );
-                }
-                for( Chapter c : Diary.diary.m_topics.mMap.values() ) {
-                    m_elems.add( c );
-                }
-                for( Chapter c : Diary.diary.m_ptr2chapter_ctg_cur.mMap.values() ) {
-                    m_elems.add( c );
-                }
-                for( Tag t : Diary.diary.m_tags.values() ) {
-                    m_elems.add( t );
-                }
-                if( Diary.diary.m_untagged.get_size() > 0 ) {
-                    m_elems.add( Diary.diary.m_untagged );
-                }
-
-                if( Diary.diary.m_groups.empty() &&
-                    Diary.diary.m_topics.empty() &&
-                    Diary.diary.m_ptr2chapter_ctg_cur.get_size() == 0 ) {
-                    for( Entry e : Diary.diary.m_orphans.mEntries ) {
+                if( mCurTabIndex == 0 ) {
+                    for( Entry e : Diary.diary.m_entries.values() ) {
                         if( !e.get_filtered_out() )
                             m_elems.add( e );
                     }
                 }
-                else if( Diary.diary.m_orphans.get_size() > 0 )
-                    m_elems.add( Diary.diary.m_orphans );
+                else if( mCurTabIndex == 1 ) {
+                    for( Chapter c : Diary.diary.m_groups.mMap.values() ) {
+                        m_elems.add( c );
+                    }
+                    for( Chapter c : Diary.diary.m_topics.mMap.values() ) {
+                        m_elems.add( c );
+                    }
+                    for( Chapter c : Diary.diary.m_ptr2chapter_ctg_cur.mMap.values() ) {
+                        m_elems.add( c );
+                    }
+                    if( Diary.diary.m_orphans.get_size() > 0 )
+                        m_elems.add( Diary.diary.m_orphans );
+                }
+                else if( mCurTabIndex == 2 ) {
+                    for( Tag t : Diary.diary.m_tags.values() ) {
+                        m_elems.add( t );
+                    }
+                    if( Diary.diary.m_untagged.get_size() > 0 ) {
+                        m_elems.add( Diary.diary.m_untagged );
+                    }
+                }
                 break;
             case TAG:
             case UNTAGGED:
@@ -611,12 +616,6 @@ public class ActivityDiary extends ListActivity
 
                 Chapter c = ( Chapter ) mParentElem;
                 for( Entry e : c.mEntries ) {
-                    if( !e.get_filtered_out() )
-                        m_elems.add( e );
-                }
-                break;
-            case ALL_ENTRIES:
-                for( Entry e : Diary.diary.m_entries.values() ) {
                     if( !e.get_filtered_out() )
                         m_elems.add( e );
                 }
@@ -686,7 +685,23 @@ public class ActivityDiary extends ListActivity
                 }, null );
     }
 
-// TODO WILL BE IMPLEMENTED IN 0.3
+    // TAB LISTENER INTERFACE ======================================================================
+    public void onTabSelected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
+        mCurTabIndex = tab.getPosition();
+        mParentElem = Diary.diary;
+        update_entry_list();
+    }
+
+    public void onTabUnselected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
+
+    }
+
+    public void onTabReselected( ActionBar.Tab tab, FragmentTransaction fragmentTransaction ) {
+        if( mParentElem != Diary.diary )
+            onTabSelected( tab, fragmentTransaction );
+    }
+
+// TODO WILL BE IMPLEMENTED IN 0.4
 //    protected void import_messages() {
 //        Cursor cursor =
 //                getContentResolver().query( Uri.parse( "content://sms/inbox" ), null, null, null,
@@ -714,44 +729,11 @@ public class ActivityDiary extends ListActivity
 //
 //    }
 
-    // ALL ENTRIES PSEUDO ELEMENT CLASS ============================================================
-    class ElemListAllEntries extends DiaryElement {
-
-        public ElemListAllEntries( Diary diary ) {
-            super( diary, getString( R.string.all_entries ), ES_VOID );
-        }
-
-        @Override
-        public String get_info_str() {
-            return "";
-        }
-
-        @Override
-        public int get_icon() {
-            return R.drawable.ic_diary;
-        }
-
-        @Override
-        public Date get_date() {
-            return new Date( 0x100000000L );
-        }
-
-        @Override
-        public Type get_type() {
-            return Type.ALL_ENTRIES;
-        }
-
-        @Override
-        public int get_size() {
-            return mSize;
-        }
-
-        int mSize = 0;
-    }
-
+    // VARIABLES ===================================================================================
     static boolean flag_force_update_on_resume = false;
 
     private DiaryElement mParentElem = Diary.diary;
+    private int mCurTabIndex = 0;
 
     private java.util.List< DiaryElement > m_elems = new ArrayList< DiaryElement >();
     private DiaryElemAdapter m_adapter_entries = null;
@@ -767,7 +749,6 @@ public class ActivityDiary extends ListActivity
     private ToggleImageButton mButtonShowTodoDone = null;
     private ToggleImageButton mButtonShowTodoCanceled = null;
     private Spinner mSpinnerShowFavorite = null;
-    private ElemListAllEntries mElemAllEntries = null;
 
     private boolean mFlagDiaryIsOpen = true;
     private boolean mFlagLogoutOnPause = false;
