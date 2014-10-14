@@ -41,6 +41,8 @@
     <string name="entries">Entries</string>
     <string name="tags">Tags</string>
     <string name="chapters">Chapters</string>
+    <string name="free_chapters">Free Chapters</string>
+    <string name="numbered_chapters">Numbered Chapters</string>
 
     <string name="search_and_filter">Search &amp; Filter</string>
     <string name="all_entries">All Entries</string>

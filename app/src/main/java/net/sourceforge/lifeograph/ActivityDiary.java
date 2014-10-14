@@ -575,22 +575,40 @@ public class ActivityDiary extends ListActivity
 
                     Collections.sort( m_elems, compare_elems );
                 }
+
                 // CHAPTERS
                 else if( mCurTabIndex == 1 ) {
-                    for( Chapter c : Diary.diary.m_groups.mMap.values() ) {
-                        m_elems.add( c );
+                    // FREE CHAPTERS
+                    if( !Diary.diary.m_groups.mMap.isEmpty() ) {
+                        m_elems.add( new Tag.Category( null, Lifeograph.getStr(
+                                R.string.free_chapters ) ) );
+                        for( Chapter c : Diary.diary.m_groups.mMap.descendingMap().values() ) {
+                            m_elems.add( c );
+                        }
                     }
-                    for( Chapter c : Diary.diary.m_topics.mMap.values() ) {
-                        m_elems.add( c );
+                    // NUMBERED CHAPTERS
+                    if( !Diary.diary.m_topics.mMap.isEmpty() ) {
+                        m_elems.add( new Tag.Category( null, Lifeograph.getStr(
+                                R.string.numbered_chapters ) ) );
+                        for( Chapter c : Diary.diary.m_topics.mMap.descendingMap().values() ) {
+                            m_elems.add( c );
+                        }
                     }
-                    for( Chapter c : Diary.diary.m_ptr2chapter_ctg_cur.mMap.values() ) {
-                        m_elems.add( c );
-                    }
-                    if( Diary.diary.m_orphans.get_size() > 0 )
-                        m_elems.add( Diary.diary.m_orphans );
+                    // DATED CHAPTERS
+                    for( Chapter.Category cc : Diary.diary.m_chapter_categories.values() ) {
+                        m_elems.add( new Tag.Category( null, cc.get_name() ) );
 
-                    Collections.sort( m_elems, compare_elems );
+                        if( cc == Diary.diary.m_ptr2chapter_ctg_cur ) {
+                            for( Chapter c : cc.mMap.values() ) {
+                                m_elems.add( c );
+                            }
+
+                            if( Diary.diary.m_orphans.get_size() > 0 )
+                                m_elems.add( Diary.diary.m_orphans );
+                        }
+                    }
                 }
+
                 // TAGS
                 else if( mCurTabIndex == 2 ) {
                     // ROOT TAGS
@@ -598,14 +616,12 @@ public class ActivityDiary extends ListActivity
                         if( t.get_category() == null )
                             m_elems.add( t );
                     }
-
                     // CATEGORIES
                     for( Tag.Category c : Diary.diary.m_tag_categories.values() ) {
                         m_elems.add( c );
                         for( Tag t : c.mTags )
                             m_elems.add( t );
                     }
-
                     // UNTAGGED META TAG
                     if( Diary.diary.m_untagged.get_size() > 0 ) {
                         m_elems.add( Diary.diary.m_untagged );
