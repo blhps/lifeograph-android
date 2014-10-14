@@ -27,7 +27,8 @@ import java.util.Calendar;
 import android.util.Log;
 
 public class Date {
-    public static final long    NOTSET           = 0xFFFFFFFFL;
+    public static final long    NOT_APPLICABLE   = 0x0L;
+    public static final long    NOT_SET          = 0xFFFFFFFFL;
     public static final long    DATE_MAX         = 0xFFFFFFFFL;
     public static final long    YEAR_MAX         = 2199L;
     public static final long    YEAR_MIN         = 1900L;
@@ -77,7 +78,7 @@ public class Date {
     }
 
     public Date() {
-        m_date = NOTSET;
+        m_date = NOT_SET;
     }
 
     public Date( int y, int m, int d ) {

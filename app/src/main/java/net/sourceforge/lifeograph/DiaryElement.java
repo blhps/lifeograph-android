@@ -134,7 +134,7 @@ public abstract class DiaryElement {
     abstract public int get_icon();
 
     public Date get_date() {
-        return new Date( 0 );
+        return new Date( Date.NOT_APPLICABLE );
     }
     public long get_date_t() {
         return get_date().m_date;

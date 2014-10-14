@@ -759,21 +759,29 @@ public class ActivityDiary extends ListActivity
     static class CompareListElems implements Comparator< DiaryElement >
     {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
+            // NOTE: this function assumes only similar elements are listed at a time
 
-            // SORT BY DATE (ONLY DESCENDINGLY FOR NOW)
-            if( elem_l.get_type() == Type.DIARY )
-                return -1;
+            // SORT BY NAME
+            if( elem_l.get_date_t() == Date.NOT_APPLICABLE ) {
+                if( elem_l.get_type() == Type.UNTAGGED )
+                    return 1;
+                else
+                    return elem_l.get_name().toLowerCase()
+                                 .compareTo( elem_r.get_name().toLowerCase() );
+            }
+            // SORT BY DATE
+            else {
+                int direction =
+                        ( elem_l.get_date().is_ordinal() && elem_r.get_date().is_ordinal() ) ?
+                        -1 : 1;
 
-            int direction = ( elem_l.get_date().is_ordinal() && elem_r.get_date().is_ordinal() ) ?
-                            -1 : 1;
-
-            if( elem_l.get_date_t() > elem_r.get_date_t() )
-                return -direction;
-            else
-            if( elem_l.get_date_t() < elem_r.get_date_t() )
-                return direction;
-            else
-                return 0;
+                if( elem_l.get_date_t() > elem_r.get_date_t() )
+                    return -direction;
+                else if( elem_l.get_date_t() < elem_r.get_date_t() )
+                    return direction;
+                else
+                    return 0;
+            }
         }
     }
 
