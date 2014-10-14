@@ -32,7 +32,6 @@ import android.app.ListActivity;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
@@ -178,7 +177,7 @@ public class ActivityDiary extends ListActivity
         } );
 
         // LIST ADAPTER
-        m_adapter_entries = new DiaryElemAdapter( this, R.layout.imagelist, R.id.title, m_elems );
+        m_adapter_entries = new DiaryElemAdapter( this, R.layout.list_item_element, R.id.title, m_elems );
         this.setListAdapter( m_adapter_entries );
 
         mActionBar = getActionBar();
@@ -567,12 +566,16 @@ public class ActivityDiary extends ListActivity
                 setTitle( Diary.diary.get_name() );
                 mActionBar.setSubtitle( "Diary with " + Diary.diary.m_entries.size() + " Entries" );
 
+                // ALL ENTRIES
                 if( mCurTabIndex == 0 ) {
                     for( Entry e : Diary.diary.m_entries.values() ) {
                         if( !e.get_filtered_out() )
                             m_elems.add( e );
                     }
+
+                    Collections.sort( m_elems, compare_elems );
                 }
+                // CHAPTERS
                 else if( mCurTabIndex == 1 ) {
                     for( Chapter c : Diary.diary.m_groups.mMap.values() ) {
                         m_elems.add( c );
@@ -585,11 +588,25 @@ public class ActivityDiary extends ListActivity
                     }
                     if( Diary.diary.m_orphans.get_size() > 0 )
                         m_elems.add( Diary.diary.m_orphans );
+
+                    Collections.sort( m_elems, compare_elems );
                 }
+                // TAGS
                 else if( mCurTabIndex == 2 ) {
+                    // ROOT TAGS
                     for( Tag t : Diary.diary.m_tags.values() ) {
-                        m_elems.add( t );
+                        if( t.get_category() == null )
+                            m_elems.add( t );
                     }
+
+                    // CATEGORIES
+                    for( Tag.Category c : Diary.diary.m_tag_categories.values() ) {
+                        m_elems.add( c );
+                        for( Tag t : c.mTags )
+                            m_elems.add( t );
+                    }
+
+                    // UNTAGGED META TAG
                     if( Diary.diary.m_untagged.get_size() > 0 ) {
                         m_elems.add( Diary.diary.m_untagged );
                     }
@@ -606,6 +623,8 @@ public class ActivityDiary extends ListActivity
                     if( !e.get_filtered_out() )
                         m_elems.add( e );
                 }
+
+                Collections.sort( m_elems, compare_elems );
                 break;
             case CHAPTER:
             case TOPIC:
@@ -619,6 +638,8 @@ public class ActivityDiary extends ListActivity
                     if( !e.get_filtered_out() )
                         m_elems.add( e );
                 }
+
+                Collections.sort( m_elems, compare_elems );
                 break;
             default:
                 break;
@@ -626,7 +647,6 @@ public class ActivityDiary extends ListActivity
 
         // force menu update
         invalidateOptionsMenu();
-        Collections.sort( m_elems, compare_elems );
     }
 
     void createChapter( long date ) {
@@ -763,11 +783,7 @@ public class ActivityDiary extends ListActivity
 
             // SORT BY NAME
             if( elem_l.get_date_t() == Date.NOT_APPLICABLE ) {
-                if( elem_l.get_type() == Type.UNTAGGED )
-                    return 1;
-                else
-                    return elem_l.get_name().toLowerCase()
-                                 .compareTo( elem_r.get_name().toLowerCase() );
+                return 0;
             }
             // SORT BY DATE
             else {
@@ -795,6 +811,25 @@ public class ActivityDiary extends ListActivity
             super( context, resource, textViewResourceId, objects );
         }
 
+        private ViewHolder selectView( DiaryElement elem, ViewGroup par ) {
+            View view;
+            ViewHolder holder;
+
+            switch( elem.get_type() ) {
+                case TAG_CTG:
+                    view = mInflater.inflate( R.layout.list_item_category, par, false );
+                    holder = new ViewHolder( view, true );
+                    break;
+                default:
+                    view = mInflater.inflate( R.layout.list_item_element, par, false );
+                    holder = new ViewHolder( view, false );
+                    break;
+            }
+
+            view.setTag( holder );
+            return holder;
+        }
+
         @Override
         public View getView( int position, View convertView, ViewGroup parent ) {
             ViewHolder holder;
@@ -805,65 +840,83 @@ public class ActivityDiary extends ListActivity
             DiaryElement elem = getItem( position );
 
             if( convertView == null ) {
-                convertView = mInflater.inflate( R.layout.imagelist, parent, false );
-                holder = new ViewHolder( convertView );
-                convertView.setTag( holder );
+                holder = selectView( elem, parent );
+                convertView = holder.getView();
             }
-            holder = ( ViewHolder ) convertView.getTag();
+            else {
+                holder = ( ViewHolder ) convertView.getTag();
+            }
+
+            if( holder.isCtg() != ( elem.get_type() == Type.TAG_CTG ) ) {
+                holder = selectView( elem, parent );
+                convertView = holder.getView();
+            }
 
             title = holder.getName();
             title.setText( elem.get_list_str() );
 
-            detail = holder.getDetail();
-            detail.setText( elem.getListStrSecondary() );
+            if( !holder.isCtg() ) {
+                detail = holder.getDetail();
+                detail.setText( elem.getListStrSecondary() );
 
-            icon = holder.getIcon();
-            icon.setImageResource( elem.get_icon() );
+                icon = holder.getIcon();
+                icon.setImageResource( elem.get_icon() );
 
-            icon2 = holder.getIcon2();
-            icon2.setImageResource( R.drawable.ic_favorite );
-            icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
+                icon2 = holder.getmIcon2();
+                icon2.setImageResource( R.drawable.ic_favorite );
+                icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
+            }
 
             return convertView;
         }
 
         private class ViewHolder {
             private View mRow;
-            private TextView title = null;
-            private TextView detail = null;
-            private ImageView icon = null;
-            private ImageView icon2 = null;
+            private TextView mTitle = null;
+            private TextView mDetail = null;
+            private ImageView mIcon = null;
+            private ImageView mIcon2 = null;
+            private boolean mFlagCtg;
 
-            public ViewHolder( View row ) {
+            public ViewHolder( View row, boolean flagCtg ) {
                 mRow = row;
+                mFlagCtg = flagCtg;
+            }
+
+            public boolean isCtg() {
+                return mFlagCtg;
+            }
+
+            public View getView() {
+                return mRow;
             }
 
             public TextView getName() {
-                if( null == title ) {
-                    title = ( TextView ) mRow.findViewById( R.id.title );
+                if( null == mTitle ) {
+                    mTitle = ( TextView ) mRow.findViewById( R.id.title );
                 }
-                return title;
+                return mTitle;
             }
 
             public TextView getDetail() {
-                if( null == detail ) {
-                    detail = ( TextView ) mRow.findViewById( R.id.detail );
+                if( null == mDetail ) {
+                    mDetail = ( TextView ) mRow.findViewById( R.id.detail );
                 }
-                return detail;
+                return mDetail;
             }
 
             public ImageView getIcon() {
-                if( null == icon ) {
-                    icon = ( ImageView ) mRow.findViewById( R.id.icon );
+                if( null == mIcon ) {
+                    mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
                 }
-                return icon;
+                return mIcon;
             }
 
-            public ImageView getIcon2() {
-                if( null == icon2 ) {
-                    icon2 = ( ImageView ) mRow.findViewById( R.id.icon2 );
+            public ImageView getmIcon2() {
+                if( null == mIcon2 ) {
+                    mIcon2 = ( ImageView ) mRow.findViewById( R.id.icon2 );
                 }
-                return icon2;
+                return mIcon2;
             }
         }
     }

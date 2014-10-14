@@ -1866,7 +1866,7 @@ public class Diary extends DiaryElement
     java.util.TreeMap< Long, Entry > m_entries =
             new TreeMap< Long, Entry >( DiaryElement.compare_dates );
     Untagged m_untagged = new Untagged();
-    java.util.TreeMap< String, Tag > m_tags = new TreeMap< String, Tag >();
+    java.util.TreeMap< String, Tag > m_tags = new TreeMap< String, Tag >( DiaryElement.compare_names );
     java.util.TreeMap< String, Tag.Category > m_tag_categories =
             new TreeMap< String, Tag.Category >( DiaryElement.compare_names );
     java.util.TreeMap< String, Chapter.Category > m_chapter_categories =
