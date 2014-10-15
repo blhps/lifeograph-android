@@ -395,20 +395,20 @@ public class Diary extends DiaryElement
     }
 
     public Result write() {
-        assert( !m_flag_read_only );
+        // BACKUP THE PREVIOUS VERSION
+        File file = new File( m_path );
+        if( file.exists() )
+        {
+            File dir_backups = new File( file.getParent() + "/backups" );
+            if( dir_backups.exists() || dir_backups.mkdirs() ) {
+                File file_backup = new File( dir_backups, file.getName()+".backup" );
+                if( file.renameTo( file_backup ) )
+                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup.toString() );
+            }
+        }
 
-        // File file_prev = new File( m_path + ".~previousversion~" );
-        // File file = new File( m_path );
-
-        // if( file.exists() )
-        // file.renameTo( file_prev );
-
-        Result result = write( m_path );
-
-//        if( result == Result.SUCCESS )
-//            m_flag_changed = false;
-
-        return result;
+        // WRITE THE FILE
+        return write( m_path );
     }
 
     public Result write( String path ) {
