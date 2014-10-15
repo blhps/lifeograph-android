@@ -366,12 +366,14 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
 
     private void dismiss() {
         Lifeograph.showConfirmationPromt( this, R.string.entry_dismiss_confirm, R.string.dismiss,
-                new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface dialog, int id ) {
-                        mFlagDismissOnExit = true;
-                        ActivityEntry.this.finish();
-                    }
-                }, null );
+                                          new DialogInterface.OnClickListener()
+                                          {
+                                              public void onClick( DialogInterface dialog,
+                                                                   int id ) {
+                                                  mFlagDismissOnExit = true;
+                                                  ActivityEntry.this.finish();
+                                              }
+                                          }, null );
     }
 
     private void showTagDialog() {
@@ -661,12 +663,13 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     // PARSING VARIABLES ===========================================================================
-    private int pos_start, pos_current, pos_end, pos_word, pos_regular;
+    private int pos_start, pos_current, pos_end, pos_word, pos_regular, pos_search;
     private char char_current;
     private int char_last, char_req = CC_ANY;
     private String word_last;
     private long int_last, id_last;
     private Date date_last = new Date();
+
     private java.util.List< Integer > lookingfor = new ArrayList< Integer >();
     private java.util.List< ParSel > m_appliers = new ArrayList< ParSel >();
     private ParSel m_applier_nl;
@@ -703,20 +706,34 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         }
     }
 
-    void parse_text( /* int start, int end */) {
+    void parse_text( /* int start, int end */ ) {
         // everything below should go to Parser when there is one (and there is nothing above
         // as of yet...)
         reset( pos_start, pos_end );
 
+        // this part is different than in c++
+        String search_text = Diary.diary.get_search_text();
+        boolean flag_search_active = !search_text.isEmpty();
+        int i_search = 0;
+        int i_search_end = Diary.diary.get_search_text().length() - 1;
+
         for( ; pos_current < pos_end; ++pos_current ) {
             char_current = mEditText.getText().charAt( pos_current );
 
-            /*
-             * TODO if( m_search_str.size() > 0 ) { if( m_search_str[ i_search ] ==
-             * Glib::Unicode::tolower( char_current ) ) { if( i_search == 0 ) pos_search =
-             * pos_current; if( i_search == i_search_end ) { apply_match(); i_search = 0; }
-             * else i_search++; } else { i_search = 0; } }
-             */
+            if( flag_search_active ) {
+                if( search_text.charAt( i_search ) == Character.toLowerCase( char_current ) ) {
+                    if( i_search == 0 )
+                        pos_search = pos_current;
+                    if( i_search == i_search_end ) {
+                        apply_match();
+                        i_search = 0;
+                    }
+                    else
+                        i_search++;
+                }
+                else
+                    i_search = 0;
+            }
 
             // MARKUP PARSING
             switch( char_current ) {
@@ -1356,5 +1373,11 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
                 mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end, 0 );
             }
         }
+    }
+
+    private void apply_match() {
+        m_spans.add( new BackgroundColorSpan( Color.GREEN ) );
+        mEditText.getText().setSpan( m_spans.lastElement(), pos_search, pos_current+1,
+                                     Spanned.SPAN_INTERMEDIATE );
     }
 }

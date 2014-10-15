@@ -13,7 +13,7 @@
         <item name="android:textStyle">bold</item>
     </style>
 
-        <style name="italicText" parent="@android:style/TextAppearance.Medium">
+    <style name="italicText" parent="@android:style/TextAppearance.Medium">
         <item name="android:textStyle">italic</item>
     </style>
 
