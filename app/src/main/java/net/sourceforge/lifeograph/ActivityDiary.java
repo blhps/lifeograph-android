@@ -47,6 +47,7 @@ import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.Spinner;
@@ -580,16 +581,14 @@ public class ActivityDiary extends ListActivity
                 else if( mCurTabIndex == 1 ) {
                     // FREE CHAPTERS
                     if( !Diary.diary.m_groups.mMap.isEmpty() ) {
-                        m_elems.add( new Tag.Category( null, Lifeograph.getStr(
-                                R.string.free_chapters ) ) );
+                        m_elems.add( new HeaderElem( R.string.free_chapters ) );
                         for( Chapter c : Diary.diary.m_groups.mMap.descendingMap().values() ) {
                             m_elems.add( c );
                         }
                     }
                     // NUMBERED CHAPTERS
                     if( !Diary.diary.m_topics.mMap.isEmpty() ) {
-                        m_elems.add( new Tag.Category( null, Lifeograph.getStr(
-                                R.string.numbered_chapters ) ) );
+                        m_elems.add( new HeaderElem( R.string.numbered_chapters ) );
                         for( Chapter c : Diary.diary.m_topics.mMap.descendingMap().values() ) {
                             m_elems.add( c );
                         }
@@ -619,11 +618,14 @@ public class ActivityDiary extends ListActivity
                     // CATEGORIES
                     for( Tag.Category c : Diary.diary.m_tag_categories.values() ) {
                         m_elems.add( c );
-                        for( Tag t : c.mTags )
-                            m_elems.add( t );
+                        if( c.get_expanded() ) {
+                            for( Tag t : c.mTags )
+                                m_elems.add( t );
+                        }
                     }
                     // UNTAGGED META TAG
                     if( Diary.diary.m_untagged.get_size() > 0 ) {
+                        m_elems.add( new HeaderElem( R.string._empty_ ) );
                         m_elems.add( Diary.diary.m_untagged );
                     }
                 }
@@ -819,6 +821,34 @@ public class ActivityDiary extends ListActivity
 
     static final CompareListElems compare_elems = new CompareListElems();
 
+    // HEADER PSEUDO ELEMENT CLASS =================================================================
+    class HeaderElem extends DiaryElement {
+
+        public HeaderElem( int nameRsc ) {
+            super( null, Lifeograph.getStr( nameRsc ), ES_VOID );
+        }
+
+        @Override
+        public String get_info_str() {
+            return "";
+        }
+
+        @Override
+        public int get_icon() {
+            return R.drawable.ic_diary;
+        }
+
+        @Override
+        public Type get_type() {
+            return Type.HEADER;
+        }
+
+        @Override
+        public int get_size() {
+            return 0;
+        }
+    }
+
     // ADAPTER CLASS ===============================================================================
     private class DiaryElemAdapter extends ArrayAdapter< DiaryElement >
     {
@@ -827,18 +857,22 @@ public class ActivityDiary extends ListActivity
             super( context, resource, textViewResourceId, objects );
         }
 
-        private ViewHolder selectView( DiaryElement elem, ViewGroup par ) {
+        private ViewHolder setHolder( DiaryElement elem, ViewGroup par ) {
             View view;
             ViewHolder holder;
 
             switch( elem.get_type() ) {
                 case TAG_CTG:
-                    view = mInflater.inflate( R.layout.list_item_category, par, false );
-                    holder = new ViewHolder( view, true );
+                    view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
+                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_TAG_CTG );
+                    break;
+                case HEADER:
+                    view = mInflater.inflate( R.layout.list_section_simple, par, false );
+                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_SIMPLE );
                     break;
                 default:
                     view = mInflater.inflate( R.layout.list_item_element, par, false );
-                    holder = new ViewHolder( view, false );
+                    holder = new ViewHolder( view, DiaryElement.LayoutType.ELEMENT );
                     break;
             }
 
@@ -846,41 +880,69 @@ public class ActivityDiary extends ListActivity
             return holder;
         }
 
+        public void handleCollapse( DiaryElement elem ) {
+            Log.d( Lifeograph.TAG, "handle collapse " + elem.get_name() );
+            switch( elem.get_type().layout_type ) {
+                case HEADER_TAG_CTG:
+                    Tag.Category tc = (Tag.Category ) elem;
+                    tc.set_expanded( !tc.get_expanded() );
+                    break;
+                case HEADER_CHAPTER_CTG:
+                    break;
+            }
+
+            update_entry_list();
+        }
+
         @Override
         public View getView( int position, View convertView, ViewGroup parent ) {
             ViewHolder holder;
             TextView title;
-            TextView detail;
-            ImageView icon;
-            ImageView icon2;
-            DiaryElement elem = getItem( position );
+            final DiaryElement elem = getItem( position );
 
             if( convertView == null ) {
-                holder = selectView( elem, parent );
+                holder = setHolder( elem, parent );
                 convertView = holder.getView();
             }
             else {
                 holder = ( ViewHolder ) convertView.getTag();
             }
 
-            if( holder.isCtg() != ( elem.get_type() == Type.TAG_CTG ) ) {
-                holder = selectView( elem, parent );
+            if( holder.getLayoutType() != elem.get_type().layout_type ) {
+                holder = setHolder( elem, parent );
                 convertView = holder.getView();
             }
 
             title = holder.getName();
             title.setText( elem.get_list_str() );
 
-            if( !holder.isCtg() ) {
-                detail = holder.getDetail();
-                detail.setText( elem.getListStrSecondary() );
+            switch( holder.getLayoutType() ) {
+                case HEADER_SIMPLE:
+                    break;
+                case HEADER_TAG_CTG:
+                    Tag.Category tc = ( Tag.Category ) elem;
+                    ImageButton iconCollapse = holder.getIconCollapse();
+                    iconCollapse.setImageResource(
+                            tc.get_expanded() ? R.drawable.ic_expanded : R.drawable.ic_collapsed );
+                    iconCollapse.setOnClickListener( new View.OnClickListener() {
+                        public void onClick( View v ) {
+                            handleCollapse( elem );
+                        }
+                    } );
+                    break;
+                case ELEMENT:
+                    TextView detail = holder.getDetail();
+                    detail.setText( elem.getListStrSecondary() );
 
-                icon = holder.getIcon();
-                icon.setImageResource( elem.get_icon() );
+                    ImageView icon = holder.getIcon();
+                    icon.setImageResource( elem.get_icon() );
 
-                icon2 = holder.getmIcon2();
-                icon2.setImageResource( R.drawable.ic_favorite );
-                icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
+                    ImageView icon2 = holder.getIcon2();
+                    icon2.setImageResource( R.drawable.ic_favorite );
+                    icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
+                    break;
+                default:
+                    break;
             }
 
             return convertView;
@@ -892,15 +954,18 @@ public class ActivityDiary extends ListActivity
             private TextView mDetail = null;
             private ImageView mIcon = null;
             private ImageView mIcon2 = null;
-            private boolean mFlagCtg;
 
-            public ViewHolder( View row, boolean flagCtg ) {
+            private ImageButton mIconCollapse = null;
+
+            private DiaryElement.LayoutType mLayoutType;
+
+            public ViewHolder( View row, DiaryElement.LayoutType layoutType ) {
                 mRow = row;
-                mFlagCtg = flagCtg;
+                mLayoutType = layoutType;
             }
 
-            public boolean isCtg() {
-                return mFlagCtg;
+            public DiaryElement.LayoutType getLayoutType() {
+                return mLayoutType;
             }
 
             public View getView() {
@@ -928,11 +993,18 @@ public class ActivityDiary extends ListActivity
                 return mIcon;
             }
 
-            public ImageView getmIcon2() {
+            public ImageView getIcon2() {
                 if( null == mIcon2 ) {
                     mIcon2 = ( ImageView ) mRow.findViewById( R.id.icon2 );
                 }
                 return mIcon2;
+            }
+
+            public ImageButton getIconCollapse() {
+                if( null == mIconCollapse ) {
+                    mIconCollapse = ( ImageButton ) mRow.findViewById( R.id.icon_collapse );
+                }
+                return mIconCollapse;
             }
         }
     }

@@ -5,6 +5,22 @@
               android:layout_height="wrap_content"
               android:background="#ffffb96a">
 
+    <!--Button
+        style="@android:style/Widget.Holo.Button.Borderless.Small"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:text="+"
+        android:id="@+id/button_collapse" /-->
+
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_collapse"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_collapsed"
+        style="@android:style/Widget.Holo.ActionButton"/>
+
     <TextView
         android:id="@+id/title"
         android:paddingLeft="5dp"
@@ -12,7 +28,7 @@
         android:layout_height="wrap_content"
         android:layout_weight=".99"
         android:layout_gravity="center_vertical"
-        android:textSize="16sp"
+        android:textSize="20sp"
         android:textStyle="bold"
         android:text="@string/placeholder" />
 

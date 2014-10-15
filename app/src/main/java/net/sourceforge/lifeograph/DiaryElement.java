@@ -38,24 +38,32 @@ public abstract class DiaryElement {
 
     public final static CharSequence STR_SEPARATOR = " - ";
 
+    // layout type for list view section headers
+    public static enum LayoutType {
+        ELEMENT, HEADER_SIMPLE, HEADER_TAG_CTG, HEADER_CHAPTER_CTG
+    }
+
     public static enum Type {
         // CAUTION: order is significant and shouldn't be changed!
-        NONE( "" ),
-        TAG( Lifeograph.getStr( R.string.tag ) ),
-        UNTAGGED( Lifeograph.getStr( R.string.untagged ) ),
-        TAG_CTG( Lifeograph.getStr( R.string.tag_ctg ) ),
-        CHAPTER_CTG( Lifeograph.getStr( R.string.chapter_ctg ) ),
-        FILTER( Lifeograph.getStr( R.string.filter ) ),
+        NONE( LayoutType.ELEMENT, "" ),
+        TAG( LayoutType.ELEMENT, Lifeograph.getStr( R.string.tag ) ),
+        UNTAGGED( LayoutType.ELEMENT, Lifeograph.getStr( R.string.untagged ) ),
+        TAG_CTG( LayoutType.HEADER_TAG_CTG, Lifeograph.getStr( R.string.tag_ctg ) ),
+        CHAPTER_CTG( LayoutType.HEADER_SIMPLE, Lifeograph.getStr( R.string.chapter_ctg ) ),
+        FILTER( LayoutType.ELEMENT, Lifeograph.getStr( R.string.filter ) ),
         // entry list elements:
-        DIARY( Lifeograph.getStr( R.string.diary ) ),
-        CHAPTER( Lifeograph.getStr( R.string.chapter ) ),
-        TOPIC( Lifeograph.getStr( R.string.topic ) ),
-        GROUP( Lifeograph.getStr( R.string.group ) ),
-        ENTRY( Lifeograph.getStr( R.string.entry ) ),
-        DATE( "" );
+        DIARY( LayoutType.ELEMENT, Lifeograph.getStr( R.string.diary ) ),
+        CHAPTER( LayoutType.ELEMENT, Lifeograph.getStr( R.string.chapter ) ),
+        TOPIC( LayoutType.ELEMENT, Lifeograph.getStr( R.string.topic ) ),
+        GROUP( LayoutType.ELEMENT, Lifeograph.getStr( R.string.group ) ),
+        ENTRY( LayoutType.ELEMENT, Lifeograph.getStr( R.string.entry ) ),
+        DATE( LayoutType.ELEMENT, "" ),
+        HEADER( LayoutType.HEADER_SIMPLE, "" );
 
         public final String str;
-        private Type( String v ) {
+        public final LayoutType layout_type;
+        private Type( LayoutType l, String v ) {
+            this.layout_type = l;
             this.str = v;
         }
     }
