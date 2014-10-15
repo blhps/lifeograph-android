@@ -594,10 +594,14 @@ public class Diary extends DiaryElement
     }
 
     // CHAPTERS ====================================================================================
-    /*
-     * CategoryChapters get_current_chapter_ctg() { return m_ptr2chapter_ctg_cur; }
-     * CategoryChapters create_chapter_ctg();
-     */
+    //public Chapter.Category get_current_chapter_ctg() { return m_ptr2chapter_ctg_cur; }
+    public void set_current_chapter_ctg( Chapter.Category ctg )
+    {
+        m_ptr2chapter_ctg_cur = ctg;
+        update_entries_in_chapters();
+    }
+
+    //CategoryChapters create_chapter_ctg() {}
     public Chapter.Category create_chapter_ctg( String name ) {
         Chapter.Category category = new Chapter.Category( this, name );
         m_chapter_categories.put( name, category );

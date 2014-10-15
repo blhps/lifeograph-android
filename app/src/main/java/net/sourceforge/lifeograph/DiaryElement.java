@@ -49,7 +49,7 @@ public abstract class DiaryElement {
         TAG( LayoutType.ELEMENT, Lifeograph.getStr( R.string.tag ) ),
         UNTAGGED( LayoutType.ELEMENT, Lifeograph.getStr( R.string.untagged ) ),
         TAG_CTG( LayoutType.HEADER_TAG_CTG, Lifeograph.getStr( R.string.tag_ctg ) ),
-        CHAPTER_CTG( LayoutType.HEADER_SIMPLE, Lifeograph.getStr( R.string.chapter_ctg ) ),
+        CHAPTER_CTG( LayoutType.HEADER_CHAPTER_CTG, Lifeograph.getStr( R.string.chapter_ctg ) ),
         FILTER( LayoutType.ELEMENT, Lifeograph.getStr( R.string.filter ) ),
         // entry list elements:
         DIARY( LayoutType.ELEMENT, Lifeograph.getStr( R.string.diary ) ),

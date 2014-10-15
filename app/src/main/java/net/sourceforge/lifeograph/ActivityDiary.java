@@ -594,8 +594,12 @@ public class ActivityDiary extends ListActivity
                         }
                     }
                     // DATED CHAPTERS
+                    if( Diary.diary.m_chapter_categories.size() == 1 )
+                        m_elems.add( new HeaderElem( R.string.dated_chapters ) );
+
                     for( Chapter.Category cc : Diary.diary.m_chapter_categories.values() ) {
-                        m_elems.add( new Tag.Category( null, cc.get_name() ) );
+                        if( Diary.diary.m_chapter_categories.size() > 1 )
+                            m_elems.add( cc );
 
                         if( cc == Diary.diary.m_ptr2chapter_ctg_cur ) {
                             for( Chapter c : cc.mMap.values() ) {
@@ -866,6 +870,10 @@ public class ActivityDiary extends ListActivity
                     view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
                     holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_TAG_CTG );
                     break;
+                case CHAPTER_CTG:
+                    view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
+                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_CHAPTER_CTG );
+                    break;
                 case HEADER:
                     view = mInflater.inflate( R.layout.list_section_simple, par, false );
                     holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_SIMPLE );
@@ -884,10 +892,12 @@ public class ActivityDiary extends ListActivity
             Log.d( Lifeograph.TAG, "handle collapse " + elem.get_name() );
             switch( elem.get_type().layout_type ) {
                 case HEADER_TAG_CTG:
-                    Tag.Category tc = (Tag.Category ) elem;
+                    Tag.Category tc = ( Tag.Category ) elem;
                     tc.set_expanded( !tc.get_expanded() );
                     break;
                 case HEADER_CHAPTER_CTG:
+                    Chapter.Category cc = ( Chapter.Category ) elem;
+                    Diary.diary.set_current_chapter_ctg( cc );
                     break;
             }
 
@@ -919,18 +929,33 @@ public class ActivityDiary extends ListActivity
             switch( holder.getLayoutType() ) {
                 case HEADER_SIMPLE:
                     break;
-                case HEADER_TAG_CTG:
+                case HEADER_TAG_CTG: {
                     Tag.Category tc = ( Tag.Category ) elem;
                     ImageButton iconCollapse = holder.getIconCollapse();
                     iconCollapse.setImageResource(
                             tc.get_expanded() ? R.drawable.ic_expanded : R.drawable.ic_collapsed );
-                    iconCollapse.setOnClickListener( new View.OnClickListener() {
+                    iconCollapse.setOnClickListener( new View.OnClickListener()
+                    {
                         public void onClick( View v ) {
                             handleCollapse( elem );
                         }
                     } );
                     break;
-                case ELEMENT:
+                }
+                case HEADER_CHAPTER_CTG: {
+                    Chapter.Category cc = ( Chapter.Category ) elem;
+                    ImageButton iconCollapse = holder.getIconCollapse();
+                    iconCollapse.setImageResource( cc == Diary.diary.m_ptr2chapter_ctg_cur ?
+                                                           R.drawable.ic_radio_sel : R.drawable.ic_radio_empty );
+                    iconCollapse.setOnClickListener( new View.OnClickListener()
+                    {
+                        public void onClick( View v ) {
+                            handleCollapse( elem );
+                        }
+                    } );
+                    break;
+                }
+                case ELEMENT: {
                     TextView detail = holder.getDetail();
                     detail.setText( elem.getListStrSecondary() );
 
@@ -941,6 +966,7 @@ public class ActivityDiary extends ListActivity
                     icon2.setImageResource( R.drawable.ic_favorite );
                     icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
                     break;
+                }
                 default:
                     break;
             }
