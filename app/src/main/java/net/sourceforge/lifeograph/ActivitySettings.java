@@ -37,31 +37,42 @@ public class ActivitySettings extends PreferenceActivity
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
         // to reflect the new value, per the Android Design guidelines.
-        bindPreferenceSummaryToValue( findPreference( Lifeograph.opt_date_format_order ) );
-        bindPreferenceSummaryToValue( findPreference( Lifeograph.opt_date_format_separator ) );
+
+        bindPreferenceSummaryToValue(
+                findPreference( Lifeograph.getStr( R.string.pref_DIARY_PATH_key ) ) );
+        bindPreferenceSummaryToValue(
+                findPreference( Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ) ) );
+        bindPreferenceSummaryToValue(
+                findPreference( Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) );
     }
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
             new Preference.OnPreferenceChangeListener()
     {
-        public boolean onPreferenceChange( Preference preference, Object value ) {
+        public boolean onPreferenceChange( Preference pref, Object value ) {
             String stringValue = value.toString();
 
-            if( preference.getKey().equals( Lifeograph.opt_date_format_order ) ) {
+            if( pref.getKey().equals(
+                    Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ) ) ) {
                 Date.s_format_order = stringValue;
             }
-            else if( preference.getKey().equals( Lifeograph.opt_date_format_separator ) ) {
+            else if( pref.getKey().equals(
+                    Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) {
                 Date.s_format_separator = stringValue;
             }
+            else if( pref.getKey().equals(
+                    Lifeograph.getStr( R.string.pref_DIARY_PATH_key ) ) ) {
+                ActivityLogin.sDiaryPath = stringValue;
+            }
 
-            if( preference instanceof ListPreference ) {
+            if( pref instanceof ListPreference ) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.
-                ListPreference listPreference = ( ListPreference ) preference;
+                ListPreference listPreference = ( ListPreference ) pref;
                 int index = listPreference.findIndexOfValue( stringValue );
 
                 // Set the summary to reflect the new value.
-                preference.setSummary(
+                pref.setSummary(
                         index >= 0
                                 ? listPreference.getEntries()[ index ]
                                 : null );
@@ -70,7 +81,7 @@ public class ActivitySettings extends PreferenceActivity
             else {
                 // For all other preferences, set the summary to the value's
                 // simple string representation.
-                preference.setSummary( stringValue );
+                pref.setSummary( stringValue );
             }
             return true;
         }

@@ -595,8 +595,7 @@ public class Diary extends DiaryElement
 
     // CHAPTERS ====================================================================================
     //public Chapter.Category get_current_chapter_ctg() { return m_ptr2chapter_ctg_cur; }
-    public void set_current_chapter_ctg( Chapter.Category ctg )
-    {
+    public void set_current_chapter_ctg( Chapter.Category ctg ) {
         m_ptr2chapter_ctg_cur = ctg;
         update_entries_in_chapters();
     }

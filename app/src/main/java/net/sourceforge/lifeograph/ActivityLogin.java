@@ -43,6 +43,7 @@ import android.widget.TextView;
 
 public class ActivityLogin extends ListActivity implements DialogInquireText.InquireListener
 {
+    public static String sDiaryPath;
     private java.util.List< String > m_paths = new ArrayList< String >();
     private ArrayAdapter< String > mAdapterDiaries;
 
@@ -61,10 +62,12 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getApplicationContext() );
-        Date.s_format_order = prefs.getString( Lifeograph.opt_date_format_order, "N/A" );
-        Date.s_format_separator = prefs.getString( Lifeograph.opt_date_format_separator, "N/A" );
-        Log.d( Lifeograph.TAG, Date.s_format_order );
-        Log.d( Lifeograph.TAG, Date.s_format_separator );
+        sDiaryPath = prefs.getString(
+                Lifeograph.getStr( R.string.pref_DIARY_PATH_key ), "N/A" );
+        Date.s_format_order = prefs.getString(
+                Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ), "N/A" );
+        Date.s_format_separator = prefs.getString(
+                Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ), "N/A" );
 
         setContentView( R.layout.login );
 
@@ -80,7 +83,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     @Override
     protected void onResume() {
         super.onResume();
-        populate_diaries();
+        populate_diaries(); // this also helps with the changes in the diary path
         Log.d( Lifeograph.TAG, "onResume - ActivityLogin" );
     }
 
@@ -190,7 +193,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     }
 
     File getDiariesDir() {
-        return new File( Environment.getExternalStorageDirectory(), "Diaries" );
+        return new File( Environment.getExternalStorageDirectory(), sDiaryPath );
     }
 
     // InquireListener method
@@ -223,8 +226,8 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     }
 
     void populate_diaries() {
-        boolean ExternalStorageAvailable = false;
-        boolean ExternalStorageWritable = false;
+        boolean externalStorageAvailable;
+        boolean externalStorageWritable;
 
         mAdapterDiaries.clear();
         m_paths.clear();
@@ -233,24 +236,25 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         if( Environment.MEDIA_MOUNTED.equals( state ) ) {
             // We can read and write the media
-            ExternalStorageAvailable = ExternalStorageWritable = true;
+            externalStorageAvailable = externalStorageWritable = true;
         }
         else if( Environment.MEDIA_MOUNTED_READ_ONLY.equals( state ) ) {
             // We can only read the media
-            ExternalStorageAvailable = true;
-            ExternalStorageWritable = false;
+            externalStorageAvailable = true;
+            externalStorageWritable = false;
         }
         else {
             // Something else is wrong. It may be one of many other states, but
             // all we need to know is we can neither read nor write
-            ExternalStorageAvailable = ExternalStorageWritable = false;
+            externalStorageAvailable = externalStorageWritable = false;
         }
 
-        if( ExternalStorageAvailable && ExternalStorageWritable ) {
+        if( externalStorageAvailable && externalStorageWritable ) {
             File dir = getDiariesDir();
             Log.d( Lifeograph.TAG, dir.getPath() );
             if( !dir.exists() ) {
-                dir.mkdir();
+                if( !dir.mkdirs() )
+                    Lifeograph.showToast( this, "Failed to create the diary folder" );
             }
             else {
                 File[] dirs = dir.listFiles();

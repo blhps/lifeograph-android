@@ -40,9 +40,6 @@ public class Lifeograph
 
     public static final String LANG_INHERIT_DIARY = "d";
 
-    public static final String opt_date_format_order = "date_format_order";
-    public static final String opt_date_format_separator = "date_format_separator";
-
     public static String getStr( int i ) {
         if( context == null )
             return "CONTEXT IS NOT READY. SOMETHING IS WRONG!";

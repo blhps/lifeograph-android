@@ -5,23 +5,35 @@
          dismiss it. -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <PreferenceCategory
-        android:title="@string/pref_header_date_format">
+        android:title="@string/pref_DIARY_header" >
+
+        <EditTextPreference
+            android:key="@string/pref_DIARY_PATH_key"
+            android:title="@string/pref_DIARY_PATH_title"
+            android:defaultValue="@string/pref_DIARY_PATH_default"
+            android:singleLine="true"
+            android:negativeButtonText="@null" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory
+        android:title="@string/pref_DATE_FORMAT_header" >
 
         <ListPreference
             android:key="date_format_order"
-            android:title="@string/pref_title_date_format_order"
-            android:defaultValue="@string/pref_date_format_order_default"
-            android:entries="@array/pref_date_format_order_titles"
-            android:entryValues="@array/pref_date_format_order_values"
+            android:title="@string/pref_DATE_FORMAT_ORDER_title"
+            android:defaultValue="@string/pref_DATE_FORMAT_ORDER_default"
+            android:entries="@array/pref_DATE_FORMAT_ORDER_titles"
+            android:entryValues="@array/pref_DATE_FORMAT_ORDER_values"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null" />
 
         <ListPreference
             android:key="date_format_separator"
-            android:title="@string/pref_title_date_format_separator"
-            android:defaultValue="@string/pref_date_format_separator_default"
-            android:entries="@array/pref_date_format_separator_titles"
-            android:entryValues="@array/pref_date_format_separator_values"
+            android:title="@string/pref_DATE_FORMAT_SEPARATOR_title"
+            android:defaultValue="@string/pref_DATE_FORMAT_SEPARATOR_default"
+            android:entries="@array/pref_DATE_FORMAT_SEPARATOR_titles"
+            android:entryValues="@array/pref_DATE_FORMAT_SEPARATOR_values"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null" />
 

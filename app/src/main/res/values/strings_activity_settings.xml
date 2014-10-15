@@ -4,31 +4,39 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
-    <string name="pref_header_date_format">Date Format</string>
+    <string name="pref_DIARY_header">Diary Files</string>
 
-    <string name="pref_title_date_format_order">Field Order</string>
-    <string name="pref_title_date_format_separator">Field Separator</string>
+    <string name="pref_DIARY_PATH_title">Location of Diary Files</string>
+    <string name="pref_DIARY_PATH_key">diary_path</string>
+    <string name="pref_DIARY_PATH_default">Diaries</string>
 
-    <string name="pref_date_format_order_default">YMD</string>
-    <string name="pref_date_format_separator_default">.</string>
+    <string name="pref_DATE_FORMAT_header">Date Format</string>
 
-    <string-array name="pref_date_format_order_titles">
+    <string name="pref_DATE_FORMAT_ORDER_title">Field Order</string>
+    <string name="pref_DATE_FORMAT_ORDER_key">date_format_order</string>
+    <string name="pref_DATE_FORMAT_ORDER_default">YMD</string>
+
+    <string name="pref_DATE_FORMAT_SEPARATOR_title">Field Separator</string>
+    <string name="pref_DATE_FORMAT_SEPARATOR_key">date_format_separator</string>
+    <string name="pref_DATE_FORMAT_SEPARATOR_default">.</string>
+
+    <string-array name="pref_DATE_FORMAT_ORDER_titles">
         <item>Year Month Day</item>
         <item>Day Month Year</item>
         <item>Month Day year</item>
     </string-array>
-    <string-array name="pref_date_format_order_values">
+    <string-array name="pref_DATE_FORMAT_ORDER_values">
         <item>YMD</item>
         <item>DMY</item>
         <item>MDY</item>
     </string-array>
 
-    <string-array name="pref_date_format_separator_titles">
+    <string-array name="pref_DATE_FORMAT_SEPARATOR_titles">
         <item>. (Dot)</item>
         <item>/ (Slash)</item>
         <item>- (Dash)</item>
     </string-array>
-    <string-array name="pref_date_format_separator_values">
+    <string-array name="pref_DATE_FORMAT_SEPARATOR_values">
         <item>.</item>
         <item>/</item>
         <item>-</item>
