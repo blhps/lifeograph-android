@@ -28,7 +28,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.res.Configuration;
-import android.util.Log;
 import android.widget.Toast;
 
 public class Lifeograph
@@ -52,12 +51,11 @@ public class Lifeograph
                                                DialogInterface.OnClickListener negListener ) {
         AlertDialog.Builder builder = new AlertDialog.Builder( ctx );
         builder.setMessage( message )
-                .setCancelable( false )
-                .setPositiveButton( positiveText, posListener )
-                .setNegativeButton( R.string.cancel, negListener );
+               .setPositiveButton( positiveText, posListener )
+               .setNegativeButton( R.string.cancel, negListener );
 
-        AlertDialog alert = builder.create();
-        alert.show();
+        //AlertDialog alert = builder.create();
+        builder.show();
     }
 
     public static void showToast( Context ctx, String message ) {

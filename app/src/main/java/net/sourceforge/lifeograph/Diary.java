@@ -617,6 +617,41 @@ public class Diary extends DiaryElement
         return true;
     }
 
+    public void set_entry_date( Entry entry, Date date ) {
+        long d = entry.m_date.m_date;
+        m_entries.remove( d );
+
+        for( Entry entry_shift = m_entries.get( ++d );
+             entry_shift != null;
+             entry_shift = m_entries.get( ++d ) ) {
+            m_entries.remove( d );
+            entry_shift.set_date( d-1 );
+            m_entries.put( d - 1, entry_shift );
+        }
+
+        // find the last entry in the date/order
+        d = date.m_date;
+        boolean flag_replace = false;
+        while( m_entries.get( d ) != null ) {
+            flag_replace = true;
+            d++;
+        }
+
+        if( flag_replace ) {
+            for( Entry entry_shift = m_entries.get( --d );
+                 d >= date.m_date;
+                 entry_shift = m_entries.get( --d ) ) {
+                m_entries.remove( d );
+                entry_shift.set_date( d+1 );
+                m_entries.put( d + 1, entry_shift );
+            }
+        }
+
+        entry.set_date( date.m_date );
+        m_entries.put( date.m_date, entry );
+        update_entries_in_chapters(); // date changes require full update
+    }
+
     public boolean get_day_has_multiple_entries( Date date_impure ) {
         long date = date_impure.get_pure();
         return( m_entries.get( date + 2 ) != null );

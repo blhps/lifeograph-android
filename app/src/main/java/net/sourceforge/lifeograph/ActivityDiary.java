@@ -720,7 +720,8 @@ public class ActivityDiary extends ListActivity
 
     private void dismiss_chapter() {
         Lifeograph.showConfirmationPrompt( this,
-                                           R.string.chapter_dismiss_confirm, R.string.dismiss,
+                                           R.string.chapter_dismiss_confirm,
+                                           R.string.dismiss,
                                            new DialogInterface.OnClickListener()
                                            {
                                                public void onClick( DialogInterface dialog,
@@ -731,7 +732,8 @@ public class ActivityDiary extends ListActivity
                                                    mParentElem = Diary.diary;
                                                    update_entry_list();
                                                }
-                                           }, null );
+                                           },
+                                           null );
     }
 
     private void dismiss_tag() {

@@ -61,7 +61,8 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
+public class ActivityEntry extends Activity
+        implements ToDoAction.ToDoObject, DialogInquireText.InquireListener {
     // ENTRY PARSER ENUMS
     public final int LF_NOTHING = 0x1;
     public final int LF_NEWLINE = 0x2;
@@ -284,6 +285,13 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
                 return true;
             case R.id.change_todo_status:
                 return false;
+            case R.id.edit_date:
+                new DialogInquireText( this,
+                                       R.string.edit_date,
+                                       m_ptr2entry.get_date().format_string(),
+                                       R.string.apply,
+                                       this ).show();
+                return true;
             case R.id.dismiss:
                 dismiss();
                 return true;
@@ -384,6 +392,32 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
         m_ptr2entry.set_todo_status( s );
         updateIcon();
     }
+
+    // InquireListener methods
+    public void onInquireAction( int id, String text ) {
+        switch( id ) {
+            case R.string.edit_date:
+                Date date = new Date( text );
+                if( date.m_date != Date.NOT_SET ) {
+                    if( !date.is_ordinal() )
+                        date.reset_order_1();
+                    Diary.diary.set_entry_date( m_ptr2entry, date );
+                    setTitle( m_ptr2entry.get_title() );
+                    mActionBar.setSubtitle( m_ptr2entry.get_info_str() );
+                }
+                break;
+        }
+    }
+    public boolean onInquireTextChanged( int id, String s ) {
+        switch( id ) {
+            case R.string.edit_date:
+                long date = Date.parse_string( s );
+                return( date > 0 && date != m_ptr2entry.m_date.m_date );
+            default:
+                return true;
+        }
+    }
+
 
     // TAG DIALOG ==================================================================================
     class DialogTags extends Dialog

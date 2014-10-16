@@ -30,8 +30,10 @@ public class Date {
     public static final long    NOT_APPLICABLE   = 0x0L;
     public static final long    NOT_SET          = 0xFFFFFFFFL;
     public static final long    DATE_MAX         = 0xFFFFFFFFL;
-    public static final long    YEAR_MAX         = 2199L;
+
     public static final long    YEAR_MIN         = 1900L;
+    public static final long    YEAR_MAX         = 2199L;
+    public static final long    CHAPTER_MAX      = 1024L;
 
     public static final long    ORDER_FILTER     =      0x3FFL;
     public static final long    DAY_FILTER       =     0x7C00L;
@@ -49,8 +51,11 @@ public class Date {
 
     public static final long    ORDINAL_STEP     = 0x400L;
     public static final long    ORDINAL_FLAG     = 0x80000000L;
-    public static final long    ORDINAL_FILTER   = 0x1FFFFC00L;
-    public static final long    TOPIC_MAX        = ORDINAL_FILTER;
+    public static final long    ORDINAL_FILTER   = ORDINAL_STEP * ( CHAPTER_MAX - 1 );
+    public static final long    ORDINAL_LAST     = ORDINAL_FILTER;
+
+    public static final long    ORDER_MAX        = ORDER_FILTER;
+
     public static final long    TOPIC_NO_FLAGS_FILTER   = ORDINAL_FILTER|ORDER_FILTER;
 
     public static final long    TOPIC_MIN        = VISIBLE_FLAG|ORDINAL_FLAG;
@@ -90,6 +95,13 @@ public class Date {
         m_date = ( ORDINAL_FLAG | ( o1 << 10 ) | o2 );
     }
 
+    // STRING C'TOR
+    public Date( String str_date ) {
+        m_date = parse_string( str_date );
+        if( m_date == 0 )
+            m_date = NOT_SET;
+    }
+
     public static long get_today( int order ) {
         Calendar cal = Calendar.getInstance();
 
@@ -97,8 +109,108 @@ public class Date {
                           cal.get( Calendar.DAY_OF_MONTH ), order );
     }
 
-    public void set( int date ) {
+    public void set( long date ) {
         m_date = date;
+    }
+
+    // signature is different than in c++:
+    public static long parse_string( String str_date ) {
+        char c_cur;
+        int[] num = { 0, 0, 0, 0 };  // fourth int is for trailing spaces
+        int i = 0;
+        long date;
+
+        for( int j = 0; j < str_date.length(); j++ ) {
+            c_cur = str_date.charAt( j );
+            switch( c_cur ) {
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    if( i > 2 )
+                        return 0; //INVALID;
+                    num[ i ] *= 10;
+                    num[ i ] += ( c_cur - '0' );
+                    break;
+                case ' ':
+                    if( num[ i ] > 0 )
+                        i++;
+                    break;
+                case '.':
+                case '-':
+                case '/':
+                    if( num[ i ] == 0 || i == 2 )
+                        return 0; //INVALID;
+                    else
+                        i++;
+                    break;
+                default:
+                    return 0; //INVALID;
+            }
+        }
+
+        // TEMPORAL
+        if( num[ 2 ] != 0 ) {
+            int year;
+            int month;
+            int day;
+
+            // YMD
+            if( num[ 0 ] > 31 && num[ 1 ] <= 12 && num[ 2 ] <= 31 ) {
+                year = num[ 0 ];
+                month = num[ 1 ];
+                day = num[ 2 ];
+            }
+            else {
+                // BOTH DMY AND MDY POSSIBLE
+                if( num[ 0 ] <= 12 && num[ 1 ] <= 12 ) {
+                    if( s_format_order.charAt( 0 ) == 'M' ) {
+                        month = num[ 0 ];
+                        day = num[ 1 ];
+                    }
+                    else {
+                        month = num[ 1 ];
+                        day = num[ 0 ];
+                    }
+                }
+                // DMY
+                else if( num[ 0 ] <= 31 && num[ 1 ] <= 12 ) {
+                    month = num[ 1 ];
+                    day = num[ 0 ];
+                }
+                // MDY
+                else if( num[ 0 ] <= 12 && num[ 1 ] <= 31 ) {
+                    month = num[ 1 ];
+                    day = num[ 0 ];
+                }
+                else
+                    return 0; //INVALID;
+
+                year = num[ 2 ];
+
+                if( year < 100 )
+                    year += ( year < 30 ? 2000 : 1900 );
+            }
+
+            if( year < YEAR_MIN || year > YEAR_MAX )
+                return 0; //OUT_OF_RANGE;
+
+            Date date_tmp = new Date( year, month, day );
+            if( ! date_tmp.is_valid() ) // checks days in month
+                return 0; //INVALID;
+
+            date = date_tmp.m_date;
+
+        }
+        // ORDINAL
+        else if( num[ 1 ] != 0 ) {
+            if( num[ 0 ] > CHAPTER_MAX || num[ 1 ] > ORDER_MAX )
+                return 0; //OUT_OF_RANGE;
+
+            date = make_date( num[ 0 ], num[ 1 ] );
+        }
+        else
+            return 0; //INVALID;
+
+        return date; //OK;
     }
 
     public static String format_string( long d ) {
@@ -252,6 +364,10 @@ public class Date {
 
     public static long make_date( int y, int m, int d, int o ) {
         return( ( y << 19 ) | ( m << 15 ) | ( d << 10 ) | o );
+    }
+
+    public static long make_date( int c, int o ) {
+        return( TOPIC_MIN | ( ( c - 1 ) * ORDINAL_STEP ) | o );
     }
 
     public void backward_ordinal_order() {

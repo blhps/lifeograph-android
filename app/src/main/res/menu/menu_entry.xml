@@ -17,6 +17,10 @@
           android:icon="@drawable/ic_action_favorite"
           android:orderInCategory="90"
           android:showAsAction="ifRoom" />
+    <item android:id="@+id/edit_date"
+          android:title="@string/edit_date"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
     <item android:id="@+id/dismiss"
           android:title="@string/dismiss"
           android:orderInCategory="100"
