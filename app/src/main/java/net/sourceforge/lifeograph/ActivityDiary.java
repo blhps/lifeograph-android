@@ -272,32 +272,37 @@ public class ActivityDiary extends ListActivity
         super.onPrepareOptionsMenu( menu );
 
         boolean flagPseudoElement = ( mParentElem == Diary.diary.m_orphans );
+        boolean flagWritable = !Diary.diary.is_read_only();
         DiaryElement.Type type = mParentElem.get_type();
 
         MenuItem item = menu.findItem( R.id.add_elem );
-        item.setVisible( type == Type.DIARY );
+        item.setVisible( type == Type.DIARY && flagWritable );
 
         item = menu.findItem( R.id.change_todo_status );
-        item.setVisible( type == Type.TOPIC || type == Type.GROUP || type == Type.CHAPTER );
+        item.setVisible( ( type == Type.TOPIC || type == Type.GROUP || type == Type.CHAPTER ) &&
+                         flagWritable );
 
         item = menu.findItem( R.id.calendar );
-        item.setVisible( type == Type.DIARY || type == Type.CHAPTER );
+        item.setVisible( ( type == Type.DIARY || type == Type.CHAPTER ) && flagWritable );
 
 //  TODO WILL BE IMPLEMENTED IN 0.3
 //        item = menu.findItem( R.id.change_sort_type );
 //        item.setVisible( mParentElem != null );
 
         item = menu.findItem( R.id.add_entry );
-        item.setVisible( type == Type.TOPIC || type == Type.GROUP );
+        item.setVisible( ( type == Type.TOPIC || type == Type.GROUP ) && flagWritable );
 
         item = menu.findItem( R.id.dismiss );
-        item.setVisible( type != Type.DIARY && !flagPseudoElement );
+        item.setVisible( type != Type.DIARY && !flagPseudoElement && flagWritable );
 
         item = menu.findItem( R.id.rename );
-        item.setVisible( type != Type.DIARY && !flagPseudoElement );
+        item.setVisible( type != Type.DIARY && !flagPseudoElement && flagWritable );
 
         item = menu.findItem( R.id.export_plain_text );
         item.setVisible( !Diary.diary.is_virtual() );
+
+        item = menu.findItem( R.id.logout_wo_save );
+        item.setVisible( flagWritable );
 
         return true;
     }
