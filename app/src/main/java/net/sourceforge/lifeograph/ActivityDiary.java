@@ -271,7 +271,7 @@ public class ActivityDiary extends ListActivity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        boolean flagPseudoELement = ( mParentElem == Diary.diary.m_orphans );
+        boolean flagPseudoElement = ( mParentElem == Diary.diary.m_orphans );
         DiaryElement.Type type = mParentElem.get_type();
 
         MenuItem item = menu.findItem( R.id.add_elem );
@@ -291,10 +291,13 @@ public class ActivityDiary extends ListActivity
         item.setVisible( type == Type.TOPIC || type == Type.GROUP );
 
         item = menu.findItem( R.id.dismiss );
-        item.setVisible( type != Type.DIARY && !flagPseudoELement );
+        item.setVisible( type != Type.DIARY && !flagPseudoElement );
 
         item = menu.findItem( R.id.rename );
-        item.setVisible( type != Type.DIARY && !flagPseudoELement );
+        item.setVisible( type != Type.DIARY && !flagPseudoElement );
+
+        item = menu.findItem( R.id.export_plain_text );
+        item.setVisible( !Diary.diary.is_virtual() );
 
         return true;
     }
@@ -354,18 +357,27 @@ public class ActivityDiary extends ListActivity
                         break;
                 }
                 return true;
+            case R.id.export_plain_text:
+                if( Diary.diary.write_txt() == Result.SUCCESS )
+                    Lifeograph.showToast( this, R.string.text_export_success );
+                else
+                    Lifeograph.showToast( this, R.string.text_export_fail );
+                return true;
             case R.id.logout_wo_save:
-                Lifeograph.showConfirmationPromt( this,
-                        R.string.logoutwosaving_confirm,
-                        R.string.logoutwosaving,
-                        new DialogInterface.OnClickListener() {
-                            public void onClick( DialogInterface dialog, int id ) {
-                                // unlike desktop version Android version
-                                // does not back up changes
-                                logout( false );
+                Lifeograph.showConfirmationPrompt( this,
+                                                   R.string.logoutwosaving_confirm,
+                                                   R.string.logoutwosaving,
+                                                   new DialogInterface.OnClickListener()
+                                                   {
+                                                       public void onClick( DialogInterface
+                                                                                    dialog,
+                                                                            int id ) {
+                                                           // unlike desktop version Android version
+                                                           // does not back up changes
+                                                           logout( false );
 
-                            }
-                        }, null );
+                                                       }
+                                                   }, null );
                 return true;
 //  TODO WILL BE IMPLEMENTED IN 0.3
 //            case R.id.import_sms:
@@ -702,29 +714,34 @@ public class ActivityDiary extends ListActivity
     }
 
     private void dismiss_chapter() {
-        Lifeograph.showConfirmationPromt( this,
-                R.string.chapter_dismiss_confirm, R.string.dismiss,
-                new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface dialog, int id ) {
-                        Diary.diary.dismiss_chapter( ( Chapter ) mParentElem );
-                        // go up:
-                        mParentElem = Diary.diary;
-                        update_entry_list();
-                    }
-                }, null );
+        Lifeograph.showConfirmationPrompt( this,
+                                           R.string.chapter_dismiss_confirm, R.string.dismiss,
+                                           new DialogInterface.OnClickListener()
+                                           {
+                                               public void onClick( DialogInterface dialog,
+                                                                    int id ) {
+                                                   Diary.diary.dismiss_chapter( ( Chapter )
+                                                                                        mParentElem );
+                                                   // go up:
+                                                   mParentElem = Diary.diary;
+                                                   update_entry_list();
+                                               }
+                                           }, null );
     }
 
     private void dismiss_tag() {
-        Lifeograph.showConfirmationPromt( this,
-                R.string.tag_dismiss_confirm, R.string.dismiss,
-                new DialogInterface.OnClickListener() {
-                    public void onClick( DialogInterface dialog, int id ) {
-                        Diary.diary.dismiss_tag( ( Tag ) mParentElem );
-                        // go up:
-                        mParentElem = Diary.diary;
-                        update_entry_list();
-                    }
-                }, null );
+        Lifeograph.showConfirmationPrompt( this,
+                                           R.string.tag_dismiss_confirm, R.string.dismiss,
+                                           new DialogInterface.OnClickListener()
+                                           {
+                                               public void onClick( DialogInterface dialog,
+                                                                    int id ) {
+                                                   Diary.diary.dismiss_tag( ( Tag ) mParentElem );
+                                                   // go up:
+                                                   mParentElem = Diary.diary;
+                                                   update_entry_list();
+                                               }
+                                           }, null );
     }
 
     // TAB LISTENER INTERFACE ======================================================================

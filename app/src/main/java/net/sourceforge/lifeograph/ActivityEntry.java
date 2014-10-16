@@ -38,7 +38,6 @@ import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v4.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
@@ -365,15 +364,15 @@ public class ActivityEntry extends Activity implements ToDoAction.ToDoObject {
     }
 
     private void dismiss() {
-        Lifeograph.showConfirmationPromt( this, R.string.entry_dismiss_confirm, R.string.dismiss,
-                                          new DialogInterface.OnClickListener()
-                                          {
-                                              public void onClick( DialogInterface dialog,
-                                                                   int id ) {
-                                                  mFlagDismissOnExit = true;
-                                                  ActivityEntry.this.finish();
-                                              }
-                                          }, null );
+        Lifeograph.showConfirmationPrompt( this, R.string.entry_dismiss_confirm, R.string.dismiss,
+                                           new DialogInterface.OnClickListener()
+                                           {
+                                               public void onClick( DialogInterface dialog,
+                                                                    int id ) {
+                                                   mFlagDismissOnExit = true;
+                                                   ActivityEntry.this.finish();
+                                               }
+                                           }, null );
     }
 
     private void showTagDialog() {

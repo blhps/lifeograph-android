@@ -213,6 +213,11 @@ public class Diary extends DiaryElement
         return m_flag_read_only;
     }
 
+    // not part of c++
+    public boolean is_virtual() {
+        return m_path.equals( sExampleDiaryPath );
+    }
+
 // NOT USED NOW
 //    public DiaryElement get_startup_elem() {
 //        return null;
@@ -401,7 +406,7 @@ public class Diary extends DiaryElement
         {
             File dir_backups = new File( file.getParent() + "/backups" );
             if( dir_backups.exists() || dir_backups.mkdirs() ) {
-                File file_backup = new File( dir_backups, file.getName()+".backup" );
+                File file_backup = new File( dir_backups, file.getName() + ".backup" );
                 if( file.renameTo( file_backup ) )
                     Log.d( Lifeograph.TAG, "Backup written to: " + file_backup.toString() );
             }
@@ -419,6 +424,109 @@ public class Diary extends DiaryElement
         return write_plain( path, false );
         // else
         // return write_encrypted( path );
+    }
+
+    public Result write_txt() {
+        // contrary to c++ version this version always limits the operation to the filtered
+
+        try {
+            File file = new File( m_path );
+            File dir_backups = new File( file.getParent() + "/backups" );
+            if( dir_backups.exists() || dir_backups.mkdirs() ) {
+                File file_text = new File( dir_backups, file.getName() + ".txt" );
+                mFileWriter = new FileWriter( file_text.toString() );
+            }
+            else
+                return Result.FILE_NOT_WRITABLE;
+
+            // HELPERS
+            Chapter.Category dummy_ctg_orphans = new Chapter.Category( null, "" );
+            dummy_ctg_orphans.mMap.put( 0L, Diary.diary.m_orphans );
+            Chapter.Category chapters[] = new Chapter.Category[]
+                    { dummy_ctg_orphans, m_ptr2chapter_ctg_cur, m_topics, m_groups };
+            final String separator         = "---------------------------------------------\n";
+            final String separator_favored = "+++++++++++++++++++++++++++++++++++++++++++++\n";
+            final String separator_thick   = "=============================================\n";
+            final String separator_chapter = ":::::::::::::::::::::::::::::::::::::::::::::\n";
+
+            // DIARY TITLE
+            mFileWriter.write( separator_thick );
+            mFileWriter.append( file.getName() )
+                       .append( '\n' )
+                       .append( separator_thick );
+
+            // ENTRIES
+            for( int i = 0; i < 4; i++ ) {
+                // CHAPTERS
+                for( Chapter chapter : chapters[ i ].getMap().descendingMap().values() ) {
+                    if( !chapter.mEntries.isEmpty() ) {
+                        mFileWriter.append( "\n\n" )
+                                   .append( separator_chapter )
+                                   .append( chapter.get_date().format_string() )
+                                   .append( " - " )
+                                   .append( chapter.get_name() )
+                                   .append( '\n' )
+                                   .append( separator_chapter )
+                                   .append( "\n\n" );
+                    }
+
+                    // ENTRIES
+                    for( Entry entry : chapter.mEntries.descendingSet() ) {
+                        // PURGE EMPTY ENTRIES
+                        if( ( entry.m_text.isEmpty() && entry.m_tags.isEmpty() ) ||
+                                entry.get_filtered_out() )
+                            continue;
+
+                        if( entry.is_favored() )
+                            mFileWriter.append( separator_favored );
+                        else
+                            mFileWriter.append( separator );
+
+                        // DATE AND FAVOREDNESS
+                        mFileWriter.append( entry.get_date().format_string() );
+                        if( entry.is_favored() )
+                            mFileWriter.append( '\n' ).append( separator_favored );
+                        else
+                            mFileWriter.append( '\n' ).append( separator );
+
+                        // CONTENT
+                        mFileWriter.append( entry.get_text() );
+
+                        // TAGS
+                        boolean first_tag = true;
+                        for( Tag tag : entry.m_tags ) {
+                            if( first_tag ) {
+                                mFileWriter.append( "\n\n" )
+                                           .append( "TAGS" )
+                                           .append( ": " );
+                                first_tag = false;
+                            }
+                            else
+                                mFileWriter.append( ", " );
+
+                            mFileWriter.append( tag.get_name() );
+                        }
+
+                        mFileWriter.append( "\n\n" );
+                    }
+                }
+            }
+
+            mFileWriter.append( '\n' );
+
+            mFileWriter.close();
+
+            mFileWriter = null;
+
+            return Result.SUCCESS;
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
+
+            mFileWriter = null;
+
+            return Result.FAILURE;
+        }
     }
 
     // FILTERING ===================================================================================
@@ -763,10 +871,8 @@ public class Diary extends DiaryElement
         long date_last = m_entries.isEmpty() ? 0 : m_entries.firstEntry().getKey();
         boolean entries_finished = false;
 
-        for( int i = 0; i < 3; i++ )
-        {
-            for( Chapter chapter : chapters[ i ].getMap().values() )
-            {
+        for( int i = 0; i < 3; i++ ) {
+            for( Chapter chapter : chapters[ i ].getMap().values() ) {
                 chapter.clear();
 
                 if( entries_finished )

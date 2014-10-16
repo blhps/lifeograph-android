@@ -53,12 +53,16 @@
     <string name="logoutwosaving">Close without Saving</string>
     <string name="logoutwosaving_confirm">Are you sure you want to close the diary without
         saving?</string>
+    <string name="export_plain_text">Export Plain Text</string>
     <string name="entry_dismiss_confirm">Are you sure you want to dismiss the current entry?</string>
     <string name="tag_dismiss_confirm">Are you sure you want to dismiss the current tag?</string>
     <string name="chapter_dismiss_confirm">Are you sure you want to dismiss the current chapter?</string>
     <string name="storage_not_available">External storage is not available or read-only</string>
     <string name="filter_saved">Filter state will be saved with the diary</string>
     <string name="resorting_to_read_only">File is not writable, opening read-only..</string>
+    <string name="text_export_success">Successfully exported the diary into backups
+        directory</string>
+    <string name="text_export_fail">Failed to export the diary</string>
 
     <string name="filter_tags">Filter or create</string>
     <string name="sort_by_date">Sort by date</string>

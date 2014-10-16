@@ -47,9 +47,9 @@ public class Lifeograph
             return context.getString( i );
     }
 
-    public static void showConfirmationPromt( Context ctx, int message, int positiveText,
-                                              DialogInterface.OnClickListener posListener,
-                                              DialogInterface.OnClickListener negListener ) {
+    public static void showConfirmationPrompt( Context ctx, int message, int positiveText,
+                                               DialogInterface.OnClickListener posListener,
+                                               DialogInterface.OnClickListener negListener ) {
         AlertDialog.Builder builder = new AlertDialog.Builder( ctx );
         builder.setMessage( message )
                 .setCancelable( false )

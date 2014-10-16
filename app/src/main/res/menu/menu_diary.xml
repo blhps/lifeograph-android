@@ -45,6 +45,10 @@
           android:title="@string/dismiss"
           android:orderInCategory="100"
           android:showAsAction="never" />
+    <item android:id="@+id/export_plain_text"
+          android:title="@string/export_plain_text"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
     <item android:id="@+id/logout_wo_save"
           android:title="@string/logoutwosaving"
           android:orderInCategory="100"
