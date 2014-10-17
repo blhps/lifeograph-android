@@ -1,10 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="AppTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <!-- Customize your theme here. -->
+    <style name="LifeoTheme" parent="android:Theme.Holo.Light.DarkActionBar">
+        <item name="android:actionBarStyle">@style/LifeoActionBar</item>
+        <item name="android:actionBarItemBackground">@drawable/selectable_background</item>
+        <item name="android:actionBarTabStyle">@style/LifeoActionBarTabs</item>
+        <item name="android:actionBarWidgetTheme">@style/Theme.Lifeo.Widget</item>
     </style>
 
-    <style name="FullHeightDialog" parent="AppTheme">
+    <!-- ActionBar styles -->
+    <style name="LifeoActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
+        <item name="android:background">@drawable/ab_solid</item>
+        <item name="android:backgroundStacked">@drawable/ab_stacked_solid</item>
+        <item name="android:backgroundSplit">@drawable/ab_bottom_solid</item>
+    </style>
+
+    <style name="LifeoActionBarTabs"
+           parent="@android:style/Widget.Holo.ActionBar.TabView">
+        <item name="android:background">@drawable/action_bar_tabs</item>
+    </style>
+
+    <style name="LifeoDropDownListView"
+           parent="@android:style/Widget.Holo.ListView.DropDown">
+        <item name="android:listSelector">@drawable/selectable_background</item>
+    </style>
+
+    <style name="Theme.Lifeo.Widget" parent="@android:style/Theme.Holo">
+        <!--item name="android:popupMenuStyle">@style/PopupMenu.Lifeo</item-->
+        <item name="android:dropDownListViewStyle">@style/LifeoDropDownListView</item>
+    </style>
+
+
+    <style name="FullHeightDialog" parent="LifeoTheme">
         <item name="android:windowNoTitle">true</item>
     </style>
 
