@@ -29,6 +29,8 @@
         <activity android:name=".ActivityDiary" />
         <!-- MAYBE LATER: activity android:name=".ActivityDiary" android:uiOptions="splitActionBarWhenNarrow" /-->
 
+        <activity android:name=".ActivityChapterTag" />
+
         <activity android:name=".ActivityEntry" />
 
         <activity

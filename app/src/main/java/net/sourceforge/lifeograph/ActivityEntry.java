@@ -233,6 +233,7 @@ public class ActivityEntry extends Activity
                 new ArrayAdapter< String >( this,
                                             android.R.layout.simple_list_item_multiple_choice,
                                             android.R.id.text1 );
+
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
     }
@@ -243,7 +244,7 @@ public class ActivityEntry extends Activity
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
             sync();
-        ActivityDiary.flag_force_update_on_resume = true;
+        Lifeograph.sFlagForceUpdateOnResume = true;
         super.onPause();
     }
 
@@ -388,7 +389,7 @@ public class ActivityEntry extends Activity
         dialog.show();
     }
 
-    public void set_todo_status( int s ) {
+    public void setTodoStatus( int s ) {
         m_ptr2entry.set_todo_status( s );
         updateIcon();
     }

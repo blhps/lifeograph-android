@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2013 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -24,20 +24,92 @@ package net.sourceforge.lifeograph;
 import java.io.File;
 import java.util.Locale;
 
+import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.content.res.Configuration;
+import android.util.Log;
 import android.widget.Toast;
 
 public class Lifeograph
 {
     public static Context context = null;
 
-    public static final String PROGRAM_NAME = "Lifeograph";
-    public static final String TAG = "LFO";
+    // CONSTANTS ===================================================================================
+    //public static final String PROGRAM_NAME = "Lifeograph";
 
     public static final String LANG_INHERIT_DIARY = "d";
+
+    // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
+    protected static boolean sFlagLogoutOnPause = false;
+    protected static boolean sSaveDiaryOnLogout = true;
+    protected static boolean sFlagForceUpdateOnResume = false;
+
+    enum LoginStatus { LOGGED_OUT, LOGGED_IN, LOGGED_TIME_OUT }
+    protected static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;
+
+    public static void showElem( Context ctx, DiaryElement elem ) {
+        if( elem != null ) {
+            switch( elem.get_type() ) {
+                case ENTRY: {
+                    Intent i = new Intent( ctx, ActivityEntry.class );
+                    i.putExtra( "entry", elem.get_date_t() );
+                    sFlagLogoutOnPause = false; // we are just showing an entry from the diary
+                    ctx.startActivity( i );
+                    break;
+                }
+                case TAG:
+                case UNTAGGED:
+                case CHAPTER:
+                case TOPIC:
+                case GROUP: {
+                    Intent i = new Intent( ctx, ActivityChapterTag.class );
+                    i.putExtra( "elem", elem.get_id() );
+                    sFlagLogoutOnPause = false;
+                    ctx.startActivity( i );
+                    break;
+                }
+            }
+        }
+        else
+            Log.e( TAG, "null element passed to showElem" );
+    }
+
+    public static void showCalendar( DialogCalendar.Listener listener ) {
+        // Intent i = new Intent( this, ActivityCalendar.class );
+        // startActivityForResult( i, ActivityCalendar.REQC_OPEN_ENTRY );
+        DialogCalendar dialog = new DialogCalendar( listener );
+        dialog.show();
+    }
+
+    public static void finishEditing( Context ctx ) {
+        Log.d( Lifeograph.TAG, "Lifeograph.finishEditing()" );
+        // SAVING
+        // sync_entry();
+
+        // Diary.diary.m_last_elem = get_cur_elem()->get_id();
+
+        if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
+            if( Diary.diary.write() == Result.SUCCESS ) {
+                Lifeograph.showToast( ctx, "Diary saved successfully" );
+                // TODO: try to save backup
+            }
+            else
+                Lifeograph.showToast( ctx, "Cannot write back changes" );
+        }
+        else
+            Log.d( Lifeograph.TAG, "Logged out without saving" );
+    }
+
+    public static void logout( Activity activity ) {
+        finishEditing( activity );
+        activity.finish();
+    }
+
+    // ANDROID & JAVA HELPERS ======================================================================
+    public static final String TAG = "LFO";
 
     public static String getStr( int i ) {
         if( context == null )

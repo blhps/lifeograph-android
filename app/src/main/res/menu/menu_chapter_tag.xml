@@ -1,12 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item android:id="@+id/add_elem"
-          android:title="@string/add"
+    <item android:id="@+id/add_entry"
+          android:title="@string/add_entry"
           android:icon="@drawable/ic_action_add"
           android:orderInCategory="90"
-          android:actionProviderClass="net.sourceforge.lifeograph.AddElemAction"
-          android:showAsAction="always|withText" />
+          android:showAsAction="ifRoom" />
+    <item android:id="@+id/change_todo_status"
+          android:title="@string/change_todo_status"
+          android:icon="@drawable/ic_action_todo"
+          android:orderInCategory="90"
+          android:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
+          android:showAsAction="always" />
     <item android:id="@+id/calendar"
           android:title="@string/calendar"
           android:icon="@drawable/ic_action_calendar"
@@ -22,17 +27,11 @@
           android:icon="@drawable/ic_action_search"
           android:orderInCategory="100"
           android:showAsAction="ifRoom" />
-    <!-- TODO WILL BE IMPLEMENTED IN 0.4
-    item android:id="@+id/import_sms"
-          android:title="@string/import_sms"
-          android:orderInCategory="100"
-          android:showAsAction="never" /-->
-    <item android:id="@+id/export_plain_text"
-          android:title="@string/export_plain_text"
-          android:orderInCategory="100"
-          android:showAsAction="never" />
-    <item android:id="@+id/logout_wo_save"
-          android:title="@string/logoutwosaving"
+    <item android:id="@+id/rename"
+          android:title="@string/rename"
+          android:orderInCategory="100" />
+    <item android:id="@+id/dismiss"
+          android:title="@string/dismiss"
           android:orderInCategory="100"
           android:showAsAction="never" />
 </menu>

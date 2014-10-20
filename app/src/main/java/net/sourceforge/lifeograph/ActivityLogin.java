@@ -83,6 +83,9 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     @Override
     protected void onResume() {
         super.onResume();
+
+        Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_OUT;
+
         populate_diaries(); // this also helps with the changes in the diary path
         Log.d( Lifeograph.TAG, "onResume - ActivityLogin" );
     }
@@ -196,7 +199,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         return new File( Environment.getExternalStorageDirectory(), sDiaryPath );
     }
 
-    // InquireListener method
+    // InquireListener INTERFACE METHODS
     public void onInquireAction( int id, String text ) {
         switch( id ) {
             case R.string.create_diary:

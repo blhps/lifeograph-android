@@ -23,7 +23,6 @@
 package net.sourceforge.lifeograph;
 
 import android.content.Context;
-import android.util.Log;
 import android.view.ActionProvider;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -74,19 +73,19 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
             case android.R.id.home:
                 return true;
             case R.id.todo_not:
-                mObject.set_todo_status( DiaryElement.ES_NOT_TODO );
+                mObject.setTodoStatus( DiaryElement.ES_NOT_TODO );
                 return true;
             case R.id.todo_open:
-                mObject.set_todo_status( DiaryElement.ES_TODO );
+                mObject.setTodoStatus( DiaryElement.ES_TODO );
                 return true;
             case R.id.todo_progressed:
-                mObject.set_todo_status( DiaryElement.ES_PROGRESSED );
+                mObject.setTodoStatus( DiaryElement.ES_PROGRESSED );
                 return true;
             case R.id.todo_done:
-                mObject.set_todo_status( DiaryElement.ES_DONE );
+                mObject.setTodoStatus( DiaryElement.ES_DONE );
                 return true;
             case R.id.todo_canceled:
-                mObject.set_todo_status( DiaryElement.ES_CANCELED );
+                mObject.setTodoStatus( DiaryElement.ES_CANCELED );
                 return true;
         }
         return true;
@@ -98,7 +97,7 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
     }
 
     public interface ToDoObject {
-        public void set_todo_status( int s );
+        public void setTodoStatus( int s );
     }
 
     //private Context mContext; // not used now

@@ -21,6 +21,7 @@
 
 package net.sourceforge.lifeograph;
 
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -31,7 +32,6 @@ import android.app.FragmentManager;
 import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
@@ -50,11 +50,9 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
 
-import net.sourceforge.lifeograph.DiaryElement.Type;
-
 public class ActivityDiary extends Activity
-        implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        DiaryFragment.DiaryManager
+        implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
+        DialogCalendar.Listener
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -85,12 +83,12 @@ public class ActivityDiary extends Activity
             public void onDrawerSlide( View view, float v ) { }
 
             public void onDrawerOpened( View view ) {
-                for( DiaryFragment fragment : mDiaryFragments )
+                for( FragmentElemList fragment : mDiaryFragments )
                     fragment.getListView().setEnabled( false );
             }
 
             public void onDrawerClosed( View view ) {
-                for( DiaryFragment fragment : mDiaryFragments )
+                for( FragmentElemList fragment : mDiaryFragments )
                     fragment.getListView().setEnabled( true );
             }
 
@@ -192,19 +190,21 @@ public class ActivityDiary extends Activity
         Bundle args = new Bundle();
         args.putInt( "tab", 0 );
         mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.all_entries ),
-                             DiaryFragment.class, args );
+                             FragmentElemList.class, args );
         args = new Bundle();
         args.putInt( "tab", 1 );
         mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.chapters ),
-                             DiaryFragment.class, args );
+                             FragmentElemList.class, args );
         args = new Bundle();
         args.putInt( "tab", 2 );
         mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.tags ),
-                             DiaryFragment.class, args );
+                             FragmentElemList.class, args );
 
         if( savedInstanceState != null ) {
             mActionBar.setSelectedNavigationItem( savedInstanceState.getInt( "tab", 0 ) );
         }
+
+        Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_IN;
 
         Log.d( Lifeograph.TAG, "onCreate - ActivityDiary" );
     }
@@ -212,18 +212,20 @@ public class ActivityDiary extends Activity
     @Override
     protected void onPause() {
         super.onPause();
-        if( mFlagLogoutOnPause && mFlagDiaryIsOpen )
-            finishEditing( true );
+        if( Lifeograph.sFlagLogoutOnPause )
+            Lifeograph.finishEditing( this );
         Log.d( Lifeograph.TAG, "onPause - ActivityDiary" );
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-        mFlagLogoutOnPause = true;
-        if( flag_force_update_on_resume )
+        Lifeograph.sFlagLogoutOnPause = true;
+        Lifeograph.sSaveDiaryOnLogout = true;
+
+        if( Lifeograph.sFlagForceUpdateOnResume )
             updateElemList();
-        flag_force_update_on_resume = false;
+        Lifeograph.sFlagForceUpdateOnResume = false;
         Log.d( Lifeograph.TAG, "onResume - ActivityDiary" );
     }
 
@@ -255,10 +257,6 @@ public class ActivityDiary extends Activity
         AddElemAction addElemAction = ( AddElemAction ) item.getActionProvider();
         addElemAction.mParent = this;
 
-        item = menu.findItem( R.id.change_todo_status );
-        ToDoAction ToDoAction = ( ToDoAction ) item.getActionProvider();
-        ToDoAction.mObject = this;
-
         return true;
     }
 
@@ -266,32 +264,17 @@ public class ActivityDiary extends Activity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        boolean flagPseudoElement = ( mParentElem == Diary.diary.m_orphans );
         boolean flagWritable = !Diary.diary.is_read_only();
-        DiaryElement.Type type = mParentElem.get_type();
 
         MenuItem item = menu.findItem( R.id.add_elem );
-        item.setVisible( type == Type.DIARY && flagWritable );
-
-        item = menu.findItem( R.id.change_todo_status );
-        item.setVisible( ( type == Type.TOPIC || type == Type.GROUP || type == Type.CHAPTER ) &&
-                         flagWritable );
+        item.setVisible( flagWritable );
 
         item = menu.findItem( R.id.calendar );
-        item.setVisible( ( type == Type.DIARY || type == Type.CHAPTER ) && flagWritable );
+        item.setVisible( flagWritable );
 
-//  TODO WILL BE IMPLEMENTED IN 0.3
+//  TODO WILL BE IMPLEMENTED IN 0.4
 //        item = menu.findItem( R.id.change_sort_type );
 //        item.setVisible( mParentElem != null );
-
-        item = menu.findItem( R.id.add_entry );
-        item.setVisible( ( type == Type.TOPIC || type == Type.GROUP ) && flagWritable );
-
-        item = menu.findItem( R.id.dismiss );
-        item.setVisible( type != Type.DIARY && !flagPseudoElement && flagWritable );
-
-        item = menu.findItem( R.id.rename );
-        item.setVisible( type != Type.DIARY && !flagPseudoElement && flagWritable );
 
         item = menu.findItem( R.id.export_plain_text );
         item.setVisible( !Diary.diary.is_virtual() );
@@ -309,45 +292,13 @@ public class ActivityDiary extends Activity
                 finish();
                 return true;
             case R.id.calendar:
-                showCalendar();
+                Lifeograph.showCalendar( this );
                 return true;
             case R.id.filter:
                 if( mDrawerLayout.isDrawerOpen( Gravity.RIGHT ) )
                     mDrawerLayout.closeDrawer( Gravity.RIGHT );
                 else
                     mDrawerLayout.openDrawer( Gravity.RIGHT );
-                return true;
-            case R.id.add_entry:
-                showElem( Diary.diary.create_entry( ( ( Chapter ) mParentElem ).get_free_order(),
-                                                    "", false ) );
-                return true;
-            case R.id.rename:
-                switch( mParentElem.get_type() ) {
-                    case TAG:
-                        rename_tag();
-                        break;
-                    case CHAPTER:
-                    case TOPIC:
-                    case GROUP:
-                        rename_chapter();
-                        break;
-                    default:
-                        break;
-                }
-                return true;
-            case R.id.dismiss:
-                switch( mParentElem.get_type() ) {
-                    case TAG:
-                        dismiss_tag();
-                        break;
-                    case CHAPTER:
-                    case TOPIC:
-                    case GROUP:
-                        dismiss_chapter();
-                        break;
-                    default:
-                        break;
-                }
                 return true;
             case R.id.export_plain_text:
                 if( Diary.diary.write_txt() == Result.SUCCESS )
@@ -366,12 +317,12 @@ public class ActivityDiary extends Activity
                                                                             int id ) {
                                                            // unlike desktop version Android version
                                                            // does not back up changes
-                                                           logout( false );
-
+                                                           Lifeograph.sSaveDiaryOnLogout = false;
+                                                           finish();
                                                        }
                                                    }, null );
                 return true;
-//  TODO WILL BE IMPLEMENTED IN 0.3
+//  TODO WILL BE IMPLEMENTED IN 0.4
 //            case R.id.import_sms:
 //                import_messages();
 //                return true;
@@ -379,96 +330,55 @@ public class ActivityDiary extends Activity
         return super.onOptionsItemSelected(item);
     }
 
-    // InquireListener methods
+    // InquireListener INTERFACE METHODS
     public void onInquireAction( int id, String text ) {
         switch( id ) {
             case R.string.create_chapter: {
                 Chapter chapter = Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( text,
                                                                                     mDateLast );
                 Diary.diary.update_entries_in_chapters();
-                showElem( chapter );
+                Lifeograph.showElem( this, chapter );
                 break;
             }
             case R.string.create_topic: {
                 Chapter chapter = Diary.diary.m_topics.create_chapter_ordinal( text );
                 Diary.diary.update_entries_in_chapters();
-                showElem( chapter );
+                Lifeograph.showElem( this, chapter );
                 break;
             }
             case R.string.create_group: {
                 Chapter chapter = Diary.diary.m_groups.create_chapter_ordinal( text );
                 Diary.diary.update_entries_in_chapters();
-                showElem( chapter );
+                Lifeograph.showElem( this, chapter );
                 break;
             }
-            case R.string.rename_tag:
-                Diary.diary.rename_tag( ( Tag ) mParentElem, text );
-                setTitle( mParentElem.m_name );
-                break;
-            case R.string.rename_chapter:
-                mParentElem.m_name = text;
-                setTitle( mParentElem.get_list_str() );
-                break;
         }
     }
     public boolean onInquireTextChanged( int id, String s ) {
         switch( id ) {
-            case R.string.rename_tag:
-                return !Diary.diary.m_tags.containsKey( s );
-            case R.string.rename_chapter:
-                return( mParentElem.m_name.compareTo( s ) != 0 );
             default:
                 return true;
         }
     }
 
-    private void finishEditing( boolean opt_save ) {
-        Log.d( Lifeograph.TAG, "ActivityDiary.finishEditing()" );
-        // SAVING
-        // sync_entry();
-
-        // Diary.diary.m_last_elem = get_cur_elem()->get_id();
-
-        if( opt_save && !Diary.diary.is_read_only() ) {
-            if( Diary.diary.write() == Result.SUCCESS ) {
-                Lifeograph.showToast( this, "Diary saved successfully" );
-                // TODO: try to save backup
-            }
-            else
-                Lifeograph.showToast( this, "Cannot write back changes" );
-        }
-        else
-            Log.d( Lifeograph.TAG, "Logged out without saving" );
-
-        mFlagDiaryIsOpen = false;
-    }
-
-    public void logout( boolean opt_save ) {
-        finishEditing( opt_save );
-        ActivityDiary.this.finish();
-    }
-
-    public void showElem( DiaryElement elem ) {
-        if( elem != null ) {
-            //temporary:
-            if( elem.get_type() != Type.ENTRY )
-                return;
-            Intent i = new Intent( this, ActivityEntry.class );
-            i.putExtra( "entry", elem.get_date_t() );
-            mFlagLogoutOnPause = false; // we are just showing an entry from the diary
-            startActivity( i );
-        }
-    }
-
-    public void addFragment( DiaryFragment fragment ) {
+    // DiaryManager INTERFACE METHODS
+    public void addFragment( FragmentElemList fragment ) {
         mDiaryFragments.add( fragment );
     }
-    public void removeFragment( DiaryFragment fragment ) {
+    public void removeFragment( FragmentElemList fragment ) {
         mDiaryFragments.remove( fragment );
+    }
+    public DiaryElement getElement() {
+        return Diary.diary;
+    }
+
+    // DialogCalendar.Listener INTERFACE METHODS
+    public Activity getActivity() {
+        return this;
     }
 
     void updateElemList() {
-        for( DiaryFragment fragment : mDiaryFragments )
+        for( FragmentElemList fragment : mDiaryFragments )
             fragment.updateList();
     }
 
@@ -478,14 +388,7 @@ public class ActivityDiary extends Activity
         if( entry == null ) // add new entry if no entry exists on selected date
             entry = Diary.diary.add_today();
 
-        showElem( entry );
-    }
-
-    private void showCalendar() {
-        // Intent i = new Intent( this, ActivityCalendar.class );
-        // startActivityForResult( i, ActivityCalendar.REQC_OPEN_ENTRY );
-        DialogCalendar dialog = new DialogCalendar( this );
-        dialog.show();
+        Lifeograph.showElem( this, entry );
     }
 
     void handleSearchTextChanged( String text ) {
@@ -559,25 +462,7 @@ public class ActivityDiary extends Activity
         Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
     }
 
-    public void set_todo_status( int s ) {
-        if( mParentElem != null ) {
-            switch( mParentElem.get_type() ) {
-                case CHAPTER:
-                case TOPIC:
-                case GROUP:
-                    Chapter chapter = ( Chapter ) mParentElem;
-                    chapter.set_todo_status( s );
-                    mActionBar.setIcon( mParentElem.get_icon() );
-                    return;
-                default:
-                    break;
-            }
-        }
-
-        Log.w( Lifeograph.TAG, "cannot set todo status" );
-    }
-
-    void createChapter( long date ) {
+    public void createChapter( long date ) {
         mDateLast = date;
 
         DialogInquireText dlg = new DialogInquireText( this, R.string.create_chapter,
@@ -593,51 +478,6 @@ public class ActivityDiary extends Activity
         DialogInquireText dlg = new DialogInquireText( this, R.string.create_group,
                 Lifeograph.getStr( R.string.new_chapter ), R.string.create, this );
         dlg.show();
-    }
-
-    private void rename_tag() {
-        DialogInquireText dlg = new DialogInquireText( this, R.string.rename_tag,
-                mParentElem.m_name, R.string.rename, this );
-        dlg.show();
-    }
-
-    private void rename_chapter() {
-        DialogInquireText dlg = new DialogInquireText( this, R.string.rename_chapter,
-                mParentElem.m_name, R.string.rename, this );
-        dlg.show();
-    }
-
-    private void dismiss_chapter() {
-        Lifeograph.showConfirmationPrompt( this,
-                                           R.string.chapter_dismiss_confirm,
-                                           R.string.dismiss,
-                                           new DialogInterface.OnClickListener()
-                                           {
-                                               public void onClick( DialogInterface dialog,
-                                                                    int id ) {
-                                                   Diary.diary.dismiss_chapter( ( Chapter )
-                                                                                        mParentElem );
-                                                   // go up:
-                                                   mParentElem = Diary.diary;
-                                                   updateElemList();
-                                               }
-                                           },
-                                           null );
-    }
-
-    private void dismiss_tag() {
-        Lifeograph.showConfirmationPrompt( this,
-                                           R.string.tag_dismiss_confirm, R.string.dismiss,
-                                           new DialogInterface.OnClickListener()
-                                           {
-                                               public void onClick( DialogInterface dialog,
-                                                                    int id ) {
-                                                   Diary.diary.dismiss_tag( ( Tag ) mParentElem );
-                                                   // go up:
-                                                   mParentElem = Diary.diary;
-                                                   updateElemList();
-                                               }
-                                           }, null );
     }
 
 //  TODO WILL BE IMPLEMENTED IN 0.4
@@ -669,15 +509,11 @@ public class ActivityDiary extends Activity
 //    }
 
     // VARIABLES ===================================================================================
-    static boolean flag_force_update_on_resume = false;
-
-    private DiaryElement mParentElem = Diary.diary;
-
     //private LayoutInflater mInflater;
     private ActionBar mActionBar = null;
     private ViewPager mPager;
     private TabsAdapter mTabsAdapter;
-    private List< DiaryFragment > mDiaryFragments = new java.util.ArrayList< DiaryFragment >();
+    private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
 
     private DrawerLayout mDrawerLayout = null;
     private EditText mEditSearch = null;
@@ -688,9 +524,6 @@ public class ActivityDiary extends Activity
     private ToggleImageButton mButtonShowTodoDone = null;
     private ToggleImageButton mButtonShowTodoCanceled = null;
     private Spinner mSpinnerShowFavorite = null;
-
-    private boolean mFlagDiaryIsOpen = true;
-    private boolean mFlagLogoutOnPause = false;
 
     private long mDateLast;
 

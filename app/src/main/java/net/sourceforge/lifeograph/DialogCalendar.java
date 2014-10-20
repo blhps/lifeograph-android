@@ -24,6 +24,7 @@ package net.sourceforge.lifeograph;
 import java.util.ArrayList;
 import java.util.List;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
@@ -41,9 +42,9 @@ import android.widget.TextView;
 
 public class DialogCalendar extends Dialog
 {
-    public DialogCalendar( ActivityDiary parent ) {
-        super( parent, R.style.FullHeightDialog );
-        mParent = parent;
+    public DialogCalendar( Listener listener ) {
+        super( listener.getActivity(), R.style.FullHeightDialog );
+        mListener = listener;
     }
 
     @Override
@@ -98,12 +99,12 @@ public class DialogCalendar extends Dialog
     void createEntry() {
         Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
         dismiss();
-        mParent.showElem( e );
+        Lifeograph.showElem( mListener.getActivity(), e );
     }
 
     void createChapter() {
         dismiss();
-        mParent.createChapter( mAdapter.mDateCurrent.m_date );
+        mListener.createChapter( mAdapter.mDateCurrent.m_date );
     }
 
     private void handleDayChanged( Date date ) {
@@ -118,7 +119,7 @@ public class DialogCalendar extends Dialog
         Entry e = Diary.diary.m_entries.get( mListDays.get( pos ) + 1 );
         if( e != null ) {
             dismiss();
-            mParent.showElem( e );
+            Lifeograph.showElem( mListener.getActivity(), e );
         }
         else {
             Date d = new Date( mListDays.get( pos ) );
@@ -195,7 +196,7 @@ public class DialogCalendar extends Dialog
             // Next Month days
             //final int numSlotAfter = 7 - ( ( numSlotBefore + mDaysInMonth ) % 7 );
             // always use 6 rows:
-            final int numSlotAfter = 42 - ( numSlotBefore +mDaysInMonth );
+            final int numSlotAfter = 42 - ( numSlotBefore + mDaysInMonth );
             for( int i = 1; i <= numSlotAfter; i++ ) {
                 mListDays.add( nextMonth.m_date + Date.make_day( i ) );
             }
@@ -228,7 +229,7 @@ public class DialogCalendar extends Dialog
                 Date date = new Date( mListDays.get( position ) );
                 date.m_date += 1; // fixes order
 
-// TODO EXTRA WIDGET WILL BE INVESTIGATED IN 0.3
+//  TODO EXTRA WIDGET WILL BE INVESTIGATED IN 0.4
 //                if( Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date.get_pure() ) )
 //                    num_events_per_day.setText( "C" );
 //                else
@@ -254,9 +255,16 @@ public class DialogCalendar extends Dialog
         }
     }
 
-    private ActivityDiary mParent = null;
     private GridCalAdapter mAdapter = null;
     private DatePicker mDatePicker = null;
     private Button mButtonCreateChapter = null;
     private List< Long > mListDays;
+
+    private Listener mListener;
+
+    public interface Listener
+    {
+        public void createChapter( long date );
+        public Activity getActivity();
+    }
 }
