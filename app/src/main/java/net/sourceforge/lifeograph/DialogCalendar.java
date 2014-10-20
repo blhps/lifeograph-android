@@ -98,7 +98,7 @@ public class DialogCalendar extends Dialog
     void createEntry() {
         Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
         dismiss();
-        mParent.showEntry( e );
+        mParent.showElem( e );
     }
 
     void createChapter() {
@@ -118,7 +118,7 @@ public class DialogCalendar extends Dialog
         Entry e = Diary.diary.m_entries.get( mListDays.get( pos ) + 1 );
         if( e != null ) {
             dismiss();
-            mParent.showEntry( e );
+            mParent.showElem( e );
         }
         else {
             Date d = new Date( mListDays.get( pos ) );
