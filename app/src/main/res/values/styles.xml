@@ -9,9 +9,9 @@
 
     <!-- ActionBar styles -->
     <style name="LifeoActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@drawable/ab_solid</item>
-        <item name="android:backgroundStacked">@drawable/ab_stacked_solid</item>
-        <item name="android:backgroundSplit">@drawable/ab_bottom_solid</item>
+        <item name="android:background">@color/action_bar</item>
+        <item name="android:backgroundStacked">@color/action_bar</item>
+        <item name="android:backgroundSplit">@color/action_bar</item>
     </style>
 
     <style name="LifeoActionBarTabs"

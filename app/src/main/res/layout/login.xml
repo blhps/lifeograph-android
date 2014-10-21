@@ -29,14 +29,22 @@
     android:orientation="vertical"
     tools:context=".ActivityOpenDiary" >
 
-    <TextView
-        android:id="@+id/textView1"
-        android:layout_width="wrap_content"
+    <FrameLayout
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        android:layout_margin="30dp"
-        android:text="@string/welcome"
-        android:textAppearance="?android:attr/textAppearanceMedium" />
+        android:background="@color/toolbar" >
+
+        <TextView
+            android:id="@+id/textView1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:layout_margin="15dp"
+            android:text="@string/welcome"
+            android:textAppearance="?android:attr/textAppearanceMedium"
+            android:textColor="@android:color/white" />
+
+    </FrameLayout>
 
     <!--TextView
         android:id="@+id/textView2"
@@ -52,7 +60,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginLeft="15dp"
+        android:layout_margin="10dp"
         android:text="@string/diaries"
         android:textStyle="bold"
         android:textAppearance="?android:attr/textAppearanceLarge" />
@@ -62,6 +70,7 @@
         android:layout_width="match_parent"
         android:layout_height="0dip"
         android:layout_weight="0.99"
-        android:layout_margin="15dp"/>
+        android:layout_marginLeft="15dp"
+        android:layout_marginRight="15dp" />
 
 </LinearLayout>

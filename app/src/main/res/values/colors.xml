@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="red">#f00</color>
-    <!--color name="action_bar">#995959</color-->
-    <color name="list_section">#cc7676</color>
-    <color name="toolbar">#db7f7f</color>
+    <color name="action_bar">#ad6565</color>
+    <color name="list_section">#e69595</color>
+    <color name="toolbar">#d68585</color>
 </resources>
