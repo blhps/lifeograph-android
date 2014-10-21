@@ -56,7 +56,7 @@ public class Chapter extends DiaryElement {
 
         @Override
         public String get_info_str() {
-            return "Size: " + mMap.size();
+            return( mMap.size() + " entries" );
         }
 
         public boolean empty() {
@@ -155,16 +155,21 @@ public class Chapter extends DiaryElement {
     }
 
     @Override
-    public String get_info_str() {
-        return( get_type_name() + " with " + get_size() + " Entries" );
-    }
-
-    @Override
-    public String get_list_str() {
+    public String get_title_str() {
         if( m_date_begin.is_hidden() )
             return m_name;
         else
             return( m_date_begin.format_string() + STR_SEPARATOR + m_name );
+    }
+
+    @Override
+    public String get_info_str() {
+        return( get_size() + " entries" );
+    }
+
+    @Override
+    public String getListStrSecondary() {
+        return( get_type_name() + " with " + get_size() + " entries" );
     }
 
     public boolean is_ordinal() {

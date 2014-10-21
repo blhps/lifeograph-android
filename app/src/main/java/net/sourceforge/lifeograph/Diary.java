@@ -139,7 +139,7 @@ public class Diary extends DiaryElement
 
     @Override
     public String get_info_str() {
-        return m_path;
+        return( get_size() + " entries" );
     }
 
     // ID HANDLING =================================================================================

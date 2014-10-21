@@ -85,7 +85,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         if( mActionBar != null ) {
             mActionBar.setDisplayHomeAsUpEnabled( true );
             mActionBar.setIcon( mElement.get_icon() );
-            setTitle( mElement.get_list_str() );
+            setTitle( mElement.get_title_str() );
             mActionBar.setSubtitle( mElement.get_info_str() );
         }
 
@@ -104,7 +104,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         super.onResume();
         Lifeograph.sFlagLogoutOnPause = true;
         if( Lifeograph.sFlagForceUpdateOnResume )
-            mFragmentList.updateList();
+            updateList();
         Lifeograph.sFlagForceUpdateOnResume = false;
         Log.d( Lifeograph.TAG, "onResume - ActivityChapterTag" );
     }

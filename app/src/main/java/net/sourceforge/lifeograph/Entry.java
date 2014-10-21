@@ -86,10 +86,12 @@ public class Entry extends DiaryElement {
         return m_date;
     }
 
-    public void set_date( long date )
-    { m_date.m_date = date; }
+    public void set_date( long date ) {
+        m_date.m_date = date;
+    }
 
-    public String get_title() {
+    @Override
+    public String get_title_str() {
         StringBuffer title = new StringBuffer();
 
         if( ! m_date.is_hidden() ) {
@@ -110,8 +112,7 @@ public class Entry extends DiaryElement {
 
     @Override
     public String get_info_str() {
-        return Lifeograph.getStr( R.string.entry_last_changed_on ) + " "
-               + Date.format_string_d( m_date_changed );
+        return( Date.format_string_d( m_date_changed ) );
     }
 
     @Override
@@ -124,7 +125,13 @@ public class Entry extends DiaryElement {
 
     @Override
     public String getListStrSecondary() {
-        return( m_date.is_ordinal() ? get_info_str() : m_date.get_weekday_str() );
+        if( m_date.is_ordinal() ) {
+            return( Lifeograph.getStr( R.string.entry_last_changed_on ) + " " +
+                    Date.format_string_d( m_date_changed ) );
+        }
+        else {
+            return m_date.get_weekday_str();
+        }
     }
 
     public String get_text() {

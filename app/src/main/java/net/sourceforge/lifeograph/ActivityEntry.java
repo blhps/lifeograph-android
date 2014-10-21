@@ -361,7 +361,7 @@ public class ActivityEntry extends Activity
         // if( flagParse )
         // parse_text();
 
-        setTitle( entry.get_title() );
+        setTitle( entry.get_title_str() );
         mActionBar.setSubtitle( entry.get_info_str() );
         updateIcon();
         invalidateOptionsMenu(); // may be redundant here
@@ -403,7 +403,7 @@ public class ActivityEntry extends Activity
                     if( !date.is_ordinal() )
                         date.reset_order_1();
                     Diary.diary.set_entry_date( m_ptr2entry, date );
-                    setTitle( m_ptr2entry.get_title() );
+                    setTitle( m_ptr2entry.get_title_str() );
                     mActionBar.setSubtitle( m_ptr2entry.get_info_str() );
                 }
                 break;

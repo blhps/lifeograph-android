@@ -49,7 +49,7 @@ public class Tag extends DiaryElement {
 
         @Override
         public String get_info_str() {
-            return "Size: " + mTags.size();
+            return( mTags.size() + " entries" );
         }
 
         public boolean get_expanded() {
@@ -99,7 +99,12 @@ public class Tag extends DiaryElement {
 
     @Override
     public String get_info_str() {
-        return( "Tag with " + mEntries.size() + " Entries" );
+        return( get_size() + " entries" );
+    }
+
+    @Override
+    public String getListStrSecondary() {
+        return( "Tag with " + get_size() + " entries" );
     }
 
     public Category get_category() {

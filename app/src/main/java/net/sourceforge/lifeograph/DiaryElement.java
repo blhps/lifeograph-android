@@ -156,12 +156,14 @@ public abstract class DiaryElement {
         return m_name;
     }
 
+    public String get_title_str() {
+        return get_name();
+    }
     abstract public String get_info_str();
 
     public String get_list_str() {
-        return m_name;
+        return get_title_str();
     }
-
     public String getListStrSecondary() {
         return get_info_str();
     }

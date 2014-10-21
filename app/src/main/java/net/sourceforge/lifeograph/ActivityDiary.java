@@ -88,8 +88,8 @@ public class ActivityDiary extends Activity
             mActionBar.setDisplayHomeAsUpEnabled( true );
             mActionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
             mActionBar.setIcon( R.drawable.ic_diary );
-            setTitle( Diary.diary.get_name() );
-            mActionBar.setSubtitle( "Diary with " + Diary.diary.m_entries.size() + " Entries" );
+            setTitle( Diary.diary.get_title_str() );
+            mActionBar.setSubtitle( Diary.diary.get_info_str() );
         }
 
         mPager = ( ViewPager ) findViewById( R.id.pager );
