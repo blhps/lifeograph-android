@@ -24,7 +24,6 @@ package net.sourceforge.lifeograph;
 import java.io.File;
 import java.util.Locale;
 
-import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -56,7 +55,7 @@ public class Lifeograph
                 case ENTRY: {
                     Intent i = new Intent( ctx, ActivityEntry.class );
                     i.putExtra( "entry", elem.get_date_t() );
-                    sFlagLogoutOnPause = false; // we are just showing an entry from the diary
+                    sFlagLogoutOnPause = false; // not logging out but going deeper
                     ctx.startActivity( i );
                     break;
                 }
@@ -68,7 +67,7 @@ public class Lifeograph
                     Intent i = new Intent( ctx, ActivityChapterTag.class );
                     i.putExtra( "elem", elem.get_id() );
                     i.putExtra( "type", elem.get_type().i );
-                    sFlagLogoutOnPause = false;
+                    sFlagLogoutOnPause = false; // not logging out but going deeper
                     ctx.startActivity( i );
                     break;
                 }
@@ -138,7 +137,7 @@ public class Lifeograph
         return new File( file1, p2 ).getPath();
     }
 
-    public static String get_env_lang() {
+    public static String getEnvLang() {
         return Locale.getDefault().getLanguage();
     }
 

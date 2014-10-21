@@ -201,12 +201,6 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                         break;
                 }
                 return true;
-            case R.id.export_plain_text:
-                if( Diary.diary.write_txt() == Result.SUCCESS )
-                    Lifeograph.showToast( this, R.string.text_export_success );
-                else
-                    Lifeograph.showToast( this, R.string.text_export_fail );
-                return true;
         }
         return super.onOptionsItemSelected( item );
     }
