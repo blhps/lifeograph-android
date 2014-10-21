@@ -34,7 +34,8 @@ import android.view.MenuItem;
 import android.view.View;
 
 public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObject,
-        DialogInquireText.InquireListener, DialogCalendar.Listener, FragmentElemList.DiaryManager
+        DialogInquireText.InquireListener, DialogCalendar.Listener, FragmentElemList.DiaryManager,
+        FragmentElemList.ListOperations
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -130,18 +131,17 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         DiaryElement.Type type = mElement.get_type();
 
         MenuItem item = menu.findItem( R.id.change_todo_status );
-        item.setVisible( ( type == DiaryElement.Type.TOPIC || type == DiaryElement.Type.GROUP || type == DiaryElement.Type.CHAPTER ) &&
-                                 flagWritable );
-
-        item = menu.findItem( R.id.calendar );
-        item.setVisible( type == DiaryElement.Type.CHAPTER && flagWritable );
+        item.setVisible( type != DiaryElement.Type.UNTAGGED &&
+                         !flagPseudoElement &&
+                         flagWritable );
 
 //  TODO WILL BE IMPLEMENTED IN 0.4
 //        item = menu.findItem( R.id.change_sort_type );
 //        item.setVisible( mParentElem != null );
 
         item = menu.findItem( R.id.add_entry );
-        item.setVisible( ( type == DiaryElement.Type.TOPIC || type == DiaryElement.Type.GROUP ) && flagWritable );
+        item.setVisible( ( type == DiaryElement.Type.TOPIC || type == DiaryElement.Type.GROUP ) &&
+                         flagWritable );
 
         item = menu.findItem( R.id.dismiss );
         item.setVisible( !flagPseudoElement && flagWritable );
@@ -157,9 +157,6 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         switch( item.getItemId() ) {
             case android.R.id.home:
                 finish();
-                return true;
-            case R.id.calendar:
-                Lifeograph.showCalendar( this );
                 return true;
             case R.id.filter:
                 if( mDrawerLayout.isDrawerOpen( Gravity.RIGHT ) )
@@ -316,6 +313,12 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     }
     public int getTabIndex() { // dummy
         return 0;
+    }
+
+    // ListOperations INTERFACE METHODS
+    public void updateList() {
+        if( mFragmentList != null )
+            mFragmentList.updateList();
     }
 
     private FragmentElemList mFragmentList = null;

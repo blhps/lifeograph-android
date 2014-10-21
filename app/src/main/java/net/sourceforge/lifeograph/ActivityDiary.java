@@ -52,7 +52,7 @@ import android.widget.Spinner;
 
 public class ActivityDiary extends Activity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
-        DialogCalendar.Listener
+        DialogCalendar.Listener, FragmentElemList.ListOperations
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -63,19 +63,6 @@ public class ActivityDiary extends Activity
         // FILLING WIDGETS
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
         //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
-
-        mEditSearch = ( EditText ) findViewById( R.id.editTextSearch );
-        mButtonSearchTextClear = ( Button ) findViewById( R.id.buttonClearText );
-
-        mButtonShowTodoNot = ( ToggleImageButton ) findViewById( R.id.show_todo_not );
-        mButtonShowTodoOpen = ( ToggleImageButton ) findViewById( R.id.show_todo_open );
-        mButtonShowTodoProgressed = ( ToggleImageButton ) findViewById( R.id.show_todo_progressed );
-        mButtonShowTodoDone = ( ToggleImageButton ) findViewById( R.id.show_todo_done );
-        mButtonShowTodoCanceled = ( ToggleImageButton ) findViewById( R.id.show_todo_canceled );
-        mSpinnerShowFavorite = ( Spinner ) findViewById( R.id.spinnerFavorites );
-
-        // UI UPDATES (must come before listeners)
-        updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
 
         // LISTENERS
         mDrawerLayout.setDrawerListener( new DrawerLayout.DrawerListener()
@@ -93,85 +80,6 @@ public class ActivityDiary extends Activity
             }
 
             public void onDrawerStateChanged( int i ) { }
-        } );
-
-        mEditSearch.addTextChangedListener( new TextWatcher()
-        {
-            public void afterTextChanged( Editable s ) { }
-
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
-            }
-
-            public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                handleSearchTextChanged( s.toString() );
-                mButtonSearchTextClear.setVisibility(
-                        s.length() > 0 ? View.VISIBLE : View.INVISIBLE );
-            }
-        } );
-        mButtonSearchTextClear.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                mEditSearch.setText( "" );
-            }
-        } );
-
-        mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoProgressed.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoDone.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-
-        mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener()
-        {
-            public void onItemSelected( AdapterView< ? > pv, View v, int pos, long id ) {
-                // onItemSelected() is fired unnecessarily during initialization, so:
-                if( initialized )
-                    handleFilterFavoriteChanged( pos );
-                else
-                    initialized = true;
-            }
-
-            public void onNothingSelected( AdapterView< ? > arg0 ) {
-                Log.d( Lifeograph.TAG, "Filter Favorites onNothingSelected" );
-            }
-
-            private boolean initialized = false;
-        } );
-
-        Button buttonFilterReset = ( Button ) findViewById( R.id.buttonFilterReset );
-        buttonFilterReset.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                resetFilter();
-            }
-        } );
-        Button buttonFilterSave = ( Button ) findViewById( R.id.buttonFilterSave );
-        buttonFilterSave.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                saveFilter();
-            }
         } );
 
         // ACTIONBAR
@@ -224,7 +132,7 @@ public class ActivityDiary extends Activity
         Lifeograph.sSaveDiaryOnLogout = true;
 
         if( Lifeograph.sFlagForceUpdateOnResume )
-            updateElemList();
+            updateList();
         Lifeograph.sFlagForceUpdateOnResume = false;
         Log.d( Lifeograph.TAG, "onResume - ActivityDiary" );
     }
@@ -269,9 +177,6 @@ public class ActivityDiary extends Activity
         MenuItem item = menu.findItem( R.id.add_elem );
         item.setVisible( flagWritable );
 
-        item = menu.findItem( R.id.calendar );
-        item.setVisible( flagWritable );
-
 //  TODO WILL BE IMPLEMENTED IN 0.4
 //        item = menu.findItem( R.id.change_sort_type );
 //        item.setVisible( mParentElem != null );
@@ -292,7 +197,7 @@ public class ActivityDiary extends Activity
                 finish();
                 return true;
             case R.id.calendar:
-                Lifeograph.showCalendar( this );
+                new DialogCalendar( this, !Diary.diary.is_read_only() ).show();
                 return true;
             case R.id.filter:
                 if( mDrawerLayout.isDrawerOpen( Gravity.RIGHT ) )
@@ -377,7 +282,8 @@ public class ActivityDiary extends Activity
         return this;
     }
 
-    void updateElemList() {
+    // FragmentElemList.ListOperations INTERFACE METHODS
+    public void updateList() {
         for( FragmentElemList fragment : mDiaryFragments )
             fragment.updateList();
     }
@@ -389,77 +295,6 @@ public class ActivityDiary extends Activity
             entry = Diary.diary.add_today();
 
         Lifeograph.showElem( this, entry );
-    }
-
-    void handleSearchTextChanged( String text ) {
-        Diary.diary.set_search_text( text.toLowerCase() );
-        updateElemList();
-    }
-
-    void updateFilterWidgets( int fs ) {
-        mButtonShowTodoNot.setChecked( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 );
-        mButtonShowTodoOpen.setChecked( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 );
-        mButtonShowTodoProgressed.setChecked( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 );
-        mButtonShowTodoDone.setChecked( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 );
-        mButtonShowTodoCanceled.setChecked( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 );
-
-        switch( fs & DiaryElement.ES_FILTER_FAVORED ) {
-            case DiaryElement.ES_SHOW_FAVORED:
-                mSpinnerShowFavorite.setSelection( 2 );
-                break;
-            case DiaryElement.ES_SHOW_NOT_FAVORED:
-                mSpinnerShowFavorite.setSelection( 1 );
-                break;
-            case DiaryElement.ES_FILTER_FAVORED:
-                mSpinnerShowFavorite.setSelection( 0 );
-                break;
-        }
-    }
-
-    void handleFilterTodoChanged() {
-        Diary.diary.m_filter_active.set_todo(
-                mButtonShowTodoNot.isChecked(),
-                mButtonShowTodoOpen.isChecked(),
-                mButtonShowTodoProgressed.isChecked(),
-                mButtonShowTodoDone.isChecked(),
-                mButtonShowTodoCanceled.isChecked() );
-
-        updateElemList();
-    }
-
-    void handleFilterFavoriteChanged( int i ) {
-        boolean showFav = true;
-        boolean showNotFav = true;
-
-        switch( i ) {
-            case 0:
-                showFav = true;
-                showNotFav = true;
-                break;
-            case 1:
-                showFav = false;
-                showNotFav = true;
-                break;
-            case 2:
-                showFav = true;
-                showNotFav = false;
-                break;
-        }
-
-        Diary.diary.m_filter_active.set_favorites( showFav, showNotFav );
-
-        updateElemList();
-    }
-
-    void resetFilter() {
-        updateFilterWidgets( Diary.diary.m_filter_default.get_status() );
-        Diary.diary.m_filter_active.set_status_outstanding();
-        updateElemList();
-    }
-
-    void saveFilter() {
-        Lifeograph.showToast( this, R.string.filter_saved );
-        Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
     }
 
     public void createChapter( long date ) {
@@ -516,14 +351,6 @@ public class ActivityDiary extends Activity
     private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
 
     private DrawerLayout mDrawerLayout = null;
-    private EditText mEditSearch = null;
-    private Button mButtonSearchTextClear = null;
-    private ToggleImageButton mButtonShowTodoNot = null;
-    private ToggleImageButton mButtonShowTodoOpen = null;
-    private ToggleImageButton mButtonShowTodoProgressed = null;
-    private ToggleImageButton mButtonShowTodoDone = null;
-    private ToggleImageButton mButtonShowTodoCanceled = null;
-    private Spinner mSpinnerShowFavorite = null;
 
     private long mDateLast;
 

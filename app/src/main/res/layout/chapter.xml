@@ -26,10 +26,12 @@
 
     </LinearLayout>
 
-    <FrameLayout
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
-
-    </FrameLayout>
+    <!-- DRAWER -->
+    <fragment
+        android:id="@+id/fragmentFilter"
+        android:name="net.sourceforge.lifeograph.FragmentFilter"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_gravity="end" />
 
 </android.support.v4.widget.DrawerLayout>

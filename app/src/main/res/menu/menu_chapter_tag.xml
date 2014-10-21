@@ -12,11 +12,6 @@
           android:orderInCategory="90"
           android:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
           android:showAsAction="always" />
-    <item android:id="@+id/calendar"
-          android:title="@string/calendar"
-          android:icon="@drawable/ic_action_calendar"
-          android:orderInCategory="90"
-          android:showAsAction="ifRoom" />
     <!-- TODO WILL BE IMPLEMENTED IN 0.4
     item android:id="@+id/change_sort_type"
           android:title="@string/change_sorting"

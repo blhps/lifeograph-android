@@ -77,12 +77,12 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    public static void showCalendar( DialogCalendar.Listener listener ) {
-        // Intent i = new Intent( this, ActivityCalendar.class );
-        // startActivityForResult( i, ActivityCalendar.REQC_OPEN_ENTRY );
-        DialogCalendar dialog = new DialogCalendar( listener );
-        dialog.show();
-    }
+//    public static void showCalendar( DialogCalendar.Listener listener ) {
+//        // Intent i = new Intent( this, ActivityCalendar.class );
+//        // startActivityForResult( i, ActivityCalendar.REQC_OPEN_ENTRY );
+//        DialogCalendar dialog = new DialogCalendar( listener );
+//        dialog.show();
+//    }
 
     public static void logout( Context ctx ) {
         Log.d( Lifeograph.TAG, "Lifeograph.logout()" );

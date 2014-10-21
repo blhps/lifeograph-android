@@ -22,6 +22,226 @@
 package net.sourceforge.lifeograph;
 
 
-public class FragmentFilter
+import android.app.Activity;
+import android.app.Fragment;
+import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
+import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
+import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.Button;
+import android.widget.EditText;
+import android.widget.Spinner;
+
+public class FragmentFilter extends Fragment
 {
+    @Override
+    public View onCreateView( LayoutInflater inflater,
+                              ViewGroup container,
+                              Bundle savedInstanceState ) {
+        ViewGroup rootView = ( ViewGroup ) inflater.inflate(
+                R.layout.fragment_filter, container, false );
+
+        // FILLING WIDGETS
+        mEditSearch = ( EditText ) rootView.findViewById( R.id.editTextSearch );
+        mButtonSearchTextClear = ( Button ) rootView.findViewById( R.id.buttonClearText );
+
+        mButtonShowTodoNot = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_not );
+        mButtonShowTodoOpen = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_open );
+        mButtonShowTodoProgressed = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_progressed );
+        mButtonShowTodoDone = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_done );
+        mButtonShowTodoCanceled = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_canceled );
+        mSpinnerShowFavorite = ( Spinner ) rootView.findViewById( R.id.spinnerFavorites );
+
+        // UI UPDATES (must come before listeners)
+        updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
+
+        // LISTENERS
+        mEditSearch.addTextChangedListener( new TextWatcher()
+        {
+            public void afterTextChanged( Editable s ) { }
+
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
+            }
+
+            public void onTextChanged( CharSequence s, int start, int before, int count ) {
+                handleSearchTextChanged( s.toString() );
+                mButtonSearchTextClear.setVisibility(
+                        s.length() > 0 ? View.VISIBLE : View.INVISIBLE );
+            }
+        } );
+        mButtonSearchTextClear.setOnClickListener( new View.OnClickListener()
+        {
+            public void onClick( View v ) {
+                mEditSearch.setText( "" );
+            }
+        } );
+
+        mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handleFilterTodoChanged();
+            }
+        } );
+        mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handleFilterTodoChanged();
+            }
+        } );
+        mButtonShowTodoProgressed.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handleFilterTodoChanged();
+            }
+        } );
+        mButtonShowTodoDone.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                handleFilterTodoChanged();
+            }
+        } );
+        mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener()
+        {
+            public void onClick( View v ) {
+                handleFilterTodoChanged();
+            }
+        } );
+
+        mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener()
+        {
+            public void onItemSelected( AdapterView< ? > pv, View v, int pos, long id ) {
+                // onItemSelected() is fired unnecessarily during initialization, so:
+                if( initialized )
+                    handleFilterFavoriteChanged( pos );
+                else
+                    initialized = true;
+            }
+
+            public void onNothingSelected( AdapterView< ? > arg0 ) {
+                Log.d( Lifeograph.TAG, "Filter Favorites onNothingSelected" );
+            }
+
+            private boolean initialized = false;
+        } );
+
+        Button buttonFilterReset = ( Button ) rootView.findViewById( R.id.buttonFilterReset );
+        buttonFilterReset.setOnClickListener( new View.OnClickListener()
+        {
+            public void onClick( View v ) {
+                resetFilter();
+            }
+        } );
+        Button buttonFilterSave = ( Button ) rootView.findViewById( R.id.buttonFilterSave );
+        buttonFilterSave.setOnClickListener( new View.OnClickListener()
+        {
+            public void onClick( View v ) {
+                saveFilter();
+            }
+        } );
+
+        Log.d( Lifeograph.TAG, "onCreateView - FragmentFilter" );
+
+        return rootView;
+    }
+
+    @Override
+    public void onAttach( Activity activity ) {
+        super.onAttach( activity );
+
+        if( FragmentElemList.ListOperations.class.isInstance( activity ) )
+            mListOperations = ( FragmentElemList.ListOperations ) activity;
+        else
+            throw new ClassCastException( activity.toString() + " must implement ListOperations" );
+
+        Log.d( Lifeograph.TAG, "onAttach - " + activity.toString() );
+    }
+
+    @Override
+    public void onDetach() {
+        mListOperations = null;
+        super.onDetach();
+    }
+
+    void handleSearchTextChanged( String text ) {
+        Diary.diary.set_search_text( text.toLowerCase() );
+        mListOperations.updateList();
+    }
+
+    void updateFilterWidgets( int fs ) {
+        mButtonShowTodoNot.setChecked( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 );
+        mButtonShowTodoOpen.setChecked( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 );
+        mButtonShowTodoProgressed.setChecked( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 );
+        mButtonShowTodoDone.setChecked( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 );
+        mButtonShowTodoCanceled.setChecked( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 );
+
+        switch( fs & DiaryElement.ES_FILTER_FAVORED ) {
+            case DiaryElement.ES_SHOW_FAVORED:
+                mSpinnerShowFavorite.setSelection( 2 );
+                break;
+            case DiaryElement.ES_SHOW_NOT_FAVORED:
+                mSpinnerShowFavorite.setSelection( 1 );
+                break;
+            case DiaryElement.ES_FILTER_FAVORED:
+                mSpinnerShowFavorite.setSelection( 0 );
+                break;
+        }
+    }
+
+    void handleFilterTodoChanged() {
+        Diary.diary.m_filter_active.set_todo(
+                mButtonShowTodoNot.isChecked(),
+                mButtonShowTodoOpen.isChecked(),
+                mButtonShowTodoProgressed.isChecked(),
+                mButtonShowTodoDone.isChecked(),
+                mButtonShowTodoCanceled.isChecked() );
+
+        mListOperations.updateList();
+    }
+
+    void handleFilterFavoriteChanged( int i ) {
+        boolean showFav = true;
+        boolean showNotFav = true;
+
+        switch( i ) {
+            case 0:
+                showFav = true;
+                showNotFav = true;
+                break;
+            case 1:
+                showFav = false;
+                showNotFav = true;
+                break;
+            case 2:
+                showFav = true;
+                showNotFav = false;
+                break;
+        }
+
+        Diary.diary.m_filter_active.set_favorites( showFav, showNotFav );
+
+        mListOperations.updateList();
+    }
+
+    void resetFilter() {
+        updateFilterWidgets( Diary.diary.m_filter_default.get_status() );
+        Diary.diary.m_filter_active.set_status_outstanding();
+        mListOperations.updateList();
+    }
+
+    void saveFilter() {
+        Lifeograph.showToast( getActivity(), R.string.filter_saved );
+        Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
+    }
+
+    private EditText mEditSearch = null;
+    private Button mButtonSearchTextClear = null;
+    private ToggleImageButton mButtonShowTodoNot = null;
+    private ToggleImageButton mButtonShowTodoOpen = null;
+    private ToggleImageButton mButtonShowTodoProgressed = null;
+    private ToggleImageButton mButtonShowTodoDone = null;
+    private ToggleImageButton mButtonShowTodoCanceled = null;
+    private Spinner mSpinnerShowFavorite = null;
+
+    private FragmentElemList.ListOperations mListOperations;
+
 }

@@ -42,9 +42,12 @@ import android.widget.TextView;
 
 public class DialogCalendar extends Dialog
 {
-    public DialogCalendar( Listener listener ) {
+    public DialogCalendar( Listener listener,
+                           boolean allowCreation ) {
         super( listener.getActivity(), R.style.FullHeightDialog );
         mListener = listener;
+        mAllowEntryCreation = allowCreation;
+        mAllowChapterCreation = allowCreation;
     }
 
     @Override
@@ -61,9 +64,6 @@ public class DialogCalendar extends Dialog
         mDatePicker = ( DatePicker ) findViewById( R.id.datePickerCalendar );
         Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
         mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
-
-        // TODO may be required on really small devices
-        //gridCalendar.setVisibility(  );
 
         mAdapter.notifyDataSetChanged();
         gridCalendar.setAdapter( mAdapter );
@@ -86,6 +86,8 @@ public class DialogCalendar extends Dialog
                 createEntry();
             }
         } );
+        buttonCreateEntry.setVisibility( mAllowEntryCreation ? View.VISIBLE : View.INVISIBLE );
+
         mButtonCreateChapter.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {
@@ -94,6 +96,7 @@ public class DialogCalendar extends Dialog
         } );
         mButtonCreateChapter.setEnabled(
                 !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date_today.m_date ) );
+        mButtonCreateChapter.setVisibility( mAllowChapterCreation ? View.VISIBLE : View.INVISIBLE );
     }
 
     void createEntry() {
@@ -259,6 +262,9 @@ public class DialogCalendar extends Dialog
     private DatePicker mDatePicker = null;
     private Button mButtonCreateChapter = null;
     private List< Long > mListDays;
+
+    private boolean mAllowEntryCreation;
+    private boolean mAllowChapterCreation;
 
     private Listener mListener;
 
