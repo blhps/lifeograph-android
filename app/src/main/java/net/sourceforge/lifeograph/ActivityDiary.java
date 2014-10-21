@@ -135,13 +135,16 @@ public class ActivityDiary extends Activity
     protected void onPause() {
         super.onPause();
         if( Lifeograph.sFlagLogoutOnPause )
-            Lifeograph.logout( this );
+            Lifeograph.logout();
         Log.d( Lifeograph.TAG, "ActivityDiary.onPause()" );
     }
 
     @Override
     protected void onResume() {
         super.onResume();
+
+        Lifeograph.sContext = this;
+
         Lifeograph.sFlagLogoutOnPause = true;
         Lifeograph.sSaveDiaryOnLogout = true;
 
@@ -221,13 +224,12 @@ public class ActivityDiary extends Activity
                 return true;
             case R.id.export_plain_text:
                 if( Diary.diary.write_txt() == Result.SUCCESS )
-                    Lifeograph.showToast( this, R.string.text_export_success );
+                    Lifeograph.showToast( R.string.text_export_success );
                 else
-                    Lifeograph.showToast( this, R.string.text_export_fail );
+                    Lifeograph.showToast( R.string.text_export_fail );
                 return true;
             case R.id.logout_wo_save:
-                Lifeograph.showConfirmationPrompt( this,
-                                                   R.string.logoutwosaving_confirm,
+                Lifeograph.showConfirmationPrompt( R.string.logoutwosaving_confirm,
                                                    R.string.logoutwosaving,
                                                    new DialogInterface.OnClickListener()
                                                    {
@@ -256,19 +258,19 @@ public class ActivityDiary extends Activity
                 Chapter chapter = Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( text,
                                                                                     mDateLast );
                 Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( this, chapter );
+                Lifeograph.showElem( chapter );
                 break;
             }
             case R.string.create_topic: {
                 Chapter chapter = Diary.diary.m_topics.create_chapter_ordinal( text );
                 Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( this, chapter );
+                Lifeograph.showElem( chapter );
                 break;
             }
             case R.string.create_group: {
                 Chapter chapter = Diary.diary.m_groups.create_chapter_ordinal( text );
                 Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( this, chapter );
+                Lifeograph.showElem( chapter );
                 break;
             }
         }
@@ -308,7 +310,7 @@ public class ActivityDiary extends Activity
         if( entry == null ) // add new entry if no entry exists on selected date
             entry = Diary.diary.add_today();
 
-        Lifeograph.showElem( this, entry );
+        Lifeograph.showElem( entry );
     }
 
     public void createChapter( long date ) {

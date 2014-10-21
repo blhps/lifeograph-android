@@ -230,7 +230,7 @@ public class FragmentFilter extends Fragment
     }
 
     void saveFilter() {
-        Lifeograph.showToast( getActivity(), R.string.filter_saved );
+        Lifeograph.showToast( R.string.filter_saved );
         Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
     }
 

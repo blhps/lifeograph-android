@@ -151,6 +151,7 @@ public class ActivityEntry extends Activity
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
+
         setContentView( R.layout.entry );
 
         mActionBar = getActionBar();
@@ -246,6 +247,15 @@ public class ActivityEntry extends Activity
             sync();
         Lifeograph.sFlagForceUpdateOnResume = true;
         super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        Lifeograph.sContext = this;
+
+        Log.d( Lifeograph.TAG, "ActivityEntry.onResume()" );
     }
 
     @Override
@@ -373,7 +383,7 @@ public class ActivityEntry extends Activity
     }
 
     private void dismiss() {
-        Lifeograph.showConfirmationPrompt( this, R.string.entry_dismiss_confirm, R.string.dismiss,
+        Lifeograph.showConfirmationPrompt( R.string.entry_dismiss_confirm, R.string.dismiss,
                                            new DialogInterface.OnClickListener()
                                            {
                                                public void onClick( DialogInterface dialog,

@@ -34,8 +34,6 @@ import android.widget.Toast;
 
 public class Lifeograph
 {
-    public static Context context = null;
-
     // CONSTANTS ===================================================================================
     //public static final String PROGRAM_NAME = "Lifeograph";
 
@@ -49,14 +47,14 @@ public class Lifeograph
     enum LoginStatus { LOGGED_OUT, LOGGED_IN, LOGGED_TIME_OUT }
     protected static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;
 
-    public static void showElem( Context ctx, DiaryElement elem ) {
+    public static void showElem( DiaryElement elem ) {
         if( elem != null ) {
             switch( elem.get_type() ) {
                 case ENTRY: {
-                    Intent i = new Intent( ctx, ActivityEntry.class );
+                    Intent i = new Intent( sContext, ActivityEntry.class );
                     i.putExtra( "entry", elem.get_date_t() );
                     sFlagLogoutOnPause = false; // not logging out but going deeper
-                    ctx.startActivity( i );
+                    sContext.startActivity( i );
                     break;
                 }
                 case TAG:
@@ -64,11 +62,11 @@ public class Lifeograph
                 case CHAPTER:
                 case TOPIC:
                 case GROUP: {
-                    Intent i = new Intent( ctx, ActivityChapterTag.class );
+                    Intent i = new Intent( sContext, ActivityChapterTag.class );
                     i.putExtra( "elem", elem.get_id() );
                     i.putExtra( "type", elem.get_type().i );
                     sFlagLogoutOnPause = false; // not logging out but going deeper
-                    ctx.startActivity( i );
+                    sContext.startActivity( i );
                     break;
                 }
             }
@@ -77,7 +75,7 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    public static void logout( Context ctx ) {
+    public static void logout() {
         Log.d( Lifeograph.TAG, "Lifeograph.logout()" );
         // SAVING
         // sync_entry();
@@ -86,11 +84,11 @@ public class Lifeograph
 
         if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
             if( Diary.diary.write() == Result.SUCCESS ) {
-                Lifeograph.showToast( ctx, "Diary saved successfully" );
+                Lifeograph.showToast( "Diary saved successfully" );
                 // TODO: try to save backup
             }
             else
-                Lifeograph.showToast( ctx, "Cannot write back changes" );
+                Lifeograph.showToast( "Cannot write back changes" );
         }
         else
             Log.d( Lifeograph.TAG, "Logged out without saving" );
@@ -99,17 +97,21 @@ public class Lifeograph
     // ANDROID & JAVA HELPERS ======================================================================
     public static final String TAG = "LFO";
 
+    protected static Context sContext = null;
+    private static boolean sIsXLargeScreen = false;
+
     public static String getStr( int i ) {
-        if( context == null )
+        if( sContext == null )
             return "CONTEXT IS NOT READY. SOMETHING IS WRONG!";
         else
-            return context.getString( i );
+            return sContext.getString( i );
     }
 
-    public static void showConfirmationPrompt( Context ctx, int message, int positiveText,
+    public static void showConfirmationPrompt( int message,
+                                               int positiveText,
                                                DialogInterface.OnClickListener posListener,
                                                DialogInterface.OnClickListener negListener ) {
-        AlertDialog.Builder builder = new AlertDialog.Builder( ctx );
+        AlertDialog.Builder builder = new AlertDialog.Builder( sContext );
         builder.setMessage( message )
                .setPositiveButton( positiveText, posListener )
                .setNegativeButton( R.string.cancel, negListener );
@@ -118,11 +120,11 @@ public class Lifeograph
         builder.show();
     }
 
-    public static void showToast( Context ctx, String message ) {
-        Toast.makeText( ctx, message, Toast.LENGTH_LONG ).show();
+    public static void showToast( String message ) {
+        Toast.makeText( sContext, message, Toast.LENGTH_LONG ).show();
     }
-    public static void showToast( Context ctx, int message ) {
-        Toast.makeText( ctx, message, Toast.LENGTH_LONG ).show();
+    public static void showToast( int message ) {
+        Toast.makeText( sContext, message, Toast.LENGTH_LONG ).show();
     }
 
     public static String joinPath( String p1, String p2) {
@@ -134,8 +136,13 @@ public class Lifeograph
         return Locale.getDefault().getLanguage();
     }
 
-    private static boolean isXLargeTablet(Context context) {
-        return (context.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+    public static void initializeConstants( Context ctx ) {
+        sContext = ctx;
+        sIsXLargeScreen = ( ctx.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+    }
+
+    public static boolean isXLargeScreen() {
+        return sIsXLargeScreen;
     }
 }

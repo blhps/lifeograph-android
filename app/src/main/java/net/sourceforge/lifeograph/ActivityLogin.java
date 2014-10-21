@@ -50,7 +50,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
-        Lifeograph.context = getApplicationContext();   // must be first
+        Lifeograph.initializeConstants( this );
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
@@ -82,6 +82,8 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     @Override
     protected void onResume() {
         super.onResume();
+
+        Lifeograph.sContext = this;
 
         Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_OUT;
 
@@ -129,16 +131,16 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                 flag_open_ready = true;
                 break;
             case FILE_NOT_FOUND:
-                Lifeograph.showToast( this, "File is not found" );
+                Lifeograph.showToast( "File is not found" );
                 break;
             case FILE_NOT_READABLE:
-                Lifeograph.showToast( this, "File is not readable" );
+                Lifeograph.showToast( "File is not readable" );
                 break;
             case FILE_LOCKED:
-                Lifeograph.showToast( this, "File is locked" );
+                Lifeograph.showToast( "File is locked" );
                 break;
             default:
-                Lifeograph.showToast( this, "Failed to open the diary" );
+                Lifeograph.showToast( "Failed to open the diary" );
                 break;
         }
 
@@ -149,10 +151,10 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                     flag_open_ready = true;
                     break;
                 case INCOMPATIBLE_FILE:
-                    Lifeograph.showToast( this, "Incompatible diary version" );
+                    Lifeograph.showToast( "Incompatible diary version" );
                     break;
                 case CORRUPT_FILE:
-                    Lifeograph.showToast( this, "Corrupt file" );
+                    Lifeograph.showToast( "Corrupt file" );
                     break;
                 default:
                     Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
@@ -250,7 +252,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
             Log.d( Lifeograph.TAG, dir.getPath() );
             if( !dir.exists() ) {
                 if( !dir.mkdirs() )
-                    Lifeograph.showToast( this, "Failed to create the diary folder" );
+                    Lifeograph.showToast( "Failed to create the diary folder" );
             }
             else {
                 File[] dirs = dir.listFiles();
@@ -263,7 +265,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
             }
         }
         else
-            Lifeograph.showToast( this, R.string.storage_not_available );
+            Lifeograph.showToast( R.string.storage_not_available );
 
         mPaths.add( Diary.sExampleDiaryPath );
         mAdapterDiaries.add( Diary.sExampleDiaryName );

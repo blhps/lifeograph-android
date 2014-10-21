@@ -102,6 +102,9 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     @Override
     protected void onResume() {
         super.onResume();
+
+        Lifeograph.sContext = this;
+
         Lifeograph.sFlagLogoutOnPause = true;
         if( Lifeograph.sFlagForceUpdateOnResume )
             updateList();
@@ -167,7 +170,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
             case R.id.add_entry: {
                 Entry entry = Diary.diary.create_entry(
                         ( ( Chapter ) mElement ).get_free_order(), "", false );
-                Lifeograph.showElem( this, entry );
+                Lifeograph.showElem( entry );
                 return true;
             }
             case R.id.rename:
@@ -221,8 +224,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     }
 
     private void dismiss_chapter() {
-        Lifeograph.showConfirmationPrompt( this,
-                                           R.string.chapter_dismiss_confirm,
+        Lifeograph.showConfirmationPrompt( R.string.chapter_dismiss_confirm,
                                            R.string.dismiss,
                                            new DialogInterface.OnClickListener()
                                            {
@@ -238,8 +240,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     }
 
     private void dismiss_tag() {
-        Lifeograph.showConfirmationPrompt( this,
-                                           R.string.tag_dismiss_confirm, R.string.dismiss,
+        Lifeograph.showConfirmationPrompt( R.string.tag_dismiss_confirm, R.string.dismiss,
                                            new DialogInterface.OnClickListener()
                                            {
                                                public void onClick( DialogInterface dialog,

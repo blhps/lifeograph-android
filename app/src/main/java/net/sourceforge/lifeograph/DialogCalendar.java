@@ -60,7 +60,7 @@ public class DialogCalendar extends Dialog
         Date date_today = new Date( Date.get_today( 0 ) );
 
         GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
-        mAdapter = new GridCalAdapter( Lifeograph.context, date_today );
+        mAdapter = new GridCalAdapter( Lifeograph.sContext, date_today );
         mDatePicker = ( DatePicker ) findViewById( R.id.datePickerCalendar );
         Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
         mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
@@ -102,7 +102,7 @@ public class DialogCalendar extends Dialog
     void createEntry() {
         Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
         dismiss();
-        Lifeograph.showElem( mListener.getActivity(), e );
+        Lifeograph.showElem( e );
     }
 
     void createChapter() {
@@ -122,7 +122,7 @@ public class DialogCalendar extends Dialog
         Entry e = Diary.diary.m_entries.get( mListDays.get( pos ) + 1 );
         if( e != null ) {
             dismiss();
-            Lifeograph.showElem( mListener.getActivity(), e );
+            Lifeograph.showElem( e );
         }
         else {
             Date d = new Date( mListDays.get( pos ) );
