@@ -34,20 +34,18 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
 public class ActivityLogin extends ListActivity implements DialogInquireText.InquireListener
 {
-    public static String sDiaryPath;
-    private java.util.List< String > m_paths = new ArrayList< String >();
-    private ArrayAdapter< String > mAdapterDiaries;
-
-    // Called when the activity is first created
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
@@ -71,8 +69,9 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         setContentView( R.layout.login );
 
-        mAdapterDiaries = new ArrayAdapter< String >( this, android.R.layout.simple_list_item_1,
-                                                      android.R.id.text1 );
+        mAdapterDiaries = new ArrayAdapter< String >( this,
+                                                      R.layout.list_item_diary,
+                                                      R.id.title );
         this.setListAdapter( mAdapterDiaries );
 
         registerForContextMenu( getListView() );
@@ -117,12 +116,6 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         return super.onOptionsItemSelected( item );
     }
 
-    /*
-     * @Override public void onCreateContextMenu( ContextMenu menu, View v, ContextMenuInfo
-     * menuInfo ) { super.onCreateContextMenu( menu, v, menuInfo ); menu.add(0,
-     * ID_BROWSE_DIARY, 0, R.string.browse_diary ); }
-     */
-
     @Override
     public void onListItemClick( ListView l, View v, int pos, long id ) {
         super.onListItemClick( l, v, pos, id );
@@ -131,7 +124,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         Diary.diary.clear();
 
-        switch( Diary.diary.set_path( m_paths.get( pos ), Diary.SetPathType.NORMAL ) ) {
+        switch( Diary.diary.set_path( mPaths.get( pos ), Diary.SetPathType.NORMAL ) ) {
             case SUCCESS:
                 flag_open_ready = true;
                 break;
@@ -233,7 +226,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         boolean externalStorageWritable;
 
         mAdapterDiaries.clear();
-        m_paths.clear();
+        mPaths.clear();
 
         String state = Environment.getExternalStorageState();
 
@@ -264,7 +257,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                 for( File ff : dirs ) {
                     if( !ff.isDirectory() ) {
                         mAdapterDiaries.add( ff.getName() );
-                        m_paths.add( ff.getPath() );
+                        mPaths.add( ff.getPath() );
                     }
                 }
             }
@@ -272,7 +265,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         else
             Lifeograph.showToast( this, R.string.storage_not_available );
 
-        m_paths.add( Diary.sExampleDiaryPath );
+        mPaths.add( Diary.sExampleDiaryPath );
         mAdapterDiaries.add( Diary.sExampleDiaryName );
     }
 
@@ -280,6 +273,91 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         Intent i = new Intent( this, ActivitySettings.class );
         startActivity( i );
     }
+
+    // VARIABLES
+    public static String sDiaryPath;
+    private java.util.List< String > mPaths = new ArrayList< String >();
+    private ArrayAdapter< String > mAdapterDiaries;
+    //private DiaryAdapter mAdapterDiaries; MAYBE LATER
+
+    // DIARY ELEMENT ADAPTER CLASS =================================================================
+//    class DiaryAdapter extends ArrayAdapter< Diary >
+//    {
+//        public DiaryAdapter( Context context,
+//                             int resource,
+//                             int textViewResourceId,
+//                             java.util.List< Diary > objects,
+//                             LayoutInflater inflater ) {
+//            super( context, resource, textViewResourceId, objects );
+//            mInflater = inflater;
+//        }
+//
+//        @Override
+//        public View getView( int position, View convertView, ViewGroup parent ) {
+//            ViewHolder holder;
+//            final Diary diary = getItem( position );
+//
+//            if( convertView == null ) {
+//                View view = mInflater.inflate( R.layout.list_item_diary, parent, false );
+//                holder = new ViewHolder( view );
+//
+//                convertView = holder.getView();
+//
+//                view.setTag( holder );
+//            }
+//            else {
+//                holder = ( ViewHolder ) convertView.getTag();
+//            }
+//
+//            TextView title = holder.getName();
+//            title.setText( diary.get_list_str() );
+//
+//            TextView detail = holder.getDetail();
+//            detail.setText( diary.getListStrSecondary() );
+//
+//            return convertView;
+//        }
+//
+//        private LayoutInflater mInflater;
+//
+//        // VIEW HOLDER =============================================================================
+//        private class ViewHolder
+//        {
+//            private View mRow;
+//            private TextView mTitle = null;
+//            private TextView mDetail = null;
+//            private ImageView mIcon = null;
+//
+//            public ViewHolder( View row ) {
+//                mRow = row;
+//            }
+//
+//            public View getView() {
+//                return mRow;
+//            }
+//
+//            public TextView getName() {
+//                if( null == mTitle ) {
+//                    mTitle = ( TextView ) mRow.findViewById( R.id.title );
+//                }
+//                return mTitle;
+//            }
+//
+//            public TextView getDetail() {
+//                if( null == mDetail ) {
+//                    mDetail = ( TextView ) mRow.findViewById( R.id.detail );
+//                }
+//                return mDetail;
+//            }
+//
+//            public ImageView getIcon() {
+//                if( null == mIcon ) {
+//                    mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
+//                }
+//                return mIcon;
+//            }
+//        }
+//    }
 
     // ABOUT DIALOG ================================================================================
     public class DialogAbout extends Dialog
