@@ -41,6 +41,7 @@
         android:id="@+id/icon_collapse"
         android:layout_gravity="center_vertical"
         android:src="@drawable/ic_collapsed"
+        android:contentDescription="@string/icon"
         style="@android:style/Widget.Holo.ActionButton"/>
 
     <TextView
@@ -54,17 +55,10 @@
         android:textStyle="bold"
         android:text="@string/placeholder" />
 
-    <Spinner
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginRight="10dp"
-        android:id="@+id/spinner" />
-
-    <!--Button
-        style="?android:attr/buttonStyleSmall"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="+"
-        android:id="@+id/button"/-->
+    <!--Spinner
+        android:id="@+id/spinner"
+        android:layout_width="30dp"
+        android:layout_height="match_parent"
+        android:layout_marginRight="10dp" /-->
 
 </LinearLayout>
