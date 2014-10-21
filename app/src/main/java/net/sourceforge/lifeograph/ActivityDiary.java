@@ -213,7 +213,7 @@ public class ActivityDiary extends Activity
     protected void onPause() {
         super.onPause();
         if( Lifeograph.sFlagLogoutOnPause )
-            Lifeograph.finishEditing( this );
+            Lifeograph.logout( this );
         Log.d( Lifeograph.TAG, "onPause - ActivityDiary" );
     }
 

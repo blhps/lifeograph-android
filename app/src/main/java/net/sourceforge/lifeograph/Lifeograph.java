@@ -67,6 +67,7 @@ public class Lifeograph
                 case GROUP: {
                     Intent i = new Intent( ctx, ActivityChapterTag.class );
                     i.putExtra( "elem", elem.get_id() );
+                    i.putExtra( "type", elem.get_type().i );
                     sFlagLogoutOnPause = false;
                     ctx.startActivity( i );
                     break;
@@ -84,8 +85,8 @@ public class Lifeograph
         dialog.show();
     }
 
-    public static void finishEditing( Context ctx ) {
-        Log.d( Lifeograph.TAG, "Lifeograph.finishEditing()" );
+    public static void logout( Context ctx ) {
+        Log.d( Lifeograph.TAG, "Lifeograph.logout()" );
         // SAVING
         // sync_entry();
 
@@ -101,11 +102,6 @@ public class Lifeograph
         }
         else
             Log.d( Lifeograph.TAG, "Logged out without saving" );
-    }
-
-    public static void logout( Activity activity ) {
-        finishEditing( activity );
-        activity.finish();
     }
 
     // ANDROID & JAVA HELPERS ======================================================================

@@ -45,24 +45,27 @@ public abstract class DiaryElement {
 
     public static enum Type {
         // CAUTION: order is significant and shouldn't be changed!
-        NONE( LayoutType.ELEMENT, "" ),
-        TAG( LayoutType.ELEMENT, Lifeograph.getStr( R.string.tag ) ),
-        UNTAGGED( LayoutType.ELEMENT, Lifeograph.getStr( R.string.untagged ) ),
-        TAG_CTG( LayoutType.HEADER_TAG_CTG, Lifeograph.getStr( R.string.tag_ctg ) ),
-        CHAPTER_CTG( LayoutType.HEADER_CHAPTER_CTG, Lifeograph.getStr( R.string.chapter_ctg ) ),
-        FILTER( LayoutType.ELEMENT, Lifeograph.getStr( R.string.filter ) ),
+        NONE( 0, LayoutType.ELEMENT, "" ),
+        TAG( 1, LayoutType.ELEMENT, Lifeograph.getStr( R.string.tag ) ),
+        UNTAGGED( 2, LayoutType.ELEMENT, Lifeograph.getStr( R.string.untagged ) ),
+        TAG_CTG( 3, LayoutType.HEADER_TAG_CTG, Lifeograph.getStr( R.string.tag_ctg ) ),
+        CHAPTER_CTG( 4, LayoutType.HEADER_CHAPTER_CTG, Lifeograph.getStr( R.string.chapter_ctg ) ),
+        FILTER( 5, LayoutType.ELEMENT, Lifeograph.getStr( R.string.filter ) ),
         // entry list elements:
-        DIARY( LayoutType.ELEMENT, Lifeograph.getStr( R.string.diary ) ),
-        CHAPTER( LayoutType.ELEMENT, Lifeograph.getStr( R.string.chapter ) ),
-        TOPIC( LayoutType.ELEMENT, Lifeograph.getStr( R.string.topic ) ),
-        GROUP( LayoutType.ELEMENT, Lifeograph.getStr( R.string.group ) ),
-        ENTRY( LayoutType.ELEMENT, Lifeograph.getStr( R.string.entry ) ),
-        DATE( LayoutType.ELEMENT, "" ),
-        HEADER( LayoutType.HEADER_SIMPLE, "" );
+        DIARY( 6, LayoutType.ELEMENT, Lifeograph.getStr( R.string.diary ) ),
+        CHAPTER( 7, LayoutType.ELEMENT, Lifeograph.getStr( R.string.chapter ) ),
+        TOPIC( 8, LayoutType.ELEMENT, Lifeograph.getStr( R.string.topic ) ),
+        GROUP( 9, LayoutType.ELEMENT, Lifeograph.getStr( R.string.group ) ),
+        ENTRY( 10, LayoutType.ELEMENT, Lifeograph.getStr( R.string.entry ) ),
+        DATE( 11, LayoutType.ELEMENT, "" ),
+        HEADER( 12, LayoutType.HEADER_SIMPLE, "" );
 
         public final String str;
         public final LayoutType layout_type;
-        private Type( LayoutType l, String v ) {
+        public final int i;
+
+        private Type( int order, LayoutType l, String v ) {
+            this.i = order;
             this.layout_type = l;
             this.str = v;
         }

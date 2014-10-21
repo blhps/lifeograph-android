@@ -44,8 +44,15 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
         // ELEMENT TO SHOW
         mElement = Diary.diary.get_element( getIntent().getIntExtra( "elem", 0 ) );
-        if( mElement == null )
-            Log.e( Lifeograph.TAG, "Element not found in the diary" );
+        if( mElement == null ) {
+            int type = getIntent().getIntExtra( "type", 0 );
+            if( type == DiaryElement.Type.UNTAGGED.i )
+                mElement = Diary.diary.get_untagged();
+            else if( type == DiaryElement.Type.CHAPTER.i )
+                mElement = Diary.diary.m_orphans;
+            else
+                Log.e( Lifeograph.TAG, "Element not found in the diary" );
+        }
 
         // FILLING WIDGETS
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );

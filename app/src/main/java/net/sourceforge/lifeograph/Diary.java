@@ -2018,7 +2018,7 @@ public class Diary extends DiaryElement
     Chapter.Category m_ptr2chapter_ctg_cur = null;
     Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
     Chapter.Category m_groups = new Chapter.Category( this, Date.GROUP_MIN );
-    Chapter m_orphans = new Chapter( this, "<Other Entries>", Date.DATE_MAX );
+    Chapter m_orphans = new Chapter( null, "<Other Entries>", Date.DATE_MAX );
 
     private int m_startup_elem_id; // DEID
     private int m_last_elem_id; // DEID
