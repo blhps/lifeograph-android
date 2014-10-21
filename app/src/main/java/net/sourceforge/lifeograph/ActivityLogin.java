@@ -86,7 +86,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_OUT;
 
         populate_diaries(); // this also helps with the changes in the diary path
-        Log.d( Lifeograph.TAG, "onResume - ActivityLogin" );
+        Log.d( Lifeograph.TAG, "ActivityLogin.onResume()" );
     }
 
     @Override

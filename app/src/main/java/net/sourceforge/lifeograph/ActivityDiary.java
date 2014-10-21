@@ -70,13 +70,27 @@ public class ActivityDiary extends Activity
             public void onDrawerSlide( View view, float v ) { }
 
             public void onDrawerOpened( View view ) {
-                for( FragmentElemList fragment : mDiaryFragments )
-                    fragment.getListView().setEnabled( false );
+
+                for( FragmentElemList fragment : mDiaryFragments ) {
+                    if( fragment.isVisible() )
+                        fragment.getListView().setEnabled( false );
+                }
+
+                // alternative way:
+//                for( int i = 0; i < 3; i++ ) {
+//                    FragmentElemList fragment = ( FragmentElemList ) getFragmentManager()
+//                            .findFragmentByTag( TabsAdapter.makeFragmentName( i ) );
+//                    if( fragment != null )
+//                        if( fragment.isVisible() )
+//                            fragment.getListView().setEnabled( false );
+//                }
             }
 
             public void onDrawerClosed( View view ) {
-                for( FragmentElemList fragment : mDiaryFragments )
-                    fragment.getListView().setEnabled( true );
+                for( FragmentElemList fragment : mDiaryFragments ) {
+                    if( fragment.isVisible() )
+                        fragment.getListView().setEnabled( true );
+                }
             }
 
             public void onDrawerStateChanged( int i ) { }
@@ -114,7 +128,7 @@ public class ActivityDiary extends Activity
 
         Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_IN;
 
-        Log.d( Lifeograph.TAG, "onCreate - ActivityDiary" );
+        Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
     }
 
     @Override
@@ -122,7 +136,7 @@ public class ActivityDiary extends Activity
         super.onPause();
         if( Lifeograph.sFlagLogoutOnPause )
             Lifeograph.logout( this );
-        Log.d( Lifeograph.TAG, "onPause - ActivityDiary" );
+        Log.d( Lifeograph.TAG, "ActivityDiary.onPause()" );
     }
 
     @Override
@@ -134,7 +148,7 @@ public class ActivityDiary extends Activity
         if( Lifeograph.sFlagForceUpdateOnResume )
             updateList();
         Lifeograph.sFlagForceUpdateOnResume = false;
-        Log.d( Lifeograph.TAG, "onResume - ActivityDiary" );
+        Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
     }
 
     @Override
@@ -402,7 +416,7 @@ public class ActivityDiary extends Activity
             if( mCurTransaction == null )
                 mCurTransaction = mFragMan.beginTransaction();
 
-            String name = makeFragmentName( container.getId(), position );
+            String name = makeFragmentName( position );
             Fragment fragment = mFragMan.findFragmentByTag( name );
             if( fragment != null ) {
                 Log.d( Lifeograph.TAG, "Attaching item #" + position + ": f=" + fragment );
@@ -412,7 +426,7 @@ public class ActivityDiary extends Activity
                 fragment = getItem( position );
                 Log.d( Lifeograph.TAG, "Adding item #" + position + ": f=" + fragment );
                 mCurTransaction.add( container.getId(), fragment,
-                                     makeFragmentName( container.getId(), position ) );
+                                     makeFragmentName( position ) );
             }
             if( fragment != mCurrentPrimaryItem ) {
                 fragment.setMenuVisibility( false );
@@ -468,8 +482,8 @@ public class ActivityDiary extends Activity
         public void restoreState( Parcelable state, ClassLoader loader ) {
         }
 
-        private static String makeFragmentName( int viewId, int index ) {
-            return viewId + ".fragment." + index;
+        public static String makeFragmentName( int index ) {
+            return "DiaryTabs.fragment" + index;
         }
 
         public void addTab( ActionBar.Tab tab, Class< ? > clss, Bundle args ) {

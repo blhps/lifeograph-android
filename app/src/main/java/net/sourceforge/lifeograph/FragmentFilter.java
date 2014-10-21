@@ -139,7 +139,7 @@ public class FragmentFilter extends Fragment
             }
         } );
 
-        Log.d( Lifeograph.TAG, "onCreateView - FragmentFilter" );
+        Log.d( Lifeograph.TAG, "FragmentFilter.onCreateView()" );
 
         return rootView;
     }
@@ -153,11 +153,12 @@ public class FragmentFilter extends Fragment
         else
             throw new ClassCastException( activity.toString() + " must implement ListOperations" );
 
-        Log.d( Lifeograph.TAG, "onAttach - " + activity.toString() );
+        Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + activity.toString() );
     }
 
     @Override
     public void onDetach() {
+        Log.d( Lifeograph.TAG, "FragmentFilter.onDetach() - " + this.toString() );
         mListOperations = null;
         super.onDetach();
     }

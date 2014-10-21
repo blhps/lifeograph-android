@@ -78,15 +78,16 @@ public class FragmentElemList extends ListFragment
         else
             throw new ClassCastException( activity.toString() + " must be a DiaryManager" );
 
-        Log.d( Lifeograph.TAG, "onAttach - " + activity.toString() );
+        Log.d( Lifeograph.TAG, "FragmentElemList.onAttach() - " + activity.toString() );
 
         mDiaryManager.addFragment( this );
     }
 
     @Override
-    public void onStop() {
+    public void onDetach() {
         mDiaryManager.removeFragment( this );
-        super.onStop();
+        Log.d( Lifeograph.TAG, "FragmentElemList.onDetach() - " + this.toString() );
+        super.onDetach();
     }
 
     @Override
@@ -202,9 +203,6 @@ public class FragmentElemList extends ListFragment
                 break;
             }
         }
-
-        // force menu update
-        //invalidateOptionsMenu();
     }
 
     public interface DiaryManager
