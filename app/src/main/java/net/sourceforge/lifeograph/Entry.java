@@ -92,13 +92,14 @@ public class Entry extends DiaryElement {
 
     @Override
     public String get_title_str() {
-        StringBuffer title = new StringBuffer();
-
         if( ! m_date.is_hidden() ) {
+            StringBuilder title = new StringBuilder();
             title.append( m_date.format_string() );
 
-            if( !m_date.is_ordinal() && Lifeograph.isXLargeScreen() )
-                title.append( ' ' ).append( get_date().get_weekday_str() );
+            if( !m_date.is_ordinal() && Lifeograph.isLargeScreen() )
+                title.append( ", " ).append( get_date().get_weekday_str() );
+
+            return title.toString();
         }
         else {
             if( m_ptr2diary.m_groups.getMap().containsKey( m_date.get_pure() ) )
@@ -106,8 +107,6 @@ public class Entry extends DiaryElement {
             else
                 return "/"; // TODO find a better name
         }
-
-        return title.toString();
     }
 
     @Override

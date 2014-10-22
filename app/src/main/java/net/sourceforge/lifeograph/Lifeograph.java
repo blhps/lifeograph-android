@@ -98,7 +98,7 @@ public class Lifeograph
     public static final String TAG = "LFO";
 
     protected static Context sContext = null;
-    private static boolean sIsXLargeScreen = false;
+    private static boolean sIsLargeScreen = false;
 
     public static String getStr( int i ) {
         if( sContext == null )
@@ -138,11 +138,11 @@ public class Lifeograph
 
     public static void initializeConstants( Context ctx ) {
         sContext = ctx;
-        sIsXLargeScreen = ( ctx.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_XLARGE;
+        sIsLargeScreen = ( ctx.getResources().getConfiguration().screenLayout
+                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
     }
 
-    public static boolean isXLargeScreen() {
-        return sIsXLargeScreen;
+    public static boolean isLargeScreen() {
+        return sIsLargeScreen;
     }
 }

@@ -41,7 +41,7 @@ enum Result {
 public class Diary extends DiaryElement
 {
     public static final char SC_DATE = 'd';
-    public static final char SC_SIZE = 's';
+//    public static final char SC_SIZE = 's';
 
     public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
     public final static int DB_FILE_VERSION_INT = 1020;
@@ -201,9 +201,9 @@ public class Diary extends DiaryElement
         return m_language;
     }
 
-    public void set_lang( String lang ) {
-        m_language = lang;
-    }
+//    public void set_lang( String lang ) {
+//        m_language = lang;
+//    }
 
     public DiaryElement get_element( int id ) {
         return m_ids.get( id );
@@ -231,13 +231,13 @@ public class Diary extends DiaryElement
 //        return null;
 //    }
 
-    public char get_sorting_criteria() {
-        return m_option_sorting_criteria;
-    }
+//    public char get_sorting_criteria() {
+//        return m_option_sorting_criteria;
+//    }
 
-    public void set_sorting_criteria( char sc ) {
-        m_option_sorting_criteria = sc;
-    }
+//    public void set_sorting_criteria( char sc ) {
+//        m_option_sorting_criteria = sc;
+//    }
     
     // DISK I/O ====================================================================================
     public Result set_path( String path, SetPathType type ) {
@@ -316,9 +316,9 @@ public class Diary extends DiaryElement
         return Result.SUCCESS;
     }
 
-    public String get_path() {
-        return m_path;
-    }
+//    public String get_path() {
+//        return m_path;
+//    }
 
 //  NOT NEEDED NOW
 //    public boolean is_path_set() {
@@ -880,23 +880,23 @@ public class Diary extends DiaryElement
     // boolean make_free_entry_order( Date date );
 
     // FUNCTIONS TO GET NEAREST CHAPTERS / TOPICS
-    public Chapter getPrevChapter( Chapter chapter ) {
-        if( chapter.is_ordinal() ) {
-            long d_chapter_prev = chapter.m_date_begin.m_date - Date.ORDINAL_STEP;
-            return m_topics.mMap.get( d_chapter_prev );
-        }
-        else
-            return m_ptr2chapter_ctg_cur.getChapterEarlier( chapter );
-    }
+//    public Chapter getPrevChapter( Chapter chapter ) {
+//        if( chapter.is_ordinal() ) {
+//            long d_chapter_prev = chapter.m_date_begin.m_date - Date.ORDINAL_STEP;
+//            return m_topics.mMap.get( d_chapter_prev );
+//        }
+//        else
+//            return m_ptr2chapter_ctg_cur.getChapterEarlier( chapter );
+//    }
 
-    public Chapter getNextChapter( Chapter chapter ) {
-        if( chapter.is_ordinal() ) {
-            long d_chapter_next = chapter.m_date_begin.m_date + Date.ORDINAL_STEP;
-            return m_topics.mMap.get( d_chapter_next );
-        }
-        else
-            return m_ptr2chapter_ctg_cur.getChapterLater( chapter );
-    }
+//    public Chapter getNextChapter( Chapter chapter ) {
+//        if( chapter.is_ordinal() ) {
+//            long d_chapter_next = chapter.m_date_begin.m_date + Date.ORDINAL_STEP;
+//            return m_topics.mMap.get( d_chapter_next );
+//        }
+//        else
+//            return m_ptr2chapter_ctg_cur.getChapterLater( chapter );
+//    }
 
     public void update_entries_in_chapters() {
         Log.d( Lifeograph.TAG, "update_entries_in_chapters()" );
