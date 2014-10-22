@@ -571,7 +571,10 @@ public class Diary extends DiaryElement
         Entry entry = new Entry( this, date, content, flag_favorite );
 
         m_entries.put( date, entry );
+
         add_entry_to_related_chapter( entry );
+
+        m_untagged.add_entry( entry );
 
         return( entry );
     }
@@ -1231,6 +1234,7 @@ public class Diary extends DiaryElement
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         add_entry_to_related_chapter( entry_new );
+                        m_untagged.add_entry( entry_new );
 
                         if( line.charAt( 0 ) == 'e' )
                             entry_new.set_trashed( true );
@@ -1477,6 +1481,7 @@ public class Diary extends DiaryElement
                         entry_new = new Entry( this,  date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         add_entry_to_related_chapter( entry_new );
+                        m_untagged.add_entry( entry_new );
 
                         if( line.charAt( 0 ) == 'e' )
                             entry_new.set_trashed( true );
@@ -1681,6 +1686,7 @@ public class Diary extends DiaryElement
                         entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
                         m_entries.put( date, entry_new );
                         add_entry_to_related_chapter( entry_new );
+                        m_untagged.add_entry( entry_new );
 
                         if( line.charAt( 0 ) == 'e' )
                             entry_new.set_trashed( true );

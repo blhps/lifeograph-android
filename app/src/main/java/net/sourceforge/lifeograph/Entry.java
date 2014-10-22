@@ -36,7 +36,6 @@ public class Entry extends DiaryElement {
         m_text = new String( text );
         m_ptr2theme_tag = null;
         calculate_title( text );
-        m_ptr2diary.get_untagged().add_entry( this );
     }
 
     public Entry( Diary diary, long date, boolean favored ) {
@@ -49,7 +48,6 @@ public class Entry extends DiaryElement {
         m_date_changed = m_date_created;
 
         m_ptr2theme_tag = null;
-        m_ptr2diary.get_untagged().add_entry( this );
     }
 
     @Override
