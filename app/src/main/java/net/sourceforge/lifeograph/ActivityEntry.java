@@ -245,7 +245,7 @@ public class ActivityEntry extends Activity
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
             sync();
-        Lifeograph.sFlagForceUpdateOnResume = true;
+        Lifeograph.sFlagUpdateListOnResume = true;
         super.onPause();
     }
 
@@ -253,9 +253,9 @@ public class ActivityEntry extends Activity
     protected void onResume() {
         super.onResume();
 
-        Lifeograph.sContext = this;
-
         Log.d( Lifeograph.TAG, "ActivityEntry.onResume()" );
+
+        Lifeograph.sContext = this;
     }
 
     @Override

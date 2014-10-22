@@ -42,6 +42,8 @@ public class FragmentFilter extends Fragment
     public View onCreateView( LayoutInflater inflater,
                               ViewGroup container,
                               Bundle savedInstanceState ) {
+        Log.d( Lifeograph.TAG, "FragmentFilter.onCreateView()" );
+
         ViewGroup rootView = ( ViewGroup ) inflater.inflate(
                 R.layout.fragment_filter, container, false );
 
@@ -58,20 +60,28 @@ public class FragmentFilter extends Fragment
 
         // UI UPDATES (must come before listeners)
         updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
+        if( Diary.diary.is_search_active() ) {
+            mEditSearch.setText( Diary.diary.get_search_text() );
+            mButtonSearchTextClear.setVisibility( View.VISIBLE );
+        }
 
         // LISTENERS
         mEditSearch.addTextChangedListener( new TextWatcher()
         {
             public void afterTextChanged( Editable s ) { }
 
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
-            }
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) { }
 
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                handleSearchTextChanged( s.toString() );
-                mButtonSearchTextClear.setVisibility(
-                        s.length() > 0 ? View.VISIBLE : View.INVISIBLE );
+                if( mInitialized ) {
+                    handleSearchTextChanged( s.toString() );
+                    mButtonSearchTextClear.setVisibility(
+                            s.length() > 0 ? View.VISIBLE : View.INVISIBLE );
+                }
+                else
+                    mInitialized = true;
             }
+            private boolean mInitialized = false;
         } );
         mButtonSearchTextClear.setOnClickListener( new View.OnClickListener()
         {
@@ -111,17 +121,17 @@ public class FragmentFilter extends Fragment
         {
             public void onItemSelected( AdapterView< ? > pv, View v, int pos, long id ) {
                 // onItemSelected() is fired unnecessarily during initialization, so:
-                if( initialized )
+                if( mInitialized )
                     handleFilterFavoriteChanged( pos );
                 else
-                    initialized = true;
+                    mInitialized = true;
             }
 
             public void onNothingSelected( AdapterView< ? > arg0 ) {
                 Log.d( Lifeograph.TAG, "Filter Favorites onNothingSelected" );
             }
 
-            private boolean initialized = false;
+            private boolean mInitialized = false;
         } );
 
         Button buttonFilterReset = ( Button ) rootView.findViewById( R.id.buttonFilterReset );
@@ -138,8 +148,6 @@ public class FragmentFilter extends Fragment
                 saveFilter();
             }
         } );
-
-        Log.d( Lifeograph.TAG, "FragmentFilter.onCreateView()" );
 
         return rootView;
     }

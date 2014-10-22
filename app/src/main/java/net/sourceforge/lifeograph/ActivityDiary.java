@@ -37,18 +37,12 @@ import android.os.Parcelable;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
-import android.text.Editable;
-import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.Spinner;
 
 public class ActivityDiary extends Activity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
@@ -57,6 +51,8 @@ public class ActivityDiary extends Activity
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
+
+        Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
 
         setContentView( R.layout.diary );
 
@@ -127,8 +123,6 @@ public class ActivityDiary extends Activity
         }
 
         Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_IN;
-
-        Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
     }
 
     @Override
@@ -148,9 +142,9 @@ public class ActivityDiary extends Activity
         Lifeograph.sFlagLogoutOnPause = true;
         Lifeograph.sSaveDiaryOnLogout = true;
 
-        if( Lifeograph.sFlagForceUpdateOnResume )
+        if( Lifeograph.sFlagUpdateListOnResume )
             updateList();
-        Lifeograph.sFlagForceUpdateOnResume = false;
+        Lifeograph.sFlagUpdateListOnResume = false;
         Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
     }
 

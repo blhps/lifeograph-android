@@ -42,7 +42,7 @@ public class Lifeograph
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
     protected static boolean sFlagLogoutOnPause = false;
     protected static boolean sSaveDiaryOnLogout = true;
-    protected static boolean sFlagForceUpdateOnResume = false;
+    protected static boolean sFlagUpdateListOnResume = false;
 
     enum LoginStatus { LOGGED_OUT, LOGGED_IN, LOGGED_TIME_OUT }
     protected static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;

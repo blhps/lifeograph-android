@@ -46,6 +46,8 @@ public class FragmentElemList extends ListFragment
     public View onCreateView( LayoutInflater inflater,
                               ViewGroup container,
                               Bundle savedInstanceState ) {
+        Log.d( Lifeograph.TAG, "FragmentElemList.onCreateView()" );
+
         if( getArguments() != null )
             mCurTabIndex = getArguments().getInt( "tab" );
 
@@ -105,7 +107,7 @@ public class FragmentElemList extends ListFragment
     }
 
     public void updateList() {
-        Log.d( Lifeograph.TAG, "DiaryFragment.updateList()" );
+        Log.d( Lifeograph.TAG, "FragmentElemList.updateList()" );
 
         mAdapterEntries.clear();
         mElems.clear();
