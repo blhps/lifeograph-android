@@ -593,6 +593,9 @@ public class Diary extends DiaryElement
         for( Tag tag : entry.m_tags )
             tag.mEntries.remove( entry );
 
+        // remove from untagged:
+        m_untagged.remove_entry( entry );
+
         // remove from chapters:
         remove_entry_from_chapters( entry );
 
