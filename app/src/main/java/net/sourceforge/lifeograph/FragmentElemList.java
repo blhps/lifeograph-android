@@ -143,7 +143,8 @@ public class FragmentElemList extends ListFragment
                         }
                     }
                     // DATED CHAPTERS
-                    if( Diary.diary.m_chapter_categories.size() == 1 )
+                    if( Diary.diary.m_chapter_categories.size() == 1 &&
+                        !Diary.diary.m_ptr2chapter_ctg_cur.mMap.isEmpty() )
                         mElems.add( new HeaderElem( R.string.dated_chapters ) );
 
                     for( Chapter.Category cc : Diary.diary.m_chapter_categories.values() ) {
@@ -154,10 +155,13 @@ public class FragmentElemList extends ListFragment
                             for( Chapter c : cc.mMap.values() ) {
                                 mElems.add( c );
                             }
-
-                            if( Diary.diary.m_orphans.get_size() > 0 )
-                                mElems.add( Diary.diary.m_orphans );
                         }
+                    }
+                    // ORPHANED ENTRIES VIRTUAL CHAPTER
+                    if( Diary.diary.m_orphans.get_size() > 0 ) {
+                        if( !mElems.isEmpty() ) // separator is not needed if this is the only one
+                            mElems.add( new HeaderElem( R.string._empty_ ) );
+                        mElems.add( Diary.diary.m_orphans );
                     }
                 }
 
@@ -178,7 +182,8 @@ public class FragmentElemList extends ListFragment
                     }
                     // UNTAGGED META TAG
                     if( Diary.diary.m_untagged.get_size() > 0 ) {
-                        mElems.add( new HeaderElem( R.string._empty_ ) );
+                        if( !mElems.isEmpty() ) // separator is not needed if this is the only one
+                            mElems.add( new HeaderElem( R.string._empty_ ) );
                         mElems.add( Diary.diary.m_untagged );
                     }
                 }
