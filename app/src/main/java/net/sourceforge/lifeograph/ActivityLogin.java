@@ -50,7 +50,8 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
-        Lifeograph.initializeConstants( this );
+        Lifeograph.sContext = this;
+        Lifeograph.updateScreenWidth();
 
         if( Diary.diary == null )
             Diary.diary = new Diary();

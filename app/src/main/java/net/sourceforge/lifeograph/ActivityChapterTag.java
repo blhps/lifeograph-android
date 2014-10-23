@@ -43,6 +43,8 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
         setContentView( R.layout.chapter );
 
+        Lifeograph.updateScreenWidth();
+
         // ELEMENT TO SHOW
         mElement = Diary.diary.get_element( getIntent().getIntExtra( "elem", 0 ) );
         if( mElement == null ) {

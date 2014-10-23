@@ -54,6 +54,8 @@ public class ActivityDiary extends Activity
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
 
+        Lifeograph.updateScreenWidth();
+
         setContentView( R.layout.diary );
 
         // FILLING WIDGETS

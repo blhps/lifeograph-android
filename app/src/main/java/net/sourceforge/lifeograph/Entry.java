@@ -21,6 +21,8 @@
 
 package net.sourceforge.lifeograph;
 
+import android.util.Log;
+
 import java.util.ArrayList;
 
 public class Entry extends DiaryElement {
@@ -94,7 +96,7 @@ public class Entry extends DiaryElement {
             StringBuilder title = new StringBuilder();
             title.append( m_date.format_string() );
 
-            if( !m_date.is_ordinal() && Lifeograph.isLargeScreen() )
+            if( !m_date.is_ordinal() && Lifeograph.getScreenWidth() > 3.0 )
                 title.append( ", " ).append( get_date().get_weekday_str() );
 
             return title.toString();

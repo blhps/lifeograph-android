@@ -154,6 +154,8 @@ public class ActivityEntry extends Activity
 
         setContentView( R.layout.entry );
 
+        Lifeograph.updateScreenWidth();
+
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
 

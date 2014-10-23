@@ -22,14 +22,14 @@
 package net.sourceforge.lifeograph;
 
 import java.io.File;
-import java.util.Locale;
 
 import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.content.res.Configuration;
+import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.WindowManager;
 import android.widget.Toast;
 
 public class Lifeograph
@@ -98,7 +98,8 @@ public class Lifeograph
     public static final String TAG = "LFO";
 
     protected static Context sContext = null;
-    private static boolean sIsLargeScreen = false;
+//    private static boolean sIsLargeScreen = false;
+    private static float sScreenWidth;
 
     public static String getStr( int i ) {
         if( sContext == null )
@@ -132,17 +133,28 @@ public class Lifeograph
         return new File( file1, p2 ).getPath();
     }
 
-    public static String getEnvLang() {
-        return Locale.getDefault().getLanguage();
+//    public static String getEnvLang() {
+//        return Locale.getDefault().getLanguage();
+//    }
+
+//    public static void initializeConstants( Context ctx ) {
+//        sContext = ctx;
+//        sIsLargeScreen = ( ctx.getResources().getConfiguration().screenLayout
+//                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+//    }
+
+    public static void updateScreenWidth() {
+        WindowManager wm = ( WindowManager ) sContext.getSystemService( Context.WINDOW_SERVICE );
+        DisplayMetrics metrics = new DisplayMetrics();
+        wm.getDefaultDisplay().getMetrics( metrics );
+        sScreenWidth = metrics.widthPixels / metrics.xdpi;
+        Log.d( TAG, "Updated the screenwidth: " + sScreenWidth );
     }
 
-    public static void initializeConstants( Context ctx ) {
-        sContext = ctx;
-        sIsLargeScreen = ( ctx.getResources().getConfiguration().screenLayout
-                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+    public static float getScreenWidth() {
+        return sScreenWidth;
     }
-
-    public static boolean isLargeScreen() {
-        return sIsLargeScreen;
-    }
+//    public static boolean isLargeScreen() {
+//        return sIsLargeScreen;
+//    }
 }
