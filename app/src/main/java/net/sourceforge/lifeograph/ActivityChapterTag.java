@@ -41,9 +41,12 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
+        Log.d( Lifeograph.TAG, "onCreate - ActivityChapterTag" );
+
         setContentView( R.layout.chapter );
 
         Lifeograph.updateScreenWidth();
+        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         // ELEMENT TO SHOW
         mElement = Diary.diary.get_element( getIntent().getIntExtra( "elem", 0 ) );
@@ -90,28 +93,37 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
             setTitle( mElement.get_title_str() );
             mActionBar.setSubtitle( mElement.get_info_str() );
         }
-
-        Log.d( Lifeograph.TAG, "onCreate - ActivityChapterTag" );
     }
 
     @Override
     protected void onPause() {
-        Lifeograph.sFlagUpdateListOnResume = true;
-        Log.d( Lifeograph.TAG, "onPause - ActivityChapterTag" );
         super.onPause();
+
+        Log.d( Lifeograph.TAG, "onPause - ActivityChapterTag" );
+
+        Lifeograph.sFlagUpdateListOnResume = true;
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d( Lifeograph.TAG, "ActivityChapterTag.onDestroy()" );
+
+        Lifeograph.handleDiaryEditingActivityDestroyed();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        Log.d( Lifeograph.TAG, "onResume - ActivityChapterTag" );
+
         Lifeograph.sContext = this;
 
-        Lifeograph.sFlagLogoutOnPause = true;
         if( Lifeograph.sFlagUpdateListOnResume )
             updateList();
         Lifeograph.sFlagUpdateListOnResume = false;
-        Log.d( Lifeograph.TAG, "onResume - ActivityChapterTag" );
     }
 
     @Override

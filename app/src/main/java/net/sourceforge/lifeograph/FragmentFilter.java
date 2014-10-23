@@ -156,19 +156,21 @@ public class FragmentFilter extends Fragment
     public void onAttach( Activity activity ) {
         super.onAttach( activity );
 
+        Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + activity.toString() );
+
         if( FragmentElemList.ListOperations.class.isInstance( activity ) )
             mListOperations = ( FragmentElemList.ListOperations ) activity;
         else
             throw new ClassCastException( activity.toString() + " must implement ListOperations" );
-
-        Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + activity.toString() );
     }
 
     @Override
     public void onDetach() {
-        Log.d( Lifeograph.TAG, "FragmentFilter.onDetach() - " + this.toString() );
-        mListOperations = null;
         super.onDetach();
+
+        Log.d( Lifeograph.TAG, "FragmentFilter.onDetach() - " + this.toString() );
+
+        mListOperations = null;
     }
 
     void handleSearchTextChanged( String text ) {

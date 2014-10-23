@@ -75,21 +75,23 @@ public class FragmentElemList extends ListFragment
     public void onAttach( Activity activity ) {
         super.onAttach( activity );
 
+        Log.d( Lifeograph.TAG, "FragmentElemList.onAttach() - " + activity.toString() );
+
         if( DiaryManager.class.isInstance( activity ) )
             mDiaryManager = ( DiaryManager ) activity;
         else
             throw new ClassCastException( activity.toString() + " must be a DiaryManager" );
-
-        Log.d( Lifeograph.TAG, "FragmentElemList.onAttach() - " + activity.toString() );
 
         mDiaryManager.addFragment( this );
     }
 
     @Override
     public void onDetach() {
-        mDiaryManager.removeFragment( this );
-        Log.d( Lifeograph.TAG, "FragmentElemList.onDetach() - " + this.toString() );
         super.onDetach();
+
+        Log.d( Lifeograph.TAG, "FragmentElemList.onDetach() - " + this.toString() );
+
+        mDiaryManager.removeFragment( this );
     }
 
     @Override

@@ -40,9 +40,9 @@ public class Lifeograph
     public static final String LANG_INHERIT_DIARY = "d";
 
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
-    protected static boolean sFlagLogoutOnPause = false;
     protected static boolean sSaveDiaryOnLogout = true;
     protected static boolean sFlagUpdateListOnResume = false;
+    protected static int sNumberOfDiaryEditingActivities = 0;
 
     enum LoginStatus { LOGGED_OUT, LOGGED_IN, LOGGED_TIME_OUT }
     protected static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;
@@ -53,7 +53,6 @@ public class Lifeograph
                 case ENTRY: {
                     Intent i = new Intent( sContext, ActivityEntry.class );
                     i.putExtra( "entry", elem.get_date_t() );
-                    sFlagLogoutOnPause = false; // not logging out but going deeper
                     sContext.startActivity( i );
                     break;
                 }
@@ -65,7 +64,6 @@ public class Lifeograph
                     Intent i = new Intent( sContext, ActivityChapterTag.class );
                     i.putExtra( "elem", elem.get_id() );
                     i.putExtra( "type", elem.get_type().i );
-                    sFlagLogoutOnPause = false; // not logging out but going deeper
                     sContext.startActivity( i );
                     break;
                 }
@@ -75,7 +73,7 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    public static void logout() {
+    private static void logout() {
         Log.d( Lifeograph.TAG, "Lifeograph.logout()" );
         // SAVING
         // sync_entry();
@@ -84,14 +82,19 @@ public class Lifeograph
 
         if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
             if( Diary.diary.write() == Result.SUCCESS ) {
-                Lifeograph.showToast( "Diary saved successfully" );
+                showToast( "Diary saved successfully" );
                 // TODO: try to save backup
             }
             else
-                Lifeograph.showToast( "Cannot write back changes" );
+                showToast( "Cannot write back changes" );
         }
         else
             Log.d( Lifeograph.TAG, "Logged out without saving" );
+    }
+
+    public static void handleDiaryEditingActivityDestroyed() {
+        if( --sNumberOfDiaryEditingActivities == 0 )
+            logout();
     }
 
     // ANDROID & JAVA HELPERS ======================================================================

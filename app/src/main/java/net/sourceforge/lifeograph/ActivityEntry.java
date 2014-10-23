@@ -155,6 +155,7 @@ public class ActivityEntry extends Activity
         setContentView( R.layout.entry );
 
         Lifeograph.updateScreenWidth();
+        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
@@ -243,12 +244,22 @@ public class ActivityEntry extends Activity
 
     @Override
     protected void onPause() {
+        super.onPause();
+
         if( mFlagDismissOnExit )
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
             sync();
         Lifeograph.sFlagUpdateListOnResume = true;
-        super.onPause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d( Lifeograph.TAG, "ActivityEntry.onDestroy()" );
+
+        Lifeograph.handleDiaryEditingActivityDestroyed();
     }
 
     @Override

@@ -41,6 +41,7 @@ public class FragmentAd extends Fragment
     @Override
     public void onActivityCreated( Bundle bundle ) {
         super.onActivityCreated( bundle );
+
         AdView mAdView = ( AdView ) getView().findViewById( R.id.adView );
         AdRequest adRequest = new AdRequest.Builder().build();
         mAdView.loadAd( adRequest );

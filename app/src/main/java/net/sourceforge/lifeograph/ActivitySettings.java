@@ -32,6 +32,7 @@ public class ActivitySettings extends PreferenceActivity
     @Override
     protected void onPostCreate( Bundle savedInstanceState ) {
         super.onPostCreate( savedInstanceState );
+
         addPreferencesFromResource( R.xml.pref_general );
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to

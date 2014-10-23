@@ -177,7 +177,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
             switch( Diary.diary.read_body() ) {
                 case SUCCESS:
                     Intent i = new Intent( this, ActivityDiary.class );
-                    startActivityForResult( i, 0 );
+                    startActivity( i );
                     break;
                 case WRONG_PASSWORD:
                     // TODO: show info
@@ -202,7 +202,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                 if( Diary.diary.init_new( Lifeograph.joinPath( getDiariesDir().getPath(), text ) )
                         == Result.SUCCESS ) {
                     Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
-                    startActivityForResult( i, 0 );
+                    startActivity( i );
                 }
                 // TODO else inform the user about the problem
                 break;

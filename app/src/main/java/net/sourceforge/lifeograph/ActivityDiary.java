@@ -55,6 +55,7 @@ public class ActivityDiary extends Activity
         Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
 
         Lifeograph.updateScreenWidth();
+        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         setContentView( R.layout.diary );
 
@@ -130,24 +131,32 @@ public class ActivityDiary extends Activity
     @Override
     protected void onPause() {
         super.onPause();
-        if( Lifeograph.sFlagLogoutOnPause )
-            Lifeograph.logout();
+
         Log.d( Lifeograph.TAG, "ActivityDiary.onPause()" );
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d( Lifeograph.TAG, "ActivityDiary.onDestroy()" );
+
+        Lifeograph.handleDiaryEditingActivityDestroyed();
     }
 
     @Override
     protected void onResume() {
         super.onResume();
 
+        Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
+
         Lifeograph.sContext = this;
 
-        Lifeograph.sFlagLogoutOnPause = true;
         Lifeograph.sSaveDiaryOnLogout = true;
 
         if( Lifeograph.sFlagUpdateListOnResume )
             updateList();
         Lifeograph.sFlagUpdateListOnResume = false;
-        Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
     }
 
     @Override
