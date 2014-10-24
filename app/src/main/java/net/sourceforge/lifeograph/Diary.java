@@ -441,7 +441,7 @@ public class Diary extends DiaryElement
 
             // HELPERS
             Chapter.Category dummy_ctg_orphans = new Chapter.Category( null, "" );
-            dummy_ctg_orphans.mMap.put( 0L, Diary.diary.m_orphans );
+            dummy_ctg_orphans.mMap.put( 0L, m_orphans );
             Chapter.Category chapters[] = new Chapter.Category[]
                     { dummy_ctg_orphans, m_ptr2chapter_ctg_cur, m_topics, m_groups };
             final String separator         = "---------------------------------------------\n";
@@ -934,15 +934,15 @@ public class Diary extends DiaryElement
         }
 
         m_orphans.clear();
-        m_orphans.set_date( Date.DATE_MAX );
 
         if( !entries_finished ) {
             for( Entry entry : m_entries.tailMap( date_last ).values() ) {
                 m_orphans.insert( entry );
-                if( entry.get_date_t() < m_orphans.get_date_t() )
-                    m_orphans.set_date( entry.get_date_t() );
+                m_orphans.set_date( entry.get_date_t() );
             }
         }
+        else
+            m_orphans.set_date( Date.DATE_MAX );
     }
 
     public void add_entry_to_related_chapter( Entry entry ) {
