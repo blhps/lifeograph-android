@@ -83,10 +83,8 @@ public class Lifeograph
             // Diary.diary.m_last_elem = get_cur_elem()->get_id();
 
             if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
-                if( Diary.diary.write() == Result.SUCCESS ) {
+                if( Diary.diary.write() == Result.SUCCESS )
                     showToast( "Diary saved successfully" );
-                    // TODO: try to save backup
-                }
                 else
                     showToast( "Cannot write back changes" );
             }

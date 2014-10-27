@@ -402,8 +402,7 @@ public class Diary extends DiaryElement
     public Result write() {
         // BACKUP THE PREVIOUS VERSION
         File file = new File( m_path );
-        if( file.exists() )
-        {
+        if( file.exists() ) {
             File dir_backups = new File( file.getParent() + "/backups" );
             if( dir_backups.exists() || dir_backups.mkdirs() ) {
                 File file_backup = new File( dir_backups, file.getName() + ".backup" );
