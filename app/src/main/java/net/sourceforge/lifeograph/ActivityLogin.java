@@ -52,6 +52,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         Lifeograph.sContext = this;
         Lifeograph.updateScreenWidth();
+        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
@@ -86,10 +87,23 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
 
         Lifeograph.sContext = this;
 
-        Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_OUT;
+        if( Lifeograph.sLoginStatus == Lifeograph.LoginStatus.LOGGED_IN ) {
+            Lifeograph.logout();
+
+            Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_OUT;
+        }
 
         populate_diaries(); // this also helps with the changes in the diary path
         Log.d( Lifeograph.TAG, "ActivityLogin.onResume()" );
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+
+        Log.d( Lifeograph.TAG, "ActivityLogin.onDestroy()" );
+
+        Lifeograph.handleDiaryEditingActivityDestroyed();
     }
 
     @Override

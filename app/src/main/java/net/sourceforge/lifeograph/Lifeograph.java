@@ -44,7 +44,7 @@ public class Lifeograph
     protected static boolean sFlagUpdateListOnResume = false;
     protected static int sNumberOfDiaryEditingActivities = 0;
 
-    enum LoginStatus { LOGGED_OUT, LOGGED_IN, LOGGED_TIME_OUT }
+    enum LoginStatus { LOGGED_OUT, LOGGED_IN }
     protected static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;
 
     public static void showElem( DiaryElement elem ) {
@@ -73,23 +73,26 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    private static void logout() {
+    protected static void logout() {
         Log.d( Lifeograph.TAG, "Lifeograph.logout()" );
-        // SAVING
-        // sync_entry();
 
-        // Diary.diary.m_last_elem = get_cur_elem()->get_id();
+        if( sLoginStatus == LoginStatus.LOGGED_IN ) {
+            // SAVING
+            // sync_entry();
 
-        if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
-            if( Diary.diary.write() == Result.SUCCESS ) {
-                showToast( "Diary saved successfully" );
-                // TODO: try to save backup
+            // Diary.diary.m_last_elem = get_cur_elem()->get_id();
+
+            if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
+                if( Diary.diary.write() == Result.SUCCESS ) {
+                    showToast( "Diary saved successfully" );
+                    // TODO: try to save backup
+                }
+                else
+                    showToast( "Cannot write back changes" );
             }
             else
-                showToast( "Cannot write back changes" );
+                Log.d( Lifeograph.TAG, "Logged out without saving" );
         }
-        else
-            Log.d( Lifeograph.TAG, "Logged out without saving" );
     }
 
     public static void handleDiaryEditingActivityDestroyed() {
