@@ -142,10 +142,10 @@ public class ActivityEntry extends Activity
     private Button mButtonHighlight = null;
     private ListView mListViewTags = null;
     private Entry m_ptr2entry = null;
-    private ArrayAdapter< String > m_adapter_tags;
+    private ArrayAdapter< String > mAdapterTags;
 
-    boolean m_flag_settextoperation = false;
-    boolean m_flag_entry_changed = false;
+    boolean mFlagSetTextOperation = false;
+    boolean mFlagEntryChanged = false;
     boolean mFlagDismissOnExit = false;
 
     @Override
@@ -178,7 +178,7 @@ public class ActivityEntry extends Activity
             }
 
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                // if( m_flag_settextoperation == false )
+                // if( mFlagSetTextOperation == false )
                 {
                     pos_start = 0;
                     pos_end = mEditText.getText().length();
@@ -193,7 +193,7 @@ public class ActivityEntry extends Activity
                     // if( pos_end == -1 )
                     // pos_end = mEditText.getText().length();
                     // }
-                    m_flag_entry_changed = true;
+                    mFlagEntryChanged = true;
                 }
                 parse_text();
             }
@@ -233,7 +233,7 @@ public class ActivityEntry extends Activity
             }
         } );
 
-        m_adapter_tags =
+        mAdapterTags =
                 new ArrayAdapter< String >( this,
                                             android.R.layout.simple_list_item_multiple_choice,
                                             android.R.id.text1 );
@@ -350,10 +350,10 @@ public class ActivityEntry extends Activity
     }
 
     void sync() {
-        if( m_flag_entry_changed ) {
+        if( mFlagEntryChanged ) {
             m_ptr2entry.m_date_changed = ( int ) ( System.currentTimeMillis() / 1000L );
             m_ptr2entry.m_text = mEditText.getText().toString();
-            m_flag_entry_changed = false;
+            mFlagEntryChanged = false;
         }
     }
 
@@ -375,10 +375,10 @@ public class ActivityEntry extends Activity
         pos_end = entry.get_text().length();
 
         // SETTING TEXT
-        // m_flag_settextoperation = true;
+        // mFlagSetTextOperation = true;
         if( flagParse )
             mEditText.setText( entry.get_text() );
-        // m_flag_settextoperation = false;
+        // mFlagSetTextOperation = false;
 
         // if( flagParse )
         // parse_text();
@@ -465,12 +465,12 @@ public class ActivityEntry extends Activity
             } );
 
             mListViewTags = ( ListView ) findViewById( R.id.listViewTags );
-            mListViewTags.setAdapter( m_adapter_tags );
+            mListViewTags.setAdapter( mAdapterTags );
             mListViewTags.setItemsCanFocus( false );
             mListViewTags.setChoiceMode( ListView.CHOICE_MODE_MULTIPLE );
             mListViewTags.setOnItemClickListener( new AdapterView.OnItemClickListener() {
                 public void onItemClick( AdapterView< ? > parent, View view, int pos, long id ) {
-                    Tag tag = Diary.diary.m_tags.get( m_adapter_tags.getItem( pos ) );
+                    Tag tag = Diary.diary.m_tags.get( mAdapterTags.getItem( pos ) );
                     if( mListViewTags.isItemChecked( pos ) )
                         m_ptr2entry.add_tag( tag );
                     else
@@ -528,13 +528,13 @@ public class ActivityEntry extends Activity
         }
 
         private void update_list( CharSequence filter ) {
-            m_adapter_tags.clear();
+            mAdapterTags.clear();
             int i = 0;
             for( Tag t : Diary.diary.m_tags.values() ) {
                 if( filter != null )
                     if( !t.get_name().contains( filter ) )
                         continue;
-                m_adapter_tags.add( t.get_name() );
+                mAdapterTags.add( t.get_name() );
                 mListViewTags.setItemChecked( i, m_ptr2entry.m_tags.contains( t ) );
                 i++;
             }
@@ -1296,7 +1296,7 @@ public class ActivityEntry extends Activity
         m_spans.add( new ForegroundColorSpan( m_ptr2entry.get_theme().color_heading ) );
         mEditText.getText().setSpan( m_spans.lastElement(), 0, end, 0 );
 
-        if( !m_flag_settextoperation ) {
+        if( !mFlagSetTextOperation ) {
             m_ptr2entry.m_name = mEditText.getText().toString().substring( 0, end );
             // TODO: handle_entry_title_changed( m_ptr2entry );
         }

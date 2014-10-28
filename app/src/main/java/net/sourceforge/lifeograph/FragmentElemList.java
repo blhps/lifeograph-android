@@ -262,8 +262,8 @@ public class FragmentElemList extends ListFragment
     static final CompareListElems compareElems = new CompareListElems();
 
     // HEADER PSEUDO ELEMENT CLASS =================================================================
-    class HeaderElem extends DiaryElement {
-
+    class HeaderElem extends DiaryElement
+    {
         public HeaderElem( int nameRsc ) {
             super( null, Lifeograph.getStr( nameRsc ), ES_VOID );
         }
