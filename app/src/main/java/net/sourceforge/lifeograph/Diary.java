@@ -1109,19 +1109,24 @@ public class Diary extends DiaryElement
                                     ptr2tag.get_own_theme().font = line.substring( 2 );
                                     break;
                                 case 'b': // base color
-                                    ptr2tag.get_own_theme().color_base = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_base =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 't': // text color
-                                    ptr2tag.get_own_theme().color_text = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_text =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'h': // heading color
-                                    ptr2tag.get_own_theme().color_heading = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_heading =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 's': // subheading color
-                                    ptr2tag.get_own_theme().color_subheading = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_subheading =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'l': // highlight color
-                                    ptr2tag.get_own_theme().color_highlight = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_highlight =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                             }
                             break;
@@ -1349,19 +1354,24 @@ public class Diary extends DiaryElement
                                     ptr2tag.get_own_theme().font = line.substring( 2 );
                                     break;
                                 case 'b': // base color
-                                    ptr2tag.get_own_theme().color_base = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_base =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 't': // text color
-                                    ptr2tag.get_own_theme().color_text = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_text =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'h': // heading color
-                                    ptr2tag.get_own_theme().color_heading = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_heading =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 's': // subheading color
-                                    ptr2tag.get_own_theme().color_subheading = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_subheading =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'l': // highlight color
-                                    ptr2tag.get_own_theme().color_highlight = line.substring( 2 );
+                                    ptr2tag.get_own_theme().color_highlight =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                             }
                             break;
@@ -1632,19 +1642,22 @@ public class Diary extends DiaryElement
                                     ptr2theme.font = line.substring( 2 );
                                     break;
                                 case 'b': // base color
-                                    ptr2theme.color_base = line.substring( 2 );
+                                    ptr2theme.color_base = Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 't': // text color
-                                    ptr2theme.color_text = line.substring( 2 );
+                                    ptr2theme.color_text = Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'h': // heading color
-                                    ptr2theme.color_heading = line.substring( 2 );
+                                    ptr2theme.color_heading =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 's': // subheading color
-                                    ptr2theme.color_subheading = line.substring( 2 );
+                                    ptr2theme.color_subheading =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'l': // highlight color
-                                    ptr2theme.color_highlight = line.substring( 2 );
+                                    ptr2theme.color_highlight =
+                                            Theme.parse_color( line.substring( 2 ) );
                                     break;
                             }
                             break;
@@ -1794,12 +1807,16 @@ public class Diary extends DiaryElement
             Theme theme = tag.get_theme();
 
             mFileWriter.append( type ).append( "f" ).append( theme.font ).append( '\n' );
-            mFileWriter.append( type ).append( "b" ).append( theme.color_base ).append( '\n' );
-            mFileWriter.append( type ).append( "t" ).append( theme.color_text ).append( '\n' );
-            mFileWriter.append( type ).append( "h" ).append( theme.color_heading ).append( '\n' );
-            mFileWriter.append( type ).append( "s" )
-                       .append( theme.color_subheading ).append( '\n' );
-            mFileWriter.append( type ).append( "l" ).append( theme.color_highlight ).append( '\n' );
+            mFileWriter.append( type ).append( "b" )
+                       .append( Theme.color2string( theme.color_base ) ).append( '\n' )
+                       .append( type ).append( "t" )
+                       .append( Theme.color2string( theme.color_text ) ).append( '\n' )
+                       .append( type ).append( "h" )
+                       .append( Theme.color2string( theme.color_heading ) ).append( '\n' )
+                       .append( type ).append( "s" )
+                       .append( Theme.color2string( theme.color_subheading ) ).append( '\n' )
+                       .append( type ).append( "l" )
+                       .append( Theme.color2string( theme.color_highlight ) ).append( '\n' );
         }
     }
 

@@ -26,15 +26,15 @@ import android.graphics.Color;
 
 public class Theme {
 
-    public static class System extends Theme {
-        private System()
-        {
+    public static class System extends Theme
+    {
+        private System() {
             //font = ;
-            color_base = "#FFFFFF";
-            color_text = "#000000";
-            color_heading = "#0000FF";
-            color_subheading = "#F066FC";
-            color_highlight = "#FFF955";
+            color_base = Color.WHITE;
+            color_text = Color.BLACK;
+            color_heading = Color.BLUE;
+            color_subheading = Color.parseColor( "#F066FC" );
+            color_highlight = Color.parseColor( "#FFF955" );
         }
 
         @Override
@@ -70,11 +70,11 @@ public class Theme {
     }
 
     protected String font;
-    protected String color_base;
-    protected String color_text;
-    protected String color_heading;
-    protected String color_subheading;
-    protected String color_highlight;
+    protected int color_base;
+    protected int color_text;
+    protected int color_heading;
+    protected int color_subheading;
+    protected int color_highlight;
 
     private static int parse_color_sub( String color, int begin, int end ) {
         int ret_val = 0;

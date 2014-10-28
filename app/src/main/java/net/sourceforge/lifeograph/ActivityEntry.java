@@ -148,10 +148,6 @@ public class ActivityEntry extends Activity
     boolean m_flag_entry_changed = false;
     boolean mFlagDismissOnExit = false;
 
-    private int mColorHeading;
-    private int mColorSubheading;
-    private int mColorHighlight;
-
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
@@ -370,13 +366,9 @@ public class ActivityEntry extends Activity
         mFlagDismissOnExit = false;
         m_ptr2entry = entry;
 
-        // THEMES
-        mColorHeading = Theme.parse_color( entry.get_theme().color_heading );
-        mColorSubheading = Theme.parse_color( entry.get_theme().color_subheading );
-        mColorHighlight = Theme.parse_color( entry.get_theme().color_highlight );
-
-        mEditText.setBackgroundColor( Theme.parse_color( entry.get_theme().color_base ) );
-        mEditText.setTextColor( Theme.parse_color( entry.get_theme().color_text ) );
+        // THEME
+        mEditText.setBackgroundColor( entry.get_theme().color_base );
+        mEditText.setTextColor( entry.get_theme().color_text );
 
         // PARSING
         pos_start = 0;
@@ -1301,7 +1293,7 @@ public class ActivityEntry extends Activity
         // Spanned.SPAN_INTERMEDIATE );
         m_spans.add( new TextAppearanceSpan( this, R.style.headingSpan ) );
         mEditText.getText().setSpan( m_spans.lastElement(), 0, end, Spanned.SPAN_INTERMEDIATE );
-        m_spans.add( new ForegroundColorSpan( mColorHeading ) );
+        m_spans.add( new ForegroundColorSpan( m_ptr2entry.get_theme().color_heading ) );
         mEditText.getText().setSpan( m_spans.lastElement(), 0, end, 0 );
 
         if( !m_flag_settextoperation ) {
@@ -1316,7 +1308,7 @@ public class ActivityEntry extends Activity
             m_spans.add( new TextAppearanceSpan( this, R.style.subheadingSpan ) );
             mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end,
                                          Spanned.SPAN_INTERMEDIATE );
-            m_spans.add( new ForegroundColorSpan( mColorSubheading ) );
+            m_spans.add( new ForegroundColorSpan( m_ptr2entry.get_theme().color_subheading ) );
             mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end, 0 );
         }
     }
@@ -1334,7 +1326,7 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_highlight() {
-        apply_markup( new BackgroundColorSpan( mColorHighlight ) );
+        apply_markup( new BackgroundColorSpan( m_ptr2entry.get_theme().color_highlight ) );
     }
 
     private void apply_markup( Object span ) {
