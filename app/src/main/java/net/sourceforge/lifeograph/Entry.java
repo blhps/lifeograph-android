@@ -283,6 +283,10 @@ public class Entry extends DiaryElement {
         else if( m_tags.add( tag ) ) {
             tag.add_entry( this );
             m_ptr2diary.get_untagged().remove_entry( this );
+
+            if( m_ptr2theme_tag == null && tag.get_has_own_theme() )
+                m_ptr2theme_tag = tag;
+
             return true;
         }
         else
@@ -295,6 +299,18 @@ public class Entry extends DiaryElement {
 
             if( m_tags.isEmpty() )
                 m_ptr2diary.get_untagged().add_entry( this );
+
+            // if this tag was the theme tag, re-adjust the theme tag
+            if( m_ptr2theme_tag == tag ) {
+                for( Tag t : m_tags ) {
+                    if( t.get_has_own_theme() ) {
+                        m_ptr2theme_tag = t;
+                        return true;
+                    }
+                }
+
+                m_ptr2theme_tag = null;
+            }
 
             return true;
         }
@@ -335,21 +351,16 @@ public class Entry extends DiaryElement {
         return( m_ptr2theme_tag != null );
     }
 
-    public void update_theme() // called when a tag gained or lost custom theme
-    {
-        if( m_ptr2theme_tag != null ) // if there already was a theme tag set
-        {
-            if( m_ptr2theme_tag.get_has_own_theme() == false ) // if it is no longer a theme tag
+    public void update_theme() { // called when a tag gained or lost custom theme
+        if( m_ptr2theme_tag != null ) { // if there already was a theme tag set
+            if( !m_ptr2theme_tag.get_has_own_theme() ) // if it is no longer a theme tag
                 m_ptr2theme_tag = null;
         }
 
-        if( m_ptr2theme_tag == null )
-        {
+        if( m_ptr2theme_tag == null ) {
             // check if another tag has its own theme and set it
-            for( Tag tag : m_tags )
-            {
-                if( tag.get_has_own_theme() )
-                {
+            for( Tag tag : m_tags ) {
+                if( tag.get_has_own_theme() ) {
                     m_ptr2theme_tag = tag;
                     break;
                 }

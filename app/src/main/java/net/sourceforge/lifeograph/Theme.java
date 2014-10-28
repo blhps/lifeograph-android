@@ -21,12 +21,20 @@
 
 package net.sourceforge.lifeograph;
 
+
+import android.graphics.Color;
+
 public class Theme {
 
     public static class System extends Theme {
-        public System()
+        private System()
         {
-            // TODO
+            //font = ;
+            color_base = "#FFFFFF";
+            color_text = "#000000";
+            color_heading = "#0000FF";
+            color_subheading = "#F066FC";
+            color_highlight = "#FFF955";
         }
 
         @Override
@@ -45,11 +53,6 @@ public class Theme {
     }
 
     public Theme() {
-        // color_base = new Color();
-        // color_text = new Color();
-        // color_heading = new Color();
-        // color_subheading = new Color();
-        // color_highlight = new Color();
     }
 
     public Theme( Theme theme )
@@ -72,4 +75,38 @@ public class Theme {
     protected String color_heading;
     protected String color_subheading;
     protected String color_highlight;
+
+    private static int parse_color_sub( String color, int begin, int end ) {
+        int ret_val = 0;
+
+        for( int i = begin; i <= end; i++ ) {
+            char c = color.charAt( i );
+            if( c >= '0' && c <= '9' ) {
+                ret_val *= 16;
+                ret_val += ( c - '0' );
+            }
+            else if( c >= 'a' && c <= 'f' ) {
+                ret_val *= 16;
+                ret_val += ( c - 'a' + 10 );
+            }
+            else if( c >= 'A' && c <= 'F' ) {
+                ret_val *= 16;
+                ret_val += ( c - 'A' + 10 );
+            }
+        }
+
+        return ret_val;
+    }
+
+    public static int parse_color( String color ) {
+        return Color.rgb( parse_color_sub( color, 1, 2 ),
+                          parse_color_sub( color, 5, 6 ),
+                          parse_color_sub( color, 9, 10 ) );
+    }
+    public static String color2string( int i_color ) {
+        return String.format( "#%02X%<02X%02X%<02X%02X%<02X",
+                              Color.red( i_color ),
+                              Color.green( i_color ),
+                              Color.blue( i_color ) );
+    }
 }

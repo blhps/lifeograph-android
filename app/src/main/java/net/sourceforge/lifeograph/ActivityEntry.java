@@ -148,6 +148,10 @@ public class ActivityEntry extends Activity
     boolean m_flag_entry_changed = false;
     boolean mFlagDismissOnExit = false;
 
+    private int mColorHeading;
+    private int mColorSubheading;
+    private int mColorHighlight;
+
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
@@ -357,11 +361,6 @@ public class ActivityEntry extends Activity
         }
     }
 
-    /*
-     * protected Dialog onCreateDialog(int id) { Dialog dialog; switch(id) { case 1: // do the
-     * work to define the pause Dialog break; default: dialog = null; } return dialog; }
-     */
-
     void show( Entry entry, boolean flagParse ) {
         if( entry == null ) {
             Log.e( Lifeograph.TAG, "Empty entry passed to show" );
@@ -370,6 +369,14 @@ public class ActivityEntry extends Activity
 
         mFlagDismissOnExit = false;
         m_ptr2entry = entry;
+
+        // THEMES
+        mColorHeading = Theme.parse_color( entry.get_theme().color_heading );
+        mColorSubheading = Theme.parse_color( entry.get_theme().color_subheading );
+        mColorHighlight = Theme.parse_color( entry.get_theme().color_highlight );
+
+        mEditText.setBackgroundColor( Theme.parse_color( entry.get_theme().color_base ) );
+        mEditText.setTextColor( Theme.parse_color( entry.get_theme().color_text ) );
 
         // PARSING
         pos_start = 0;
@@ -441,7 +448,6 @@ public class ActivityEntry extends Activity
                 return true;
         }
     }
-
 
     // TAG DIALOG ==================================================================================
     class DialogTags extends Dialog
@@ -1295,7 +1301,7 @@ public class ActivityEntry extends Activity
         // Spanned.SPAN_INTERMEDIATE );
         m_spans.add( new TextAppearanceSpan( this, R.style.headingSpan ) );
         mEditText.getText().setSpan( m_spans.lastElement(), 0, end, Spanned.SPAN_INTERMEDIATE );
-        m_spans.add( new ForegroundColorSpan( Color.BLUE ) );
+        m_spans.add( new ForegroundColorSpan( mColorHeading ) );
         mEditText.getText().setSpan( m_spans.lastElement(), 0, end, 0 );
 
         if( !m_flag_settextoperation ) {
@@ -1310,7 +1316,7 @@ public class ActivityEntry extends Activity
             m_spans.add( new TextAppearanceSpan( this, R.style.subheadingSpan ) );
             mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end,
                                          Spanned.SPAN_INTERMEDIATE );
-            m_spans.add( new ForegroundColorSpan( Color.MAGENTA ) );
+            m_spans.add( new ForegroundColorSpan( mColorSubheading ) );
             mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end, 0 );
         }
     }
@@ -1328,7 +1334,7 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_highlight() {
-        apply_markup( new BackgroundColorSpan( Color.YELLOW ) );
+        apply_markup( new BackgroundColorSpan( mColorHighlight ) );
     }
 
     private void apply_markup( Object span ) {
