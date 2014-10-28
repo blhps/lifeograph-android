@@ -94,7 +94,7 @@ public class Tag extends DiaryElement {
 
     @Override
     public int get_icon() {
-        return R.drawable.ic_tag;
+        return( get_has_own_theme() ? R.drawable.ic_theme_tag : R.drawable.ic_tag );
     }
 
     @Override
