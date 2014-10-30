@@ -508,8 +508,15 @@ public class ActivityEntry extends Activity
 
         @Override
         public void onStop() {
-            // update tags label:
+            // update tags label
             ActivityEntry.this.invalidateOptionsMenu();
+
+            // update theme
+            mEditText.setBackgroundColor( m_ptr2entry.get_theme().color_base );
+            mEditText.setTextColor( m_ptr2entry.get_theme().color_text );
+            pos_start = 0;
+            pos_end = mEditText.getText().length();
+            parse_text();
         }
 
         private void create_tag() {
