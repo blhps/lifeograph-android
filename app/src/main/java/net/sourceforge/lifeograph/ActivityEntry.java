@@ -51,13 +51,16 @@ import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 import android.view.KeyEvent;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.widget.AdapterView;
+import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -142,7 +145,6 @@ public class ActivityEntry extends Activity
     private Button mButtonHighlight = null;
     private ListView mListViewTags = null;
     private Entry m_ptr2entry = null;
-    private ArrayAdapter< String > mAdapterTags;
 
     boolean mFlagSetTextOperation = false;
     boolean mFlagEntryChanged = false;
@@ -232,11 +234,6 @@ public class ActivityEntry extends Activity
                 toggleFormat( "#" );
             }
         } );
-
-        mAdapterTags =
-                new ArrayAdapter< String >( this,
-                                            android.R.layout.simple_list_item_multiple_choice,
-                                            android.R.id.text1 );
 
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
@@ -444,11 +441,15 @@ public class ActivityEntry extends Activity
     // TAG DIALOG ==================================================================================
     class DialogTags extends Dialog
     {
-        protected EditText editText;
-        protected Button buttonAdd;
-
         public DialogTags( Context context ) {
             super( context );
+
+            mAdapterTags =
+                    new TagListAdapter( context,
+                                        android.R.layout.simple_list_item_multiple_choice,
+                                        android.R.id.text1,
+                                        mTags,
+                                        getLayoutInflater() );
         }
 
         @Override
@@ -467,16 +468,6 @@ public class ActivityEntry extends Activity
             mListViewTags = ( ListView ) findViewById( R.id.listViewTags );
             mListViewTags.setAdapter( mAdapterTags );
             mListViewTags.setItemsCanFocus( false );
-            mListViewTags.setChoiceMode( ListView.CHOICE_MODE_MULTIPLE );
-            mListViewTags.setOnItemClickListener( new AdapterView.OnItemClickListener() {
-                public void onItemClick( AdapterView< ? > parent, View view, int pos, long id ) {
-                    Tag tag = Diary.diary.m_tags.get( mAdapterTags.getItem( pos ) );
-                    if( mListViewTags.isItemChecked( pos ) )
-                        m_ptr2entry.add_tag( tag );
-                    else
-                        m_ptr2entry.remove_tag( tag );
-                }
-            } );
 
             buttonAdd = ( Button ) findViewById( R.id.buttonAddTag );
             buttonAdd.setOnClickListener( new View.OnClickListener() {
@@ -534,12 +525,119 @@ public class ActivityEntry extends Activity
                 if( filter != null )
                     if( !t.get_name().contains( filter ) )
                         continue;
-                mAdapterTags.add( t.get_name() );
-                mListViewTags.setItemChecked( i, m_ptr2entry.m_tags.contains( t ) );
+                mTags.add( t );
                 i++;
             }
         }
 
+        // VARIABLES
+        protected EditText editText;
+        protected Button buttonAdd;
+        private java.util.List< Tag > mTags = new ArrayList< Tag >();
+        private TagListAdapter mAdapterTags;
+    }
+
+    // TAG LIST ADAPTER CLASS ======================================================================
+    class TagListAdapter extends ArrayAdapter< Tag > implements View.OnClickListener
+    {
+        public TagListAdapter( Context context,
+                               int resource,
+                               int textViewResourceId,
+                               java.util.List< Tag > objects,
+                               LayoutInflater inflater ) {
+            super( context, resource, textViewResourceId, objects );
+            mInflater = inflater;
+        }
+
+        @Override
+        public View getView( int position, View convertView, ViewGroup parent ) {
+            ViewHolder holder;
+            final Tag tag = getItem( position );
+
+            if( convertView == null ) {
+                View view = mInflater.inflate( R.layout.list_item_check, parent, false );
+                holder = new ViewHolder( view, DiaryElement.Type.TAG );
+                view.setTag( holder );
+                convertView = view;
+            }
+            else {
+                holder = ( ViewHolder ) convertView.getTag();
+            }
+
+            TextView title = holder.getName();
+            title.setText( tag.get_list_str() );
+
+            holder.getIcon().setImageResource( tag.get_icon() );
+
+            CheckBox checkBox = holder.getCheckBox();
+            checkBox.setChecked( ActivityEntry.this.m_ptr2entry.m_tags.contains( tag ) );
+            checkBox.setTag( tag );
+            checkBox.setOnClickListener( this );
+
+            if( tag.get_has_own_theme() ) {
+                title.setTextColor( tag.get_theme().color_text );
+                title.setBackgroundColor( tag.get_theme().color_base );
+            }
+            else {
+                title.setTextColor( Color.BLACK );
+                title.setBackgroundColor( Color.argb( 0, 0, 0, 0 ) );
+            }
+
+            return convertView;
+        }
+
+        public void onClick( View view ) {
+            CheckBox cb = ( CheckBox ) view;
+            Tag tag = ( Tag ) cb.getTag();
+
+            if( cb.isChecked() )
+                ActivityEntry.this.m_ptr2entry.add_tag( tag );
+            else
+                ActivityEntry.this.m_ptr2entry.remove_tag( tag );
+        }
+
+        private LayoutInflater mInflater;
+
+        // VIEW HOLDER =============================================================================
+        private class ViewHolder
+        {
+            private View mRow;
+            private TextView mTitle = null;
+            private ImageView mIcon = null;
+            private CheckBox mCheckBox = null;
+
+            private DiaryElement.Type mType;
+
+            public ViewHolder( View row, DiaryElement.Type type ) {
+                mRow = row;
+                mType = type;
+            }
+
+            public DiaryElement.Type getType() {
+                return mType;
+            }
+
+            public TextView getName() {
+                if( mTitle == null ) {
+                    mTitle = ( TextView ) mRow.findViewById( R.id.title );
+                }
+                return mTitle;
+            }
+
+            public ImageView getIcon() {
+                if( mIcon == null ) {
+                    mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
+                }
+                return mIcon;
+            }
+
+            public CheckBox getCheckBox() {
+                if( mCheckBox == null ) {
+                    mCheckBox = ( CheckBox ) mRow.findViewById( R.id.checkBox );
+                }
+                return mCheckBox;
+            }
+        }
     }
 
     // FORMATTING BUTTONS ==========================================================================
