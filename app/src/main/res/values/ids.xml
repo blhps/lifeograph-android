@@ -8,4 +8,6 @@
     <item name="todo_progressed" type="id"/>
     <item name="todo_done" type="id"/>
     <item name="todo_canceled" type="id"/>
+
+    <item name="tag" type="id"/>
 </resources>

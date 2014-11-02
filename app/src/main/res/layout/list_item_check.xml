@@ -46,10 +46,18 @@
         android:paddingLeft="2dp"
         android:textSize="16sp" />
 
+    <Button
+        android:id="@+id/buttonTheme"
+        style="?android:attr/buttonStyleSmall"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="@string/theme" />
+
     <CheckBox
         android:id="@+id/checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical" />
+        android:layout_gravity="center_vertical"
+        android:layout_marginLeft="10dp" />
 
 </LinearLayout>

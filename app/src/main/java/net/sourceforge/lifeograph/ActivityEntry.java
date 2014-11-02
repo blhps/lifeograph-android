@@ -486,9 +486,10 @@ public class ActivityEntry extends Activity
                 }
 
                 public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                    update_list( s );
+                    mFilterText = s.toString();
+                    update_list();
                     if( s.length() > 0 )
-                        buttonAdd.setEnabled( Diary.diary.m_tags.get( s.toString() ) == null );
+                        buttonAdd.setEnabled( Diary.diary.m_tags.get( mFilterText ) == null );
                     else
                         buttonAdd.setEnabled( false );
                 }
@@ -503,7 +504,7 @@ public class ActivityEntry extends Activity
                 }
             } );
 
-            update_list( null );
+            update_list();
         }
 
         @Override
@@ -525,124 +526,165 @@ public class ActivityEntry extends Activity
             editText.setText( "" );
         }
 
-        private void update_list( CharSequence filter ) {
+        private void update_list() {
             mAdapterTags.clear();
-            int i = 0;
             for( Tag t : Diary.diary.m_tags.values() ) {
-                if( filter != null )
-                    if( !t.get_name().contains( filter ) )
+                if( ! mFilterText.isEmpty() )
+                    if( !t.get_name().contains( mFilterText ) )
                         continue;
                 mTags.add( t );
-                i++;
             }
         }
 
         // VARIABLES
         protected EditText editText;
+        protected String mFilterText = "";
         protected Button buttonAdd;
         private java.util.List< Tag > mTags = new ArrayList< Tag >();
         private TagListAdapter mAdapterTags;
-    }
 
-    // TAG LIST ADAPTER CLASS ======================================================================
-    class TagListAdapter extends ArrayAdapter< Tag > implements View.OnClickListener
-    {
-        public TagListAdapter( Context context,
-                               int resource,
-                               int textViewResourceId,
-                               java.util.List< Tag > objects,
-                               LayoutInflater inflater ) {
-            super( context, resource, textViewResourceId, objects );
-            mInflater = inflater;
-        }
-
-        @Override
-        public View getView( int position, View convertView, ViewGroup parent ) {
-            ViewHolder holder;
-            final Tag tag = getItem( position );
-
-            if( convertView == null ) {
-                View view = mInflater.inflate( R.layout.list_item_check, parent, false );
-                holder = new ViewHolder( view, DiaryElement.Type.TAG );
-                view.setTag( holder );
-                convertView = view;
-            }
-            else {
-                holder = ( ViewHolder ) convertView.getTag();
-            }
-
-            TextView title = holder.getName();
-            title.setText( tag.get_list_str() );
-
-            holder.getIcon().setImageResource( tag.get_icon() );
-
-            CheckBox checkBox = holder.getCheckBox();
-            checkBox.setChecked( ActivityEntry.this.m_ptr2entry.m_tags.contains( tag ) );
-            checkBox.setTag( tag );
-            checkBox.setOnClickListener( this );
-
-            if( tag.get_has_own_theme() ) {
-                title.setTextColor( tag.get_theme().color_text );
-                title.setBackgroundColor( tag.get_theme().color_base );
-            }
-            else {
-                title.setTextColor( Color.BLACK );
-                title.setBackgroundColor( Color.argb( 0, 0, 0, 0 ) );
-            }
-
-            return convertView;
-        }
-
-        public void onClick( View view ) {
-            CheckBox cb = ( CheckBox ) view;
-            Tag tag = ( Tag ) cb.getTag();
-
-            if( cb.isChecked() )
-                ActivityEntry.this.m_ptr2entry.add_tag( tag );
-            else
-                ActivityEntry.this.m_ptr2entry.remove_tag( tag );
-        }
-
-        private LayoutInflater mInflater;
-
-        // VIEW HOLDER =============================================================================
-        private class ViewHolder
+        // TAG LIST ADAPTER CLASS ==================================================================
+        class TagListAdapter extends ArrayAdapter< Tag > implements View.OnClickListener
         {
-            private View mRow;
-            private TextView mTitle = null;
-            private ImageView mIcon = null;
-            private CheckBox mCheckBox = null;
-
-            private DiaryElement.Type mType;
-
-            public ViewHolder( View row, DiaryElement.Type type ) {
-                mRow = row;
-                mType = type;
+            public TagListAdapter( Context context,
+                                   int resource,
+                                   int textViewResourceId,
+                                   java.util.List< Tag > objects,
+                                   LayoutInflater inflater ) {
+                super( context, resource, textViewResourceId, objects );
+                mInflater = inflater;
             }
 
-            public DiaryElement.Type getType() {
-                return mType;
-            }
+            @Override
+            public View getView( int position, View convertView, ViewGroup parent ) {
+                ViewHolder holder;
+                final Tag tag = getItem( position );
 
-            public TextView getName() {
-                if( mTitle == null ) {
-                    mTitle = ( TextView ) mRow.findViewById( R.id.title );
+                if( convertView == null ) {
+                    View view = mInflater.inflate( R.layout.list_item_check, parent, false );
+                    holder = new ViewHolder( view, DiaryElement.Type.TAG );
+                    view.setTag( holder );
+                    convertView = view;
                 }
-                return mTitle;
+                else {
+                    holder = ( ViewHolder ) convertView.getTag();
+                }
+
+                TextView title = holder.getName();
+                title.setText( tag.get_list_str() );
+
+                holder.getIcon().setImageResource( tag.get_icon() );
+
+                Button themeButton = holder.getThemeButton();
+                themeButton.setTag( tag );
+                themeButton.setOnClickListener( this );
+                if( tag.get_has_own_theme() &&
+                    ActivityEntry.this.m_ptr2entry.m_tags.contains( tag ) ) {
+                    themeButton.setVisibility( View.VISIBLE );
+                    if( ActivityEntry.this.m_ptr2entry.get_theme_tag() != tag )
+                        themeButton.setEnabled( true );
+                    else
+                        themeButton.setEnabled( false );
+                }
+                else
+                    themeButton.setVisibility( View.INVISIBLE );
+
+                CheckBox checkBox = holder.getCheckBox();
+                checkBox.setChecked( ActivityEntry.this.m_ptr2entry.m_tags.contains( tag ) );
+                checkBox.setTag( R.id.tag, tag );
+                checkBox.setOnClickListener( this );
+
+                if( tag.get_has_own_theme() ) {
+                    title.setTextColor( tag.get_theme().color_text );
+                    title.setBackgroundColor( tag.get_theme().color_base );
+                }
+                else {
+                    title.setTextColor( Color.BLACK );
+                    title.setBackgroundColor( Color.argb( 0, 0, 0, 0 ) );
+                }
+
+                return convertView;
             }
 
-            public ImageView getIcon() {
-                if( mIcon == null ) {
-                    mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
+            public void onClick( View view ) {
+                switch( view.getId() ) {
+                    case R.id.checkBox: {
+                        CheckBox cb = ( CheckBox ) view;
+                        Tag tag = ( Tag ) cb.getTag( R.id.tag );
+
+                        if( cb.isChecked() ) {
+                            ActivityEntry.this.m_ptr2entry.add_tag( tag );
+                        }
+                        else {
+                            ActivityEntry.this.m_ptr2entry.remove_tag( tag );
+                        }
+
+                        DialogTags.this.update_list();
+                        break;
+                    }
+                    case R.id.buttonTheme: {
+                        Button button = ( Button ) view;
+                        Tag tag = ( Tag ) button.getTag();
+
+                        if( tag.get_has_own_theme() ) {
+                            ActivityEntry.this.m_ptr2entry.set_theme_tag( tag );
+                        }
+
+                        DialogTags.this.update_list();
+                        break;
+                    }
                 }
-                return mIcon;
             }
 
-            public CheckBox getCheckBox() {
-                if( mCheckBox == null ) {
-                    mCheckBox = ( CheckBox ) mRow.findViewById( R.id.checkBox );
+            private LayoutInflater mInflater;
+
+            // VIEW HOLDER =========================================================================
+            private class ViewHolder
+            {
+                private View mRow;
+                private TextView mTitle = null;
+                private ImageView mIcon = null;
+                private CheckBox mCheckBox = null;
+                private Button mThemeButton = null;
+
+                private DiaryElement.Type mType;
+
+                public ViewHolder( View row, DiaryElement.Type type ) {
+                    mRow = row;
+                    mType = type;
                 }
-                return mCheckBox;
+
+                public DiaryElement.Type getType() {
+                    return mType;
+                }
+
+                public TextView getName() {
+                    if( mTitle == null ) {
+                        mTitle = ( TextView ) mRow.findViewById( R.id.title );
+                    }
+                    return mTitle;
+                }
+
+                public ImageView getIcon() {
+                    if( mIcon == null ) {
+                        mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
+                    }
+                    return mIcon;
+                }
+
+                public CheckBox getCheckBox() {
+                    if( mCheckBox == null ) {
+                        mCheckBox = ( CheckBox ) mRow.findViewById( R.id.checkBox );
+                    }
+                    return mCheckBox;
+                }
+
+                public Button getThemeButton() {
+                    if( mThemeButton == null ) {
+                        mThemeButton = ( Button ) mRow.findViewById( R.id.buttonTheme );
+                    }
+                    return mThemeButton;
+                }
             }
         }
     }

@@ -20,6 +20,7 @@
     <string name="entry">Entry</string>
     <string name="tag_ctg">Tag Category</string>
     <string name="tag">Tag</string>
+    <string name="theme">Theme</string>
     <string name="untagged">Untagged</string>
     <string name="chapter_ctg">Chapter Category</string>
     <string name="chapter">Dated Chapter</string>
