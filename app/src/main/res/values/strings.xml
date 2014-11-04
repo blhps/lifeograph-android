@@ -38,7 +38,9 @@
     <string name="create_topic">Create numbered chapter</string>
     <string name="create_group">Create free chapter</string>
 
+    <string name="rename_chapter_ctg">Rename Chapter Category</string>
     <string name="rename_chapter">Rename Chapter</string>
+    <string name="rename_tag_ctg">Rename Tag Category</string>
     <string name="rename_tag">Rename Tag</string>
 
     <string name="entries">Entries</string>

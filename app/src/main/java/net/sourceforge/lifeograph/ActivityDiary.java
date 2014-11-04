@@ -43,10 +43,11 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.PopupMenu;
 
 public class ActivityDiary extends Activity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
-        DialogCalendar.Listener, FragmentElemList.ListOperations
+        DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -253,60 +254,36 @@ public class ActivityDiary extends Activity
 //                import_messages();
 //                return true;
         }
-        return super.onOptionsItemSelected(item);
+        return super.onOptionsItemSelected( item );
     }
 
-    // InquireListener INTERFACE METHODS
-    public void onInquireAction( int id, String text ) {
-        switch( id ) {
-            case R.string.create_chapter: {
-                Chapter chapter = Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( text,
-                                                                                    mDateLast );
-                Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( chapter );
-                break;
-            }
-            case R.string.create_topic: {
-                Chapter chapter = Diary.diary.m_topics.create_chapter_ordinal( text );
-                Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( chapter );
-                break;
-            }
-            case R.string.create_group: {
-                Chapter chapter = Diary.diary.m_groups.create_chapter_ordinal( text );
-                Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( chapter );
-                break;
-            }
-        }
-    }
-    public boolean onInquireTextChanged( int id, String s ) {
-        switch( id ) {
-            default:
+    // POPUP MENU LISTENER
+    public boolean onMenuItemClick( MenuItem item ) {
+        switch( item.getItemId() ) {
+            case R.id.rename_tag_ctg:
+                renameCtg( R.string.rename_tag_ctg );
                 return true;
+            case R.id.dismiss_tag_ctg:
+                Log.d( Lifeograph.TAG, "dismiss tag ctg" );
+                return true;
+            case R.id.rename_chapter_ctg:
+            default:
+                return false;
         }
     }
 
-    // DiaryManager INTERFACE METHODS
-    public void addFragment( FragmentElemList fragment ) {
-        mDiaryFragments.add( fragment );
-    }
-    public void removeFragment( FragmentElemList fragment ) {
-        mDiaryFragments.remove( fragment );
-    }
-    public DiaryElement getElement() {
-        return Diary.diary;
-    }
+    public void CreateCtgMenu( View v ) {
+        mElemMenu = ( DiaryElement ) v.getTag();
 
-    // DialogCalendar.Listener INTERFACE METHODS
-    public Activity getActivity() {
-        return this;
-    }
+        PopupMenu popup = new PopupMenu( getActivity(), v );
+        popup.setOnMenuItemClickListener( this );
 
-    // FragmentElemList.ListOperations INTERFACE METHODS
-    public void updateList() {
-        for( FragmentElemList fragment : mDiaryFragments )
-            fragment.updateList();
+        if( mElemMenu.get_type() == DiaryElement.Type.TAG_CTG )
+            popup.inflate( R.menu.menu_tag_ctg );
+        else
+            popup.inflate( R.menu.menu_chapter_ctg );
+
+        popup.show();
     }
 
     void goToToday() {
@@ -321,22 +298,40 @@ public class ActivityDiary extends Activity
     public void createChapter( long date ) {
         mDateLast = date;
 
-        DialogInquireText dlg = new DialogInquireText( this, R.string.create_chapter,
-                Lifeograph.getStr( R.string.new_chapter ), R.string.create, this );
+        DialogInquireText dlg = new DialogInquireText( this,
+                                                       R.string.create_chapter,
+                                                       Lifeograph.getStr( R.string.new_chapter ),
+                                                       R.string.create,
+                                                       this );
         dlg.show();
     }
     void createTopic() {
-        DialogInquireText dlg = new DialogInquireText( this, R.string.create_topic,
-                Lifeograph.getStr( R.string.new_chapter ), R.string.create, this );
+        DialogInquireText dlg = new DialogInquireText( this,
+                                                       R.string.create_topic,
+                                                       Lifeograph.getStr( R.string.new_chapter ),
+                                                       R.string.create,
+                                                       this );
         dlg.show();
     }
     void createGroup() {
-        DialogInquireText dlg = new DialogInquireText( this, R.string.create_group,
-                Lifeograph.getStr( R.string.new_chapter ), R.string.create, this );
+        DialogInquireText dlg = new DialogInquireText( this,
+                                                       R.string.create_group,
+                                                       Lifeograph.getStr( R.string.new_chapter ),
+                                                       R.string.create,
+                                                       this );
         dlg.show();
     }
 
-//  TODO WILL BE IMPLEMENTED IN 0.4
+    private void renameCtg( int id ) {
+        DialogInquireText dlg = new DialogInquireText( this,
+                                                       id,
+                                                       mElemMenu.m_name,
+                                                       R.string.rename,
+                                                       this );
+        dlg.show();
+    }
+
+    //  TODO WILL BE IMPLEMENTED IN 0.5
 //    protected void import_messages() {
 //        Cursor cursor =
 //                getContentResolver().query( Uri.parse( "content://sms/inbox" ), null, null, null,
@@ -364,6 +359,71 @@ public class ActivityDiary extends Activity
 //
 //    }
 
+    // InquireListener INTERFACE METHODS
+    public void onInquireAction( int id, String text ) {
+        switch( id ) {
+            case R.string.create_chapter: {
+                Chapter chapter = Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( text,
+                                                                                    mDateLast );
+                Diary.diary.update_entries_in_chapters();
+                Lifeograph.showElem( chapter );
+                break;
+            }
+            case R.string.create_topic: {
+                Chapter chapter = Diary.diary.m_topics.create_chapter_ordinal( text );
+                Diary.diary.update_entries_in_chapters();
+                Lifeograph.showElem( chapter );
+                break;
+            }
+            case R.string.create_group: {
+                Chapter chapter = Diary.diary.m_groups.create_chapter_ordinal( text );
+                Diary.diary.update_entries_in_chapters();
+                Lifeograph.showElem( chapter );
+                break;
+            }
+            case R.string.rename_tag_ctg: {
+                Diary.diary.rename_tag_ctg( ( Tag.Category ) mElemMenu, text );
+                updateList();
+                break;
+            }
+            case R.string.rename_chapter_ctg: {
+                Diary.diary.rename_chapter_ctg( ( Chapter.Category ) mElemMenu, text );
+                updateList();
+                break;
+            }
+        }
+    }
+    public boolean onInquireTextChanged( int id, String s ) {
+        switch( id ) {
+            case R.string.rename_tag_ctg:
+                return !Diary.diary.m_tag_categories.containsKey( s );
+            default:
+                return true;
+        }
+    }
+
+    // DiaryManager INTERFACE METHODS
+    public void addFragment( FragmentElemList fragment ) {
+        mDiaryFragments.add( fragment );
+    }
+    public void removeFragment( FragmentElemList fragment ) {
+        mDiaryFragments.remove( fragment );
+    }
+    public DiaryElement getElement() {
+        return Diary.diary;
+    }
+
+    // DialogCalendar.Listener INTERFACE METHODS
+    public Activity getActivity() {
+        return this;
+    }
+
+    // FragmentElemList.ListOperations INTERFACE METHODS
+    public void updateList() {
+        for( FragmentElemList fragment : mDiaryFragments )
+            fragment.updateList();
+    }
+
     // VARIABLES ===================================================================================
     //private LayoutInflater mInflater;
     private ActionBar mActionBar = null;
@@ -374,6 +434,7 @@ public class ActivityDiary extends Activity
     private DrawerLayout mDrawerLayout = null;
 
     private long mDateLast;
+    private DiaryElement mElemMenu;
 
     // TABS ADAPTER ================================================================================
     /* partly based on Support Library FragmentPagerAdapter implementation */

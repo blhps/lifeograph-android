@@ -31,7 +31,6 @@
     <RelativeLayout
         android:layout_width="48dp"
         android:layout_height="48dp"
-        android:layout_marginLeft="3dp"
         android:layout_gravity="center_vertical" >
 
         <ImageView

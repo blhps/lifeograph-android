@@ -55,10 +55,14 @@
         android:textStyle="bold"
         android:text="@string/placeholder" />
 
-    <!--Spinner
-        android:id="@+id/spinner"
-        android:layout_width="30dp"
-        android:layout_height="match_parent"
-        android:layout_marginRight="10dp" /-->
+    <ImageButton
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/icon_options"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_action_overflow"
+        android:contentDescription="@string/icon"
+        style="@android:style/Widget.Holo.ActionButton"
+        android:onClick="CreateCtgMenu" />
 
 </LinearLayout>

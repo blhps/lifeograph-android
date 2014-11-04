@@ -380,6 +380,7 @@ public class FragmentElemList extends ListFragment
                             handleCollapse( elem );
                         }
                     } );
+                    holder.getIconOptions().setTag( tc );
                     break;
                 }
                 case HEADER_CHAPTER_CTG: {
@@ -393,6 +394,7 @@ public class FragmentElemList extends ListFragment
                             handleCollapse( elem );
                         }
                     } );
+                    holder.getIconOptions().setTag( cc );
                     break;
                 }
                 case ELEMENT: {
@@ -426,6 +428,7 @@ public class FragmentElemList extends ListFragment
             private ImageView mIcon2 = null;
 
             private ImageButton mIconCollapse = null;
+            private ImageButton mIconOptions = null;
 
             private DiaryElement.LayoutType mLayoutType;
 
@@ -443,38 +446,45 @@ public class FragmentElemList extends ListFragment
             }
 
             public TextView getName() {
-                if( null == mTitle ) {
+                if( mTitle == null ) {
                     mTitle = ( TextView ) mRow.findViewById( R.id.title );
                 }
                 return mTitle;
             }
 
             public TextView getDetail() {
-                if( null == mDetail ) {
+                if( mDetail == null ) {
                     mDetail = ( TextView ) mRow.findViewById( R.id.detail );
                 }
                 return mDetail;
             }
 
             public ImageView getIcon() {
-                if( null == mIcon ) {
+                if( mIcon == null ) {
                     mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
                 }
                 return mIcon;
             }
 
             public ImageView getIcon2() {
-                if( null == mIcon2 ) {
+                if( mIcon2 == null ) {
                     mIcon2 = ( ImageView ) mRow.findViewById( R.id.icon2 );
                 }
                 return mIcon2;
             }
 
             public ImageButton getIconCollapse() {
-                if( null == mIconCollapse ) {
+                if( mIconCollapse == null ) {
                     mIconCollapse = ( ImageButton ) mRow.findViewById( R.id.icon_collapse );
                 }
                 return mIconCollapse;
+            }
+
+            public ImageButton getIconOptions() {
+                if( mIconOptions == null ) {
+                    mIconOptions = ( ImageButton ) mRow.findViewById( R.id.icon_options );
+                }
+                return mIconOptions;
             }
         }
     }

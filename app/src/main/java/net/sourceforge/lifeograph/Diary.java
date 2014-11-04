@@ -705,7 +705,15 @@ public class Diary extends DiaryElement
         return new_category;
     }
 
+    // in C++ this method is in PoolTagCategories class which does not exist in Java
+    public boolean rename_tag_ctg( Tag.Category ctg, String new_name ) {
+        m_tag_categories.remove( ctg.m_name );
+        ctg.m_name = new_name;
+        return( m_tag_categories.put( new_name, ctg ) != null );
+    }
+
     // public void dismiss_tag_ctg( CategoryTags ctg ) { }
+
     public Tag create_tag( String name, Tag.Category ctg ) {
         Tag tag = m_tags.get( name );
         if( tag != null ) {
