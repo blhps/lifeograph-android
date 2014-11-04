@@ -264,7 +264,10 @@ public class ActivityDiary extends Activity
                 renameCtg( R.string.rename_tag_ctg );
                 return true;
             case R.id.dismiss_tag_ctg:
-                Log.d( Lifeograph.TAG, "dismiss tag ctg" );
+                dismissTagCtg( false );
+                return true;
+            case R.id.dismiss_tag_ctg_and_tags:
+                dismissTagCtg( true );
                 return true;
             case R.id.rename_chapter_ctg:
             default:
@@ -322,7 +325,7 @@ public class ActivityDiary extends Activity
         dlg.show();
     }
 
-    private void renameCtg( int id ) {
+    void renameCtg( int id ) {
         DialogInquireText dlg = new DialogInquireText( this,
                                                        id,
                                                        mElemMenu.m_name,
@@ -330,6 +333,24 @@ public class ActivityDiary extends Activity
                                                        this );
         dlg.show();
     }
+
+    void dismissTagCtg( final boolean tags_too ) {
+        Lifeograph.showConfirmationPrompt( tags_too ?
+                                                   R.string.tag_ctg_dismiss_with_entries_confirm :
+                                                   R.string.tag_ctg_dismiss_confirm,
+                                           R.string.dismiss,
+                                           new DialogInterface.OnClickListener()
+                                           {
+                                               public void onClick( DialogInterface dialog,
+                                                                    int id ) {
+                                                   Diary.diary.dismiss_tag_ctg(
+                                                           ( Tag.Category ) mElemMenu, tags_too );
+                                                   updateList();
+                                               }
+                                           },
+                                           null );
+    }
+
 
     //  TODO WILL BE IMPLEMENTED IN 0.5
 //    protected void import_messages() {

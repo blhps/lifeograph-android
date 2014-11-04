@@ -43,6 +43,8 @@
     <string name="rename_tag_ctg">Rename Tag Category</string>
     <string name="rename_tag">Rename Tag</string>
 
+    <string name="dismiss_ctg_and_tags">Dismiss with Tags</string>
+
     <string name="entries">Entries</string>
     <string name="tags">Tags</string>
     <string name="chapters">Chapters</string>
@@ -60,6 +62,10 @@
     <string name="export_plain_text">Export Plain Text</string>
     <string name="entry_dismiss_confirm">Are you sure you want to dismiss the current entry?</string>
     <string name="tag_dismiss_confirm">Are you sure you want to dismiss the current tag?</string>
+    <string name="tag_ctg_dismiss_confirm">Are you sure you want to dismiss the selected
+        tag category?</string>
+    <string name="tag_ctg_dismiss_with_entries_confirm">Are you sure you want to dismiss the
+        selected tag category along with the tags in it?</string>
     <string name="chapter_dismiss_confirm">Are you sure you want to dismiss the current chapter?</string>
     <string name="storage_not_available">External storage is not available or read-only</string>
     <string name="filter_saved">Filter state will be saved with the diary</string>

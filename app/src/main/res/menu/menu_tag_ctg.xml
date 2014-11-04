@@ -27,5 +27,7 @@ along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
           android:title="@string/rename" />
     <item android:id="@+id/dismiss_tag_ctg"
           android:title="@string/dismiss" />
+    <item android:id="@+id/dismiss_tag_ctg_and_tags"
+          android:title="@string/dismiss_ctg_and_tags" />
 
 </menu>

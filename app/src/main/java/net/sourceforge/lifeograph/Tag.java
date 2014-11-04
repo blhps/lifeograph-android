@@ -112,7 +112,11 @@ public class Tag extends DiaryElement {
     }
 
     public void set_category( Category ctg ) {
-        // TODO...
+        if( m_ptr2category != null )
+            m_ptr2category.remove( this );
+        if( ctg != null )
+            ctg.add( this );
+        m_ptr2category = ctg;
     }
 
     public void add_entry( Entry entry ) {

@@ -712,7 +712,21 @@ public class Diary extends DiaryElement
         return( m_tag_categories.put( new_name, ctg ) != null );
     }
 
-    // public void dismiss_tag_ctg( CategoryTags ctg ) { }
+    public void dismiss_tag_ctg( Tag.Category ctg, boolean flag_dismiss_contained ) {
+        // fix or dismiss contained tags
+        // we work on copies to prevent ConcurrentModificationException
+        if( flag_dismiss_contained ) {
+            for( Tag tag : ctg.mTags.toArray( new Tag[ ctg.mTags.size() ] ) )
+                dismiss_tag( tag );
+        }
+        else {
+            for( Tag tag : ctg.mTags.toArray( new Tag[ ctg.mTags.size() ] ) )
+                tag.set_category( null );
+        }
+
+        // remove from the list
+        m_tag_categories.remove( ctg.m_name );
+    }
 
     public Tag create_tag( String name, Tag.Category ctg ) {
         Tag tag = m_tags.get( name );
@@ -726,8 +740,8 @@ public class Diary extends DiaryElement
     }
 
     public void dismiss_tag( Tag tag ) {
-        // remove from entries:
-        for( Entry e : tag.mEntries )
+        // remove from entries: (work on a copy to prevent ConcurrentModificationException)
+        for( Entry e : tag.mEntries.toArray( new Entry[ tag.mEntries.size() ] ) )
             e.remove_tag( tag );
 
         // remove from category if any:
