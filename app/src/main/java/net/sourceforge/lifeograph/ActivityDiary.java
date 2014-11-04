@@ -270,6 +270,11 @@ public class ActivityDiary extends Activity
                 dismissTagCtg( true );
                 return true;
             case R.id.rename_chapter_ctg:
+                renameCtg( R.string.rename_chapter_ctg );
+                return true;
+            case R.id.dismiss_chapter_ctg:
+                dismissChapterCtg();
+                return true;
             default:
                 return false;
         }
@@ -350,7 +355,20 @@ public class ActivityDiary extends Activity
                                            },
                                            null );
     }
-
+    void dismissChapterCtg() {
+        Lifeograph.showConfirmationPrompt( R.string.chapter_ctg_dismiss_confirm,
+                                           R.string.dismiss,
+                                           new DialogInterface.OnClickListener()
+                                           {
+                                               public void onClick( DialogInterface dialog,
+                                                                    int id ) {
+                                                   Diary.diary.dismiss_chapter_ctg(
+                                                           ( Chapter.Category ) mElemMenu );
+                                                   updateList();
+                                               }
+                                           },
+                                           null );
+    }
 
     //  TODO WILL BE IMPLEMENTED IN 0.5
 //    protected void import_messages() {
@@ -418,6 +436,8 @@ public class ActivityDiary extends Activity
         switch( id ) {
             case R.string.rename_tag_ctg:
                 return !Diary.diary.m_tag_categories.containsKey( s );
+            case R.string.rename_chapter_ctg:
+                return !Diary.diary.m_chapter_categories.containsKey( s );
             default:
                 return true;
         }

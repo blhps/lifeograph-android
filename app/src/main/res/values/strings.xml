@@ -67,6 +67,8 @@
     <string name="tag_ctg_dismiss_with_entries_confirm">Are you sure you want to dismiss the
         selected tag category along with the tags in it?</string>
     <string name="chapter_dismiss_confirm">Are you sure you want to dismiss the current chapter?</string>
+    <string name="chapter_ctg_dismiss_confirm">Are you sure you want to dismiss the selected
+        chapter category?</string>
     <string name="storage_not_available">External storage is not available or read-only</string>
     <string name="filter_saved">Filter state will be saved with the diary</string>
     <string name="resorting_to_read_only">File is not writable, opening read-only..</string>

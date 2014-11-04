@@ -778,12 +778,24 @@ public class Diary extends DiaryElement
     }
 
     public void dismiss_chapter_ctg( Chapter.Category ctg ) {
-        // TODO
+        if( m_chapter_categories.size() < 2 )
+            return;
+
+        if( ctg == m_ptr2chapter_ctg_cur )
+            m_ptr2chapter_ctg_cur = m_chapter_categories.firstEntry().getValue();
+
+        m_chapter_categories.remove( ctg.m_name );
     }
 
-    public boolean rename_chapter_ctg( Chapter.Category ctg, String name ) {
-        // TODO
-        return false;
+    public boolean rename_chapter_ctg( Chapter.Category ctg, String new_name ) {
+        if( m_chapter_categories.containsKey( new_name ) )
+            return false;
+
+        m_chapter_categories.remove( ctg.m_name );
+        ctg.m_name = new_name;
+        m_chapter_categories.put( new_name, ctg );
+
+        return true;
     }
 
     public void dismiss_chapter( Chapter chapter ) {
