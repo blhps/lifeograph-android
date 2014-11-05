@@ -47,7 +47,8 @@
             android:ems="10"
             android:hint="@string/filter_tags"
             android:inputType="textFilter"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:imeOptions="flagNoExtractUi" />
 
         <Button
             android:id="@+id/buttonAddTag"

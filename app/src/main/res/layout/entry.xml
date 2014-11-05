@@ -95,7 +95,8 @@
             android:layout_height="0dp"
             android:layout_weight=".99"
             android:gravity="top"
-            android:inputType="textMultiLine" >
+            android:inputType="textMultiLine"
+            android:imeOptions="flagNoExtractUi" >
             <requestFocus />
         </EditText>
 
