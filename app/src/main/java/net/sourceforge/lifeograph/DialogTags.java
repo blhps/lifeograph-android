@@ -41,6 +41,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
+import java.util.List;
 
 
 class DialogTags extends Dialog
@@ -62,7 +63,7 @@ class DialogTags extends Dialog
         super.onCreate( savedInstanceState );
 
         setContentView( R.layout.dialog_tags );
-        setTitle( "Edit Entry Tags" );
+        setTitle( R.string.edit_tags );
         setCancelable( true );
         setOnDismissListener( new android.content.DialogInterface.OnDismissListener() {
             public void onDismiss( android.content.DialogInterface dialog ) {
@@ -84,11 +85,9 @@ class DialogTags extends Dialog
 
         editText = ( EditText ) findViewById( R.id.editTextTag );
         editText.addTextChangedListener( new TextWatcher() {
-            public void afterTextChanged( Editable s ) {
-            }
+            public void afterTextChanged( Editable s ) { }
 
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
-            }
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) { }
 
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
                 mFilterText = s.toString();
@@ -119,7 +118,7 @@ class DialogTags extends Dialog
 
     private void create_tag() {
         Tag tag = Diary.diary.create_tag( editText.getText().toString(), null );
-        mHost.getEntry().add_tag( tag );
+        mHost.addTag( tag );
         editText.setText( "" );
     }
 
@@ -175,8 +174,8 @@ class DialogTags extends Dialog
             Button themeButton = holder.getThemeButton();
             themeButton.setTag( tag );
             themeButton.setOnClickListener( this );
-            if( tag.get_has_own_theme() &&
-                    mHost.getEntry().m_tags.contains( tag ) ) {
+            if( mHost.getEntry() != null && tag.get_has_own_theme() &&
+                mHost.getTags().contains( tag ) ) {
                 themeButton.setVisibility( View.VISIBLE );
                 if( mHost.getEntry().get_theme_tag() != tag )
                     themeButton.setEnabled( true );
@@ -184,10 +183,10 @@ class DialogTags extends Dialog
                     themeButton.setEnabled( false );
             }
             else
-                themeButton.setVisibility( View.INVISIBLE );
+                themeButton.setVisibility( View.GONE );
 
             CheckBox checkBox = holder.getCheckBox();
-            checkBox.setChecked( mHost.getEntry().m_tags.contains( tag ) );
+            checkBox.setChecked( mHost.getTags().contains( tag ) );
             checkBox.setTag( R.id.tag, tag );
             checkBox.setOnClickListener( this );
 
@@ -210,10 +209,10 @@ class DialogTags extends Dialog
                     Tag tag = ( Tag ) cb.getTag( R.id.tag );
 
                     if( cb.isChecked() ) {
-                        mHost.getEntry().add_tag( tag );
+                        mHost.addTag( tag );
                     }
                     else {
-                        mHost.getEntry().remove_tag( tag );
+                        mHost.removeTag( tag );
                     }
 
                     DialogTags.this.update_list();
@@ -289,6 +288,9 @@ class DialogTags extends Dialog
     {
         void onDialogTabsClose();
         Entry getEntry();
+        List< Tag > getTags();
+        void addTag( Tag t );
+        void removeTag( Tag t );
     }
 
     protected DialogTagsHost mHost;

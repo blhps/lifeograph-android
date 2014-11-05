@@ -22,6 +22,7 @@
 package net.sourceforge.lifeograph;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.ActionBar;
 import android.app.Activity;
@@ -451,9 +452,17 @@ public class ActivityEntry extends Activity
         pos_end = mEditText.getText().length();
         parse_text();
     }
-
     public Entry getEntry() {
         return m_ptr2entry;
+    }
+    public List< Tag > getTags() {
+        return m_ptr2entry.m_tags;
+    }
+    public void addTag( Tag t ) {
+        m_ptr2entry.add_tag( t );
+    }
+    public void removeTag( Tag t ) {
+        m_ptr2entry.remove_tag( t );
     }
 
     // FORMATTING BUTTONS ==========================================================================

@@ -47,7 +47,8 @@ import android.widget.PopupMenu;
 
 public class ActivityDiary extends Activity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
-        DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener
+        DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener,
+        DialogTags.DialogTagsHost
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -260,6 +261,9 @@ public class ActivityDiary extends Activity
     // POPUP MENU LISTENER
     public boolean onMenuItemClick( MenuItem item ) {
         switch( item.getItemId() ) {
+            case R.id.edit_tag_ctg:
+                ( new DialogTags( this, this ) ).show();
+                return true;
             case R.id.rename_tag_ctg:
                 renameCtg( R.string.rename_tag_ctg );
                 return true;
@@ -480,6 +484,23 @@ public class ActivityDiary extends Activity
     public void updateList() {
         for( FragmentElemList fragment : mDiaryFragments )
             fragment.updateList();
+    }
+
+    // TAG DIALOG HOST METHODS =====================================================================
+    public void onDialogTabsClose() {
+        updateList();
+    }
+    public Entry getEntry() {
+        return null;
+    }
+    public List< Tag > getTags() {
+        return( ( Tag.Category ) mElemMenu ).mTags;
+    }
+    public void addTag( Tag t ) {
+        t.set_category( ( Tag.Category ) mElemMenu );
+    }
+    public void removeTag( Tag t ) {
+        t.set_category( null );
     }
 
     // VARIABLES ===================================================================================
