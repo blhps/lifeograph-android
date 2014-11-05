@@ -237,6 +237,27 @@ public class ActivityEntry extends Activity
             }
         } );
 
+        EditText editTextSearch = ( EditText ) findViewById( ( R.id.editTextSearch ) );
+        editTextSearch.setText( Diary.diary.get_search_text() );
+        editTextSearch.addTextChangedListener( new TextWatcher()
+        {
+            public void afterTextChanged( Editable s ) { }
+
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) { }
+
+            public void onTextChanged( CharSequence s, int start, int before, int count ) {
+                if( mInitialized ) {
+                    Diary.diary.set_search_text( s.toString().toLowerCase() );
+                    pos_start = 0;
+                    pos_end = mEditText.getText().length();
+                    parse_text();
+                }
+                else
+                    mInitialized = true;
+            }
+            private boolean mInitialized = false;
+        } );
+
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
     }

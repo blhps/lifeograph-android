@@ -73,15 +73,14 @@ public class FragmentFilter extends Fragment
             public void beforeTextChanged( CharSequence s, int start, int count, int after ) { }
 
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                if( mInitialized ) {
+                if( mTextInitialized ) {
                     handleSearchTextChanged( s.toString() );
                     mButtonSearchTextClear.setVisibility(
                             s.length() > 0 ? View.VISIBLE : View.INVISIBLE );
                 }
                 else
-                    mInitialized = true;
+                    mTextInitialized = true;
             }
-            private boolean mInitialized = false;
         } );
         mButtonSearchTextClear.setOnClickListener( new View.OnClickListener()
         {
@@ -162,6 +161,14 @@ public class FragmentFilter extends Fragment
             mListOperations = ( FragmentElemList.ListOperations ) activity;
         else
             throw new ClassCastException( activity.toString() + " must implement ListOperations" );
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+
+        mTextInitialized = false;
+        mEditSearch.setText( Diary.diary.get_search_text() );
     }
 
     @Override
@@ -255,4 +262,6 @@ public class FragmentFilter extends Fragment
 
     private FragmentElemList.ListOperations mListOperations;
 
+
+    protected boolean mTextInitialized = false;
 }

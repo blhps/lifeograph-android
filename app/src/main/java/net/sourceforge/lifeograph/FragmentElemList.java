@@ -109,7 +109,6 @@ public class FragmentElemList extends ListFragment
     }
 
     public void updateList() {
-        Log.d( Lifeograph.TAG, "FragmentElemList.updateList()" );
 
         mAdapterEntries.clear();
         mElems.clear();
@@ -118,6 +117,7 @@ public class FragmentElemList extends ListFragment
             case DIARY:
                 // ALL ENTRIES
                 if( mCurTabIndex == 0 ) {
+                    Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES" );
                     for( Entry e : Diary.diary.m_entries.values() ) {
                         if( !e.get_filtered_out() )
                             mElems.add( e );
@@ -128,6 +128,7 @@ public class FragmentElemList extends ListFragment
 
                 // CHAPTERS
                 else if( mCurTabIndex == 1 ) {
+                    Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::CHAPTERS" );
                     // FREE CHAPTERS
                     if( !Diary.diary.m_groups.mMap.isEmpty() ) {
                         mElems.add( new HeaderElem( R.string.free_chapters ) );
@@ -167,6 +168,7 @@ public class FragmentElemList extends ListFragment
 
                 // TAGS
                 else if( mCurTabIndex == 2 ) {
+                    Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::TAGS" );
                     // ROOT TAGS
                     for( Tag t : Diary.diary.m_tags.values() ) {
                         if( t.get_category() == null )
@@ -190,6 +192,7 @@ public class FragmentElemList extends ListFragment
                 break;
             case TAG:
             case UNTAGGED: {
+                Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::TAG ENTRIES" );
                 Tag t = ( Tag ) mDiaryManager.getElement();
                 for( Entry e : t.mEntries ) {
                     if( !e.get_filtered_out() )
@@ -202,6 +205,7 @@ public class FragmentElemList extends ListFragment
             case CHAPTER:
             case TOPIC:
             case GROUP: {
+                Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::CHAPTER ENTRIES" );
                 Chapter c = ( Chapter ) mDiaryManager.getElement();
                 for( Entry e : c.mEntries ) {
                     if( !e.get_filtered_out() )

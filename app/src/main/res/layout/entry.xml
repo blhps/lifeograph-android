@@ -69,21 +69,27 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:textColor="@android:color/white"
-                    android:text="@string/placeholder"
-                    style="@android:style/Widget.Holo.ActionButton"/>
+                    style="@android:style/Widget.Holo.ActionButton"
+                    android:text="@string/placeholder"/>
 
                 <Button
                     android:id="@+id/buttonHighlight"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/placeholder"
-                    style="@android:style/Widget.Holo.ActionButton"/>
+                    style="@android:style/Widget.Holo.ActionButton" />
 
-                <!-- Button
-                    android:id="@+id/button1"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:text="@string/checkbox_icon" /-->
+                <EditText
+                    android:id="@+id/editTextSearch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="match_parent"
+                    android:hint="@string/search_hint"
+                    android:singleLine="true"
+                    android:imeOptions="flagNoExtractUi"
+                    android:background="@color/list_section"
+                    android:paddingLeft="5dp"
+                    android:paddingRight="5dp"
+                    android:layout_margin="5dp" />
 
             </LinearLayout>
 

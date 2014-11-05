@@ -44,11 +44,12 @@
         android:layout_height="wrap_content" >
 
         <EditText
+            android:id="@+id/editTextSearch"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/editTextSearch"
             android:hint="@string/search_hint"
-            android:singleLine="true" />
+            android:singleLine="true"
+            android:imeOptions="flagNoExtractUi" />
 
         <Button
             android:id="@+id/buttonClearText"
