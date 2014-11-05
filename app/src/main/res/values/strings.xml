@@ -31,12 +31,14 @@
     <string name="new_diary">New Diary</string>
     <string name="new_chapter">New Chapter</string>
     <string name="new_tag">New Tag</string>
+    <string name="new_tag_ctg">New Tag Category</string>
 
     <string name="create_diary">Enter a name for the new diary</string>
     <string name="create_entry">Create entry</string>
     <string name="create_chapter">Create dated chapter</string>
     <string name="create_topic">Create numbered chapter</string>
     <string name="create_group">Create free chapter</string>
+    <string name="create_tag_ctg">Create tag category</string>
 
     <string name="rename_chapter_ctg">Rename Chapter Category</string>
     <string name="rename_chapter">Rename Chapter</string>

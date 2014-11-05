@@ -174,9 +174,9 @@ public class Diary extends DiaryElement
         return true; // reserved for bounds checking
     }
 
-    public String create_unique_chapter_ctg_name( String name0 ) {
+    public String create_unique_name_for_map( TreeMap map, String name0 ) {
         String name = name0;
-        for( int i = 1; m_chapter_categories.get( name ) != null; i++ ) {
+        for( int i = 1; map.containsKey( name ); i++ ) {
             name = name0 + " " + i;
         }
 
@@ -690,13 +690,13 @@ public class Diary extends DiaryElement
         return m_untagged;
     }
 
-    public Tag.Category create_tag_ctg() {
-        String name = create_unique_chapter_ctg_name( "New category" );
-        Tag.Category new_category = new Tag.Category( this, name );
-        m_tag_categories.put( name, new_category );
-
-        return new_category;
-    }
+//    public Tag.Category create_tag_ctg() {
+//        String name = create_unique_chapter_ctg_name( "New category" );
+//        Tag.Category new_category = new Tag.Category( this, name );
+//        m_tag_categories.put( name, new_category );
+//
+//        return new_category;
+//    }
 
     public Tag.Category create_tag_ctg( String name ) {
         Tag.Category new_category = new Tag.Category( this, name );

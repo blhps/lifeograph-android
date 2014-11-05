@@ -329,6 +329,17 @@ public class ActivityDiary extends Activity
                                                        this );
         dlg.show();
     }
+    void createTagCtg() {
+        DialogInquireText dlg = new DialogInquireText(
+                this,
+                R.string.create_tag_ctg,
+                Diary.diary.create_unique_name_for_map(
+                        Diary.diary.m_tag_categories,
+                        Lifeograph.getStr( R.string.new_tag_ctg ) ),
+                R.string.create,
+                this );
+        dlg.show();
+    }
 
     void renameCtg( int id ) {
         DialogInquireText dlg = new DialogInquireText( this,
@@ -420,6 +431,11 @@ public class ActivityDiary extends Activity
                 Lifeograph.showElem( chapter );
                 break;
             }
+            case R.string.create_tag_ctg: {
+                Diary.diary.create_tag_ctg( text );
+                updateList();
+                break;
+            }
             case R.string.rename_tag_ctg: {
                 Diary.diary.rename_tag_ctg( ( Tag.Category ) mElemMenu, text );
                 updateList();
@@ -434,6 +450,7 @@ public class ActivityDiary extends Activity
     }
     public boolean onInquireTextChanged( int id, String s ) {
         switch( id ) {
+            case R.string.create_tag_ctg:
             case R.string.rename_tag_ctg:
                 return !Diary.diary.m_tag_categories.containsKey( s );
             case R.string.rename_chapter_ctg:
@@ -468,7 +485,7 @@ public class ActivityDiary extends Activity
     // VARIABLES ===================================================================================
     //private LayoutInflater mInflater;
     private ActionBar mActionBar = null;
-    private ViewPager mPager;
+    protected ViewPager mPager;
     private TabsAdapter mTabsAdapter;
     private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
 
