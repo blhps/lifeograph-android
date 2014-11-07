@@ -30,6 +30,7 @@ import java.io.InputStreamReader;
 import java.util.TreeMap;
 
 import android.content.res.AssetManager;
+import android.graphics.Color;
 import android.util.Log;
 
 enum Result {
@@ -76,6 +77,30 @@ public class Diary extends DiaryElement
         m_ptr2chapter_ctg_cur = create_chapter_ctg( "Default" );
 
         add_today(); // must come after m_ptr2chapter_ctg_cur is set
+
+        Theme theme = Diary.diary.create_tag( "calm", null ).get_own_theme();
+        theme.font = "Sans 11";
+        theme.color_base = Color.parseColor( "#D1E188" );
+        theme.color_text = Color.parseColor( "#001100" );
+        theme.color_heading =  Color.parseColor( "#D24242" );
+        theme.color_subheading = Color.parseColor( "#793E4C" );
+        theme.color_highlight = Color.parseColor( "#8CCB4D" );
+
+        theme = Diary.diary.create_tag( "lovely", null ).get_own_theme();
+        theme.font = "Sans 11";
+        theme.color_base = Color.parseColor( "#F9F0F0" );
+        theme.color_text = Color.parseColor( "#330909" );
+        theme.color_heading =  Color.parseColor( "#E13333" );
+        theme.color_subheading = Color.parseColor( "#AA4747" );
+        theme.color_highlight = Color.parseColor( "#E69595" );
+
+        theme = Diary.diary.create_tag( "dark", null ).get_own_theme();
+        theme.font = "Sans 11";
+        theme.color_base = Color.parseColor( "#111111" );
+        theme.color_text = Color.parseColor( "#BBBBBB" );
+        theme.color_heading =  Color.parseColor( "#3874AC" );
+        theme.color_subheading = Color.parseColor( "#23538B" );
+        theme.color_highlight = Color.parseColor( "#173353" );
 
         return Result.SUCCESS;
     }
@@ -1618,7 +1643,7 @@ public class Diary extends DiaryElement
         boolean flag_first_paragraph = false;
 
         // add tag for system theme
-        create_tag( "[ - 0 - ]", null ).get_own_theme();
+        create_tag( "[ - 0 - ]", null ).create_own_theme_duplicating( Theme.System.get() );
 
         // TAG DEFINITIONS & CHAPTERS
         try {

@@ -139,14 +139,11 @@ public class Tag extends DiaryElement {
     }
 
     public Theme get_own_theme() {
-        if( m_theme == null )
-        {
-            m_theme = new Theme( Theme.System.get() );
+        if( m_theme == null ) {
+            m_theme = new Theme();
 
             for( Entry entry : mEntries )
-            {
                 entry.update_theme();
-            }
         }
 
         return m_theme;
@@ -156,9 +153,7 @@ public class Tag extends DiaryElement {
         m_theme = new Theme( theme );
 
         for( Entry entry : mEntries )
-        {
             entry.update_theme();
-        }
 
         return m_theme;
     }

@@ -29,7 +29,7 @@ public class Theme {
     public static class System extends Theme
     {
         private System() {
-            //font = ;
+            font = "";
             color_base = Color.WHITE;
             color_text = Color.BLACK;
             color_heading = Color.BLUE;
@@ -49,10 +49,11 @@ public class Theme {
             return system;
         }
 
-        protected static System system = null;
+        private static System system = null;
     }
 
     public Theme() {
+        font = "";
     }
 
     public Theme( Theme theme )
