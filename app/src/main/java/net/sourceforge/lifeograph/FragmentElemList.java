@@ -384,7 +384,10 @@ public class FragmentElemList extends ListFragment
                             handleCollapse( elem );
                         }
                     } );
-                    holder.getIconOptions().setTag( tc );
+                    if( Diary.diary.is_read_only() )
+                        holder.getIconOptions().setVisibility( View.INVISIBLE );
+                    else
+                        holder.getIconOptions().setTag( tc );
                     break;
                 }
                 case HEADER_CHAPTER_CTG: {
@@ -398,7 +401,10 @@ public class FragmentElemList extends ListFragment
                             handleCollapse( elem );
                         }
                     } );
-                    holder.getIconOptions().setTag( cc );
+                    if( Diary.diary.is_read_only() )
+                        holder.getIconOptions().setVisibility( View.INVISIBLE );
+                    else
+                        holder.getIconOptions().setTag( cc );
                     break;
                 }
                 case ELEMENT: {
