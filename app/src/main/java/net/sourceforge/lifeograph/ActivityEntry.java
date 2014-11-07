@@ -184,8 +184,6 @@ public class ActivityEntry extends Activity
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
                 // if( mFlagSetTextOperation == false )
                 {
-                    pos_start = 0;
-                    pos_end = mEditText.getText().length();
                     // if( start > 0 ) {
                     // pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
                     // if( pos_start == -1 )
@@ -199,7 +197,7 @@ public class ActivityEntry extends Activity
                     // }
                     mFlagEntryChanged = true;
                 }
-                parse_text();
+                parse_text( 0, mEditText.getText().length() );
             }
         } );
 
@@ -248,9 +246,7 @@ public class ActivityEntry extends Activity
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
                 if( mInitialized ) {
                     Diary.diary.set_search_text( s.toString().toLowerCase() );
-                    pos_start = 0;
-                    pos_end = mEditText.getText().length();
-                    parse_text();
+                    parse_text( 0, mEditText.getText().length() );
                 }
                 else
                     mInitialized = true;
@@ -469,9 +465,7 @@ public class ActivityEntry extends Activity
         // update theme
         mEditText.setBackgroundColor( m_ptr2entry.get_theme().color_base );
         mEditText.setTextColor( m_ptr2entry.get_theme().color_text );
-        pos_start = 0;
-        pos_end = mEditText.getText().length();
-        parse_text();
+        parse_text( 0, mEditText.getText().length() );
     }
     public Entry getEntry() {
         return m_ptr2entry;
@@ -614,19 +608,6 @@ public class ActivityEntry extends Activity
         }
     }
 
-    /*
-     * XXX ANOTHER APPROACH --NOT VERY LIKELY TO YIELD ANY USEFUL RESULT THOUGH... public void
-     * ttttt( char char_markup, int pos ) { char char_current; int word_start = -1; int
-     * para_start = -1; int word_end = -1; int para_end = -1; int mark_start = -1; int mark_end
-     * = -1;
-     * 
-     * boolean last_is_space = false; boolean nonspace_found = false; for( int i = pos; i!=0;
-     * i-- ) { char_current = mEditText.getText().charAt( i ); switch( char_current ) { case
-     * '\n': para_start = i; break; case ' ': case '\t': if( nonspace_found ) word_start = i +
-     * 1; last_is_space = true; break; default: if( char_current == char_markup ) { if( !
-     * last_is_space ) mark_start = i; } else last_is_space = false; } } }
-     */
-
     // TODO: to be improved to handle corner cases
     private int find_markup( char char_markup, int pos, int step, int limit ) {
         char char_current;
@@ -676,8 +657,8 @@ public class ActivityEntry extends Activity
             new java.util.Vector< java.lang.Object >();
 
     private void reset( int start, int end ) {
-        // pos_start = start;
-        // pos_end = end;
+        pos_start = start;
+        pos_end = end;
         pos_current = pos_word = pos_regular = start;
 
         // TODO: only remove spans within the parsing boundaries...
@@ -705,10 +686,10 @@ public class ActivityEntry extends Activity
         }
     }
 
-    void parse_text( /* int start, int end */ ) {
+    void parse_text( int start, int end ) {
         // everything below should go to Parser when there is one (and there is nothing above
         // as of yet...)
-        reset( pos_start, pos_end );
+        reset( start, end );
 
         // this part is different than in c++
         String search_text = Diary.diary.get_search_text();
