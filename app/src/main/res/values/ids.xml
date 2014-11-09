@@ -5,6 +5,8 @@
     <item name="add_group" type="id"/>
     <item name="add_tag_ctg" type="id"/>
 
+    <item name="visit_link" type="id"/>
+
     <item name="todo_not" type="id"/>
     <item name="todo_open" type="id"/>
     <item name="todo_progressed" type="id"/>

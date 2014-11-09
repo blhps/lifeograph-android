@@ -27,9 +27,7 @@ import java.util.List;
 import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
-import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -37,7 +35,6 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
-import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -51,19 +48,12 @@ import android.text.style.StyleSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
-import android.view.KeyEvent;
-import android.view.LayoutInflater;
+import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.CheckBox;
 import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
-import android.widget.TextView;
 
 public class ActivityEntry extends Activity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
@@ -167,10 +157,9 @@ public class ActivityEntry extends Activity
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
 
         mEditText = ( EditText ) findViewById( R.id.editTextEntry );
-        // mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
+        //mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
 
-        // set custom font as the default font may lack the necessary chars such as check
-        // marks:
+        // set custom font as the default font may lack the necessary chars such as check marks:
         Typeface font = Typeface.createFromAsset( getAssets(), "OpenSans-Regular.ttf" );
         mEditText.setTypeface( font );
 
@@ -198,6 +187,38 @@ public class ActivityEntry extends Activity
                     mFlagEntryChanged = true;
                 }
                 parse_text( 0, mEditText.getText().length() );
+            }
+        } );
+
+        mEditText.setCustomSelectionActionModeCallback( new ActionMode.Callback()
+        {
+
+            public boolean onPrepareActionMode( ActionMode mode, Menu menu ) {
+                return true;
+            }
+
+            public void onDestroyActionMode( ActionMode mode ) {
+            }
+
+            public boolean onCreateActionMode( ActionMode mode, Menu menu ) {
+                menu.add( Menu.NONE, R.id.visit_link, Menu.FIRST, R.string.go );
+                return true;
+            }
+
+            public boolean onActionItemClicked( ActionMode mode, MenuItem item ) {
+                switch( item.getItemId() ) {
+                    case R.id.visit_link:
+                        final Editable buffer = mEditText.getEditableText();
+                        final ClickableSpan[] link = buffer.getSpans( mEditText.getSelectionStart(),
+                                                                      mEditText.getSelectionEnd(),
+                                                                      ClickableSpan.class );
+                        if( link.length > 0 )
+                            link[ 0 ].onClick( mEditText );
+                        else
+                            Log.i( Lifeograph.TAG, "No link in the selection" );
+                        return true;
+                }
+                return false;
             }
         } );
 
@@ -653,8 +674,36 @@ public class ActivityEntry extends Activity
     private java.util.List< Integer > lookingfor = new ArrayList< Integer >();
     private java.util.List< ParSel > m_appliers = new ArrayList< ParSel >();
     private ParSel m_applier_nl;
-    private java.util.Vector< java.lang.Object > m_spans =
-            new java.util.Vector< java.lang.Object >();
+
+    // SPANS =======================================================================================
+    private class LinkDate extends ClickableSpan
+    {
+        public LinkDate( long date ) {
+            mDate = date;
+        }
+
+        @Override
+        public void onClick( View widget ) {
+            Entry entry = Diary.diary.get_entry( mDate );
+            // TODO...
+            Log.d( Lifeograph.TAG, "date link clicked: " + Date.format_string( mDate ) );
+        }
+
+        private final long mDate;
+    }
+
+    private class SpanRegion
+    {
+        public SpanRegion( Object o, int s, int e ) {
+            span = o;
+            start = s;
+            end = e;
+        }
+        public Object span;
+        public int start;
+        public int end;
+    }
+    private java.util.Vector< SpanRegion > mSpans = new java.util.Vector< SpanRegion >();
 
     private void reset( int start, int end ) {
         pos_start = start;
@@ -663,9 +712,9 @@ public class ActivityEntry extends Activity
 
         // TODO: only remove spans within the parsing boundaries...
         // mEditText.getText().clearSpans(); <-- problematic!!
-        for( java.lang.Object span : m_spans )
-            mEditText.getText().removeSpan( span );
-        m_spans.clear();
+        for( SpanRegion span : mSpans )
+            mEditText.getText().removeSpan( span.span );
+        mSpans.clear();
 
         char_last = CC_NONE;
         char_req = CC_ANY;
@@ -813,7 +862,7 @@ public class ActivityEntry extends Activity
                                   | LF_MORE | LF_TAB, LF_EOT, ParSel.NULL, CC_NEWLINE );
     }
 
-    // SELECT PARSING FUNCTION =====================================================================
+    // PARSING HELPER FUNCTIONS ====================================================================
     private void selectParsingFunc( ParSel ps ) {
         switch( ps ) {
             case TR_SUBH:
@@ -883,6 +932,11 @@ public class ActivityEntry extends Activity
             default:
                 break;
         }
+    }
+
+    private void addSpan( Object span, int start, int end, int styles ) {
+        mSpans.add( new SpanRegion( span, start, end ) );
+        mEditText.getText().setSpan( span, start, end, styles );
     }
 
     // PROCESS CHAR ================================================================================
@@ -1211,30 +1265,23 @@ public class ActivityEntry extends Activity
         if( end == -1 )
             end = mEditText.getText().length();
 
-        // m_spans.add( new StyleSpan( Typeface.BOLD ) );
-        // mEditText.getText().setSpan( m_spans.lastElement(), 0, end, 0 );
-        // m_spans.add( new RelativeSizeSpan( 1.4f ) );
-        // mEditText.getText().setSpan( m_spans.lastElement(), 0, end,
-        // Spanned.SPAN_INTERMEDIATE );
-        m_spans.add( new TextAppearanceSpan( this, R.style.headingSpan ) );
-        mEditText.getText().setSpan( m_spans.lastElement(), 0, end, Spanned.SPAN_INTERMEDIATE );
-        m_spans.add( new ForegroundColorSpan( m_ptr2entry.get_theme().color_heading ) );
-        mEditText.getText().setSpan( m_spans.lastElement(), 0, end, 0 );
+        addSpan( new TextAppearanceSpan( this, R.style.headingSpan ), 0, end,
+                 Spanned.SPAN_INTERMEDIATE );
+        addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_heading ), 0, end, 0 );
 
         if( !mFlagSetTextOperation ) {
             m_ptr2entry.m_name = mEditText.getText().toString().substring( 0, end );
-            // TODO: handle_entry_title_changed( m_ptr2entry );
+            // handle_entry_title_changed() will not be used here in Android
         }
     }
 
     private void apply_subheading() {
         int end = mEditText.getText().toString().indexOf( '\n', pos_start );
         if( end != -1 ) {
-            m_spans.add( new TextAppearanceSpan( this, R.style.subheadingSpan ) );
-            mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end,
-                                         Spanned.SPAN_INTERMEDIATE );
-            m_spans.add( new ForegroundColorSpan( m_ptr2entry.get_theme().color_subheading ) );
-            mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end, 0 );
+            addSpan( new TextAppearanceSpan( this, R.style.subheadingSpan ), pos_start, end,
+                     Spanned.SPAN_INTERMEDIATE );
+            addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_subheading ),
+                     pos_start, end, 0 );
         }
     }
 
@@ -1255,36 +1302,32 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_markup( Object span ) {
-        m_spans.add( new TextAppearanceSpan( this, R.style.markupSpan ) );
-        mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_start + 1, 0 );
+        addSpan( new TextAppearanceSpan( this, R.style.markupSpan ), pos_start, pos_start + 1, 0 );
 
-        m_spans.add( span );
-        mEditText.getText().setSpan( span, pos_start + 1, pos_current, 0 );
+        addSpan( span, pos_start + 1, pos_current, 0 );
 
-        m_spans.add( new TextAppearanceSpan( this, R.style.markupSpan ) );
-        mEditText.getText().setSpan( m_spans.lastElement(), pos_current, pos_current + 1, 0 );
+        addSpan( new TextAppearanceSpan( this, R.style.markupSpan ),
+                 pos_current, pos_current + 1, 0 );
     }
 
     private void apply_comment() {
-        m_spans.add( new TextAppearanceSpan( this, R.style.commentSpan ) );
-        mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_current + 1,
-                                     Spanned.SPAN_INTERMEDIATE );
-        m_spans.add( new ForegroundColorSpan( Color.GRAY ) );
-        mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_current + 1,
-                                     Spanned.SPAN_INTERMEDIATE );
-        m_spans.add( new SuperscriptSpan() );
-        mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_current + 1, 0 );
+        addSpan( new TextAppearanceSpan( this, R.style.commentSpan ), pos_start, pos_current + 1,
+                 Spanned.SPAN_INTERMEDIATE );
+
+        addSpan( new ForegroundColorSpan( Color.GRAY ), pos_start, pos_current + 1,
+                 Spanned.SPAN_INTERMEDIATE );
+
+        addSpan( new SuperscriptSpan(), pos_start, pos_current + 1, 0 );
     }
 
     private void apply_ignore() {
-        int end = pos_current;
-        if( mEditText.getText().charAt( end ) != '\n' )
-            end = mEditText.getText().toString().indexOf( '\n' ) - 1;
-        if( end < 0 )
-            end = mEditText.getText().length() - 1;
         // TODO:
-        // m_spans.add( new BackgroundColorSpan( Color.GRAY ) );
-        // mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end, 0 );
+//        int end = pos_current;
+//        if( mEditText.getText().charAt( end ) != '\n' )
+//            end = mEditText.getText().toString().indexOf( '\n' ) - 1;
+//        if( end < 0 )
+//            end = mEditText.getText().length() - 1;
+//        addSpan( new BackgroundColorSpan( colorBG ), pos_start, end, 0 );
     }
 
     private void apply_link() {
@@ -1301,17 +1344,16 @@ public class ActivityEntry extends Activity
         // }
         // else
         {
-            m_spans.add( new ClickableSpan() {
-                String uri = word_last;
-
-                @Override
-                public void onClick( View widget ) {
-                    Intent browserIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( uri ) );
-                    startActivity( browserIntent );
-                }
-            } );
-
-            mEditText.getText().setSpan( m_spans.lastElement(), pos_start, pos_current, 0 );
+//            addSpan( new ClickableSpan()
+//            {
+//                String uri = word_last;
+//
+//                @Override
+//                public void onClick( View widget ) {
+//                    Intent browserIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( uri ) );
+//                    startActivity( browserIntent );
+//                }
+//            }, pos_start, pos_current, 0 );
         }
     }
 
@@ -1340,24 +1382,12 @@ public class ActivityEntry extends Activity
             // }
             // else
             {
-                m_spans.add( new ClickableSpan() {
-                    // Entry entry = ActivityLogin.diary.get( date_last );
-
-                    @Override
-                    public void onClick( View widget ) {
-                        // TODO...
-
-                    }
-                } );
-
-                mEditText.getText().setSpan( m_spans.lastElement(), pos_start, end, 0 );
+                addSpan( new LinkDate( date_last.m_date ), pos_start, end, 0 );
             }
         }
     }
 
     private void apply_match() {
-        m_spans.add( new BackgroundColorSpan( Color.GREEN ) );
-        mEditText.getText().setSpan( m_spans.lastElement(), pos_search, pos_current+1,
-                                     Spanned.SPAN_INTERMEDIATE );
+        addSpan( new BackgroundColorSpan( Color.GREEN ), pos_search, pos_current + 1, 0 );
     }
 }
