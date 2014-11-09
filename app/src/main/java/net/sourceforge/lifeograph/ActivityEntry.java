@@ -569,42 +569,33 @@ public class ActivityEntry extends Activity
                 // TODO place_cursor( get_iter_at_offset( pos_end ) );
             }
         }
-        else // no selection case
-        {
+        else { // no selection case
             iter_start = iter_end = mEditText.getSelectionStart();
-            if( iter_start == 0 )
-                return;
-            iter_start--;
-            char ch_st = mEditText.getText().charAt( iter_start );
-            if( ch_st == '\n' || ch_st == '\t' || ch_st == ' ' ) {
-                if( iter_start == mEditText.length() - 1 )
+            if( isSpace( iter_start ) || iter_start == mEditText.length() - 1 ) {
+                if( startsLine( iter_start ) )
                     return;
-                ch_st = mEditText.getText().charAt( ++iter_start );
-                if( ch_st == '\n' || ch_st == '\t' || ch_st == ' ' )
-                    return;
+                iter_start--;
+                if( hasSpan( iter_start, 'm' ).getType() == 'm' )
+                    iter_start--;
             }
-            if( is_marked_up_region( markup.charAt( 0 ), iter_start ) ) {
-                // TODO (if necessary) m_flag_ongoingoperation = true;
-
-                // iter_start.backward_to_tag_toggle( tag );
-                iter_start = mEditText.getText().toString().lastIndexOf( markup, iter_start );
-                if( iter_start == -1 )
+            else if( hasSpan( iter_start, 'm' ).getType() == 'm' ) {
+                if( startsLine( iter_start ) )
                     return;
-                // backspace( iter_start );
-                mEditText.getText().delete( iter_start, iter_start + 1 );
-
-                // iter_start.backward_to_tag_toggle( tag );
-                iter_end = mEditText.getText().toString().indexOf( markup, iter_start );
-                if( iter_end == -1 )
-                    return;
-
-                // TODO (if necessary) m_flag_ongoingoperation = false;
-
-                // backspace( ++iter_end );
-                mEditText.getText().delete( iter_end, iter_end + 1 );
+                iter_start--;
+                if( isSpace( iter_start ) )
+                    iter_start += 2;
             }
-            // nested tags are not supported atm:
-            else if( mEditText.getText().getSpans( iter_start, iter_end, StyleSpan.class ).length == 0 ) {
+
+            Object theSpan = hasSpan( iter_start, markup.charAt( 0 ) );
+
+            // if already has the markup remove it
+            if( ( ( AdvancedSpan ) theSpan ).getType() == markup.charAt( 0 ) ) {
+                iter_start = mEditText.getText().getSpanStart( theSpan );
+                iter_end = mEditText.getText().getSpanEnd( theSpan );
+                mEditText.getText().delete( iter_start - 1, iter_start );
+                mEditText.getText().delete( iter_end - 1, iter_end );
+            }
+            else if( ( ( AdvancedSpan ) theSpan ).getType() == ' ' ) {
                 // find word boundaries:
                 while( iter_start > 0 ) {
                     char c = mEditText.getText().charAt( iter_start );
@@ -676,6 +667,65 @@ public class ActivityEntry extends Activity
     private ParSel m_applier_nl;
 
     // SPANS =======================================================================================
+    private interface AdvancedSpan
+    {
+        char getType();
+    }
+    private class SpanOther implements  AdvancedSpan
+    {
+        public char getType() {
+            return 'O';
+        }
+    }
+    private class SpanNull implements  AdvancedSpan
+    {
+        public char getType() {
+            return ' ';
+        }
+    }
+    private class SpanBold extends StyleSpan implements AdvancedSpan
+    {
+        public SpanBold() {
+            super( Typeface.BOLD );
+        }
+        public char getType() {
+            return '*';
+        }
+    }
+    private class SpanItalic extends StyleSpan implements AdvancedSpan
+    {
+        public SpanItalic() {
+            super( Typeface.ITALIC );
+        }
+        public char getType() {
+            return '_';
+        }
+    }
+    private class SpanHighlight extends BackgroundColorSpan implements AdvancedSpan
+    {
+        public SpanHighlight() {
+            super( m_ptr2entry.get_theme().color_highlight );
+        }
+        public char getType() {
+            return '#';
+        }
+    }
+    private class SpanStrikethrough extends StrikethroughSpan implements AdvancedSpan
+    {
+        public char getType() {
+            return '=';
+        }
+    }
+    private class SpanMarkup extends ForegroundColorSpan implements AdvancedSpan
+    {
+        public SpanMarkup() {
+            super( Color.GRAY );
+        }
+        public char getType() {
+            return 'm';
+        }
+    }
+
     private class LinkDate extends ClickableSpan
     {
         public LinkDate( long date ) {
@@ -939,6 +989,37 @@ public class ActivityEntry extends Activity
         mEditText.getText().setSpan( span, start, end, styles );
     }
 
+    private boolean isSpace( int offset ) {
+        switch( mEditText.getText().charAt( offset ) ) {
+            case '\n':
+            case '\t':
+            case ' ':
+                return true;
+            default:
+                return false;
+        }
+    }
+    private boolean startsLine( int offset ) {
+        if( offset == 0 )
+            return true;
+
+        return( mEditText.getText().charAt( offset - 1 ) == '\n' );
+    }
+    private AdvancedSpan hasSpan( int offset, char type ) {
+        Object[] spans = mEditText.getText().getSpans( offset, offset, Object.class );
+        boolean hasNoOtherSpan = true;
+        for( Object span : spans ) {
+            if( span instanceof AdvancedSpan ) {
+                if( ( ( AdvancedSpan ) span ).getType() == type ) {
+                    return ( AdvancedSpan ) span;
+                }
+                else
+                    hasNoOtherSpan = false;
+            }
+        }
+        return( hasNoOtherSpan ? new SpanNull() : new SpanOther() );
+    }
+
     // PROCESS CHAR ================================================================================
     private void process_char( int satisfies, int breaks, int triggers, ParSel ps, int cc ) {
         int lf = lookingfor.get( 0 );
@@ -957,8 +1038,7 @@ public class ActivityEntry extends Activity
                     lookingfor.add( LF_NOTHING );
                 }
 
-                selectParsingFunc( m_appliers.get( 0 ) ); // lookingfor has to
-                                                          // be
+                selectParsingFunc( m_appliers.get( 0 ) ); // lookingfor has to be
                                                           // cleared beforehand
             }
             else if( ( lf & LF_JUNCTION ) != 0 ) {
@@ -1286,19 +1366,19 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_bold() {
-        apply_markup( new StyleSpan( Typeface.BOLD ) );
+        apply_markup( new SpanBold() );
     }
 
     private void apply_italic() {
-        apply_markup( new StyleSpan( Typeface.ITALIC ) );
+        apply_markup( new SpanItalic() );
     }
 
     private void apply_strikethrough() {
-        apply_markup( new StrikethroughSpan() );
+        apply_markup( new SpanStrikethrough() );
     }
 
     private void apply_highlight() {
-        apply_markup( new BackgroundColorSpan( m_ptr2entry.get_theme().color_highlight ) );
+        apply_markup( new SpanHighlight() );
     }
 
     private void apply_markup( Object span ) {
