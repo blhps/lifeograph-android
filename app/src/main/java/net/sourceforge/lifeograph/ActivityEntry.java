@@ -503,155 +503,138 @@ public class ActivityEntry extends Activity
 
     // FORMATTING BUTTONS ==========================================================================
     private void toggleFormat( String markup ) {
-        int iter_start, iter_end;
+        int p_start, p_end;
         if( mEditText.hasSelection() ) {
-            int pos_start = -2, pos_end = -1;
+            int start = -2, end = -1;
             boolean properly_separated = false;
 
-            iter_start = mEditText.getSelectionStart();
-            iter_end = mEditText.getSelectionEnd();
-            iter_end--;
+            p_start = mEditText.getSelectionStart();
+            p_end = mEditText.getSelectionEnd() - 1;
 
-            if( iter_start > 0 ) {
-                --iter_start; // also evaluate the previous character
-            }
-            else {
+            int p_firt_nl = mEditText.getText().toString().indexOf( '\n' );
+            if( p_firt_nl == -1 ) // there is only heading
+                return;
+            else if( p_end <= p_firt_nl )
+                return;
+            else if( p_start > p_firt_nl )
+                p_start--; // also evaluate the previous character
+            else { // p_start <= p_first_nl
+                p_start = p_firt_nl + 1;
                 properly_separated = true;
-                pos_start = -2;
+                start = -1;
             }
 
-            for( ;; ++iter_start ) {
-                if( is_marked_up_region( markup.charAt( 0 ), iter_start ) )
+            for( ;; p_start++ ) {
+                AdvancedSpan theSpan = hasSpan( p_start, markup.charAt( 0 ) );
+                if( theSpan.getType() == '*' || theSpan.getType() == '_' ||
+                    theSpan.getType() == '#' || theSpan.getType() == '=' )
                     return;
-                switch( mEditText.getText().charAt( iter_start ) ) {
-                // do nothing if selection spreads over more than one line:
-                    case '\n':
-                        if( pos_start > -2 )
-                            return;
+                switch( mEditText.getText().charAt( p_start ) ) {
+                    case '\n': // selection spreads over more than one
+                        if( start >= 0 ) {
+                            if( properly_separated ) {
+                                mEditText.getText().insert( start, markup );
+                                end += 2;
+                                p_start += 2;
+                                p_end += 2;
+                            }
+                            else {
+                                mEditText.getText().insert( start, " " + markup );
+                                end += 3;
+                                p_start += 3;
+                                p_end += 3;
+                            }
+
+                            mEditText.getText().insert( end, markup );
+
+                            properly_separated = true;
+                            start = -1;
+                            break;
+                        }
                         /* else no break */
                     case ' ':
                     case '\t':
-                        if( pos_start == -2 ) {
+                        if( start == -2 ) {
                             properly_separated = true;
-                            pos_start = -1;
+                            start = -1;
                         }
                         break;
-                    // case '*':
-                    // case '_':
-                    // case '#':
-                    // case '=':
-                    // if( iter_start.get_char() == markup[ 0 ] )
-                    // break;
-                    /* else no break */
+                        /* else no break */
                     default:
-                        if( pos_start == -2 )
-                            pos_start = -1;
-                        else if( pos_start == -1 )
-                            pos_start = iter_start;
-                        pos_end = iter_start;
+                        if( start == -2 )
+                            start = -1;
+                        else if( start == -1 )
+                            start = p_start;
+                        end = p_start;
                         break;
                 }
-                if( iter_start == iter_end )
+                if( p_start == p_end )
                     break;
             }
             // add markup chars to the beginning and end:
-            if( pos_start >= 0 ) {
+            if( start >= 0 ) {
                 if( properly_separated ) {
-                    mEditText.getText().insert( pos_start, markup );
-                    pos_end += 2;
+                    mEditText.getText().insert( start, markup );
+                    end += 2;
                 }
                 else {
-                    mEditText.getText().insert( pos_start, " " + markup );
-                    pos_end += 3;
+                    mEditText.getText().insert( start, " " + markup );
+                    end += 3;
                 }
 
-                mEditText.getText().insert( pos_end, markup );
-                // TODO place_cursor( get_iter_at_offset( pos_end ) );
+                mEditText.getText().insert( end, markup );
+                // TODO place_cursor( get_iter_at_offset( end ) );
             }
         }
         else { // no selection case
-            iter_start = iter_end = mEditText.getSelectionStart();
-            if( isSpace( iter_start ) || iter_start == mEditText.length() - 1 ) {
-                if( startsLine( iter_start ) )
+            p_start = p_end = mEditText.getSelectionStart();
+            if( isSpace( p_start ) || p_start == mEditText.length() - 1 ) {
+                if( startsLine( p_start ) )
                     return;
-                iter_start--;
-                if( hasSpan( iter_start, 'm' ).getType() == 'm' )
-                    iter_start--;
+                p_start--;
+                if( hasSpan( p_start, 'm' ).getType() == 'm' )
+                    p_start--;
             }
-            else if( hasSpan( iter_start, 'm' ).getType() == 'm' ) {
-                if( startsLine( iter_start ) )
+            else if( hasSpan( p_start, 'm' ).getType() == 'm' ) {
+                if( startsLine( p_start ) )
                     return;
-                iter_start--;
-                if( isSpace( iter_start ) )
-                    iter_start += 2;
+                p_start--;
+                if( isSpace( p_start ) )
+                    p_start += 2;
             }
 
-            Object theSpan = hasSpan( iter_start, markup.charAt( 0 ) );
+            Object theSpan = hasSpan( p_start, markup.charAt( 0 ) );
 
             // if already has the markup remove it
             if( ( ( AdvancedSpan ) theSpan ).getType() == markup.charAt( 0 ) ) {
-                iter_start = mEditText.getText().getSpanStart( theSpan );
-                iter_end = mEditText.getText().getSpanEnd( theSpan );
-                mEditText.getText().delete( iter_start - 1, iter_start );
-                mEditText.getText().delete( iter_end - 1, iter_end );
+                p_start = mEditText.getText().getSpanStart( theSpan );
+                p_end = mEditText.getText().getSpanEnd( theSpan );
+                mEditText.getText().delete( p_start - 1, p_start );
+                mEditText.getText().delete( p_end - 1, p_end );
             }
             else if( ( ( AdvancedSpan ) theSpan ).getType() == ' ' ) {
                 // find word boundaries:
-                while( iter_start > 0 ) {
-                    char c = mEditText.getText().charAt( iter_start );
+                while( p_start > 0 ) {
+                    char c = mEditText.getText().charAt( p_start );
                     if( c == '\n' || c == ' ' || c == '\t' ) {
-                        iter_start++;
+                        p_start++;
                         break;
                     }
 
-                    iter_start--;
+                    p_start--;
                 }
-                mEditText.getText().insert( iter_start, markup );
+                mEditText.getText().insert( p_start, markup );
 
-                while( iter_end < mEditText.getText().length() ) {
-                    char c = mEditText.getText().charAt( iter_end );
+                while( p_end < mEditText.getText().length() ) {
+                    char c = mEditText.getText().charAt( p_end );
                     if( c == '\n' || c == ' ' || c == '\t' )
                         break;
-                    iter_end++;
+                    p_end++;
                 }
-                mEditText.getText().insert( iter_end, markup );
+                mEditText.getText().insert( p_end, markup );
                 // TODO (if necessary) place_cursor( offset );
             }
         }
-    }
-
-    // TODO: to be improved to handle corner cases
-    private int find_markup( char char_markup, int pos, int step, int limit ) {
-        char char_current;
-        boolean last_is_space = false;
-        for( int i = pos; i != limit; i += step ) {
-            char_current = mEditText.getText().charAt( i );
-            if( char_current == '\n' )
-                break;
-            else if( char_current == ' ' || char_current == '\t' )
-                last_is_space = true;
-            else if( char_current == char_markup ) {
-                if( !last_is_space )
-                    return i;
-            }
-            else
-                last_is_space = false;
-        }
-
-        return -1;
-    }
-
-    private int find_markup_begin( char char_markup, int pos ) {
-        return find_markup( char_markup, pos, -1, 0 );
-    }
-
-    private int find_markup_end( char char_markup, int pos ) {
-        return find_markup( char_markup, pos, 1, mEditText.length() );
-    }
-
-    private boolean is_marked_up_region( char char_markup, int pos ) {
-        return( find_markup( char_markup, pos, -1, 0 ) != -1 && find_markup( char_markup, pos, 1,
-                                                                             mEditText.length() ) != -1 );
     }
 
     // PARSING VARIABLES ===========================================================================
@@ -716,10 +699,10 @@ public class ActivityEntry extends Activity
             return '=';
         }
     }
-    private class SpanMarkup extends ForegroundColorSpan implements AdvancedSpan
+    private class SpanMarkup extends TextAppearanceSpan implements AdvancedSpan
     {
         public SpanMarkup() {
-            super( Color.GRAY );
+            super( ActivityEntry.this, R.style.markupSpan );
         }
         public char getType() {
             return 'm';
@@ -755,6 +738,7 @@ public class ActivityEntry extends Activity
     }
     private java.util.Vector< SpanRegion > mSpans = new java.util.Vector< SpanRegion >();
 
+    // PARSING =====================================================================================
     private void reset( int start, int end ) {
         pos_start = start;
         pos_end = end;
@@ -1382,12 +1366,11 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_markup( Object span ) {
-        addSpan( new TextAppearanceSpan( this, R.style.markupSpan ), pos_start, pos_start + 1, 0 );
+        addSpan( new SpanMarkup(), pos_start, pos_start + 1, 0 );
 
         addSpan( span, pos_start + 1, pos_current, 0 );
 
-        addSpan( new TextAppearanceSpan( this, R.style.markupSpan ),
-                 pos_current, pos_current + 1, 0 );
+        addSpan( new SpanMarkup(), pos_current, pos_current + 1, 0 );
     }
 
     private void apply_comment() {
