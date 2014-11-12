@@ -28,6 +28,7 @@ import android.app.ActionBar;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.DialogInterface;
+import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
@@ -35,6 +36,7 @@ import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
+import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.SpannableString;
@@ -725,6 +727,21 @@ public class ActivityEntry extends Activity
         private final long mDate;
     }
 
+    private class LinkUri extends ClickableSpan
+    {
+        public LinkUri( String uri ) {
+            mUri = uri;
+        }
+
+        @Override
+        public void onClick( View widget ) {
+            Intent browserIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( mUri ) );
+            startActivity( browserIntent );
+        }
+
+        private final String mUri;
+    }
+
     private class SpanRegion
     {
         public SpanRegion( Object o, int s, int e ) {
@@ -1144,15 +1161,15 @@ public class ActivityEntry extends Activity
         char_req = CC_ANY;
 
         if( word_last.equals( "http" ) || word_last.equals( "https" ) || word_last.equals( "ftp" )
-            || word_last.equals( "file" ) ) {
+            /*|| word_last.equals( "file" )*/ ) {
             lookingfor.clear();
             lookingfor.add( LF_SLASH );
             lookingfor.add( LF_SLASH );
-            if( word_last.equals( "file" ) ) {
-                lookingfor.add( LF_SLASH );
-                lookingfor.add( LF_NONSPACE );
-            }
-            else
+//            if( word_last.equals( "file" ) ) {
+//                lookingfor.add( LF_SLASH );
+//                lookingfor.add( LF_NONSPACE );
+//            }
+//            else
                 lookingfor.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
         }
         else if( word_last.equals( "mailto" ) ) {
@@ -1407,16 +1424,7 @@ public class ActivityEntry extends Activity
         // }
         // else
         {
-//            addSpan( new ClickableSpan()
-//            {
-//                String uri = word_last;
-//
-//                @Override
-//                public void onClick( View widget ) {
-//                    Intent browserIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( uri ) );
-//                    startActivity( browserIntent );
-//                }
-//            }, pos_start, pos_current, 0 );
+            addSpan( new LinkUri( word_last ), pos_start, pos_current, 0 );
         }
     }
 
