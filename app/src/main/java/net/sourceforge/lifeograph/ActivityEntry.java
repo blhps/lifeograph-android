@@ -134,10 +134,6 @@ public class ActivityEntry extends Activity
     private ActionBar mActionBar = null;
     //private DrawerLayout mDrawerLayout = null;
     private EditText mEditText = null;
-    private Button mButtonBold = null;
-    private Button mButtonItalic = null;
-    private Button mButtonStrikethrough = null;
-    private Button mButtonHighlight = null;
     private Entry m_ptr2entry = null;
 
     boolean mFlagSetTextOperation = false;
@@ -224,21 +220,21 @@ public class ActivityEntry extends Activity
             }
         } );
 
-        mButtonBold = ( Button ) findViewById( R.id.buttonBold );
+        Button mButtonBold = ( Button ) findViewById( R.id.buttonBold );
         mButtonBold.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleFormat( "*" );
             }
         } );
 
-        mButtonItalic = ( Button ) findViewById( R.id.buttonItalic );
+        Button mButtonItalic = ( Button ) findViewById( R.id.buttonItalic );
         mButtonItalic.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleFormat( "_" );
             }
         } );
 
-        mButtonStrikethrough = ( Button ) findViewById( R.id.buttonStrikethrough );
+        Button mButtonStrikethrough = ( Button ) findViewById( R.id.buttonStrikethrough );
         SpannableString spanStringS = new SpannableString( "S" );
         spanStringS.setSpan( new StrikethroughSpan(), 0, 1, 0 );
         mButtonStrikethrough.setText( spanStringS );
@@ -248,7 +244,7 @@ public class ActivityEntry extends Activity
             }
         } );
 
-        mButtonHighlight = ( Button ) findViewById( R.id.buttonHighlight );
+        Button mButtonHighlight = ( Button ) findViewById( R.id.buttonHighlight );
         SpannableString spanStringH = new SpannableString( "H" );
         spanStringH.setSpan( new BackgroundColorSpan( Color.YELLOW ), 0, 1, 0 );
         mButtonHighlight.setText( spanStringH );
@@ -742,18 +738,7 @@ public class ActivityEntry extends Activity
         private final String mUri;
     }
 
-    private class SpanRegion
-    {
-        public SpanRegion( Object o, int s, int e ) {
-            span = o;
-            start = s;
-            end = e;
-        }
-        public Object span;
-        public int start;
-        public int end;
-    }
-    private java.util.Vector< SpanRegion > mSpans = new java.util.Vector< SpanRegion >();
+    private java.util.Vector< Object > mSpans = new java.util.Vector< Object >();
 
     // PARSING =====================================================================================
     private void reset( int start, int end ) {
@@ -763,8 +748,8 @@ public class ActivityEntry extends Activity
 
         // TODO: only remove spans within the parsing boundaries...
         // mEditText.getText().clearSpans(); <-- problematic!!
-        for( SpanRegion span : mSpans )
-            mEditText.getText().removeSpan( span.span );
+        for( Object span : mSpans )
+            mEditText.getText().removeSpan( span );
         mSpans.clear();
 
         char_last = CC_NONE;
@@ -986,7 +971,7 @@ public class ActivityEntry extends Activity
     }
 
     private void addSpan( Object span, int start, int end, int styles ) {
-        mSpans.add( new SpanRegion( span, start, end ) );
+        mSpans.add( span );
         mEditText.getText().setSpan( span, start, end, styles );
     }
 
@@ -1071,11 +1056,11 @@ public class ActivityEntry extends Activity
             selectParsingFunc( ps );
         }
 
-        // SET NEW CHAR CLASS & ADJUST WORD_LAST ACOORDINGLY
+        // SET NEW CHAR CLASS & ADJUST WORD_LAST ACCORDINGLY
         if( ( cc & CC_SEPARATOR ) != 0 )
             word_last = "";
         else {
-            if( word_last.length() == 0 )
+            if( word_last.isEmpty() )
                 pos_word = pos_current;
             word_last += char_current;
         }
