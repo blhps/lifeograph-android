@@ -1372,12 +1372,13 @@ public class ActivityEntry extends Activity
 
     private void apply_subheading() {
         int end = mEditText.getText().toString().indexOf( '\n', m_pos_start );
-        if( end != -1 ) {
-            addSpan( new TextAppearanceSpan( this, R.style.subheadingSpan ), m_pos_start, end,
-                     Spanned.SPAN_INTERMEDIATE );
-            addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_subheading ),
-                     m_pos_start, end, 0 );
-        }
+        if( end == -1 )
+            end = mEditText.getText().length();
+
+        addSpan( new TextAppearanceSpan( this, R.style.subheadingSpan ), m_pos_start, end,
+                 Spanned.SPAN_INTERMEDIATE );
+        addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_subheading ),
+                 m_pos_start, end, 0 );
     }
 
     private void apply_bold() {
