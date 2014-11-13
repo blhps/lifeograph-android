@@ -61,47 +61,48 @@ public class ActivityEntry extends Activity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
         DialogTags.DialogTagsHost
 {
-    // ENTRY PARSER ENUMS
-    public final int LF_NOTHING = 0x1;
-    public final int LF_NEWLINE = 0x2;
-    public final int LF_PUNCTUATION_RAW = 0x4;
-    public final int LF_SPACE = 0x8; // space that will come eventually
-    public final int LF_TAB = 0x10;
-    public final int LF_IMMEDIATE = 0x20; // indicates contiguity of chars
+    // CHAR FLAGS
+    public final int CF_NOTHING = 0x1;
+    public final int CF_NEWLINE = 0x2;
+    public final int CF_PUNCTUATION_RAW = 0x4;
+    public final int CF_SPACE = 0x8; // space that will come eventually
+    public final int CF_TAB = 0x10;
+    public final int CF_IMMEDIATE = 0x20; // indicates contiguity of chars
 
-    public final int LF_ASTERISK = 0x40; // bold
-    public final int LF_UNDERSCORE = 0x80; // italic
-    public final int LF_EQUALS = 0x100; // strikethrough
-    public final int LF_HASH = 0x400; // highlight
-    public final int LF_MARKUP = LF_ASTERISK | LF_UNDERSCORE | LF_EQUALS | LF_HASH;
+    public final int CF_ASTERISK = 0x40; // bold
+    public final int CF_UNDERSCORE = 0x80; // italic
+    public final int CF_EQUALS = 0x100; // strikethrough
+    public final int CF_HASH = 0x400; // highlight
+    public final int CF_MARKUP = CF_ASTERISK | CF_UNDERSCORE | CF_EQUALS | CF_HASH;
 
-    public final int LF_SLASH = 0x800;
-    public final int LF_ALPHA = 0x1000;
-    public final int LF_NUMBER = 0x2000;
-    public final int LF_AT = 0x4000; // email
-    public final int LF_CHECKBOX = 0x8000;
+    public final int CF_SLASH = 0x800;
+    public final int CF_ALPHA = 0x1000;
+    public final int CF_NUMBER = 0x2000;
+    public final int CF_AT = 0x4000; // email
+    public final int CF_CHECKBOX = 0x8000;
 
-    public final int LF_DOTYM = 0x10000;
-    public final int LF_DOTMD = 0x20000;
-    public final int LF_DOTDATE = 0x30000; // DOTMD | DOTYM
+    public final int CF_DOTYM = 0x10000;
+    public final int CF_DOTMD = 0x20000;
+    public final int CF_DOTDATE = 0x30000; // DOTMD | DOTYM
 
-    public final int LF_LESS = 0x80000; // tagging
-    public final int LF_MORE = 0x100000;
-    public final int LF_SBB = 0x200000; // square bracket begin: comments
-    public final int LF_SBE = 0x400000; // square bracket end: comments
+    public final int CF_LESS = 0x80000; // tagging
+    public final int CF_MORE = 0x100000;
+    public final int CF_SBB = 0x200000; // square bracket begin: comments
+    public final int CF_SBE = 0x400000; // square bracket end: comments
 
-    public final int LF_IGNORE = 0x40000000;
-    public final int LF_EOT = 0x80000000; // End of Text
+    public final int CF_IGNORE = 0x40000000;
+    public final int CF_EOT = 0x80000000; // End of Text
 
-    public final int LF_PUNCTUATION = LF_PUNCTUATION_RAW | LF_SLASH | LF_DOTDATE | LF_LESS
-                                      | LF_MORE | LF_SBB | LF_SBE;
-    public final int LF_FORMATCHAR = LF_ASTERISK | LF_UNDERSCORE | LF_EQUALS | LF_HASH | LF_SBB
-                                     | LF_SBE;
-    public final int LF_NUM_SLSH = LF_NUMBER | LF_SLASH;
-    public final int LF_NUM_CKBX = LF_NUMBER | LF_CHECKBOX;
-    public final int LF_NONSPACE = LF_PUNCTUATION | LF_MARKUP | LF_ALPHA | LF_NUMBER | LF_AT
-                                   | LF_CHECKBOX;
+    public final int CF_PUNCTUATION = CF_PUNCTUATION_RAW | CF_SLASH | CF_DOTDATE | CF_LESS
+                                      | CF_MORE | CF_SBB | CF_SBE;
+    public final int CF_FORMATCHAR = CF_ASTERISK | CF_UNDERSCORE | CF_EQUALS | CF_HASH | CF_SBB
+                                     | CF_SBE;
+    public final int CF_NUM_SLSH = CF_NUMBER | CF_SLASH;
+    public final int CF_NUM_CKBX = CF_NUMBER | CF_CHECKBOX;
+    public final int CF_NONSPACE = CF_PUNCTUATION | CF_MARKUP | CF_ALPHA | CF_NUMBER | CF_AT
+                                   | CF_CHECKBOX;
 
+    // CHAR CLASSES
     public final int CC_NONE = 0;
     public final int CC_NUMBER = 0x10;
     public final int CC_ALPHA = 0x20;
@@ -171,15 +172,15 @@ public class ActivityEntry extends Activity
                 // if( mFlagSetTextOperation == false )
                 {
                     // if( start > 0 ) {
-                    // pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
-                    // if( pos_start == -1 )
-                    // pos_start = 0;
+                    // m_pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
+                    // if( m_pos_start == -1 )
+                    // m_pos_start = 0;
                     // }
                     //
-                    // if( start < pos_end ) {
-                    // pos_end = mEditText.getText().toString().indexOf( '\n', start + count );
-                    // if( pos_end == -1 )
-                    // pos_end = mEditText.getText().length();
+                    // if( start < m_pos_end ) {
+                    // m_pos_end = mEditText.getText().toString().indexOf( '\n', start + count );
+                    // if( m_pos_end == -1 )
+                    // m_pos_end = mEditText.getText().length();
                     // }
                     mFlagEntryChanged = true;
                 }
@@ -405,8 +406,8 @@ public class ActivityEntry extends Activity
         mEditText.setTextColor( entry.get_theme().color_text );
 
         // PARSING
-        pos_start = 0;
-        pos_end = entry.get_text().length();
+        m_pos_start = 0;
+        m_pos_end = entry.get_text().length();
 
         // SETTING TEXT
         // mFlagSetTextOperation = true;
@@ -635,7 +636,8 @@ public class ActivityEntry extends Activity
     }
 
     // PARSING VARIABLES ===========================================================================
-    private int pos_start, pos_current, pos_end, pos_word, pos_regular, pos_search, pos_tab;
+    private int m_pos_start, m_pos_end, pos_current;
+    private int pos_word, /*pos_regular,*/ pos_search, pos_tab;
     private char char_current;
     private int m_cc_last, m_cc_req = CC_ANY;
     private StringBuilder word_last = new StringBuilder();
@@ -790,9 +792,9 @@ public class ActivityEntry extends Activity
 
     // PARSING =====================================================================================
     private void reset( int start, int end ) {
-        pos_start = start;
-        pos_end = end;
-        pos_current = pos_word = pos_regular = start;
+        m_pos_start = start;
+        m_pos_end = end;
+        pos_current = pos_word = /*pos_regular =*/ start;
 
         // TODO: only remove spans within the parsing boundaries...
         // mEditText.getText().clearSpans(); <-- problematic!!
@@ -810,12 +812,12 @@ public class ActivityEntry extends Activity
 
         if( start == 0 && end > 0 ) {
             // to prevent formatting within title:
-            m_chars_looked_for.add( new AbsChar( LF_IGNORE, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_IGNORE, ParSel.NULL ) );
             m_applier_nl = ParSel.AP_HEND;
             apply_heading();
         }
         else {
-            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
             m_applier_nl = ParSel.NULL;
         }
     }
@@ -831,7 +833,7 @@ public class ActivityEntry extends Activity
         int i_search = 0;
         int i_search_end = Diary.diary.get_search_text().length() - 1;
 
-        for( ; pos_current < pos_end; ++pos_current ) {
+        for( ; pos_current < m_pos_end; ++pos_current ) {
             char_current = mEditText.getText().charAt( pos_current );
 
             if( flag_search_active ) {
@@ -853,36 +855,36 @@ public class ActivityEntry extends Activity
             switch( char_current ) {
                 case '\n':
                 case '\r':
-                    process_char( LF_NEWLINE, LF_NUM_CKBX | LF_ALPHA | LF_FORMATCHAR | LF_SLASH
-                                              | LF_DOTDATE | LF_MORE | LF_TAB | LF_IGNORE, 0,
+                    process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH
+                                              | CF_DOTDATE | CF_MORE | CF_TAB | CF_IGNORE, 0,
                                   ParSel.NULL, CC_NEWLINE );
                     break;
                 case ' ':
-                    process_char( LF_SPACE, LF_ALPHA | LF_NUMBER | LF_SLASH | LF_DOTDATE
-                                            | LF_CHECKBOX, LF_NOTHING, ParSel.TR_SUBH, CC_SPACE );
+                    process_char( CF_SPACE, CF_ALPHA | CF_NUMBER | CF_SLASH | CF_DOTDATE
+                                            | CF_CHECKBOX, CF_NOTHING, ParSel.TR_SUBH, CC_SPACE );
                     break;
                 case '*':
-                    process_char( LF_ASTERISK, LF_NUM_CKBX | LF_ALPHA | LF_SLASH | LF_DOTDATE,
-                                  LF_NOTHING, ParSel.TR_BOLD, CC_SIGN );
+                    process_char( CF_ASTERISK, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
+                                  CF_NOTHING, ParSel.TR_BOLD, CC_SIGN );
                     break;
                 case '_':
-                    process_char( LF_UNDERSCORE, LF_NUM_CKBX | LF_SLASH | LF_DOTDATE, LF_NOTHING,
+                    process_char( CF_UNDERSCORE, CF_NUM_CKBX | CF_SLASH | CF_DOTDATE, CF_NOTHING,
                                   ParSel.TR_ITLC, CC_SIGN );
                     break;
                 case '=':
-                    process_char( LF_EQUALS, LF_NUM_CKBX | LF_ALPHA | LF_SLASH | LF_DOTDATE,
-                                  LF_NOTHING, ParSel.TR_STRK, CC_SIGN );
+                    process_char( CF_EQUALS, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
+                                  CF_NOTHING, ParSel.TR_STRK, CC_SIGN );
                     break;
                 case '#':
-                    process_char( LF_HASH, LF_NUM_CKBX | LF_ALPHA | LF_SLASH | LF_DOTDATE,
-                                  LF_NOTHING, ParSel.TR_HILT, CC_SIGN );
+                    process_char( CF_HASH, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
+                                  CF_NOTHING, ParSel.TR_HILT, CC_SIGN );
                     break;
                 case '[':
-                    process_char( LF_SBB, LF_NUM_CKBX | LF_ALPHA | LF_SLASH | LF_DOTDATE,
-                                  LF_NOTHING, ParSel.TR_CMNT, CC_SIGN );
+                    process_char( CF_SBB, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
+                                  CF_NOTHING, ParSel.TR_CMNT, CC_SIGN );
                     break;
                 case ']':
-                    process_char( LF_SBE, LF_NUM_CKBX | LF_ALPHA | LF_SLASH | LF_DOTDATE, 0,
+                    process_char( CF_SBE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE, 0,
                                   ParSel.NULL, CC_SIGN );
                     break;
                 case '0':
@@ -896,55 +898,55 @@ public class ActivityEntry extends Activity
                 case '8':
                 case '9':
                     handle_number(); // calculates numeric value
-                    process_char( LF_NUMBER, LF_SLASH | LF_ALPHA | LF_DOTDATE | LF_CHECKBOX,
-                                  LF_NOTHING, ParSel.TR_LNKD, CC_NUMBER );
+                    process_char( CF_NUMBER, CF_SLASH | CF_ALPHA | CF_DOTDATE | CF_CHECKBOX,
+                                  CF_NOTHING, ParSel.TR_LNKD, CC_NUMBER );
                     break;
                 case '.':
-                    process_char( LF_DOTDATE, LF_NUM_CKBX | LF_ALPHA | LF_SLASH, LF_NOTHING,
+                    process_char( CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH, CF_NOTHING,
                                   ParSel.TR_IGNR, CC_SIGN );
                     break;
 
                 case '-':
-                    process_char( LF_DOTDATE, LF_NUM_CKBX | LF_ALPHA | LF_SLASH, 0, ParSel.NULL,
+                    process_char( CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH, 0, ParSel.NULL,
                                   CC_SIGN );
                     break;
                 case '/':
-                    process_char( LF_SLASH | LF_DOTDATE, LF_NUM_CKBX | LF_ALPHA, 0, ParSel.NULL,
+                    process_char( CF_SLASH | CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA, 0, ParSel.NULL,
                                   CC_SIGN );
                     break;
                 case ':':
-                    process_char( LF_PUNCTUATION_RAW, LF_NUM_CKBX | LF_ALPHA | LF_SLASH
-                                                      | LF_DOTDATE, LF_NOTHING, ParSel.TR_LINK,
+                    process_char( CF_PUNCTUATION_RAW, CF_NUM_CKBX | CF_ALPHA | CF_SLASH
+                                                      | CF_DOTDATE, CF_NOTHING, ParSel.TR_LINK,
                                   CC_SIGN );
                     break;
                 case '@':
-                    process_char( LF_AT, LF_NUM_CKBX | LF_ALPHA | LF_SLASH | LF_DOTDATE,
-                                  LF_NOTHING, ParSel.TR_LNAT, CC_SIGN );
+                    process_char( CF_AT, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
+                                  CF_NOTHING, ParSel.TR_LNAT, CC_SIGN );
                     break;
                 case '>':
-                    process_char( LF_MORE, LF_NUM_CKBX | LF_ALPHA | LF_SLASH | LF_DOTDATE, 0,
+                    process_char( CF_MORE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE, 0,
                                   ParSel.NULL, CC_SIGN );
                     break;
                 case '\t':
-                    process_char( LF_TAB, LF_NUM_SLSH | LF_ALPHA | LF_DOTDATE, LF_NOTHING,
+                    process_char( CF_TAB, CF_NUM_SLSH | CF_ALPHA | CF_DOTDATE, CF_NOTHING,
                                   ParSel.TR_LIST, CC_TAB );
                     break;
                 // LIST CHARS
                 case '☐':
                 case '☑':
                 case '☒':
-                    process_char( LF_CHECKBOX, LF_NUM_SLSH | LF_ALPHA | LF_DOTDATE, 0, ParSel.NULL,
+                    process_char( CF_CHECKBOX, CF_NUM_SLSH | CF_ALPHA | CF_DOTDATE, 0, ParSel.NULL,
                                   CC_SIGN );
                     break;
                 default:
-                    process_char( LF_ALPHA, LF_NUM_CKBX | LF_DOTDATE | LF_SLASH, 0, ParSel.NULL,
+                    process_char( CF_ALPHA, CF_NUM_CKBX | CF_DOTDATE | CF_SLASH, 0, ParSel.NULL,
                                   CC_ALPHA ); // most probably :)
                     break;
             }
         }
         // end of the text -treated like new line
-        process_char( LF_NEWLINE, LF_NUM_CKBX | LF_ALPHA | LF_FORMATCHAR | LF_SLASH | LF_DOTDATE
-                                  | LF_MORE | LF_TAB, LF_EOT, ParSel.NULL, CC_NEWLINE );
+        process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH | CF_DOTDATE
+                                  | CF_MORE | CF_TAB, CF_EOT, ParSel.NULL, CC_NEWLINE );
     }
 
     // PARSING HELPER FUNCTIONS ====================================================================
@@ -1089,24 +1091,24 @@ public class ActivityEntry extends Activity
                     flag_trigger = true;
             }
         }
-        else if( ( breaks & cf ) == cf || ( cf & LF_IMMEDIATE ) != 0 ) {
+        else if( ( breaks & cf ) == cf || ( cf & CF_IMMEDIATE ) != 0 ) {
             flag_clear_chars = true;
-            if( ( triggers_on & LF_NOTHING ) != 0 )
+            if( ( triggers_on & CF_NOTHING ) != 0 )
                 flag_trigger = true;
         }
         else if( ( triggers_on & cf ) != 0 ) {
             flag_trigger = true;
         }
 
-        if( ( satisfies & LF_NEWLINE ) != 0 ) {
+        if( ( satisfies & CF_NEWLINE ) != 0 ) {
             flag_clear_chars = true;
 
             if( m_applier_nl != ParSel.NULL ) {
                 selectParsingFunc( m_applier_nl );
                 m_applier_nl = ParSel.NULL;
             }
-            else if( ( satisfies & LF_EOT ) != 0 && !flag_apply ) {
-                pos_start = pos_current + 1;
+            else if( ( satisfies & CF_EOT ) != 0 && !flag_apply ) {
+                m_pos_start = pos_current + 1;
                 //apply_regular();
             }
         }
@@ -1114,7 +1116,7 @@ public class ActivityEntry extends Activity
         // DO AS COLLECTED INFORMATION REQUIRES
         if( flag_clear_chars ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
         }
         if( flag_trigger )
             selectParsingFunc( triggerer );
@@ -1148,9 +1150,9 @@ public class ActivityEntry extends Activity
     private void trigger_subheading() {
         if( m_cc_last == CC_NEWLINE ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_NONSPACE, ParSel.AP_SUBH ) );
+            m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.AP_SUBH ) );
             m_cc_req = CC_ANY;
-            pos_start = pos_current;
+            m_pos_start = pos_current;
         }
     }
 
@@ -1159,35 +1161,35 @@ public class ActivityEntry extends Activity
             return;
 
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( LF_NONSPACE - lf, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_NONSPACE - lf, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( lf, ps ) );
         m_cc_req = CC_NOT_SEPARATOR;
-        pos_start = pos_current;
+        m_pos_start = pos_current;
     }
 
     private void trigger_bold() {
-        trigger_markup( LF_ASTERISK, ParSel.AP_BOLD );
+        trigger_markup( CF_ASTERISK, ParSel.AP_BOLD );
     }
 
     private void trigger_italic() {
-        trigger_markup( LF_UNDERSCORE, ParSel.AP_ITLC );
+        trigger_markup( CF_UNDERSCORE, ParSel.AP_ITLC );
     }
 
     private void trigger_strikethrough() {
-        trigger_markup( LF_EQUALS, ParSel.AP_STRK );
+        trigger_markup( CF_EQUALS, ParSel.AP_STRK );
     }
 
     private void trigger_highlight() {
-        trigger_markup( LF_HASH, ParSel.AP_HILT );
+        trigger_markup( CF_HASH, ParSel.AP_HILT );
     }
 
     private void trigger_comment() {
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( LF_SBB|LF_IMMEDIATE, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_SBE, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_SBE|LF_IMMEDIATE, ParSel.AP_CMNT ) );
+        m_chars_looked_for.add( new AbsChar( CF_SBB|CF_IMMEDIATE, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_SBE, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_SBE|CF_IMMEDIATE, ParSel.AP_CMNT ) );
         m_cc_req = CC_ANY;
-        pos_start = pos_current;
+        m_pos_start = pos_current;
     }
 
     private void trigger_link() {
@@ -1202,44 +1204,44 @@ public class ActivityEntry extends Activity
         if( wl_str.equals( "http" ) || wl_str.equals( "https" ) || wl_str.equals( "ftp" )
             /*|| wl_str.equals( "file" )*/ ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_SLASH, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( LF_SLASH, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_SLASH, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_SLASH, ParSel.NULL ) );
 //            if( word_last.equals( "file" ) ) {
-//                m_chars_looked_for.add( new AbsChar( LF_SLASH, ParSel.NULL ) );
-//                m_chars_looked_for.add( new AbsChar( LF_NONSPACE, ParSel.NULL ) );
+//                m_chars_looked_for.add( new AbsChar( CF_SLASH, ParSel.NULL ) );
+//                m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.NULL ) );
 //            }
 //            else
-                m_chars_looked_for.add( new AbsChar( LF_ALPHA|LF_NUMBER,
+                m_chars_looked_for.add( new AbsChar( CF_ALPHA|CF_NUMBER,
                                         ParSel.NULL ) ); // TODO: add dash
         }
         else if( wl_str.equals( "mailto" ) ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_UNDERSCORE | LF_ALPHA | LF_NUMBER,
+            m_chars_looked_for.add( new AbsChar( CF_UNDERSCORE | CF_ALPHA | CF_NUMBER,
                                                  ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( LF_AT, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( LF_ALPHA | LF_NUMBER, ParSel.NULL ) ); // TODO: add dash
+            m_chars_looked_for.add( new AbsChar( CF_AT, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_ALPHA | CF_NUMBER, ParSel.NULL ) ); // TODO: add dash
         }
         else if( wl_str.equals( "deid" ) && m_flag_hidden_link ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( LF_TAB, ParSel.JK_LNHT, true ) );
-            m_chars_looked_for.add( new AbsChar( LF_NONSPACE - LF_MORE, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( LF_MORE, ParSel.AP_LNID ) );
-            pos_start = pos_word;
+            m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_TAB, ParSel.JK_LNHT, true ) );
+            m_chars_looked_for.add( new AbsChar( CF_NONSPACE - CF_MORE, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LNID ) );
+            m_pos_start = pos_word;
             return;
         }
         else
             return;
 
         if( m_flag_hidden_link ) {
-            m_chars_looked_for.add( new AbsChar( LF_TAB, ParSel.JK_LNHT, true ) );
-            m_chars_looked_for.add( new AbsChar( LF_NONSPACE - LF_MORE, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( LF_MORE, ParSel.AP_LINK ) );
+            m_chars_looked_for.add( new AbsChar( CF_TAB, ParSel.JK_LNHT, true ) );
+            m_chars_looked_for.add( new AbsChar( CF_NONSPACE - CF_MORE, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LINK ) );
         }
         else {
-            m_chars_looked_for.add( new AbsChar( LF_TAB|LF_NEWLINE|LF_SPACE, ParSel.AP_LINK ) );
+            m_chars_looked_for.add( new AbsChar( CF_TAB|CF_NEWLINE|CF_SPACE, ParSel.AP_LINK ) );
         }
-        pos_start = pos_word;
+        m_pos_start = pos_word;
     }
 
     private void trigger_link_at() {
@@ -1249,34 +1251,34 @@ public class ActivityEntry extends Activity
         m_flag_hidden_link = false;
         word_last.insert( 0, "mailto:" );
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( LF_ALPHA|LF_NUMBER, ParSel.NULL ) ); // TODO: add dash
-        m_chars_looked_for.add( new AbsChar( LF_TAB|LF_NEWLINE|LF_SPACE, ParSel.AP_LINK ) );
+        m_chars_looked_for.add( new AbsChar( CF_ALPHA|CF_NUMBER, ParSel.NULL ) ); // TODO: add dash
+        m_chars_looked_for.add( new AbsChar( CF_TAB|CF_NEWLINE|CF_SPACE, ParSel.AP_LINK ) );
         m_cc_req = CC_ANY;
-        pos_start = pos_word;
+        m_pos_start = pos_word;
     }
 
     private void trigger_link_date() {
         m_cc_req = CC_ANY;
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_DOTYM, ParSel.JK_DDYM, true ) );
-        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_DOTMD, ParSel.JK_DDMD, true ) );
-        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.JK_LNDT, true ) );
+        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_DOTYM, ParSel.JK_DDYM, true ) );
+        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_DOTMD, ParSel.JK_DDMD, true ) );
+        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.JK_LNDT, true ) );
 
         m_flag_hidden_link = ( word_last.toString().equals( "<" ) );
         if( m_flag_hidden_link ) {
-            m_chars_looked_for.add( new AbsChar( LF_TAB, ParSel.JK_LNHT, true ) );
-            m_chars_looked_for.add( new AbsChar( LF_NONSPACE, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( LF_MORE, ParSel.AP_LNDT ) );
-            pos_start = pos_current - 1;
+            m_chars_looked_for.add( new AbsChar( CF_TAB, ParSel.JK_LNHT, true ) );
+            m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LNDT ) );
+            m_pos_start = pos_current - 1;
         }
         else {
-            pos_start = pos_current;
+            m_pos_start = pos_current;
             // applier is called by junction_link_date() in this case
         }
     }
@@ -1288,9 +1290,9 @@ public class ActivityEntry extends Activity
     private void trigger_ignore() {
         if( m_cc_last == CC_NEWLINE ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_TAB|LF_IMMEDIATE, ParSel.JK_IGNR, true ) );
+            m_chars_looked_for.add( new AbsChar( CF_TAB|CF_IMMEDIATE, ParSel.JK_IGNR, true ) );
             m_cc_req = CC_ANY;
-            pos_start = pos_current;
+            m_pos_start = pos_current;
         }
     }
 
@@ -1307,7 +1309,7 @@ public class ActivityEntry extends Activity
         }
 
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
     }
 
     private void junction_link_hidden_tab() {
@@ -1327,7 +1329,7 @@ public class ActivityEntry extends Activity
         }
         else {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
         }
     }
 
@@ -1340,13 +1342,13 @@ public class ActivityEntry extends Activity
         }
         else {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
         }
     }
 
     private void junction_ignore() {
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( LF_IGNORE, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_IGNORE, ParSel.NULL ) );
         apply_ignore();
     }
 
@@ -1369,12 +1371,12 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_subheading() {
-        int end = mEditText.getText().toString().indexOf( '\n', pos_start );
+        int end = mEditText.getText().toString().indexOf( '\n', m_pos_start );
         if( end != -1 ) {
-            addSpan( new TextAppearanceSpan( this, R.style.subheadingSpan ), pos_start, end,
+            addSpan( new TextAppearanceSpan( this, R.style.subheadingSpan ), m_pos_start, end,
                      Spanned.SPAN_INTERMEDIATE );
             addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_subheading ),
-                     pos_start, end, 0 );
+                     m_pos_start, end, 0 );
         }
     }
 
@@ -1395,21 +1397,21 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_markup( Object span ) {
-        addSpan( new SpanMarkup(), pos_start, pos_start + 1, 0 );
+        addSpan( new SpanMarkup(), m_pos_start, m_pos_start + 1, 0 );
 
-        addSpan( span, pos_start + 1, pos_current, 0 );
+        addSpan( span, m_pos_start + 1, pos_current, 0 );
 
         addSpan( new SpanMarkup(), pos_current, pos_current + 1, 0 );
     }
 
     private void apply_comment() {
-        addSpan( new TextAppearanceSpan( this, R.style.commentSpan ), pos_start, pos_current + 1,
+        addSpan( new TextAppearanceSpan( this, R.style.commentSpan ), m_pos_start, pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
 
-        addSpan( new ForegroundColorSpan( Color.GRAY ), pos_start, pos_current + 1,
+        addSpan( new ForegroundColorSpan( Color.GRAY ), m_pos_start, pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
 
-        addSpan( new SuperscriptSpan(), pos_start, pos_current + 1, 0 );
+        addSpan( new SuperscriptSpan(), m_pos_start, pos_current + 1, 0 );
     }
 
     private void apply_ignore() {
@@ -1419,11 +1421,11 @@ public class ActivityEntry extends Activity
 //            end = mEditText.getText().toString().indexOf( '\n' ) - 1;
 //        if( end < 0 )
 //            end = mEditText.getText().length() - 1;
-//        addSpan( new BackgroundColorSpan( colorBG ), pos_start, end, 0 );
+//        addSpan( new BackgroundColorSpan( colorBG ), m_pos_start, end, 0 );
     }
 
     private void apply_hidden_link_tags( int end, Object spanLink ) {
-        addSpan( new SpanMarkup(), pos_start, pos_tab, 0 );
+        addSpan( new SpanMarkup(), m_pos_start, pos_tab, 0 );
         addSpan( new SpanMarkup(), pos_current, end, 0 );
 
         addSpan( spanLink, pos_tab, pos_current, 0 );
@@ -1433,7 +1435,7 @@ public class ActivityEntry extends Activity
         if( m_flag_hidden_link )
             apply_hidden_link_tags( pos_current + 1, new LinkUri( word_last.toString() ) );
         else
-            addSpan( new LinkUri( word_last.toString() ), pos_start, pos_current, 0 );
+            addSpan( new LinkUri( word_last.toString() ), m_pos_start, pos_current, 0 );
     }
 
     private void apply_link_id() {
@@ -1464,7 +1466,7 @@ public class ActivityEntry extends Activity
             if( m_flag_hidden_link )
                 apply_hidden_link_tags( end, new LinkDate( date_last.m_date ) );
             else
-                addSpan( new LinkDate( date_last.m_date ), pos_start, end, 0 );
+                addSpan( new LinkDate( date_last.m_date ), m_pos_start, end, 0 );
         }
     }
 
