@@ -90,8 +90,6 @@ public class ActivityEntry extends Activity
     public final int LF_SBB = 0x200000; // square bracket begin: comments
     public final int LF_SBE = 0x400000; // square bracket end: comments
 
-    public final int LF_APPLY = 0x1000000;
-    public final int LF_JUNCTION = 0x2000000;
     public final int LF_IGNORE = 0x40000000;
     public final int LF_EOT = 0x80000000; // End of Text
 
@@ -120,7 +118,7 @@ public class ActivityEntry extends Activity
 
     // PARSER SELECTOR (NEEDED DUE TO LACK OF FUNCTION POINTERS IN JAVA)
     private enum ParSel {
-        NULL, TR_HEAD, TR_SUBH, TR_BOLD, TR_ITLC, TR_STRK, TR_HILT, TR_CMNT, TR_LINK, TR_LNAT,
+        NULL, TR_SUBH, TR_BOLD, TR_ITLC, TR_STRK, TR_HILT, TR_CMNT, TR_LINK, TR_LNAT,
         TR_LNKD, TR_LIST, TR_IGNR,
         JK_DDMD, JK_DDYM, JK_IGNR, JK_LNHT, JK_LNDT,
         AP_BOLD, AP_CMNT, AP_HEND, AP_HILT, AP_ITLC, AP_LINK, AP_LNDT, AP_LNID, AP_STRK, AP_SUBH
@@ -646,9 +644,25 @@ public class ActivityEntry extends Activity
     private Date date_last = new Date();
     protected boolean m_flag_hidden_link;
 
-    private java.util.List< Integer > m_chars_looked_for = new ArrayList< Integer >();
-    private java.util.List< ParSel > m_appliers = new ArrayList< ParSel >();
+    private java.util.List< AbsChar > m_chars_looked_for = new ArrayList< AbsChar >();
     private ParSel m_applier_nl;
+
+    private class AbsChar  // abstract char
+    {
+        AbsChar( int f, ParSel a, boolean j ) {
+            flags = f;
+            applier = a;
+            junction = j;
+        }
+        AbsChar( int f, ParSel a ) {
+            flags = f;
+            applier = a;
+            junction = false;
+        }
+        int             flags;
+        ParSel          applier;
+        boolean         junction;
+    }
 
     // SPANS =======================================================================================
     private interface AdvancedSpan
@@ -793,14 +807,15 @@ public class ActivityEntry extends Activity
         date_last.set( 0 );
         id_last = 0;
         m_chars_looked_for.clear();
-        m_appliers.clear();
+
         if( start == 0 && end > 0 ) {
-            m_chars_looked_for.add( LF_IGNORE ); // to prevent formatting within title
+            // to prevent formatting within title:
+            m_chars_looked_for.add( new AbsChar( LF_IGNORE, ParSel.NULL ) );
             m_applier_nl = ParSel.AP_HEND;
             apply_heading();
         }
         else {
-            m_chars_looked_for.add( LF_NOTHING );
+            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
             m_applier_nl = ParSel.NULL;
         }
     }
@@ -1051,56 +1066,62 @@ public class ActivityEntry extends Activity
     }
 
     // PROCESS CHAR ================================================================================
-    private void process_char( int satisfies, int breaks, int triggers, ParSel ps, int cc ) {
-        int lf = m_chars_looked_for.get( 0 );
+    private void process_char( int satisfies, int breaks, int triggers_on, ParSel triggerer,
+                               int cc ) {
+        int         cf = m_chars_looked_for.get( 0 ).flags;
+        ParSel      applier = m_chars_looked_for.get( 0 ).applier;
+        boolean     flag_clear_chars = false;
+        boolean     flag_trigger = false;
+        boolean     flag_apply = false;
 
-        if( ( satisfies & LF_NEWLINE ) != 0 ) {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_NOTHING );
-
-            process_newline();
-        }
-
-        if( ( lf & satisfies ) != 0 ) {
-            if( ( lf & LF_APPLY ) != 0 && ( m_cc_last & m_cc_req ) != 0 ) {
-                if( ( satisfies & LF_NEWLINE ) == 0 ) {
-                    m_chars_looked_for.clear();
-                    m_chars_looked_for.add( LF_NOTHING );
+        if( ( satisfies & cf ) != 0 ) {
+            if( applier != ParSel.NULL ) {
+                if( m_chars_looked_for.get( 0 ).junction )
+                    flag_apply = true;
+                else if( ( m_cc_last & m_cc_req ) != 0 ) { // not junction = final applier
+                    flag_clear_chars = true;
+                    flag_apply = true;
                 }
-
-                selectParsingFunc( m_appliers.get( 0 ) ); // m_chars_looked_for has to be
-                                                          // cleared beforehand
-            }
-            else if( ( lf & LF_JUNCTION ) != 0 ) {
-                selectParsingFunc( m_appliers.get( 0 ) );
             }
             else {
-                if( ( lf & LF_APPLY ) == 0 )
-                    m_chars_looked_for.remove( 0 );
-                if( ( lf & triggers ) != 0 )
-                    selectParsingFunc( ps );
+                m_chars_looked_for.remove( 0 );
+                if( ( triggers_on & cf ) != 0 )
+                    flag_trigger = true;
             }
         }
-        else if( ( triggers & LF_EOT ) != 0 ) {
-            if( m_applier_nl == ParSel.NULL ) {
-                pos_start = pos_current + 1;
-                // apply_regular();
-            }
-            process_newline();
+        else if( ( breaks & cf ) == cf || ( cf & LF_IMMEDIATE ) != 0 ) {
+            flag_clear_chars = true;
+            if( ( triggers_on & LF_NOTHING ) != 0 )
+                flag_trigger = true;
         }
-        else if( ( lf & breaks ) != 0 || ( lf & LF_IMMEDIATE ) != 0 ) {
-            if( ( satisfies & LF_NEWLINE ) == 0 ) {
-                m_chars_looked_for.clear();
-                m_chars_looked_for.add( LF_NOTHING );
-            }
-            if( ( triggers & LF_NOTHING ) != 0 )
-                selectParsingFunc( ps );
-        }
-        else if( ( lf & triggers ) != 0 ) {
-            selectParsingFunc( ps );
+        else if( ( triggers_on & cf ) != 0 ) {
+            flag_trigger = true;
         }
 
-        // SET NEW CHAR CLASS & ADJUST WORD_LAST ACCORDINGLY
+        if( ( satisfies & LF_NEWLINE ) != 0 ) {
+            flag_clear_chars = true;
+
+            if( m_applier_nl != ParSel.NULL ) {
+                selectParsingFunc( m_applier_nl );
+                m_applier_nl = ParSel.NULL;
+            }
+            else if( ( satisfies & LF_EOT ) != 0 && !flag_apply ) {
+                pos_start = pos_current + 1;
+                //apply_regular();
+            }
+        }
+
+        // DO AS COLLECTED INFORMATION REQUIRES
+        if( flag_clear_chars ) {
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
+        }
+        if( flag_trigger )
+            selectParsingFunc( triggerer );
+        if( flag_apply )
+            selectParsingFunc( applier );
+
+        // UPDATE WORD LAST
         if( ( cc & CC_SEPARATOR ) != 0 )
             word_last.setLength( 0 );
         else {
@@ -1108,15 +1129,9 @@ public class ActivityEntry extends Activity
                 pos_word = pos_current;
             word_last.append( char_current );
         }
-        m_cc_last = cc;
-    }
 
-    // PROCESS NEWLINE =============================================================================
-    private void process_newline() {
-        if( m_applier_nl != ParSel.NULL ) {
-            selectParsingFunc( m_applier_nl );
-            m_applier_nl = ParSel.NULL;
-        }
+        // UPDATE CHAR CLASS
+        m_cc_last = cc;
     }
 
     // HANDLE NUMBER ===============================================================================
@@ -1133,11 +1148,9 @@ public class ActivityEntry extends Activity
     private void trigger_subheading() {
         if( m_cc_last == CC_NEWLINE ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_NONSPACE | LF_APPLY );
+            m_chars_looked_for.add( new AbsChar( LF_NONSPACE, ParSel.AP_SUBH ) );
             m_cc_req = CC_ANY;
             pos_start = pos_current;
-            m_appliers.clear();
-            m_appliers.add( ParSel.AP_SUBH );
         }
     }
 
@@ -1146,12 +1159,10 @@ public class ActivityEntry extends Activity
             return;
 
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( LF_NONSPACE - lf );
-        m_chars_looked_for.add( lf | LF_APPLY );
+        m_chars_looked_for.add( new AbsChar( LF_NONSPACE - lf, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( lf, ps ) );
         m_cc_req = CC_NOT_SEPARATOR;
         pos_start = pos_current;
-        m_appliers.clear();
-        m_appliers.add( ps );
     }
 
     private void trigger_bold() {
@@ -1172,13 +1183,11 @@ public class ActivityEntry extends Activity
 
     private void trigger_comment() {
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( LF_SBB | LF_IMMEDIATE );
-        m_chars_looked_for.add( LF_SBE );
-        m_chars_looked_for.add( LF_SBE | LF_IMMEDIATE | LF_APPLY );
+        m_chars_looked_for.add( new AbsChar( LF_SBB|LF_IMMEDIATE, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_SBE, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_SBE|LF_IMMEDIATE, ParSel.AP_CMNT ) );
         m_cc_req = CC_ANY;
         pos_start = pos_current;
-        m_appliers.clear();
-        m_appliers.add( ParSel.AP_CMNT );
     }
 
     private void trigger_link() {
@@ -1193,50 +1202,42 @@ public class ActivityEntry extends Activity
         if( wl_str.equals( "http" ) || wl_str.equals( "https" ) || wl_str.equals( "ftp" )
             /*|| wl_str.equals( "file" )*/ ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_SLASH );
-            m_chars_looked_for.add( LF_SLASH );
+            m_chars_looked_for.add( new AbsChar( LF_SLASH, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( LF_SLASH, ParSel.NULL ) );
 //            if( word_last.equals( "file" ) ) {
-//                m_chars_looked_for.add( LF_SLASH );
-//                m_chars_looked_for.add( LF_NONSPACE );
+//                m_chars_looked_for.add( new AbsChar( LF_SLASH, ParSel.NULL ) );
+//                m_chars_looked_for.add( new AbsChar( LF_NONSPACE, ParSel.NULL ) );
 //            }
 //            else
-                m_chars_looked_for.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
+                m_chars_looked_for.add( new AbsChar( LF_ALPHA|LF_NUMBER,
+                                        ParSel.NULL ) ); // TODO: add dash
         }
         else if( wl_str.equals( "mailto" ) ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_UNDERSCORE | LF_ALPHA | LF_NUMBER );
-            m_chars_looked_for.add( LF_AT );
-            m_chars_looked_for.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
+            m_chars_looked_for.add( new AbsChar( LF_UNDERSCORE | LF_ALPHA | LF_NUMBER,
+                                                 ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( LF_AT, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( LF_ALPHA | LF_NUMBER, ParSel.NULL ) ); // TODO: add dash
         }
         else if( wl_str.equals( "deid" ) && m_flag_hidden_link ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_NUMBER );
-            m_chars_looked_for.add( LF_TAB|LF_JUNCTION );
-            m_chars_looked_for.add( LF_NONSPACE - LF_MORE );
-            m_chars_looked_for.add( LF_MORE|LF_APPLY );
+            m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( LF_TAB, ParSel.JK_LNHT, true ) );
+            m_chars_looked_for.add( new AbsChar( LF_NONSPACE - LF_MORE, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( LF_MORE, ParSel.AP_LNID ) );
             pos_start = pos_word;
-
-            m_appliers.clear();
-            m_appliers.add( ParSel.JK_LNHT ); // link hidden tab
-            m_appliers.add( ParSel.AP_LNID ); // link id
             return;
         }
         else
             return;
 
         if( m_flag_hidden_link ) {
-            m_chars_looked_for.add( LF_TAB|LF_JUNCTION );
-            m_chars_looked_for.add( LF_NONSPACE - LF_MORE );
-            m_chars_looked_for.add( LF_MORE|LF_APPLY );
-
-            m_appliers.clear();
-            m_appliers.add( ParSel.JK_LNHT );
-            m_appliers.add( ParSel.AP_LINK );
+            m_chars_looked_for.add( new AbsChar( LF_TAB, ParSel.JK_LNHT, true ) );
+            m_chars_looked_for.add( new AbsChar( LF_NONSPACE - LF_MORE, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( LF_MORE, ParSel.AP_LINK ) );
         }
         else {
-            m_chars_looked_for.add( LF_TAB | LF_NEWLINE | LF_SPACE | LF_APPLY );
-            m_appliers.clear();
-            m_appliers.add( ParSel.AP_LINK );
+            m_chars_looked_for.add( new AbsChar( LF_TAB|LF_NEWLINE|LF_SPACE, ParSel.AP_LINK ) );
         }
         pos_start = pos_word;
     }
@@ -1248,42 +1249,31 @@ public class ActivityEntry extends Activity
         m_flag_hidden_link = false;
         word_last.insert( 0, "mailto:" );
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
-        m_chars_looked_for.add( LF_TAB | LF_NEWLINE | LF_SPACE | LF_APPLY );
+        m_chars_looked_for.add( new AbsChar( LF_ALPHA|LF_NUMBER, ParSel.NULL ) ); // TODO: add dash
+        m_chars_looked_for.add( new AbsChar( LF_TAB|LF_NEWLINE|LF_SPACE, ParSel.AP_LINK ) );
         m_cc_req = CC_ANY;
         pos_start = pos_word;
-
-        m_appliers.clear();
-        m_appliers.add( ParSel.AP_LINK );
     }
 
     private void trigger_link_date() {
         m_cc_req = CC_ANY;
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( LF_NUMBER );
-        m_chars_looked_for.add( LF_NUMBER );
-        m_chars_looked_for.add( LF_NUMBER );
-        m_chars_looked_for.add( LF_DOTYM | LF_JUNCTION );
-        m_chars_looked_for.add( LF_NUMBER );
-        m_chars_looked_for.add( LF_NUMBER );
-        m_chars_looked_for.add( LF_DOTMD | LF_JUNCTION );
-        m_chars_looked_for.add( LF_NUMBER );
-        m_chars_looked_for.add( LF_NUMBER | LF_JUNCTION );
-
-        m_appliers.clear();
-        m_appliers.add( ParSel.JK_DDYM ); // junction_date_dotym
-        m_appliers.add( ParSel.JK_DDMD ); // junction_date_dotmd
-        m_appliers.add( ParSel.JK_LNDT ); // junction_link_date - checks validity of the date
+        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_DOTYM, ParSel.JK_DDYM, true ) );
+        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_DOTMD, ParSel.JK_DDMD, true ) );
+        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( LF_NUMBER, ParSel.JK_LNDT, true ) );
 
         m_flag_hidden_link = ( word_last.toString().equals( "<" ) );
         if( m_flag_hidden_link ) {
-            m_chars_looked_for.add( LF_TAB|LF_JUNCTION );
-            m_chars_looked_for.add( LF_NONSPACE );
-            m_chars_looked_for.add( LF_MORE|LF_APPLY );
+            m_chars_looked_for.add( new AbsChar( LF_TAB, ParSel.JK_LNHT, true ) );
+            m_chars_looked_for.add( new AbsChar( LF_NONSPACE, ParSel.NULL ) );
+            m_chars_looked_for.add( new AbsChar( LF_MORE, ParSel.AP_LNDT ) );
             pos_start = pos_current - 1;
-
-            m_appliers.add( ParSel.JK_LNHT );
-            m_appliers.add( ParSel.AP_LNDT );
         }
         else {
             pos_start = pos_current;
@@ -1298,17 +1288,30 @@ public class ActivityEntry extends Activity
     private void trigger_ignore() {
         if( m_cc_last == CC_NEWLINE ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_TAB | LF_IMMEDIATE | LF_JUNCTION );
+            m_chars_looked_for.add( new AbsChar( LF_TAB|LF_IMMEDIATE, ParSel.JK_IGNR, true ) );
             m_cc_req = CC_ANY;
             pos_start = pos_current;
-            m_appliers.clear();
-            m_appliers.add( ParSel.JK_IGNR );
         }
+    }
+
+    private void junction_link_date() {
+        date_last.set_day( int_last );
+
+        if( date_last.is_valid() ) {
+            if( m_flag_hidden_link ) {
+                m_chars_looked_for.remove( 0 );
+                return;
+            }
+            else
+                apply_link_date();
+        }
+
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
     }
 
     private void junction_link_hidden_tab() {
         m_chars_looked_for.remove( 0 );
-        m_appliers.remove( 0 );
         pos_tab = pos_current + 1;
         id_last = int_last;     // if not id link assignment is in vain
     }
@@ -1321,11 +1324,10 @@ public class ActivityEntry extends Activity
         if( int_last >= Date.YEAR_MIN && int_last <= Date.YEAR_MAX ) {
             date_last.set_year( int_last );
             m_chars_looked_for.remove( 0 );
-            m_appliers.remove( 0 );
         }
         else {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_NOTHING );
+            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
         }
     }
 
@@ -1335,39 +1337,20 @@ public class ActivityEntry extends Activity
             && char_current == word_last.charAt( word_last.length() - 3 ) ) {
             date_last.set_month( int_last );
             m_chars_looked_for.remove( 0 );
-            m_appliers.remove( 0 );
         }
         else {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( LF_NOTHING );
+            m_chars_looked_for.add( new AbsChar( LF_NOTHING, ParSel.NULL ) );
         }
-    }
-
-    private void junction_link_date() {
-        date_last.set_day( int_last );
-
-        if( date_last.is_valid() ) {
-            if( m_flag_hidden_link ) {
-                m_chars_looked_for.remove( 0 );
-                m_appliers.remove( 0 );
-                return;
-            }
-            else
-                apply_link_date();
-        }
-
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( LF_NOTHING );
     }
 
     private void junction_ignore() {
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( LF_IGNORE );
-        m_appliers.clear();
+        m_chars_looked_for.add( new AbsChar( LF_IGNORE, ParSel.NULL ) );
         apply_ignore();
     }
 
-    // APPLIERS ===================================================================================
+    // APPLIERS ====================================================================================
     private void apply_heading() {
         int end = 0;
         if( mEditText.getText().charAt( 0 ) != '\n' )
