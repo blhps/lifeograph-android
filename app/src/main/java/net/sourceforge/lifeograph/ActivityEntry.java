@@ -121,8 +121,9 @@ public class ActivityEntry extends Activity
     // PARSER SELECTOR (NEEDED DUE TO LACK OF FUNCTION POINTERS IN JAVA)
     private enum ParSel {
         NULL, TR_HEAD, TR_SUBH, TR_BOLD, TR_ITLC, TR_STRK, TR_HILT, TR_CMNT, TR_LINK, TR_LNAT,
-        TR_LNKD, TR_LIST, TR_IGNR, AP_HEND, AP_SUBH, AP_BOLD, AP_ITLC, AP_HILT, AP_STRK, AP_CMNT,
-        AP_LINK, JK_IGNR, JK_DDYM, JK_DDMD, JK_LNKD
+        TR_LNKD, TR_LIST, TR_IGNR,
+        JK_DDMD, JK_DDYM, JK_IGNR, JK_LNHT, JK_LNDT,
+        AP_BOLD, AP_CMNT, AP_HEND, AP_HILT, AP_ITLC, AP_LINK, AP_LNDT, AP_LNID, AP_STRK, AP_SUBH
     }
 
     private enum LinkStatus {
@@ -636,14 +637,16 @@ public class ActivityEntry extends Activity
     }
 
     // PARSING VARIABLES ===========================================================================
-    private int pos_start, pos_current, pos_end, pos_word, pos_regular, pos_search;
+    private int pos_start, pos_current, pos_end, pos_word, pos_regular, pos_search, pos_tab;
     private char char_current;
-    private int char_last, char_req = CC_ANY;
-    private String word_last;
-    private long int_last, id_last;
+    private int m_cc_last, m_cc_req = CC_ANY;
+    private StringBuilder word_last = new StringBuilder();
+    private int int_last;
+    private int id_last;
     private Date date_last = new Date();
+    protected boolean m_flag_hidden_link;
 
-    private java.util.List< Integer > lookingfor = new ArrayList< Integer >();
+    private java.util.List< Integer > m_chars_looked_for = new ArrayList< Integer >();
     private java.util.List< ParSel > m_appliers = new ArrayList< ParSel >();
     private ParSel m_applier_nl;
 
@@ -707,7 +710,7 @@ public class ActivityEntry extends Activity
         }
     }
 
-    private class LinkDate extends ClickableSpan
+    private class LinkDate extends ClickableSpan implements AdvancedSpan
     {
         public LinkDate( long date ) {
             mDate = date;
@@ -717,13 +720,20 @@ public class ActivityEntry extends Activity
         public void onClick( View widget ) {
             Entry entry = Diary.diary.get_entry( mDate );
             // TODO...
-            Log.d( Lifeograph.TAG, "date link clicked: " + Date.format_string( mDate ) );
+            if( entry != null )
+                Log.d( Lifeograph.TAG, "date link clicked: " + entry.get_name() );
+            else
+                Log.d( Lifeograph.TAG, "No entry on the target date: " + Date.format_string(
+                        mDate ) );
+        }
+
+        public char getType() {
+            return 'd';
         }
 
         private final long mDate;
     }
-
-    private class LinkUri extends ClickableSpan
+    private class LinkUri extends ClickableSpan implements AdvancedSpan
     {
         public LinkUri( String uri ) {
             mUri = uri;
@@ -735,7 +745,31 @@ public class ActivityEntry extends Activity
             startActivity( browserIntent );
         }
 
+        public char getType() {
+            return 'u';
+        }
+
         private final String mUri;
+    }
+    private class LinkID extends ClickableSpan implements AdvancedSpan
+    {
+        public LinkID( int id ) {
+            mId = id;
+        }
+
+        @Override
+        public void onClick( View widget ) {
+            DiaryElement elem = Diary.diary.get_element( mId );
+            // TODO...
+            if( elem != null )
+                Log.d( Lifeograph.TAG, "id link clicked: " + elem.get_name() );
+        }
+
+        public char getType() {
+            return 'i';
+        }
+
+        private final int mId;
     }
 
     private java.util.Vector< Object > mSpans = new java.util.Vector< Object >();
@@ -752,21 +786,21 @@ public class ActivityEntry extends Activity
             mEditText.getText().removeSpan( span );
         mSpans.clear();
 
-        char_last = CC_NONE;
-        char_req = CC_ANY;
-        word_last = "";
+        m_cc_last = CC_NONE;
+        m_cc_req = CC_ANY;
+        word_last.setLength( 0 );
         int_last = 0;
         date_last.set( 0 );
         id_last = 0;
-        lookingfor.clear();
+        m_chars_looked_for.clear();
         m_appliers.clear();
         if( start == 0 && end > 0 ) {
-            lookingfor.add( LF_IGNORE ); // to prevent formatting within title
+            m_chars_looked_for.add( LF_IGNORE ); // to prevent formatting within title
             m_applier_nl = ParSel.AP_HEND;
             apply_heading();
         }
         else {
-            lookingfor.add( LF_NOTHING );
+            m_chars_looked_for.add( LF_NOTHING );
             m_applier_nl = ParSel.NULL;
         }
     }
@@ -932,37 +966,47 @@ public class ActivityEntry extends Activity
                 trigger_link_at();
                 break;
 
-            case AP_SUBH:
-                apply_subheading();
-                break;
             case AP_BOLD:
                 apply_bold();
-                break;
-            case AP_ITLC:
-                apply_italic();
-                break;
-            case AP_STRK:
-                apply_strikethrough();
-                break;
-            case AP_HILT:
-                apply_highlight();
                 break;
             case AP_CMNT:
                 apply_comment();
                 break;
+            case AP_HILT:
+                apply_highlight();
+                break;
+            case AP_ITLC:
+                apply_italic();
+                break;
             case AP_LINK:
                 apply_link();
                 break;
-            case JK_IGNR:
-                junction_ignore();
+            case AP_LNDT:
+                apply_link_date();
+                break;
+            case AP_LNID:
+                apply_link_id();
+                break;
+            case AP_STRK:
+                apply_strikethrough();
+                break;
+            case AP_SUBH:
+                apply_subheading();
+                break;
+
+            case JK_DDMD:
+                junction_date_dotmd();
                 break;
             case JK_DDYM:
                 junction_date_dotym();
                 break;
-            case JK_DDMD:
-                junction_date_dotmd();
+            case JK_IGNR:
+                junction_ignore();
                 break;
-            case JK_LNKD:
+            case JK_LNHT:
+                junction_link_hidden_tab();
+                break;
+            case JK_LNDT:
                 junction_link_date();
                 break;
             default:
@@ -1008,23 +1052,23 @@ public class ActivityEntry extends Activity
 
     // PROCESS CHAR ================================================================================
     private void process_char( int satisfies, int breaks, int triggers, ParSel ps, int cc ) {
-        int lf = lookingfor.get( 0 );
+        int lf = m_chars_looked_for.get( 0 );
 
         if( ( satisfies & LF_NEWLINE ) != 0 ) {
-            lookingfor.clear();
-            lookingfor.add( LF_NOTHING );
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_NOTHING );
 
             process_newline();
         }
 
         if( ( lf & satisfies ) != 0 ) {
-            if( ( lf & LF_APPLY ) != 0 && ( char_last & char_req ) != 0 ) {
+            if( ( lf & LF_APPLY ) != 0 && ( m_cc_last & m_cc_req ) != 0 ) {
                 if( ( satisfies & LF_NEWLINE ) == 0 ) {
-                    lookingfor.clear();
-                    lookingfor.add( LF_NOTHING );
+                    m_chars_looked_for.clear();
+                    m_chars_looked_for.add( LF_NOTHING );
                 }
 
-                selectParsingFunc( m_appliers.get( 0 ) ); // lookingfor has to be
+                selectParsingFunc( m_appliers.get( 0 ) ); // m_chars_looked_for has to be
                                                           // cleared beforehand
             }
             else if( ( lf & LF_JUNCTION ) != 0 ) {
@@ -1032,7 +1076,7 @@ public class ActivityEntry extends Activity
             }
             else {
                 if( ( lf & LF_APPLY ) == 0 )
-                    lookingfor.remove( 0 );
+                    m_chars_looked_for.remove( 0 );
                 if( ( lf & triggers ) != 0 )
                     selectParsingFunc( ps );
             }
@@ -1046,8 +1090,8 @@ public class ActivityEntry extends Activity
         }
         else if( ( lf & breaks ) != 0 || ( lf & LF_IMMEDIATE ) != 0 ) {
             if( ( satisfies & LF_NEWLINE ) == 0 ) {
-                lookingfor.clear();
-                lookingfor.add( LF_NOTHING );
+                m_chars_looked_for.clear();
+                m_chars_looked_for.add( LF_NOTHING );
             }
             if( ( triggers & LF_NOTHING ) != 0 )
                 selectParsingFunc( ps );
@@ -1058,13 +1102,13 @@ public class ActivityEntry extends Activity
 
         // SET NEW CHAR CLASS & ADJUST WORD_LAST ACCORDINGLY
         if( ( cc & CC_SEPARATOR ) != 0 )
-            word_last = "";
+            word_last.setLength( 0 );
         else {
-            if( word_last.isEmpty() )
+            if( word_last.length() == 0 )
                 pos_word = pos_current;
-            word_last += char_current;
+            word_last.append( char_current );
         }
-        char_last = cc;
+        m_cc_last = cc;
     }
 
     // PROCESS NEWLINE =============================================================================
@@ -1077,7 +1121,7 @@ public class ActivityEntry extends Activity
 
     // HANDLE NUMBER ===============================================================================
     private void handle_number() {
-        if( char_last == CC_NUMBER ) {
+        if( m_cc_last == CC_NUMBER ) {
             int_last *= 10;
             int_last += ( char_current - '0' );
         }
@@ -1087,10 +1131,10 @@ public class ActivityEntry extends Activity
 
     // PARSING TRIGGERERS ==========================================================================
     private void trigger_subheading() {
-        if( char_last == CC_NEWLINE ) {
-            lookingfor.clear();
-            lookingfor.add( LF_NONSPACE | LF_APPLY );
-            char_req = CC_ANY;
+        if( m_cc_last == CC_NEWLINE ) {
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_NONSPACE | LF_APPLY );
+            m_cc_req = CC_ANY;
             pos_start = pos_current;
             m_appliers.clear();
             m_appliers.add( ParSel.AP_SUBH );
@@ -1098,13 +1142,13 @@ public class ActivityEntry extends Activity
     }
 
     private void trigger_markup( int lf, ParSel ps ) {
-        if( ( char_last & CC_NOT_SEPARATOR ) != 0 )
+        if( ( m_cc_last & CC_NOT_SEPARATOR ) != 0 )
             return;
 
-        lookingfor.clear();
-        lookingfor.add( LF_NONSPACE - lf );
-        lookingfor.add( lf | LF_APPLY );
-        char_req = CC_NOT_SEPARATOR;
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( LF_NONSPACE - lf );
+        m_chars_looked_for.add( lf | LF_APPLY );
+        m_cc_req = CC_NOT_SEPARATOR;
         pos_start = pos_current;
         m_appliers.clear();
         m_appliers.add( ps );
@@ -1127,71 +1171,70 @@ public class ActivityEntry extends Activity
     }
 
     private void trigger_comment() {
-        lookingfor.clear();
-        lookingfor.add( LF_SBB | LF_IMMEDIATE );
-        lookingfor.add( LF_SBE );
-        lookingfor.add( LF_SBE | LF_IMMEDIATE | LF_APPLY );
-        char_req = CC_ANY;
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( LF_SBB | LF_IMMEDIATE );
+        m_chars_looked_for.add( LF_SBE );
+        m_chars_looked_for.add( LF_SBE | LF_IMMEDIATE | LF_APPLY );
+        m_cc_req = CC_ANY;
         pos_start = pos_current;
         m_appliers.clear();
         m_appliers.add( ParSel.AP_CMNT );
     }
 
     private void trigger_link() {
-        // TODO:
-        // m_flag_hidden_link = word_last[ 0 ] == '<';
-        // if( m_flag_hidden_link )
-        // word_last.erase( 0, 1 );
+        m_flag_hidden_link = ( word_last.charAt( 0 ) == '<' );
+        if( m_flag_hidden_link )
+            word_last.deleteCharAt( 0 );
 
-        char_req = CC_ANY;
+        m_cc_req = CC_ANY;
 
-        if( word_last.equals( "http" ) || word_last.equals( "https" ) || word_last.equals( "ftp" )
-            /*|| word_last.equals( "file" )*/ ) {
-            lookingfor.clear();
-            lookingfor.add( LF_SLASH );
-            lookingfor.add( LF_SLASH );
+        String wl_str = word_last.toString();
+
+        if( wl_str.equals( "http" ) || wl_str.equals( "https" ) || wl_str.equals( "ftp" )
+            /*|| wl_str.equals( "file" )*/ ) {
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_SLASH );
+            m_chars_looked_for.add( LF_SLASH );
 //            if( word_last.equals( "file" ) ) {
-//                lookingfor.add( LF_SLASH );
-//                lookingfor.add( LF_NONSPACE );
+//                m_chars_looked_for.add( LF_SLASH );
+//                m_chars_looked_for.add( LF_NONSPACE );
 //            }
 //            else
-                lookingfor.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
+                m_chars_looked_for.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
         }
-        else if( word_last.equals( "mailto" ) ) {
-            lookingfor.clear();
-            lookingfor.add( LF_UNDERSCORE | LF_ALPHA | LF_NUMBER );
-            lookingfor.add( LF_AT );
-            lookingfor.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
+        else if( wl_str.equals( "mailto" ) ) {
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_UNDERSCORE | LF_ALPHA | LF_NUMBER );
+            m_chars_looked_for.add( LF_AT );
+            m_chars_looked_for.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
         }
-        // else
-        // if( word_last == "deid" && m_flag_hidden_link )
-        // {
-        // lookingfor.clear();
-        // lookingfor.add( LF_NUMBER );
-        // lookingfor.add( LF_TAB|LF_JUNCTION );
-        // lookingfor.add( LF_NONSPACE - LF_MORE );
-        // lookingfor.add( LF_MORE|LF_APPLY );
-        // pos_start = pos_word;
-        // m_appliers.clear();
-        // m_appliers.push_back( JK_LNHT ); // link hidden tab
-        // m_appliers.push_back( AP_LNKH ); // link hidden
-        // return;
-        // }
+        else if( wl_str.equals( "deid" ) && m_flag_hidden_link ) {
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_NUMBER );
+            m_chars_looked_for.add( LF_TAB|LF_JUNCTION );
+            m_chars_looked_for.add( LF_NONSPACE - LF_MORE );
+            m_chars_looked_for.add( LF_MORE|LF_APPLY );
+            pos_start = pos_word;
+
+            m_appliers.clear();
+            m_appliers.add( ParSel.JK_LNHT ); // link hidden tab
+            m_appliers.add( ParSel.AP_LNID ); // link id
+            return;
+        }
         else
             return;
 
-        // if( m_flag_hidden_link )
-        // {
-        // lookingfor.push_back( LF_TAB|LF_JUNCTION );
-        // lookingfor.push_back( LF_NONSPACE - LF_MORE );
-        // lookingfor.push_back( LF_MORE|LF_APPLY );
-        // m_appliers.clear();
-        // m_appliers.push_back( &EntryParser::junction_link_hidden_tab );
-        // m_appliers.push_back( &EntryParser::apply_link );
-        // }
-        // else
-        {
-            lookingfor.add( LF_TAB | LF_NEWLINE | LF_SPACE | LF_APPLY );
+        if( m_flag_hidden_link ) {
+            m_chars_looked_for.add( LF_TAB|LF_JUNCTION );
+            m_chars_looked_for.add( LF_NONSPACE - LF_MORE );
+            m_chars_looked_for.add( LF_MORE|LF_APPLY );
+
+            m_appliers.clear();
+            m_appliers.add( ParSel.JK_LNHT );
+            m_appliers.add( ParSel.AP_LINK );
+        }
+        else {
+            m_chars_looked_for.add( LF_TAB | LF_NEWLINE | LF_SPACE | LF_APPLY );
             m_appliers.clear();
             m_appliers.add( ParSel.AP_LINK );
         }
@@ -1199,65 +1242,64 @@ public class ActivityEntry extends Activity
     }
 
     private void trigger_link_at() {
-        if( ( char_last & CC_SEPARATOR ) != 0 )
+        if( ( m_cc_last & CC_SEPARATOR ) != 0 )
             return;
 
-        // m_flag_hidden_link = false;
-        word_last = "mailto:" + word_last;
-        lookingfor.clear();
-        lookingfor.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
-        lookingfor.add( LF_TAB | LF_NEWLINE | LF_SPACE | LF_APPLY );
-        char_req = CC_ANY;
+        m_flag_hidden_link = false;
+        word_last.insert( 0, "mailto:" );
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( LF_ALPHA | LF_NUMBER ); // TODO: add dash
+        m_chars_looked_for.add( LF_TAB | LF_NEWLINE | LF_SPACE | LF_APPLY );
+        m_cc_req = CC_ANY;
         pos_start = pos_word;
+
         m_appliers.clear();
         m_appliers.add( ParSel.AP_LINK );
     }
 
     private void trigger_link_date() {
-        char_req = CC_ANY;
-        lookingfor.clear();
-        lookingfor.add( LF_NUMBER );
-        lookingfor.add( LF_NUMBER );
-        lookingfor.add( LF_NUMBER );
-        lookingfor.add( LF_DOTYM | LF_JUNCTION );
-        lookingfor.add( LF_NUMBER );
-        lookingfor.add( LF_NUMBER );
-        lookingfor.add( LF_DOTMD | LF_JUNCTION );
-        lookingfor.add( LF_NUMBER );
-        lookingfor.add( LF_NUMBER | LF_JUNCTION );
+        m_cc_req = CC_ANY;
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( LF_NUMBER );
+        m_chars_looked_for.add( LF_NUMBER );
+        m_chars_looked_for.add( LF_NUMBER );
+        m_chars_looked_for.add( LF_DOTYM | LF_JUNCTION );
+        m_chars_looked_for.add( LF_NUMBER );
+        m_chars_looked_for.add( LF_NUMBER );
+        m_chars_looked_for.add( LF_DOTMD | LF_JUNCTION );
+        m_chars_looked_for.add( LF_NUMBER );
+        m_chars_looked_for.add( LF_NUMBER | LF_JUNCTION );
 
         m_appliers.clear();
         m_appliers.add( ParSel.JK_DDYM ); // junction_date_dotym
         m_appliers.add( ParSel.JK_DDMD ); // junction_date_dotmd
-        m_appliers.add( ParSel.JK_LNKD ); // junction_link_date - checks validity of the date
+        m_appliers.add( ParSel.JK_LNDT ); // junction_link_date - checks validity of the date
 
-        // TODO:
-        // m_flag_hidden_link = ( word_last.equals( "<" ) );
-        // if( m_flag_hidden_link )
-        // {
-        // lookingfor.push_back( LF_TAB|LF_JUNCTION );
-        // lookingfor.push_back( LF_NONSPACE );
-        // lookingfor.push_back( LF_MORE|LF_APPLY );
-        // pos_start = pos_current - 1;
-        // m_appliers.push_back( &EntryParser::junction_link_hidden_tab );
-        // m_appliers.push_back( &EntryParser::apply_link_date );
-        // }
-        // else
-        {
+        m_flag_hidden_link = ( word_last.toString().equals( "<" ) );
+        if( m_flag_hidden_link ) {
+            m_chars_looked_for.add( LF_TAB|LF_JUNCTION );
+            m_chars_looked_for.add( LF_NONSPACE );
+            m_chars_looked_for.add( LF_MORE|LF_APPLY );
+            pos_start = pos_current - 1;
+
+            m_appliers.add( ParSel.JK_LNHT );
+            m_appliers.add( ParSel.AP_LNDT );
+        }
+        else {
             pos_start = pos_current;
             // applier is called by junction_link_date() in this case
         }
     }
 
-    private void trigger_list() {
-
-    }
+//    private void trigger_list() {
+//
+//    }
 
     private void trigger_ignore() {
-        if( char_last == CC_NEWLINE ) {
-            lookingfor.clear();
-            lookingfor.add( LF_TAB | LF_IMMEDIATE | LF_JUNCTION );
-            char_req = CC_ANY;
+        if( m_cc_last == CC_NEWLINE ) {
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_TAB | LF_IMMEDIATE | LF_JUNCTION );
+            m_cc_req = CC_ANY;
             pos_start = pos_current;
             m_appliers.clear();
             m_appliers.add( ParSel.JK_IGNR );
@@ -1265,22 +1307,25 @@ public class ActivityEntry extends Activity
     }
 
     private void junction_link_hidden_tab() {
-
+        m_chars_looked_for.remove( 0 );
+        m_appliers.remove( 0 );
+        pos_tab = pos_current + 1;
+        id_last = int_last;     // if not id link assignment is in vain
     }
 
-    private void junction_list() {
-
-    }
+//    private void junction_list() {
+//
+//    }
 
     private void junction_date_dotym() { // dot between year and month
         if( int_last >= Date.YEAR_MIN && int_last <= Date.YEAR_MAX ) {
-            date_last.set_year( ( int ) int_last );
-            lookingfor.remove( 0 );
+            date_last.set_year( int_last );
+            m_chars_looked_for.remove( 0 );
             m_appliers.remove( 0 );
         }
         else {
-            lookingfor.clear();
-            lookingfor.add( LF_NOTHING );
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_NOTHING );
         }
     }
 
@@ -1288,37 +1333,36 @@ public class ActivityEntry extends Activity
         if( int_last >= 1 && int_last <= 12
         // two separators must be the same:
             && char_current == word_last.charAt( word_last.length() - 3 ) ) {
-            date_last.set_month( ( int ) int_last );
-            lookingfor.remove( 0 );
+            date_last.set_month( int_last );
+            m_chars_looked_for.remove( 0 );
             m_appliers.remove( 0 );
         }
         else {
-            lookingfor.clear();
-            lookingfor.add( LF_NOTHING );
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( LF_NOTHING );
         }
     }
 
     private void junction_link_date() {
-        date_last.set_day( ( int ) int_last );
+        date_last.set_day( int_last );
 
         if( date_last.is_valid() ) {
-            // if( m_flag_hidden_link )
-            // {
-            // lookingfor.pop_front();
-            // m_appliers.pop_front();
-            // return;
-            // }
-            // else
-            apply_link_date();
+            if( m_flag_hidden_link ) {
+                m_chars_looked_for.remove( 0 );
+                m_appliers.remove( 0 );
+                return;
+            }
+            else
+                apply_link_date();
         }
 
-        lookingfor.clear();
-        lookingfor.add( LF_NOTHING );
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( LF_NOTHING );
     }
 
     private void junction_ignore() {
-        lookingfor.clear();
-        lookingfor.add( LF_IGNORE );
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( LF_IGNORE );
         m_appliers.clear();
         apply_ignore();
     }
@@ -1395,29 +1439,35 @@ public class ActivityEntry extends Activity
 //        addSpan( new BackgroundColorSpan( colorBG ), pos_start, end, 0 );
     }
 
+    private void apply_hidden_link_tags( int end, Object spanLink ) {
+        addSpan( new SpanMarkup(), pos_start, pos_tab, 0 );
+        addSpan( new SpanMarkup(), pos_current, end, 0 );
+
+        addSpan( spanLink, pos_tab, pos_current, 0 );
+    }
+
     private void apply_link() {
-        // if( m_flag_hidden_link )
-        // {
-        // Gtk::TextIter iter_end( get_iter_at_offset( pos_current + 1 ) );
-        // Gtk::TextIter iter_url_start( get_iter_at_offset( pos_start + 1 ) );
-        // Gtk::TextIter iter_tab( get_iter_at_offset( pos_tab ) );
-        // m_list_links.push_back( new LinkUri( create_mark( iter_tab ),
-        // create_mark( iter_current ),
-        // get_slice( iter_url_start, iter_tab ) ) );
-        //
-        // apply_hidden_link_tags( iter_end, m_tag_link );
-        // }
-        // else
-        {
-            addSpan( new LinkUri( word_last ), pos_start, pos_current, 0 );
+        if( m_flag_hidden_link )
+            apply_hidden_link_tags( pos_current + 1, new LinkUri( word_last.toString() ) );
+        else
+            addSpan( new LinkUri( word_last.toString() ), pos_start, pos_current, 0 );
+    }
+
+    private void apply_link_id() {
+        DiaryElement element = Diary.diary.get_element( id_last );
+
+        if( element != null ) {
+            if( element.get_type() == DiaryElement.Type.ENTRY ) {
+                apply_hidden_link_tags( pos_current + 1, new LinkID( id_last ) );
+                //return;
+            }
         }
+        // TODO: indicate dead links
     }
 
     private void apply_link_date() {
         LinkStatus status = LinkStatus.LS_OK;
-        Entry ptr2entry = Diary.diary.get_entry( date_last.m_date + 1 ); // + 1
-                                                                         // fixes
-                                                                         // order
+        Entry ptr2entry = Diary.diary.get_entry( date_last.m_date + 1 ); // + 1 fixes order
         if( ptr2entry == null )
             status = LinkStatus.LS_ENTRY_UNAVAILABLE;
         else if( date_last.get_pure() == m_ptr2entry.m_date.get_pure() )
@@ -1427,19 +1477,11 @@ public class ActivityEntry extends Activity
 
         if( status == LinkStatus.LS_OK || status == LinkStatus.LS_ENTRY_UNAVAILABLE ) {
             int end = pos_current + 1;
-            // if hidden link:
-            // if( char_current == '>' )
-            // {
-            // m_list_links.push_back( new LinkEntry( create_mark( iter_tab ),
-            // create_mark( iter_current ),
-            // date_last ) );
-            // apply_hidden_link_tags( iter_end,
-            // status == LS_OK ? m_tag_link : m_tag_link_broken );
-            // }
-            // else
-            {
+
+            if( m_flag_hidden_link )
+                apply_hidden_link_tags( end, new LinkDate( date_last.m_date ) );
+            else
                 addSpan( new LinkDate( date_last.m_date ), pos_start, end, 0 );
-            }
         }
     }
 
