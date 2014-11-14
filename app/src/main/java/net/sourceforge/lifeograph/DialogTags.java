@@ -113,7 +113,7 @@ class DialogTags extends Dialog
 
     @Override
     public void onStop() {
-        mHost.onDialogTabsClose();
+        mHost.onDialogTagsClose();
     }
 
     private void create_tag() {
@@ -286,7 +286,7 @@ class DialogTags extends Dialog
     // INTERFACE WITH THE HOST ACTIVITY ============================================================
     public interface DialogTagsHost
     {
-        void onDialogTabsClose();
+        void onDialogTagsClose();
         Entry getEntry();
         List< Tag > getTags();
         void addTag( Tag t );

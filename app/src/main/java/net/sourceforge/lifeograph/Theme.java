@@ -56,8 +56,7 @@ public class Theme {
         font = "";
     }
 
-    public Theme( Theme theme )
-    {
+    public Theme( Theme theme ) {
         font = theme.font;
         color_base = theme.color_base;
         color_text = theme.color_text;
@@ -76,6 +75,14 @@ public class Theme {
     protected int color_heading;
     protected int color_subheading;
     protected int color_highlight;
+
+    // CONSTANT COLORS
+    public static final int     s_color_match1 = Color.parseColor( "#33FF33" );
+    public static final int     s_color_match2 = Color.parseColor( "#009900" );
+    //public static final int     s_color_link1; LATER
+    //public static final int     s_color_link2;
+    //public static final int     s_color_broken1;
+    //public static final int     s_color_broken2;
 
     private static int parse_color_sub( String color, int begin, int end ) {
         int ret_val = 0;
@@ -109,5 +116,26 @@ public class Theme {
                               Color.red( i_color ),
                               Color.green( i_color ),
                               Color.blue( i_color ) );
+    }
+
+    public static int midtone( int c1, int c2, float ratio ) {
+        return Color.rgb(
+                ( int ) ( ( Color.red( c1 ) * ratio ) + ( Color.red( c2 ) * ( 1.0 - ratio ) ) ),
+                ( int ) ( ( Color.green( c1 ) * ratio ) + ( Color.green( c2 ) * ( 1.0 - ratio ) ) ),
+                ( int ) ( ( Color.blue( c1 ) * ratio ) + ( Color.blue( c2 ) * ( 1.0 - ratio ) ) ) );
+    }
+    public static int contrast( int bg, int c1, int c2 ) {
+        int dist1 = Math.abs( Color.red( bg ) - Color.red( c1 ) ) +
+                    Math.abs( Color.green( bg ) - Color.green( c1 ) ) +
+                    Math.abs( Color.blue( bg ) - Color.blue( c1 ) );
+
+        int dist2 = Math.abs( Color.red( bg ) - Color.red( c2 ) ) +
+                    Math.abs( Color.green( bg ) - Color.green( c2 ) ) +
+                    Math.abs( Color.blue( bg ) - Color.blue( c2 ) );
+
+        if( dist1 > dist2 )
+            return c1;
+        else
+            return c2;
     }
 }

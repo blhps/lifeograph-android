@@ -487,7 +487,7 @@ public class ActivityDiary extends Activity
     }
 
     // TAG DIALOG HOST METHODS =====================================================================
-    public void onDialogTabsClose() {
+    public void onDialogTagsClose() {
         updateList();
     }
     public Entry getEntry() {

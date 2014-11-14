@@ -45,6 +45,7 @@ import android.text.TextWatcher;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
+import android.text.style.RelativeSizeSpan;
 import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SuperscriptSpan;
@@ -139,6 +140,10 @@ public class ActivityEntry extends Activity
     boolean mFlagSetTextOperation = false;
     boolean mFlagEntryChanged = false;
     boolean mFlagDismissOnExit = false;
+
+    private int mColorMid;
+    private int mColorMatchBG;
+    private final float sMarkupScale = 0.7f;
 
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -384,6 +389,23 @@ public class ActivityEntry extends Activity
             mActionBar.setIcon( m_ptr2entry.get_icon() );
     }
 
+    void updateTheme() {
+        Theme theme = m_ptr2entry.get_theme();
+        mEditText.setBackgroundColor( theme.color_base );
+        mEditText.setTextColor( theme.color_text );
+
+        mColorMid = Theme.midtone( theme.color_base, theme.color_text, 0.4f );
+
+        //mColorRegionBG = Theme.midtone( theme.color_base, theme.color_text, 0.9f ); LATER
+        mColorMatchBG = Theme.contrast(
+                theme.color_base, Theme.s_color_match1, Theme.s_color_match2 );
+
+        //mColorLink = Theme.contrast(
+        //theme.color_base, Theme.s_color_link1, Theme.s_color_link2 ); LATER
+        //mColorLinkBroken = Theme.contrast(
+        //theme.color_base, Theme.s_color_broken1, Theme.s_color_broken2 ); LATER
+    }
+
     void sync() {
         if( mFlagEntryChanged ) {
             m_ptr2entry.m_date_changed = ( int ) ( System.currentTimeMillis() / 1000L );
@@ -402,8 +424,7 @@ public class ActivityEntry extends Activity
         m_ptr2entry = entry;
 
         // THEME
-        mEditText.setBackgroundColor( entry.get_theme().color_base );
-        mEditText.setTextColor( entry.get_theme().color_text );
+        updateTheme();
 
         // PARSING
         m_pos_start = 0;
@@ -477,13 +498,12 @@ public class ActivityEntry extends Activity
     }
 
     // TAG DIALOG HOST METHODS =====================================================================
-    public void onDialogTabsClose() {
+    public void onDialogTagsClose() {
         // update tags label
         invalidateOptionsMenu();
 
         // update theme
-        mEditText.setBackgroundColor( m_ptr2entry.get_theme().color_base );
-        mEditText.setTextColor( m_ptr2entry.get_theme().color_text );
+        updateTheme();
         parse_text( 0, mEditText.getText().length() );
     }
     public Entry getEntry() {
@@ -716,10 +736,10 @@ public class ActivityEntry extends Activity
             return '=';
         }
     }
-    private class SpanMarkup extends TextAppearanceSpan implements AdvancedSpan
+    private class SpanMarkup extends ForegroundColorSpan implements AdvancedSpan
     {
         public SpanMarkup() {
-            super( ActivityEntry.this, R.style.markupSpan );
+            super( mColorMid );
         }
         public char getType() {
             return 'm';
@@ -1400,10 +1420,14 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_markup( Object span ) {
+        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_start, m_pos_start + 1,
+                 Spanned.SPAN_INTERMEDIATE );
         addSpan( new SpanMarkup(), m_pos_start, m_pos_start + 1, 0 );
 
         addSpan( span, m_pos_start + 1, pos_current, 0 );
 
+        addSpan( new RelativeSizeSpan( sMarkupScale ), pos_current, pos_current + 1,
+                 Spanned.SPAN_INTERMEDIATE );
         addSpan( new SpanMarkup(), pos_current, pos_current + 1, 0 );
     }
 
@@ -1411,7 +1435,7 @@ public class ActivityEntry extends Activity
         addSpan( new TextAppearanceSpan( this, R.style.commentSpan ), m_pos_start, pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
 
-        addSpan( new ForegroundColorSpan( Color.GRAY ), m_pos_start, pos_current + 1,
+        addSpan( new ForegroundColorSpan( mColorMid ), m_pos_start, pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
 
         addSpan( new SuperscriptSpan(), m_pos_start, pos_current + 1, 0 );
@@ -1428,7 +1452,11 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_hidden_link_tags( int end, Object spanLink ) {
+        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_start, pos_tab,
+                 Spanned.SPAN_INTERMEDIATE );
         addSpan( new SpanMarkup(), m_pos_start, pos_tab, 0 );
+        addSpan( new RelativeSizeSpan( sMarkupScale ), pos_current, end,
+                 Spanned.SPAN_INTERMEDIATE );
         addSpan( new SpanMarkup(), pos_current, end, 0 );
 
         addSpan( spanLink, pos_tab, pos_current, 0 );
@@ -1474,6 +1502,9 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_match() {
-        addSpan( new BackgroundColorSpan( Color.GREEN ), pos_search, pos_current + 1, 0 );
+        addSpan( new BackgroundColorSpan( mColorMatchBG ), pos_search, pos_current + 1,
+                 Spanned.SPAN_INTERMEDIATE );
+        addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_base ),
+                 pos_search, pos_current + 1, 0 );
     }
 }
