@@ -735,12 +735,11 @@ public class ActivityEntry extends Activity
         @Override
         public void onClick( View widget ) {
             Entry entry = Diary.diary.get_entry( mDate );
-            // TODO...
-            if( entry != null )
-                Log.d( Lifeograph.TAG, "date link clicked: " + entry.get_name() );
-            else
-                Log.d( Lifeograph.TAG, "No entry on the target date: " + Date.format_string(
-                        mDate ) );
+
+            if( entry == null )
+                entry = Diary.diary.create_entry( new Date( mDate ), "", false );
+
+            Lifeograph.showElem( entry );
         }
 
         public char getType() {
@@ -776,9 +775,12 @@ public class ActivityEntry extends Activity
         @Override
         public void onClick( View widget ) {
             DiaryElement elem = Diary.diary.get_element( mId );
-            // TODO...
-            if( elem != null )
-                Log.d( Lifeograph.TAG, "id link clicked: " + elem.get_name() );
+            if( elem != null ) {
+                if( elem.get_type() != DiaryElement.Type.ENTRY )
+                    Log.d( Lifeograph.TAG, "Target is not entry" );
+                else
+                    Lifeograph.showElem( elem );
+            }
         }
 
         public char getType() {
