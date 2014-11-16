@@ -38,17 +38,21 @@ import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.util.Log;
+import android.view.ActionMode;
 import android.view.Gravity;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.AdapterView;
+import android.widget.GridView;
 import android.widget.PopupMenu;
 
 public class ActivityDiary extends Activity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
         DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener,
-        DialogTags.DialogTagsHost
+        DialogTags.DialogTagsHost, ActionMode.Callback
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -59,7 +63,31 @@ public class ActivityDiary extends Activity
         Lifeograph.updateScreenWidth();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 
-        setContentView( R.layout.diary );
+        if( Lifeograph.getScreenWidth() >= 4.0 ) {
+            mCalAdapter = new GridCalAdapter( this, new Date( Date.get_today( 0 ) ) );
+            setContentView( R.layout.diary_wide );
+
+            GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
+            gridCalendar.setAdapter( mCalAdapter );
+
+            gridCalendar.setOnItemLongClickListener( new AdapterView.OnItemLongClickListener()
+            {
+                public boolean onItemLongClick( AdapterView< ? > arg0, View view,
+                                                int pos, long arg3 ) {
+                    if( mActionMode == null ) {
+                        mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
+                        mCalAdapter.mDateCurrent = new Date( mCalAdapter.mListDays.get( pos ) + 1 );
+                        view.setSelected( true );
+                    }
+
+                    return false;
+                }
+            } );
+        }
+        else {
+            mCalAdapter = null;
+            setContentView( R.layout.diary );
+        }
 
         // FILLING WIDGETS
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
@@ -198,18 +226,16 @@ public class ActivityDiary extends Activity
 
         boolean flagWritable = !Diary.diary.is_read_only();
 
-        MenuItem item = menu.findItem( R.id.add_elem );
-        item.setVisible( flagWritable );
+        menu.findItem( R.id.add_elem ).setVisible( flagWritable );
 
-//  TODO WILL BE IMPLEMENTED IN 0.4
-//        item = menu.findItem( R.id.change_sort_type );
-//        item.setVisible( mParentElem != null );
+        menu.findItem( R.id.calendar ).setVisible( mCalAdapter == null );
 
-        item = menu.findItem( R.id.export_plain_text );
-        item.setVisible( !Diary.diary.is_virtual() );
+//  TODO WILL BE IMPLEMENTED IN 0.5
+//        menu.findItem( R.id.change_sort_type ).setVisible( mParentElem != null );
 
-        item = menu.findItem( R.id.logout_wo_save );
-        item.setVisible( flagWritable );
+        menu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
+
+        menu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
 
         return true;
     }
@@ -250,7 +276,7 @@ public class ActivityDiary extends Activity
                                                        }
                                                    }, null );
                 return true;
-//  TODO WILL BE IMPLEMENTED IN 0.4
+//  TODO WILL BE IMPLEMENTED IN 0.5
 //            case R.id.import_sms:
 //                import_messages();
 //                return true;
@@ -486,6 +512,44 @@ public class ActivityDiary extends Activity
             fragment.updateList();
     }
 
+    // ActionMode.Callback INTERFACE METHODS
+    public boolean onCreateActionMode( ActionMode mode, Menu menu ) {
+        // Inflate a menu resource providing context menu items
+        MenuInflater inflater = mode.getMenuInflater();
+        inflater.inflate( R.menu.menu_calendar_contextual, menu );
+
+        menu.findItem( R.id.create_chapter ).setVisible(
+                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey(
+                        mCalAdapter.mDateCurrent.m_date ) );
+
+        return true;
+    }
+
+    public boolean onActionItemClicked( ActionMode mode, MenuItem item ) {
+        switch( item.getItemId() ) {
+            case R.id.create_entry:
+                Log.d( Lifeograph.TAG, "create entry" );
+                mode.finish(); // Action picked, so close the CAB
+                Entry e = Diary.diary.create_entry( mCalAdapter.mDateCurrent, "", false );
+                Lifeograph.showElem( e );
+                return true;
+            case R.id.create_chapter:
+                mode.finish(); // Action picked, so close the CAB
+                createChapter( mCalAdapter.mDateCurrent.m_date );
+                return true;
+            default:
+                return false;
+        }
+    }
+
+    public boolean onPrepareActionMode( ActionMode mode, Menu menu ) {
+        return false; // Return false if nothing is done
+    }
+
+    public void onDestroyActionMode( ActionMode mode ) {
+        mActionMode = null;
+    }
+
     // TAG DIALOG HOST METHODS =====================================================================
     public void onDialogTagsClose() {
         updateList();
@@ -508,9 +572,12 @@ public class ActivityDiary extends Activity
     private ActionBar mActionBar = null;
     protected ViewPager mPager;
     private TabsAdapter mTabsAdapter;
+    private GridCalAdapter mCalAdapter = null;
     private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
 
     private DrawerLayout mDrawerLayout = null;
+
+    private ActionMode mActionMode;
 
     private long mDateLast;
     private DiaryElement mElemMenu;

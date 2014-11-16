@@ -4,4 +4,5 @@
     <color name="action_bar">#ad6565</color>
     <color name="list_section">#e69595</color>
     <color name="toolbar">#d68585</color>
+    <color name="sidebar">#ead0d0</color>
 </resources>

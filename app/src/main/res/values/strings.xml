@@ -131,4 +131,10 @@
         <item>Only Favorite Entries</item>
     </string-array>
 
+    <string-array name="array_tabs">
+        <item>All Entries</item>
+        <item>Chapters</item>
+        <item>Tags</item>
+    </string-array>
+
 </resources>
