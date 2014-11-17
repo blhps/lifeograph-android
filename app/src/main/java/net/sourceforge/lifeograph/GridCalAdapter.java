@@ -131,9 +131,8 @@ class GridCalAdapter extends BaseAdapter
 
         if( position < 7 ) {
             tvDayNo.setText( Date.WEEKDAYSSHORT[ position+1 ] );
-            tvDayNo.setTextAppearance( mContext, R.style.boldText );
-            tvDayNo.setTextColor( Color.DKGRAY );
-            tvDayNo.setTextScaleX( 0.6f );
+            tvDayNo.setTextColor( mContext.getResources().getColor( R.color.list_section ) );
+            tvDayNo.setTextScaleX( 0.65f );
         }
         else {
             Date date = new Date( mListDays.get( position ) + 1 );

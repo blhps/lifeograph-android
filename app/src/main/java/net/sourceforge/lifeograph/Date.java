@@ -65,9 +65,7 @@ public class Date {
     public static final String[] WEEKDAYS = ( new DateFormatSymbols() ).getWeekdays();
     public static final String[] WEEKDAYSSHORT = ( new DateFormatSymbols() ).getShortWeekdays();
     public static final String[] MONTHS = ( new DateFormatSymbols() ).getMonths();
-    // { "January", "February", "March", "April", "May", "June",
-    // "July", "August", "September", "October", "November",
-    // "December" };
+
     public static final int[] MONTHLENGHTS = { 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
     protected static final int[] tm = { 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5 };
@@ -229,6 +227,11 @@ public class Date {
         return format_string(  m_date );
     }
 
+    // does not exist in C++
+    public String format_string_ym() {
+        return String.format( "%s, %02d", MONTHS[ get_month() - 1 ], get_year() );
+    }
+
     public static String format_string_dt( long d ) {
         java.util.Date date = new java.util.Date( d * 1000L );
         Calendar cal = Calendar.getInstance();
@@ -237,7 +240,6 @@ public class Date {
                               cal.get( Calendar.MONTH ) + 1, cal.get( Calendar.DAY_OF_MONTH ),
                               cal.get( Calendar.HOUR ), cal.get( Calendar.MINUTE ) );
     }
-
     public static String format_string_d( long d ) {
         java.util.Date date = new java.util.Date( d * 1000L );
         Calendar cal = Calendar.getInstance();

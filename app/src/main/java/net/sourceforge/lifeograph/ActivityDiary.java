@@ -46,6 +46,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
+import android.widget.Button;
 import android.widget.GridView;
 import android.widget.PopupMenu;
 
@@ -66,6 +67,14 @@ public class ActivityDiary extends Activity
         // PICKING UP THE APPROPRIATE LAYOUT
         if( Lifeograph.getScreenWidth() >= 4.0 ) {
             setContentView( R.layout.diary_wide );
+
+            mButtonCalendar = ( Button ) findViewById( R.id.button_calendar );
+            mButtonCalendar.setOnClickListener( new View.OnClickListener()
+            {
+                public void onClick( View view ) {
+                    new DialogCalendar( ActivityDiary.this, !Diary.diary.is_read_only() ).show();
+                }
+            } );
 
             ViewPager pagerCalendar = ( ViewPager ) findViewById( R.id.pager_calendar );
             mCalPagerAdapter = new PagerAdapterCalendar( pagerCalendar );
@@ -563,6 +572,8 @@ public class ActivityDiary extends Activity
     private PagerAdapterCalendar mCalPagerAdapter = null;
     private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
 
+    private Button mButtonCalendar;
+
     private DrawerLayout mDrawerLayout = null;
 
     private ActionMode mActionMode;
@@ -777,6 +788,8 @@ public class ActivityDiary extends Activity
             mGridAdapters[ 0 ].showMonth( datePrev );
             mGridAdapters[ 1 ].showMonth( mDateCur );
             mGridAdapters[ 2 ].showMonth( dateNext );
+
+            mButtonCalendar.setText( mDateCur.format_string_ym() );
         }
 
         @Override
