@@ -63,29 +63,16 @@ public class ActivityDiary extends Activity
         Lifeograph.updateScreenWidth();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 
+        // PICKING UP THE APPROPRIATE LAYOUT
         if( Lifeograph.getScreenWidth() >= 4.0 ) {
-            mCalAdapter = new GridCalAdapter( this, new Date( Date.get_today( 0 ) ) );
             setContentView( R.layout.diary_wide );
 
-            GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
-            gridCalendar.setAdapter( mCalAdapter );
-
-            gridCalendar.setOnItemLongClickListener( new AdapterView.OnItemLongClickListener()
-            {
-                public boolean onItemLongClick( AdapterView< ? > arg0, View view,
-                                                int pos, long arg3 ) {
-                    if( mActionMode == null ) {
-                        mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
-                        mCalAdapter.mDateCurrent = new Date( mCalAdapter.mListDays.get( pos ) + 1 );
-                        view.setSelected( true );
-                    }
-
-                    return false;
-                }
-            } );
+            ViewPager pagerCalendar = ( ViewPager ) findViewById( R.id.pager_calendar );
+            mCalPagerAdapter = new PagerAdapterCalendar( pagerCalendar );
+            pagerCalendar.setAdapter( mCalPagerAdapter );
         }
         else {
-            mCalAdapter = null;
+            mCalPagerAdapter = null;
             setContentView( R.layout.diary );
         }
 
@@ -228,7 +215,7 @@ public class ActivityDiary extends Activity
 
         menu.findItem( R.id.add_elem ).setVisible( flagWritable );
 
-        menu.findItem( R.id.calendar ).setVisible( mCalAdapter == null );
+        menu.findItem( R.id.calendar ).setVisible( mCalPagerAdapter == null );
 
 //  TODO WILL BE IMPLEMENTED IN 0.5
 //        menu.findItem( R.id.change_sort_type ).setVisible( mParentElem != null );
@@ -520,7 +507,7 @@ public class ActivityDiary extends Activity
 
         menu.findItem( R.id.create_chapter ).setVisible(
                 !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey(
-                        mCalAdapter.mDateCurrent.m_date ) );
+                        mCalPagerAdapter.mGridAdapters[ 1 ].mDateCurrent.m_date ) );
 
         return true;
     }
@@ -530,12 +517,13 @@ public class ActivityDiary extends Activity
             case R.id.create_entry:
                 Log.d( Lifeograph.TAG, "create entry" );
                 mode.finish(); // Action picked, so close the CAB
-                Entry e = Diary.diary.create_entry( mCalAdapter.mDateCurrent, "", false );
+                Entry e = Diary.diary.create_entry(
+                        mCalPagerAdapter.mGridAdapters[ 1 ].mDateCurrent, "", false );
                 Lifeograph.showElem( e );
                 return true;
             case R.id.create_chapter:
                 mode.finish(); // Action picked, so close the CAB
-                createChapter( mCalAdapter.mDateCurrent.m_date );
+                createChapter( mCalPagerAdapter.mGridAdapters[ 1 ].mDateCurrent.m_date );
                 return true;
             default:
                 return false;
@@ -572,7 +560,7 @@ public class ActivityDiary extends Activity
     private ActionBar mActionBar = null;
     protected ViewPager mPager;
     private TabsAdapter mTabsAdapter;
-    private GridCalAdapter mCalAdapter = null;
+    private PagerAdapterCalendar mCalPagerAdapter = null;
     private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
 
     private DrawerLayout mDrawerLayout = null;
@@ -740,4 +728,108 @@ public class ActivityDiary extends Activity
         }
     }
 
+    // CALENDAR PAGER ADAPTER ======================================================================
+    public class PagerAdapterCalendar extends PagerAdapter
+            implements ViewPager.OnPageChangeListener
+    {
+        public PagerAdapterCalendar( ViewPager pager ) {
+            pager.setCurrentItem( 1, false );
+            mViewPager = pager;
+            mViewPager.setOnPageChangeListener( this );
+
+            initGVs();
+            updateGVs();
+        }
+
+        private void initGVs() {
+            for( int i = 0; i < 3; i++ ) {
+                mGVs[ i ] = new GridView( ActivityDiary.this );
+                mGridAdapters[ i ] = new GridCalAdapter( ActivityDiary.this );
+                final GridCalAdapter calAdapter = mGridAdapters[ i ];
+                mGVs[ i ].setAdapter( calAdapter );
+                mGVs[ i ].setNumColumns( 7 );
+                mGVs[ i ].setVerticalSpacing( 5 );
+                mGVs[ i ].setStretchMode( GridView.STRETCH_COLUMN_WIDTH );
+
+                mGVs[ i ].setOnItemLongClickListener( new AdapterView.OnItemLongClickListener()
+                {
+                    public boolean onItemLongClick( AdapterView< ? > arg0, View view,
+                                                int pos, long arg3 ) {
+                        if( mActionMode == null ) {
+                            mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
+                            calAdapter.mDateCurrent =
+                                    new Date( calAdapter.mListDays.get( pos ) + 1 );
+                            view.setSelected( true );
+                        }
+
+                        return false;
+                    }
+                } );
+            }
+        }
+
+        private void updateGVs() {
+            Date datePrev = new Date( mDateCur.m_date );
+            datePrev.backward_month();
+            Date dateNext = new Date( mDateCur.m_date );
+            dateNext.forward_month();
+
+            mGridAdapters[ 0 ].showMonth( datePrev );
+            mGridAdapters[ 1 ].showMonth( mDateCur );
+            mGridAdapters[ 2 ].showMonth( dateNext );
+        }
+
+        @Override
+        public Object instantiateItem( ViewGroup container, int position ) {
+            Log.d( Lifeograph.TAG, "pager adapter calendar instantiate item: " + position );
+
+            container.addView( mGVs[ position ] );
+
+            return mGVs[ position ];
+        }
+
+        @Override
+        public void destroyItem( ViewGroup container, int position, Object object ) {
+            container.removeView( ( View ) object );
+        }
+
+        @Override
+        public int getCount() {
+            return 3;
+        }
+
+        @Override
+        public boolean isViewFromObject( View view, Object object ) {
+            return( object == view );
+        }
+
+        // ViewPager.OnPageChangeListener INTERFACE METHODS
+        public void onPageScrolled( int position, float posOffset, int posOffsetPixels ) { }
+        public void onPageSelected( int position ) {
+            mPosCur = position;
+        }
+        public void onPageScrollStateChanged( int state ) {
+            if( state == ViewPager.SCROLL_STATE_IDLE ) {
+                Log.d( Lifeograph.TAG, "PagerAdapterCalendar.onPageScrollStateChanged()" );
+
+                // go back:
+                if( mPosCur == 0 )
+                    mDateCur.backward_month();
+                // go forward:
+                else if( mPosCur == 2 )
+                    mDateCur.forward_month();
+
+                updateGVs();
+
+                mViewPager.setCurrentItem( 1, false );
+            }
+        }
+
+        protected final ViewPager mViewPager;
+        Date mDateCur = new Date( Date.get_today( 0 ) );
+        int mPosCur = 1;
+
+        GridView[] mGVs = new GridView[ 3 ];
+        GridCalAdapter[] mGridAdapters = new GridCalAdapter[ 3 ];
+    }
 }

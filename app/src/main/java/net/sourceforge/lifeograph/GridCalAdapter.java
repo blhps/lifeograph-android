@@ -48,6 +48,11 @@ class GridCalAdapter extends BaseAdapter
 
         showMonth( date );
     }
+    public GridCalAdapter( Context context ) {
+        super();
+        this.mContext = context;
+        mListDays = new ArrayList< Long >();
+    }
 
     // @Override
     public String getItem( int position ) {
@@ -60,14 +65,11 @@ class GridCalAdapter extends BaseAdapter
     }
 
     protected void showMonth( Date date ) {
-        boolean nothing2show = false;
         if( mDateCurrent != null )
-            if( date.get_yearmonth() != mDateCurrent.get_yearmonth() )
-                nothing2show = true;
-        mDateCurrent = new Date( date.m_date );
+            if( date.get_yearmonth() == mDateCurrent.get_yearmonth() )
+                return;
 
-        if( nothing2show )
-            return;
+        mDateCurrent = new Date( date.m_date );
 
         mListDays.clear();
         notifyDataSetChanged();
