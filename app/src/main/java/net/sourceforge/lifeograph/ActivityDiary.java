@@ -773,6 +773,7 @@ public class ActivityDiary extends Activity
                 mGVs[ i ].setNumColumns( 7 );
                 mGVs[ i ].setVerticalSpacing( 5 );
                 mGVs[ i ].setStretchMode( GridView.STRETCH_COLUMN_WIDTH );
+                mGVs[ i ].setSelector( R.drawable.themed_selector );
             }
 
             mGVs[ 1 ].setOnItemLongClickListener( new AdapterView.OnItemLongClickListener()
