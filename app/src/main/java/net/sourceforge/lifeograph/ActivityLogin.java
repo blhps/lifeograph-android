@@ -34,13 +34,10 @@ import android.os.Environment;
 import android.preference.PreferenceManager;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
-import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -51,7 +48,7 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
         super.onCreate( savedInstanceState );
 
         Lifeograph.sContext = this;
-        Lifeograph.updateScreenWidth();
+        Lifeograph.updateScreenSizes();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 
         if( Diary.diary == null )

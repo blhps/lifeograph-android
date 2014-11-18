@@ -28,6 +28,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
@@ -63,6 +64,10 @@ public class DialogInquireText extends Dialog
         } );
 
         mInput = ( EditText ) findViewById( R.id.inquireTextEdit );
+
+        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
+            mInput.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
+
         mInput.addTextChangedListener( new TextWatcher()
         {
             public void afterTextChanged( Editable s ) {

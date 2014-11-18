@@ -31,7 +31,8 @@
 
         <activity android:name=".ActivityChapterTag" />
 
-        <activity android:name=".ActivityEntry" />
+        <activity android:name=".ActivityEntry"
+                  android:windowSoftInputMode="adjustResize" />
 
         <activity
             android:name=".ActivitySettings"

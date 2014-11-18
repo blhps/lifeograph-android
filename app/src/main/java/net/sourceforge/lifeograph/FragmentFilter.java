@@ -31,6 +31,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
@@ -57,6 +58,9 @@ public class FragmentFilter extends Fragment
         mButtonShowTodoDone = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_done );
         mButtonShowTodoCanceled = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_canceled );
         mSpinnerShowFavorite = ( Spinner ) rootView.findViewById( R.id.spinnerFavorites );
+
+        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
+            mEditSearch.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
 
         // UI UPDATES (must come before listeners)
         updateFilterWidgets( Diary.diary.m_filter_active.get_status() );

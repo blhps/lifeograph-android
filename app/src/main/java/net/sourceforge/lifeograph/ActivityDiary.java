@@ -34,6 +34,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.support.annotation.NonNull;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
@@ -61,7 +62,7 @@ public class ActivityDiary extends Activity
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
 
-        Lifeograph.updateScreenWidth();
+        Lifeograph.updateScreenSizes();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 
         // PICKING UP THE APPROPRIATE LAYOUT
@@ -185,7 +186,7 @@ public class ActivityDiary extends Activity
     }
 
     @Override
-    protected void onSaveInstanceState( Bundle outState ) {
+    protected void onSaveInstanceState( @NonNull Bundle outState ) {
         super.onSaveInstanceState( outState );
         outState.putInt( "tab", getActionBar().getSelectedNavigationIndex() );
     }

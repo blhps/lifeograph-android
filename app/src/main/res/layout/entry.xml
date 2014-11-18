@@ -43,8 +43,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:orientation="horizontal"
-                android:baselineAligned="true"
-                >
+                android:baselineAligned="true" >
 
                 <Button
                     android:id="@+id/buttonBold"
@@ -85,7 +84,6 @@
                     android:layout_height="match_parent"
                     android:hint="@string/search_hint"
                     android:singleLine="true"
-                    android:imeOptions="flagNoExtractUi"
                     android:background="@color/list_section"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
@@ -101,8 +99,7 @@
             android:layout_height="0dp"
             android:layout_weight=".99"
             android:gravity="top"
-            android:inputType="textMultiLine"
-            android:imeOptions="flagNoExtractUi" >
+            android:inputType="textMultiLine" >
             <requestFocus />
         </EditText>
 

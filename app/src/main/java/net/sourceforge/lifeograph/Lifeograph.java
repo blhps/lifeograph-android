@@ -102,8 +102,9 @@ public class Lifeograph
     public static final String TAG = "LFO";
 
     protected static Context sContext = null;
-//    private static boolean sIsLargeScreen = false;
     private static float sScreenWidth;
+    private static float sScreenHeight;
+    public static final float MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0f;
 
     public static String getStr( int i ) {
         if( sContext == null )
@@ -147,16 +148,20 @@ public class Lifeograph
 //                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
 //    }
 
-    public static void updateScreenWidth() {
+    public static void updateScreenSizes() {
         WindowManager wm = ( WindowManager ) sContext.getSystemService( Context.WINDOW_SERVICE );
         DisplayMetrics metrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics( metrics );
         sScreenWidth = metrics.widthPixels / metrics.xdpi;
-        Log.d( TAG, "Updated the screenwidth: " + sScreenWidth );
+        sScreenHeight = metrics.heightPixels / metrics.ydpi;
+        Log.d( TAG, "Updated the sizes: " + sScreenWidth + "x" + sScreenHeight );
     }
 
     public static float getScreenWidth() {
         return sScreenWidth;
+    }
+    public static float getScreenHeight() {
+        return sScreenHeight;
     }
 //    public static boolean isLargeScreen() {
 //        return sIsLargeScreen;

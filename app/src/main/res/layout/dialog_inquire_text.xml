@@ -33,8 +33,7 @@
         android:layout_margin="5dp"
         android:ems="10"
         android:inputType="text"
-        android:singleLine="true"
-        android:imeOptions="flagNoExtractUi" >
+        android:singleLine="true" >
 
         <requestFocus />
 

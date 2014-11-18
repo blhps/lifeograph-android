@@ -55,6 +55,7 @@ import android.view.ActionMode;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 
@@ -151,7 +152,7 @@ public class ActivityEntry extends Activity
 
         setContentView( R.layout.entry );
 
-        Lifeograph.updateScreenWidth();
+        Lifeograph.updateScreenSizes();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 
         mActionBar = getActionBar();
@@ -161,6 +162,9 @@ public class ActivityEntry extends Activity
 
         mEditText = ( EditText ) findViewById( R.id.editTextEntry );
         //mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
+
+        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
+            mEditText.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
 
         // set custom font as the default font may lack the necessary chars such as check marks:
         Typeface font = Typeface.createFromAsset( getAssets(), "OpenSans-Regular.ttf" );
@@ -261,6 +265,10 @@ public class ActivityEntry extends Activity
 
         EditText editTextSearch = ( EditText ) findViewById( ( R.id.editTextSearch ) );
         editTextSearch.setText( Diary.diary.get_search_text() );
+
+        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
+            editTextSearch.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
+
         editTextSearch.addTextChangedListener( new TextWatcher()
         {
             public void afterTextChanged( Editable s ) { }

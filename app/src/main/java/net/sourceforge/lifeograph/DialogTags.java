@@ -32,6 +32,7 @@ import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.EditorInfo;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
@@ -84,6 +85,10 @@ class DialogTags extends Dialog
         buttonAdd.setEnabled( false );
 
         editText = ( EditText ) findViewById( R.id.editTextTag );
+
+        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
+            editText.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
+
         editText.addTextChangedListener( new TextWatcher() {
             public void afterTextChanged( Editable s ) { }
 
