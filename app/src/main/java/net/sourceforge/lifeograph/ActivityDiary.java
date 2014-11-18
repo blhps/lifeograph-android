@@ -780,12 +780,14 @@ public class ActivityDiary extends Activity
             {
                 public boolean onItemLongClick( AdapterView< ? > arg0, View view,
                                                 int pos, long arg3 ) {
-                    if( mActionMode == null ) {
-                        mGridAdapters[ 1 ].mDateCurrent =
-                                new Date( mGridAdapters[ 1 ].mListDays.get( pos ) );
-                        view.setSelected( true );
-                        mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
-                    }
+                    mGridAdapters[ 1 ].mDateCurrent =
+                            new Date( mGridAdapters[ 1 ].mListDays.get( pos ) );
+                    view.setSelected( true );
+
+                    if( mActionMode != null )
+                        mActionMode.finish();
+
+                    mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
 
                     return false;
                 }
