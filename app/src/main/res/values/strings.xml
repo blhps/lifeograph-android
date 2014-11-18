@@ -34,6 +34,8 @@
     <string name="new_tag">New Tag</string>
     <string name="new_tag_ctg">New Tag Category</string>
 
+    <string name="open_entry">Open entry</string>
+
     <string name="create_diary">Enter a name for the new diary</string>
     <string name="create_entry">Create entry</string>
     <string name="create_chapter">Create dated chapter</string>
@@ -129,12 +131,6 @@
         <item>All Entries</item>
         <item>Only Regular Entries</item>
         <item>Only Favorite Entries</item>
-    </string-array>
-
-    <string-array name="array_tabs">
-        <item>All Entries</item>
-        <item>Chapters</item>
-        <item>Tags</item>
     </string-array>
 
 </resources>

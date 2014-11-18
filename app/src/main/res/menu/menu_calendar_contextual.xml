@@ -23,6 +23,8 @@ along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <item android:id="@+id/open_entry"
+          android:title="@string/open_entry" />
     <item android:id="@+id/create_entry"
           android:title="@string/create_entry" />
     <item android:id="@+id/create_chapter"

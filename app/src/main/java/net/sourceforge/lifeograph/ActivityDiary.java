@@ -78,7 +78,6 @@ public class ActivityDiary extends Activity
 
             ViewPager pagerCalendar = ( ViewPager ) findViewById( R.id.pager_calendar );
             mCalPagerAdapter = new PagerAdapterCalendar( pagerCalendar );
-            pagerCalendar.setAdapter( mCalPagerAdapter );
         }
         else {
             mCalPagerAdapter = null;
@@ -514,25 +513,36 @@ public class ActivityDiary extends Activity
         MenuInflater inflater = mode.getMenuInflater();
         inflater.inflate( R.menu.menu_calendar_contextual, menu );
 
+        menu.findItem( R.id.open_entry ).setVisible(
+                Diary.diary.m_entries.containsKey(
+                        mCalPagerAdapter.getSelectedDate().m_date + 1 ) );
+
         menu.findItem( R.id.create_chapter ).setVisible(
                 !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey(
-                        mCalPagerAdapter.mGridAdapters[ 1 ].mDateCurrent.m_date ) );
+                        mCalPagerAdapter.getSelectedDate().m_date ) );
 
         return true;
     }
 
     public boolean onActionItemClicked( ActionMode mode, MenuItem item ) {
         switch( item.getItemId() ) {
-            case R.id.create_entry:
+            case R.id.open_entry: {
+                Entry e = Diary.diary.m_entries.get(
+                        mCalPagerAdapter.getSelectedDate().m_date + 1 );
+                Lifeograph.showElem( e );
+                return true;
+            }
+            case R.id.create_entry: {
                 Log.d( Lifeograph.TAG, "create entry" );
                 mode.finish(); // Action picked, so close the CAB
                 Entry e = Diary.diary.create_entry(
-                        mCalPagerAdapter.mGridAdapters[ 1 ].mDateCurrent, "", false );
+                        mCalPagerAdapter.getSelectedDate(), "", false );
                 Lifeograph.showElem( e );
                 return true;
+            }
             case R.id.create_chapter:
                 mode.finish(); // Action picked, so close the CAB
-                createChapter( mCalPagerAdapter.mGridAdapters[ 1 ].mDateCurrent.m_date );
+                createChapter( mCalPagerAdapter.getSelectedDate().m_date );
                 return true;
             default:
                 return false;
@@ -744,9 +754,11 @@ public class ActivityDiary extends Activity
             implements ViewPager.OnPageChangeListener
     {
         public PagerAdapterCalendar( ViewPager pager ) {
-            pager.setCurrentItem( 1, false );
             mViewPager = pager;
+            mViewPager.setAdapter( this );
             mViewPager.setOnPageChangeListener( this );
+
+            mViewPager.setCurrentItem( 1, false );
 
             initGVs();
             updateGVs();
@@ -756,27 +768,26 @@ public class ActivityDiary extends Activity
             for( int i = 0; i < 3; i++ ) {
                 mGVs[ i ] = new GridView( ActivityDiary.this );
                 mGridAdapters[ i ] = new GridCalAdapter( ActivityDiary.this );
-                final GridCalAdapter calAdapter = mGridAdapters[ i ];
-                mGVs[ i ].setAdapter( calAdapter );
+                mGVs[ i ].setAdapter( mGridAdapters[ i ] );
                 mGVs[ i ].setNumColumns( 7 );
                 mGVs[ i ].setVerticalSpacing( 5 );
                 mGVs[ i ].setStretchMode( GridView.STRETCH_COLUMN_WIDTH );
-
-                mGVs[ i ].setOnItemLongClickListener( new AdapterView.OnItemLongClickListener()
-                {
-                    public boolean onItemLongClick( AdapterView< ? > arg0, View view,
-                                                int pos, long arg3 ) {
-                        if( mActionMode == null ) {
-                            mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
-                            calAdapter.mDateCurrent =
-                                    new Date( calAdapter.mListDays.get( pos ) + 1 );
-                            view.setSelected( true );
-                        }
-
-                        return false;
-                    }
-                } );
             }
+
+            mGVs[ 1 ].setOnItemLongClickListener( new AdapterView.OnItemLongClickListener()
+            {
+                public boolean onItemLongClick( AdapterView< ? > arg0, View view,
+                                                int pos, long arg3 ) {
+                    if( mActionMode == null ) {
+                        mGridAdapters[ 1 ].mDateCurrent =
+                                new Date( mGridAdapters[ 1 ].mListDays.get( pos ) );
+                        view.setSelected( true );
+                        mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
+                    }
+
+                    return false;
+                }
+            } );
         }
 
         private void updateGVs() {
@@ -790,6 +801,10 @@ public class ActivityDiary extends Activity
             mGridAdapters[ 2 ].showMonth( dateNext );
 
             mButtonCalendar.setText( mDateCur.format_string_ym() );
+        }
+
+        public Date getSelectedDate() {
+            return mGridAdapters[ 1 ].mDateCurrent;
         }
 
         @Override
