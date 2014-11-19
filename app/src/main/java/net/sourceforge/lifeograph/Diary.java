@@ -706,9 +706,9 @@ public class Diary extends DiaryElement
     }
 
     // TAGS ========================================================================================
-    public java.util.Map< String, Tag > get_tags() {
-        return m_tags;
-    }
+//    public java.util.Map< String, Tag > get_tags() {
+//        return m_tags;
+//    }
 
     public Untagged get_untagged()
     {
@@ -863,7 +863,7 @@ public class Diary extends DiaryElement
 
             // SHIFT ENTRY DATES
             boolean flag_first = true;
-            boolean flag_dismiss_contained = false; // TODO WILL BE ADDED IN 0.3+
+            boolean flag_dismiss_contained = false; // TODO WILL BE ADDED IN 0.5+
             for( Chapter chpt = chapter; chpt != null; )
             {
                 boolean flag_neighbor = ( chpt.get_date_t() == chapter.get_date_t()
@@ -1912,8 +1912,7 @@ public class Diary extends DiaryElement
         mFileWriter.append( "L " ).append( Integer.toString( m_last_elem_id ) ).append( '\n' );
 
         // ROOT TAGS
-        for( Tag tag : m_tags.values() )
-        {
+        for( Tag tag : m_tags.values() ) {
             if( tag.get_category() == null )
                 create_db_tag_text( 'm', tag );
         }
@@ -1925,9 +1924,7 @@ public class Diary extends DiaryElement
                     .append( ctg.get_name() ).append( '\n' );
             // tags in it:
             for( Tag tag : ctg.mTags )
-            {
                 create_db_tag_text( 'm', tag );
-            }
         }
         // UNTAGGED THEME
         create_db_tag_text( 'u', m_untagged );
