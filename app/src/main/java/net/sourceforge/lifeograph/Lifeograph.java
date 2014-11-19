@@ -41,7 +41,6 @@ public class Lifeograph
 
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
     protected static boolean sSaveDiaryOnLogout = true;
-    protected static boolean sFlagUpdateListOnResume = false;
     protected static int sNumberOfDiaryEditingActivities = 0;
 
     enum LoginStatus { LOGGED_OUT, LOGGED_IN }

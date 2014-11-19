@@ -100,8 +100,6 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         super.onPause();
 
         Log.d( Lifeograph.TAG, "onPause - ActivityChapterTag" );
-
-        Lifeograph.sFlagUpdateListOnResume = true;
     }
 
     @Override
@@ -121,9 +119,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
         Lifeograph.sContext = this;
 
-        if( Lifeograph.sFlagUpdateListOnResume )
-            updateList();
-        Lifeograph.sFlagUpdateListOnResume = false;
+        updateList();
     }
 
     @Override

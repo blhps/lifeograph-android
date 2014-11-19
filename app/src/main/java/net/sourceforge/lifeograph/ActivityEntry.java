@@ -298,7 +298,6 @@ public class ActivityEntry extends Activity
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
             sync();
-        Lifeograph.sFlagUpdateListOnResume = true;
     }
 
     @Override

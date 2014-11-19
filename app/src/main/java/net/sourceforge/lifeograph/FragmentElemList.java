@@ -65,8 +65,9 @@ public class FragmentElemList extends ListFragment
     }
 
     @Override
-    public void onActivityCreated( Bundle savedInstanceState ) {
-        super.onActivityCreated( savedInstanceState );
+    public void onResume() {
+        Log.d( Lifeograph.TAG, "FragmentElemList.onResume()" );
+        super.onResume();
 
         updateList();
     }
@@ -109,7 +110,6 @@ public class FragmentElemList extends ListFragment
     }
 
     public void updateList() {
-
         mAdapterEntries.clear();
         mElems.clear();
 

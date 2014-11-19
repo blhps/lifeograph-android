@@ -179,10 +179,6 @@ public class ActivityDiary extends Activity
         Lifeograph.sContext = this;
 
         Lifeograph.sSaveDiaryOnLogout = true;
-
-        if( Lifeograph.sFlagUpdateListOnResume )
-            updateList();
-        Lifeograph.sFlagUpdateListOnResume = false;
     }
 
     @Override
