@@ -21,198 +21,208 @@
 
 **************************************************************************** -->
 
-<LinearLayout
+<ScrollView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
-    android:layout_gravity="end"
-    android:padding="20dp"
-    android:baselineAligned="true"
     android:background="@android:color/background_light">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textAppearance="?android:attr/textAppearanceLarge"
-        android:text="@string/active_filter"
-        android:layout_margin="10dp"
-        android:layout_gravity="center_horizontal"/>
-
-    <FrameLayout
+    <LinearLayout
+        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content" >
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:layout_gravity="end"
+        android:padding="20dp"
+        android:baselineAligned="true">
 
-        <EditText
-            android:id="@+id/editTextSearch"
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="?android:attr/textAppearanceLarge"
+            android:text="@string/active_filter"
+            android:layout_margin="10dp"
+            android:layout_gravity="center_horizontal"/>
+
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content" >
+
+            <EditText
+                android:id="@+id/editTextSearch"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="@string/search_hint"
+                android:singleLine="true" />
+
+            <Button
+                android:id="@+id/buttonClearText"
+                android:layout_width="24dp"
+                android:layout_height="24dp"
+                android:layout_marginRight="8dp"
+                android:layout_gravity="right|center_vertical"
+                android:scaleType="centerInside"
+                android:background="@drawable/ic_clear"
+                android:visibility="invisible" />
+
+        </FrameLayout>
+
+        <!-- separator -->
+        <TextView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:hint="@string/search_hint"
-            android:singleLine="true" />
+            android:layout_marginTop="20dp"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:text="@string/todo_status"
+            android:layout_gravity="start"/>
 
-        <Button
-            android:id="@+id/buttonClearText"
-            android:layout_width="24dp"
-            android:layout_height="24dp"
-            android:layout_marginRight="8dp"
-            android:layout_gravity="right|center_vertical"
-            android:scaleType="centerInside"
-            android:background="@drawable/ic_clear"
-            android:visibility="invisible" />
-
-    </FrameLayout>
-
-    <!-- separator -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        style="?android:attr/listSeparatorTextViewStyle"
-        android:text="@string/todo_status"
-        android:layout_gravity="start"/>
-
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="3dp"
-        android:orientation="horizontal" >
-
-        <net.sourceforge.lifeograph.ToggleImageButton
-            android:layout_width="0dp"
+        <LinearLayout
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:layout_weight=".2"
-            android:id="@+id/show_todo_not"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/icon_entry" />
+            android:layout_marginTop="3dp"
+            android:orientation="horizontal" >
 
-        <net.sourceforge.lifeograph.ToggleImageButton
-            android:layout_width="0dp"
+            <net.sourceforge.lifeograph.ToggleImageButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
+                android:id="@+id/show_todo_not"
+                style="?android:attr/borderlessButtonStyle"
+                android:src="@drawable/icon_entry" />
+
+            <net.sourceforge.lifeograph.ToggleImageButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
+                android:id="@+id/show_todo_open"
+                style="?android:attr/borderlessButtonStyle"
+                android:src="@drawable/icon_todo_open" />
+
+            <net.sourceforge.lifeograph.ToggleImageButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
+                android:id="@+id/show_todo_progressed"
+                style="?android:attr/borderlessButtonStyle"
+                android:src="@drawable/icon_todo_progressed" />
+
+            <net.sourceforge.lifeograph.ToggleImageButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
+                android:id="@+id/show_todo_done"
+                style="?android:attr/borderlessButtonStyle"
+                android:src="@drawable/icon_todo_done" />
+
+            <net.sourceforge.lifeograph.ToggleImageButton
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:minHeight="0dp"
+                android:minWidth="0dp"
+                android:layout_weight=".2"
+                android:id="@+id/show_todo_canceled"
+                style="?android:attr/borderlessButtonStyle"
+                android:src="@drawable/icon_todo_canceled" />
+
+        </LinearLayout>
+
+        <!-- separator -->
+        <!-- TODO WILL BE IMPLEMENTED IN 0.5
+        TextView
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:layout_weight=".2"
-            android:id="@+id/show_todo_open"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/icon_todo_open" />
+            android:layout_marginTop="20dp"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:text="Trash"
+            android:layout_gravity="start"/>
 
-        <net.sourceforge.lifeograph.ToggleImageButton
-            android:layout_width="0dp"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:layout_weight=".2"
-            android:id="@+id/show_todo_progressed"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/icon_todo_progressed" />
+            android:layout_gravity="center_horizontal">
 
-        <net.sourceforge.lifeograph.ToggleImageButton
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:layout_weight=".2"
-            android:id="@+id/show_todo_done"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/icon_todo_done" />
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="Show"/>
 
-        <net.sourceforge.lifeograph.ToggleImageButton
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:minHeight="0dp"
-            android:minWidth="0dp"
-            android:layout_weight=".2"
-            android:id="@+id/show_todo_canceled"
-            style="?android:attr/borderlessButtonStyle"
-            android:src="@drawable/icon_todo_canceled" />
+            <Spinner
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinnerTrash"
+                android:layout_weight="1"
+                android:entries="@array/array_filter_trash" />
+        </LinearLayout-->
 
-    </LinearLayout>
-
-    <!-- separator -->
-    <!-- TODO WILL BE IMPLEMENTED IN 0.5
-    TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        style="?android:attr/listSeparatorTextViewStyle"
-        android:text="Trash"
-        android:layout_gravity="start"/>
-
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
-
+        <!-- separator -->
         <TextView
-            android:layout_width="wrap_content"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="Show"/>
+            android:layout_marginTop="20dp"
+            style="?android:attr/listSeparatorTextViewStyle"
+            android:text="@string/favorites"
+            android:layout_gravity="start"/>
 
-        <Spinner
-            android:layout_width="wrap_content"
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/spinnerTrash"
-            android:layout_weight="1"
-            android:entries="@array/array_filter_trash" />
-    </LinearLayout-->
+            android:layout_gravity="center_horizontal">
 
-    <!-- separator -->
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="20dp"
-        style="?android:attr/listSeparatorTextViewStyle"
-        android:text="Favorites"
-        android:layout_gravity="start"/>
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:textAppearance="?android:attr/textAppearanceSmall"
+                android:text="@string/show" />
 
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_horizontal">
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/spinnerFavorites"
+                android:layout_weight="1"
+                android:entries="@array/array_filter_favorite" />
 
-        <TextView
-            android:layout_width="wrap_content"
+        </LinearLayout>
+
+        <!-- buttons -->
+        <LinearLayout
+            android:orientation="horizontal"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center_vertical"
-            android:textAppearance="?android:attr/textAppearanceSmall"
-            android:text="@string/show"/>
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center_horizontal"
+            style="?android:attr/buttonBarStyle" >
 
-        <Spinner
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/spinnerFavorites"
-            android:layout_weight="1"
-            android:entries="@array/array_filter_favorite" />
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:id="@+id/buttonFilterReset"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="@string/reset" />
+
+            <Button
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight=".5"
+                android:id="@+id/buttonFilterSave"
+                style="?android:attr/buttonBarButtonStyle"
+                android:text="@string/save" />
+
+        </LinearLayout>
 
     </LinearLayout>
 
-    <!-- buttons -->
-    <LinearLayout
-        android:orientation="horizontal"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
-        android:layout_gravity="center_horizontal">
-
-        <Button
-            android:layout_width="0.dp"
-            android:layout_height="wrap_content"
-            android:layout_weight=".5"
-            android:id="@+id/buttonFilterReset"
-            android:text="@string/reset" />
-
-        <Button
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight=".5"
-            android:id="@+id/buttonFilterSave"
-            android:text="@string/save" />
-
-    </LinearLayout>
-
-</LinearLayout>
+</ScrollView>
