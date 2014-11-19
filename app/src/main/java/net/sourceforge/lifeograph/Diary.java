@@ -1903,9 +1903,8 @@ public class Diary extends DiaryElement
 
     private boolean create_db_body_text() throws IOException {
         // OPTIONS
-        // dashed char used to be used for spell-checking before v110
         mFileWriter.append( "O " ).append( m_option_sorting_criteria ).append( '\n' );
-        if( m_language.isEmpty() )
+        if( ! m_language.isEmpty() )
             mFileWriter.append( "l " ).append( m_language ).append( '\n' );
 
         // STARTUP ACTION (HOME ITEM)
