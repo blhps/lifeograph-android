@@ -1168,24 +1168,32 @@ public class Diary extends DiaryElement
                                     ptr2tag.get_own_theme().font = line.substring( 2 );
                                     break;
                                 case 'b': // base color
-                                    ptr2tag.get_own_theme().color_base =
-                                            Theme.parse_color( line.substring( 2 ) );
+                                    if( line.charAt( 2 ) != 'n' )
+                                        ptr2tag.get_own_theme().color_base =
+                                                Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 't': // text color
-                                    ptr2tag.get_own_theme().color_text =
-                                            Theme.parse_color( line.substring( 2 ) );
+                                    if( line.charAt( 2 ) != 'n' )
+                                        ptr2tag.get_own_theme().color_text =
+                                                Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'h': // heading color
-                                    ptr2tag.get_own_theme().color_heading =
-                                            Theme.parse_color( line.substring( 2 ) );
+                                    if( line.charAt( 2 ) != 'n' )
+                                        ptr2tag.get_own_theme().color_heading =
+                                                Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 's': // subheading color
-                                    ptr2tag.get_own_theme().color_subheading =
-                                            Theme.parse_color( line.substring( 2 ) );
+                                    if( line.charAt( 2 ) != 'n' )
+                                        ptr2tag.get_own_theme().color_subheading =
+                                                Theme.parse_color( line.substring( 2 ) );
                                     break;
                                 case 'l': // highlight color
-                                    ptr2tag.get_own_theme().color_highlight =
-                                            Theme.parse_color( line.substring( 2 ) );
+                                    // a work-around against a bug in 0.3
+                                    if( line.charAt( 2 ) == 'n' )
+                                        ptr2tag.create_own_theme_duplicating( Theme.System.get() );
+                                    else
+                                        ptr2tag.get_own_theme().color_highlight =
+                                                Theme.parse_color( line.substring( 2 ) );
                                     break;
                             }
                             break;
