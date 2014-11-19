@@ -84,7 +84,8 @@
                     android:layout_height="match_parent"
                     android:hint="@string/search_hint"
                     android:singleLine="true"
-                    android:background="@color/list_section"
+                    android:background="@color/t_lighter"
+                    android:textColorHint="@color/t_mid"
                     android:paddingLeft="5dp"
                     android:paddingRight="5dp"
                     android:layout_margin="5dp" />

@@ -38,15 +38,15 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="20dp"
+                android:layout_margin="10dp"
                 android:calendarViewShown="false" />
 
             <GridView
                 android:id="@+id/gridViewCalendar"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center_vertical"
-                android:layout_margin="20dp"
+                android:layout_margin="10dp"
                 android:numColumns="7"
                 android:verticalSpacing="5dp"
                 android:stretchMode="columnWidth"
@@ -58,6 +58,7 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_margin="20dp"
+            style="?android:attr/buttonBarStyle"
             android:orientation="horizontal" >
 
             <Button
@@ -65,6 +66,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
+                style="?android:attr/buttonBarButtonStyle"
                 android:text="@string/create_entry" />
 
             <Button
@@ -72,6 +74,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
+                style="?android:attr/buttonBarButtonStyle"
                 android:text="@string/create_chapter" />
         </LinearLayout>
 
