@@ -131,7 +131,7 @@ class GridCalAdapter extends BaseAdapter
 
         if( position < 7 ) {
             tvDayNo.setText( Date.WEEKDAYSSHORT[ position+1 ] );
-            tvDayNo.setTextColor( mContext.getResources().getColor( R.color.list_section ) );
+            tvDayNo.setTextColor( mContext.getResources().getColor( R.color.t_mid ) );
             tvDayNo.setTextScaleX( 0.65f );
         }
         else {
@@ -150,12 +150,12 @@ class GridCalAdapter extends BaseAdapter
             if( Diary.diary.m_entries.containsKey( date.m_date ) ) {
                 tvDayNo.setTextAppearance( mContext, R.style.boldText );
                 tvDayNo.setTextColor( within_month ?
-                        mContext.getResources().getColor( R.color.action_bar ) : Color.GRAY );
+                        mContext.getResources().getColor( R.color.t_dark ) : Color.GRAY );
             }
             else {
                 tvDayNo.setTextAppearance( mContext, R.style.normalText );
                 tvDayNo.setTextColor( within_month ?
-                        mContext.getResources().getColor( R.color.toolbar ) : Color.GRAY );
+                        mContext.getResources().getColor( R.color.t_mid ) : Color.GRAY );
             }
             // holidays:
             // if( date.get_weekday() == 0 )

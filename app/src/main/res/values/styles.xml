@@ -2,7 +2,7 @@
 <resources>
     <style name="LifeoTheme" parent="android:Theme.Holo.Light.DarkActionBar">
         <item name="android:actionBarStyle">@style/LifeoTheme.ActionBarStyle</item>
-        <item name="android:actionBarItemBackground">@drawable/selectable_background</item>
+        <item name="android:actionBarItemBackground">@drawable/themed_selector_dark</item>
         <item name="android:actionBarTabStyle">@style/LifeoTheme.TabStyle</item>
         <item name="android:actionBarWidgetTheme">@style/LifeoTheme.Widget</item>
     </style>
@@ -10,9 +10,9 @@
     <!-- ACTIONBAR STYLES -->
     <style name="LifeoTheme.ActionBarStyle"
            parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@color/action_bar</item>
-        <item name="android:backgroundStacked">@color/action_bar</item>
-        <item name="android:backgroundSplit">@color/action_bar</item>
+        <item name="android:background">@color/t_dark</item>
+        <item name="android:backgroundStacked">@color/t_dark</item>
+        <item name="android:backgroundSplit">@color/t_dark</item>
         <item name="android:subtitleTextStyle">@style/LifeoTheme.SubtitleTextStyle</item>
     </style>
 
@@ -32,7 +32,7 @@
 
     <style name="LifeoTheme.DropDownListView"
            parent="@android:style/Widget.Holo.ListView.DropDown">
-        <item name="android:listSelector">@drawable/selectable_background</item>
+        <item name="android:listSelector">@drawable/themed_selector_dark</item>
     </style>
 
     <!-- DIALOG STYLES -->

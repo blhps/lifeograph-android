@@ -1,15 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="red">#f00</color>
-    <color name="action_bar">#ad6565</color>
-    <color name="list_section">#e69595</color>
-    <color name="toolbar">#d68585</color>
-    <color name="sidebar">#ead0d0</color>
-
     <color name="t_darkest">#663a3a</color>
     <color name="t_darker">#905050</color>
     <color name="t_dark">#ad6565</color>
-    <color name="t_mid">#e09999</color>
+    <color name="t_mid">#dd9999</color>
     <color name="t_light">#e9bbbb</color>
     <color name="t_lighter">#ead0d0</color>
     <color name="t_lightest">#efe0e0</color>
