@@ -13,6 +13,13 @@ android {
         versionName '0.4.0'
         versionCode 4
     }
+
+    // disable automatic handling of jni folder by gradle
+    sourceSets.main {
+        jni.srcDirs = []
+        jniLibs.srcDir 'src/main/libs'
+    }
+
     buildTypes {
         release {
             minifyEnabled false

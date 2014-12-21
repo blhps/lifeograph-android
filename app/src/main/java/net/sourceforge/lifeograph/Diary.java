@@ -23,10 +23,13 @@ package net.sourceforge.lifeograph;
 
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.RandomAccessFile;
+import java.io.StringReader;
 import java.util.TreeMap;
 
 import android.content.res.AssetManager;
@@ -41,6 +44,14 @@ enum Result {
 
 public class Diary extends DiaryElement
 {
+    static {
+        System.loadLibrary( "gpg-error" );
+        System.loadLibrary( "gcrypt" );
+        System.loadLibrary( "lifeocrypt" );
+
+        initCipher();
+    }
+
     public static final char SC_DATE = 'd';
 //    public static final char SC_SIZE = 's';
 
@@ -359,8 +370,7 @@ public class Diary extends DiaryElement
                         assetMan.open( "example.diary" ) ) );
             }
             else {
-                mFileReader = new FileReader( m_path );
-                mBufferedReader = new BufferedReader( mFileReader );
+                mBufferedReader = new BufferedReader( new FileReader( m_path ) );
             }
 
             line = mBufferedReader.readLine();
@@ -389,10 +399,8 @@ public class Diary extends DiaryElement
                         break;
                     case 'E':
                         if( line.charAt( 2 ) == 'y' )
-                            // passphrase is set to a dummy value to indicate that
-                            // diary
-                            // is an encrypted one until user enters the real
-                            // passphrase
+                            // passphrase is set to a dummy value to indicate that diary
+                            // is an encrypted one until user enters the real passphrase
                             m_passphrase = " ";
                         else
                             m_passphrase = "";
@@ -443,11 +451,10 @@ public class Diary extends DiaryElement
     public Result write( String path ) {
         // m_flag_only_save_filtered = false;
 
-        // TODO: implement encryption
-        // if( m_passphrase.length() == 0 )
-        return write_plain( path, false );
-        // else
-        // return write_encrypted( path );
+        if( m_passphrase.isEmpty() )
+            return write_plain( path, false );
+        else
+            return write_encrypted( path );
     }
 
     public Result write_txt() {
@@ -2044,9 +2051,9 @@ public class Diary extends DiaryElement
     // DB READ/WRITE ===============================================================================
     private void close_file() {
         try {
-            if( mFileReader != null ) {
-                mFileReader.close();
-                mFileReader = null;
+            if( mBufferedReader != null ) {
+                mBufferedReader.close();
+                mBufferedReader = null;
             }
         }
         catch( IOException e ) {
@@ -2059,8 +2066,51 @@ public class Diary extends DiaryElement
     }
 
     private Result read_encrypted() {
-        // TODO: to be implemented
-        return Result.FAILURE;
+        close_file();
+
+        try {
+            RandomAccessFile file = new RandomAccessFile( m_path, "r" );
+            file.readLine(); // LIFEOGRAPHDB
+            file.readLine(); // V
+            file.readLine(); // E
+            file.readLine(); // 0
+
+            // allocate memory for salt and iv
+            byte[] salt = new byte[ cSALT_SIZE ];
+            byte[] iv = new byte[ cIV_SIZE ];
+
+            // read salt and iv
+            file.read( salt );
+            file.read( iv );
+
+            // calculate bytes of data in file
+            int size = ( int ) ( file.length() - file.getFilePointer() );
+            if( size <= 3 ) {
+                clear();
+                return Result.CORRUPT_FILE;
+            }
+            byte[] buffer = new byte[ size ];
+            file.readFully( buffer );
+            file.close();
+
+            String output = decryptBuffer( m_passphrase, salt, buffer, size, iv );
+
+            // passphrase check
+            if( output.charAt( 0 ) != m_passphrase.charAt( 0 ) && output.charAt( 1 ) != '\n' ) {
+                clear();
+                return Result.WRONG_PASSWORD;
+            }
+
+            mBufferedReader = new BufferedReader( new StringReader( output ) );
+        }
+        catch( FileNotFoundException ex ) {
+            return Result.FILE_NOT_FOUND;
+        }
+        catch( IOException ex ) {
+            return Result.CORRUPT_FILE;
+        }
+
+        return parse_db_body_text();
     }
 
     private Result write_plain( String path, boolean flag_header_only ) {
@@ -2085,6 +2135,16 @@ public class Diary extends DiaryElement
             return Result.COULD_NOT_START;
         }
     }
+
+    private Result write_encrypted( String path ) {
+        // TODO: to be implemented
+        return Result.SUCCESS;
+    }
+
+    // NATIVE ENCRYPTION METHODS ===================================================================
+    private static native boolean initCipher();
+    private native String decryptBuffer( String passphrase, byte[] salt,
+                                         byte[] buffer, int size, byte[] iv );
 
     // VARIABLES ===================================================================================
     private String m_path;
@@ -2125,6 +2185,8 @@ public class Diary extends DiaryElement
     // i/o
     // protected int m_body_offset;
     private BufferedReader mBufferedReader = null;
-    private FileReader mFileReader = null;
     private FileWriter mFileWriter = null;
+
+    private static final int cIV_SIZE = 16; // = 128 bits
+    private static final int cSALT_SIZE = 16; // = 128 bits
 }

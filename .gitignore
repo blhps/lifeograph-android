@@ -24,3 +24,9 @@ local.properties
 .idea/
 build/
 app/build/
+app/src/main/libs/
+app/src/main/obj/
+
+# jni
+external/libgcrypt/
+external/libgpg-error/

@@ -191,10 +191,10 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                     startActivity( i );
                     break;
                 case WRONG_PASSWORD:
-                    // TODO: show info
+                    Lifeograph.showToast( "Wrong password" );
                     break;
                 case CORRUPT_FILE:
-                    // TODO: show info
+                    Lifeograph.showToast( "Corrupt file" );
                     break;
                 default:
                     break;
