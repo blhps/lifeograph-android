@@ -41,7 +41,8 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
-public class ActivityLogin extends ListActivity implements DialogInquireText.InquireListener
+public class ActivityLogin extends ListActivity
+        implements DialogInquireText.InquireListener, DialogPassword.Listener
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -180,25 +181,35 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
          */
 
         if( flag_open_ready ) {
-            if( Diary.diary.is_encrypted() ) {
-                String passphrase = ""/* ask_passphrase() */;
-                Diary.diary.set_passphrase( passphrase );
-            }
+            if( Diary.diary.is_encrypted() )
+                askPassword();
+            else
+                readBody();
+        }
+    }
 
-            switch( Diary.diary.read_body() ) {
-                case SUCCESS:
-                    Intent i = new Intent( this, ActivityDiary.class );
-                    startActivity( i );
-                    break;
-                case WRONG_PASSWORD:
-                    Lifeograph.showToast( "Wrong password" );
-                    break;
-                case CORRUPT_FILE:
-                    Lifeograph.showToast( "Corrupt file" );
-                    break;
-                default:
-                    break;
-            }
+    private void askPassword() {
+        DialogPassword dlg = new DialogPassword( this,
+                                                 Diary.diary,
+                                                 DialogPassword.DPAction.DPA_AUTHENTICATE,
+                                                 this );
+        dlg.show();
+    }
+
+    private void readBody() {
+        switch( Diary.diary.read_body() ) {
+            case SUCCESS:
+                Intent i = new Intent( this, ActivityDiary.class );
+                startActivity( i );
+                break;
+            case WRONG_PASSWORD:
+                Lifeograph.showToast( "Wrong password" );
+                break;
+            case CORRUPT_FILE:
+                Lifeograph.showToast( "Corrupt file" );
+                break;
+            default:
+                break;
         }
     }
 
@@ -226,6 +237,12 @@ public class ActivityLogin extends ListActivity implements DialogInquireText.Inq
                 return( !fp.exists() );
         }
         return true;
+    }
+
+    // DialogPassword INTERFACE METHODS
+    public void onDPAction( DialogPassword.DPAction action ) {
+        if( action == DialogPassword.DPAction.DPA_AUTHENTICATE )
+            readBody();
     }
 
     void createNewDiary() {

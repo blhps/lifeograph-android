@@ -2096,7 +2096,7 @@ public class Diary extends DiaryElement
             String output = decryptBuffer( m_passphrase, salt, buffer, size, iv );
 
             // passphrase check
-            if( output.charAt( 0 ) != m_passphrase.charAt( 0 ) && output.charAt( 1 ) != '\n' ) {
+            if( output.charAt( 0 ) != m_passphrase.charAt( 0 ) || output.charAt( 1 ) != '\n' ) {
                 clear();
                 return Result.WRONG_PASSWORD;
             }

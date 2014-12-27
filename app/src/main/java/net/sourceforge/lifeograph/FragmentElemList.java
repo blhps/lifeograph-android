@@ -106,6 +106,7 @@ public class FragmentElemList extends ListFragment
             case TOPIC:
             case GROUP:
                 Lifeograph.showElem( mElems.get( pos ) );
+                break;
         }
     }
 

@@ -66,7 +66,12 @@ Java_net_sourceforge_lifeograph_Diary_decryptBuffer( JNIEnv* env,
 
     return j_buffer_out;*/
 
-    jstring output = ( *env )->NewStringUTF( env, buffer );
+    jstring output;
+    // cannot check the '\n' due to multi-byte char case
+    if( buffer[ 0 ] == passphrase[ 0 ] ) //&& buffer[ 1 ] == '\n' )
+        output = ( *env )->NewStringUTF( env, buffer );
+    else
+        output = ( *env )->NewStringUTF( env, "XX" );
 
     ( *env )->ReleaseByteArrayElements( env, j_buffer, buffer, 0 );
 
