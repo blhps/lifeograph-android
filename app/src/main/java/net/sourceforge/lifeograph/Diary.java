@@ -22,12 +22,16 @@
 package net.sourceforge.lifeograph;
 
 import java.io.BufferedReader;
+import java.io.BufferedWriter;
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.util.TreeMap;
@@ -463,9 +467,10 @@ public class Diary extends DiaryElement
         try {
             File file = new File( m_path );
             File dir_backups = new File( file.getParent() + "/backups" );
+            FileWriter fileWriter;
             if( dir_backups.exists() || dir_backups.mkdirs() ) {
                 File file_text = new File( dir_backups, file.getName() + ".txt" );
-                mFileWriter = new FileWriter( file_text.toString() );
+                fileWriter = new FileWriter( file_text.toString() );
             }
             else
                 return Result.FILE_NOT_WRITABLE;
@@ -481,24 +486,24 @@ public class Diary extends DiaryElement
             final String separator_chapter = ":::::::::::::::::::::::::::::::::::::::::::::\n";
 
             // DIARY TITLE
-            mFileWriter.write( separator_thick );
-            mFileWriter.append( file.getName() )
-                       .append( '\n' )
-                       .append( separator_thick );
+            fileWriter.write( separator_thick );
+            fileWriter.append( file.getName() )
+                      .append( '\n' )
+                      .append( separator_thick );
 
             // ENTRIES
             for( int i = 0; i < 4; i++ ) {
                 // CHAPTERS
                 for( Chapter chapter : chapters[ i ].getMap().descendingMap().values() ) {
                     if( !chapter.mEntries.isEmpty() ) {
-                        mFileWriter.append( "\n\n" )
-                                   .append( separator_chapter )
-                                   .append( chapter.get_date().format_string() )
-                                   .append( " - " )
-                                   .append( chapter.get_name() )
-                                   .append( '\n' )
-                                   .append( separator_chapter )
-                                   .append( "\n\n" );
+                        fileWriter.append( "\n\n" )
+                                  .append( separator_chapter )
+                                  .append( chapter.get_date().format_string() )
+                                  .append( " - " )
+                                  .append( chapter.get_name() )
+                                  .append( '\n' )
+                                  .append( separator_chapter )
+                                  .append( "\n\n" );
                     }
 
                     // ENTRIES
@@ -509,52 +514,48 @@ public class Diary extends DiaryElement
                             continue;
 
                         if( entry.is_favored() )
-                            mFileWriter.append( separator_favored );
+                            fileWriter.append( separator_favored );
                         else
-                            mFileWriter.append( separator );
+                            fileWriter.append( separator );
 
                         // DATE AND FAVOREDNESS
-                        mFileWriter.append( entry.get_date().format_string() );
+                        fileWriter.append( entry.get_date().format_string() );
                         if( entry.is_favored() )
-                            mFileWriter.append( '\n' ).append( separator_favored );
+                            fileWriter.append( '\n' ).append( separator_favored );
                         else
-                            mFileWriter.append( '\n' ).append( separator );
+                            fileWriter.append( '\n' ).append( separator );
 
                         // CONTENT
-                        mFileWriter.append( entry.get_text() );
+                        fileWriter.append( entry.get_text() );
 
                         // TAGS
                         boolean first_tag = true;
                         for( Tag tag : entry.m_tags ) {
                             if( first_tag ) {
-                                mFileWriter.append( "\n\n" )
-                                           .append( "TAGS" )
-                                           .append( ": " );
+                                fileWriter.append( "\n\n" )
+                                          .append( "TAGS" )
+                                          .append( ": " );
                                 first_tag = false;
                             }
                             else
-                                mFileWriter.append( ", " );
+                                fileWriter.append( ", " );
 
-                            mFileWriter.append( tag.get_name() );
+                            fileWriter.append( tag.get_name() );
                         }
 
-                        mFileWriter.append( "\n\n" );
+                        fileWriter.append( "\n\n" );
                     }
                 }
             }
 
-            mFileWriter.append( '\n' );
+            fileWriter.append( '\n' );
 
-            mFileWriter.close();
-
-            mFileWriter = null;
+            fileWriter.close();
 
             return Result.SUCCESS;
         }
         catch( IOException ex ) {
             Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
-
-            mFileWriter = null;
 
             return Result.FAILURE;
         }
@@ -1851,80 +1852,80 @@ public class Diary extends DiaryElement
     private void create_db_todo_status_text( DiaryElement elem ) throws IOException {
         switch( elem.get_todo_status() ) {
             case ES_NOT_TODO:
-                mFileWriter.append( 'n' );
+                mBufferedWriter.append( 'n' );
                 break;
             case ES_TODO:
-                mFileWriter.append( 't' );
+                mBufferedWriter.append( 't' );
                 break;
             case ES_PROGRESSED:
-                mFileWriter.append( 'p' );
+                mBufferedWriter.append( 'p' );
                 break;
             case ES_DONE:
-                mFileWriter.append( 'd');
+                mBufferedWriter.append( 'd');
                 break;
             case ES_CANCELED:
-                mFileWriter.append( 'c' );
+                mBufferedWriter.append( 'c' );
                 break;
         }
     }
 
     private void create_db_tag_text( char type, Tag tag ) throws IOException {
         if( type == 'm' )
-            mFileWriter.append( "ID" )
-                       .append( Integer.toString( tag.get_id() ) )
-                       .append( "\nt " )
-                       .append( tag.get_name() )
-                       .append( '\n' );
+            mBufferedWriter.append( "ID" )
+                           .append( Integer.toString( tag.get_id() ) )
+                           .append( "\nt " )
+                           .append( tag.get_name() )
+                           .append( '\n' );
 
         if( tag.get_has_own_theme() )
         {
             Theme theme = tag.get_theme();
 
-            mFileWriter.append( type ).append( "f" ).append( theme.font ).append( '\n' );
-            mFileWriter.append( type ).append( "b" )
-                       .append( Theme.color2string( theme.color_base ) ).append( '\n' )
-                       .append( type ).append( "t" )
-                       .append( Theme.color2string( theme.color_text ) ).append( '\n' )
-                       .append( type ).append( "h" )
-                       .append( Theme.color2string( theme.color_heading ) ).append( '\n' )
-                       .append( type ).append( "s" )
-                       .append( Theme.color2string( theme.color_subheading ) ).append( '\n' )
-                       .append( type ).append( "l" )
-                       .append( Theme.color2string( theme.color_highlight ) ).append( '\n' );
+            mBufferedWriter.append( type ).append( "f" ).append( theme.font ).append( '\n' );
+            mBufferedWriter.append( type ).append( "b" )
+                           .append( Theme.color2string( theme.color_base ) ).append( '\n' )
+                           .append( type ).append( "t" )
+                           .append( Theme.color2string( theme.color_text ) ).append( '\n' )
+                           .append( type ).append( "h" )
+                           .append( Theme.color2string( theme.color_heading ) ).append( '\n' )
+                           .append( type ).append( "s" )
+                           .append( Theme.color2string( theme.color_subheading ) ).append( '\n' )
+                           .append( type ).append( "l" )
+                           .append( Theme.color2string( theme.color_highlight ) ).append( '\n' );
         }
     }
 
     private void create_db_chapterctg_text( char type, Chapter.Category ctg ) throws IOException {
         for( Chapter chapter : ctg.mMap.values() ) {
-            mFileWriter.append( "ID" ).append( Integer.toString( chapter.get_id() ) )
-                       .append( "\nC" ).append( type )
-                       .append( Long.toString( chapter.m_date_begin.m_date ) )
-                       .append( '\t' ).append( chapter.get_name() )
-                       .append( "\nCp" ).append( chapter.get_expanded() ? 'e' : '_' );
+            mBufferedWriter.append( "ID" ).append( Integer.toString( chapter.get_id() ) )
+                           .append( "\nC" ).append( type )
+                           .append( Long.toString( chapter.m_date_begin.m_date ) )
+                           .append( '\t' ).append( chapter.get_name() )
+                           .append( "\nCp" ).append( chapter.get_expanded() ? 'e' : '_' );
             create_db_todo_status_text( chapter );
-            mFileWriter.append( '\n' );
+            mBufferedWriter.append( '\n' );
         }
     }
 
     // DB CREATING MAIN FUNCTIONS ==================================================================
     private boolean create_db_header_text( boolean encrypted ) throws IOException {
-        mFileWriter.write( DB_FILE_HEADER );
-        mFileWriter.append( "\nV "+DB_FILE_VERSION_INT )
-                   .append( encrypted ? "\nE yes" : "\nE no" )
-                   .append( "\n\n" ); // end of header
+        mBufferedWriter.write( DB_FILE_HEADER );
+        mBufferedWriter.append( "\nV "+DB_FILE_VERSION_INT )
+                       .append( encrypted ? "\nE yes" : "\nE no" )
+                       .append( "\n\n" ); // end of header
 
         return true;
     }
 
     private boolean create_db_body_text() throws IOException {
         // OPTIONS
-        mFileWriter.append( "O " ).append( m_option_sorting_criteria ).append( '\n' );
+        mBufferedWriter.append( "O " ).append( m_option_sorting_criteria ).append( '\n' );
         if( ! m_language.isEmpty() )
-            mFileWriter.append( "l " ).append( m_language ).append( '\n' );
+            mBufferedWriter.append( "l " ).append( m_language ).append( '\n' );
 
         // STARTUP ACTION (HOME ITEM)
-        mFileWriter.append( "S " ).append( Integer.toString( m_startup_elem_id ) ).append( '\n' );
-        mFileWriter.append( "L " ).append( Integer.toString( m_last_elem_id ) ).append( '\n' );
+        mBufferedWriter.append( "S " ).append( Integer.toString( m_startup_elem_id ) ).append( '\n' );
+        mBufferedWriter.append( "L " ).append( Integer.toString( m_last_elem_id ) ).append( '\n' );
 
         // ROOT TAGS
         for( Tag tag : m_tags.values() ) {
@@ -1934,9 +1935,9 @@ public class Diary extends DiaryElement
         // CATEGORIZED TAGS
         for( Tag.Category ctg : m_tag_categories.values() ) {
             // tag category:
-            mFileWriter.append( "ID" ).append( Integer.toString( ctg.get_id() ) )
-                    .append( "\nT" ).append( ctg.get_expanded() ? 'e' : '_' )
-                    .append( ctg.get_name() ).append( '\n' );
+            mBufferedWriter.append( "ID" ).append( Integer.toString( ctg.get_id() ) )
+                           .append( "\nT" ).append( ctg.get_expanded() ? 'e' : '_' )
+                           .append( ctg.get_name() ).append( '\n' );
             // tags in it:
             for( Tag tag : ctg.mTags )
                 create_db_tag_text( 'm', tag );
@@ -1954,38 +1955,38 @@ public class Diary extends DiaryElement
         for( Chapter.Category ctg : m_chapter_categories.values() )
         {
             // chapter category:
-            mFileWriter.append( "ID" ).append( Integer.toString( ctg.get_id() ) )
-                       .append( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC_" )
-                       .append( ctg.get_name() ).append( '\n' );
+            mBufferedWriter.append( "ID" ).append( Integer.toString( ctg.get_id() ) )
+                           .append( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC_" )
+                           .append( ctg.get_name() ).append( '\n' );
             // chapters in it:
             create_db_chapterctg_text( 'T', ctg );
         }
 
         // FILTER
         final int fs = m_filter_default.get_status();
-        mFileWriter.append( "fs" )
-                   .append( ( fs & DiaryElement.ES_SHOW_TRASHED ) != 0 ? 'T' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_NOT_TRASHED ) != 0 ? 't' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_FAVORED ) != 0 ? 'F' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_NOT_FAVORED ) != 0 ? 'f' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 ? 'N' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 ? 'T' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 ? 'P' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 ? 'D' : '_' )
-                   .append( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 ? 'C' : '_' )
-                   .append( '\n' );
+        mBufferedWriter.append( "fs" )
+                       .append( ( fs & DiaryElement.ES_SHOW_TRASHED ) != 0 ? 'T' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_NOT_TRASHED ) != 0 ? 't' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_FAVORED ) != 0 ? 'F' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_NOT_FAVORED ) != 0 ? 'f' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 ? 'N' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 ? 'T' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 ? 'P' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 ? 'D' : '_' )
+                       .append( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 ? 'C' : '_' )
+                       .append( '\n' );
         if( ( fs & DiaryElement.ES_FILTER_TAG ) != 0 )
-            mFileWriter.append( "ft" ).append( m_filter_default.get_tag().get_name() )
-                       .append( '\n' );
+            mBufferedWriter.append( "ft" ).append( m_filter_default.get_tag().get_name() )
+                           .append( '\n' );
         if( ( fs & DiaryElement.ES_FILTER_DATE_BEGIN ) != 0 )
-            mFileWriter.append( "fb" ).append( Long.toString( m_filter_default.get_date_begin() ) )
-                       .append( '\n' );
+            mBufferedWriter.append( "fb" ).append( Long.toString( m_filter_default.get_date_begin() ) )
+                           .append( '\n' );
         if( ( fs & DiaryElement.ES_FILTER_DATE_END ) != 0 )
-            mFileWriter.append( "fe" ).append( Long.toString( m_filter_default.get_date_end() ) )
-                       .append( '\n' );
+            mBufferedWriter.append( "fe" ).append( Long.toString( m_filter_default.get_date_end() ) )
+                           .append( '\n' );
 
         // END OF SECTION
-        mFileWriter.append( '\n' );
+        mBufferedWriter.append( '\n' );
 
         // ENTRIES
         for( Entry entry : m_entries.values() ) {
@@ -1997,31 +1998,31 @@ public class Diary extends DiaryElement
             // continue;
 
             // ENTRY DATE
-            mFileWriter.append( "ID" ).append( Integer.toString( entry.get_id() ) )
-                       .append( "\n" );
-            mFileWriter.append( entry.is_trashed() ? "e" : "E" )
-                       .append( entry.is_favored() ? 'f' : '_' )
-                       .append( m_filter_default.is_entry_filtered( entry ) ? 'h' : '_' );
+            mBufferedWriter.append( "ID" ).append( Integer.toString( entry.get_id() ) )
+                           .append( "\n" );
+            mBufferedWriter.append( entry.is_trashed() ? "e" : "E" )
+                           .append( entry.is_favored() ? 'f' : '_' )
+                           .append( m_filter_default.is_entry_filtered( entry ) ? 'h' : '_' );
             create_db_todo_status_text( entry );
-            mFileWriter.append( Long.toString( entry.get_date_t() ) ).append( "\n" );
+            mBufferedWriter.append( Long.toString( entry.get_date_t() ) ).append( "\n" );
 
-            mFileWriter.append( "Dr" ).append( Long.toString( entry.m_date_created ) )
-                       .append( '\n' );
-            mFileWriter.append( "Dh" ).append( Long.toString( entry.m_date_changed ) )
-                       .append( '\n' );
+            mBufferedWriter.append( "Dr" ).append( Long.toString( entry.m_date_created ) )
+                           .append( '\n' );
+            mBufferedWriter.append( "Dh" ).append( Long.toString( entry.m_date_changed ) )
+                           .append( '\n' );
 
             // TAGS
             for( Tag tag : entry.m_tags )
-                mFileWriter.append( "T" ).append( tag == entry.get_theme_tag() ? 'T' : '_' )
-                           .append( tag.get_name() ).append( '\n' );
+                mBufferedWriter.append( "T" ).append( tag == entry.get_theme_tag() ? 'T' : '_' )
+                               .append( tag.get_name() ).append( '\n' );
 
             // LANGUAGE
             if( entry.get_lang().compareTo( Lifeograph.LANG_INHERIT_DIARY ) != 0 )
-                mFileWriter.append( "l " ).append( entry.get_lang() ).append( '\n' );
+                mBufferedWriter.append( "l " ).append( entry.get_lang() ).append( '\n' );
 
             // CONTENT
             if( entry.m_text.isEmpty() )
-                mFileWriter.append( '\n' );
+                mBufferedWriter.append( '\n' );
             else {
                 int pt_start = 0, pt_end;
                 //mStrIO += entry.m_text;
@@ -2029,19 +2030,19 @@ public class Diary extends DiaryElement
                     pt_end = entry.m_text.indexOf( '\n', pt_start );
                     if( pt_end == -1 ) {
                         pt_end = entry.m_text.length();
-                        mFileWriter.append( "P " )
-                                   .append( entry.m_text.substring( pt_start, pt_end ) );
+                        mBufferedWriter.append( "P " )
+                                       .append( entry.m_text.substring( pt_start, pt_end ) );
                         break; // end of while( true )
                     }
                     else {
                         pt_end++;
-                        mFileWriter.append( "P " )
-                                   .append( entry.m_text.substring( pt_start, pt_end ) );
+                        mBufferedWriter.append( "P " )
+                                       .append( entry.m_text.substring( pt_start, pt_end ) );
                         pt_start = pt_end;
                     }
                 }
 
-                mFileWriter.append( "\n\n" );
+                mBufferedWriter.append( "\n\n" );
             }
         }
 
@@ -2115,29 +2116,59 @@ public class Diary extends DiaryElement
 
     private Result write_plain( String path, boolean flag_header_only ) {
         try {
-            mFileWriter = new FileWriter( path );
+            mBufferedWriter = new BufferedWriter( new FileWriter( path ) );
             create_db_header_text( flag_header_only );
             // header only mode is for encrypted diaries
             if( !flag_header_only ) {
                 create_db_body_text();
             }
-            mFileWriter.close();
 
-            mFileWriter = null;
+            mBufferedWriter.close();
+            mBufferedWriter = null;
 
             return Result.SUCCESS;
         }
         catch( IOException ex ) {
             Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
 
-            mFileWriter = null;
+            mBufferedWriter = null;
 
             return Result.COULD_NOT_START;
         }
     }
 
     private Result write_encrypted( String path ) {
-        // TODO: to be implemented
+        // writing header
+        write_plain( path, true );
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            mBufferedWriter = new BufferedWriter( new OutputStreamWriter( baos ) );
+
+            // first char of passphrase for validity checking
+            mBufferedWriter.append( m_passphrase.charAt( 0 ) ).append( '\n' );
+            create_db_body_text();
+            mBufferedWriter.close();
+
+            byte[] buffer = baos.toByteArray();
+
+            byte[] output = encryptBuffer( m_passphrase, buffer, buffer.length );
+
+            FileOutputStream file = new FileOutputStream( path, true );
+
+            file.write( output );
+
+            file.close();
+            mBufferedWriter = null;
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
+
+            mBufferedWriter = null;
+
+            return Result.COULD_NOT_START;
+        }
+
         return Result.SUCCESS;
     }
 
@@ -2145,6 +2176,7 @@ public class Diary extends DiaryElement
     private static native boolean initCipher();
     private native String decryptBuffer( String passphrase, byte[] salt,
                                          byte[] buffer, int size, byte[] iv );
+    private native byte[] encryptBuffer( String passphrase, byte[] buffer, int size );
 
     // VARIABLES ===================================================================================
     private String m_path;
@@ -2185,7 +2217,7 @@ public class Diary extends DiaryElement
     // i/o
     // protected int m_body_offset;
     private BufferedReader mBufferedReader = null;
-    private FileWriter mFileWriter = null;
+    private BufferedWriter mBufferedWriter = null;
 
     private static final int cIV_SIZE = 16; // = 128 bits
     private static final int cSALT_SIZE = 16; // = 128 bits

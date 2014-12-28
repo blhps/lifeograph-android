@@ -77,3 +77,41 @@ Java_net_sourceforge_lifeograph_Diary_decryptBuffer( JNIEnv* env,
 
     return output;
 }
+
+JNIEXPORT jbyteArray JNICALL
+Java_net_sourceforge_lifeograph_Diary_encryptBuffer( JNIEnv* env,
+                                                     jobject obj,
+                                                     jstring j_passphrase,
+                                                     jbyteArray j_buffer,
+                                                     jint size )
+{
+    const char* passphrase = ( *env )->GetStringUTFChars( env, j_passphrase, NULL );
+    jbyte* buffer = ( *env )->GetByteArrayElements( env, j_buffer, NULL );
+    unsigned char* key;
+    unsigned char* salt;
+    unsigned char* iv;
+
+    Cipher_create_new_key( passphrase, &salt, &key );
+    Cipher_create_iv( &iv );
+
+    Cipher_encrypt_buffer( buffer, size, key, iv );
+
+    // allocate
+    jbyteArray j_buffer_out = ( *env )->NewByteArray( env, cSALT_SIZE + cIV_SIZE + size );
+    if( !j_buffer_out )
+        return NULL;
+
+    // copy
+    ( *env )->SetByteArrayRegion( env, j_buffer_out, 0, cSALT_SIZE, salt );
+    ( *env )->SetByteArrayRegion( env, j_buffer_out, cSALT_SIZE, cIV_SIZE, iv );
+    ( *env )->SetByteArrayRegion( env, j_buffer_out, cSALT_SIZE + cIV_SIZE, size, buffer );
+
+    // free
+    ( *env )->ReleaseByteArrayElements( env, j_buffer, buffer, 0 );
+
+    free( key );
+    free( salt );
+    free( iv );
+
+    return j_buffer_out;
+}

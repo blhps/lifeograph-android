@@ -141,10 +141,10 @@ Cipher_expand_key( const char* passphrase,
 
 // create new expanded key
 bool
-Cipher_create_new_key( char const * passphrase,
-                        unsigned char** salt,
-                        unsigned char** key )
-{ /*
+Cipher_create_new_key( const char* passphrase,
+                       unsigned char** salt,
+                       unsigned char** key )
+{
     // ALLOCATE MEMORY FOR AND FILL WITH STRONG RANDOM DATA
     *salt = ( unsigned char* ) gcry_random_bytes( cSALT_SIZE, GCRY_STRONG_RANDOM );
 
@@ -152,35 +152,38 @@ Cipher_create_new_key( char const * passphrase,
         //throw Error( "Unable to create salt value" );
         return false;
 
-    expand_key( passphrase, *salt, key );
-    */return true;
+    Cipher_expand_key( passphrase, *salt, key );
+    return true;
 }
 
 bool
 Cipher_encrypt_buffer( unsigned char* buffer,
-                        unsigned int size,
-                        const unsigned char* key,
-                        const unsigned char* iv )
-{/*
+                       unsigned int size,
+                       const unsigned char* key,
+                       const unsigned char* iv )
+{
     gcry_cipher_hd_t    cipher;
     gcry_error_t        error = 0;
 
     error = gcry_cipher_open( &cipher, cCIPHER_ALGORITHM, cCIPHER_MODE, 0 );
 
     if( error )
-        throw Error( "unable to initialize cipher: " ); // + gpg_strerror( Error ) );
+        //throw Error( "unable to initialize cipher: " ); // + gpg_strerror( Error ) );
+        return false;
 
     // GET KEY LENGTH
     int cipherKeyLength = gcry_cipher_get_algo_keylen( cCIPHER_ALGORITHM );
     if( ! cipherKeyLength )
-        throw Error( "gcry_cipher_get_algo_keylen failed" );
+        //throw Error( "gcry_cipher_get_algo_keylen failed" );
+        return false;
 
     // SET KEY
     error = gcry_cipher_setkey( cipher, key, cipherKeyLength );
     if( error )
     {
         gcry_cipher_close( cipher );
-        throw Error( "Cipher key setup failed: %s" ); //, gpg_strerror( Error ) );
+        //throw Error( "Cipher key setup failed: %s" ); //, gpg_strerror( Error ) );
+        return false;
     }
 
     // SET INITILIZING VECTOR (IV)
@@ -188,7 +191,8 @@ Cipher_encrypt_buffer( unsigned char* buffer,
     if( error )
     {
         gcry_cipher_close( cipher );
-        throw Error( "Unable to setup cipher IV: %s" );// , gpg_strerror( Error ) );
+        //throw Error( "Unable to setup cipher IV: %s" );// , gpg_strerror( Error ) );
+        return false;
     }
 
     // ENCRYPT BUFFER TO SELF
@@ -197,12 +201,13 @@ Cipher_encrypt_buffer( unsigned char* buffer,
     if( error )
     {
         gcry_cipher_close( cipher );
-        throw Error( "Encrption failed: %s" ); // , gpg_strerror( Error ) );
+        //throw Error( "Encrption failed: %s" ); // , gpg_strerror( Error ) );
+        return false;
     }
 
     gcry_cipher_close( cipher );
 
-    */return true;
+    return true;
 }
 
 bool
