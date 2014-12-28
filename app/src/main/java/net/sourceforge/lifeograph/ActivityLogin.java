@@ -191,7 +191,7 @@ public class ActivityLogin extends ListActivity
     private void askPassword() {
         DialogPassword dlg = new DialogPassword( this,
                                                  Diary.diary,
-                                                 DialogPassword.DPAction.DPA_AUTHENTICATE,
+                                                 DialogPassword.DPAction.DPA_LOGIN,
                                                  this );
         dlg.show();
     }
@@ -203,7 +203,7 @@ public class ActivityLogin extends ListActivity
                 startActivity( i );
                 break;
             case WRONG_PASSWORD:
-                Lifeograph.showToast( "Wrong password" );
+                Lifeograph.showToast( R.string.wrong_password );
                 break;
             case CORRUPT_FILE:
                 Lifeograph.showToast( "Corrupt file" );
@@ -241,7 +241,7 @@ public class ActivityLogin extends ListActivity
 
     // DialogPassword INTERFACE METHODS
     public void onDPAction( DialogPassword.DPAction action ) {
-        if( action == DialogPassword.DPAction.DPA_AUTHENTICATE )
+        if( action == DialogPassword.DPAction.DPA_LOGIN )
             readBody();
     }
 

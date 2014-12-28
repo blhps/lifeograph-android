@@ -54,7 +54,7 @@ import android.widget.PopupMenu;
 public class ActivityDiary extends Activity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
         DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener,
-        DialogTags.DialogTagsHost, ActionMode.Callback
+        DialogTags.DialogTagsHost, ActionMode.Callback, DialogPassword.Listener
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -227,6 +227,9 @@ public class ActivityDiary extends Activity
 
         menu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
 
+        menu.findItem( R.id.add_password ).setVisible( !Diary.diary.is_encrypted() );
+        menu.findItem( R.id.change_password ).setVisible( Diary.diary.is_encrypted() );
+
         menu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
 
         return true;
@@ -246,6 +249,18 @@ public class ActivityDiary extends Activity
                     mDrawerLayout.closeDrawer( Gravity.RIGHT );
                 else
                     mDrawerLayout.openDrawer( Gravity.RIGHT );
+                return true;
+            case R.id.add_password:
+                new DialogPassword( this,
+                                    Diary.diary,
+                                    DialogPassword.DPAction.DPA_ADD,
+                                    this ).show();
+                return true;
+            case R.id.change_password:
+                new DialogPassword( this,
+                                    Diary.diary,
+                                    DialogPassword.DPAction.DPA_AUTHENTICATE,
+                                    this ).show();
                 return true;
             case R.id.export_plain_text:
                 if( Diary.diary.write_txt() == Result.SUCCESS )
@@ -552,6 +567,20 @@ public class ActivityDiary extends Activity
 
     public void onDestroyActionMode( ActionMode mode ) {
         mActionMode = null;
+    }
+
+    // DialogPassword INTERFACE METHODS
+    public void onDPAction( DialogPassword.DPAction action ) {
+        switch( action ) {
+            case DPA_AUTHENTICATE:
+                new DialogPassword( this, Diary.diary,
+                                    DialogPassword.DPAction.DPA_ADD,
+                                    this ).show();
+                break;
+            case DPAR_AUTH_FAILED:
+                Lifeograph.showToast( R.string.wrong_password );
+                break;
+        }
     }
 
     // TAG DIALOG HOST METHODS =====================================================================

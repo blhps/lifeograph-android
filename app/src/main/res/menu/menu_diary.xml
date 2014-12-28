@@ -33,7 +33,7 @@
           android:icon="@drawable/ic_action_calendar"
           android:orderInCategory="90"
           android:showAsAction="ifRoom" />
-    <!-- TODO WILL BE IMPLEMENTED IN 0.4
+    <!-- TODO WILL BE IMPLEMENTED IN 0.5+
     item android:id="@+id/change_sort_type"
           android:title="@string/change_sorting"
           android:orderInCategory="90"
@@ -43,11 +43,19 @@
           android:icon="@drawable/ic_action_search"
           android:orderInCategory="100"
           android:showAsAction="ifRoom" />
-    <!-- TODO WILL BE IMPLEMENTED IN 0.5
+    <!-- TODO WILL BE IMPLEMENTED IN 0.6
     item android:id="@+id/import_sms"
           android:title="@string/import_sms"
           android:orderInCategory="100"
           android:showAsAction="never" /-->
+    <item android:id="@+id/add_password"
+          android:title="@string/add_password"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
+    <item android:id="@+id/change_password"
+          android:title="@string/change_password"
+          android:orderInCategory="100"
+          android:showAsAction="never" />
     <item android:id="@+id/export_plain_text"
           android:title="@string/export_plain_text"
           android:orderInCategory="100"

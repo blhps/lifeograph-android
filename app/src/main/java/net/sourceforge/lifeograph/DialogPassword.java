@@ -39,7 +39,8 @@ import com.google.android.gms.plus.model.people.Person;
 public class DialogPassword extends Dialog
 {
     enum DPAction {
-        DPA_AUTHENTICATE, DPA_ADD
+        DPA_LOGIN, DPA_AUTHENTICATE, DPA_ADD,
+        DPAR_AUTH_FAILED // just returned as a result
     }
 
     public DialogPassword( Context context, Diary diary, DPAction action, Listener listener ) {
@@ -60,11 +61,7 @@ public class DialogPassword extends Dialog
         // mButtonOk must come before mInput as it is referenced there
         mButtonOk = ( Button ) findViewById( R.id.passwordButtonPositive );
         mButtonOk.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                mDiary.set_passphrase( mInput1.getText().toString() );
-                mListener.onDPAction( mAction );
-                dismiss();
-            }
+            public void onClick( View v ) { go(); }
         } );
 
         mInput1 = ( EditText ) findViewById( R.id.edit_password_1 );
@@ -74,8 +71,15 @@ public class DialogPassword extends Dialog
         mImage2 = ( ImageView ) findViewById( R.id.image_password_2 );
 
         switch( mAction ) {
-            case DPA_AUTHENTICATE:
+            case DPA_LOGIN:
                 setTitle( "Enter password for " + mDiary.get_name() );
+                mButtonOk.setText( "Open" );
+                mInput2.setVisibility( View.GONE );
+                mImage1.setVisibility( View.GONE );
+                mImage2.setVisibility( View.GONE );
+                break;
+            case DPA_AUTHENTICATE:
+                setTitle( "Enter the current password" );
                 mButtonOk.setText( "Authenticate" );
                 mInput2.setVisibility( View.GONE );
                 mImage1.setVisibility( View.GONE );
@@ -83,7 +87,7 @@ public class DialogPassword extends Dialog
                 break;
             case DPA_ADD:
                 setTitle( "Enter the new password" );
-                mButtonOk.setText( "Add Password" );
+                mButtonOk.setText( "Set Password" );
                 break;
         }
 
@@ -105,14 +109,24 @@ public class DialogPassword extends Dialog
         mInput1.setOnEditorActionListener( new TextView.OnEditorActionListener()
         {
             public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                if( mAction == DPAction.DPA_AUTHENTICATE &&
-                    v.getText().length() >= Diary.PASSPHRASE_MIN_SIZE ) {
-                    mDiary.set_passphrase( v.getText().toString() );
-                    mListener.onDPAction( mAction );
-                    dismiss();
+                if( mAction != DPAction.DPA_ADD &&
+                    mInput1.getText().length() >= Diary.PASSPHRASE_MIN_SIZE ) {
+                    go();
                     return true;
                 }
                 return false;
+            }
+        } );
+        mInput2.addTextChangedListener( new TextWatcher()
+        {
+            public void afterTextChanged( Editable s ) {
+            }
+
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
+            }
+
+            public void onTextChanged( CharSequence s, int start, int before, int count ) {
+                check();
             }
         } );
 
@@ -127,30 +141,50 @@ public class DialogPassword extends Dialog
 
     private void check() {
         String passphrase = mInput1.getText().toString();
+        String passphrase2 = mInput2.getText().toString();
 
         if( passphrase.length() >= Diary.PASSPHRASE_MIN_SIZE ) {
             mImage1.setImageResource( R.drawable.ic_todo_done );
-            if( mAction == DPAction.DPA_AUTHENTICATE ) {
+            if( mAction != DPAction.DPA_ADD ) {
                 mButtonOk.setEnabled( true );
             }
-            else if( passphrase.equals( mInput2.getText().toString() ) ) {
+            else if( passphrase.equals( passphrase2 ) ) {
                 mImage2.setImageResource( R.drawable.ic_todo_done );
                 mButtonOk.setEnabled( true );
             }
             else {
-                mImage2.setImageResource( R.drawable.ic_todo_canceled );
+                mImage2.setImageResource( passphrase2.isEmpty() ?
+                                                  R.drawable.ic_todo_open :
+                                                  R.drawable.ic_todo_canceled );
                 mButtonOk.setEnabled( false );
             }
         }
         else {
-            mImage1.setImageResource( !passphrase.isEmpty() ?
-                                              R.drawable.ic_todo_canceled :
-                                              R.drawable.ic_todo_open );
-            mImage2.setImageResource( !passphrase.isEmpty() ?
-                                              R.drawable.ic_todo_canceled :
-                                              R.drawable.ic_todo_open );
+            mImage1.setImageResource( passphrase.isEmpty() ?
+                                              R.drawable.ic_todo_open :
+                                              R.drawable.ic_todo_canceled );
+            mImage2.setImageResource( passphrase2.isEmpty() ?
+                                              R.drawable.ic_todo_open :
+                                              R.drawable.ic_todo_canceled );
             mButtonOk.setEnabled( false );
         }
+    }
+
+    private void go() {
+        switch( mAction ) {
+            case DPA_LOGIN:
+            case DPA_ADD:
+                mDiary.set_passphrase( mInput1.getText().toString() );
+                mListener.onDPAction( mAction );
+                break;
+            case DPA_AUTHENTICATE:
+                if( mDiary.compare_passphrase( mInput1.getText().toString() ) )
+                    mListener.onDPAction( mAction );
+                else
+                    mListener.onDPAction( DPAction.DPAR_AUTH_FAILED );
+                break;
+        }
+        dismiss();
     }
 
     public interface Listener
@@ -158,7 +192,6 @@ public class DialogPassword extends Dialog
         public void onDPAction( DPAction action );
     }
 
-    //private Context mContext;
     private EditText mInput1;
     private EditText mInput2;
     private ImageView mImage1;

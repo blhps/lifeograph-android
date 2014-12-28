@@ -233,6 +233,10 @@ public class Diary extends DiaryElement
             return false;
     }
 
+    public boolean compare_passphrase( String passphrase ) {
+        return m_passphrase.equals( passphrase );
+    }
+
     public boolean is_encrypted() {
         return( !m_passphrase.isEmpty() );
     }
