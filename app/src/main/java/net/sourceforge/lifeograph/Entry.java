@@ -384,7 +384,7 @@ public class Entry extends DiaryElement {
     Date m_date;
     long m_date_created;
     long m_date_changed;
-    String m_text;
+    String m_text = ""; // must be initialized to prevent crashes on empty entries with tags
     java.util.List< Tag > m_tags = new ArrayList< Tag >();
     private Tag m_ptr2theme_tag;
     private String m_option_lang = Lifeograph.LANG_INHERIT_DIARY; // empty means off
