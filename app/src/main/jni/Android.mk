@@ -1,6 +1,15 @@
-PLATFORM_PREFIX := /home/ahmet/Desktop/android-ext
+# CONSTANTS ========================================================================================
+ABS_PATH    := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-LOCAL_PATH := $(call my-dir)
+LOCAL_PATH  := $(call my-dir)
+
+
+
+# ADJUSTABLE VARIABLES =============================================================================
+#NDK_ABI         ?= arm
+
+PLATFORM_PREFIX ?= $(ABS_PATH)/../../../../external/prefix/$(TARGET_ARCH)
+
 
 
 # libgcrypt

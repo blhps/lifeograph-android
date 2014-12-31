@@ -30,3 +30,5 @@ app/src/main/obj/
 # jni
 external/libgcrypt/
 external/libgpg-error/
+external/prefix/
+external/android-ndk

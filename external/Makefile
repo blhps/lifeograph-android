@@ -1,26 +1,52 @@
-# ADJUSTABLE VARIABLES =============================================================================
-PLATFORM_PREFIX=/home/ahmet/Desktop/android-ext
+# CONSTANTS ========================================================================================
+ABS_PATH    := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 
-NDK_PATH=/home/ahmet/bin/android-ndk
-NDK_ABI=arm
-NDK_TOOLCHAIN=arm-linux-androideabi-4.9
+
+
+# ADJUSTABLE VARIABLES =============================================================================
+NDK_PATH        ?= $(ABS_PATH)/android-ndk
+NDK_ABI         ?= arm
+
+PLATFORM_PREFIX ?= $(ABS_PATH)/prefix/$(NDK_ABI)
+
+ifeq ($(NDK_ABI),x86)
+ HOST            := i686-linux-android
+ HOST_GPG_ERROR  := i486-linux-gnu
+ NDK_TOOLCHAIN   := x86-4.9
+ CONFIG_FLAGS    := --disable-asm
+else ifeq ($(NDK_ABI),mips)
+ HOST            := mipsel-linux-android
+ HOST_GPG_ERROR  := mipsel-linux-android
+ NDK_TOOLCHAIN   := mipsel-linux-android-4.9
+else
+ HOST            := arm-linux-androideabi
+ HOST_GPG_ERROR  := arm-linux-androideabi
+ NDK_TOOLCHAIN   := arm-linux-androideabi-4.9
+endif
 
 
 
 # OTHER VARIABLES ==================================================================================
-NDK_PLATFORM=android-14
+NDK_PLATFORM    := android-14
 
 # NDK platform level, aka APP_PLATFORM, is equivalent to minSdkVersion
-NDK_SYSROOT=$(NDK_PATH)/platforms/$(NDK_PLATFORM)/arch-$(NDK_ABI)
+NDK_SYSROOT     := $(NDK_PATH)/platforms/$(NDK_PLATFORM)/arch-$(NDK_ABI)
 
-HOST = $(NDK_ABI)-linux-androideabi
+CC      := $(PLATFORM_PREFIX)/bin/$(HOST)-gcc --sysroot=$(NDK_SYSROOT)
+CXX     := $(PLATFORM_PREFIX)/bin/$(HOST)-g++
+CPP     := $(PLATFORM_PREFIX)/bin/$(HOST)-cpp
+LD      := $(PLATFORM_PREFIX)/bin/$(HOST)-ld
+AR      := $(PLATFORM_PREFIX)/bin/$(HOST)-ar
+RANLIB  := $(PLATFORM_PREFIX)/bin/$(HOST)-ranlib
 
-CC := $(PLATFORM_PREFIX)/bin/$(HOST)-gcc --sysroot=$(NDK_SYSROOT)
-CXX := $(PLATFORM_PREFIX)/bin/$(HOST)-g++
-CPP := $(PLATFORM_PREFIX)/bin/$(HOST)-cpp
-LD := $(PLATFORM_PREFIX)/bin/$(HOST)-ld
-AR := $(PLATFORM_PREFIX)/bin/$(HOST)-ar
-RANLIB := $(PLATFORM_PREFIX)/bin/$(HOST)-ranlib
+CFLAGS  = -DANDROID -I$(LOCAL)/include $(TARGET_CFLAGS)
+LDFLAGS = -llog -L$(LOCAL)/lib $(TARGET_LDFLAGS)
+
+
+
+# include Android's build flags ====================================================================
+TARGET_ARCH_ABI = $(APP_ABI)
+include $(NDK_PATH)/toolchains/$(NDK_TOOLCHAIN)/setup.mk
 
 
 
@@ -39,9 +65,11 @@ libgpg-error-configure:
 	cd libgpg-error && \
 		./configure \
 			CC="$(CC)" AR=$(AR) RANLIB=$(RANLIB) \
+			CFLAGS="$(CFLAGS)" \
+			LDFLAGS="$(LDFLAGS)" \
 			--disable-languages \
 			--enable-static \
-			--host=$(HOST) \
+			--host=$(HOST_GPG_ERROR) \
 			--prefix=$(PLATFORM_PREFIX)
 	ls -l libgpg-error/libtool
 	# brute force and ignorance to make libtool comply with android style
@@ -73,7 +101,8 @@ libgcrypt-configure:
 				--enable-static \
 				--host=$(HOST) \
 				--with-gpg-error-prefix=$(PLATFORM_PREFIX) \
-				--prefix=$(PLATFORM_PREFIX)
+				--prefix=$(PLATFORM_PREFIX)\
+                $(CONFIG_FLAGS)
 
 libgcrypt-make:
 	$(MAKE) -C libgcrypt

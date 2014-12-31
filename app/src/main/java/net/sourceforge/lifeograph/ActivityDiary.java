@@ -217,6 +217,7 @@ public class ActivityDiary extends Activity
         super.onPrepareOptionsMenu( menu );
 
         boolean flagWritable = !Diary.diary.is_read_only();
+        boolean flagEncrypted = !Diary.diary.is_encrypted();
 
         menu.findItem( R.id.add_elem ).setVisible( flagWritable );
 
@@ -227,8 +228,8 @@ public class ActivityDiary extends Activity
 
         menu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
 
-        menu.findItem( R.id.add_password ).setVisible( !Diary.diary.is_encrypted() );
-        menu.findItem( R.id.change_password ).setVisible( Diary.diary.is_encrypted() );
+        menu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
+        menu.findItem( R.id.change_password ).setVisible( flagWritable && flagEncrypted );
 
         menu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
 
