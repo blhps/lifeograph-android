@@ -353,7 +353,7 @@ public class ActivityLogin extends ListActivity
 
     // IN APP BILLING
     public void start_purchase() {
-        mIabHelper.launchPurchaseFlow( this, SKU_ADDFREE, 10001,
+        mIabHelper.launchPurchaseFlow( this, SKU_ADFREE, 10001,
                                        mPurchaseFinishedListener, IDs.devPayload );
     }
 
@@ -443,7 +443,7 @@ public class ActivityLogin extends ListActivity
 //    }
 
     private IabHelper mIabHelper;
-    static final String SKU_ADDFREE = "lifeograph.addfree.purchased";
+    static final String SKU_ADFREE = "adfree.one_time";
     IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener =
             new IabHelper.OnIabPurchaseFinishedListener()
             {
@@ -451,7 +451,7 @@ public class ActivityLogin extends ListActivity
                     if( result.isFailure() ) {
                         Lifeograph.showToast( "Purchase failed" );
                     }
-                    else if( purchase.getSku().equals( SKU_ADDFREE ) &&
+                    else if( purchase.getSku().equals( SKU_ADFREE ) &&
                              purchase.getDeveloperPayload().equals( IDs.devPayload ) ) {
                         Log.d( Lifeograph.TAG, "Purchase successful" );
                         Lifeograph.setAdFreePurchased( true );
@@ -467,7 +467,7 @@ public class ActivityLogin extends ListActivity
                         Lifeograph.setAdFreePurchased( false );
                     }
                     else {
-                        Lifeograph.setAdFreePurchased( inventory.hasPurchase( SKU_ADDFREE ) );
+                        Lifeograph.setAdFreePurchased( inventory.hasPurchase( SKU_ADFREE ) );
                     }
                 }
             };
