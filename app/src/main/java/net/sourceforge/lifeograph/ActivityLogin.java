@@ -41,6 +41,11 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import net.sourceforge.lifeograph.inappbilling.util.IabHelper;
+import net.sourceforge.lifeograph.inappbilling.util.IabResult;
+import net.sourceforge.lifeograph.inappbilling.util.Inventory;
+import net.sourceforge.lifeograph.inappbilling.util.Purchase;
+
 public class ActivityLogin extends ListActivity
         implements DialogInquireText.InquireListener, DialogPassword.Listener
 {
@@ -54,6 +59,23 @@ public class ActivityLogin extends ListActivity
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
+
+        // IN APP BILLING
+        mIabHelper = new IabHelper( this, IDs.base64EncodedPublicKey );
+
+        mIabHelper.startSetup( new IabHelper.OnIabSetupFinishedListener()
+        {
+            public void onIabSetupFinished( IabResult result ) {
+                if( !result.isSuccess() ) {
+                    Log.d( Lifeograph.TAG, "IAB setup failed: " + result );
+                    Lifeograph.setAdFreePurchased( false );
+                }
+                else {
+                    Log.d( Lifeograph.TAG, "IAB setup successful" );
+                    mIabHelper.queryInventoryAsync( mGotInventoryListener );
+                }
+            }
+        } );
 
         // PREFERENCES
         PreferenceManager.setDefaultValues( getApplicationContext(), R.xml.pref_general, false );
@@ -99,9 +121,21 @@ public class ActivityLogin extends ListActivity
     protected void onDestroy() {
         super.onDestroy();
 
+        if( mIabHelper != null ) {
+            mIabHelper.dispose();
+            mIabHelper = null;
+        }
+
         Log.d( Lifeograph.TAG, "ActivityLogin.onDestroy()" );
 
         Lifeograph.handleDiaryEditingActivityDestroyed();
+    }
+
+    @Override
+    protected void onActivityResult( int requestCode, int resultCode, Intent data ) {
+        if( !mIabHelper.handleActivityResult( requestCode, resultCode, data ) ) {
+            super.onActivityResult( requestCode, resultCode, data );
+        }
     }
 
     @Override
@@ -109,6 +143,15 @@ public class ActivityLogin extends ListActivity
         super.onCreateOptionsMenu( menu );
 
         getMenuInflater().inflate( R.menu.menu_login, menu );
+
+        return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu( Menu menu ) {
+        super.onPrepareOptionsMenu( menu );
+
+        menu.findItem( R.id.purchase ).setVisible( Lifeograph.getAddFreeNotPurchased() );
 
         return true;
     }
@@ -125,6 +168,9 @@ public class ActivityLogin extends ListActivity
             case R.id.about:
                 DialogAbout dialog = new DialogAbout( this );
                 dialog.show();
+                return true;
+            case R.id.purchase:
+                start_purchase();
                 return true;
         }
 
@@ -305,6 +351,12 @@ public class ActivityLogin extends ListActivity
         startActivity( i );
     }
 
+    // IN APP BILLING
+    public void start_purchase() {
+        mIabHelper.launchPurchaseFlow( this, SKU_ADDFREE, 10001,
+                                       mPurchaseFinishedListener, IDs.devPayload );
+    }
+
     // VARIABLES
     public static String sDiaryPath;
     private java.util.List< String > mPaths = new ArrayList< String >();
@@ -389,6 +441,35 @@ public class ActivityLogin extends ListActivity
 //            }
 //        }
 //    }
+
+    private IabHelper mIabHelper;
+    static final String SKU_ADDFREE = "android.test.purchased";
+    IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener
+            = new IabHelper.OnIabPurchaseFinishedListener()
+    {
+        public void onIabPurchaseFinished( IabResult result, Purchase purchase ) {
+            if( result.isFailure() ) {
+                Lifeograph.showToast( "Purchase failed" );
+            }
+            else if( purchase.getSku().equals( SKU_ADDFREE ) &&
+                     purchase.getDeveloperPayload().equals( IDs.devPayload ) ) {
+                Log.d( Lifeograph.TAG, "Purchase successful" );
+                Lifeograph.setAdFreePurchased( true );
+            }
+        }
+    };
+    IabHelper.QueryInventoryFinishedListener mGotInventoryListener
+            = new IabHelper.QueryInventoryFinishedListener() {
+        public void onQueryInventoryFinished( IabResult result, Inventory inventory ) {
+            if( result.isFailure() ) {
+                Lifeograph.showToast( "Failed to query purchases!" );
+                Lifeograph.setAdFreePurchased( false );
+            }
+            else {
+                Lifeograph.setAdFreePurchased( inventory.hasPurchase( SKU_ADDFREE ) );
+            }
+        }
+    };
 
     // ABOUT DIALOG ================================================================================
     public class DialogAbout extends Dialog

@@ -26,6 +26,7 @@ build/
 app/build/
 app/src/main/libs/
 app/src/main/obj/
+app/src/main/java/net/sourceforge/lifeograph/IDs.java
 
 # jni
 external/libgcrypt/

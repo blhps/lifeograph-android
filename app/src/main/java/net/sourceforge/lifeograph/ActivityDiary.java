@@ -49,6 +49,7 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
+import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
 public class ActivityDiary extends Activity
@@ -149,6 +150,12 @@ public class ActivityDiary extends Activity
 
         if( savedInstanceState != null ) {
             mActionBar.setSelectedNavigationItem( savedInstanceState.getInt( "tab", 0 ) );
+        }
+
+        if( !Lifeograph.getAddFreeNotPurchased() ) {
+            LinearLayout container = ( LinearLayout ) findViewById( R.id.main_container );
+            View ad = findViewById( R.id.fragmentAd );
+            container.removeView( ad );
         }
 
         Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_IN;

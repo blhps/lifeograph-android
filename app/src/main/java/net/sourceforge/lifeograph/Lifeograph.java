@@ -46,6 +46,17 @@ public class Lifeograph
     enum LoginStatus { LOGGED_OUT, LOGGED_IN }
     protected static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;
 
+    enum PurchaseStatus { PS_UNKNOWN, PURCHASED, NOT_PURCHASED }
+    private static PurchaseStatus mAdFreePurchased = PurchaseStatus.PS_UNKNOWN;
+
+    static void setAdFreePurchased( boolean purchased ) {
+        mAdFreePurchased = purchased ? PurchaseStatus.PURCHASED : PurchaseStatus.NOT_PURCHASED;
+    }
+
+    public static boolean getAddFreeNotPurchased() {
+        return( mAdFreePurchased == PurchaseStatus.NOT_PURCHASED );
+    }
+
     public static void showElem( DiaryElement elem ) {
         if( elem != null ) {
             switch( elem.get_type() ) {
