@@ -224,7 +224,7 @@ public class ActivityDiary extends Activity
         super.onPrepareOptionsMenu( menu );
 
         boolean flagWritable = !Diary.diary.is_read_only();
-        boolean flagEncrypted = !Diary.diary.is_encrypted();
+        boolean flagEncrypted = Diary.diary.is_encrypted();
 
         menu.findItem( R.id.add_elem ).setVisible( flagWritable );
 

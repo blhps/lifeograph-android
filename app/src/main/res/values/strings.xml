@@ -18,6 +18,9 @@
     <string name="todo_status">Todo status</string>
     <string name="search_hint">Search text</string>
 
+    <string name="password">Password</string>
+    <string name="confirm">Confirm</string>
+
     <string name="diary">Diary</string>
     <string name="entry">Entry</string>
     <string name="tag_ctg">Tag Category</string>
