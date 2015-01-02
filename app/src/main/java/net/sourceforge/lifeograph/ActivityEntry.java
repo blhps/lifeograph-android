@@ -264,6 +264,13 @@ public class ActivityEntry extends Activity
             }
         } );
 
+        Button mButtonComment = ( Button ) findViewById( R.id.button_comment );
+        mButtonComment.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                addComment();
+            }
+        } );
+
         EditText editTextSearch = ( EditText ) findViewById( ( R.id.editTextSearch ) );
         editTextSearch.setText( Diary.diary.get_search_text() );
 
@@ -666,6 +673,22 @@ public class ActivityEntry extends Activity
                 mEditText.getText().insert( p_end, markup );
                 // TODO (if necessary) place_cursor( offset );
             }
+        }
+    }
+
+    private void addComment() {
+        if( mEditText.hasSelection() ) {
+            int p_start, p_end;
+            p_start = mEditText.getSelectionStart();
+            p_end = mEditText.getSelectionEnd() - 1;
+
+            mEditText.getText().insert( p_start, "[[" );
+            mEditText.getText().insert( p_end + 2, "]]" );
+        }
+        else { // no selection case
+            int p_start = mEditText.getSelectionStart();
+            mEditText.getText().insert( p_start, "[[]]" );
+            mEditText.setSelection( p_start + 2 );
         }
     }
 
@@ -1083,10 +1106,7 @@ public class ActivityEntry extends Activity
         }
     }
     private boolean startsLine( int offset ) {
-        if( offset == 0 )
-            return true;
-
-        return( mEditText.getText().charAt( offset - 1 ) == '\n' );
+        return offset == 0 || ( mEditText.getText().charAt( offset - 1 ) == '\n' );
     }
     private AdvancedSpan hasSpan( int offset, char type ) {
         Object[] spans = mEditText.getText().getSpans( offset, offset, Object.class );
