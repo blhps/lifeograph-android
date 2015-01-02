@@ -138,6 +138,7 @@ public class ActivityEntry extends Activity
     //private DrawerLayout mDrawerLayout = null;
     private EditText mEditText = null;
     private Entry m_ptr2entry = null;
+    Button mButtonHighlight;
 
     boolean mFlagSetTextOperation = false;
     boolean mFlagEntryChanged = false;
@@ -254,10 +255,7 @@ public class ActivityEntry extends Activity
             }
         } );
 
-        Button mButtonHighlight = ( Button ) findViewById( R.id.buttonHighlight );
-        SpannableString spanStringH = new SpannableString( "H" );
-        spanStringH.setSpan( new BackgroundColorSpan( Color.YELLOW ), 0, 1, 0 );
-        mButtonHighlight.setText( spanStringH );
+        mButtonHighlight = ( Button ) findViewById( R.id.buttonHighlight );
         mButtonHighlight.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleFormat( "#" );
@@ -425,6 +423,11 @@ public class ActivityEntry extends Activity
         //theme.color_base, Theme.s_color_link1, Theme.s_color_link2 ); LATER
         //mColorLinkBroken = Theme.contrast(
         //theme.color_base, Theme.s_color_broken1, Theme.s_color_broken2 ); LATER
+
+        mButtonHighlight.setTextColor( theme.color_text );
+        SpannableString spanStringH = new SpannableString( "H" );
+        spanStringH.setSpan( new BackgroundColorSpan( theme.color_highlight ), 0, 1, 0 );
+        mButtonHighlight.setText( spanStringH );
     }
 
     void sync() {
