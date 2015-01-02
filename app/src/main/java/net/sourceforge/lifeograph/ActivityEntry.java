@@ -58,6 +58,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.LinearLayout;
 
 public class ActivityEntry extends Activity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
@@ -288,6 +289,12 @@ public class ActivityEntry extends Activity
 
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
+
+        if( !Lifeograph.getAddFreeNotPurchased() ) {
+            LinearLayout container = ( LinearLayout ) findViewById( R.id.main_container );
+            View ad = findViewById( R.id.fragmentAd );
+            container.removeView( ad );
+        }
     }
 
     @Override
