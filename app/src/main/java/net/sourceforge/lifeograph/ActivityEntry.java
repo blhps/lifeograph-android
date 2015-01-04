@@ -1526,12 +1526,14 @@ public class ActivityEntry extends Activity
     private void apply_link_date() {
         LinkStatus status = LinkStatus.LS_OK;
         Entry ptr2entry = Diary.diary.get_entry( date_last.m_date + 1 ); // + 1 fixes order
-        if( ptr2entry == null )
+        if( ptr2entry == null ) {
+            if( Diary.diary.is_read_only() )
+                return;
             status = LinkStatus.LS_ENTRY_UNAVAILABLE;
+        }
         else if( date_last.get_pure() == m_ptr2entry.m_date.get_pure() )
-            status =
-                    Diary.diary.get_day_has_multiple_entries( date_last ) ? LinkStatus.LS_OK
-                                                                         : LinkStatus.LS_CYCLIC;
+            status = Diary.diary.get_day_has_multiple_entries( date_last ) ?
+                    LinkStatus.LS_OK : LinkStatus.LS_CYCLIC;
 
         if( status == LinkStatus.LS_OK || status == LinkStatus.LS_ENTRY_UNAVAILABLE ) {
             int end = pos_current + 1;
