@@ -32,7 +32,6 @@ import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.graphics.drawable.BitmapDrawable;
@@ -1253,6 +1252,11 @@ public class ActivityEntry extends Activity
     }
 
     private void trigger_link() {
+        if( word_last.toString().isEmpty() ) {
+            Log.e( Lifeograph.TAG, "trigger_link() called for an empty word_last" );
+            return;
+            // this is a precaution against some error reports
+        }
         m_flag_hidden_link = ( word_last.charAt( 0 ) == '<' );
         if( m_flag_hidden_link )
             word_last.deleteCharAt( 0 );
