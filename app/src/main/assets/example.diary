@@ -1,62 +1,66 @@
 LIFEOGRAPHDB
-V 1011
+V 1020
 E no
 
 O d
 l en_US
 S 10034
-L 10033
+L 10034
 ID10043
-t example tag
+t general
+mfCantarell 11
+mb#DDC2EB05F92B
+mt#000000000000
+mh#5C5C35356666
+ms#A2216DB59C6E
+ml#5857A693FA05
 ID10036
 TeImportance
 ID10008
-t major
+t major milestone
+mfCantarell 11
+mb#F33233123312
+mt#EEEEEEEEECEC
+mh#000000000000
+ms#2E2E34343636
+ml#CCCC00000000
 ID10005
 t minor
-ID10037
-TeStability
-ID10031
-t stable
-mfCantarell 11
-mb#CE70FFFFBB21
-mt#16DD47075474
-mh#00000000FFFF
-ms#BF4544B3BF45
-ml#FCFCE9E54F4F
-ID10030
-t unstable
-mfCantarell 11
-mb#FFFFF968957E
-mt#6F2900000000
-mh#00000000FFFF
-ms#C142341CC142
-ml#F5F579740000
 ID10032
-oe2147483648	General Info
+CO3221225472	General Info
+Cpen
 ID10004
-CcDefault
+CCcDefault
 ID10046
-ce1055659008	1.0 and Beyond
-ID10041
-ce1055074304	0.9 - 1.0
+CT1056225280	On the Way to Maturity
+Cpen
 ID10006
-ce1054946304	0.8.X Series
-ID10015
-ce1054118912	0.7.X Series
-ID10020
-ce1053887488	0.6.X Series
-ID10027
-ce1053503488	0.5.X Series
-ID10039
-ce1053175808	0.4.X Series
-fs-tFfT--
+CT1055178752	Infancy
+Cpen
+fs_tFfNTP__
+
+ID10002
+E__n3221225475
+Dr1420385672
+Dh1420385961
+TTgeneral
+P Comparison with Desktop Version
+P 
+P Android version does not have all the features in the Linux desktop version, yet. (Most of the missing functionality will be implemented in the future releases.) The comparison of abilities on the two platforms are as follows:
+P 
+P 	• Android version can open any file created by the desktop version. Unsupported information will be preserved on save
+P 	• It produces diary files of version 1020 which is only supported by the latest Linux version (1.2).
+P 	• Trash is not supported
+P 	• Check/bulleted/numbered lists are not supported in the entry editor
+P 	• Themes are supported but they cannot be edited
+P 	• Printing is not available
+P 
 
 ID10033
-Ef--2147483650
+Ef_n3221225474
 Dr1339235057
-Dh1410634577
-T-example tag
+Dh1420385656
+TTgeneral
 P Example Entry
 P 
 P As above, first paragraph of an entry is always formatted as heading
@@ -66,13 +70,11 @@ P Paragraphs starting with a space (" ") are formatted as a subheading
 P 
 P  wiki-style richtext formatting
 P 	• By using _special_ =characters= #you can# *format* text [[and add comments]]
-P 	• By placing a <dot> and <tab> at the beginning you can disable formatting in a paragraph:
-P .	By using _special_ =characters= #you can# *format* text
 P 
-P  Links (not clickable in Android yet)
+P  Links (activated by long clicking)
 P Dates entered in YEAR/MONTH/DAY format are converted into links:
-P 	• existing: 2012-05-10, 2012/03/05
-P 	• non-existing: 2009.01.02 (creates a new entry)
+P 	• 2012-09-16, 2014/11/20
+P a new entry is created if the target date is empty.
 P 
 P Web and email addresses in the text are detected and automatically converted to links:
 P 	• http://web.address
@@ -80,212 +82,70 @@ P 	• email@ddress
 P 
 
 ID10034
-E---2147483649
+E__n3221225473
 Dr1339235609
-Dh1410472193
+Dh1420379320
 P Welcome to Lifeograph for Android
 P 
-P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph _for desktops_.
+P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID10001
+E__n1056477185
+Dr1420383747
+Dh1420384001
+TTmajor milestone
+P 0.5.0 / Encryption!
 P 
-P PLEASE NOTE THAT SOME FORMATTING FEATURES SUCH AS LINKS HAVE NOT BEEN IMPLEMENTED IN ANDROID VERSION YET.
+P  What is new?
+P 	• Added support for encrypted diaries
+P 	• Added in app purchase option to remove ads
+P 	• Added a toolbar button to easily add comments to entries
+P 	• Fixes some bugs
 
 ID10003
-E---1056212993
+E__n1056296961
 Dr1409577396
-Dh1409601487
-T-minor
-TTstable
-P 1.1.1 / wise men don't know how it feels to be thick as a brick
+Dh1420383732
+T_minor
+P 0.4.0 /
 P 
 P  What is new?
-P 	• Added saving the theme of the Untagged meta-tag which was missing in v1.1.0. This required the diary version to be increased
-P 	• Enabled reordering of todo groups
-P 	• Many bug fixes
-P 	• Translation updates
+P 	• Support for color themes in entry editor
+P 	• Support for links to URIs and other entries (activated via long press)
+P 	• Addded an ever present calendar for bigger devices (options activated via long press)
+P 	• Tag categories can be created, renamed and dismissed
+P 	• Chapter categories can be renamed and dismissed
+P 	• Added a search box to the entry tool bar
+P 	• Improvements to the look of the app
+P 	• Many small fixes and performance improvements
 P 
 P 
-
-ID10049
-E---1056181249
-Dr1405853727
-Dh1409602144
-T-major
-TTstable
-P 1.1.0 / gaza
-P 
-P  What is new?
-P 	• Added options for changing the format dates are displayed in
-P 	• Added a new entry type for todo items
-P 	• Added many new icons and updated some of the existing ones 
-P 	• Updated the main window layout
-P 	• Improved the presentation of favored and trashed entries in the list
-P 	• Merged themes into the tags
-P 	• Modified the tag widget to render each tag using the themes associated with them
-P 	• Added the ability to import chapters from other diaries
-P 	• Created a new WYSIWYG like theme editing widget
-P 	• Created a metatag called *Untagged* for theming and filtering entries not associated with any tag
-P 	• A new filtering system where filtering status can be edited in a dedicated view and can be saved to the diary
-P 	• Upgraded the diary file format to support the new features
-P 	• Lifeograph now itself creates a backup copy of the old diaries when upgrading
-P 	• Added a hidden option to disable scaling in the entry and tag lists to solve the problems in some high resolution setups
-P 	• Minimum required Gtk+ version bumped to 3.6
-P 	• Fixed crash on Gtk+ 3.12
-P 	• Miscellaneous bug fixes
-P 	• Translation updates
-
-ID10048
-E---1055982593
-Dr1390647755
-Dh1391259093
-T-minor
-TTstable
-P 1.0.1 / incident at neshabur
-P 
-P  What is new?
-P 	• Bug fixes
-P 	• Small updates to the user manual
 
 ID10047
-E---1055793153
+E__n1056267265
 Dr1375512954
-Dh1391259243
-T-major
-TTstable
-P 1.0.0 / expect anything
+Dh1420383694
+P 0.3.0 / 
 P 
 P  What is new?
-P 	• Brand new main icon
-P 	• Moved from Waf to Cmake for the build system
-P 	• Implemented the ability to add password to diaries directly in the file dialog while creating them
-P 	• Migrated to Gtk::Application and added an app menu
-P 	• Improved user interface for creating new entries and chapters
-P 	• Simplified the look of the diary view
-P 	• Implemented moving tags to categories by dragging and dropping
-P 	• Implemented moving chapters to different dates by dragging and dropping onto entries
-P 	• Implemented changing topic order by dragging and dropping
-P 	• Implemented tagging and theming entries by dropping tags and themes onto the items in the entry list
-P 	• Added the option to dismiss the associated entries when dismissing tags and chapters
-P 	• Added the option to dismiss the associated tags when dismissing tag categories
-P 	• Added a chart to the tag category view
-P 	• Improved visibility and sensitivity states of chapter, theme and diary view widgets in read-only mode
-P 	• Disabled spell-checking in read-only mode
-P 	• Never show markup chars in read-only mode
-P 	• For increased security, Lifeograph now asks for password before exporting encrypted diaries
-P 	• Added support for using multiple configuration files via setting LIFEOGRAPH_CONFIG_FILE variable in the environment
-P 	• Translation updates
-P 	• Updated, and extended the user manual
-P 	• Install Lifeograph diary file Icons to the system
-P 	• Many bug fixes
-
-ID10045
-E---1055463425
-Dr1360178139
-Dh1360178239
-T-minor
-TTstable
-P 0.11.1 / limerence in r'lyeh
-P 
-P  What is new?
-P 	• Updated the look of the diary toolbar
-P 	• Slightly extended the user manual
-P 	• Fixed several bugs
-P 	• Updated translations
-
-ID10044
-E---1055283201
-Dr1354447549
-Dh1356186189
-T-major
-TTstable
-P 0.11.0 / sheepish docility
-P 
-P  What is new?
-P 	• Added trash can functionality to dismiss entries in two steps for increased safety
-P 	• Replaced the icon view for entry tags with a new custom widget
-P 	• Printing improved greatly. Main improvements are:
-P 		• Images in entries are printed as images now
-P 		• Smarter placement of chapters and entries on pages
-P           	e.g. chapters always start on a new page now
-P 		• A new option to justify text
-P 	• New diary version which brings following new features:
-P 		• Ability to save spell-checking language for diary as well as for individual entries
-P 		• Trashed entries which may be restored if needed
-P 	• Updated the GUI to have a more Gnome3-ish look
-P 	• Added support for adding diary files to login view by drag & drop from a file browser
-P 	• Added the ability to move current paragraph up and down with ALT+Up and ALT+Down
-P 	• Implemented preserving maximized window state
-P 	• Updated and slightly extended the user manual
-P 	• Huge code reorganizations and cleanups
-P 	• Many bug fixes
-P 	• Added Ukrainian translation and updated existing translations 
-
-ID10042
-E---1055216641
-Dr1349616451
-Dh1350801932
-T-major
-TTstable
-P 0.10.0 / sombrero
-P 
-P  What is new?
-P 	• Added support for displaying image thumbnails in text editor for links to image files
-P 	• Added support for relative paths in links
-P 	• Greatly improved manual with the images and several new chapters, though still not complete
-P 	• Added the ability to sort the entries by last change time
-P 	• Added the ability to (un)indent multiple lines at once
-P 	• Started to recognize dash as separator for dates such as YYYY-MM-DD
-P 	• Many small UI improvements such as:
-P 		• Simplified tags & themes panel
-P 		• More informing password dialog
-P 	• More careful handling of diary file permissions
-P 	• Added "--read-only" switch for opening files as read-only from commandline
-P 	• Added Read button to the diary file chooser dialog
-P 	• Added the ability to sort diary files by last read time in the login view
-P 	• Dropped GtkSpell dependency and started to use Enchant directly
-P 	• Many bug fixes
-
-ID10035
-E---1055105025
-Dr1339236072
-Dh1341662473
-T-major
-TTstable
-P 0.9.0 / gog
-P 
-P  What is new?
-P 	• Lifeograph upgraded to Gtk+ 3
-P 	• Improved login screen with an unlimited list of diaries
-P 	• More compact interface thanks to removal of redundant widgets
-P 	• Association of Lifeograph diaries with Lifeograph. So, diaries can now be opened by double-clicking in a file explorer.
-P 	• Addition of extension ".diary" to names of new diaries automatically
-P 	• Added a read-only mode for preventing a diary from being edited accidentally
-P 	• Support for multi-line selections when inserting bullets and check-boxes
-P 	• Added the ability to edit the date of an entry just like editing a tag's name
-P 	• Added an example diary file to the Lifeograph package which is installed to the system
-P 	• Added first version of *Lifeograph Manual* to the Lifeograph package which is installed to the system
-P 	• Fixed a couple of really old problems
-P 	• Updated translations
-
-ID10007
-E---1055041537
-Dr1338845559
-Dh1338846283
-T-minor
-TTstable
-P 0.8.2 / tom bombadil
-P 
-P  What is new?
-P 	• Fixed numerous bugs
-P 	• Cleaned up source code
-P 	• Updated translations
+P 	• Brand new user interface with a new theme
+P 	• Entries, chapters and tags are shown in separate tabs
+P 	• Added "Untagged" virtual tag to list untagged entries
+P 	• Existing tag categories are visible now
+P 	• Implemented changing the current chapter category
+P 	• A new option to change the location of diary files
+P 	• Exporting the diary as a plain text file
+P 	• Last version of a diary is backed up on save
+P 	• Editing the date of an existing entry
+P 	• Many more...
 
 ID10009
-E---1054970881
+E__n1056225281
 Dr1338845645
-Dh1338846332
-T-minor
-TTstable
-P 0.8.1 / mazer rackham
+Dh1420382546
+TTmajor milestone
+T_minor
+P 0.2.0 / Real start
 P 
 P  What is new?
 P 	• Fixed/improved markup character handling
@@ -295,385 +155,11 @@ P
 P 
 
 ID10010
-E---1054946305
+E__n1055178753
 Dr1338845739
-Dh1339187303
-T-major
-TTstable
-P 0.8.0 / timbuktu
+Dh1420384398
+TTmajor milestone
+P 0.1.0 / First release
 P 
-P  What is new?
-P 	• Improved and fixed entry text parser
-P 	• Visually improved some of the icons
-P 	• Fixed compilation problems on relatively older systems
-P 	• Fixed numerous bugs
-P 	• Updated existing translations
-P 
-P 
-
-ID10011
-E---1054928897
-Dr1338846072
-Dh1339187307
-T-major
-TTunstable
-P 0.7.5 / the formidable creature
-P 
-P  What is new?
-P 	• Added printing support
-P 	• Added the ability to add comments to text which can be hidden when not needed
-P 	• Added the ability to mark paragraphs for being ignored by the parser to be able to use markup chars such as *, =, or _ freely
-P 	• Implemented filtering entries by date range
-P 	• Added the ability to hide (filter out) individual entries
-P 	• Added a monthly chart to the diary view
-P 	• Skip login screen when an unencrypted diary file is passed in commandline
-P 	• Added a preview widget to the theme view
-P 	• Added theme importing from other diaries
-P 	• Removed background picture feature
-P 	• Implemented exporting diaries partially
-P 	• Made minor improvements in the GUI
-P 	• Fixed numerous bugs
-P 	• Updated existing translations
-P 	• Re-added a plain makefile as an alternative way of building Lifeograph for the ones who do not like waf
-P 	• And many more...
-
-ID10012
-E---1054725121
-Dr1338846604
-Dh1339233559
-T-major
-TTunstable
-P 0.7.4 / sarajevo
-P 
-P  What is new?
-P 	• Added time-independent chapters (topics) and entries for adding notes that are not related to a particular date
-P 	• Added drag and drop support to the entry list
-P 	• Implemented changing entry date by drag and drop to another entry or chapter
-P 	• Added unique numeric IDs to almost every item in the diary
-P 	• Added a new type of link target: deid:##### which refers to the target item by its ID to never lose the track
-P 	• Added a new link syntax which shows a descriptive text instead of its target when cursor is not in it
-P 	• Added an option to diaries that allows users to configure the item that is shown at startup
-P 	• Made markup characters hidden as long as cursor does not touch them
-P 	• Enabled formatting toolbar, removed formatting right-click menu
-P 	• Added timestamp insertion (ALT+T) to entry text editor
-P 	• Added back autocompletion to the tag editor
-P 	• Removed chapter dialog; all of its functions are available on the
-P       main window now
-P 	• Every diary must have at least one chapter category now
-P 	• Made some UI refinements
-P 	• Fixed numerous bugs
-P 	• Updated existing translations
-P 	• And many more...
-P 
-
-ID10013
-E---1054603265
-Dr1338846844
-Dh1339233815
-T-major
-TTunstable
-P 0.7.3 / time is always against us
-P 
-P  What is new?
-P 	• Added tag categorization for easier management of tags
-P 	• Added the ability to store multiple themes within a diary file
-P 	• Implemented support for different themes per entries
-P 	• Added basic indentation support to the lists
-P 	• Implemented automatic insertion of bullets and check boxes
-P 	• Lifeograph now stores creation and last change date of entries and displays them as a tooltip
-P 	• When browsing back, it is now possible to cycle through last 5 items shown rather than 2
-P 	• Added filtering entries by being favorite and by tags
-P 	• Fixed sorting entries by size
-P 	• Redesigned editing user interface:
-P 	    	• Added a separate list for tags
-P 	    	• Added the ability to tag entries by drag and drop
-P 	    	• Added the ability to change themes of entries by drag and drop
-P 	    	• Changed main window title bar text to show name of current diary instead of current entry's title
-P 	    	• Lifeograph now remembers folders' state of being expanded or collapsed in both entry and tag lists
-P 	    	• Added a new toolbar for text formatting (partially functional now)
-P 	• Implemented importing entries and tags from other diary files
-P 	• Improved diary file structure to be more consistent and partially more human readable. So, files saved with this version are incompatible with previous releases.
-P 	• Empty entries are no longer purged at logging out if they have tags
-P 	• Removed grouping entries by month
-P 	• Renamed "Chapter Sets" to "Chapter Categories"
-P 	• Removed most of the right click menus as their functionality is provided by toolbars in various views now
-P 	• Today button now also creates a new entry when current entry is in today
-P 	• Many code structure improvements and clean-up
-P 	• Fixed numerous bugs
-P 	• Added Dutch, Romanian, and Serbian translations and updated existing translations
-P 	• And many more...
-
-ID10014
-E---1054224385
-Dr1338847085
-Dh1339233394
-T-major
-TTunstable
-P 0.7.2 / new horizons?
-P 
-P  What is new? 
-P 	• Added support for three different types of lists to the editor:
-P 	    	• A basic bulleted list system,
-P 	    	• a basic numbered list system, 
-P 	    	• and a very handy check list system.
-P 	• Added the ability to give links to the other entries of a day from within an entry of the same day
-P 	• Implemented saving daily backup files when compiled in debug mode
-P 	• Changed default state of markup chars to visible
-P 	• Added translator credits to the about box
-P 	• New translations: Arabic, Basque, Galician, and German
-P 	• Updated existing translations
-P 	• Numerous bug fixes and improvements
-P 
-
-ID10016
-E---1054178305
-Dr1338847262
-Dh1339233509
-T-major
-TTunstable
-P 0.7.1 / the alchemy of happiness
-P 
-P  What is new?
-P 	• Added an option to hide wiki markup characters in the entry editor
-P 	• Added charts to the month and tag views that show graphs of number of
-P       entries and usage of tags over time
-P 	• Implemented a lock mechanism to prevent opening a diary file multiple
-P       times
-P 	• Added back replace and replace all functionality
-P 	• Added Brazilian Portuguese and Hungarian translations and updated
-P       existing translations
-P 	• Added a chapter icon and improved the month icon
-P 	• Improved infrastructure at some more points
-P 	• Numerous bug fixes and improvements
-P 
-P 
-
-ID10017
-E---1054118913
-Dr1338847293
-Dh1339233905
-T-major
-TTunstable
-P 0.7.0 / arpa emini
-P 
-P  What is new?
-P 	• Switched the build system of choice to "Waf"
-P 	• Switched to a plain text file based settings storage system, thus
-P 	• Removed the dependency to Gconfmm
-P 	• Improved the infrastructure substantially to ease further development of the program
-P 	• Added a preferences dialog that enables changing auto-logout and background picture settings in the gui
-P 	• Added the ability to sort entries by size
-P 	• Added summary views for the open diary and selected month, tag, or chapter that show some information about them as well as providing some editing facilities
-P 	• Added a text formatting submenu to the textview right-click menu
-P 	• Added a month icon
-P 	• Tweaked main window layout to use less vertical space
-P 	• Added Italian and Polish translations and updated existing translations
-P 	• _[Regression]_ Temporarily disabled replace and replace all functionality
-P 
-P 
-
-ID10018
-E---1054013441
-Dr1338847652
-Dh1339234070
-T-minor
-TTstable
-P 0.6.3 / a night in ever-crowded streets
-P 
-P  What is new?
-P 	• Fixed filtering in group by tag mode
-P 	• Some fixes to spell-checking
-P 	• Also install the scalable version of the application icon (LP:#584948)
-P 	• Updated Swedish translation
-P 	• Some minor fixes
-
-ID10019
-E---1053952001
-Dr1338847730
-Dh1339234083
-T-minor
-TTstable
-P 0.6.2 / neopancartism
-P 
-P  What is new?
-P 	• Fixed crash when trying to delete a tag
-P 	• Added Hebrew translation by Yaron
-P 	• Updated French and Spanish translations
-P 	• Some minor fixes
-
-ID10021
-E---1053898753
-Dr1338847766
-Dh1339234096
-T-minor
-TTstable
-P 0.6.1 / ad-dar al-bayda
-P 
-P  What is new?
-P 	• Fixed initialization of new databases as encrypted
-P 	• Fixed shortcut handling in entry editor (as manifested in
-P       broken formatting shortcuts in some systems)
-P 	• Simplified makefile
-P 	• Some minor fixes
-
-ID10022
-E---1053887489
-Dr1338847838
-Dh1339234170
-T-major
-TTstable
-P 0.6.0 / coactus volui
-P 
-P  What is new?
-P 	• Updated some icons and added a new icon for the program
-P 	• Added replace functionality for filter text matches
-P 	• Improved navigation through filter matches
-P 	• Improved convenience of working with multiple entries per a day
-P 	• Added ability to clear contents of filter and tag widgets with esc key (when the respective widget has input focus)
-P 	• Added ability to remove selected tags from entries with delete key (when the tag icon has input focus)
-P 	• Improved auto completion in Tagwidget so that it no longer only suggests tags whose names begin with entered text but also ones that have the text anywhere in their names
-P 	• Improved & fixed list of entries' listing behaviors to be more efficient & usable
-P 	• Removed character restrictions for tag names (< and > were not allowed in tag names)
-P 	• Added French and Czech translations from Launchpad
-P 	• Various other fixes
-P 
-
-ID10023
-E---1053680641
-Dr1338848049
-Dh1339234318
-T-major
-TTunstable
-P 0.5.6 / IM, where are you?
-P 
-P  What is new?
-P 	• Added basic theme customization support to entry editor
-P 	• Added shortcuts for making bold, italicizing, striking over, and highlighting text
-P 	• Added ability to export diaries to plain text files
-P 	• Filter bar got replaced with a permanent filter entry in toolbar
-P 	• Tag adding combobox replaced with a combobox entry with auto completion support to make finding existing tags easier
-P 	• Added ability to iterate through matches while filtering
-P 	• Added ability to go to the previous entry in browsing history (goes back and forth between last two entries when used consecutively) (Shortcut: Alt+Left)
-P 	• Done some fixes and adjustments related to toolbar buttons
-P 	• Group entries by month rather than year when grouping by date
-P 	• Improved diary file format a little bit for more efficient i/o
-P     	• Diaries saved with this version cannot be opened with previous versions of Lifeograph
-P 	• Added Simplified Chinese translation by meng,shen, windwhinny, et al
-P 	• Some minor fixes
-P 
-P 
-
-ID10024
-E---1053617153
-Dr1338848516
-Dh1339234311
-T-major
-TTunstable
-P 0.5.5 / soldierth
-P 
-P  What is new?
-P 	• Convert URIs into links (http:, ftp:, mailto:, file:, etc...)
-P 	• Show warning on window titlebar before logging out automatically
-P 	• Fixed diary corruption when LANG=C (LP:#425318)
-P 	• Fixed several minor bugs
-P 	• Added Russian translation by Igor "tigerman" Bekrenyov, Sergei Sedov, and aks-id
-P 	• Added Spanish translation by David Prieto, Federico Vera, Fuerteventura, and José Luis Jiménez Garay
-P 	• Added Swedish translation by Mikael Mildén
-P 
-
-ID10025
-E---1053592577
-Dr1338848537
-Dh1339234355
-T-major
-TTunstable
-P 0.5.4 / kali yuga
-P 
-P  What is new?
-P 	• Undo/redo support for entry text changes
-P 	• Convert YEAR/MONTH/DAY style dates in entries into links to that day
-P 	• Added chapters system to group entries in custom chapters (more than one set of chapters is supported)
-P 	• Spell checking support
-P 	• Remember preferred list style (group by tag, by date, etc...) on exit
-P 	• Accept dropped files in diary file button and ability to remove recent files from the list
-P 	• Back up previous version of diary before saving
-P 	• Save current changes temporarily every 30 seconds to minimize data loss on crashes
-P 	• Many functions re-factored
-P 	• Fixed a few bugs
-P 
-
-ID10026
-E---1053572097
-Dr1338848567
-Dh1339234385
-T-major
-TTunstable
-P 0.5.3 / mavi marmara
-P 
-P  What is new?
-P 	• Remember up to 8 recent diaries
-P 	• Wiki style rich text formatting (e.g. *bold*, _italic_, =strikeout=, etc...)
-P 	• Highlight filter matches in current entry
-P 	• Case-insensitive search
-P 	• Simplified and polished user interface (especially login screen)
-P 	• Jump to current entry shortcut (Ctrl+J)
-P 	• Many fixes and re-factorings
-P 
-P 
-
-ID10028
-E---1053538305
-Dr1338848596
-Dh1339234415
-T-major
-TTunstable
-P 0.5.2 / Computer Liebe
-P 
-P  What is new?
-P 	• New icons for tags, normal and favored entries
-P 	• Added ability to disable logging out automatically on idle
-P 	• Added ability to tweak maximum idle time (only through gconf at the moment)
-P 	• It is now possible to rename and delete defined tags
-P 	• Minor touches to the interface
-P 	• Fixed several bugs
-P 
-
-ID10029
-E---1053503489
-Dr1338848619
-Dh1339234452
-T-major
-TTunstable
-P 0.5.1
-P 
-P  What is new?
-P 	• Added entry tagging
-P 	• Revamped editing gui (vertical layout)
-P 	• Ability to group entries by year or tag
-P 	• Many bug fixes
-P 	• Numerous small improvements.
-
-ID10038
-E---1053334529
-Dr1339237923
-Dh1339238088
-T-minor
-TTstable
-P 0.4.1
-P 
-P  What is new?
-P 	• Fixed a bug that prevents saving in x64 builds (thanks to Laszlo Boszormenyi)
-P 	• Fixed a crash when opening empty encrypted diaries
-P 	• Fixed some flaws in save backup handler
-P 	• Fixed some potential memory leaks
-
-ID10040
-E---1053175809
-Dr1339238069
-Dh1339238153
-T-major
-TTstable
-P 0.4.0
-P 
-P Release 0.4.0 marks a milestone that constitutes a (more or less) stable base with a standard feature set, upon which more "revolutionary" features will be added in the future.
+P First Android release with most of the main features in
 
