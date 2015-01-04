@@ -159,6 +159,11 @@ public class Lifeograph
 //    }
 
     public static void updateScreenSizes() {
+        if( sContext == null ) {
+            Log.e( TAG, "Failed to update screen sizes" );
+            return;
+        }
+
         WindowManager wm = ( WindowManager ) sContext.getSystemService( Context.WINDOW_SERVICE );
         DisplayMetrics metrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics( metrics );

@@ -282,288 +282,6 @@ public class Diary extends DiaryElement
 //    public void set_sorting_criteria( char sc ) {
 //        m_option_sorting_criteria = sc;
 //    }
-    
-    // DISK I/O ====================================================================================
-    public Result set_path( String path, SetPathType type ) {
-        // ANDROID ONLY:
-        if( path.equals( sExampleDiaryPath ) ) {
-            m_path = path;
-            m_name = sExampleDiaryName;
-            m_flag_read_only = true;
-            return Result.SUCCESS;
-        }
-
-        // CHECK FOR SYSTEM PERMISSIONS
-        File fp = new File( path );
-        if( !fp.exists() ) {
-            if( type != SetPathType.NEW )
-            {
-                Log.e( Lifeograph.TAG, "File is not found" );
-                return Result.FILE_NOT_FOUND;
-            }
-        }
-        else if( !fp.canRead() ) {
-            Log.e( Lifeograph.TAG, "File is not readable" );
-            return Result.FILE_NOT_READABLE;
-        }
-        else if( type != SetPathType.READ_ONLY && !fp.canWrite() ) {
-            if( type == SetPathType.NEW )
-            {
-                Log.w( Lifeograph.TAG, "File is not writable" );
-                return Result.FILE_NOT_WRITABLE;
-            }
-
-            //Lifeograph.showToast( Lifeograph.activityLogin, R.string.resorting_to_read_only );
-            Log.w( Lifeograph.TAG, Lifeograph.getStr( R.string.resorting_to_read_only ) );
-            type = SetPathType.READ_ONLY;
-        }
-
-        // CHECK AND "TOUCH" THE NEW LOCK
-        if( type != SetPathType.READ_ONLY )
-        {
-            File lockFile = new File( path + LOCK_SUFFIX );
-            if( lockFile.exists() )
-            {
-                /* option for ignoring locks may never come to Android
-                if( s_flag_ignore_locks )
-                    Log.w( Lifeograph.TAG, "Ignored file lock" );
-                else*/
-                return Result.FILE_LOCKED;
-            }
-
-            /* TODO - locking will be implemented in 0.3
-            if( type == SetPathType.NORMAL )
-            {
-                try {
-                    lockFile.createNewFile();
-                }
-                catch( IOException ex ) {
-                    Log.w( Lifeograph.TAG, "Could not create lock file" );
-                }
-            }*/
-        }
-
-        // TODO: REMOVE PREVIOUS LOCK IF ANY
-
-        // ACCEPT PATH
-        m_path = path;
-
-        // update m_name
-        int i = m_path.lastIndexOf( "/" );
-        if( i == -1 )
-            m_name = m_path;
-        else
-            m_name = m_path.substring( i + 1 );
-
-        m_flag_read_only = ( type == SetPathType.READ_ONLY );
-
-        return Result.SUCCESS;
-    }
-
-//    public String get_path() {
-//        return m_path;
-//    }
-
-//  NOT NEEDED NOW
-//    public boolean is_path_set() {
-//        return false;
-//    }
-
-    public Result read_header( AssetManager assetMan ) {
-        String line;
-
-        try {
-            if( m_path.equals( sExampleDiaryPath ) ) {
-                mBufferedReader = new BufferedReader( new InputStreamReader(
-                        assetMan.open( "example.diary" ) ) );
-            }
-            else {
-                mBufferedReader = new BufferedReader( new FileReader( m_path ) );
-            }
-
-            line = mBufferedReader.readLine();
-            if( line == null ) {
-                clear();
-                return Result.CORRUPT_FILE;
-            }
-            else if( !line.equals( DB_FILE_HEADER ) ) {
-                clear();
-                return Result.CORRUPT_FILE;
-            }
-
-            while( ( line = mBufferedReader.readLine() ) != null ) {
-                if( line.length() < 1 ) { // end of header
-                    return Result.SUCCESS;
-                }
-
-                switch( line.charAt( 0 ) ) {
-                    case 'V':
-                        m_read_version = Integer.parseInt( line.substring( 2 ) );
-                        if( m_read_version < DB_FILE_VERSION_INT_MIN
-                            || m_read_version > DB_FILE_VERSION_INT ) {
-                            clear();
-                            return Result.INCOMPATIBLE_FILE;
-                        }
-                        break;
-                    case 'E':
-                        if( line.charAt( 2 ) == 'y' )
-                            // passphrase is set to a dummy value to indicate that diary
-                            // is an encrypted one until user enters the real passphrase
-                            m_passphrase = " ";
-                        else
-                            m_passphrase = "";
-                        break;
-                    // case 0: // end of header
-                    // m_body_position = br.position(); // not easy in java
-                    // mFileReader.close();
-
-                    default:
-                        Log.e( Lifeograph.TAG, "Unrecognized header line: " + line );
-                        break;
-                }
-            }
-        }
-        catch( IOException e ) {
-            // Unable to create file, likely because external storage is not currently mounted.
-            Log.e( Lifeograph.TAG, "Failed to open diary file " + m_path, e );
-        }
-
-        clear();
-        return Result.CORRUPT_FILE;
-    }
-
-    public Result read_body() {
-        Result result = m_passphrase.isEmpty() ? read_plain() : read_encrypted();
-
-        close_file();
-
-        return result;
-    }
-
-    public Result write() {
-        // BACKUP THE PREVIOUS VERSION
-        File file = new File( m_path );
-        if( file.exists() ) {
-            File dir_backups = new File( file.getParent() + "/backups" );
-            if( dir_backups.exists() || dir_backups.mkdirs() ) {
-                File file_backup = new File( dir_backups, file.getName() + ".backup" );
-                if( file.renameTo( file_backup ) )
-                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup.toString() );
-            }
-        }
-
-        // WRITE THE FILE
-        return write( m_path );
-    }
-
-    public Result write( String path ) {
-        // m_flag_only_save_filtered = false;
-
-        if( m_passphrase.isEmpty() )
-            return write_plain( path, false );
-        else
-            return write_encrypted( path );
-    }
-
-    public Result write_txt() {
-        // contrary to c++ version this version always limits the operation to the filtered
-
-        try {
-            File file = new File( m_path );
-            File dir_backups = new File( file.getParent() + "/backups" );
-            FileWriter fileWriter;
-            if( dir_backups.exists() || dir_backups.mkdirs() ) {
-                File file_text = new File( dir_backups, file.getName() + ".txt" );
-                fileWriter = new FileWriter( file_text.toString() );
-            }
-            else
-                return Result.FILE_NOT_WRITABLE;
-
-            // HELPERS
-            Chapter.Category dummy_ctg_orphans = new Chapter.Category( null, "" );
-            dummy_ctg_orphans.mMap.put( 0L, m_orphans );
-            Chapter.Category chapters[] = new Chapter.Category[]
-                    { dummy_ctg_orphans, m_ptr2chapter_ctg_cur, m_topics, m_groups };
-            final String separator         = "---------------------------------------------\n";
-            final String separator_favored = "+++++++++++++++++++++++++++++++++++++++++++++\n";
-            final String separator_thick   = "=============================================\n";
-            final String separator_chapter = ":::::::::::::::::::::::::::::::::::::::::::::\n";
-
-            // DIARY TITLE
-            fileWriter.write( separator_thick );
-            fileWriter.append( file.getName() )
-                      .append( '\n' )
-                      .append( separator_thick );
-
-            // ENTRIES
-            for( int i = 0; i < 4; i++ ) {
-                // CHAPTERS
-                for( Chapter chapter : chapters[ i ].getMap().descendingMap().values() ) {
-                    if( !chapter.mEntries.isEmpty() ) {
-                        fileWriter.append( "\n\n" )
-                                  .append( separator_chapter )
-                                  .append( chapter.get_date().format_string() )
-                                  .append( " - " )
-                                  .append( chapter.get_name() )
-                                  .append( '\n' )
-                                  .append( separator_chapter )
-                                  .append( "\n\n" );
-                    }
-
-                    // ENTRIES
-                    for( Entry entry : chapter.mEntries.descendingSet() ) {
-                        // PURGE EMPTY ENTRIES
-                        if( ( entry.m_text.isEmpty() && entry.m_tags.isEmpty() ) ||
-                                entry.get_filtered_out() )
-                            continue;
-
-                        if( entry.is_favored() )
-                            fileWriter.append( separator_favored );
-                        else
-                            fileWriter.append( separator );
-
-                        // DATE AND FAVOREDNESS
-                        fileWriter.append( entry.get_date().format_string() );
-                        if( entry.is_favored() )
-                            fileWriter.append( '\n' ).append( separator_favored );
-                        else
-                            fileWriter.append( '\n' ).append( separator );
-
-                        // CONTENT
-                        fileWriter.append( entry.get_text() );
-
-                        // TAGS
-                        boolean first_tag = true;
-                        for( Tag tag : entry.m_tags ) {
-                            if( first_tag ) {
-                                fileWriter.append( "\n\n" )
-                                          .append( "TAGS" )
-                                          .append( ": " );
-                                first_tag = false;
-                            }
-                            else
-                                fileWriter.append( ", " );
-
-                            fileWriter.append( tag.get_name() );
-                        }
-
-                        fileWriter.append( "\n\n" );
-                    }
-                }
-            }
-
-            fileWriter.append( '\n' );
-
-            fileWriter.close();
-
-            return Result.SUCCESS;
-        }
-        catch( IOException ex ) {
-            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
-
-            return Result.FAILURE;
-        }
-    }
 
     // FILTERING ===================================================================================
     public void set_search_text( String text ) {
@@ -1169,13 +887,11 @@ public class Diary extends DiaryElement
                             ptr2tag = m_untagged;
                             // no break
                         case 'm':
-                            if( ptr2tag == null )
-                            {
+                            if( ptr2tag == null ) {
                                 Log.e( Lifeograph.TAG, "No tag declared for theme" );
                                 break;
                             }
-                            switch( line.charAt( 1 ) )
-                            {
+                            switch( line.charAt( 1 ) ) {
                                 case 'f': // font
                                     ptr2tag.get_own_theme().font = line.substring( 2 );
                                     break;
@@ -1247,16 +963,14 @@ public class Diary extends DiaryElement
                             }
                             break;
                         case 'C': // chapters...
-                            switch( line.charAt( 1 ) )
-                            {
+                            switch( line.charAt( 1 ) ) {
                                 case 'C':   // chapter category
                                     ptr2chapter_ctg = create_chapter_ctg( line.substring( 3 ) );
                                     if( line.charAt( 2 ) == 'c' )
                                         m_ptr2chapter_ctg_cur = ptr2chapter_ctg;
                                     break;
                                 case 'T':   // temporal chapter
-                                    if( ptr2chapter_ctg == null )
-                                    {
+                                    if( ptr2chapter_ctg == null ) {
                                         Log.e( Lifeograph.TAG, "No chapter category defined" );
                                         break;
                                     }
@@ -2174,6 +1888,288 @@ public class Diary extends DiaryElement
         }
 
         return Result.SUCCESS;
+    }
+
+    // DISK I/O ====================================================================================
+    public Result set_path( String path, SetPathType type ) {
+        // ANDROID ONLY:
+        if( path.equals( sExampleDiaryPath ) ) {
+            m_path = path;
+            m_name = sExampleDiaryName;
+            m_flag_read_only = true;
+            return Result.SUCCESS;
+        }
+
+        // CHECK FOR SYSTEM PERMISSIONS
+        File fp = new File( path );
+        if( !fp.exists() ) {
+            if( type != SetPathType.NEW )
+            {
+                Log.e( Lifeograph.TAG, "File is not found" );
+                return Result.FILE_NOT_FOUND;
+            }
+        }
+        else if( !fp.canRead() ) {
+            Log.e( Lifeograph.TAG, "File is not readable" );
+            return Result.FILE_NOT_READABLE;
+        }
+        else if( type != SetPathType.READ_ONLY && !fp.canWrite() ) {
+            if( type == SetPathType.NEW )
+            {
+                Log.w( Lifeograph.TAG, "File is not writable" );
+                return Result.FILE_NOT_WRITABLE;
+            }
+
+            //Lifeograph.showToast( Lifeograph.activityLogin, R.string.resorting_to_read_only );
+            Log.w( Lifeograph.TAG, Lifeograph.getStr( R.string.resorting_to_read_only ) );
+            type = SetPathType.READ_ONLY;
+        }
+
+        // CHECK AND "TOUCH" THE NEW LOCK
+        if( type != SetPathType.READ_ONLY )
+        {
+            File lockFile = new File( path + LOCK_SUFFIX );
+            if( lockFile.exists() )
+            {
+                /* option for ignoring locks may never come to Android
+                if( s_flag_ignore_locks )
+                    Log.w( Lifeograph.TAG, "Ignored file lock" );
+                else*/
+                return Result.FILE_LOCKED;
+            }
+
+            /* TODO - locking will be implemented in 0.6
+            if( type == SetPathType.NORMAL )
+            {
+                try {
+                    lockFile.createNewFile();
+                }
+                catch( IOException ex ) {
+                    Log.w( Lifeograph.TAG, "Could not create lock file" );
+                }
+            }*/
+        }
+
+        // TODO: REMOVE PREVIOUS LOCK IF ANY
+
+        // ACCEPT PATH
+        m_path = path;
+
+        // update m_name
+        int i = m_path.lastIndexOf( "/" );
+        if( i == -1 )
+            m_name = m_path;
+        else
+            m_name = m_path.substring( i + 1 );
+
+        m_flag_read_only = ( type == SetPathType.READ_ONLY );
+
+        return Result.SUCCESS;
+    }
+
+//    public String get_path() {
+//        return m_path;
+//    }
+
+//  NOT NEEDED NOW
+//    public boolean is_path_set() {
+//        return false;
+//    }
+
+    public Result read_header( AssetManager assetMan ) {
+        String line;
+
+        try {
+            if( m_path.equals( sExampleDiaryPath ) ) {
+                mBufferedReader = new BufferedReader( new InputStreamReader(
+                        assetMan.open( "example.diary" ) ) );
+            }
+            else {
+                mBufferedReader = new BufferedReader( new FileReader( m_path ) );
+            }
+
+            line = mBufferedReader.readLine();
+            if( line == null ) {
+                clear();
+                return Result.CORRUPT_FILE;
+            }
+            else if( !line.equals( DB_FILE_HEADER ) ) {
+                clear();
+                return Result.CORRUPT_FILE;
+            }
+
+            while( ( line = mBufferedReader.readLine() ) != null ) {
+                if( line.length() < 1 ) { // end of header
+                    return Result.SUCCESS;
+                }
+
+                switch( line.charAt( 0 ) ) {
+                    case 'V':
+                        m_read_version = Integer.parseInt( line.substring( 2 ) );
+                        if( m_read_version < DB_FILE_VERSION_INT_MIN
+                                || m_read_version > DB_FILE_VERSION_INT ) {
+                            clear();
+                            return Result.INCOMPATIBLE_FILE;
+                        }
+                        break;
+                    case 'E':
+                        if( line.charAt( 2 ) == 'y' )
+                            // passphrase is set to a dummy value to indicate that diary
+                            // is an encrypted one until user enters the real passphrase
+                            m_passphrase = " ";
+                        else
+                            m_passphrase = "";
+                        break;
+                    // case 0: // end of header
+                    // m_body_position = br.position(); // not easy in java
+                    // mFileReader.close();
+
+                    default:
+                        Log.e( Lifeograph.TAG, "Unrecognized header line: " + line );
+                        break;
+                }
+            }
+        }
+        catch( IOException e ) {
+            // Unable to create file, likely because external storage is not currently mounted.
+            Log.e( Lifeograph.TAG, "Failed to open diary file " + m_path, e );
+        }
+
+        clear();
+        return Result.CORRUPT_FILE;
+    }
+
+    public Result read_body() {
+        Result result = m_passphrase.isEmpty() ? read_plain() : read_encrypted();
+
+        close_file();
+
+        return result;
+    }
+
+    public Result write() {
+        // BACKUP THE PREVIOUS VERSION
+        File file = new File( m_path );
+        if( file.exists() ) {
+            File dir_backups = new File( file.getParent() + "/backups" );
+            if( dir_backups.exists() || dir_backups.mkdirs() ) {
+                File file_backup = new File( dir_backups, file.getName() + ".backup" );
+                if( file.renameTo( file_backup ) )
+                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup.toString() );
+            }
+        }
+
+        // WRITE THE FILE
+        return write( m_path );
+    }
+
+    public Result write( String path ) {
+        // m_flag_only_save_filtered = false;
+
+        if( m_passphrase.isEmpty() )
+            return write_plain( path, false );
+        else
+            return write_encrypted( path );
+    }
+
+    public Result write_txt() {
+        // contrary to c++ version this version always limits the operation to the filtered
+
+        try {
+            File file = new File( m_path );
+            File dir_backups = new File( file.getParent() + "/backups" );
+            FileWriter fileWriter;
+            if( dir_backups.exists() || dir_backups.mkdirs() ) {
+                File file_text = new File( dir_backups, file.getName() + ".txt" );
+                fileWriter = new FileWriter( file_text.toString() );
+            }
+            else
+                return Result.FILE_NOT_WRITABLE;
+
+            // HELPERS
+            Chapter.Category dummy_ctg_orphans = new Chapter.Category( null, "" );
+            dummy_ctg_orphans.mMap.put( 0L, m_orphans );
+            Chapter.Category chapters[] = new Chapter.Category[]
+                    { dummy_ctg_orphans, m_ptr2chapter_ctg_cur, m_topics, m_groups };
+            final String separator         = "---------------------------------------------\n";
+            final String separator_favored = "+++++++++++++++++++++++++++++++++++++++++++++\n";
+            final String separator_thick   = "=============================================\n";
+            final String separator_chapter = ":::::::::::::::::::::::::::::::::::::::::::::\n";
+
+            // DIARY TITLE
+            fileWriter.write( separator_thick );
+            fileWriter.append( file.getName() )
+                      .append( '\n' )
+                      .append( separator_thick );
+
+            // ENTRIES
+            for( int i = 0; i < 4; i++ ) {
+                // CHAPTERS
+                for( Chapter chapter : chapters[ i ].getMap().descendingMap().values() ) {
+                    if( !chapter.mEntries.isEmpty() ) {
+                        fileWriter.append( "\n\n" )
+                                  .append( separator_chapter )
+                                  .append( chapter.get_date().format_string() )
+                                  .append( " - " )
+                                  .append( chapter.get_name() )
+                                  .append( '\n' )
+                                  .append( separator_chapter )
+                                  .append( "\n\n" );
+                    }
+
+                    // ENTRIES
+                    for( Entry entry : chapter.mEntries.descendingSet() ) {
+                        // PURGE EMPTY ENTRIES
+                        if( ( entry.m_text.isEmpty() && entry.m_tags.isEmpty() ) ||
+                                entry.get_filtered_out() )
+                            continue;
+
+                        if( entry.is_favored() )
+                            fileWriter.append( separator_favored );
+                        else
+                            fileWriter.append( separator );
+
+                        // DATE AND FAVOREDNESS
+                        fileWriter.append( entry.get_date().format_string() );
+                        if( entry.is_favored() )
+                            fileWriter.append( '\n' ).append( separator_favored );
+                        else
+                            fileWriter.append( '\n' ).append( separator );
+
+                        // CONTENT
+                        fileWriter.append( entry.get_text() );
+
+                        // TAGS
+                        boolean first_tag = true;
+                        for( Tag tag : entry.m_tags ) {
+                            if( first_tag ) {
+                                fileWriter.append( "\n\n" )
+                                          .append( "TAGS" )
+                                          .append( ": " );
+                                first_tag = false;
+                            }
+                            else
+                                fileWriter.append( ", " );
+
+                            fileWriter.append( tag.get_name() );
+                        }
+
+                        fileWriter.append( "\n\n" );
+                    }
+                }
+            }
+
+            fileWriter.append( '\n' );
+
+            fileWriter.close();
+
+            return Result.SUCCESS;
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
+
+            return Result.FAILURE;
+        }
     }
 
     // NATIVE ENCRYPTION METHODS ===================================================================
