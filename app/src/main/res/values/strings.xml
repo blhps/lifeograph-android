@@ -110,11 +110,10 @@
     <string name="todo_canceled">Canceled</string>
     <string name="create">Create</string>
     <string name="program_name">Lifeograph for Android</string>
-    <string name="version">Version: 0.2 [BETA]</string>
     <string name="textview">TextView</string>
     <string name="placeholder">.p.</string>
     <string name="icon">icon</string>
-    <string name="copyright">&#169; 2012-2014, Ahmet Öztürk</string>
+    <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
     <string name="checkbox_icon">☑</string>
 
     <string name="bold">B</string>

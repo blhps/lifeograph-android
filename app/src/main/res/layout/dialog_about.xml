@@ -41,7 +41,6 @@
         android:gravity="center"
         android:text="@string/copyright"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-        android:gravity="center" >
 
     <TextView
         android:id="@+id/textViewWebsite"
@@ -51,6 +50,5 @@
         android:gravity="center"
         android:text="@string/website"
         android:textAppearance="?android:attr/textAppearanceSmall" />
-    android:gravity="center" >
 
 </LinearLayout>
