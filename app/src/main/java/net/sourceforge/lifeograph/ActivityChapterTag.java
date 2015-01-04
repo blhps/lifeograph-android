@@ -45,6 +45,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
         setContentView( R.layout.chapter );
 
+        Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 

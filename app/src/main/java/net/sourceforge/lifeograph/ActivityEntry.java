@@ -154,6 +154,7 @@ public class ActivityEntry extends Activity
 
         setContentView( R.layout.entry );
 
+        Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 

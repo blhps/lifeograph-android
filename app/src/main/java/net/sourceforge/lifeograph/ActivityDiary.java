@@ -63,6 +63,7 @@ public class ActivityDiary extends Activity
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
 
+        Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
         Lifeograph.sNumberOfDiaryEditingActivities++;
 
