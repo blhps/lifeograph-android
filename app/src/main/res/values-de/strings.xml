@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="_empty_"> </string>
+    <string name="app_name">Lifeograph</string>
+    <string name="cancel">Abbrechen</string>
+    <string name="apply">Verwenden</string>
+    <string name="go">Gehe</string>
+    <string name="about">Über</string>
+    <string name="settings">Einstellungen</string>
+    <string name="purchase">Kaufe eine werbefreie Version</string>
+    <string name="show">Zeige</string>
+    <string name="add_today">Eintrag für Heute</string>
+    <string name="calendar">Kalender</string>
+    <string name="format">Format</string>
+    <string name="favorite">Favorit</string>
+    <string name="edit_tags">Stichworte bearbeiten</string>
+    <string name="active_filter">Aktive Filter</string>
+    <string name="todo_status">Aufgabenstatus</string>
+    <string name="search_hint">Text suchen</string>
+
+    <string name="password">Passwort</string>
+    <string name="confirm">Bestätigen</string>
+
+    <string name="diary">Tagebuch</string>
+    <string name="entry">Eintrag</string>
+    <string name="tag_ctg">Stichwort-Kategorie</string>
+    <string name="tag">Stichwort</string>
+    <string name="theme">Stil</string>
+    <string name="untagged">Ohne Stichwort</string>
+    <string name="chapter_ctg">Kapitel-Kategorie</string>
+    <string name="chapter">Datumsbezogener Abschnitt</string>
+    <string name="topic">Nummerierter Abschnitt</string>
+    <string name="group">Freier Abschnitt</string>
+    <string name="filter">Filter</string>
+
+    <string name="new_diary">Neues Tagebuch</string>
+    <string name="new_chapter">Neuer Abschnitt</string>
+    <string name="new_tag">Neues Stichwort</string>
+    <string name="new_tag_ctg">Neue Stichwort-Kategorie</string>
+
+    <string name="open_entry">Eintrag öffnen</string>
+
+    <string name="create_diary">Name für das neue Tagebuch eingeben</string>
+    <string name="create_entry">Eintrag erstellen</string>
+    <string name="create_chapter">Datumsbezogenen Abschnitt erstellen</string>
+    <string name="create_topic">Nummerierten Abschnitt erstellen</string>
+    <string name="create_group">Freien Abschnitt erstellen</string>
+    <string name="create_tag_ctg">Stichwort-Kategorie erstellen</string>
+
+    <string name="rename_chapter_ctg">Kapitel-Kategorie umbenennen</string>
+    <string name="rename_chapter">Abschnitt umbenennen</string>
+    <string name="rename_tag_ctg">Stichwort-Kategorie umbenennen</string>
+    <string name="rename_tag">Stichwort umbenennen</string>
+
+    <string name="dismiss_ctg_and_tags">Inklusive Stichworten verwerfen</string>
+
+    <string name="entries">Einträge</string>
+    <string name="tags">Stichworte</string>
+    <string name="chapters">Abschnitte</string>
+    <string name="free_chapters">Freie Abschnitte</string>
+    <string name="numbered_chapters">Nummerierte Abschnitte</string>
+    <string name="dated_chapters">Datumsbezogene Abschnitte</string>
+    <string name="favorites">Favoriten</string>
+
+    <string name="search_and_filter">Suchen &amp; Filtern</string>
+    <string name="all_entries">Alle Einträge</string>
+    <string name="entry_last_changed_on">Eintrag zuletzt geändert am</string>
+
+    <string name="add_password">Tagebuch verschlüsseln</string>
+    <string name="change_password">Passwort ändern</string>
+    <string name="wrong_password">Falsches Passwort</string>
+
+    <string name="logoutwosaving">Ohne Speichern beenden</string>
+    <string name="logoutwosaving_confirm">Willst du das Tagebuch wirklich schließen ohne zu speichern?</string>
+    <string name="export_plain_text">Als einfache Textdatei exportieren</string>
+    <string name="entry_dismiss_confirm">Bist du sicher, dass der aktuelle Eintrag gelöscht werden soll?</string>
+    <string name="tag_dismiss_confirm">Bist du sicher, dass das aktuelle Stichwort gelöscht werden soll?</string>
+    <string name="tag_ctg_dismiss_confirm">Bist du sicher, dass die gewählte Stichwort-Kategorie gelöscht werden soll?</string>
+    <string name="tag_ctg_dismiss_with_entries_confirm">Bist du sicher, dass die gewählte Stichwort-Kategorie inklusive der enthaltenen Stichwörter gelöscht werden soll?</string>
+    <string name="chapter_dismiss_confirm">Bist du sicher, dass der aktuelle Abschnitt gelöscht werden soll?</string>
+    <string name="chapter_ctg_dismiss_confirm">Bist du sicher, dass die aktuelle Kapitel-Kategorie gelöscht werden soll?</string>
+    <string name="storage_not_available">Externer Speicher ist nicht verfügbar oder schreibgeschützt</string>
+    <string name="filter_saved">Der Filter-Status wird im Tagebuch gespeichert</string>
+    <string name="resorting_to_read_only">Die Datei ist schreibgeschützt und wird nur zum Lesen geöffnet...</string>
+    <string name="text_export_success">Das Tagebuch wurde erfolgreich in das Backup-Verzeichnis exportiert</string>
+    <string name="text_export_fail">Export des Tagebuches fehlgeschlagen</string>
+
+    <string name="filter_tags">Filtern oder Erstellen</string>
+    <string name="sort_by_date">Nach Datum sortieren</string>
+    <string name="sort_by_size">Nach Größe sortieren</string>
+    <string name="change_sorting">Art der Sortierung ändern</string>
+    <string name="empty_entry">&lt;leerer Eintrag&gt;</string>
+    <string name="add_entry">Eintrag erstellen</string>
+    <string name="add">Hinzufügen</string>
+    <string name="dismiss">Verwerfen</string>
+    <string name="rename">Umbenennen</string>
+    <string name="edit_date">Datum/Nummer bearbeiten</string>
+    <string name="toggle_favorite">Favoritenstatus an/aus</string>
+    <string name="change_todo_status">Aufgabenstatus ändern</string>
+    <string name="todo">AUFGABE</string>
+    <string name="todo_not">Keine Aufgabe</string>
+    <string name="todo_open">Aufgabe</string>
+    <string name="todo_progressed">In Bearbeitung</string>
+    <string name="todo_done">Erledigt</string>
+    <string name="todo_canceled">Storniert</string>
+    <string name="create">Erstellen</string>
+    <string name="program_name">Lifeograph für Android</string>
+    <string name="textview">TextView</string>
+    <string name="placeholder">.p.</string>
+    <string name="icon">icon</string>
+    <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
+    <string name="checkbox_icon">☑</string>
+
+    <string name="bold">B</string>
+    <string name="italic">I</string>
+    <string name="strikethrough">S</string>
+    <string name="highlight">H</string>
+
+    <string name="welcome">Willkommen zu Lifeograph für Android!</string>
+    <!--string name="caution_not_final">BITTE BEACHTEN, DASS DIES EINE BETA-VERSION IST</string-->
+    <string name="diaries">Tagebücher</string>
+    <string name="import_sms">SMS importieren</string>
+    <string name="website"><a href="http://lifeograph.sourceforge.net">Webseite</a></string>
+    <string name="reset">Reset</string>
+    <string name="save">Speichern</string>
+
+    <string-array name="array_filter_trash">
+        <item>Alle Einträge</item>
+        <item>Nur Einträge, die nicht im Papierkorb sind</item>
+        <item>Nur Einträge im Papierkorb</item>
+    </string-array>
+
+    <string-array name="array_filter_favorite">
+        <item>Alle Einträge</item>
+        <item>Nur normale Einträge</item>
+        <item>Nur Favoriten-Einträge</item>
+    </string-array>
+
+</resources>
+
+
