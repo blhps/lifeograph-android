@@ -1,0 +1,29 @@
+<resources>
+    <string name="title_activity_settings">Einstellungen</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_DIARY_header">Tagebuchdateien</string>
+
+    <string name="pref_DIARY_PATH_title">Speicherort von Tagebuchdateien</string>
+
+    <string name="pref_DATE_FORMAT_header">Datumsformat</string>
+
+    <string name="pref_DATE_FORMAT_ORDER_title">Reihenfolge</string>
+
+    <string name="pref_DATE_FORMAT_SEPARATOR_title">Separator</string>
+
+    <string-array name="pref_DATE_FORMAT_ORDER_titles">
+        <item>Jahr Monat Tag</item>
+        <item>Tag Monat Jahr</item>
+        <item>Monat Tag Jahr</item>
+    </string-array>
+
+    <string-array name="pref_DATE_FORMAT_SEPARATOR_titles">
+        <item>. (Punkt)</item>
+        <item>/ (Schrägstrich)</item>
+        <item>- (Trennstrich)</item>
+    </string-array>
+
+</resources>
