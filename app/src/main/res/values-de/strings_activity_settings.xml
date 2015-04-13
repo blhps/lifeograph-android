@@ -6,7 +6,7 @@
     <!-- Example General settings -->
     <string name="pref_DIARY_header">Tagebuchdateien</string>
 
-    <string name="pref_DIARY_PATH_title">Speicherort von Tagebuchdateien</string>
+    <string name="pref_DIARY_PATH_title">Speicherort der Tagebuchdateien</string>
 
     <string name="pref_DATE_FORMAT_header">Datumsformat</string>
 
