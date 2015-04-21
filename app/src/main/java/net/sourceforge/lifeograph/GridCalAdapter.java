@@ -66,8 +66,10 @@ class GridCalAdapter extends BaseAdapter
 
     protected void showMonth( Date date ) {
         if( mDateCurrent != null )
-            if( date.get_yearmonth() == mDateCurrent.get_yearmonth() )
+            if( date.get_yearmonth() == mDateCurrent.get_yearmonth() ) {
+                mDateCurrent.set( date.m_date ); // adjust day part
                 return;
+            }
 
         mDateCurrent = new Date( date.m_date );
 
