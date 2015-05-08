@@ -7,7 +7,7 @@
     <string name="go">Gehe</string>
     <string name="about">Über</string>
     <string name="settings">Einstellungen</string>
-    <string name="purchase">Kaufe eine werbefreie Version</string>
+    <string name="purchase">Kaufen</string>
     <string name="show">Zeige</string>
     <string name="add_today">Eintrag für Heute</string>
     <string name="calendar">Kalender</string>
@@ -40,9 +40,9 @@
 
     <string name="open_entry">Eintrag öffnen</string>
 
-    <string name="create_diary">Name für das neue Tagebuch eingeben</string>
+    <string name="create_diary">Name neues Tagebuch</string>
     <string name="create_entry">Eintrag erstellen</string>
-    <string name="create_chapter">Datumsbezogenen Abschnitt erstellen</string>
+    <string name="create_chapter">Abschnitt erstellen</string>
     <string name="create_topic">Nummerierten Abschnitt erstellen</string>
     <string name="create_group">Freien Abschnitt erstellen</string>
     <string name="create_tag_ctg">Stichwort-Kategorie erstellen</string>
