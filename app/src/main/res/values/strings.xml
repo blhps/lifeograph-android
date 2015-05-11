@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="_empty_"> </string>
-    <string name="app_name">Lifeograph</string>
+    <string name="_empty_" translatable="false"> </string>
+    <string name="app_name" translatable="false">Lifeograph</string>
     <string name="cancel">Cancel</string>
     <string name="apply">Apply</string>
     <string name="go">Go</string>
@@ -85,13 +85,13 @@
         chapter category?</string>
     <string name="storage_not_available">External storage is not available or read-only</string>
     <string name="filter_saved">Filter state will be saved with the diary</string>
-    <string name="resorting_to_read_only">File is not writable, opening read-only..</string>
+    <string name="resorting_to_read_only">File is not writable, opening read-only&#8230;</string>
     <string name="text_export_success">Successfully exported the diary into backups
         directory</string>
     <string name="text_export_fail">Failed to export the diary</string>
 
     <string name="filter_tags">Filter or create</string>
-    <string name="sort_by_date">Sort by date</string>
+    <string name="sort_by_date">Sort by Date</string>
     <string name="sort_by_size">Sort by Size</string>
     <string name="change_sorting">Change Sorting Type</string>
     <string name="empty_entry">&lt;empty entry&gt;</string>
@@ -102,7 +102,6 @@
     <string name="edit_date">Edit Date/Number</string>
     <string name="toggle_favorite">Toggle Favoredness</string>
     <string name="change_todo_status">Change Todo Status</string>
-    <string name="todo">TODO</string>
     <string name="todo_not">Not To Do</string>
     <string name="todo_open">To Do</string>
     <string name="todo_progressed">In Progress</string>
@@ -110,11 +109,10 @@
     <string name="todo_canceled">Canceled</string>
     <string name="create">Create</string>
     <string name="program_name">Lifeograph for Android</string>
-    <string name="textview">TextView</string>
-    <string name="placeholder">.p.</string>
+    <string name="placeholder" translatable="false">.p.</string>
     <string name="icon">icon</string>
     <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
-    <string name="checkbox_icon">☑</string>
+    <string name="checkbox_icon" translatable="false">☑</string>
 
     <string name="bold">B</string>
     <string name="italic">I</string>

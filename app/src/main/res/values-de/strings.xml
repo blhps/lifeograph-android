@@ -1,7 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="_empty_"> </string>
-    <string name="app_name">Lifeograph</string>
     <string name="cancel">Abbrechen</string>
     <string name="apply">Verwenden</string>
     <string name="go">Gehe</string>
@@ -47,10 +45,10 @@
     <string name="create_group">Freien Abschnitt erstellen</string>
     <string name="create_tag_ctg">Stichwort-Kategorie erstellen</string>
 
-    <string name="rename_chapter_ctg">Kapitel-Kategorie umbenennen</string>
-    <string name="rename_chapter">Abschnitt umbenennen</string>
-    <string name="rename_tag_ctg">Stichwort-Kategorie umbenennen</string>
-    <string name="rename_tag">Stichwort umbenennen</string>
+    <string name="rename_chapter_ctg">Kapitel-Kategorie Umbenennen</string>
+    <string name="rename_chapter">Abschnitt Umbenennen</string>
+    <string name="rename_tag_ctg">Stichwort-Kategorie Umbenennen</string>
+    <string name="rename_tag">Stichwort Umbenennen</string>
 
     <string name="dismiss_ctg_and_tags">Inklusive Stichworten verwerfen</string>
 
@@ -81,7 +79,7 @@
     <string name="chapter_ctg_dismiss_confirm">Bist du sicher, dass die aktuelle Kapitel-Kategorie gelöscht werden soll?</string>
     <string name="storage_not_available">Externer Speicher ist nicht verfügbar oder schreibgeschützt</string>
     <string name="filter_saved">Der Filter-Status wird im Tagebuch gespeichert</string>
-    <string name="resorting_to_read_only">Die Datei ist schreibgeschützt und wird nur zum Lesen geöffnet...</string>
+    <string name="resorting_to_read_only">Die Datei ist schreibgeschützt und wird nur zum Lesen geöffnet&#8230;</string>
     <string name="text_export_success">Das Tagebuch wurde erfolgreich in das Backup-Verzeichnis exportiert</string>
     <string name="text_export_fail">Export des Tagebuches fehlgeschlagen</string>
 
@@ -97,7 +95,6 @@
     <string name="edit_date">Datum/Nummer bearbeiten</string>
     <string name="toggle_favorite">Favoritenstatus an/aus</string>
     <string name="change_todo_status">Aufgabenstatus ändern</string>
-    <string name="todo">AUFGABE</string>
     <string name="todo_not">Keine Aufgabe</string>
     <string name="todo_open">Aufgabe</string>
     <string name="todo_progressed">In Bearbeitung</string>
@@ -105,11 +102,8 @@
     <string name="todo_canceled">Storniert</string>
     <string name="create">Erstellen</string>
     <string name="program_name">Lifeograph für Android</string>
-    <string name="textview">TextView</string>
-    <string name="placeholder">.p.</string>
     <string name="icon">icon</string>
     <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
-    <string name="checkbox_icon">☑</string>
 
     <string name="bold">B</string>
     <string name="italic">I</string>
@@ -119,7 +113,7 @@
     <string name="welcome">Willkommen zu Lifeograph für Android!</string>
     <!--string name="caution_not_final">BITTE BEACHTEN, DASS DIES EINE BETA-VERSION IST</string-->
     <string name="diaries">Tagebücher</string>
-    <string name="import_sms">SMS importieren</string>
+    <string name="import_sms">SMS Importieren</string>
     <string name="website"><a href="http://lifeograph.sourceforge.net">Webseite</a></string>
     <string name="reset">Reset</string>
     <string name="save">Speichern</string>
