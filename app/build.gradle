@@ -11,7 +11,7 @@ android {
             targetCompatibility JavaVersion.VERSION_1_5
         }
         versionName '0.5.1'
-        versionCode 5007
+        versionCode 5010
     }
 
     // disable automatic handling of jni folder by gradle

@@ -1,0 +1,29 @@
+<resources>
+    <string name="title_activity_settings">Ayarlar</string>
+
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_DIARY_header">Günlük Dosyaları</string>
+
+    <string name="pref_DIARY_PATH_title">Günlük Dosyalarının Kayıt Yeri</string>
+
+    <string name="pref_DATE_FORMAT_header">Tarih Biçimi</string>
+
+    <string name="pref_DATE_FORMAT_ORDER_title">Hane Sırası</string>
+
+    <string name="pref_DATE_FORMAT_SEPARATOR_title">Ayırıcı</string>
+
+    <string-array name="pref_DATE_FORMAT_ORDER_titles">
+        <item>Yıl Ay Gün</item>
+        <item>Gün Ay Yıl</item>
+        <item>Ay Gün Yıl</item>
+    </string-array>
+
+    <string-array name="pref_DATE_FORMAT_SEPARATOR_titles">
+        <item>. (Nokta)</item>
+        <item>/ (Bölü)</item>
+        <item>- (Tire)</item>
+    </string-array>
+
+</resources>
