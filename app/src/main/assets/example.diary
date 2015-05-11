@@ -5,7 +5,7 @@ E no
 O d
 l en_US
 S 10034
-L 10034
+L 10007
 ID10043
 t general
 mfCantarell 11
@@ -88,6 +88,17 @@ Dh1420379320
 P Welcome to Lifeograph for Android
 P 
 P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID10007
+E__n1056615425
+Dr1431372492
+Dh1431372573
+P 0.5.1 /
+P 
+P  What is new?
+P 
+P 	• Added German and Turkish translations
+P 	• Fixed calendar bug related to creating entries
 
 ID10001
 E__n1056477185
