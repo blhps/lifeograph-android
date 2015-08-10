@@ -64,6 +64,7 @@ public class ActivityEntry extends Activity
         DialogTags.DialogTagsHost
 {
     // CHAR FLAGS
+    public final int CF_NOT_SET = 0;
     public final int CF_NOTHING = 0x1;
     public final int CF_NEWLINE = 0x2;
     public final int CF_PUNCTUATION_RAW = 0x4;
@@ -110,20 +111,10 @@ public class ActivityEntry extends Activity
                                    | CF_TODO;
     public final int CF_NONTAB = CF_NONSPACE | CF_SPACE;
 
-    // CHAR CLASSES
-    public final int CC_NONE = 0;
-    public final int CC_NUMBER = 0x10;
-    public final int CC_ALPHA = 0x20;
-    public final int CC_ALPHANUM = 0x30;
-    public final int CC_SIGN = 0x40;
+    public final int CF_SEPARATOR = CF_SPACE|CF_TAB | CF_NEWLINE;
+    public final int CF_NOT_SEPARATOR = CF_ANY ^ CF_SEPARATOR;
 
-    public final int CC_SPACE = 0x100;
-    public final int CC_TAB = 0x200;
-    public final int CC_NEWLINE = 0x400;
-    public final int CC_SEPARATOR = 0x700;
-    public final int CC_NOT_SEPARATOR = 0xF8FF;
-
-    public final int CC_ANY = 0xFFFF;
+    //public final int CF_ALPHASPELL = CF_ALPHA | CF_SPELLCHECK;
 
     // PARSER SELECTOR (NEEDED DUE TO LACK OF FUNCTION POINTERS IN JAVA)
     private enum ParSel {
@@ -706,7 +697,7 @@ public class ActivityEntry extends Activity
     private int m_pos_start, m_pos_end, pos_current;
     private int pos_word, /*pos_regular,*/ pos_search, pos_tab;
     private char char_current;
-    private int m_cc_last, m_cc_req = CC_ANY;
+    private int m_cf_last, m_cf_req = CF_ANY;
     private StringBuilder word_last = new StringBuilder();
     private int int_last;
     private int id_last;
@@ -871,8 +862,8 @@ public class ActivityEntry extends Activity
             mEditText.getText().removeSpan( span );
         mSpans.clear();
 
-        m_cc_last = CC_NONE;
-        m_cc_req = CC_ANY;
+        m_cf_last = CF_NOT_SET;
+        m_cf_req = CF_ANY;
         word_last.setLength( 0 );
         int_last = 0;
         date_last.set( 0 );
@@ -926,35 +917,35 @@ public class ActivityEntry extends Activity
                 case '\r':
                     process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH
                                               | CF_DOTDATE | CF_MORE | CF_TAB | CF_IGNORE, 0,
-                                  ParSel.NULL, CC_NEWLINE );
+                                  ParSel.NULL );
                     break;
                 case ' ':
                     process_char( CF_SPACE, CF_ALPHA | CF_NUMBER | CF_SLASH | CF_DOTDATE
-                                            | CF_TODO, CF_NOTHING, ParSel.TR_SUBH, CC_SPACE );
+                                            | CF_TODO, CF_NOTHING, ParSel.TR_SUBH );
                     break;
                 case '*':
                     process_char( CF_ASTERISK, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_BOLD, CC_SIGN );
+                                  CF_NOTHING, ParSel.TR_BOLD );
                     break;
                 case '_':
                     process_char( CF_UNDERSCORE, CF_NUM_CKBX | CF_SLASH | CF_DOTDATE, CF_NOTHING,
-                                  ParSel.TR_ITLC, CC_SIGN );
+                                  ParSel.TR_ITLC );
                     break;
                 case '=':
                     process_char( CF_EQUALS, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_STRK, CC_SIGN );
+                                  CF_NOTHING, ParSel.TR_STRK );
                     break;
                 case '#':
                     process_char( CF_HASH, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_HILT, CC_SIGN );
+                                  CF_NOTHING, ParSel.TR_HILT );
                     break;
                 case '[':
                     process_char( CF_SBB, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_CMNT, CC_SIGN );
+                                  CF_NOTHING, ParSel.TR_CMNT );
                     break;
                 case ']':
                     process_char( CF_SBE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE, 0,
-                                  ParSel.NULL, CC_SIGN );
+                                  ParSel.NULL );
                     break;
                 case '0':
                 case '1':
@@ -968,60 +959,56 @@ public class ActivityEntry extends Activity
                 case '9':
                     handle_number(); // calculates numeric value
                     process_char( CF_NUMBER, CF_SLASH | CF_ALPHA | CF_DOTDATE | CF_TODO,
-                                  CF_NOTHING, ParSel.TR_LNKD, CC_NUMBER );
+                                  CF_NOTHING, ParSel.TR_LNKD );
                     break;
                 case '.':
                     process_char( CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH, CF_NOTHING,
-                                  ParSel.TR_IGNR, CC_SIGN );
+                                  ParSel.TR_IGNR );
                     break;
 
                 case '-':
-                    process_char( CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH, 0, ParSel.NULL,
-                                  CC_SIGN );
+                    process_char( CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH, 0, ParSel.NULL );
                     break;
                 case '/':
-                    process_char( CF_SLASH | CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA, 0, ParSel.NULL,
-                                  CC_SIGN );
+                    process_char( CF_SLASH | CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA, 0, ParSel.NULL );
                     break;
                 case ':':
                     process_char( CF_PUNCTUATION_RAW, CF_NUM_CKBX | CF_ALPHA | CF_SLASH
-                                                      | CF_DOTDATE, CF_NOTHING, ParSel.TR_LINK,
-                                  CC_SIGN );
+                                                      | CF_DOTDATE, CF_NOTHING, ParSel.TR_LINK );
                     break;
                 case '@':
                     process_char( CF_AT, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_LNAT, CC_SIGN );
+                                  CF_NOTHING, ParSel.TR_LNAT );
                     break;
                 case '>':
                     process_char( CF_MORE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE, 0,
-                                  ParSel.NULL, CC_SIGN );
+                                  ParSel.NULL );
                     break;
                 case '\t':
                     process_char( CF_TAB, CF_NUM_SLSH | CF_ALPHA | CF_DOTDATE, CF_NOTHING,
-                                  ParSel.TR_LIST, CC_TAB );
+                                  ParSel.TR_LIST );
                     break;
                 // LIST CHARS
                 case '~':
                 case '+':
                     process_char( CF_TODO|CF_PUNCTUATION_RAW,
                                   CF_ALPHA|CF_NUM_CKBX|CF_DOTDATE|CF_SLASH,
-                                  0, ParSel.NULL, CC_SIGN );
+                                  0, ParSel.NULL );
                     break;
                 case 'x':
                 case 'X':
                     process_char( CF_TODO|CF_ALPHA,
                                   CF_NUM_CKBX|CF_DOTDATE|CF_SLASH,
-                                  0, ParSel.NULL, CC_ALPHA );
+                                  0, ParSel.NULL );
                     break;
-                default:
-                    process_char( CF_ALPHA, CF_NUM_CKBX | CF_DOTDATE | CF_SLASH, 0, ParSel.NULL,
-                                  CC_ALPHA ); // most probably :)
+                default: // most probably alpha
+                    process_char( CF_ALPHA, CF_NUM_CKBX | CF_DOTDATE | CF_SLASH, 0, ParSel.NULL ) ;
                     break;
             }
         }
         // end of the text -treated like new line
         process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH | CF_DOTDATE
-                | CF_MORE | CF_TAB, CF_EOT, ParSel.NULL, CC_NEWLINE );
+                | CF_MORE | CF_TAB, CF_EOT, ParSel.NULL );
     }
 
     // PARSING HELPER FUNCTIONS ====================================================================
@@ -1161,19 +1148,18 @@ public class ActivityEntry extends Activity
     }
 
     // PROCESS CHAR ================================================================================
-    private void process_char( int satisfies, int breaks, int triggers_on, ParSel triggerer,
-                               int cc ) {
+    private void process_char( int char_flags, int breaks, int triggers_on, ParSel triggerer ) {
         int         cf = m_chars_looked_for.get( 0 ).flags;
         ParSel      applier = m_chars_looked_for.get( 0 ).applier;
         boolean     flag_clear_chars = false;
         boolean     flag_trigger = false;
         boolean     flag_apply = false;
 
-        if( ( satisfies & cf ) != 0 ) {
+        if( ( char_flags & cf ) != 0 ) {
             if( applier != ParSel.NULL ) {
                 if( m_chars_looked_for.get( 0 ).junction )
                     flag_apply = true;
-                else if( ( m_cc_last & m_cc_req ) != 0 ) { // not junction = final applier
+                else if( ( m_cf_last & m_cf_req ) != 0 ) { // not junction = final applier
                     flag_clear_chars = true;
                     flag_apply = true;
                 }
@@ -1193,14 +1179,14 @@ public class ActivityEntry extends Activity
             flag_trigger = true;
         }
 
-        if( ( satisfies & CF_NEWLINE ) != 0 ) {
+        if( ( char_flags & CF_NEWLINE ) != 0 ) {
             flag_clear_chars = true;
 
             if( m_applier_nl != ParSel.NULL ) {
                 selectParsingFunc( m_applier_nl );
                 m_applier_nl = ParSel.NULL;
             }
-            else if( ( satisfies & CF_EOT ) != 0 && !flag_apply ) {
+            else if( ( char_flags & CF_EOT ) != 0 && !flag_apply ) {
                 m_pos_start = pos_current + 1;
                 //apply_regular();
             }
@@ -1217,7 +1203,7 @@ public class ActivityEntry extends Activity
             selectParsingFunc( applier );
 
         // UPDATE WORD LAST
-        if( ( cc & CC_SEPARATOR ) != 0 )
+        if( ( char_flags & CF_SEPARATOR ) != 0 )
             word_last.setLength( 0 );
         else {
             if( word_last.length() == 0 )
@@ -1226,12 +1212,12 @@ public class ActivityEntry extends Activity
         }
 
         // UPDATE CHAR CLASS
-        m_cc_last = cc;
+        m_cf_last = char_flags;
     }
 
     // HANDLE NUMBER ===============================================================================
     private void handle_number() {
-        if( m_cc_last == CC_NUMBER ) {
+        if( m_cf_last == CF_NUMBER ) {
             int_last *= 10;
             int_last += ( char_current - '0' );
         }
@@ -1241,22 +1227,22 @@ public class ActivityEntry extends Activity
 
     // PARSING TRIGGERERS ==========================================================================
     private void trigger_subheading() {
-        if( m_cc_last == CC_NEWLINE ) {
+        if( m_cf_last == CF_NEWLINE ) {
             m_chars_looked_for.clear();
             m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.AP_SUBH ) );
-            m_cc_req = CC_ANY;
+            m_cf_req = CF_ANY;
             m_pos_start = pos_current;
         }
     }
 
     private void trigger_markup( int lf, ParSel ps ) {
-        if( ( m_cc_last & CC_NOT_SEPARATOR ) != 0 )
+        if( ( m_cf_last & CF_NOT_SEPARATOR ) != 0 )
             return;
 
         m_chars_looked_for.clear();
         m_chars_looked_for.add( new AbsChar( CF_NONSPACE - lf, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( lf, ps ) );
-        m_cc_req = CC_NOT_SEPARATOR;
+        m_cf_req = CF_NOT_SEPARATOR;
         m_pos_start = pos_current;
     }
 
@@ -1281,7 +1267,7 @@ public class ActivityEntry extends Activity
         m_chars_looked_for.add( new AbsChar( CF_SBB|CF_IMMEDIATE, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( CF_SBE, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( CF_SBE|CF_IMMEDIATE, ParSel.AP_CMNT ) );
-        m_cc_req = CC_ANY;
+        m_cf_req = CF_ANY;
         m_pos_start = pos_current;
     }
 
@@ -1295,7 +1281,7 @@ public class ActivityEntry extends Activity
         if( m_flag_hidden_link )
             word_last.deleteCharAt( 0 );
 
-        m_cc_req = CC_ANY;
+        m_cf_req = CF_ANY;
 
         String wl_str = word_last.toString();
 
@@ -1343,7 +1329,7 @@ public class ActivityEntry extends Activity
     }
 
     private void trigger_link_at() {
-        if( ( m_cc_last & CC_SEPARATOR ) != 0 )
+        if( ( m_cf_last & CF_SEPARATOR ) != 0 )
             return;
 
         m_flag_hidden_link = false;
@@ -1351,12 +1337,12 @@ public class ActivityEntry extends Activity
         m_chars_looked_for.clear();
         m_chars_looked_for.add( new AbsChar( CF_ALPHA|CF_NUMBER, ParSel.NULL ) ); // TODO: add dash
         m_chars_looked_for.add( new AbsChar( CF_TAB|CF_NEWLINE|CF_SPACE, ParSel.AP_LINK ) );
-        m_cc_req = CC_ANY;
+        m_cf_req = CF_ANY;
         m_pos_start = pos_word;
     }
 
     private void trigger_link_date() {
-        m_cc_req = CC_ANY;
+        m_cf_req = CF_ANY;
         m_chars_looked_for.clear();
         m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
@@ -1382,20 +1368,20 @@ public class ActivityEntry extends Activity
     }
 
     private void trigger_list() {
-        if( m_cc_last != CC_NEWLINE )
+        if( m_cf_last != CF_NEWLINE )
             return;
 
         m_chars_looked_for.clear();
         m_chars_looked_for.add( new AbsChar( CF_NONTAB, ParSel.JK_LIST, true ) );
-        m_cc_req = CF_ANY;
+        m_cf_req = CF_ANY;
         m_pos_start = pos_current;
     }
 
     private void trigger_ignore() {
-        if( m_cc_last == CC_NEWLINE ) {
+        if( m_cf_last == CF_NEWLINE ) {
             m_chars_looked_for.clear();
             m_chars_looked_for.add( new AbsChar( CF_TAB|CF_IMMEDIATE, ParSel.JK_IGNR, true ) );
-            m_cc_req = CC_ANY;
+            m_cf_req = CF_ANY;
             m_pos_start = pos_current;
         }
     }
@@ -1424,7 +1410,7 @@ public class ActivityEntry extends Activity
 
     private void junction_list() {
         //apply_indent();
-        m_cc_req = CC_ANY;
+        m_cf_req = CF_ANY;
 
         switch( char_current ) {
             case '[':
@@ -1442,7 +1428,7 @@ public class ActivityEntry extends Activity
     }
 
     private void junction_list2() {
-        m_cc_req = CF_ANY;
+        m_cf_req = CF_ANY;
 
         switch( char_current )
         {
