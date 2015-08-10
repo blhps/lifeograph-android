@@ -34,8 +34,9 @@ public class Entry extends DiaryElement {
         // m_date_created = jd.getTime() / 1000;
         m_date_created = ( int ) ( System.currentTimeMillis() / 1000L );
         m_date_changed = m_date_created;
+        m_date_status = m_date_created;
 
-        m_text = new String( text );
+        m_text = text;
         m_ptr2theme_tag = null;
         calculate_title( text );
     }
@@ -48,6 +49,7 @@ public class Entry extends DiaryElement {
         java.util.Date jd = new java.util.Date();
         m_date_created = ( int ) ( jd.getTime() / 1000L );
         m_date_changed = m_date_created;
+        m_date_status = m_date_created;
 
         m_ptr2theme_tag = null;
     }
@@ -384,6 +386,7 @@ public class Entry extends DiaryElement {
     Date m_date;
     long m_date_created;
     long m_date_changed;
+    long m_date_status;
     String m_text = ""; // must be initialized to prevent crashes on empty entries with tags
     java.util.List< Tag > m_tags = new ArrayList< Tag >();
     private Tag m_ptr2theme_tag;

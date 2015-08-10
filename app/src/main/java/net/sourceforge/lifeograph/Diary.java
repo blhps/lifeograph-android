@@ -60,7 +60,7 @@ public class Diary extends DiaryElement
 //    public static final char SC_SIZE = 's';
 
     public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    public final static int DB_FILE_VERSION_INT = 1020;
+    public final static int DB_FILE_VERSION_INT = 1030;
     public final static int DB_FILE_VERSION_INT_MIN = 110;
     public static final String LOCK_SUFFIX = ".~LOCK~";
 
@@ -848,15 +848,20 @@ public class Diary extends DiaryElement
 
     // DB PARSING MAIN FUNCTIONS ===================================================================
     private Result parse_db_body_text() {
-        if( m_read_version == 1020 )
-            return parse_db_body_text_1020();
-        else if( m_read_version == 1010 || m_read_version == 1011 )
-            return parse_db_body_text_1010();
-        else
-            return parse_db_body_text_110();
+        switch( m_read_version )
+        {
+            case 1030:
+            case 1020:
+                return parse_db_body_text_1030();
+            case 1011:
+            case 1010:
+                return parse_db_body_text_1010();
+            default:
+                return parse_db_body_text_110();
+        }
     }
 
-    private Result parse_db_body_text_1020() {
+    private Result parse_db_body_text_1030() {
         String line;
         Entry entry_new = null;
         Chapter.Category ptr2chapter_ctg = null;
@@ -1047,10 +1052,17 @@ public class Diary extends DiaryElement
                             Log.e( Lifeograph.TAG, "No entry declared" );
                             break;
                         }
-                        if( line.charAt( 1 ) == 'r' )
-                            entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
-                        else    // it should be 'h'
-                            entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
+                        switch( line.charAt( 1 ) ) {
+                            case 'r':
+                                entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
+                                break;
+                            case 'h':
+                                entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
+                                break;
+                            case 's':
+                                entry_new.m_date_status = Long.parseLong( line.substring( 2 ) );
+                                break;
+                        }
                         break;
                     case 'T':   // tag
                         if( entry_new == null )
@@ -1104,6 +1116,9 @@ public class Diary extends DiaryElement
         do_standard_checks_after_parse();
 
         m_filter_active.set( m_filter_default );
+
+        if( m_read_version == 1020 )
+            upgrade_entries();
 
         return Result.SUCCESS;
     }
@@ -1363,6 +1378,8 @@ public class Diary extends DiaryElement
 
         m_filter_active.set( m_filter_default );   // employ the default filter
 
+        upgrade_entries();
+
         return Result.SUCCESS;
     }
 
@@ -1563,7 +1580,65 @@ public class Diary extends DiaryElement
         if( ptr2default_theme != null )
             m_untagged.create_own_theme_duplicating( ptr2default_theme );
 
+        upgrade_entries();
+
         return Result.SUCCESS;
+    }
+
+    private void upgrade_entries() {
+        for( Entry entry : m_entries.values() ) {
+            entry.m_date_status = entry.m_date_created; // initialize the status date
+
+            char c;
+            char lf = 'n';
+            String check = "";
+            StringBuilder new_content  = new StringBuilder();
+
+            for( int i = 0; i < entry.m_text.length(); i++ ) {
+                switch( c = entry.m_text.charAt( i ) ) {
+                    case '\n':
+                    case '\r':
+                        new_content.append( '\n' );
+                    case 0:     // should never be the case
+                        lf = 't'; // tab
+                        break;
+                    case '\t':
+                        new_content.append( c );
+                        lf = ( lf == 't' || lf == 'c' ) ? 'c' : 'n';
+                        break;
+                    case '☐':
+                        check = "[ ] ";
+                        new_content.append( c );
+                        lf = lf == 'c' ? 's' : 'n';
+                        break;
+                    case '☑':
+                        check = "[+] ";
+                        new_content.append( c );
+                        lf = lf == 'c' ? 's' : 'n';
+                        break;
+                    case '☒':
+                        check = "[x] ";
+                        new_content.append( c );
+                        lf = lf == 'c' ? 's' : 'n';
+                        break;
+                    case ' ':
+                        if( lf == 's' ) {
+                            new_content.deleteCharAt( new_content.length() - 1 );
+                            new_content.append( check );
+                        }
+                        else
+                            new_content.append( c );
+                        lf = 'n';
+                        break;
+                    default:
+                        new_content.append( c );
+                        lf = 'n';
+                        break;
+                }
+            }
+
+            entry.m_text = new_content.toString();
+        }
     }
 
     // DB CREATING HELPER FUNCTIONS ================================================================
@@ -1727,6 +1802,8 @@ public class Diary extends DiaryElement
             mBufferedWriter.append( "Dr" ).append( Long.toString( entry.m_date_created ) )
                            .append( '\n' );
             mBufferedWriter.append( "Dh" ).append( Long.toString( entry.m_date_changed ) )
+                           .append( '\n' );
+            mBufferedWriter.append( "Ds" ).append( Long.toString( entry.m_date_status ) )
                            .append( '\n' );
 
             // TAGS

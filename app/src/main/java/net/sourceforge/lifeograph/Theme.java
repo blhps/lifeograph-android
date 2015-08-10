@@ -79,10 +79,17 @@ public class Theme {
     // CONSTANT COLORS
     public static final int     s_color_match1 = Color.parseColor( "#33FF33" );
     public static final int     s_color_match2 = Color.parseColor( "#009900" );
-    //public static final int     s_color_link1; LATER
-    //public static final int     s_color_link2;
-    //public static final int     s_color_broken1;
-    //public static final int     s_color_broken2;
+    //public static final int     s_color_link1 = Color.parseColor( "#3333FF" ); LATER
+    //public static final int     s_color_link2 = Color.parseColor( "#000099" );
+    //public static final int     s_color_broken1 = Color.parseColor( "#FF3333" );
+    //public static final int     s_color_broken2 = Color.parseColor( "#990000" );
+
+    public static final int     s_color_todo = Color.parseColor( "#FF0000" );
+    public static final int     s_color_progressed = Color.parseColor( "#FF8811" );
+    public static final int     s_color_done = Color.parseColor( "#66BB00" );
+    public static final int     s_color_done1 = Color.parseColor( "#77CC11" );
+    public static final int     s_color_done2 = Color.parseColor( "#409000" );
+    public static final int     s_color_canceled = Color.parseColor( "#AA8855" );
 
     private static int parse_color_sub( String color, int begin, int end ) {
         int ret_val = 0;

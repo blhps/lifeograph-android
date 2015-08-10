@@ -80,29 +80,35 @@ public class ActivityEntry extends Activity
     public final int CF_SLASH = 0x800;
     public final int CF_ALPHA = 0x1000;
     public final int CF_NUMBER = 0x2000;
+    public final int CF_ALHANUM = CF_ALPHA | CF_NUMBER;
     public final int CF_AT = 0x4000; // email
-    public final int CF_CHECKBOX = 0x8000;
+    public final int CF_SPELLCHECK = 0x8000;
 
     public final int CF_DOTYM = 0x10000;
     public final int CF_DOTMD = 0x20000;
-    public final int CF_DOTDATE = 0x30000; // DOTMD | DOTYM
+    public final int CF_DOTDATE = CF_DOTMD | CF_DOTYM;
 
     public final int CF_LESS = 0x80000; // tagging
     public final int CF_MORE = 0x100000;
     public final int CF_SBB = 0x200000; // square bracket begin: comments
     public final int CF_SBE = 0x400000; // square bracket end: comments
 
+    public final int CF_TODO = 0x1000000; // ~,+,x
+
     public final int CF_IGNORE = 0x40000000;
     public final int CF_EOT = 0x80000000; // End of Text
+
+    public final int CF_ANY = 0xFFFFFFFF;
 
     public final int CF_PUNCTUATION = CF_PUNCTUATION_RAW | CF_SLASH | CF_DOTDATE | CF_LESS
                                       | CF_MORE | CF_SBB | CF_SBE;
     public final int CF_FORMATCHAR = CF_ASTERISK | CF_UNDERSCORE | CF_EQUALS | CF_HASH | CF_SBB
                                      | CF_SBE;
     public final int CF_NUM_SLSH = CF_NUMBER | CF_SLASH;
-    public final int CF_NUM_CKBX = CF_NUMBER | CF_CHECKBOX;
+    public final int CF_NUM_CKBX = CF_NUMBER | CF_TODO;
     public final int CF_NONSPACE = CF_PUNCTUATION | CF_MARKUP | CF_ALPHA | CF_NUMBER | CF_AT
-                                   | CF_CHECKBOX;
+                                   | CF_TODO;
+    public final int CF_NONTAB = CF_NONSPACE | CF_SPACE;
 
     // CHAR CLASSES
     public final int CC_NONE = 0;
@@ -123,8 +129,9 @@ public class ActivityEntry extends Activity
     private enum ParSel {
         NULL, TR_SUBH, TR_BOLD, TR_ITLC, TR_STRK, TR_HILT, TR_CMNT, TR_LINK, TR_LNAT,
         TR_LNKD, TR_LIST, TR_IGNR,
-        JK_DDMD, JK_DDYM, JK_IGNR, JK_LNHT, JK_LNDT,
-        AP_BOLD, AP_CMNT, AP_HEND, AP_HILT, AP_ITLC, AP_LINK, AP_LNDT, AP_LNID, AP_STRK, AP_SUBH
+        JK_DDMD, JK_DDYM, JK_IGNR, JK_LNHT, JK_LNDT, JK_LIST, JK_LST2,
+        AP_BOLD, AP_CMNT, AP_HEND, AP_HILT, AP_ITLC, AP_LINK, AP_LNDT, AP_LNID, AP_STRK, AP_SUBH,
+        AP_CUNF, AP_CPRG, AP_CFIN, AP_CCCL
     }
 
     private enum LinkStatus {
@@ -923,7 +930,7 @@ public class ActivityEntry extends Activity
                     break;
                 case ' ':
                     process_char( CF_SPACE, CF_ALPHA | CF_NUMBER | CF_SLASH | CF_DOTDATE
-                                            | CF_CHECKBOX, CF_NOTHING, ParSel.TR_SUBH, CC_SPACE );
+                                            | CF_TODO, CF_NOTHING, ParSel.TR_SUBH, CC_SPACE );
                     break;
                 case '*':
                     process_char( CF_ASTERISK, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
@@ -960,7 +967,7 @@ public class ActivityEntry extends Activity
                 case '8':
                 case '9':
                     handle_number(); // calculates numeric value
-                    process_char( CF_NUMBER, CF_SLASH | CF_ALPHA | CF_DOTDATE | CF_CHECKBOX,
+                    process_char( CF_NUMBER, CF_SLASH | CF_ALPHA | CF_DOTDATE | CF_TODO,
                                   CF_NOTHING, ParSel.TR_LNKD, CC_NUMBER );
                     break;
                 case '.':
@@ -994,11 +1001,17 @@ public class ActivityEntry extends Activity
                                   ParSel.TR_LIST, CC_TAB );
                     break;
                 // LIST CHARS
-                case '☐':
-                case '☑':
-                case '☒':
-                    process_char( CF_CHECKBOX, CF_NUM_SLSH | CF_ALPHA | CF_DOTDATE, 0, ParSel.NULL,
-                                  CC_SIGN );
+                case '~':
+                case '+':
+                    process_char( CF_TODO|CF_PUNCTUATION_RAW,
+                                  CF_ALPHA|CF_NUM_CKBX|CF_DOTDATE|CF_SLASH,
+                                  0, ParSel.NULL, CC_SIGN );
+                    break;
+                case 'x':
+                case 'X':
+                    process_char( CF_TODO|CF_ALPHA,
+                                  CF_NUM_CKBX|CF_DOTDATE|CF_SLASH,
+                                  0, ParSel.NULL, CC_ALPHA );
                     break;
                 default:
                     process_char( CF_ALPHA, CF_NUM_CKBX | CF_DOTDATE | CF_SLASH, 0, ParSel.NULL,
@@ -1008,7 +1021,7 @@ public class ActivityEntry extends Activity
         }
         // end of the text -treated like new line
         process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH | CF_DOTDATE
-                                  | CF_MORE | CF_TAB, CF_EOT, ParSel.NULL, CC_NEWLINE );
+                | CF_MORE | CF_TAB, CF_EOT, ParSel.NULL, CC_NEWLINE );
     }
 
     // PARSING HELPER FUNCTIONS ====================================================================
@@ -1044,6 +1057,9 @@ public class ActivityEntry extends Activity
             case TR_LNAT:
                 trigger_link_at();
                 break;
+            case TR_LIST:
+                trigger_list();
+                break;
 
             case AP_BOLD:
                 apply_bold();
@@ -1072,6 +1088,18 @@ public class ActivityEntry extends Activity
             case AP_SUBH:
                 apply_subheading();
                 break;
+            case AP_CUNF:
+                apply_check_unf();
+                break;
+            case AP_CPRG:
+                apply_check_prg();
+                break;
+            case AP_CFIN:
+                apply_check_fin();
+                break;
+            case AP_CCCL:
+                apply_check_ccl();
+                break;
 
             case JK_DDMD:
                 junction_date_dotmd();
@@ -1087,6 +1115,12 @@ public class ActivityEntry extends Activity
                 break;
             case JK_LNDT:
                 junction_link_date();
+                break;
+            case JK_LIST:
+                junction_list();
+                break;
+            case JK_LST2:
+                junction_list2();
                 break;
             default:
                 break;
@@ -1347,9 +1381,15 @@ public class ActivityEntry extends Activity
         }
     }
 
-//    private void trigger_list() {
-//
-//    }
+    private void trigger_list() {
+        if( m_cc_last != CC_NEWLINE )
+            return;
+
+        m_chars_looked_for.clear();
+        m_chars_looked_for.add( new AbsChar( CF_NONTAB, ParSel.JK_LIST, true ) );
+        m_cc_req = CF_ANY;
+        m_pos_start = pos_current;
+    }
 
     private void trigger_ignore() {
         if( m_cc_last == CC_NEWLINE ) {
@@ -1382,9 +1422,53 @@ public class ActivityEntry extends Activity
         id_last = int_last;     // if not id link assignment is in vain
     }
 
-//    private void junction_list() {
-//
-//    }
+    private void junction_list() {
+        //apply_indent();
+        m_cc_req = CC_ANY;
+
+        switch( char_current ) {
+            case '[':
+                m_chars_looked_for.remove( 0 );
+                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_TODO | CF_IMMEDIATE,
+                                                     ParSel.JK_LST2, true ) );
+
+                m_chars_looked_for.add( new AbsChar( CF_SBE | CF_IMMEDIATE, ParSel.NULL ) );
+                break;
+            default:
+                m_chars_looked_for.clear();
+                m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
+                break;
+        }
+    }
+
+    private void junction_list2() {
+        m_cc_req = CF_ANY;
+
+        switch( char_current )
+        {
+            case ' ':
+                m_chars_looked_for.remove( 0 );
+                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CUNF ) );
+                break;
+            case '~':
+                m_chars_looked_for.remove( 0 );
+                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CPRG ) );
+                break;
+            case '+':
+                m_chars_looked_for.remove( 0 );
+                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CFIN ) );
+                break;
+            case 'x':
+            case 'X':
+                m_chars_looked_for.remove( 0 );
+                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CCCL ) );
+                break;
+            default:
+                m_chars_looked_for.clear();
+                m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
+                break;
+        }
+    }
 
     private void junction_date_dotym() { // dot between year and month
         if( int_last >= Date.YEAR_MIN && int_last <= Date.YEAR_MAX ) {
@@ -1543,6 +1627,40 @@ public class ActivityEntry extends Activity
             else
                 addSpan( new LinkDate( date_last.m_date ), m_pos_start, end, 0 );
         }
+    }
+
+    private void apply_check( Object tag_box, Object tag/*, int c*/ ) {
+        int pos_start = pos_current - 3;
+        int pos_box = pos_current;
+        int pos_end = mEditText.getText().toString().indexOf( '\n', pos_current );
+        if( pos_end == -1 )
+            pos_end = mEditText.getText().length();
+        /*if( ! Diary.diary.is_read_only() )
+            m_list_links.push_back( new LinkCheck( create_mark( iter_start ),
+                                                   create_mark( iter_box ),
+                                                   c ) );*/
+
+        addSpan( tag_box, pos_start, pos_box, 0 );
+        if( tag != null )
+            addSpan( tag, pos_box + 1, pos_end, 0 ); // ++ to skip separating space char
+    }
+
+    private void apply_check_unf() {
+        apply_check( new ForegroundColorSpan( Theme.s_color_todo ), new SpanBold() );
+    }
+
+    private void apply_check_prg() {
+        apply_check( new ForegroundColorSpan( Theme.s_color_progressed ), null );
+    }
+
+    private void apply_check_fin() {
+        apply_check( new ForegroundColorSpan( Theme.s_color_done ),
+                     new BackgroundColorSpan( Theme.s_color_done ) );
+    }
+
+    private void apply_check_ccl() {
+        apply_check( new ForegroundColorSpan( Theme.s_color_canceled ),
+                     new SpanStrikethrough() );
     }
 
     private void apply_match() {
