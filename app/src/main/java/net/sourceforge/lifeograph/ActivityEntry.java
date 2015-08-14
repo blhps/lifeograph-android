@@ -58,10 +58,11 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
+import android.widget.PopupMenu;
 
 public class ActivityEntry extends Activity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        DialogTags.DialogTagsHost
+        DialogTags.DialogTagsHost, PopupMenu.OnMenuItemClickListener
 {
     // CHAR FLAGS
     public final int CF_NOT_SET = 0;
@@ -247,14 +248,16 @@ public class ActivityEntry extends Activity
         SpannableString spanStringS = new SpannableString( "S" );
         spanStringS.setSpan( new StrikethroughSpan(), 0, 1, 0 );
         mButtonStrikethrough.setText( spanStringS );
-        mButtonStrikethrough.setOnClickListener( new View.OnClickListener() {
+        mButtonStrikethrough.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) {
                 toggleFormat( "=" );
             }
         } );
 
         mButtonHighlight = ( Button ) findViewById( R.id.buttonHighlight );
-        mButtonHighlight.setOnClickListener( new View.OnClickListener() {
+        mButtonHighlight.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) {
                 toggleFormat( "#" );
             }
@@ -381,6 +384,32 @@ public class ActivityEntry extends Activity
         return super.onOptionsItemSelected( item );
     }
 
+    // POPUP MENU LISTENER
+    public boolean onMenuItemClick( MenuItem item ) {
+        switch( item.getItemId() ) {
+            case R.id.button_list_none:
+                set_list_item_mark( 'n' );
+                return true;
+            case R.id.button_list_bullet:
+                set_list_item_mark( '*' );
+                return true;
+            case R.id.button_list_to_do:
+                set_list_item_mark( ' ' );
+                return true;
+            case R.id.button_list_progressed:
+                set_list_item_mark( '~' );
+                return true;
+            case R.id.button_list_done:
+                set_list_item_mark( '+' );
+                return true;
+            case R.id.button_list_canceled:
+                set_list_item_mark( 'x' );
+                return true;
+            default:
+                return false;
+        }
+    }
+
     void updateIcon() {
         if( m_ptr2entry.is_favored() ) {
             Bitmap bmp = BitmapFactory.decodeResource(
@@ -489,6 +518,15 @@ public class ActivityEntry extends Activity
         dialog.show();
     }
 
+    public void createListLineMenu( View v ) {
+        PopupMenu popup = new PopupMenu( this, v );
+        popup.setOnMenuItemClickListener( this );
+
+        popup.inflate( R.menu.menu_list_line );
+
+        popup.show();
+    }
+
     public void setTodoStatus( int s ) {
         m_ptr2entry.set_todo_status( s );
         updateIcon();
@@ -542,6 +580,44 @@ public class ActivityEntry extends Activity
     }
 
     // FORMATTING BUTTONS ==========================================================================
+    private boolean calculate_multi_para_bounds( int[] bounds ) {
+        String str = mEditText.getText().toString();
+
+        if( mEditText.hasSelection() ) {
+            bounds[ 0 ] = mEditText.getSelectionStart();
+            bounds[ 1 ] = mEditText.getSelectionEnd();
+        }
+        else {
+            bounds[ 0 ] = bounds[ 1 ] = mEditText.getSelectionStart();
+            if( bounds[ 0 ] == 0 )
+                return false;
+            if( str.charAt( bounds[ 0 ] - 1 ) == '\n' ) {
+                if( bounds[ 0 ] == str.length() )
+                    return true;
+                if( str.charAt( bounds[ 0 ] ) == '\n' )
+                    return true;
+            }
+        }
+
+        bounds[ 0 ]--;
+
+        if( str.lastIndexOf( '\n', bounds[ 0 ] ) == -1 ) {
+            if( str.indexOf( '\n', bounds[ 0 ] ) == -1 )
+                return false;
+            else
+                bounds[ 0 ] = str.indexOf( '\n', bounds[ 0 ] ) + 1;
+        }
+        else
+            bounds[ 0 ] = str.lastIndexOf( '\n', bounds[ 0 ] ) + 1;
+
+        if( str.indexOf( '\n', bounds[ 1 ] ) == -1 )
+            bounds[ 1 ] = str.length() - 1;
+        else
+            bounds[ 1 ] = str.indexOf( '\n', bounds[ 1 ] ) - 1;
+
+        return( bounds[ 0 ] <= bounds[ 1 ] );
+    }
+
     private void toggleFormat( String markup ) {
         int p_start, p_end;
         if( mEditText.hasSelection() ) {
@@ -674,6 +750,124 @@ public class ActivityEntry extends Activity
                 mEditText.getText().insert( p_end, markup );
                 // TODO (if necessary) place_cursor( offset );
             }
+        }
+    }
+
+    public void set_list_item_mark( char target_item_type ) {
+        int[] bounds = { 0, 0 };
+        if( !calculate_multi_para_bounds( bounds ) )
+            return;
+
+        int pos = bounds[ 0 ];
+
+        if ( bounds[ 0 ] == bounds[ 1 ] ) { // empty line
+            switch( target_item_type ) {
+                case '*':
+                    mEditText.getText().insert( pos, "\t• " );
+                    break;
+                case ' ':
+                    mEditText.getText().insert( pos, "\t[ ] " );
+                    break;
+                case '~':
+                    mEditText.getText().insert( pos, "\t[~] " );
+                    break;
+                case '+':
+                    mEditText.getText().insert( pos, "\t[+] " );
+                    break;
+                case 'x':
+                    mEditText.getText().insert( pos, "\t[x] " );
+                    break;
+            }
+            return;
+        }
+
+        int pos_end = bounds[ 1 ];
+        int pos_erase_begin = pos;
+        char item_type = 0;    // none
+        char char_lf = 't';    // tab
+
+        while( pos <= pos_end ) {
+            switch( mEditText.getText().toString().charAt( pos ) ) {
+                case '\t':
+                    if( char_lf == 't'  || char_lf == '[' ) {
+                        char_lf = '[';  // opening bracket
+                        pos_erase_begin = pos;
+                    }
+                    else
+                        char_lf = 'n';
+                    break;
+                case '•':
+                case '-':
+                    char_lf = ( char_lf == '[' ? 's' : 'n' );
+                    item_type = ( char_lf == 's' ? '*' : 0 );
+                    break;
+                case '[':
+                    char_lf = ( char_lf == '[' ? 'c' : 'n' );
+                    break;
+                case ' ':
+                    if( char_lf == 's' ) { // separator space
+                        if( item_type != target_item_type ) {
+                            mEditText.getText().delete( pos_erase_begin, pos + 1 );
+                            int diff = ( pos + 1 - pos_erase_begin );
+                            pos -= diff;
+                            pos_end -= diff;
+                            char_lf = 'a';
+                        }
+                        else {
+                            char_lf = 'n';
+                        }
+                        break;
+                    }
+                    // no break: process like other check box chars:
+                case '~':
+                case '+':
+                case 'x':
+                case 'X':
+                    char_lf = ( char_lf == 'c' ? ']' : 'n' );
+                    item_type = mEditText.getText().toString().charAt( pos );
+                    break;
+                case ']':
+                    char_lf = ( char_lf == ']' ? 's' : 'n' );
+                    break;
+                case '\n':
+                    item_type = 0;
+                    char_lf = 't';  // tab
+                    break;
+                case 0: // end
+                default:
+                    if( char_lf == 'a' || char_lf == 't' || char_lf == '[' ) {
+                        switch( target_item_type ) {
+                            case '*':
+                                mEditText.getText().insert( pos, "\t• " );
+                                pos += 3;
+                                pos_end += 3;
+                                break;
+                            case ' ':
+                                mEditText.getText().insert( pos, "\t[ ] " );
+                                pos += 5;
+                                pos_end += 5;
+                                break;
+                            case '~':
+                                mEditText.getText().insert( pos, "\t[~] " );
+                                pos += 5;
+                                pos_end += 5;
+                                break;
+                            case '+':
+                                mEditText.getText().insert( pos, "\t[+] " );
+                                pos += 5;
+                                pos_end += 5;
+                                break;
+                            case 'x':
+                                mEditText.getText().insert( pos, "\t[x] " );
+                                pos += 5;
+                                pos_end += 5;
+                                break;
+                        }
+                    }
+                    char_lf = 'n';
+                    break;
+            }
+            pos++;
         }
     }
 

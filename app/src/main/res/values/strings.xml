@@ -2,13 +2,17 @@
 <resources>
     <string name="_empty_" translatable="false"> </string>
     <string name="app_name" translatable="false">Lifeograph</string>
+
     <string name="cancel">Cancel</string>
+    <string name="none">None</string>
     <string name="apply">Apply</string>
     <string name="go">Go</string>
+    <string name="create">Create</string>
     <string name="about">About</string>
     <string name="settings">Settings</string>
     <string name="purchase">Buy Ad-free Version</string>
     <string name="show">Show</string>
+    <string name="list">List</string>
     <string name="add_today">Entry to Today</string>
     <string name="calendar">Calendar</string>
     <string name="format">Format</string>
@@ -17,6 +21,7 @@
     <string name="active_filter">Active Filter</string>
     <string name="todo_status">Todo status</string>
     <string name="search_hint">Search text</string>
+    <string name="list_type">Change List Item Type</string>
 
     <string name="password">Password</string>
     <string name="confirm">Confirm</string>
@@ -107,12 +112,17 @@
     <string name="todo_progressed">In Progress</string>
     <string name="todo_done">Done</string>
     <string name="todo_canceled">Canceled</string>
-    <string name="create">Create</string>
+    <string name="todo_open_icon">[ ] To Do</string>
+    <string name="todo_progressed_icon">[~] In Progress</string>
+    <string name="todo_done_icon">[+] Done</string>
+    <string name="todo_canceled_icon">[x] Canceled</string>
+    <string name="bullet">Bullet</string>
     <string name="program_name">Lifeograph for Android</string>
     <string name="placeholder" translatable="false">.p.</string>
     <string name="icon">icon</string>
     <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
     <string name="checkbox_icon" translatable="false">☑</string>
+    <string name="bullet_icon">• Bullet</string>
 
     <string name="bold">B</string>
     <string name="italic">I</string>
@@ -122,7 +132,7 @@
     <string name="welcome">Welcome to Lifeograph for Android!</string>
     <!--string name="caution_not_final">PLEASE KEEP IN MIND THAT THIS IS A BETA VERSION</string-->
     <string name="diaries">Diaries</string>
-    <string name="import_sms">Import SMS</string>
+    <!--string name="import_sms">Import SMS</string-->
     <string name="website"><a href="http://lifeograph.sourceforge.net">web site</a></string>
     <string name="reset">Reset</string>
     <string name="save">Save</string>
