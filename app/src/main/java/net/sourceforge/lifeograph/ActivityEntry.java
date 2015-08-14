@@ -529,6 +529,7 @@ public class ActivityEntry extends Activity
 
     public void setTodoStatus( int s ) {
         m_ptr2entry.set_todo_status( s );
+        m_ptr2entry.m_date_status = ( int ) ( System.currentTimeMillis() / 1000L );
         updateIcon();
     }
 
