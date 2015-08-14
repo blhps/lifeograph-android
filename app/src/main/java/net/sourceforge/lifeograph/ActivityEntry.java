@@ -168,8 +168,8 @@ public class ActivityEntry extends Activity
             mEditText.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
 
         // set custom font as the default font may lack the necessary chars such as check marks:
-        Typeface font = Typeface.createFromAsset( getAssets(), "OpenSans-Regular.ttf" );
-        mEditText.setTypeface( font );
+        /*Typeface font = Typeface.createFromAsset( getAssets(), "OpenSans-Regular.ttf" );
+        mEditText.setTypeface( font );*/
 
         mEditText.addTextChangedListener( new TextWatcher() {
             public void afterTextChanged( Editable s ) {
