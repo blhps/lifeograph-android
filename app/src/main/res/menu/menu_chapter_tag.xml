@@ -33,7 +33,7 @@
           android:orderInCategory="90"
           android:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
           android:showAsAction="always" />
-    <!-- TODO WILL BE IMPLEMENTED IN 0.4
+    <!-- TODO WILL BE IMPLEMENTED IN 0.7
     item android:id="@+id/change_sort_type"
           android:title="@string/change_sorting"
           android:orderInCategory="90"
@@ -45,6 +45,9 @@
           android:showAsAction="ifRoom" />
     <item android:id="@+id/rename"
           android:title="@string/rename"
+          android:orderInCategory="100" />
+    <item android:id="@+id/edit_theme"
+          android:title="@string/edit_theme"
           android:orderInCategory="100" />
     <item android:id="@+id/dismiss"
           android:title="@string/dismiss"

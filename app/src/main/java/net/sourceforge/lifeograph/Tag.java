@@ -159,14 +159,11 @@ public class Tag extends DiaryElement {
     }
 
     public void reset_theme() {
-        if( m_theme != null )
-        {
+        if( m_theme != null ) {
             m_theme = null;
 
             for( Entry entry : mEntries )
-            {
                 entry.update_theme();
-            }
         }
     }
 

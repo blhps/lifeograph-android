@@ -24,6 +24,7 @@ package net.sourceforge.lifeograph;
 
 import android.app.ActionBar;
 import android.app.Activity;
+import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
@@ -163,6 +164,9 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         item = menu.findItem( R.id.rename );
         item.setVisible( !flagPseudoElement && flagWritable );
 
+        item = menu.findItem( R.id.edit_theme );
+        item.setVisible( type == DiaryElement.Type.TAG && !flagPseudoElement && flagWritable );
+
         return true;
     }
 
@@ -198,6 +202,9 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                         break;
                 }
                 return true;
+            case R.id.edit_theme:
+                showThemeDialog();
+                return true;
             case R.id.dismiss:
                 switch( mElement.get_type() ) {
                     case TAG:
@@ -232,6 +239,12 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                                                        R.string.rename,
                                                        this );
         dlg.show();
+    }
+
+
+    private void showThemeDialog() {
+        Dialog dialog = new DialogTheme( this, ( Tag ) mElement );
+        dialog.show();
     }
 
     private void dismiss_chapter() {
