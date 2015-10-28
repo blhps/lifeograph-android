@@ -59,6 +59,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+import android.widget.SearchView;
 
 public class ActivityEntry extends Activity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
@@ -141,6 +142,7 @@ public class ActivityEntry extends Activity
     boolean mFlagSetTextOperation = false;
     boolean mFlagEntryChanged = false;
     boolean mFlagDismissOnExit = false;
+    boolean mFlagSearchIsOpen = false;
 
     private int mColorMid;
     private int mColorMatchBG;
@@ -270,29 +272,6 @@ public class ActivityEntry extends Activity
             }
         } );
 
-        EditText editTextSearch = ( EditText ) findViewById( ( R.id.editTextSearch ) );
-        editTextSearch.setText( Diary.diary.get_search_text() );
-
-        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
-            editTextSearch.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
-
-        editTextSearch.addTextChangedListener( new TextWatcher()
-        {
-            public void afterTextChanged( Editable s ) { }
-
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) { }
-
-            public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                if( mInitialized ) {
-                    Diary.diary.set_search_text( s.toString().toLowerCase() );
-                    parse_text( 0, mEditText.getText().length() );
-                }
-                else
-                    mInitialized = true;
-            }
-            private boolean mInitialized = false;
-        } );
-
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
 
@@ -340,6 +319,40 @@ public class ActivityEntry extends Activity
         MenuItem item = menu.findItem( R.id.change_todo_status );
         ToDoAction ToDoAction = ( ToDoAction ) item.getActionProvider();
         ToDoAction.mObject = this;
+
+        item = menu.findItem( R.id.search_text );
+        final SearchView searchView = ( SearchView ) item.getActionView();
+        item.setOnActionExpandListener( new MenuItem.OnActionExpandListener()
+        {
+            public boolean onMenuItemActionExpand( MenuItem menuItem ) {
+                searchView.setQuery( Diary.diary.get_search_text(), false );
+                return true;
+            }
+
+            public boolean onMenuItemActionCollapse( MenuItem menuItem ) {
+                return true;
+            }
+        } );
+        searchView.setOnQueryTextListener( new SearchView.OnQueryTextListener()
+        {
+            public boolean onQueryTextSubmit( String s ) {
+                return true;
+            }
+
+            public boolean onQueryTextChange( String s ) {
+                if( mFlagSearchIsOpen ) {
+                    Diary.diary.set_search_text( s.toLowerCase() );
+                    parse_text( 0, mEditText.getText().length() );
+                }
+                return true;
+            }
+        } );
+        searchView.setOnQueryTextFocusChangeListener( new View.OnFocusChangeListener()
+        {
+            public void onFocusChange( View view, boolean b ) {
+                mFlagSearchIsOpen = b;
+            }
+        } );
 
         return true;
     }

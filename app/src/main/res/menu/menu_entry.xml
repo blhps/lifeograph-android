@@ -38,6 +38,12 @@
           android:icon="@drawable/ic_action_favorite"
           android:orderInCategory="90"
           android:showAsAction="ifRoom" />
+    <item android:id="@+id/search_text"
+          android:title="@string/search_hint"
+          android:icon="@drawable/ic_action_search"
+          android:showAsAction="collapseActionView|ifRoom"
+          android:orderInCategory="90"
+          android:actionViewClass="android.widget.SearchView" />
     <item android:id="@+id/edit_date"
           android:title="@string/edit_date"
           android:orderInCategory="100"
