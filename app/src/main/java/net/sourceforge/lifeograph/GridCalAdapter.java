@@ -65,12 +65,6 @@ class GridCalAdapter extends BaseAdapter
     }
 
     protected void showMonth( Date date ) {
-        if( mDateCurrent != null )
-            if( date.get_yearmonth() == mDateCurrent.get_yearmonth() ) {
-                mDateCurrent.set( date.m_date ); // adjust day part
-                return;
-            }
-
         mDateCurrent = new Date( date.m_date );
 
         mListDays.clear();
@@ -139,29 +133,35 @@ class GridCalAdapter extends BaseAdapter
         else {
             Date date = new Date( mListDays.get( position ) + 1 );
 
-//  TODO EXTRA WIDGET WILL BE INVESTIGATED IN 0.5
-//                if( Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date.get_pure() ) )
-//                    num_events_per_day.setText( "C" );
-//                else
-//                    num_events_per_day.setText( "" );
-
             tvDayNo.setText( String.valueOf( date.get_day() ) );
 
-            boolean within_month = ( date.get_month() == mDateCurrent.get_month() );
+            boolean flagWithinMonth = ( date.get_month() == mDateCurrent.get_month() );
+            boolean flagWeekDay = ( date.get_weekday() > 0 );
 
             if( Diary.diary.m_entries.containsKey( date.m_date ) ) {
                 tvDayNo.setTextAppearance( mContext, R.style.boldText );
-                tvDayNo.setTextColor( within_month ?
-                        mContext.getResources().getColor( R.color.t_dark ) : Color.GRAY );
+
+                tvDayNo.setTextColor( flagWithinMonth ?
+                            mContext.getResources().getColor( R.color.t_dark ) : Color.DKGRAY );
             }
             else {
                 tvDayNo.setTextAppearance( mContext, R.style.normalText );
-                tvDayNo.setTextColor( within_month ?
-                        mContext.getResources().getColor( R.color.t_mid ) : Color.GRAY );
+                if( flagWithinMonth && flagWeekDay ) // weekdays within month
+                    tvDayNo.setTextColor( mContext.getResources().getColor( R.color.t_mid ) );
+                else if( flagWithinMonth ) // weekends within month
+                    tvDayNo.setTextColor( mContext.getResources().getColor( R.color.t_light ) );
+                else
+                    tvDayNo.setTextColor( Color.GRAY );
             }
-            // holidays:
-            // if( date.get_weekday() == 0 )
-            // tvDayNo.setBackgroundColor( Color.LTGRAY );
+
+            if( date.get_pure() == mDateCurrent.get_pure() )
+                tvDayNo.setBackgroundColor(
+                        mContext.getResources().getColor( R.color.t_lighter ) );
+            else if( Diary.diary.m_ptr2chapter_ctg_cur.getMap().containsKey( date.get_pure() ) )
+                tvDayNo.setBackgroundColor(
+                        mContext.getResources().getColor( R.color.t_lightest ) );
+            else
+                tvDayNo.setBackgroundColor( Color.WHITE );
         }
         return row;
     }
