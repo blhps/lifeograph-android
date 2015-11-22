@@ -150,7 +150,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                          !flagPseudoElement &&
                          flagWritable );
 
-//  TODO WILL BE IMPLEMENTED IN 0.4
+//  TODO WILL BE IMPLEMENTED IN 0.7+
 //        item = menu.findItem( R.id.change_sort_type );
 //        item.setVisible( mParentElem != null );
 
@@ -163,6 +163,9 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
         item = menu.findItem( R.id.rename );
         item.setVisible( !flagPseudoElement && flagWritable );
+
+        item = menu.findItem( R.id.edit_date );
+        item.setVisible( type == DiaryElement.Type.CHAPTER && !flagPseudoElement && flagWritable );
 
         item = menu.findItem( R.id.edit_theme );
         item.setVisible( type == DiaryElement.Type.TAG && !flagPseudoElement && flagWritable );
@@ -204,6 +207,13 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                 return true;
             case R.id.edit_theme:
                 showThemeDialog();
+                return true;
+            case R.id.edit_date:
+                new DialogInquireText( this,
+                                       R.string.edit_date,
+                                       mElement.get_date().format_string(),
+                                       R.string.apply,
+                                       this ).show();
                 return true;
             case R.id.dismiss:
                 switch( mElement.get_type() ) {
@@ -288,6 +298,21 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                 mElement.m_name = text;
                 setTitle( mElement.get_list_str() );
                 break;
+            case R.string.edit_date:
+                Date date = new Date( text );
+                if( date.m_date != Date.NOT_SET ) {
+                    if( date.is_ordinal() )
+                        break;
+
+                    date.reset_order_0();
+                    Diary.diary.m_ptr2chapter_ctg_cur.set_chapter_date( ( Chapter ) mElement,
+                                                                        date.m_date );
+                    Diary.diary.update_entries_in_chapters();
+                    setTitle( mElement.get_title_str() );
+                    mActionBar.setSubtitle( mElement.get_info_str() );
+                    updateList();
+                }
+                break;
         }
     }
     public boolean onInquireTextChanged( int id, String s ) {
@@ -296,6 +321,13 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                 return !Diary.diary.m_tags.containsKey( s );
             case R.string.rename_chapter:
                 return( mElement.m_name.compareTo( s ) != 0 );
+            case R.string.edit_date:
+                Date date = new Date( s );
+                if( date.m_date == Date.NOT_SET )
+                    return false;
+                else if( date.is_ordinal() )
+                    return false;
+                return !Diary.diary.m_ptr2chapter_ctg_cur.getMap().containsKey( date.m_date );
             default:
                 return true;
         }

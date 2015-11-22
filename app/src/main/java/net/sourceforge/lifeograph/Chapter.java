@@ -65,12 +65,44 @@ public class Chapter extends DiaryElement {
 
         public Chapter create_chapter( String name, long date ) {
             Chapter chapter = new Chapter( m_ptr2diary, name, date );
-            mMap.put( date, chapter );
+            add( chapter );
             return chapter;
         }
 
         public Chapter create_chapter_ordinal( String name ) {
             return create_chapter( name, get_free_order_ordinal() );
+        }
+
+        public boolean set_chapter_date( Chapter chapter, long date ) {
+            assert( !chapter.is_ordinal() );
+            assert( !mMap.containsKey( date ) );
+
+            if( chapter.m_date_begin.m_date != Date.NOT_SET ) {
+                // fix time span
+                boolean flagChapterFound = false;
+                for( Chapter c : mMap.values() ) {
+                    if( flagChapterFound ) {
+                        if( chapter.m_time_span > 0 )
+                            c.m_time_span += chapter.m_time_span;
+                        else
+                            c.m_time_span = 0;
+                        break;
+                    }
+
+                    if( c.m_date_begin.m_date == chapter.m_date_begin.m_date )
+                        flagChapterFound = true;
+                }
+                if( !flagChapterFound )
+                    return false; // chapter is not a member of the set
+
+                mMap.remove( chapter.m_date_begin.m_date );
+            }
+
+            chapter.set_date( date );
+
+            add( chapter );
+
+            return true;
         }
 
         public long get_free_order_ordinal() {
@@ -110,6 +142,33 @@ public class Chapter extends DiaryElement {
 
         public java.util.TreeMap< Long, Chapter > getMap() {    // Java only
             return mMap;
+        }
+
+        private boolean add( Chapter chapter ) {
+            mMap.put( chapter.m_date_begin.m_date, chapter );
+
+            Chapter chapter_prev = null;
+            int i = 0;
+            boolean flagFound = false;
+
+            for( Map.Entry< Long, Chapter > entry : mMap.entrySet() ) {
+                if( entry.getValue().m_date_begin.m_date == chapter.m_date_begin.m_date ) {
+                    if( i == 0 ) // latest
+                        chapter.recalculate_span( null );
+                    else
+                        chapter.recalculate_span( chapter_prev );
+                    flagFound = true;
+                }
+                else if( flagFound ) { // fix earlier entry
+                    entry.getValue().recalculate_span( chapter );
+                    break;
+                }
+
+                chapter_prev = entry.getValue();
+                i++;
+            }
+
+            return true; // reserved
         }
 
         java.util.TreeMap< Long, Chapter > mMap;
