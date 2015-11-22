@@ -82,6 +82,8 @@ public class ActivityLogin extends ListActivity
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getApplicationContext() );
+        sExternalStorage = prefs.getString(
+                Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ), "N/A" );
         sDiaryPath = prefs.getString(
                 Lifeograph.getStr( R.string.pref_DIARY_PATH_key ), "N/A" );
         Date.s_format_order = prefs.getString(
@@ -260,7 +262,10 @@ public class ActivityLogin extends ListActivity
     }
 
     File getDiariesDir() {
-        return new File( Environment.getExternalStorageDirectory(), sDiaryPath );
+        if( sExternalStorage.equals( "I" ) || !Lifeograph.isExternalStorageWritable() )
+            return new File( getFilesDir(), sDiaryPath );
+        else
+            return new File( Environment.getExternalStorageDirectory(), sDiaryPath );
     }
 
     // InquireListener INTERFACE METHODS
@@ -358,6 +363,7 @@ public class ActivityLogin extends ListActivity
     }
 
     // VARIABLES
+    public static String sExternalStorage = "";
     public static String sDiaryPath;
     private java.util.List< String > mPaths = new ArrayList< String >();
     private ArrayAdapter< String > mAdapterDiaries;

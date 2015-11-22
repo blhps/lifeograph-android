@@ -6,7 +6,11 @@
     <!-- Example General settings -->
     <string name="pref_DIARY_header">Diary Files</string>
 
-    <string name="pref_DIARY_PATH_title">Location of Diary Files</string>
+    <string name="pref_DIARY_STORAGE_title">Storage of Diary Files</string>
+    <string name="pref_DIARY_STORAGE_key" translatable="false">diary_storage</string>
+    <string name="pref_DIARY_STORAGE_default" translatable="false">E</string>
+
+    <string name="pref_DIARY_PATH_title">Folder of Diary Files</string>
     <string name="pref_DIARY_PATH_key" translatable="false">diary_path</string>
     <string name="pref_DIARY_PATH_default" translatable="false">Diaries</string>
 
@@ -19,6 +23,15 @@
     <string name="pref_DATE_FORMAT_SEPARATOR_title">Field Separator</string>
     <string name="pref_DATE_FORMAT_SEPARATOR_key" translatable="false">date_format_separator</string>
     <string name="pref_DATE_FORMAT_SEPARATOR_default" translatable="false">.</string>
+
+    <string-array name="pref_DIARY_STORAGE_titles">
+        <item>External Storage/SD Card</item>
+        <item>Internal Storage (Deleted on uninstall)</item>
+    </string-array>
+    <string-array name="pref_DIARY_STORAGE_values" translatable="false">
+        <item>E</item>
+        <item>I</item>
+    </string-array>
 
     <string-array name="pref_DATE_FORMAT_ORDER_titles">
         <item>Year Month Day</item>

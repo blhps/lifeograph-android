@@ -7,6 +7,15 @@
     <PreferenceCategory
         android:title="@string/pref_DIARY_header" >
 
+        <ListPreference
+            android:key="@string/pref_DIARY_STORAGE_key"
+            android:title="@string/pref_DIARY_STORAGE_title"
+            android:defaultValue="@string/pref_DIARY_STORAGE_default"
+            android:entries="@array/pref_DIARY_STORAGE_titles"
+            android:entryValues="@array/pref_DIARY_STORAGE_values"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
         <EditTextPreference
             android:key="@string/pref_DIARY_PATH_key"
             android:title="@string/pref_DIARY_PATH_title"
@@ -20,7 +29,7 @@
         android:title="@string/pref_DATE_FORMAT_header" >
 
         <ListPreference
-            android:key="date_format_order"
+            android:key="@string/pref_DATE_FORMAT_ORDER_key"
             android:title="@string/pref_DATE_FORMAT_ORDER_title"
             android:defaultValue="@string/pref_DATE_FORMAT_ORDER_default"
             android:entries="@array/pref_DATE_FORMAT_ORDER_titles"
@@ -29,7 +38,7 @@
             android:positiveButtonText="@null" />
 
         <ListPreference
-            android:key="date_format_separator"
+            android:key="@string/pref_DATE_FORMAT_SEPARATOR_key"
             android:title="@string/pref_DATE_FORMAT_SEPARATOR_title"
             android:defaultValue="@string/pref_DATE_FORMAT_SEPARATOR_default"
             android:entries="@array/pref_DATE_FORMAT_SEPARATOR_titles"

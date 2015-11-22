@@ -40,6 +40,8 @@ public class ActivitySettings extends PreferenceActivity
         // to reflect the new value, per the Android Design guidelines.
 
         bindPreferenceSummaryToValue(
+                findPreference( Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ) ) );
+        bindPreferenceSummaryToValue(
                 findPreference( Lifeograph.getStr( R.string.pref_DIARY_PATH_key ) ) );
         bindPreferenceSummaryToValue(
                 findPreference( Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ) ) );
@@ -60,6 +62,10 @@ public class ActivitySettings extends PreferenceActivity
             else if( pref.getKey().equals(
                     Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) {
                 Date.s_format_separator = stringValue;
+            }
+            else if( pref.getKey().equals(
+                    Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ) ) ) {
+                ActivityLogin.sExternalStorage = stringValue;
             }
             else if( pref.getKey().equals(
                     Lifeograph.getStr( R.string.pref_DIARY_PATH_key ) ) ) {
