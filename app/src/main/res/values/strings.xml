@@ -137,6 +137,8 @@
     <string name="strikethrough">S</string>
     <string name="highlight">H</string>
 
+    <string name="ignore">Ignore</string>
+
     <string name="welcome">Welcome to Lifeograph for Android!</string>
     <!--string name="caution_not_final">PLEASE KEEP IN MIND THAT THIS IS A BETA VERSION</string-->
     <string name="diaries">Diaries</string>

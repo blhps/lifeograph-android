@@ -265,6 +265,13 @@ public class ActivityEntry extends Activity
             }
         } );
 
+        Button mButtonIgnore = ( Button ) findViewById( R.id.button_ignore );
+        mButtonIgnore.setOnClickListener( new View.OnClickListener() {
+            public void onClick( View v ) {
+                toggleIgnoreParagraph();
+            }
+        } );
+
         Button mButtonComment = ( Button ) findViewById( R.id.button_comment );
         mButtonComment.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
@@ -898,6 +905,55 @@ public class ActivityEntry extends Activity
             int p_start = mEditText.getSelectionStart();
             mEditText.getText().insert( p_start, "[[]]" );
             mEditText.setSelection( p_start + 2 );
+        }
+    }
+
+    private void toggleIgnoreParagraph() {
+        int[] bounds = { 0, 0 };
+        if( !calculate_multi_para_bounds( bounds ) )
+            return;
+
+        if ( bounds[ 0 ] == bounds[ 1 ] ) { // empty line
+            mEditText.getText().insert( bounds[ 0 ], ".\t" );
+            return;
+        }
+
+        int pos = bounds[ 0 ];
+        int pos_end = bounds[ 1 ];
+        int pos_erase_begin = pos;
+        char char_lf = '.';
+
+        while( pos <= pos_end ) {
+            switch( mEditText.getText().toString().charAt( pos ) ) {
+                case '.':
+                    if( char_lf == '.' ) {
+                        pos_erase_begin = pos;
+                        char_lf = 't'; // tab
+                    }
+                    else
+                        char_lf = 'n';
+                    break;
+                case '\n':
+                    char_lf = '.';
+                    break;
+                case '\t':
+                    if( char_lf == 't' ) {
+                        mEditText.getText().delete( pos_erase_begin, pos + 1 );
+                        int diff = ( pos + 1 - pos_erase_begin );
+                        pos -= diff;
+                        pos_end -= diff;
+                    }
+                case 0: // end
+                default:
+                    if( char_lf == '.' ) {
+                        mEditText.getText().insert( pos, ".\t" );
+                        pos += 2;
+                        pos_end += 2;
+                    }
+                    char_lf = 'n';
+                    break;
+            }
+            pos++;
         }
     }
 
