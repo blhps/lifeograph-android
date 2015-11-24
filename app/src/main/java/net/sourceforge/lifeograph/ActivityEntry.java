@@ -1818,13 +1818,12 @@ public class ActivityEntry extends Activity
     }
 
     private void apply_ignore() {
-        // TODO:
-//        int end = pos_current;
-//        if( mEditText.getText().charAt( end ) != '\n' )
-//            end = mEditText.getText().toString().indexOf( '\n' ) - 1;
-//        if( end < 0 )
-//            end = mEditText.getText().length() - 1;
-//        addSpan( new BackgroundColorSpan( colorBG ), m_pos_start, end, 0 );
+        int end = pos_current;
+        if( mEditText.getText().charAt( end ) != '\n' )
+            end = mEditText.getText().toString().indexOf( '\n', end );
+        if( end < 0 )
+            end = mEditText.getText().length();
+        addSpan( new ForegroundColorSpan( mColorMid ), m_pos_start, end, 0 );
     }
 
     private void apply_hidden_link_tags( int end, Object spanLink ) {
