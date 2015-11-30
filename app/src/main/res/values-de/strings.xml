@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
+<resources>
     <string name="cancel">Abbrechen</string>
     <string name="apply">Verwenden</string>
     <string name="go">Gehe</string>
@@ -129,6 +129,12 @@
         <item>Nur normale Einträge</item>
         <item>Nur Favoriten-Einträge</item>
     </string-array>
+
+    <string-array name="pref_DIARY_STORAGE_titles">
+        <item>External Storage/SD Card</item>
+        <item>Internal Storage (Deleted on uninstall)</item>
+    </string-array>
+
     <string name="edit_theme">Stil bearbeiten</string>
     <string name="heading_color">Überschrift</string>
     <string name="highlight_color">Hervorhebung</string>

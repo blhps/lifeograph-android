@@ -113,6 +113,12 @@
         <item>Yalnızca Alelade Girişler</item>
         <item>Yalnızca Sevilen Girişler</item>
     </string-array>
+
+    <string-array name="pref_DIARY_STORAGE_titles">
+        <item>Harici alan/SD Card</item>
+        <item>Dahili alan (Program kaldrıldığında silinir)</item>
+    </string-array>
+
     <string name="edit_theme">Temayı Düzenle</string>
     <string name="heading_color">Başlık</string>
     <string name="highlight_color">Vurgu</string>
