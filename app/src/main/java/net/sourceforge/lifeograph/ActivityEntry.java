@@ -51,6 +51,7 @@ import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -60,6 +61,7 @@ import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.SearchView;
+import android.widget.TextView;
 
 public class ActivityEntry extends Activity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
@@ -140,6 +142,7 @@ public class ActivityEntry extends Activity
     Button mButtonHighlight;
 
     boolean mFlagSetTextOperation = false;
+    boolean mFlagEditorActionInProgress = false;
     boolean mFlagEntryChanged = false;
     boolean mFlagDismissOnExit = false;
     boolean mFlagSearchIsOpen = false;
@@ -197,6 +200,125 @@ public class ActivityEntry extends Activity
                     mFlagEntryChanged = true;
                 }
                 parse_text( 0, mEditText.getText().length() );
+            }
+        } );
+
+        mEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
+        {
+            public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
+                Log.d( Lifeograph.TAG, "onEditorAction" );
+                if( mFlagEditorActionInProgress ) {
+                    mFlagEditorActionInProgress = false;
+                    return false;
+                }
+
+                int iter_end = v.getSelectionStart();
+                int iter_start = v.getText().toString().lastIndexOf( '\n', iter_end - 1 );
+                if( iter_start < 0 )
+                    return false;
+
+                iter_start++;   // get rid of the new line char
+                int offset_start = iter_start;   // save for future
+
+                if( v.getText().charAt( iter_start ) == '\t' ) {
+                    StringBuilder text = new StringBuilder( "\n\t" );
+                    int value = 0;
+                    char char_lf = '*';
+                    iter_start++;   // first tab is already handled, so skip it
+
+                    for( ; iter_start != iter_end; ++iter_start ) {
+                        switch( v.getText().charAt( iter_start ) ) {
+                            // BULLETED LIST
+                            case '•':
+                                if( char_lf != '*' )
+                                    return false;
+                                char_lf = ' ';
+                                text.append( "• " );
+                                break;
+                            // CHECK LIST
+                            case '[':
+                                if( char_lf != '*' )
+                                    return false;
+                                char_lf = 'c';
+                                break;
+                            case '~':
+                            case '+':
+                            case 'x':
+                            case 'X':
+                                if( char_lf != 'c' )
+                                    return false;
+                                char_lf = ']';
+                                break;
+                            case ']':
+                                if( char_lf != ']' )
+                                    return false;
+                                char_lf = ' ';
+                                text.append( "[ ] " );
+                                break;
+                            // NUMBERED LIST
+                            case '0': case '1': case '2': case '3': case '4':
+                            case '5': case '6': case '7': case '8': case '9':
+                                if( char_lf != '*' && char_lf != '1' )
+                                    return false;
+                                char_lf = '1';
+                                value *= 10;
+                                value += v.getText().charAt( iter_start ) - '0';
+                                break;
+                            case '-':
+                                if( char_lf == '*' ) {
+                                    char_lf = ' ';
+                                    text.append(  "- " );
+                                    break;
+                                }
+                                // no break
+                            case '.':
+                            case ')':
+                                if( char_lf != '1' )
+                                    return false;
+                                char_lf = ' ';
+                                text.append( ++value )
+                                    .append( v.getText().charAt( iter_start ) )
+                                    .append( ' ' );
+                                break;
+                            case '\t':
+                                if( char_lf != '*' )
+                                    return false;
+                                text.append( '\t' );
+                                break;
+                            case ' ':
+                                if( char_lf == 'c' ) {
+                                    char_lf = ']';
+                                    break;
+                                }
+                                else if( char_lf != ' ' )
+                                    return false;
+                                // remove the last bullet if no text follows it:
+                                if( iter_start == iter_end - 1 ) {
+                                    iter_start = offset_start;
+                                    mFlagEditorActionInProgress = true;
+                                    mEditText.getText().delete( iter_start, iter_end );
+                                    mEditText.getText().insert( iter_start, "\n" );
+                                    return true;
+                                }
+                                else {
+                                    mFlagEditorActionInProgress = true;
+                                    mEditText.getText().insert( iter_end, text );
+                                    iter_start = iter_end + text.length();
+                                    if( value > 0 ) {
+                                        iter_start++;
+                                        while( ( iter_start = increment_numbered_line(
+                                                    iter_start, value++, v ) ) > 0 ) {
+                                            iter_start++;
+                                        }
+                                    }
+                                    return true;
+                                }
+                            default:
+                                return false;
+                        }
+                    }
+                }
+                return false;
             }
         } );
 
@@ -576,6 +698,58 @@ public class ActivityEntry extends Activity
             default:
                 return true;
         }
+    }
+
+    private int increment_numbered_line( int iter, int expected_value, TextView v ) {
+        if( iter >= v.getText().length() )
+            return -1;
+
+        int iter_start = iter;
+        int iter_end = v.getText().toString().indexOf( '\n', iter );
+        if( iter_end == -1 )
+            iter_end = v.getText().length() - 1;
+
+        StringBuilder text = new StringBuilder( "" );
+        int value = 0;
+        char char_lf = 't';
+
+        for( ; iter != iter_end; ++iter ) {
+            switch( v.getText().charAt( iter ) ) {
+                case '\t':
+                    if( char_lf != 't' && char_lf != '1' )
+                        return -1;
+                    char_lf = '1';
+                    text.append( '\t' );
+                    break;
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    if( char_lf != '1' && char_lf != '-' )
+                        return -1;
+                    char_lf = '-';
+                    value *= 10;
+                    value += v.getText().charAt( iter ) - '0';
+                    break;
+                case '-':
+                case '.':
+                case ')':
+                    if( char_lf != '-' || value != expected_value )
+                        return -1;
+                    char_lf = ' ';
+                    value++;
+                    text.append( value ).append( v.getText().charAt( iter ) ).append( ' ' );
+                    break;
+                case ' ':
+                    if( char_lf != ' ' )
+                        return -1;
+                    mFlagEditorActionInProgress = true;
+                    mEditText.getText().delete( iter_start, iter + 1 );
+                    mEditText.getText().insert( iter_start, text );
+                    return( iter_end + text.length() - ( iter - iter_start + 1 ) );
+                default:
+                    return -1;
+            }
+        }
+        return -1;
     }
 
     // TAG DIALOG HOST METHODS =====================================================================
