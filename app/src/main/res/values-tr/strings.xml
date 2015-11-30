@@ -52,7 +52,6 @@
     <string name="group">Serbest Fasıl</string>
     <string name="highlight">R</string>
     <string name="icon">ikon</string>
-    <string name="import_sms">SMS\'leri İçe Aktar</string>
     <string name="italic">Y</string>
     <string name="logoutwosaving">Kaydetmeden Kapat</string>
     <string name="logoutwosaving_confirm">Kaydetmeden kapatmak istediğinizden emin misiniz?</string>
@@ -114,5 +113,24 @@
         <item>Yalnızca Alelade Girişler</item>
         <item>Yalnızca Sevilen Girişler</item>
     </string-array>
+    <string name="edit_theme">Temayı Düzenle</string>
+    <string name="heading_color">Başlık</string>
+    <string name="highlight_color">Vurgu</string>
+    <string name="numbered_item_icon">#- Sayı</string>
+    <string name="pref_DIARY_STORAGE_title">Günlük Dosyaları Kayıt Deposu</string>
+    <string name="reset_to_default">Varsayılana Döndür</string>
+    <string name="subheading_color">Altbaşlık</string>
+    <string name="text_color">Sıradan metin</string>
+    <string name="todo_canceled_icon">[x] İptal edilmiş</string>
+    <string name="todo_done_icon">[+] Tamamlanmış</string>
+    <string name="todo_open_icon">[ ] Yapılacak</string>
+    <string name="todo_progressed_icon">[~] Devam etmekte</string>
+    <string name="none">Yok</string>
+    <string name="list">Liste</string>
+    <string name="list_type">Madde türünü değiştir</string>
+    <string name="bullet">Koyu nokta</string>
+    <string name="bullet_icon">• Koyu nokta</string>
+    <string name="base_color">Arka Plan</string>
+    <string name="ignore">Göz ardı et</string>
 
 </resources>

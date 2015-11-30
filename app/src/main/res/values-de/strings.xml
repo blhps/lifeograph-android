@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources>
+<resources tools:ignore="MissingTranslation" xmlns:tools="http://schemas.android.com/tools">
     <string name="cancel">Abbrechen</string>
     <string name="apply">Verwenden</string>
     <string name="go">Gehe</string>
@@ -113,7 +113,7 @@
     <string name="welcome">Willkommen zu Lifeograph für Android!</string>
     <!--string name="caution_not_final">BITTE BEACHTEN, DASS DIES EINE BETA-VERSION IST</string-->
     <string name="diaries">Tagebücher</string>
-    <string name="import_sms">SMS Importieren</string>
+    <!--string name="import_sms">SMS Importieren</string-->
     <string name="website"><a href="http://lifeograph.sourceforge.net">Webseite</a></string>
     <string name="reset">Reset</string>
     <string name="save">Speichern</string>
@@ -129,6 +129,25 @@
         <item>Nur normale Einträge</item>
         <item>Nur Favoriten-Einträge</item>
     </string-array>
+    <string name="edit_theme">Stil bearbeiten</string>
+    <string name="heading_color">Überschrift</string>
+    <string name="highlight_color">Hervorhebung</string>
+    <string name="numbered_item_icon">#- Nummer</string>
+    <string name="subheading_color">Untertitel</string>
+    <string name="todo_canceled_icon">[x] Storniert</string>
+    <string name="todo_done_icon">[+] Erledigt</string>
+    <string name="todo_open_icon">[ ] Aufgabe</string>
+    <string name="base_color">Hintergrund</string>
+    <string name="bullet">Aufzählungspunkt</string>
+    <string name="bullet_icon">• Aufzählungspunkt</string>
+    <string name="list">Liste</string>
+    <string name="list_type">Rasterpunkt </string>
+    <string name="none">keine</string>
+    <string name="pref_DIARY_STORAGE_title">Speichermedium der Tagebuchdateien</string>
+    <string name="reset_to_default">Vorgaben wiederherstellen</string>
+    <string name="text_color">Normaler Text</string>
+    <string name="todo_progressed_icon">[~] In Bearbeitung</string>
+    <string name="ignore">Ignorieren</string>
 
 </resources>
 
