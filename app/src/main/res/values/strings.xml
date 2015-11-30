@@ -125,6 +125,7 @@
     <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
     <string name="checkbox_icon" translatable="false">☑</string>
     <string name="bullet_icon">• Bullet</string>
+    <string name="numbered_item_icon">#- Number</string>
 
     <string name="text_color">Normal text</string>
     <string name="base_color">Background</string>

@@ -35,5 +35,7 @@ along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
           android:title="@string/todo_done_icon" />
     <item android:id="@+id/button_list_canceled"
           android:title="@string/todo_canceled_icon" />
+    <item android:id="@+id/button_list_numbered"
+          android:title="@string/numbered_item_icon" />
 
 </menu>

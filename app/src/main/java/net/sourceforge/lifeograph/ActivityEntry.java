@@ -206,7 +206,6 @@ public class ActivityEntry extends Activity
         mEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
         {
             public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                Log.d( Lifeograph.TAG, "onEditorAction" );
                 if( mFlagEditorActionInProgress ) {
                     mFlagEditorActionInProgress = false;
                     return false;
@@ -214,7 +213,7 @@ public class ActivityEntry extends Activity
 
                 int iter_end = v.getSelectionStart();
                 int iter_start = v.getText().toString().lastIndexOf( '\n', iter_end - 1 );
-                if( iter_start < 0 )
+                if( iter_start < 0 || iter_start == v.getText().length() - 1 )
                     return false;
 
                 iter_start++;   // get rid of the new line char
@@ -546,6 +545,9 @@ public class ActivityEntry extends Activity
                 return true;
             case R.id.button_list_canceled:
                 set_list_item_mark( 'x' );
+                return true;
+            case R.id.button_list_numbered:
+                set_list_item_mark( '1' );
                 return true;
             default:
                 return false;
@@ -972,6 +974,9 @@ public class ActivityEntry extends Activity
                 case 'x':
                     mEditText.getText().insert( pos, "\t[x] " );
                     break;
+                case '1':
+                    mEditText.getText().insert( pos, "\t1- " );
+                    break;
             }
             return;
         }
@@ -980,6 +985,7 @@ public class ActivityEntry extends Activity
         int pos_erase_begin = pos;
         char item_type = 0;    // none
         char char_lf = 't';    // tab
+        Integer value = 1; // for numeric lists
 
         while( pos <= pos_end ) {
             switch( mEditText.getText().toString().charAt( pos ) ) {
@@ -1056,6 +1062,10 @@ public class ActivityEntry extends Activity
                                 mEditText.getText().insert( pos, "\t[x] " );
                                 pos += 5;
                                 pos_end += 5;
+                                break;
+                            case '1':
+                                mEditText.getText().insert( pos, "\t" + value.toString() + "- " );
+                                value++;
                                 break;
                         }
                     }
