@@ -414,6 +414,8 @@ public class ActivityEntry extends Activity
     protected void onPause() {
         super.onPause();
 
+        Log.d( Lifeograph.TAG, "ActivityEntry.onPause()" );
+
         if( mFlagDismissOnExit )
             Diary.diary.dismiss_entry( m_ptr2entry );
         else

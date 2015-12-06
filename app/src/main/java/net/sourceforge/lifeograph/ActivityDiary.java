@@ -195,18 +195,6 @@ public class ActivityDiary extends Activity
         outState.putInt( "tab", getActionBar().getSelectedNavigationIndex() );
     }
 
-//  overriding onBackPressed is no longer necessary
-//    @Override
-//    public void onBackPressed() {
-//        if( mParentElem == Diary.diary ) {
-//            super.onBackPressed();
-//        }
-//        else {
-//            mParentElem = Diary.diary;
-//            update_entry_list();
-//        }
-//    }
-
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
         super.onCreateOptionsMenu( menu );
@@ -427,7 +415,7 @@ public class ActivityDiary extends Activity
                                            null );
     }
 
-    //  TODO WILL BE IMPLEMENTED IN 0.5
+    //  TODO WILL BE IMPLEMENTED IN 0.8+
 //    protected void import_messages() {
 //        Cursor cursor =
 //                getContentResolver().query( Uri.parse( "content://sms/inbox" ), null, null, null,
