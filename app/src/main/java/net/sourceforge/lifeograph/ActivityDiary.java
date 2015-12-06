@@ -65,7 +65,6 @@ public class ActivityDiary extends Activity
 
         Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
-        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         // PICKING UP THE APPROPRIATE LAYOUT
         if( Lifeograph.getScreenWidth() >= 4.0 ) {
@@ -193,6 +192,8 @@ public class ActivityDiary extends Activity
     protected void onSaveInstanceState( @NonNull Bundle outState ) {
         super.onSaveInstanceState( outState );
         outState.putInt( "tab", getActionBar().getSelectedNavigationIndex() );
+
+        Log.d( Lifeograph.TAG, "ActivityDiary.onSaveInstanceState()" );
     }
 
     @Override

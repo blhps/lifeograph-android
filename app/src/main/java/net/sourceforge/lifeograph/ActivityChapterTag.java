@@ -48,7 +48,6 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
         Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
-        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         // ELEMENT TO SHOW
         mElement = Diary.diary.get_element( getIntent().getIntExtra( "elem", 0 ) );
@@ -122,6 +121,12 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         Lifeograph.sContext = this;
 
         updateList();
+    }
+
+    @Override
+    public void onBackPressed() {
+        Lifeograph.sFlagStartingDiaryEditingActivity = true;
+        super.onBackPressed();
     }
 
     @Override

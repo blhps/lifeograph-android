@@ -55,7 +55,6 @@ public class ActivityLogin extends ListActivity
 
         Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
-        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         if( Diary.diary == null )
             Diary.diary = new Diary();
@@ -248,6 +247,7 @@ public class ActivityLogin extends ListActivity
         switch( Diary.diary.read_body() ) {
             case SUCCESS:
                 Intent i = new Intent( this, ActivityDiary.class );
+                Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 startActivity( i );
                 break;
             case WRONG_PASSWORD:
@@ -275,6 +275,7 @@ public class ActivityLogin extends ListActivity
                 if( Diary.diary.init_new( Lifeograph.joinPath( getDiariesDir().getPath(), text ) )
                         == Result.SUCCESS ) {
                     Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
+                    Lifeograph.sFlagStartingDiaryEditingActivity = true;
                     startActivity( i );
                 }
                 // TODO else inform the user about the problem

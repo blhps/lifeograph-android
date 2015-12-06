@@ -159,7 +159,6 @@ public class ActivityEntry extends Activity
 
         Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
-        Lifeograph.sNumberOfDiaryEditingActivities++;
 
         mActionBar = getActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
@@ -438,6 +437,12 @@ public class ActivityEntry extends Activity
         Log.d( Lifeograph.TAG, "ActivityEntry.onResume()" );
 
         Lifeograph.sContext = this;
+    }
+
+    @Override
+    public void onBackPressed() {
+        Lifeograph.sFlagStartingDiaryEditingActivity = true;
+        super.onBackPressed();
     }
 
     @Override

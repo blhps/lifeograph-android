@@ -42,7 +42,7 @@ public class Lifeograph
 
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
     protected static boolean sSaveDiaryOnLogout = true;
-    protected static int sNumberOfDiaryEditingActivities = 0;
+    protected static boolean sFlagStartingDiaryEditingActivity = false;
 
     enum LoginStatus { LOGGED_OUT, LOGGED_IN }
     protected static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;
@@ -64,6 +64,7 @@ public class Lifeograph
                 case ENTRY: {
                     Intent i = new Intent( sContext, ActivityEntry.class );
                     i.putExtra( "entry", elem.get_date_t() );
+                    sFlagStartingDiaryEditingActivity = true;
                     sContext.startActivity( i );
                     break;
                 }
@@ -105,8 +106,9 @@ public class Lifeograph
     }
 
     public static void handleDiaryEditingActivityDestroyed() {
-        if( --sNumberOfDiaryEditingActivities == 0 )
+        if( !sFlagStartingDiaryEditingActivity )
             logout();
+        sFlagStartingDiaryEditingActivity = false;
     }
 
     // ANDROID & JAVA HELPERS ======================================================================
