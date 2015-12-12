@@ -36,7 +36,7 @@ import android.view.View;
 
 public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObject,
         DialogInquireText.InquireListener, DialogCalendar.Listener, FragmentElemList.DiaryManager,
-        FragmentElemList.ListOperations
+        FragmentElemList.ListOperations, DialogTheme.DialogThemeHost
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -259,7 +259,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
 
     private void showThemeDialog() {
-        Dialog dialog = new DialogTheme( this, ( Tag ) mElement );
+        Dialog dialog = new DialogTheme( this, ( Tag ) mElement, this );
         dialog.show();
     }
 
@@ -382,6 +382,11 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     public void updateList() {
         if( mFragmentList != null )
             mFragmentList.updateList();
+    }
+
+    // DialogThemeHost INTERFACE METHODS
+    public void onDialogThemeClose() {
+        mActionBar.setIcon( mElement.get_icon() );
     }
 
     private FragmentElemList mFragmentList = null;

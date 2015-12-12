@@ -35,9 +35,10 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 public class DialogTheme extends Dialog
 {
-    public DialogTheme( Context context, Tag tag ) {
+    public DialogTheme( Context context, Tag tag, DialogThemeHost host ) {
         super( context );
         mTag = tag;
+        mHost = host;
     }
 
     @Override
@@ -101,6 +102,12 @@ public class DialogTheme extends Dialog
                 resetTheme();
             }
         } );
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        mHost.onDialogThemeClose();
     }
 
     void showColorDialog( int prevColor ) {
@@ -168,4 +175,12 @@ public class DialogTheme extends Dialog
     ImageButton mButtonSubheadingColor;
     ImageButton mButtonHighlightColor;
     Button mButtonReset;
+
+    // INTERFACE WITH THE HOST ACTIVITY ============================================================
+    public interface DialogThemeHost
+    {
+        void onDialogThemeClose();
+    }
+
+    protected DialogThemeHost mHost;
 }

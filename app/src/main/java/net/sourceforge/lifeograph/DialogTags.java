@@ -118,6 +118,7 @@ class DialogTags extends Dialog
 
     @Override
     public void onStop() {
+        super.onStop();
         mHost.onDialogTagsClose();
     }
 
