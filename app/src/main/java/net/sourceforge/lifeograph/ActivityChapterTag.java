@@ -96,18 +96,18 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         }
     }
 
-    @Override
+    /*@Override
     protected void onPause() {
         super.onPause();
 
         Log.d( Lifeograph.TAG, "onPause - ActivityChapterTag" );
-    }
+    }*/
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
 
-        Log.d( Lifeograph.TAG, "ActivityChapterTag.onDestroy()" );
+        Log.d( Lifeograph.TAG, "ActivityChapterTag.onStop()" );
 
         Lifeograph.handleDiaryEditingActivityDestroyed();
     }
@@ -182,6 +182,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case android.R.id.home:
+                Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
                 return true;
             case R.id.filter:

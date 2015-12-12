@@ -161,18 +161,18 @@ public class ActivityDiary extends Activity
         Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_IN;
     }
 
-    @Override
+    /*@Override
     protected void onPause() {
         super.onPause();
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onPause()" );
-    }
+    }*/
 
     @Override
-    protected void onDestroy() {
-        super.onDestroy();
+    protected void onStop() {
+        super.onStop();
 
-        Log.d( Lifeograph.TAG, "ActivityDiary.onDestroy()" );
+        Log.d( Lifeograph.TAG, "ActivityDiary.onStop()" );
 
         Lifeograph.handleDiaryEditingActivityDestroyed();
     }
@@ -194,6 +194,12 @@ public class ActivityDiary extends Activity
         outState.putInt( "tab", getActionBar().getSelectedNavigationIndex() );
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onSaveInstanceState()" );
+    }
+
+    @Override
+    public void onBackPressed() {
+        Lifeograph.sFlagStartingDiaryEditingActivity = true;
+        super.onBackPressed();
     }
 
     @Override
@@ -237,6 +243,7 @@ public class ActivityDiary extends Activity
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case android.R.id.home:
+                Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
                 return true;
             case R.id.calendar:

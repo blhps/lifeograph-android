@@ -409,23 +409,23 @@ public class ActivityEntry extends Activity
         }
     }
 
-    @Override
+    /*@Override
     protected void onPause() {
         super.onPause();
 
         Log.d( Lifeograph.TAG, "ActivityEntry.onPause()" );
+    }*/
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+
+        Log.d( Lifeograph.TAG, "ActivityEntry.onStop()" );
 
         if( mFlagDismissOnExit )
             Diary.diary.dismiss_entry( m_ptr2entry );
         else
             sync();
-    }
-
-    @Override
-    protected void onDestroy() {
-        super.onDestroy();
-
-        Log.d( Lifeograph.TAG, "ActivityEntry.onDestroy()" );
 
         Lifeograph.handleDiaryEditingActivityDestroyed();
     }
@@ -507,6 +507,7 @@ public class ActivityEntry extends Activity
         switch( item.getItemId() ) {
             case android.R.id.home:
                 //NavUtils.navigateUpFromSameTask( this );
+                Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
                 return true;
             case R.id.add_tag:

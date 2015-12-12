@@ -85,15 +85,10 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    protected static void logout() {
-        Log.d( Lifeograph.TAG, "Lifeograph.logout()" );
+    protected static void prepareForLogout() {
+        Log.d( Lifeograph.TAG, "Lifeograph.prepareForLogout()" );
 
         if( sLoginStatus == LoginStatus.LOGGED_IN ) {
-            // SAVING
-            // sync_entry();
-
-            // Diary.diary.m_last_elem = get_cur_elem()->get_id();
-
             if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
                 if( Diary.diary.write() == Result.SUCCESS )
                     showToast( "Diary saved successfully" );
@@ -101,13 +96,13 @@ public class Lifeograph
                     showToast( "Cannot write back changes" );
             }
             else
-                Log.d( Lifeograph.TAG, "Logged out without saving" );
+                Log.d( Lifeograph.TAG, "Diary is not saved" );
         }
     }
 
     public static void handleDiaryEditingActivityDestroyed() {
         if( !sFlagStartingDiaryEditingActivity )
-            logout();
+            prepareForLogout();
         sFlagStartingDiaryEditingActivity = false;
     }
 

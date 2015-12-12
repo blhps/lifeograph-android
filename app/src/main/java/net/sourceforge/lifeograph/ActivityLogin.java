@@ -109,7 +109,7 @@ public class ActivityLogin extends ListActivity
         Lifeograph.sContext = this;
 
         if( Lifeograph.sLoginStatus == Lifeograph.LoginStatus.LOGGED_IN ) {
-            Lifeograph.logout();
+            Lifeograph.prepareForLogout();
 
             Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_OUT;
         }
@@ -128,8 +128,6 @@ public class ActivityLogin extends ListActivity
         }
 
         Log.d( Lifeograph.TAG, "ActivityLogin.onDestroy()" );
-
-        Lifeograph.handleDiaryEditingActivityDestroyed();
     }
 
     @Override

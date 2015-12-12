@@ -2130,7 +2130,11 @@ public class Diary extends DiaryElement
         if( file.exists() ) {
             File dir_backups = new File( file.getParent() + "/backups" );
             if( dir_backups.exists() || dir_backups.mkdirs() ) {
-                File file_backup = new File( dir_backups, file.getName() + ".backup" );
+                File file_backup = new File( dir_backups, file.getName() + ".backup0" );
+                if( file_backup.exists() ) {
+                    File file_backup1 = new File( dir_backups, file.getName() + ".backup1" );
+                    file_backup.renameTo( file_backup1 );
+                }
                 if( file.renameTo( file_backup ) )
                     Log.d( Lifeograph.TAG, "Backup written to: " + file_backup.toString() );
             }
