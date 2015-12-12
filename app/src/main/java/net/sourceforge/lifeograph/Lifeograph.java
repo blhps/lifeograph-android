@@ -76,6 +76,7 @@ public class Lifeograph
                     Intent i = new Intent( sContext, ActivityChapterTag.class );
                     i.putExtra( "elem", elem.get_id() );
                     i.putExtra( "type", elem.get_type().i );
+                    sFlagStartingDiaryEditingActivity = true;
                     sContext.startActivity( i );
                     break;
                 }
