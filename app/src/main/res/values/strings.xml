@@ -122,8 +122,7 @@
     <string name="bullet">Bullet</string>
     <string name="placeholder" translatable="false">.p.</string>
     <string name="icon">icon</string>
-    <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
-    <string name="checkbox_icon" translatable="false">☑</string>
+    <string name="copyright">&#169; 2012&#8211;2016, Ahmet Öztürk</string>
     <string name="bullet_icon">• Bullet</string>
     <string name="numbered_item_icon">#- Number</string>
 

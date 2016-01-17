@@ -1,11 +1,11 @@
 LIFEOGRAPHDB
-V 1020
+V 1030
 E no
 
 O d
 l en_US
 S 10034
-L 10007
+L 10011
 ID10043
 t general
 mfCantarell 11
@@ -24,8 +24,6 @@ mt#EEEEEEEEECEC
 mh#000000000000
 ms#2E2E34343636
 ml#CCCC00000000
-ID10005
-t minor
 ID10032
 CO3221225472	General Info
 Cpen
@@ -42,24 +40,25 @@ fs_tFfNTP__
 ID10002
 E__n3221225475
 Dr1420385672
-Dh1420385961
+Dh1453038382
+Ds1420385672
 TTgeneral
 P Comparison with Desktop Version
 P 
-P Android version does not have all the features in the Linux desktop version, yet. (Most of the missing functionality will be implemented in the future releases.) The comparison of abilities on the two platforms are as follows:
+P Android version provides most of the features in the Linux desktop version and the missing functionality -as long as it makes sense in Android environment- will be implemented in the future releases. The main differences are as follows:
 P 
 P 	• Android version can open any file created by the desktop version. Unsupported information will be preserved on save
-P 	• It produces diary files of version 1020 which is only supported by the latest Linux version (1.2).
+P 	• Hidden entries and filtering by date interval are missing
 P 	• Trash is not supported
-P 	• Check/bulleted/numbered lists are not supported in the entry editor
-P 	• Themes are supported but they cannot be edited
 P 	• Printing is not available
+P 	• Importing is not available
 P 
 
 ID10033
 Ef_n3221225474
 Dr1339235057
 Dh1420385656
+Ds1339235057
 TTgeneral
 P Example Entry
 P 
@@ -85,14 +84,32 @@ ID10034
 E__n3221225473
 Dr1339235609
 Dh1420379320
+Ds1339235609
 P Welcome to Lifeograph for Android
 P 
 P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID10011
+E__n1057014785
+Dr1452637872
+Dh1453045404
+Ds1452637872
+P 0.6.0 / Lists in entries
+P 
+P  What is new?
+P 	• Added support for to-do lists in entries
+P 	• Added support for numeric and bullet lists in entries
+P 	• Added the ability to edit theme colors
+P 	• Increased the number of backup files to 2
+P 	• Improved the text search behavior
+P 	• Added an option to use the internal storage for diaries
+P 	• Fixed some bugs
 
 ID10007
 E__n1056615425
 Dr1431372492
 Dh1431372573
+Ds1431372492
 P 0.5.1 /
 P 
 P  What is new?
@@ -104,6 +121,7 @@ ID10001
 E__n1056477185
 Dr1420383747
 Dh1420384001
+Ds1420383747
 TTmajor milestone
 P 0.5.0 / Encryption!
 P 
@@ -117,7 +135,7 @@ ID10003
 E__n1056296961
 Dr1409577396
 Dh1420383732
-T_minor
+Ds1409577396
 P 0.4.0 /
 P 
 P  What is new?
@@ -136,6 +154,7 @@ ID10047
 E__n1056267265
 Dr1375512954
 Dh1420383694
+Ds1375512954
 P 0.3.0 / 
 P 
 P  What is new?
@@ -154,8 +173,8 @@ ID10009
 E__n1056225281
 Dr1338845645
 Dh1420382546
+Ds1338845645
 TTmajor milestone
-T_minor
 P 0.2.0 / Real start
 P 
 P  What is new?
@@ -169,6 +188,7 @@ ID10010
 E__n1055178753
 Dr1338845739
 Dh1420384398
+Ds1338845739
 TTmajor milestone
 P 0.1.0 / First release
 P 

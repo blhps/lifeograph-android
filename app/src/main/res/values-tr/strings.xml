@@ -20,7 +20,7 @@
     <string name="chapter_dismiss_confirm">Seçili faslı silmek istediğinizden emin misiniz?</string>
     <string name="chapters">Fasıllar</string>
     <string name="confirm">Tekrarla</string>
-    <string name="copyright">&#169; 2012&#8211;2015, Ahmet Öztürk</string>
+    <string name="copyright">© 2012–2016, Ahmet Öztürk</string>
     <string name="create">Oluştur</string>
     <string name="create_chapter">Tarihli fasıl oluştur</string>
     <string name="create_diary">Yeni günlüğün ismini girin</string>
