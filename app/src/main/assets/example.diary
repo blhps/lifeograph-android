@@ -92,17 +92,18 @@ P This is an example diary showcasing some features of Lifeograph. It also conta
 ID10011
 E__n1057014785
 Dr1452637872
-Dh1453045404
+Dh1453049366
 Ds1452637872
 P 0.6.0 / Lists in entries
 P 
 P  What is new?
-P 	• Added support for to-do lists in entries
-P 	• Added support for numeric and bullet lists in entries
+P 	• Added support for check lists and bullet lists in entries
+P 	• Basic support for numeric lists in entries
 P 	• Added the ability to edit theme colors
 P 	• Increased the number of backup files to 2
 P 	• Improved the text search behavior
 P 	• Added an option to use the internal storage for diaries
+P 	• Changing date of a chapter
 P 	• Fixed some bugs
 
 ID10007
