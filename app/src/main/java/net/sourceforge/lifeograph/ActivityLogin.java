@@ -23,11 +23,13 @@ package net.sourceforge.lifeograph;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.List;
 
 import android.app.Dialog;
 import android.app.ListActivity;
 import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
@@ -41,13 +43,15 @@ import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import net.sourceforge.lifeograph.inappbilling.util.IabBroadcastReceiver;
 import net.sourceforge.lifeograph.inappbilling.util.IabHelper;
 import net.sourceforge.lifeograph.inappbilling.util.IabResult;
 import net.sourceforge.lifeograph.inappbilling.util.Inventory;
 import net.sourceforge.lifeograph.inappbilling.util.Purchase;
 
 public class ActivityLogin extends ListActivity
-        implements DialogInquireText.InquireListener, DialogPassword.Listener
+        implements DialogInquireText.InquireListener, DialogPassword.Listener,
+        IabBroadcastReceiver.IabBroadcastListener
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -61,17 +65,27 @@ public class ActivityLogin extends ListActivity
 
         // IN APP BILLING
         mIabHelper = new IabHelper( this, IDs.base64EncodedPublicKey );
+        //mIabHelper.enableDebugLogging( true );
 
         mIabHelper.startSetup( new IabHelper.OnIabSetupFinishedListener()
         {
             public void onIabSetupFinished( IabResult result ) {
                 if( !result.isSuccess() ) {
                     Log.d( Lifeograph.TAG, "IAB setup failed: " + result );
-                    Lifeograph.setAdFreePurchased( false );
+                    return;
                 }
-                else {
-                    Log.d( Lifeograph.TAG, "IAB setup successful" );
+                if( mIabHelper == null )
+                    return;
+                mIabBroadcastReceiver = new IabBroadcastReceiver( ActivityLogin.this );
+                IntentFilter broadcastFilter = new IntentFilter( IabBroadcastReceiver.ACTION );
+                registerReceiver( mIabBroadcastReceiver, broadcastFilter );
+                Log.d( Lifeograph.TAG, "IAB setup successful" );
+
+                try {
                     mIabHelper.queryInventoryAsync( mGotInventoryListener );
+                } catch( IabHelper.IabAsyncInProgressException e ) {
+                    Log.e( Lifeograph.TAG,
+                           "Error querying inventory. Another async operation in progress." );
                 }
             }
         } );
@@ -122,8 +136,12 @@ public class ActivityLogin extends ListActivity
     protected void onDestroy() {
         super.onDestroy();
 
+        // very important:
+        if( mIabBroadcastReceiver != null ) {
+            unregisterReceiver( mIabBroadcastReceiver );
+        }
         if( mIabHelper != null ) {
-            mIabHelper.dispose();
+            mIabHelper.disposeWhenFinished();
             mIabHelper = null;
         }
 
@@ -132,8 +150,13 @@ public class ActivityLogin extends ListActivity
 
     @Override
     protected void onActivityResult( int requestCode, int resultCode, Intent data ) {
+        if( mIabHelper == null )
+            return;
         if( !mIabHelper.handleActivityResult( requestCode, resultCode, data ) ) {
             super.onActivityResult( requestCode, resultCode, data );
+        }
+        else {
+            Log.d( Lifeograph.TAG, "onActivityResult handled by IABUtil.");
         }
     }
 
@@ -280,6 +303,7 @@ public class ActivityLogin extends ListActivity
                 break;
         }
     }
+
     public boolean onInquireTextChanged( int id, String s ) {
         switch( id ) {
             case R.string.create_diary:
@@ -298,7 +322,8 @@ public class ActivityLogin extends ListActivity
     void createNewDiary() {
         // ask for name
         DialogInquireText dlg = new DialogInquireText( this, R.string.create_diary,
-                Lifeograph.getStr( R.string.new_diary ), R.string.create, this );
+                                                       Lifeograph.getStr( R.string.new_diary ),
+                                                       R.string.create, this );
         dlg.show();
     }
 
@@ -357,14 +382,32 @@ public class ActivityLogin extends ListActivity
 
     // IN APP BILLING
     public void start_purchase() {
-        mIabHelper.launchPurchaseFlow( this, SKU_ADFREE, 10001,
-                                       mPurchaseFinishedListener, IDs.devPayload );
+        try {
+            mIabHelper.launchPurchaseFlow( this, SKU_ADFREE, 10001,
+                                           mPurchaseFinishedListener, IDs.devPayload );
+        }
+        catch( IabHelper.IabAsyncInProgressException e ) {
+            Log.e( Lifeograph.TAG,
+                   "Error launching purchase flow. Another async operation in progress." );
+        }
+    }
+
+    //@Override
+    public void receivedBroadcast() {
+        // Received a broadcast notification that the inventory of items has changed
+        Log.d( Lifeograph.TAG, "Received broadcast notification. Querying inventory." );
+        try {
+            mIabHelper.queryInventoryAsync( mGotInventoryListener );
+        } catch( IabHelper.IabAsyncInProgressException e ) {
+            Log.e( Lifeograph.TAG,
+                   "Error querying inventory. Another async operation in progress." );
+        }
     }
 
     // VARIABLES
     public static String sExternalStorage = "";
     public static String sDiaryPath;
-    private java.util.List< String > mPaths = new ArrayList< String >();
+    private List< String > mPaths = new ArrayList< String >();
     private ArrayAdapter< String > mAdapterDiaries;
     //private DiaryAdapter mAdapterDiaries; MAYBE LATER
 
@@ -448,16 +491,20 @@ public class ActivityLogin extends ListActivity
 //    }
 
     private IabHelper mIabHelper;
+    IabBroadcastReceiver mIabBroadcastReceiver;
     static final String SKU_ADFREE = "adfree.one_time";
     IabHelper.OnIabPurchaseFinishedListener mPurchaseFinishedListener =
             new IabHelper.OnIabPurchaseFinishedListener()
             {
                 public void onIabPurchaseFinished( IabResult result, Purchase purchase ) {
+                    if( mIabHelper == null )
+                        return;
+
                     if( result.isFailure() ) {
                         Lifeograph.showToast( "Purchase failed" );
                     }
                     else if( purchase.getSku().equals( SKU_ADFREE ) &&
-                             purchase.getDeveloperPayload().equals( IDs.devPayload ) ) {
+                            purchase.getDeveloperPayload().equals( IDs.devPayload ) ) {
                         Log.d( Lifeograph.TAG, "Purchase successful" );
                         Lifeograph.setAdFreePurchased( true );
                     }
@@ -467,6 +514,9 @@ public class ActivityLogin extends ListActivity
             new IabHelper.QueryInventoryFinishedListener()
             {
                 public void onQueryInventoryFinished( IabResult result, Inventory inventory ) {
+                    if( mIabHelper == null )
+                        return;
+
                     if( result.isFailure() ) {
                         Lifeograph.showToast( "Failed to query purchases!" );
                         Lifeograph.setAdFreePurchased( false );
