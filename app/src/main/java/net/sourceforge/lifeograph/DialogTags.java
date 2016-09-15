@@ -161,6 +161,7 @@ class DialogTags extends Dialog
         public View getView( int position, View convertView, ViewGroup parent ) {
             ViewHolder holder;
             final Tag tag = getItem( position );
+            final boolean flag_entry_has_it = mHost.getTags().contains( tag );
 
             if( convertView == null ) {
                 View view = mInflater.inflate( R.layout.list_item_check, parent, false );
@@ -173,15 +174,16 @@ class DialogTags extends Dialog
             }
 
             TextView title = holder.getName();
-            title.setText( tag.get_list_str() );
+            title.setText( flag_entry_has_it ?
+                                    tag.get_name_and_value( mHost.getEntry(), false, true ) :
+                                    tag.get_list_str() );
 
             holder.getIcon().setImageResource( tag.get_icon() );
 
             Button themeButton = holder.getThemeButton();
             themeButton.setTag( tag );
             themeButton.setOnClickListener( this );
-            if( mHost.getEntry() != null && tag.get_has_own_theme() &&
-                mHost.getTags().contains( tag ) ) {
+            if( mHost.getEntry() != null && tag.get_has_own_theme() && flag_entry_has_it ) {
                 themeButton.setVisibility( View.VISIBLE );
                 if( mHost.getEntry().get_theme_tag() != tag )
                     themeButton.setEnabled( true );
@@ -192,7 +194,7 @@ class DialogTags extends Dialog
                 themeButton.setVisibility( View.GONE );
 
             CheckBox checkBox = holder.getCheckBox();
-            checkBox.setChecked( mHost.getTags().contains( tag ) );
+            checkBox.setChecked( flag_entry_has_it );
             checkBox.setTag( R.id.tag, tag );
             checkBox.setOnClickListener( this );
 
