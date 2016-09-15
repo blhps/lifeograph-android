@@ -46,7 +46,7 @@ enum Result {
     FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_LOCKED
 }
 
-public class Diary extends DiaryElement
+public class Diary extends DiaryElementChart
 {
     static {
         System.loadLibrary( "gpg-error" );
@@ -60,7 +60,7 @@ public class Diary extends DiaryElement
 //    public static final char SC_SIZE = 's';
 
     public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    public final static int DB_FILE_VERSION_INT = 1030;
+    public final static int DB_FILE_VERSION_INT = 1040;
     public final static int DB_FILE_VERSION_INT_MIN = 110;
     public static final String LOCK_SUFFIX = ".~LOCK~";
 
@@ -496,7 +496,7 @@ public class Diary extends DiaryElement
 
     public void dismiss_tag( Tag tag ) {
         // remove from entries: (work on a copy to prevent ConcurrentModificationException)
-        for( Entry e : tag.mEntries.toArray( new Entry[ tag.mEntries.size() ] ) )
+        for( Entry e : tag.mEntries.keySet().toArray( new Entry[ tag.mEntries.size() ] ) )
             e.remove_tag( tag );
 
         // remove from category if any:
@@ -850,9 +850,10 @@ public class Diary extends DiaryElement
     private Result parse_db_body_text() {
         switch( m_read_version )
         {
+            case 1040:
             case 1030:
             case 1020:
-                return parse_db_body_text_1030();
+                return parse_db_body_text_1040();
             case 1011:
             case 1010:
                 return parse_db_body_text_1010();
@@ -861,7 +862,7 @@ public class Diary extends DiaryElement
         }
     }
 
-    private Result parse_db_body_text_1030() {
+    private Result parse_db_body_text_1040() {
         String line;
         Entry entry_new = null;
         Chapter.Category ptr2chapter_ctg = null;
@@ -886,10 +887,27 @@ public class Diary extends DiaryElement
                             ptr2tag_ctg.set_expanded( line.charAt( 1 ) == 'e' );
                             break;
                         case 't': // tag
-                            ptr2tag = create_tag( line.substring( 2 ), ptr2tag_ctg );
+                            switch( line.charAt( 1 ) ) {
+                                case ' ':
+                                    ptr2tag = create_tag( line.substring( 2 ), ptr2tag_ctg );
+                                    break;
+                                case 'c':
+                                    if( ptr2tag != null )
+                                        ptr2tag.set_chart_type(
+                                                Integer.parseInt( line.substring( 2 ) ) );
+                                    break;
+                                case 'u':
+                                    if( ptr2tag != null )
+                                        ptr2tag.set_unit( line.substring( 2 ) );
+                                    break;
+                            }
                             break;
                         case 'u': // untagged
                             ptr2tag = m_untagged;
+                            if( line.charAt( 1 ) == 'c' ) {
+                                ptr2tag.set_chart_type( Integer.parseInt( line.substring( 2 ) ) );
+                                break;
+                            }
                             // no break
                         case 'm':
                             if( ptr2tag == null ) {
@@ -974,6 +992,13 @@ public class Diary extends DiaryElement
                                     if( line.charAt( 2 ) == 'c' )
                                         m_ptr2chapter_ctg_cur = ptr2chapter_ctg;
                                     break;
+                                case 'c':   // chapter color
+                                    if( ptr2chapter == null ) {
+                                        Log.e( Lifeograph.TAG, "No chapter defined" );
+                                        break;
+                                    }
+                                    ptr2chapter.set_color( Theme.parse_color( line.substring( 2 ) ) );
+                                    break;
                                 case 'T':   // temporal chapter
                                     if( ptr2chapter_ctg == null ) {
                                         Log.e( Lifeograph.TAG, "No chapter category defined" );
@@ -1000,6 +1025,8 @@ public class Diary extends DiaryElement
                             break;
                         case 'O': // options
                             m_option_sorting_criteria = line.charAt( 2 );
+                            if( line.length() > 3 && line.charAt( 3 ) == 'Y' )
+                                set_chart_type( ChartPoints.YEARLY );
                             break;
                         case 'l': // language
                             m_language = line.substring( 2 );
@@ -1022,6 +1049,11 @@ public class Diary extends DiaryElement
             while( ( line = mBufferedReader.readLine() ) != null ) {
                 if( line.length() < 2 )
                     continue;
+                else if( line.charAt( 0 ) != 'I' && line.charAt( 0 ) != 'E' &&
+                         line.charAt( 0 ) != 'e' && entry_new == null ) {
+                    Log.e( Lifeograph.TAG, "No entry declared for the attribute" );
+                    continue;
+                }
 
                 switch( line.charAt( 0 ) ) {
                     case 'I':
@@ -1048,10 +1080,6 @@ public class Diary extends DiaryElement
                         flag_first_paragraph = true;
                         break;
                     case 'D':   // creation & change dates (optional)
-                        if( entry_new == null ) {
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                            break;
-                        }
                         switch( line.charAt( 1 ) ) {
                             case 'r':
                                 entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
@@ -1065,31 +1093,23 @@ public class Diary extends DiaryElement
                         }
                         break;
                     case 'T':   // tag
-                        if( entry_new == null )
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                        else {
-                            Tag tag = m_tags.get( line.substring( 2 ) );
-                            if( tag != null ) {
-                                entry_new.add_tag( tag );
-                                if( line.charAt( 1 ) == 'T' )
-                                    entry_new.set_theme_tag( tag );
-                            }
-                            else
-                                Log.e( Lifeograph.TAG, "Reference to undefined tag: " +
-                                        line.substring( 2 ) );
+                        NameAndValue nav = NameAndValue.parse( line.substring( 2 ) );
+                        Tag tag = m_tags.get( nav.name );
+                        if( tag != null ) {
+                            entry_new.add_tag( tag, nav.value );
+                            if( line.charAt( 1 ) == 'T' )
+                                entry_new.set_theme_tag( tag );
                         }
+                        else
+                            Log.e( Lifeograph.TAG, "Reference to undefined tag: " + nav.name );
+                        break;
+                    case 'L':   // location
+                        entry_new.m_location = line.substring( 2 );
                         break;
                     case 'l':   // language
-                        if( entry_new == null )
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                        else
-                            entry_new.set_lang( line.substring( 2 ) );
+                        entry_new.set_lang( line.substring( 2 ) );
                         break;
                     case 'P':    // paragraph
-                        if( entry_new == null ) {
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                            break;
-                        }
                         if( flag_first_paragraph ) {
                             if( line.length() > 2 )
                                 entry_new.m_text = line.substring( 2 );
@@ -1662,13 +1682,22 @@ public class Diary extends DiaryElement
         }
     }
 
-    private void create_db_tag_text( char type, Tag tag ) throws IOException {
-        if( type == 'm' )
+    private void create_db_tag_text( Tag tag ) throws IOException {
+        char type = 'm';
+        if( tag.get_type() == Type.UNTAGGED ) {
+            mBufferedWriter.append( "uc" );
+            type = 'u';
+        }
+        else
             mBufferedWriter.append( "ID" )
                            .append( Integer.toString( tag.get_id() ) )
                            .append( "\nt " )
                            .append( tag.get_name() )
-                           .append( '\n' );
+                           .append( "\ntc" );
+        mBufferedWriter.append( Integer.toString( tag.get_chart_type() ) ).append( '\n' );
+
+        if( ! tag.is_boolean() && ! tag.get_unit().isEmpty() )
+            mBufferedWriter.append( "tu" ).append( tag.get_unit() ).append( '\n' );
 
         if( tag.get_has_own_theme() )
         {
@@ -1696,7 +1725,15 @@ public class Diary extends DiaryElement
                            .append( '\t' ).append( chapter.get_name() )
                            .append( "\nCp" ).append( chapter.get_expanded() ? 'e' : '_' );
             create_db_todo_status_text( chapter );
-            mBufferedWriter.append( '\n' );
+            if( ( chapter.get_chart_type() & ChartPoints.YEARLY ) != 0 )
+                mBufferedWriter.append( "Y\n" );
+            else
+                mBufferedWriter.append( '\n' );
+
+            if( chapter.get_color() != Color.WHITE )
+                mBufferedWriter.append( "Cc" )
+                               .append( Theme.color2string( chapter.get_color() ) )
+                               .append( '\n' );
         }
     }
 
@@ -1712,7 +1749,8 @@ public class Diary extends DiaryElement
 
     private boolean create_db_body_text() throws IOException {
         // OPTIONS
-        mBufferedWriter.append( "O " ).append( m_option_sorting_criteria ).append( '\n' );
+        mBufferedWriter.append( "O " ).append( m_option_sorting_criteria )
+                       .append( ( m_chart_type & ChartPoints.YEARLY ) != 0 ? "Y\n" : "\n" );
         if( ! m_language.isEmpty() )
             mBufferedWriter.append( "l " ).append( m_language ).append( '\n' );
 
@@ -1723,7 +1761,7 @@ public class Diary extends DiaryElement
         // ROOT TAGS
         for( Tag tag : m_tags.values() ) {
             if( tag.get_category() == null )
-                create_db_tag_text( 'm', tag );
+                create_db_tag_text( tag );
         }
         // CATEGORIZED TAGS
         for( Tag.Category ctg : m_tag_categories.values() ) {
@@ -1733,10 +1771,10 @@ public class Diary extends DiaryElement
                            .append( ctg.get_name() ).append( '\n' );
             // tags in it:
             for( Tag tag : ctg.mTags )
-                create_db_tag_text( 'm', tag );
+                create_db_tag_text( tag );
         }
         // UNTAGGED THEME
-        create_db_tag_text( 'u', m_untagged );
+        create_db_tag_text( m_untagged );
 
         // TOPICS
         create_db_chapterctg_text( 'O', m_topics );
@@ -1809,7 +1847,12 @@ public class Diary extends DiaryElement
             // TAGS
             for( Tag tag : entry.m_tags )
                 mBufferedWriter.append( "T" ).append( tag == entry.get_theme_tag() ? 'T' : '_' )
-                               .append( tag.get_name() ).append( '\n' );
+                               .append( tag.get_name_and_value( entry, true, false ) )
+                               .append( '\n' );
+
+            // LOCATION
+            if( ! entry.m_location.isEmpty() )
+                mBufferedWriter.append( "L " ).append( entry.m_location ).append( '\n' );
 
             // LANGUAGE
             if( entry.get_lang().compareTo( Lifeograph.LANG_INHERIT_DIARY ) != 0 )

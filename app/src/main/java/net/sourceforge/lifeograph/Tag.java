@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -22,8 +22,9 @@
 package net.sourceforge.lifeograph;
 
 import java.util.ArrayList;
+import java.util.TreeMap;
 
-public class Tag extends DiaryElement {
+public class Tag extends DiaryElementChart {
 
     public static class Category extends DiaryElement
     {
@@ -107,6 +108,36 @@ public class Tag extends DiaryElement {
         return( "Tag with " + get_size() + " entries" );
     }
 
+    String escape_name( String name ) {
+        StringBuilder result = new StringBuilder();
+        char c;
+
+        for( int i = 0; i < name.length(); i++ ) {
+            c = name.charAt( i );
+            if( c == '=' || c == '\\' )
+                result.append( '\\' );
+            result.append( c );
+        }
+
+        return result.toString();
+    }
+
+    public String get_name_and_value( Entry entry, boolean flag_escape, boolean flag_unit ) {
+        StringBuilder result = new StringBuilder( flag_escape ? escape_name( m_name ) : m_name );
+
+        if( !is_boolean() ) {
+            result.append( " = " ).append( get_value( entry ) );
+
+            // addressing Java-shortcomings
+            if( result.toString().endsWith( ".0" ) || result.toString().endsWith( ",0" ) )
+                result.delete( result.length() - 2, result.length() );
+
+            if( flag_unit && !m_unit.isEmpty() )
+                result.append( " " ).append( m_unit );
+        }
+
+        return result.toString();
+    }
     public Category get_category() {
         return m_ptr2category;
     }
@@ -120,7 +151,10 @@ public class Tag extends DiaryElement {
     }
 
     public void add_entry( Entry entry ) {
-        mEntries.add( entry );
+        add_entry( entry, 1.0 );
+    }
+    public void add_entry( Entry entry, Double value ) {
+        mEntries.put( entry, value );
     }
 
     public void remove_entry( Entry entry ) {
@@ -142,7 +176,7 @@ public class Tag extends DiaryElement {
         if( m_theme == null ) {
             m_theme = new Theme();
 
-            for( Entry entry : mEntries )
+            for( Entry entry : mEntries.keySet() )
                 entry.update_theme();
         }
 
@@ -152,7 +186,7 @@ public class Tag extends DiaryElement {
     public Theme create_own_theme_duplicating( Theme theme ) {
         m_theme = new Theme( theme );
 
-        for( Entry entry : mEntries )
+        for( Entry entry : mEntries.keySet() )
             entry.update_theme();
 
         return m_theme;
@@ -162,13 +196,35 @@ public class Tag extends DiaryElement {
         if( m_theme != null ) {
             m_theme = null;
 
-            for( Entry entry : mEntries )
+            for( Entry entry : mEntries.keySet() )
                 entry.update_theme();
         }
     }
 
+    // PARAMETRIC TAG SYSTEM PROPERTIES
+    double get_value( Entry entry ) {
+        if( mEntries.containsKey( entry ) )
+            return mEntries.get( entry );
+        else
+            return -404;
+    }
+
+    boolean is_boolean() {
+        return ( ( m_chart_type & ChartPoints.VALUE_TYPE_MASK ) == ChartPoints.BOOLEAN );
+    }
+
+    String get_unit() {
+        return m_unit;
+    }
+
+    void set_unit( String unit ) {
+        m_unit = unit;
+    }
+
     // MEMBER VARIABLES
     Category m_ptr2category;
-    java.util.List< Entry > mEntries = new ArrayList< Entry >();
+    java.util.TreeMap< Entry, Double > mEntries =
+            new TreeMap< Entry, Double >( DiaryElement.compare_elems_by_date );
     private Theme m_theme = null;
+    String m_unit = "";
 }

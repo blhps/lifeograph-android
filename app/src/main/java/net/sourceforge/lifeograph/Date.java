@@ -447,15 +447,30 @@ public class Date {
             return true;
         else if( ( year % 100 ) == 0 )
             return false;
-        else if( ( year % 4 ) == 0 )
-            return true;
-        else
-            return false;
+        else return ( year % 4 ) == 0;
     }
 
     public int calculate_days_between( Date date2 ) {
         // TODO: STUB!
         Log.e( Lifeograph.TAG, "STUB! STUB! STUB!" );
         return( 0 );
+    }
+
+    public int calculate_months_between( long date2 ) {
+        return calculate_months_between( m_date, date2 );
+    }
+
+    public static int calculate_months_between( long date1, long date2 ) {
+        int dist = 12 * ( get_year( date2 ) - get_year( date1 ) );
+        dist += ( get_month( date2 ) - get_month( date1 ) );
+
+        return ( dist < 0 ? -dist : dist );
+    }
+
+    public static int calculate_months_between_neg( long date1, long date2 ) {
+        int dist = 12 * ( get_year( date2 ) - get_year( date1 ) );
+        dist += ( get_month( date2 ) - get_month( date1 ) );
+
+        return dist;
     }
 }

@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,10 +21,12 @@
 
 package net.sourceforge.lifeograph;
 
+import android.graphics.Color;
+
 import java.util.Map;
 import java.util.TreeSet;
 
-public class Chapter extends DiaryElement {
+public class Chapter extends DiaryElementChart {
     public static class Category extends DiaryElement {
 
         public Category( Diary diary, String name ) {
@@ -290,9 +292,18 @@ public class Chapter extends DiaryElement {
             m_time_span = m_date_begin.calculate_days_between( next.m_date_begin );
     }
 
+    int get_color() {
+        return m_color;
+    }
+
+    void set_color( int color ) {
+        m_color = color;
+    }
+
     Date m_date_begin;
     int m_time_span = 0;
     Type m_type;
     java.util.TreeSet< Entry > mEntries =
             new TreeSet< Entry >( DiaryElement.compare_elems_by_date );
+    int m_color = Color.WHITE;
 }

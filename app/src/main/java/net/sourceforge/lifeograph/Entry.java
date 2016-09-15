@@ -279,11 +279,14 @@ public class Entry extends DiaryElement {
 
     // TAGS
     public boolean add_tag( Tag tag ) {
+        return add_tag( tag, 1.0 );
+    }
+    public boolean add_tag( Tag tag, double value ) {
         if( tag.get_type() == Type.UNTAGGED ) { // may not be used in android actually
             return clear_tags();
         }
         else if( m_tags.add( tag ) ) {
-            tag.add_entry( this );
+            tag.add_entry( this, value );
             m_ptr2diary.get_untagged().remove_entry( this );
 
             if( m_ptr2theme_tag == null && tag.get_has_own_theme() )
@@ -389,6 +392,7 @@ public class Entry extends DiaryElement {
     long m_date_status;
     String m_text = ""; // must be initialized to prevent crashes on empty entries with tags
     java.util.List< Tag > m_tags = new ArrayList< Tag >();
+    String m_location = "";
     private Tag m_ptr2theme_tag;
     private String m_option_lang = Lifeograph.LANG_INHERIT_DIARY; // empty means off
 }

@@ -58,10 +58,8 @@ public class FragmentElemList extends ListFragment
                                                 inflater );
         this.setListAdapter( mAdapterEntries );
 
-        ViewGroup rootView = ( ViewGroup ) inflater.inflate(
+        return ( ViewGroup ) inflater.inflate(
                 R.layout.fragment_elem_list, container, false );
-
-        return rootView;
     }
 
     @Override
@@ -195,7 +193,7 @@ public class FragmentElemList extends ListFragment
             case UNTAGGED: {
                 Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::TAG ENTRIES" );
                 Tag t = ( Tag ) mDiaryManager.getElement();
-                for( Entry e : t.mEntries ) {
+                for( Entry e : t.mEntries.keySet() ) {
                     if( !e.get_filtered_out() )
                         mElems.add( e );
                 }
@@ -221,10 +219,10 @@ public class FragmentElemList extends ListFragment
 
     public interface DiaryManager
     {
-        public void addFragment( FragmentElemList fragment );
-        public void removeFragment( FragmentElemList fragment );
+        void addFragment( FragmentElemList fragment );
+        void removeFragment( FragmentElemList fragment );
 
-        public DiaryElement getElement();
+        DiaryElement getElement();
     }
 
     private java.util.List< DiaryElement > mElems = new ArrayList< DiaryElement >();
