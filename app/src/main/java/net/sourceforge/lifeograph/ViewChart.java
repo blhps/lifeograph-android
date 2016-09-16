@@ -21,7 +21,6 @@ package net.sourceforge.lifeograph;
 
 
 import android.content.Context;
-import android.graphics.Bitmap;
 import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
@@ -45,8 +44,6 @@ public class ViewChart extends View
     static final float      s_x_min = border_curve + border_label;
     static final float      s_y_min = border_curve;
 
-    private Bitmap mBitmap;
-    private Canvas mCanvas;
     private Path mPath;
     Context context;
     private Paint mPaint;
@@ -118,10 +115,6 @@ public class ViewChart extends View
     protected void onSizeChanged( int w, int h, int oldw, int oldh ) {
         super.onSizeChanged( w, h, oldw, oldh );
 
-        // your Canvas will draw onto the defined Bitmap
-        mBitmap = Bitmap.createBitmap( w, h, Bitmap.Config.ARGB_8888 );
-        mCanvas = new Canvas( mBitmap );
-
         boolean flag_first = ( m_width < 0 );
 
         m_width = w;
@@ -135,12 +128,11 @@ public class ViewChart extends View
         update_col_geom( flag_first );
     }
 
-    // override onDraw
     @Override
     protected void onDraw( Canvas canvas ) {
         super.onDraw( canvas );
 
-        // BACKGROUND COLOR (contrary to Linux version background is not white in Android)
+        // BACKGROUND COLOR (contrary to Linux version, background is not white in Android)
         canvas.drawColor( getResources().getColor( R.color.t_lightest ) );
 
         // HANDLE THERE-IS-TOO-FEW-ENTRIES-CASE SPECIALLY
@@ -202,7 +194,7 @@ public class ViewChart extends View
 
         // VERTICAL LINES
         float cumulative_width = 0f;
-        boolean flag_print_label = false;
+        boolean flag_print_label;
 
         mPaint.setColor( Color.BLACK );
         mPaint.setStrokeWidth( 1.0f );
@@ -299,56 +291,10 @@ public class ViewChart extends View
                          s_y_min - offset_label, mPaint );
         canvas.drawText( m_points.value_min.toString() + " " + m_points.unit, border_label,
                          m_y_max - offset_label, mPaint );
-
-/* TODO
-        // OVERVIEW
-        if( m_step_count < m_span )
-        {
-            // OVERVIEW REGION
-            set_source_rgb( 0.7, 0.7, 0.7 );
-            rectangle( 0.0, m_height - m_ov_height, m_width, m_ov_height );
-            cr.fill();
-
-            if( m_flag_pointer_hovered )
-                cr.set_source_rgb( 1.0, 1.0, 1.0 );
-            else
-                cr.set_source_rgb( 0.95, 0.95, 0.95 );
-            cr.rectangle( offset_label + m_step_start * m_step_x_ov, m_height - m_ov_height,
-                           ( m_step_count - 1 ) * m_step_x_ov, m_ov_height );
-            cr.fill();
-            //cr.restore();
-
-            // OVERVIEW LINE
-            cr.set_source_rgb( 0.9, 0.3, 0.3 );
-            cr.set_line_join( Cairo::LINE_JOIN_BEVEL );
-            cr.set_line_width( 2.0 );
-
-            //date.m_date = m_points.begin().first;
-            cr.move_to( offset_label, m_height - offset_label - m_coeff_ov *
-                    ( m_points.values[ 0 ] - m_points.value_min ) );
-            for( int i = 1; i < m_span; ++i )
-            {
-                //date.forward_month();
-                cr.line_to( offset_label + m_step_x_ov * i, m_height - offset_label - m_coeff_ov *
-                        ( m_points.values[ i ] - m_points.value_min ) );
-            }
-            cr.stroke();
-
-            // DIVIDER
-            if( m_flag_pointer_hovered )
-                cr.set_source_rgb( 0.2, 0.2, 0.2 );
-            else
-                cr.set_source_rgb( 0.45, 0.45, 0.45 );
-            cr.rectangle( 1.0, m_height - m_ov_height, m_width - 2.0, m_ov_height - 1.0 );
-            cr.stroke();
-        }
-*/
-
     }
 
     // when ACTION_DOWN start touch according to the x,y values
     private void startTouch( float x, float y ) {
-        mPath.moveTo( x, y );
         mX = x;
         mY = y;
     }
@@ -358,20 +304,13 @@ public class ViewChart extends View
         float dx = Math.abs( x - mX );
         float dy = Math.abs( y - mY );
         if( dx >= TOLERANCE || dy >= TOLERANCE ) {
-            mPath.quadTo( mX, mY, ( x + mX ) / 2, ( y + mY ) / 2 );
             mX = x;
             mY = y;
         }
     }
 
-    public void clearCanvas() {
-        mPath.reset();
-        invalidate();
-    }
-
     // when ACTION_UP stop touch
     private void upTouch() {
-        mPath.lineTo( mX, mY );
     }
 
     //override the onTouchEvent
