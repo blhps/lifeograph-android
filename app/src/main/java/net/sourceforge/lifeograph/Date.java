@@ -71,7 +71,7 @@ public class Date {
     protected static final int[] tm = { 0, 3, 3, 6, 1, 4, 6, 2, 5, 0, 3, 5 };
 
     public static String s_format_order;
-    public static String s_format_separator;
+    public static char s_format_separator;
 
     // int that holds the real value
     public long m_date;
@@ -211,20 +211,32 @@ public class Date {
         return date; //OK;
     }
 
-    public static String format_string( long d ) {
+    public static String format_string( long d, String format, char separator ) {
+        StringBuilder result = new StringBuilder();
+
         if( ( d & ORDINAL_FLAG ) != 0 ) {
-            return String.format( get_order( d ) != 0 ? "%d.%d" : "%d",
-                                           get_ordinal_order( d ) + 1, get_order( d ) );
+            result.append( get_ordinal_order( d ) + 1 );
+            if( get_order( d ) != 0 )
+                result.append( "." ).append( get_order( d ) );
         }
         else {
-            return String.format( "%02d%s%02d%s%02d",
-                                  get_YMD( d, s_format_order.charAt( 0 ) ), s_format_separator,
-                                  get_YMD( d, s_format_order.charAt( 1 ) ), s_format_separator,
-                                  get_YMD( d, s_format_order.charAt( 2 ) ) );
+            for( int i = 0; i < format.length(); i++ ) {
+                result.append( String.format( "%02d", get_YMD( d, format.charAt( i ) ) ) );
+                if( i != format.length() - 1 )
+                    result.append( separator );
+            }
         }
+
+        return result.toString();
     }
     public String format_string() {
-        return format_string(  m_date );
+        return format_string( m_date, s_format_order, s_format_separator );
+    }
+    public String format_string( String format ) {
+        return format_string( m_date, format, s_format_separator );
+    }
+    public String format_string( String format, char separator ) {
+        return format_string( m_date, format, separator );
     }
 
     // does not exist in C++
@@ -269,6 +281,7 @@ public class Date {
         return (int) ( ( d & YEAR_FILTER ) >> 19 );
     }
 
+    // helper function for format_string() (this is a lambda in C++ version)
     public static int get_YMD( long d, char c ) {
         switch( c ) {
             case 'Y':
@@ -395,6 +408,19 @@ public class Date {
         m_date |= make_day( day );
     }
 
+    public void forward_months( int months ) {
+        months += ( ( m_date & MONTH_FILTER )>>15 ); // get month
+        m_date &= YEAR_FILTER;   // isolate year
+        int mod_months = months % 12;
+        if( mod_months == 0 ) {
+            m_date += make_year( ( months / 12 ) - 1 );
+            m_date |= 0x60000;  // make month 12
+        }
+        else {
+            m_date += make_year( months / 12 );
+            m_date |= make_month( mod_months );
+        }
+    }
     // IMPROVED METHODS WRT C++ COUNTERPARTS
     public void forward_month() {
         int day = get_day();

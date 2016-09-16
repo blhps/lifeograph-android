@@ -102,7 +102,7 @@ public class ActivityLogin extends ListActivity
         Date.s_format_order = prefs.getString(
                 Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ), "N/A" );
         Date.s_format_separator = prefs.getString(
-                Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ), "N/A" );
+                Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ), "." ).charAt( 0 );
 
         setContentView( R.layout.login );
 

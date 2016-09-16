@@ -58,8 +58,7 @@ public class FragmentElemList extends ListFragment
                                                 inflater );
         this.setListAdapter( mAdapterEntries );
 
-        return ( ViewGroup ) inflater.inflate(
-                R.layout.fragment_elem_list, container, false );
+        return inflater.inflate( R.layout.fragment_elem_list, container, false );
     }
 
     @Override

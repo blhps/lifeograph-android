@@ -66,7 +66,15 @@ public class ChartPoints
     }
 
     void push_back( Double v ) {
-        values.add( v );
+        values.addLast( v );
+        if( v < value_min )
+            value_min = v;
+        if( v > value_max )
+            value_max = v;
+    }
+
+    void push_front( Double v ) {
+        values.addFirst( v );
         if( v < value_min )
             value_min = v;
         if( v > value_max )
@@ -84,7 +92,7 @@ public class ChartPoints
         push_back( b );
     }
 
-    void add_plain( Date d_last, Date d ) {
+    void add_plain_front( Date d_last, Date d ) {
         if( d.is_ordinal() )
             return;
 
@@ -92,12 +100,12 @@ public class ChartPoints
             start_date = d.m_date;
 
         if( values.isEmpty() ) // first value is being entered i.e. v_before is not set
-            push_back( 1.0 );
+            push_front( 1.0 );
         else if( calculate_distance( d, d_last ) > 0 )
             add( calculate_distance( d, d_last ), false, 0.0, 1.0 );
         else
         {
-            Double v = values.lastElement() + 1;
+            Double v = values.getLast() + 1;
             values.set( values.size() - 1, v );
             if( v < value_min )
                 value_min = v;
@@ -115,7 +123,7 @@ public class ChartPoints
     Double value_min = Double.POSITIVE_INFINITY;
     Double value_max = Double.NEGATIVE_INFINITY;
 
-    java.util.Vector< Double > values;
+    java.util.LinkedList< Double > values = new java.util.LinkedList< Double >();
     int type;
     long start_date = 0;
 

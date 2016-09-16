@@ -61,7 +61,7 @@ public class ActivitySettings extends PreferenceActivity
             }
             else if( pref.getKey().equals(
                     Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) {
-                Date.s_format_separator = stringValue;
+                Date.s_format_separator = stringValue.charAt( 0 );
             }
             else if( pref.getKey().equals(
                     Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ) ) ) {

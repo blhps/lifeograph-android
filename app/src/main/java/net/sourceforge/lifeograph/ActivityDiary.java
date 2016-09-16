@@ -148,6 +148,8 @@ public class ActivityDiary extends Activity
         mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.tags ),
                              FragmentElemList.class, args );
 
+        mViewChart = ( ViewChart ) findViewById( R.id.chart_view );
+
         if( savedInstanceState != null ) {
             mActionBar.setSelectedNavigationItem( savedInstanceState.getInt( "tab", 0 ) );
         }
@@ -157,6 +159,9 @@ public class ActivityDiary extends Activity
             View ad = findViewById( R.id.fragmentAd );
             container.removeView( ad );
         }
+
+        // CHART
+        mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
 
         Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_IN;
     }
@@ -618,6 +623,8 @@ public class ActivityDiary extends Activity
     private DrawerLayout mDrawerLayout = null;
 
     private ActionMode mActionMode;
+
+    private ViewChart mViewChart;
 
     private long mDateLast;
     private DiaryElement mElemMenu;
