@@ -65,6 +65,23 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
         //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
+        mViewChart = ( ViewChart ) findViewById( R.id.chart_view_tag );
+
+        if( mElement != null )
+            switch( mElement.get_type() ) {
+                case CHAPTER:
+                case TOPIC:
+                case GROUP:
+                    mViewChart.setVisibility( View.GONE );
+                    //mViewChart.set_points( ( ( Chapter ) mElement ).create_chart_data(), 1f );
+                    break;
+                case TAG:
+                case UNTAGGED:
+                    mViewChart.setVisibility( View.VISIBLE );
+                    mViewChart.set_points( ( ( Tag ) mElement ).create_chart_data(), 1f );
+                    break;
+            }
+
         // UI UPDATES (must come before listeners)
         //updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
 
@@ -392,5 +409,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     private FragmentElemList mFragmentList = null;
     private ActionBar mActionBar = null;
     private DrawerLayout mDrawerLayout = null;
+    private ViewChart mViewChart;
+
     private DiaryElement mElement = null;
 }

@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -38,7 +38,14 @@
             android:name="net.sourceforge.lifeograph.FragmentElemList"
             android:layout_width="match_parent"
             android:layout_height="0dp"
-            android:layout_weight=".99" />
+            android:layout_weight="0.7" />
+
+        <net.sourceforge.lifeograph.ViewChart
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.25"
+            android:id="@+id/chart_view_tag"
+            android:layout_gravity="center_horizontal" />
 
         <fragment
             android:id="@+id/fragmentAd"

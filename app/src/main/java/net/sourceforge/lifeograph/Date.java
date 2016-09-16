@@ -330,6 +330,9 @@ public class Date {
     public boolean is_valid() {
         return( get_day() > 0 && get_day() <= get_days_in_month() );
     }
+    public boolean is_set() {
+        return( m_date != NOT_SET );
+    }
 
     public void set_year( int y ) {
         if( y >= YEAR_MIN && y <= YEAR_MAX ) {

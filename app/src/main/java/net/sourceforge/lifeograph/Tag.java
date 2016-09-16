@@ -22,6 +22,7 @@
 package net.sourceforge.lifeograph;
 
 import java.util.ArrayList;
+import java.util.Map;
 import java.util.TreeMap;
 
 public class Tag extends DiaryElementChart {
@@ -219,6 +220,82 @@ public class Tag extends DiaryElementChart {
 
     void set_unit( String unit ) {
         m_unit = unit;
+    }
+
+    ChartPoints create_chart_data() {
+        if( mEntries.isEmpty() )
+            return null;
+
+        ChartPoints cp = new ChartPoints( m_chart_type );
+        cp.unit = m_unit;
+
+        // order from old to new: d/v_before > d/v_last > d/v
+        Date d_before = new Date( Date.NOT_SET );
+        Date d_last = new Date( Date.NOT_SET );
+        Date d = new Date( Date.NOT_SET );
+        double v_before = 0, v_last = 0, v = 0;
+        int no_of_entries = 0;
+
+        // LAMBDA: auto add_value = [ & ]() -> ... see below
+
+        for( Map.Entry< Entry, Double > iter : mEntries.descendingMap().entrySet() ) {
+            d = iter.getKey().get_date();
+
+            if( d.is_ordinal() )
+                break;
+
+            if( cp.start_date == 0 )
+                cp.start_date = d.m_date;
+            if( ! d_last.is_set() )
+                d_last = d;
+
+            v = is_boolean() ? 1.0 : iter.getValue();
+
+            if( cp.calculate_distance( d, d_last ) > 0 )
+            // add_value() = due to lack of lambdas:
+            {
+                boolean flag_sustain = ( m_chart_type & ChartPoints.VALUE_TYPE_MASK ) ==
+                                       ChartPoints.AVERAGE;
+                if( flag_sustain && no_of_entries > 1 )
+                    v_last /= no_of_entries;
+
+                if( cp.values.isEmpty() ) // first value is being entered i.e. v_before is not set
+                    cp.add( 0, false, 0.0, v_last );
+                else
+                    cp.add( cp.calculate_distance( d_last,  d_before ),
+                            flag_sustain, v_before, v_last );
+
+                v_before = v_last;
+                v_last = v;
+                d_before = d_last;
+                d_last = d;
+                no_of_entries = 1;
+            }
+            else {
+                v_last += v;
+                no_of_entries++;
+            }
+        }
+
+        //add_value() = due to lack of lambdas:
+        {
+            boolean flag_sustain = ( m_chart_type & ChartPoints.VALUE_TYPE_MASK ) ==
+                                   ChartPoints.AVERAGE;
+            if( flag_sustain && no_of_entries > 1 )
+                v_last /= no_of_entries;
+
+            if( cp.values.isEmpty() ) // first value is being entered i.e. v_before is not set
+                cp.add( 0, false, 0.0, v_last );
+            else
+                cp.add( cp.calculate_distance( d_last,  d_before ),
+                        flag_sustain, v_before, v_last );
+
+            // NOTE: last assignments in lambda were not necessary here
+        }
+
+        //TODO: Diary.d.fill_up_chart_points( cp );
+
+        return cp;
     }
 
     // MEMBER VARIABLES
