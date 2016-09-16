@@ -38,7 +38,6 @@ public class ViewChart extends View
     static final float      border_label = 10f;
     static final float      offset_label = 5f;
     static final float      label_height = 20f; // different in Android
-    static final float      bar_height = 20f;
     static final float      OVERVIEW_COEFFICIENT = 15f;
     static final float      COLUMN_WIDTH_MIN= 45f;
     // CALCULATED CONSTANTS
@@ -94,7 +93,7 @@ public class ViewChart extends View
                     ( float ) Math.log10( m_height ) * OVERVIEW_COEFFICIENT : 0f;
 
             int mltp = ( m_points.type & ChartPoints.PERIOD_MASK ) == ChartPoints.YEARLY ? 1 : 2;
-            m_y_max = m_height - mltp * bar_height - m_ov_height;
+            m_y_max = m_height - mltp * m_bar_height - m_ov_height;
             m_y_mid = ( m_y_max + s_y_min ) / 2;
             m_amplitude = m_y_max - s_y_min;
             m_coefficient = m_points.value_max.equals( m_points.value_min ) ? 0f :
@@ -131,6 +130,8 @@ public class ViewChart extends View
         m_x_max = m_width - border_curve;
         m_length = m_x_max - s_x_min;
 
+        m_bar_height = h * 0.1f;
+
         update_col_geom( flag_first );
     }
 
@@ -139,23 +140,16 @@ public class ViewChart extends View
     protected void onDraw( Canvas canvas ) {
         super.onDraw( canvas );
 
-/* TODO
-        // FONT FACE
-        cr.set_font_face( m_font_main );
-
-        // BACKGROUND
-        cr.rectangle( 0.0, 0.0, m_width, m_height );
-        cr.set_source_rgb( 1.0, 1.0, 1.0 );
-        cr.fill();*/
+        // BACKGROUND COLOR (contrary to Linux version background is not white in Android)
+        canvas.drawColor( getResources().getColor( R.color.t_lightest ) );
 
         // HANDLE THERE-IS-TOO-FEW-ENTRIES-CASE SPECIALLY
         if( m_points == null || m_span < 2 ) {
-            /*cr.set_font_size( 1.5 * label_height );
-            cr.set_source_rgb( 0.0, 0.0, 0.0 );
-            Cairo::TextExtents te;
-            cr.get_text_extents( _( "INSUFFICIENT DATA" ), te );
-            cr.move_to( ( m_width - te.width ) / 2 , m_height / 2 );
-            cr.show_text( _( "INSUFFICIENT DATA" ) );*/
+            mPaint.setTextSize( 2f * label_height );
+            mPaint.setColor( Color.RED );
+            mPaint.setTextAlign( Paint.Align.CENTER );
+            mPaint.setStrokeWidth( 0f );
+            canvas.drawText( "INSUFFICIENT DATA FOR GRAPH", m_width / 2, m_height / 2, mPaint );
             return;
         }
 
@@ -198,19 +192,21 @@ public class ViewChart extends View
 */
 
         // YEAR & MONTH BAR
-        mPaint.setColor( Color.LTGRAY ); // TODO: ( 0.85, 0.85, 0.85 );
+        mPaint.setColor( getResources().getColor( R.color.t_dark ) );
+        mPaint.setStyle( Paint.Style.FILL );
         int period = m_points.type & ChartPoints.PERIOD_MASK;
-        if( period != ChartPoints.YEARLY )
-            canvas.drawRect( 0f, m_y_max, m_width, bar_height * 2, mPaint );
-        else
-            canvas.drawRect( 0f, m_y_max, m_width, bar_height, mPaint );
+        canvas.drawRect( 0f, m_y_max, m_width,
+                         m_y_max + ( period == ChartPoints.YEARLY ?
+                                     m_bar_height : m_bar_height * 2 ),
+                         mPaint );
 
         // VERTICAL LINES
         float cumulative_width = 0f;
         boolean flag_print_label = false;
 
-        mPaint.setColor( Color.DKGRAY ); // TODO: ( 0.6, 0.6, 0.6 );
+        mPaint.setColor( Color.BLACK );
         mPaint.setStrokeWidth( 1.0f );
+        mPaint.setStyle( Paint.Style.STROKE );
         for( int i = 0; i < m_step_count; ++i ) {
             flag_print_label = ( cumulative_width == 0 );
             cumulative_width += m_step_x;
@@ -233,7 +229,7 @@ public class ViewChart extends View
         mPath.reset();
 
         // GRAPH LINE
-        mPaint.setColor( Color.RED ); // TODO: ( 0.9, 0.3, 0.3 );
+        mPaint.setColor( getResources().getColor( R.color.t_darker ) );
         mPaint.setStrokeWidth( 4.0f );
 
         mPath.moveTo( s_x_min - m_step_x * pre_steps,
@@ -251,7 +247,7 @@ public class ViewChart extends View
         canvas.drawPath( mPath, mPaint );
 
         // YEAR & MONTH LABELS
-        mPaint.setColor( Color.BLACK );
+        mPaint.setColor( Color.WHITE );
         mPaint.setTextSize( label_height );
         mPaint.setStrokeWidth( 0f );
 
@@ -280,7 +276,7 @@ public class ViewChart extends View
                     if( i == 0 || year_last != mLabelDate.get_year() ) {
                         canvas.drawText( mLabelDate.format_string( "Y" ),
                                          s_x_min + m_step_x * i + offset_label,
-                                         m_y_max + bar_height + label_y / 1.5f,
+                                         m_y_max + m_bar_height + label_y / 1.5f,
                                          mPaint );
                         year_last = mLabelDate.get_year();
                     }
@@ -413,9 +409,10 @@ public class ViewChart extends View
     private int m_step_start = 0;
     private float m_zoom_level = 1.0f;
 
-    float m_x_max = 0.0f, m_y_max = 0.0f, m_y_mid = 0.0f;
-    float m_amplitude = 0.0f, m_length = 0.0f;
-    float m_step_x = 0.0f, m_coefficient = 0.0f;
-    float m_ov_height = 0.0f;
-    float m_step_x_ov = 0.0f, m_ampli_ov = 0.0f, m_coeff_ov = 0.0f;
+    private float m_bar_height;
+    private float m_x_max = 0.0f, m_y_max = 0.0f, m_y_mid = 0.0f;
+    private float m_amplitude = 0.0f, m_length = 0.0f;
+    private float m_step_x = 0.0f, m_coefficient = 0.0f;
+    private float m_ov_height = 0.0f;
+    private float m_step_x_ov = 0.0f, m_ampli_ov = 0.0f, m_coeff_ov = 0.0f;
 }
