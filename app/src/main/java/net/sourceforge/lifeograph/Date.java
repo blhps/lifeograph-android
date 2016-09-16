@@ -394,6 +394,10 @@ public class Date {
         m_date += ORDINAL_STEP;
     }
 
+    public void forward_year() {
+        m_date += make_year( 1 );
+    }
+
     public void backward_month() {
         int day = get_day();
         int month = ( ( get_month() + 10 ) % 12 ) + 1;

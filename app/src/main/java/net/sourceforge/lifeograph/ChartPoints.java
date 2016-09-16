@@ -73,14 +73,6 @@ public class ChartPoints
             value_max = v;
     }
 
-    void push_front( Double v ) {
-        values.addFirst( v );
-        if( v < value_min )
-            value_min = v;
-        if( v > value_max )
-            value_max = v;
-    }
-
     void add( int limit, boolean flag_sustain, Double a, Double b ) {
         for( int i = 1; i < limit; i++ ) {
             if( flag_sustain ) // interpolation
@@ -92,7 +84,7 @@ public class ChartPoints
         push_back( b );
     }
 
-    void add_plain_front( Date d_last, Date d ) {
+    void add_plain( Date d_last, Date d ) {
         if( d.is_ordinal() )
             return;
 
@@ -100,11 +92,10 @@ public class ChartPoints
             start_date = d.m_date;
 
         if( values.isEmpty() ) // first value is being entered i.e. v_before is not set
-            push_front( 1.0 );
+            push_back( 1.0 );
         else if( calculate_distance( d, d_last ) > 0 )
             add( calculate_distance( d, d_last ), false, 0.0, 1.0 );
-        else
-        {
+        else {
             Double v = values.getLast() + 1;
             values.set( values.size() - 1, v );
             if( v < value_min )

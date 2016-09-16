@@ -246,61 +246,58 @@ public class ViewChart extends View
                           m_y_max - m_coefficient *
                                     ( float )
                                             ( m_points.values.get( i + m_step_start - pre_steps ) -
-                                                m_points.value_min ) );
+                                              m_points.value_min ) );
         }
         canvas.drawPath( mPath, mPaint );
-
 
         // YEAR & MONTH LABELS
         mPaint.setColor( Color.BLACK );
         mPaint.setTextSize( label_height );
-/* TODO
-        Date date = new Date( m_points.start_date );
+        mPaint.setStrokeWidth( 0f );
+
+        mLabelDate.m_date = m_points.start_date;
         if( period == ChartPoints.MONTHLY )
-            date.forward_months( m_step_start );
+            mLabelDate.forward_months( m_step_start );
         else
-            date.set_year( date.get_year() + m_step_start );
+            mLabelDate.set_year( mLabelDate.get_year() + m_step_start );
 
         int year_last = 0;
         cumulative_width = 0;
 
-        for( int i = 0; i < m_step_count; ++i )
-        {
+        for( int i = 0; i < m_step_count; ++i ) {
             flag_print_label = ( cumulative_width == 0 );
             cumulative_width += m_step_x;
             if( cumulative_width >= COLUMN_WIDTH_MIN )
                 cumulative_width = 0; // reset for the next round
 
-            if( period == ChartPoints.MONTHLY )
-            {
-                if( flag_print_label )
-                {
-                    cr.move_to( s_x_min + m_step_x * i + offset_label, m_y_max + label_y );
-                    cr.show_text( date.format_string( "M" ) );
+            if( period == ChartPoints.MONTHLY ) {
+                if( flag_print_label ) {
+                    canvas.drawText( mLabelDate.format_string( "M" ),
+                                     s_x_min + m_step_x * i + offset_label,
+                                     m_y_max + label_y,
+                                     mPaint );
 
-                    if( i == 0 || year_last != date.get_year() )
-                    {
-                        cr.move_to( s_x_min + m_step_x * i + offset_label,
-                                     m_y_max + bar_height + label_y / 1.5 );
-                        cr.show_text( date.format_string( "Y" ) );
-                        year_last = date.get_year();
+                    if( i == 0 || year_last != mLabelDate.get_year() ) {
+                        canvas.drawText( mLabelDate.format_string( "Y" ),
+                                         s_x_min + m_step_x * i + offset_label,
+                                         m_y_max + bar_height + label_y / 1.5f,
+                                         mPaint );
+                        year_last = mLabelDate.get_year();
                     }
                 }
 
-                date.forward_month();
+                mLabelDate.forward_month();
             }
-            else
-            {
-                if( flag_print_label )
-                {
-                    cr.move_to( s_x_min + m_step_x * i + offset_label, m_y_max  + label_y );
-                    cr.show_text( date.format_string( "Y" ) );
+            else { // YEARLY
+                if( flag_print_label ) {
+                    canvas.drawText( mLabelDate.format_string( "Y" ),
+                                     s_x_min + m_step_x * i + offset_label, m_y_max  + label_y,
+                                     mPaint );
                 }
-                date.set_year( date.get_year() + 1 ); // forward year
+                mLabelDate.forward_year();
             }
         }
 
-*/
         // y LABELS
         canvas.drawText( m_points.value_max.toString() + " " + m_points.unit, border_label,
                          s_y_min - offset_label, mPaint );
@@ -406,6 +403,7 @@ public class ViewChart extends View
 
     // DATA
     private ChartPoints m_points = null;
+    private Date mLabelDate = new Date(); // this is local in C++
 
     // GEOMETRY
     private int m_width = -1;

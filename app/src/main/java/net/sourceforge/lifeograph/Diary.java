@@ -182,21 +182,21 @@ public class Diary extends DiaryElementChart
         return( get_size() + " entries" );
     }
 
-    public ChartPoints create_chart_data()
-    {
+    public ChartPoints create_chart_data() {
         if( m_entries.isEmpty() )
             return null;
 
         ChartPoints cp = new ChartPoints( m_chart_type );
         Date d_last = new Date( Date.NOT_SET );
 
-        for( Entry entry : m_entries.values() )
-            cp.add_plain_front( d_last, entry.get_date() );
+        for( Entry entry : m_entries.descendingMap().values() )
+            cp.add_plain( d_last, entry.get_date() );
 
         // TODO: fill_up_chart_points( cp );
 
         return cp;
     }
+
     // ID HANDLING =================================================================================
     public int create_new_id( DiaryElement element ) {
         int retval;
