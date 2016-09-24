@@ -300,6 +300,23 @@ public class Chapter extends DiaryElementChart {
         m_color = color;
     }
 
+    @Override
+    ChartPoints create_chart_data() {
+        if( mEntries.isEmpty() )
+            return null;
+
+        ChartPoints cp = new ChartPoints( m_chart_type );
+        Date d_last = new Date( Date.NOT_SET );
+
+        for( Entry entry : mEntries.descendingSet() )
+            cp.add_plain( d_last, entry.get_date() );
+
+        //Diary.diary.fill_up_chart_points( cp );
+
+        return cp;
+    }
+
+    // DATA
     Date m_date_begin;
     int m_time_span = 0;
     Type m_type;

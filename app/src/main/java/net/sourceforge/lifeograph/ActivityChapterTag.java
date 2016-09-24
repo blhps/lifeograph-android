@@ -82,13 +82,16 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         // UI UPDATES (must come before listeners)
         if( mElement != null )
             switch( mElement.get_type() ) {
-                case CHAPTER:
                 case TOPIC:
                 case GROUP:
-                case UNTAGGED:
                     mViewChart.setVisibility( View.GONE );
                     layoutTagProperties.setVisibility( View.GONE );
-                    //mViewChart.set_points( ( ( Chapter ) mElement ).create_chart_data(), 1f );
+                    break;
+                case CHAPTER:
+                case UNTAGGED:
+                    mViewChart.setVisibility( View.VISIBLE );
+                    mViewChart.set_points( mElement.create_chart_data(), 1f );
+                    layoutTagProperties.setVisibility( View.GONE );
                     break;
                 case TAG:
                     mViewChart.setVisibility( View.VISIBLE );

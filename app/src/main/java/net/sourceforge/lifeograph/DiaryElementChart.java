@@ -48,5 +48,6 @@ public abstract class DiaryElementChart extends DiaryElement
         return null;
     }
 
-    int m_chart_type;
+    // thanks to multiple inheritance, the initialization is done in constructor in C++:
+    int m_chart_type = ChartPoints.MONTHLY | ChartPoints.BOOLEAN;
 }
