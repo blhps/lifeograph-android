@@ -28,15 +28,22 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.support.v4.widget.DrawerLayout;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
+import android.widget.ArrayAdapter;
+import android.widget.AutoCompleteTextView;
+import android.widget.LinearLayout;
+import android.widget.Spinner;
 
 public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObject,
         DialogInquireText.InquireListener, DialogCalendar.Listener, FragmentElemList.DiaryManager,
-        FragmentElemList.ListOperations, DialogTheme.DialogThemeHost
+        FragmentElemList.ListOperations, DialogTheme.DialogThemeHost, Spinner.OnItemSelectedListener
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -65,27 +72,76 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
         //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
+        LinearLayout layoutTagProperties = ( LinearLayout ) findViewById( R.id.tag_properties );
+        Spinner spinnerTagType = ( Spinner ) findViewById( R.id.tag_type );
+        mAtvTagUnit = ( AutoCompleteTextView ) findViewById( R.id.tag_unit );
+
         mViewChart = ( ViewChart ) findViewById( R.id.chart_view_tag );
 
+        // UI UPDATES (must come before listeners)
         if( mElement != null )
             switch( mElement.get_type() ) {
                 case CHAPTER:
                 case TOPIC:
                 case GROUP:
+                case UNTAGGED:
                     mViewChart.setVisibility( View.GONE );
+                    layoutTagProperties.setVisibility( View.GONE );
                     //mViewChart.set_points( ( ( Chapter ) mElement ).create_chart_data(), 1f );
                     break;
                 case TAG:
-                case UNTAGGED:
                     mViewChart.setVisibility( View.VISIBLE );
                     mViewChart.set_points( ( ( Tag ) mElement ).create_chart_data(), 1f );
+                    layoutTagProperties.setVisibility( View.VISIBLE );
+                    switch( ( ( Tag ) mElement ).get_chart_type() & ChartPoints.VALUE_TYPE_MASK ) {
+                        case ChartPoints.BOOLEAN:
+                            spinnerTagType.setSelection( 0 );
+                            mAtvTagUnit.setVisibility( View.GONE );
+                            break;
+                        case ChartPoints.CUMULATIVE:
+                            spinnerTagType.setSelection( 1 );
+                            mAtvTagUnit.setVisibility( View.VISIBLE );
+                            mAtvTagUnit.setText( ( ( Tag ) mElement ).get_unit() );
+                            break;
+                        default:
+                            spinnerTagType.setSelection( 2 );
+                            mAtvTagUnit.setVisibility( View.VISIBLE );
+                            mAtvTagUnit.setText( ( ( Tag ) mElement ).get_unit() );
+                            break;
+                    }
                     break;
             }
 
-        // UI UPDATES (must come before listeners)
         //updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
 
         // LISTENERS
+        spinnerTagType.setOnItemSelectedListener( this );
+
+        String[] units = getResources().getStringArray( R.array.array_tag_units );
+        ArrayAdapter< String > adapter_units = new ArrayAdapter< String >
+                ( this, android.R.layout.simple_dropdown_item_1line, units );
+        mAtvTagUnit.setAdapter( adapter_units );
+        // show all suggestions w/o entering text:
+        mAtvTagUnit.setOnClickListener( new AutoCompleteTextView.OnClickListener() {
+                                            public void onClick( View view ) {
+                                                mAtvTagUnit.showDropDown();
+                                            }
+                                        }
+        );
+        mAtvTagUnit.addTextChangedListener( new TextWatcher()
+        {
+            public void afterTextChanged( Editable s ) {
+            }
+
+            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
+            }
+
+            public void onTextChanged( CharSequence s, int start, int before, int count ) {
+                ( ( Tag ) mElement ).set_unit( s.toString() );
+                mViewChart.set_points( ( ( Tag ) mElement ).create_chart_data(), 1f );
+            }
+        } );
+
         mDrawerLayout.setDrawerListener( new DrawerLayout.DrawerListener()
         {
             public void onDrawerSlide( View view, float v ) { }
@@ -406,10 +462,33 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         mActionBar.setIcon( mElement.get_icon() );
     }
 
+    // Spinner INTERFACE METHODS
+    public void onItemSelected( AdapterView<?> parent, View view, int pos, long id ) {
+        switch( pos ) {
+            case 0:
+                ( ( Tag ) mElement ).set_chart_type( ChartPoints.BOOLEAN );
+                mAtvTagUnit.setVisibility( View.GONE );
+                break;
+            case 1:
+                ( ( Tag ) mElement ).set_chart_type( ChartPoints.CUMULATIVE );
+                mAtvTagUnit.setVisibility( View.VISIBLE );
+                break;
+            case 2:
+                ( ( Tag ) mElement ).set_chart_type( ChartPoints.AVERAGE );
+                mAtvTagUnit.setVisibility( View.VISIBLE );
+                break;
+        }
+        mViewChart.set_points( ( ( Tag ) mElement ).create_chart_data(), 1f );
+    }
+    public void onNothingSelected( AdapterView<?> parent ) {
+        // do nothing?
+    }
+
     private FragmentElemList mFragmentList = null;
     private ActionBar mActionBar = null;
     private DrawerLayout mDrawerLayout = null;
     private ViewChart mViewChart;
+    private AutoCompleteTextView mAtvTagUnit;
 
     private DiaryElement mElement = null;
 }

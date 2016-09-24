@@ -33,6 +33,32 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
+        <LinearLayout
+            android:id="@+id/tag_properties"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:background="@color/t_mid">
+
+            <Spinner
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/tag_type"
+                android:spinnerMode="dropdown"
+                android:layout_weight="0.5"
+                android:entries="@array/array_tag_types"/>
+
+            <AutoCompleteTextView
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/tag_unit"
+                android:layout_weight=".5"
+                android:hint="@string/unitless"
+                android:singleLine="true"
+                android:completionThreshold="1"
+                android:completionHint="Common units"/>
+        </LinearLayout>
+
         <fragment
             android:id="@+id/fragmentList"
             android:name="net.sourceforge.lifeograph.FragmentElemList"
