@@ -26,11 +26,12 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Path;
 import android.util.AttributeSet;
+import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
 
-public class ViewChart extends View
+public class ViewChart extends View implements GestureDetector.OnGestureListener
 {
     // CONSTANTS
     static final float      border_curve = 30f;
@@ -38,17 +39,11 @@ public class ViewChart extends View
     static final float      offset_label = 5f;
     static final float      label_height = 20f; // different in Android
     static final float      OVERVIEW_COEFFICIENT = 15f;
-    static final float      COLUMN_WIDTH_MIN= 45f;
+    static final float      COLUMN_WIDTH_MIN= 60f;
     // CALCULATED CONSTANTS
     static final float      label_y = offset_label + label_height;
     static final float      s_x_min = border_curve + border_label;
     static final float      s_y_min = border_curve;
-
-    private Path mPath;
-    Context context;
-    private Paint mPaint;
-    private float mX, mY;
-    private static final float TOLERANCE = 5;
 
     public ViewChart( Context c, AttributeSet attrs ) {
         super( c, attrs );
@@ -64,6 +59,12 @@ public class ViewChart extends View
         mPaint.setStyle( Paint.Style.STROKE );
         mPaint.setStrokeJoin( Paint.Join.ROUND );
         mPaint.setStrokeWidth( 4f );
+
+        mGestureDetector = new GestureDetector( c, this );
+    }
+
+    public void setListener( Listener listener ) {
+        mListener = listener;
     }
 
     public void set_points( ChartPoints points, float zoom_level ) {
@@ -131,6 +132,9 @@ public class ViewChart extends View
     @Override
     protected void onDraw( Canvas canvas ) {
         super.onDraw( canvas );
+
+        // reset path
+        mPath.reset();
 
         // BACKGROUND COLOR (contrary to Linux version, background is not white in Android)
         canvas.drawColor( getResources().getColor( R.color.t_lightest ) );
@@ -287,60 +291,65 @@ public class ViewChart extends View
         }
 
         // y LABELS
+        mPaint.setColor( Color.BLACK );
         canvas.drawText( m_points.value_max.toString() + " " + m_points.unit, border_label,
                          s_y_min - offset_label, mPaint );
         canvas.drawText( m_points.value_min.toString() + " " + m_points.unit, border_label,
                          m_y_max - offset_label, mPaint );
     }
 
-    // when ACTION_DOWN start touch according to the x,y values
-    private void startTouch( float x, float y ) {
-        mX = x;
-        mY = y;
-    }
-
-    // when ACTION_MOVE move touch according to the x,y values
-    private void moveTouch( float x, float y ) {
-        float dx = Math.abs( x - mX );
-        float dy = Math.abs( y - mY );
-        if( dx >= TOLERANCE || dy >= TOLERANCE ) {
-            mX = x;
-            mY = y;
-        }
-    }
-
-    // when ACTION_UP stop touch
-    private void upTouch() {
-    }
-
     //override the onTouchEvent
     @Override
     public boolean onTouchEvent( MotionEvent event ) {
-        float x = event.getX();
-        float y = event.getY();
+        this.mGestureDetector.onTouchEvent( event );
+        // Be sure to call the superclass implementation
+        return super.onTouchEvent( event );
+    }
 
-        switch( event.getAction() ) {
-            case MotionEvent.ACTION_DOWN:
-                startTouch( x, y );
-                invalidate();
-                break;
-            case MotionEvent.ACTION_MOVE:
-                moveTouch( x, y );
-                invalidate();
-                break;
-            case MotionEvent.ACTION_UP:
-                upTouch();
-                invalidate();
-                break;
-        }
+    // GestureDetector.OnGestureListener INTERFACE METHODS
+    public boolean onDown( MotionEvent event ) {
         return true;
     }
 
+    public boolean onFling( MotionEvent e1, MotionEvent e2, float velocityX, float velocityY ) {
+        return true;
+    }
+
+    public void onLongPress( MotionEvent event ) {
+        if( m_points != null && mListener != null ) {
+            if( ( m_points.type & ChartPoints.PERIOD_MASK ) == ChartPoints.YEARLY )
+                mListener.onTypeChanged( ChartPoints.MONTHLY );
+            else
+                mListener.onTypeChanged( ChartPoints.YEARLY );
+        }
+    }
+
+    public boolean onScroll( MotionEvent e1, MotionEvent e2, float distanceX, float distanceY ) {
+        return true;
+    }
+
+    public void onShowPress( MotionEvent event ) {
+    }
+
+    public boolean onSingleTapUp( MotionEvent event ) {
+        return true;
+    }
+
+    // INTERFACE
+    public interface Listener
+    {
+        void onTypeChanged( int type );
+    }
+
     // DATA
+    Context context;
+    private Paint mPaint;
+    private Path mPath;
+
     private ChartPoints m_points = null;
     private Date mLabelDate = new Date(); // this is local in C++
 
-    // GEOMETRY
+    // GEOMETRICAL VARIABLES
     private int m_width = -1;
     private int m_height = -1;
     private int m_span = 0;
@@ -354,4 +363,7 @@ public class ViewChart extends View
     private float m_step_x = 0.0f, m_coefficient = 0.0f;
     private float m_ov_height = 0.0f;
     private float m_step_x_ov = 0.0f, m_ampli_ov = 0.0f, m_coeff_ov = 0.0f;
+
+    private GestureDetector mGestureDetector;
+    private Listener mListener = null;
 }

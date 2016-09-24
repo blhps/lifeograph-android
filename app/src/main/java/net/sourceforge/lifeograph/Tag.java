@@ -222,6 +222,7 @@ public class Tag extends DiaryElementChart {
         m_unit = unit;
     }
 
+    @Override
     ChartPoints create_chart_data() {
         if( mEntries.isEmpty() )
             return null;

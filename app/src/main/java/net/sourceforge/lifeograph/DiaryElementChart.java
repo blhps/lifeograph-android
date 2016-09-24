@@ -44,5 +44,9 @@ public abstract class DiaryElementChart extends DiaryElement
         m_chart_type = type;
     }
 
+    ChartPoints create_chart_data() {
+        return null;
+    }
+
     int m_chart_type;
 }

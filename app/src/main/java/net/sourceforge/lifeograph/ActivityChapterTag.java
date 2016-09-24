@@ -57,7 +57,8 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         Lifeograph.updateScreenSizes();
 
         // ELEMENT TO SHOW
-        mElement = Diary.diary.get_element( getIntent().getIntExtra( "elem", 0 ) );
+        mElement = ( DiaryElementChart ) Diary.diary.get_element(
+                getIntent().getIntExtra( "elem", 0 ) );
         if( mElement == null ) {
             int type = getIntent().getIntExtra( "type", 0 );
             if( type == DiaryElement.Type.UNTAGGED.i )
@@ -91,9 +92,9 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
                     break;
                 case TAG:
                     mViewChart.setVisibility( View.VISIBLE );
-                    mViewChart.set_points( ( ( Tag ) mElement ).create_chart_data(), 1f );
+                    mViewChart.set_points( mElement.create_chart_data(), 1f );
                     layoutTagProperties.setVisibility( View.VISIBLE );
-                    switch( ( ( Tag ) mElement ).get_chart_type() & ChartPoints.VALUE_TYPE_MASK ) {
+                    switch( mElement.get_chart_type() & ChartPoints.VALUE_TYPE_MASK ) {
                         case ChartPoints.BOOLEAN:
                             spinnerTagType.setSelection( 0 );
                             mAtvTagUnit.setVisibility( View.GONE );
@@ -138,7 +139,15 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
 
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
                 ( ( Tag ) mElement ).set_unit( s.toString() );
-                mViewChart.set_points( ( ( Tag ) mElement ).create_chart_data(), 1f );
+                mViewChart.set_points( mElement.create_chart_data(), 1f );
+            }
+        } );
+
+        mViewChart.setListener( new ViewChart.Listener()
+        {
+            public void onTypeChanged( int type ) {
+                mElement.set_chart_type( type );
+                mViewChart.set_points( mElement.create_chart_data(), 1f );
             }
         } );
 
@@ -466,19 +475,19 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     public void onItemSelected( AdapterView<?> parent, View view, int pos, long id ) {
         switch( pos ) {
             case 0:
-                ( ( Tag ) mElement ).set_chart_type( ChartPoints.BOOLEAN );
+                mElement.set_chart_type( ChartPoints.BOOLEAN );
                 mAtvTagUnit.setVisibility( View.GONE );
                 break;
             case 1:
-                ( ( Tag ) mElement ).set_chart_type( ChartPoints.CUMULATIVE );
+                mElement.set_chart_type( ChartPoints.CUMULATIVE );
                 mAtvTagUnit.setVisibility( View.VISIBLE );
                 break;
             case 2:
-                ( ( Tag ) mElement ).set_chart_type( ChartPoints.AVERAGE );
+                mElement.set_chart_type( ChartPoints.AVERAGE );
                 mAtvTagUnit.setVisibility( View.VISIBLE );
                 break;
         }
-        mViewChart.set_points( ( ( Tag ) mElement ).create_chart_data(), 1f );
+        mViewChart.set_points( mElement.create_chart_data(), 1f );
     }
     public void onNothingSelected( AdapterView<?> parent ) {
         // do nothing?
@@ -490,5 +499,5 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
     private ViewChart mViewChart;
     private AutoCompleteTextView mAtvTagUnit;
 
-    private DiaryElement mElement = null;
+    private DiaryElementChart mElement = null;
 }

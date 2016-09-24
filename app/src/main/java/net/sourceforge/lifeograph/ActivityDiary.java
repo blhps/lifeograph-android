@@ -151,6 +151,13 @@ public class ActivityDiary extends Activity
         // CHART
         mViewChart = ( ViewChart ) findViewById( R.id.chart_view_diary );
         mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
+        mViewChart.setListener( new ViewChart.Listener()
+        {
+            public void onTypeChanged( int type ) {
+                Diary.diary.set_chart_type( type );
+                mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
+            }
+        } );
 
         if( savedInstanceState != null ) {
             mActionBar.setSelectedNavigationItem( savedInstanceState.getInt( "tab", 0 ) );

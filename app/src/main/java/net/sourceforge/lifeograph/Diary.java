@@ -182,6 +182,7 @@ public class Diary extends DiaryElementChart
         return( get_size() + " entries" );
     }
 
+    @Override
     public ChartPoints create_chart_data() {
         if( m_entries.isEmpty() )
             return null;
