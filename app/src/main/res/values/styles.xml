@@ -1,37 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LifeoTheme" parent="android:Theme.Holo.Light.DarkActionBar">
-        <item name="android:actionBarStyle">@style/LifeoTheme.ActionBarStyle</item>
+    <style name="LifeoTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
+        <item name="actionBarStyle">@style/LifeoTheme.ActionBarStyle</item>
         <item name="android:actionBarItemBackground">@drawable/themed_selector_dark</item>
         <item name="android:actionBarTabStyle">@style/LifeoTheme.TabStyle</item>
         <item name="android:actionBarWidgetTheme">@style/LifeoTheme.Widget</item>
+
+        <item name="colorAccent">@color/t_lighter</item>
+        <item name="colorPrimary">@color/t_light</item>
+        <item name="colorPrimaryDark">@color/t_darker</item>
     </style>
 
     <!-- ACTIONBAR STYLES -->
     <style name="LifeoTheme.ActionBarStyle"
-           parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse">
-        <item name="android:background">@color/t_dark</item>
-        <item name="android:backgroundStacked">@color/t_dark</item>
-        <item name="android:backgroundSplit">@color/t_dark</item>
-        <item name="android:subtitleTextStyle">@style/LifeoTheme.SubtitleTextStyle</item>
+           parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
+        <item name="background">@color/t_dark</item>
+        <item name="backgroundStacked">@color/t_dark</item>
+        <item name="backgroundSplit">@color/t_dark</item>
+        <item name="subtitleTextStyle">@style/LifeoTheme.SubtitleTextStyle</item>
     </style>
 
-    <style name="LifeoTheme.TabStyle" parent="@android:style/Widget.Holo.ActionBar.TabView">
-        <item name="android:background">@drawable/action_bar_tabs</item>
+    <style name="LifeoTheme.TabStyle" parent="@style/Widget.AppCompat.ActionBar.TabView">
+        <item name="background">@drawable/action_bar_tabs</item>
     </style>
 
     <style name="LifeoTheme.SubtitleTextStyle"
-           parent="@android:style/TextAppearance.Holo.Widget.ActionBar.Subtitle">
+           parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
         <item name="android:textColor">@color/t_light</item>
     </style>
 
-    <style name="LifeoTheme.Widget" parent="@android:style/Theme.Holo">
+    <style name="LifeoTheme.Widget" parent="@style/Theme.AppCompat.Light">
         <!--item name="android:popupMenuStyle">@style/PopupMenu.Lifeo</item-->
         <item name="android:dropDownListViewStyle">@style/LifeoTheme.DropDownListView</item>
     </style>
 
     <style name="LifeoTheme.DropDownListView"
-           parent="@android:style/Widget.Holo.ListView.DropDown">
+           parent="@style/Widget.AppCompat.ListView.DropDown">
         <item name="android:listSelector">@drawable/themed_selector_dark</item>
     </style>
 

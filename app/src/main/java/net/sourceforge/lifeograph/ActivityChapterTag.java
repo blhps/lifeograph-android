@@ -22,8 +22,10 @@
 package net.sourceforge.lifeograph;
 
 
-import android.app.ActionBar;
+import android.support.v7.app.ActionBar;
 import android.app.Activity;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -41,7 +43,8 @@ import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
-public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObject,
+public class ActivityChapterTag extends ActionBarActivity
+        implements ToDoAction.ToDoObject,
         DialogInquireText.InquireListener, DialogCalendar.Listener, FragmentElemList.DiaryManager,
         FragmentElemList.ListOperations, DialogTheme.DialogThemeHost, Spinner.OnItemSelectedListener
 {
@@ -172,7 +175,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         } );
 
         // ACTIONBAR
-        mActionBar = getActionBar();
+        mActionBar = getSupportActionBar();
         if( mActionBar != null ) {
             mActionBar.setDisplayHomeAsUpEnabled( true );
             mActionBar.setIcon( mElement.get_icon() );
@@ -221,7 +224,7 @@ public class ActivityChapterTag extends Activity implements ToDoAction.ToDoObjec
         getMenuInflater().inflate( R.menu.menu_chapter_tag, menu );
 
         MenuItem item = menu.findItem( R.id.change_todo_status );
-        ToDoAction ToDoAction = ( ToDoAction ) item.getActionProvider();
+        ToDoAction ToDoAction = ( ToDoAction ) MenuItemCompat.getActionProvider( item );
         ToDoAction.mObject = this;
 
         return true;

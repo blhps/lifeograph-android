@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,18 +21,19 @@
 
 **************************************************************************** -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:compat="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/add_elem"
           android:title="@string/add"
           android:icon="@drawable/ic_action_add"
           android:orderInCategory="90"
-          android:actionProviderClass="net.sourceforge.lifeograph.AddElemAction"
-          android:showAsAction="always|withText" />
+          compat:actionProviderClass="net.sourceforge.lifeograph.AddElemAction"
+          compat:showAsAction="always|withText" />
     <item android:id="@+id/calendar"
           android:title="@string/calendar"
           android:icon="@drawable/ic_action_calendar"
           android:orderInCategory="90"
-          android:showAsAction="ifRoom" />
+          compat:showAsAction="ifRoom" />
     <!-- TODO WILL BE IMPLEMENTED IN 0.5+
     item android:id="@+id/change_sort_type"
           android:title="@string/change_sorting"
@@ -42,7 +43,7 @@
           android:title="@string/search_and_filter"
           android:icon="@drawable/ic_action_search"
           android:orderInCategory="100"
-          android:showAsAction="ifRoom" />
+          compat:showAsAction="ifRoom" />
     <!-- TODO WILL BE IMPLEMENTED IN 0.6
     item android:id="@+id/import_sms"
           android:title="@string/import_sms"
@@ -51,17 +52,17 @@
     <item android:id="@+id/add_password"
           android:title="@string/add_password"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
     <item android:id="@+id/change_password"
           android:title="@string/change_password"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
     <item android:id="@+id/export_plain_text"
           android:title="@string/export_plain_text"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
     <item android:id="@+id/logout_wo_save"
           android:title="@string/logoutwosaving"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
 </menu>

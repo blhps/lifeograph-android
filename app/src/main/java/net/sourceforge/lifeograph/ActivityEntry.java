@@ -24,8 +24,9 @@ package net.sourceforge.lifeograph;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ActionBar;
-import android.app.Activity;
+import android.support.v4.view.MenuItemCompat;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -60,10 +61,10 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import android.widget.SearchView;
+import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 
-public class ActivityEntry extends Activity
+public class ActivityEntry extends ActionBarActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
         DialogTags.DialogTagsHost, PopupMenu.OnMenuItemClickListener
 {
@@ -160,7 +161,7 @@ public class ActivityEntry extends Activity
         Lifeograph.sContext = this;
         Lifeograph.updateScreenSizes();
 
-        mActionBar = getActionBar();
+        mActionBar = getSupportActionBar();
         mActionBar.setDisplayHomeAsUpEnabled( true );
 
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
@@ -452,12 +453,12 @@ public class ActivityEntry extends Activity
         getMenuInflater().inflate( R.menu.menu_entry, menu );
 
         MenuItem item = menu.findItem( R.id.change_todo_status );
-        ToDoAction ToDoAction = ( ToDoAction ) item.getActionProvider();
+        ToDoAction ToDoAction = ( ToDoAction ) MenuItemCompat.getActionProvider( item );
         ToDoAction.mObject = this;
 
         item = menu.findItem( R.id.search_text );
-        final SearchView searchView = ( SearchView ) item.getActionView();
-        item.setOnActionExpandListener( new MenuItem.OnActionExpandListener()
+        final SearchView searchView = ( SearchView ) MenuItemCompat.getActionView( item );
+        MenuItemCompat.setOnActionExpandListener( item, new MenuItemCompat.OnActionExpandListener()
         {
             public boolean onMenuItemActionExpand( MenuItem menuItem ) {
                 searchView.setQuery( Diary.diary.get_search_text(), false );
@@ -468,6 +469,7 @@ public class ActivityEntry extends Activity
                 return true;
             }
         } );
+
         searchView.setOnQueryTextListener( new SearchView.OnQueryTextListener()
         {
             public boolean onQueryTextSubmit( String s ) {

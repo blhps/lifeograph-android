@@ -139,7 +139,7 @@
 
     <string name="ignore">Ignore</string>
 
-    <string name="welcome">Welcome to Lifeograph for Android!</string>
+    <string name="welcome">Welcome!</string>
     <!--string name="caution_not_final">PLEASE KEEP IN MIND THAT THIS IS A BETA VERSION</string-->
     <string name="diaries">Diaries</string>
     <!--string name="import_sms">Import SMS</string-->
@@ -147,6 +147,7 @@
     <string name="reset">Reset</string>
     <string name="save">Save</string>
     <string name="unitless">Unitless</string>
+    <string name="read_only">Read-Only</string>
 
     <string-array name="array_filter_trash">
         <item>All Entries</item>

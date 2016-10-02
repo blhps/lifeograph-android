@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
-import android.app.ListActivity;
+import android.support.v7.app.ActionBarActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -39,6 +39,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -49,7 +50,7 @@ import net.sourceforge.lifeograph.inappbilling.util.IabResult;
 import net.sourceforge.lifeograph.inappbilling.util.Inventory;
 import net.sourceforge.lifeograph.inappbilling.util.Purchase;
 
-public class ActivityLogin extends ListActivity
+public class ActivityLogin extends ActionBarActivity
         implements DialogInquireText.InquireListener, DialogPassword.Listener,
         IabBroadcastReceiver.IabBroadcastListener
 {
@@ -109,9 +110,69 @@ public class ActivityLogin extends ListActivity
         mAdapterDiaries = new ArrayAdapter< String >( this,
                                                       R.layout.list_item_diary,
                                                       R.id.title );
-        this.setListAdapter( mAdapterDiaries );
 
-        registerForContextMenu( getListView() );
+        ListView lv = ( ListView ) findViewById( R.id.list_diaries );
+        lv.setAdapter( mAdapterDiaries );
+        lv.setOnItemClickListener( new ListView.OnItemClickListener()
+        {
+            public void onItemClick( AdapterView< ? > parent, View v, int pos, long id ) {
+                Log.d( Lifeograph.TAG, "on item selected" );
+                boolean flag_open_ready = false;
+
+                Diary.diary.clear();
+
+                switch( Diary.diary.set_path( mPaths.get( pos ), Diary.SetPathType.NORMAL ) ) {
+                    case SUCCESS:
+                        flag_open_ready = true;
+                        break;
+                    case FILE_NOT_FOUND:
+                        Lifeograph.showToast( "File is not found" );
+                        break;
+                    case FILE_NOT_READABLE:
+                        Lifeograph.showToast( "File is not readable" );
+                        break;
+                    case FILE_LOCKED:
+                        Lifeograph.showToast( "File is locked" );
+                        break;
+                    default:
+                        Lifeograph.showToast( "Failed to open the diary" );
+                        break;
+                }
+
+                if( flag_open_ready ) {
+                    flag_open_ready = false;
+                    switch( Diary.diary.read_header( getAssets() ) ) {
+                        case SUCCESS:
+                            flag_open_ready = true;
+                            break;
+                        case INCOMPATIBLE_FILE:
+                            Lifeograph.showToast( "Incompatible diary version" );
+                            break;
+                        case CORRUPT_FILE:
+                            Lifeograph.showToast( "Corrupt file" );
+                            break;
+                        default:
+                            Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
+                            break;
+                    }
+                }
+
+        /*
+         * TODO: if( flag_open_ready && ( ! flag_encrypted ) && m_flag_open_directly ) {
+         * handle_button_opendb_clicked(); return; }
+         */
+
+                if( flag_open_ready ) {
+                    if( Diary.diary.is_encrypted() )
+                        askPassword();
+                    else
+                        readBody();
+                }
+            }
+
+        } );
+
+        registerForContextMenu( lv ); // ???? What does this do?
 
         populate_diaries();
     }
@@ -197,63 +258,6 @@ public class ActivityLogin extends ListActivity
         }
 
         return super.onOptionsItemSelected( item );
-    }
-
-    @Override
-    public void onListItemClick( ListView l, View v, int pos, long id ) {
-        super.onListItemClick( l, v, pos, id );
-
-        boolean flag_open_ready = false;
-
-        Diary.diary.clear();
-
-        switch( Diary.diary.set_path( mPaths.get( pos ), Diary.SetPathType.NORMAL ) ) {
-            case SUCCESS:
-                flag_open_ready = true;
-                break;
-            case FILE_NOT_FOUND:
-                Lifeograph.showToast( "File is not found" );
-                break;
-            case FILE_NOT_READABLE:
-                Lifeograph.showToast( "File is not readable" );
-                break;
-            case FILE_LOCKED:
-                Lifeograph.showToast( "File is locked" );
-                break;
-            default:
-                Lifeograph.showToast( "Failed to open the diary" );
-                break;
-        }
-
-        if( flag_open_ready ) {
-            flag_open_ready = false;
-            switch( Diary.diary.read_header( getAssets() ) ) {
-                case SUCCESS:
-                    flag_open_ready = true;
-                    break;
-                case INCOMPATIBLE_FILE:
-                    Lifeograph.showToast( "Incompatible diary version" );
-                    break;
-                case CORRUPT_FILE:
-                    Lifeograph.showToast( "Corrupt file" );
-                    break;
-                default:
-                    Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
-                    break;
-            }
-        }
-
-        /*
-         * TODO: if( flag_open_ready && ( ! flag_encrypted ) && m_flag_open_directly ) {
-         * handle_button_opendb_clicked(); return; }
-         */
-
-        if( flag_open_ready ) {
-            if( Diary.diary.is_encrypted() )
-                askPassword();
-            else
-                readBody();
-        }
     }
 
     private void askPassword() {

@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,35 +21,36 @@
 
 **************************************************************************** -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:compat="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/add_tag"
           android:title="0"
           android:icon="@drawable/ic_action_tag"
           android:orderInCategory="90"
-          android:showAsAction="always|withText" />
+          compat:showAsAction="always|withText" />
     <item android:id="@+id/change_todo_status"
           android:title="@string/change_todo_status"
           android:icon="@drawable/ic_action_todo"
           android:orderInCategory="90"
-          android:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
-          android:showAsAction="always" />
+          compat:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
+          compat:showAsAction="always" />
     <item android:id="@+id/toggle_favorite"
           android:title="@string/toggle_favorite"
           android:icon="@drawable/ic_action_favorite"
           android:orderInCategory="90"
-          android:showAsAction="ifRoom" />
+          compat:showAsAction="ifRoom" />
     <item android:id="@+id/search_text"
           android:title="@string/search_hint"
           android:icon="@drawable/ic_action_search"
-          android:showAsAction="collapseActionView|ifRoom"
+          compat:showAsAction="collapseActionView|ifRoom"
           android:orderInCategory="90"
-          android:actionViewClass="android.widget.SearchView" />
+          compat:actionViewClass="android.support.v7.widget.SearchView" />
     <item android:id="@+id/edit_date"
           android:title="@string/edit_date"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
     <item android:id="@+id/dismiss"
           android:title="@string/dismiss"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
 </menu>

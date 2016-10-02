@@ -5,7 +5,7 @@ android {
     defaultConfig {
         applicationId 'net.sourceforge.lifeograph'
         minSdkVersion 14
-        targetSdkVersion 19
+        targetSdkVersion 21
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_5
             targetCompatibility JavaVersion.VERSION_1_5
@@ -36,6 +36,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:21.0.0'
-    compile 'com.google.android.gms:play-services:5.0.89'
+    compile 'com.google.android.gms:play-services:6.1.+'
     compile 'com.github.yukuku:ambilwarna:2.0'
+    compile 'com.android.support:appcompat-v7:21.0.0'
 }

@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,22 +21,23 @@
 
 **************************************************************************** -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:compat="http://schemas.android.com/apk/res-auto" >
     <item android:id="@+id/new_diary"
           android:title="@string/new_diary"
           android:icon="@drawable/ic_action_add"
           android:orderInCategory="90"
-          android:showAsAction="ifRoom|withText" />
+          compat:showAsAction="ifRoom|withText" />
     <item android:id="@+id/settings"
           android:title="@string/settings"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
     <item android:id="@+id/purchase"
           android:title="@string/purchase"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
     <item android:id="@+id/about"
           android:title="@string/about"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
 </menu>

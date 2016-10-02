@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,19 +21,20 @@
 
 **************************************************************************** -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android">
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:compat="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/add_entry"
           android:title="@string/add_entry"
           android:icon="@drawable/ic_action_add"
           android:orderInCategory="90"
-          android:showAsAction="ifRoom" />
+          compat:showAsAction="ifRoom" />
     <item android:id="@+id/change_todo_status"
           android:title="@string/change_todo_status"
           android:icon="@drawable/ic_action_todo"
           android:orderInCategory="90"
-          android:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
-          android:showAsAction="always" />
-    <!-- TODO WILL BE IMPLEMENTED IN 0.7
+          compat:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
+          compat:showAsAction="always" />
+    <!-- TODO WILL BE IMPLEMENTED IN 0.8
     item android:id="@+id/change_sort_type"
           android:title="@string/change_sorting"
           android:orderInCategory="90"
@@ -42,7 +43,7 @@
           android:title="@string/search_and_filter"
           android:icon="@drawable/ic_action_search"
           android:orderInCategory="100"
-          android:showAsAction="ifRoom" />
+          compat:showAsAction="ifRoom" />
     <item android:id="@+id/rename"
           android:title="@string/rename"
           android:orderInCategory="100" />
@@ -52,9 +53,9 @@
     <item android:id="@+id/edit_date"
           android:title="@string/edit_date"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
     <item android:id="@+id/dismiss"
           android:title="@string/dismiss"
           android:orderInCategory="100"
-          android:showAsAction="never" />
+          compat:showAsAction="never" />
 </menu>

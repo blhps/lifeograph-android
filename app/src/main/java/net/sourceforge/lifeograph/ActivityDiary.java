@@ -25,19 +25,21 @@ package net.sourceforge.lifeograph;
 import java.util.ArrayList;
 import java.util.List;
 
-import android.app.ActionBar;
 import android.app.Activity;
-import android.app.Fragment;
-import android.app.FragmentManager;
-import android.app.FragmentTransaction;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.NonNull;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.app.FragmentTransaction;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v4.view.PagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
+import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.ActionBar;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -52,7 +54,7 @@ import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
-public class ActivityDiary extends Activity
+public class ActivityDiary extends ActionBarActivity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
         DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener,
         DialogTags.DialogTagsHost, ActionMode.Callback, DialogPassword.Listener
@@ -123,7 +125,7 @@ public class ActivityDiary extends Activity
         } );
 
         // ACTIONBAR
-        mActionBar = getActionBar();
+        ActionBar mActionBar = getSupportActionBar();
         if( mActionBar != null ) {
             mActionBar.setDisplayHomeAsUpEnabled( true );
             mActionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
@@ -133,7 +135,7 @@ public class ActivityDiary extends Activity
         }
 
         mPager = ( ViewPager ) findViewById( R.id.pager );
-        mTabsAdapter = new TabsAdapter( this, mPager );
+        TabsAdapter mTabsAdapter = new TabsAdapter( this, mPager );
 
         Bundle args = new Bundle();
         args.putInt( "tab", 0 );
@@ -202,7 +204,7 @@ public class ActivityDiary extends Activity
     @Override
     protected void onSaveInstanceState( @NonNull Bundle outState ) {
         super.onSaveInstanceState( outState );
-        outState.putInt( "tab", getActionBar().getSelectedNavigationIndex() );
+        outState.putInt( "tab", getSupportActionBar().getSelectedNavigationIndex() );
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onSaveInstanceState()" );
     }
@@ -220,7 +222,7 @@ public class ActivityDiary extends Activity
         getMenuInflater().inflate( R.menu.menu_diary, menu );
 
         MenuItem item = menu.findItem( R.id.add_elem );
-        AddElemAction addElemAction = ( AddElemAction ) item.getActionProvider();
+        AddElemAction addElemAction = ( AddElemAction ) MenuItemCompat.getActionProvider( item );
         addElemAction.mParent = this;
 
         return true;
@@ -261,10 +263,10 @@ public class ActivityDiary extends Activity
                 new DialogCalendar( this, !Diary.diary.is_read_only() ).show();
                 return true;
             case R.id.filter:
-                if( mDrawerLayout.isDrawerOpen( Gravity.RIGHT ) )
-                    mDrawerLayout.closeDrawer( Gravity.RIGHT );
+                if( mDrawerLayout.isDrawerOpen( Gravity.END ) )
+                    mDrawerLayout.closeDrawer( Gravity.END );
                 else
-                    mDrawerLayout.openDrawer( Gravity.RIGHT );
+                    mDrawerLayout.openDrawer( Gravity.END );
                 return true;
             case R.id.add_password:
                 new DialogPassword( this,
@@ -618,9 +620,7 @@ public class ActivityDiary extends Activity
 
     // VARIABLES ===================================================================================
     //private LayoutInflater mInflater;
-    private ActionBar mActionBar = null;
     protected ViewPager mPager;
-    private TabsAdapter mTabsAdapter;
     private PagerAdapterCalendar mCalPagerAdapter = null;
     private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
 
@@ -636,7 +636,7 @@ public class ActivityDiary extends Activity
     private DiaryElement mElemMenu;
 
     // TABS ADAPTER ================================================================================
-    /* partly based on Support Library FragmentPagerAdapter implementation */
+    // partly based on Support Library FragmentPagerAdapter implementation
     public static class TabsAdapter extends PagerAdapter
             implements ActionBar.TabListener, ViewPager.OnPageChangeListener
     {
@@ -659,10 +659,10 @@ public class ActivityDiary extends Activity
             }
         }
 
-        public TabsAdapter( Activity activity, ViewPager pager ) {
+        public TabsAdapter( ActionBarActivity activity, ViewPager pager ) {
             mContext = activity;
-            mActionBar = activity.getActionBar();
-            mFragMan = activity.getFragmentManager();
+            mActionBar = activity.getSupportActionBar();
+            mFragMan = activity.getSupportFragmentManager();
             mViewPager = pager;
             mViewPager.setAdapter( this );
             mViewPager.setOnPageChangeListener( this );
