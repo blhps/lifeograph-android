@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -278,6 +278,8 @@ public class Entry extends DiaryElement {
     }
 
     // TAGS
+    public java.util.List< Tag > get_tags() { return m_tags; }
+
     public boolean add_tag( Tag tag ) {
         return add_tag( tag, 1.0 );
     }

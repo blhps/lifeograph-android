@@ -140,6 +140,7 @@ public class ActivityEntry extends ActionBarActivity
     private ActionBar mActionBar = null;
     //private DrawerLayout mDrawerLayout = null;
     private EditText mEditText = null;
+    private ViewEntryTags mViewTags = null;
     private Entry m_ptr2entry = null;
     Button mButtonHighlight;
 
@@ -413,6 +414,8 @@ public class ActivityEntry extends ActionBarActivity
             }
         } );
 
+        mViewTags = ( ViewEntryTags ) findViewById( R.id.view_entry_tags );
+
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
 
@@ -669,6 +672,8 @@ public class ActivityEntry extends ActionBarActivity
         mActionBar.setSubtitle( entry.get_info_str() );
         updateIcon();
         invalidateOptionsMenu(); // may be redundant here
+
+        mViewTags.set_entry( entry );
     }
 
     private void toggleFavorite() {
