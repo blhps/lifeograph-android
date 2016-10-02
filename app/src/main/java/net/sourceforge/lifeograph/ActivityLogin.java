@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -34,6 +34,7 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
+import android.support.v7.widget.SwitchCompat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -41,6 +42,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -84,7 +86,8 @@ public class ActivityLogin extends ActionBarActivity
 
                 try {
                     mIabHelper.queryInventoryAsync( mGotInventoryListener );
-                } catch( IabHelper.IabAsyncInProgressException e ) {
+                }
+                catch( IabHelper.IabAsyncInProgressException e ) {
                     Log.e( Lifeograph.TAG,
                            "Error querying inventory. Another async operation in progress." );
                 }
@@ -107,6 +110,22 @@ public class ActivityLogin extends ActionBarActivity
 
         setContentView( R.layout.login );
 
+        // READ-ONLY SWITCH
+        SwitchCompat switchReadOnly = ( SwitchCompat ) findViewById( R.id.switch_read_only );
+        switchReadOnly.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener()
+        {
+            public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
+                if( isChecked ) {
+                    mSetPathType = Diary.SetPathType.READ_ONLY;
+                }
+                else {
+                    mSetPathType = Diary.SetPathType.NORMAL;
+                }
+
+            }
+        } );
+
+        // DIARY LIST
         mAdapterDiaries = new ArrayAdapter< String >( this,
                                                       R.layout.list_item_diary,
                                                       R.id.title );
@@ -121,7 +140,7 @@ public class ActivityLogin extends ActionBarActivity
 
                 Diary.diary.clear();
 
-                switch( Diary.diary.set_path( mPaths.get( pos ), Diary.SetPathType.NORMAL ) ) {
+                switch( Diary.diary.set_path( mPaths.get( pos ), mSetPathType ) ) {
                     case SUCCESS:
                         flag_open_ready = true;
                         break;
@@ -217,7 +236,7 @@ public class ActivityLogin extends ActionBarActivity
             super.onActivityResult( requestCode, resultCode, data );
         }
         else {
-            Log.d( Lifeograph.TAG, "onActivityResult handled by IABUtil.");
+            Log.d( Lifeograph.TAG, "onActivityResult handled by IABUtil." );
         }
     }
 
@@ -298,7 +317,7 @@ public class ActivityLogin extends ActionBarActivity
         switch( id ) {
             case R.string.create_diary:
                 if( Diary.diary.init_new( Lifeograph.joinPath( getDiariesDir().getPath(), text ) )
-                        == Result.SUCCESS ) {
+                    == Result.SUCCESS ) {
                     Intent i = new Intent( ActivityLogin.this, ActivityDiary.class );
                     Lifeograph.sFlagStartingDiaryEditingActivity = true;
                     startActivity( i );
@@ -402,7 +421,8 @@ public class ActivityLogin extends ActionBarActivity
         Log.d( Lifeograph.TAG, "Received broadcast notification. Querying inventory." );
         try {
             mIabHelper.queryInventoryAsync( mGotInventoryListener );
-        } catch( IabHelper.IabAsyncInProgressException e ) {
+        }
+        catch( IabHelper.IabAsyncInProgressException e ) {
             Log.e( Lifeograph.TAG,
                    "Error querying inventory. Another async operation in progress." );
         }
@@ -413,6 +433,7 @@ public class ActivityLogin extends ActionBarActivity
     public static String sDiaryPath;
     private List< String > mPaths = new ArrayList< String >();
     private ArrayAdapter< String > mAdapterDiaries;
+    private Diary.SetPathType mSetPathType = Diary.SetPathType.NORMAL;
     //private DiaryAdapter mAdapterDiaries; MAYBE LATER
 
     // DIARY ELEMENT ADAPTER CLASS =================================================================
@@ -455,7 +476,8 @@ public class ActivityLogin extends ActionBarActivity
 //
 //        private LayoutInflater mInflater;
 //
-//        // VIEW HOLDER =============================================================================
+//        // VIEW HOLDER
+// =============================================================================
 //        private class ViewHolder
 //        {
 //            private View mRow;
@@ -508,7 +530,7 @@ public class ActivityLogin extends ActionBarActivity
                         Lifeograph.showToast( "Purchase failed" );
                     }
                     else if( purchase.getSku().equals( SKU_ADFREE ) &&
-                            purchase.getDeveloperPayload().equals( IDs.devPayload ) ) {
+                             purchase.getDeveloperPayload().equals( IDs.devPayload ) ) {
                         Log.d( Lifeograph.TAG, "Purchase successful" );
                         Lifeograph.setAdFreePurchased( true );
                     }

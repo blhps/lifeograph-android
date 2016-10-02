@@ -2074,7 +2074,7 @@ public class Diary extends DiaryElementChart
                 return Result.FILE_LOCKED;
             }
 
-            /* TODO - locking will be implemented in 0.6
+            /* TODO - locking will be implemented in 0.8
             if( type == SetPathType.NORMAL )
             {
                 try {
