@@ -59,6 +59,7 @@ import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
@@ -166,8 +167,20 @@ public class ActivityEntry extends ActionBarActivity
 
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
 
+        HorizontalScrollView toolbar = ( HorizontalScrollView )
+                findViewById( R.id.toolbar_text_edit );
+
         mEditText = ( EditText ) findViewById( R.id.editTextEntry );
         //mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
+
+        if( Diary.diary.is_read_only() ) {
+            //mEditText.setInputType( InputType.TYPE_NULL ); does not seem necessary, besides
+            // disables text wrap
+            mEditText.setTextIsSelectable( true );
+            mEditText.setKeyListener( null );
+
+            toolbar.setVisibility( View.GONE );
+        }
 
         if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
             mEditText.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
@@ -498,8 +511,16 @@ public class ActivityEntry extends ActionBarActivity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
+        boolean flagWritable = !Diary.diary.is_read_only();
+
         MenuItem item = menu.findItem( R.id.add_tag );
         item.setTitle( String.valueOf( m_ptr2entry.m_tags.size() ) );
+
+        menu.findItem( R.id.add_tag ).setVisible( flagWritable );
+        menu.findItem( R.id.change_todo_status ).setVisible( flagWritable );
+        menu.findItem( R.id.toggle_favorite ).setVisible( flagWritable );
+        menu.findItem( R.id.edit_date ).setVisible( flagWritable );
+        menu.findItem( R.id.dismiss ).setVisible( flagWritable );
 
         return true;
     }

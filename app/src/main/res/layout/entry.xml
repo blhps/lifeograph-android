@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -36,7 +36,7 @@
         <HorizontalScrollView
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:id="@+id/horizontalScrollView"
+            android:id="@+id/toolbar_text_edit"
             android:background="@color/t_mid"
             android:scrollbars="none" >
 
