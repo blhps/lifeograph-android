@@ -81,6 +81,15 @@ public class DialogEntryTag extends Dialog
         /*if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
             mInput1.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );*/
 
+        // show all suggestions w/o entering text:
+        mInput1.setOnClickListener( new AutoCompleteTextView.OnClickListener()
+                                    {
+                                        public void onClick( View view ) {
+                                            mInput1.showDropDown();
+                                        }
+                                    }
+        );
+
         mInput1.addTextChangedListener( new TextWatcher()
         {
             public void afterTextChanged( Editable s ) {
