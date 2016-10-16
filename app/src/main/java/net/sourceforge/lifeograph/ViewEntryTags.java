@@ -84,7 +84,6 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
 
         if( m_flag_editable ) {
             TagItem ti_add = new TagItem( "Add Tag" );
-            ti_add.flag_add_item = true;
             m_items.add( ti_add );
         }
 
@@ -107,13 +106,13 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         ti.yl = m_pos_y - ITEM_BORDER;
         ti.yr = ti.yl + ITEM_HEIGHT;
 
-        if( ti.flag_add_item )
+        if( ti.tag == null )
             ti.xr += ( ICON_SIZE + LABEL_OFFSET );
 
         mPath.reset(); // reset path
 
         // BACKGROUND
-        if( ti.hovered || ! ti.flag_add_item ) {
+        if( ti.hovered || ti.tag != null ) {
             float width = ( ti.xr - ti.xl - HALF_HEIGHT );
 
             mPath.moveTo( ti.xl, ti.yl );
@@ -190,7 +189,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
 
         m_pos_x = m_pos_y = MARGIN;
         mPaint.setTextSize( TEXT_HEIGHT );
-        mPaint.setStyle( Paint.Style.STROKE );
+        mPaint.setStyle( Paint.Style.FILL );
         mPaint.setStrokeWidth( 2.0f );
 
         java.util.List< Tag > tags = m_ptr2entry.get_tags();
@@ -274,7 +273,6 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         String label = "";
         float xl, xr, yl, yr;
         boolean hovered = false;
-        boolean flag_add_item = false;
     }
 
     private java.util.List< TagItem > m_items = new java.util.ArrayList< TagItem >();
