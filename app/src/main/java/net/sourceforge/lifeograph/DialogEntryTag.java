@@ -28,6 +28,7 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
 import android.view.View;
+import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.TextView;
@@ -66,6 +67,12 @@ public class DialogEntryTag extends Dialog
         mInput1 = ( AutoCompleteTextView ) findViewById( R.id.entry_tag_edit );
         if( mTagFirst != null ) // add new tag case
             mInput1.setText( mTagFirst.get_name_and_value( mEntry, true, true ) );
+
+        String[] tags = Diary.diary.m_tags.keySet().toArray(
+                new String[ Diary.diary.m_tags.size() ] );
+        ArrayAdapter< String > adapter_tags = new ArrayAdapter< String >
+                ( getContext(), android.R.layout.simple_dropdown_item_1line, tags );
+        mInput1.setAdapter( adapter_tags );
 
         /*if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
             mInput1.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );*/
@@ -145,13 +152,10 @@ public class DialogEntryTag extends Dialog
 
         mTagFirst = tag;
 
-        /*if( mAction == TagOperation.TO_INVALID )
-            set_icon_from_icon_name( "dialog-warning-symbolic" );
-        else
-            unset_icon();*/
+        if( mAction == TagOperation.TO_INVALID )
+            mInput1.setError( "Invalid expression" );
 
         updateButtons();
-
     }
 
     private void updateButtons() {
