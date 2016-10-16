@@ -841,7 +841,7 @@ public class ActivityDiary extends ActionBarActivity
             Date datePrev = new Date( mDateCur.m_date );
             datePrev.backward_month();
             Date dateNext = new Date( mDateCur.m_date );
-            dateNext.forward_month();
+            dateNext.forward_months( 1 );
 
             mGridAdapters[ 0 ].showMonth( datePrev );
             mGridAdapters[ 1 ].showMonth( mDateCur );
@@ -892,7 +892,7 @@ public class ActivityDiary extends ActionBarActivity
                     mDateCur.backward_month();
                 // go forward:
                 else if( mPosCur == 2 )
-                    mDateCur.forward_month();
+                    mDateCur.forward_months( 1 );
 
                 updateGVs();
 

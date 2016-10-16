@@ -77,11 +77,15 @@ public class Tag extends DiaryElementChart {
 //        super( diary, ES_VOID, "" );
 //    }
 
-    public Tag( Diary diary, String name, Category ctg ) {
-        super( diary, name, ES_VOID );
+    public Tag( Diary diary, String name, Category ctg, int chart_type ) {
+        super( diary, name, ES_VOID, chart_type );
         m_ptr2category = ctg;
         if( ctg != null )
             ctg.add( this );
+    }
+
+    public Tag( Diary diary, String name, Category ctg ) {
+        this( diary, name, ctg, ChartPoints.DEFAULT );
     }
 
     @Override

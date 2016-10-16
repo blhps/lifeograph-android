@@ -31,6 +31,10 @@ public abstract class DiaryElementChart extends DiaryElement
     DiaryElementChart( Diary diary, int id, int status ) {
         super( diary, id, status );
     }
+    DiaryElementChart( Diary diary, String name, int status, int type ) {
+        super( diary, name, status );
+        m_chart_type = type;
+    }
 
     int get_chart_type() {
         return m_chart_type;
@@ -49,5 +53,5 @@ public abstract class DiaryElementChart extends DiaryElement
     }
 
     // thanks to multiple inheritance, the initialization is done in constructor in C++:
-    int m_chart_type = ChartPoints.MONTHLY | ChartPoints.BOOLEAN;
+    int m_chart_type = ChartPoints.DEFAULT;
 }

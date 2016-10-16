@@ -278,7 +278,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
                     }
                 }
 
-                mLabelDate.forward_month();
+                mLabelDate.forward_months( 1 );
             }
             else { // YEARLY
                 if( flag_print_label ) {
@@ -286,7 +286,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
                                      s_x_min + m_step_x * i + offset_label, m_y_max  + label_y,
                                      mPaint );
                 }
-                mLabelDate.forward_year();
+                mLabelDate.forward_years( 1 );
             }
         }
 

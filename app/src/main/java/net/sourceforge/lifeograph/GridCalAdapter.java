@@ -86,7 +86,7 @@ class GridCalAdapter extends BaseAdapter
         prevMonth.set_day( prevMonthLength - numSlotBefore );
 
         Date nextMonth = new Date( date2.m_date );
-        nextMonth.forward_month();
+        nextMonth.forward_months( 1 );
         nextMonth.set_day( 0 );
 
         // Prev Month days

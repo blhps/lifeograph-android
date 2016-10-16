@@ -41,6 +41,8 @@ public class ChartPoints
     final static int AVERAGE = 0x30;
     final static int VALUE_TYPE_MASK = 0xf0;
 
+    final static int DEFAULT = MONTHLY|BOOLEAN;
+
     int calculate_distance( Date d1, Date d2 ) {
         switch( type & PERIOD_MASK ) {
             case MONTHLY:

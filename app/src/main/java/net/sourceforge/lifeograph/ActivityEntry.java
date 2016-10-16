@@ -67,7 +67,8 @@ import android.widget.TextView;
 
 public class ActivityEntry extends ActionBarActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        DialogTags.DialogTagsHost, PopupMenu.OnMenuItemClickListener
+        DialogTags.DialogTagsHost, PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener,
+        DialogEntryTag.Listener
 {
     // CHAR FLAGS
     public final int CF_NOT_SET = 0;
@@ -415,6 +416,7 @@ public class ActivityEntry extends ActionBarActivity
         } );
 
         mViewTags = ( ViewEntryTags ) findViewById( R.id.view_entry_tags );
+        mViewTags.setListener( this );
 
         show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
               savedInstanceState == null );
@@ -788,6 +790,19 @@ public class ActivityEntry extends ActionBarActivity
             }
         }
         return -1;
+    }
+
+    // VIEW ENTRY TAGS INTERFACE METHODS ===========================================================
+    public void onTagSelected( Tag tag ) {
+        new DialogEntryTag( this, tag, m_ptr2entry, this ).show();
+    }
+
+    public void onTagsChanged() {
+        mViewTags.update();
+
+        // update theme
+        updateTheme();
+        parse_text( 0, mEditText.getText().length() );
     }
 
     // TAG DIALOG HOST METHODS =====================================================================

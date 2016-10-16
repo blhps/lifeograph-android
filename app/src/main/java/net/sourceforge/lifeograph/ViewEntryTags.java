@@ -73,6 +73,21 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         m_ptr2entry = entry;
         m_pos_x = MARGIN;
 
+        m_items.clear();
+        java.util.List< Tag > tags = m_ptr2entry.get_tags();
+        for( Tag tag : tags ) {
+            TagItem ti = new TagItem( tag.get_name_and_value( entry, false, true ) );
+            ti.tag = tag;
+
+            m_items.add( ti );
+        }
+
+        if( m_flag_editable ) {
+            TagItem ti_add = new TagItem( "Add Tag" );
+            ti_add.flag_add_item = true;
+            m_items.add( ti_add );
+        }
+
         invalidate();
     }
 
@@ -80,53 +95,47 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         invalidate();
     }
 
-    void add_item( Canvas canvas, Tag tag ) {
-        TagItem titem = new TagItem();
-        String label = tag.get_name_and_value( m_ptr2entry, false, true );
-
-        float text_width = mPaint.measureText( label );
+    void add_item( Canvas canvas, TagItem ti ) {
+        float text_width = mPaint.measureText( ti.label );
         if( m_pos_x + ICON_SIZE + LABEL_OFFSET + text_width + MARGIN > m_width ) {
             m_pos_x = MARGIN;
             m_pos_y += ( ICON_SIZE + VSPACING );
         }
 
-        titem.tag = tag;
-        titem.xl = m_pos_x - ITEM_BORDER;
-        titem.xr = m_pos_x + text_width + HALF_HEIGHT;
-        titem.yl = m_pos_y - ITEM_BORDER;
-        titem.yr = titem.yl + ITEM_HEIGHT;
+        ti.xl = m_pos_x - ITEM_BORDER;
+        ti.xr = m_pos_x + text_width + HALF_HEIGHT;
+        ti.yl = m_pos_y - ITEM_BORDER;
+        ti.yr = ti.yl + ITEM_HEIGHT;
 
-        if( tag == m_add_tag_item )
-            titem.xr += ( ICON_SIZE + LABEL_OFFSET );
-
-        m_items.add( titem );
+        if( ti.flag_add_item )
+            ti.xr += ( ICON_SIZE + LABEL_OFFSET );
 
         mPath.reset(); // reset path
 
         // BACKGROUND
-        if( !( tag != m_hovered_tag && tag == m_add_tag_item ) ) {
-            float width = ( titem.xr - titem.xl - HALF_HEIGHT );
+        if( ti.hovered || ! ti.flag_add_item ) {
+            float width = ( ti.xr - ti.xl - HALF_HEIGHT );
 
-            mPath.moveTo( titem.xl, titem.yl );
+            mPath.moveTo( ti.xl, ti.yl );
             mPath.rLineTo( width, 0.0f );
             mPath.rLineTo( HALF_HEIGHT, HALF_HEIGHT );
             mPath.rLineTo( HALF_HEIGHT * -1, HALF_HEIGHT );
             mPath.rLineTo( -width, 0 );
             mPath.close();
 
-            if( tag == m_hovered_tag && m_flag_editable )
-                mPaint.setStrokeWidth( 4.0f );
+            if( ti.hovered && m_flag_editable )
+                mPaint.setStrokeWidth( 5.0f );
 
-            if( tag.get_has_own_theme() ) {
-                mPaint.setColor( tag.get_theme().color_base );
+            if( ti.tag != null && ti.tag.get_has_own_theme() ) {
+                mPaint.setColor( ti.tag.get_theme().color_base );
                 canvas.drawPath( mPath, mPaint );
 
-                mPaint.setColor( tag.get_theme().color_highlight );
+                mPaint.setColor( ti.tag.get_theme().color_highlight );
                 mPaint.setStyle( Paint.Style.STROKE );
                 canvas.drawPath( mPath, mPaint );
 
                 mPaint.setPathEffect( new DashPathEffect( new float[] { 5, 10 }, 0 ) );
-                mPaint.setColor( tag.get_theme().color_heading );
+                mPaint.setColor( ti.tag.get_theme().color_heading );
                 canvas.drawPath( mPath, mPaint );
                 mPaint.setPathEffect( null );
             }
@@ -137,7 +146,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
             }
             mPaint.setStyle( Paint.Style.FILL );
 
-            if( tag == m_hovered_tag && m_flag_editable )
+            if( ti.hovered && m_flag_editable )
                 mPaint.setStrokeWidth( 2.0f );  // restore the stroke width
         }
 
@@ -153,12 +162,12 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
 //        }
 
         // LABEL
-        if( tag.get_has_own_theme() )
-            mPaint.setColor( tag.get_theme().color_text );
+        if( ti.tag != null && ti.tag.get_has_own_theme() )
+            mPaint.setColor( ti.tag.get_theme().color_text );
         else
             mPaint.setColor( m_color_text_default );
 
-        canvas.drawText( label, m_pos_x, m_pos_y + TEXT_HEIGHT, mPaint );
+        canvas.drawText( ti.label, m_pos_x, m_pos_y + TEXT_HEIGHT, mPaint );
 
         m_pos_x += ( text_width + HALF_HEIGHT + HSPACING );
     }
@@ -180,7 +189,6 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
             return;
 
         m_pos_x = m_pos_y = MARGIN;
-        m_items.clear();
         mPaint.setTextSize( TEXT_HEIGHT );
         mPaint.setStyle( Paint.Style.STROKE );
         mPaint.setStrokeWidth( 2.0f );
@@ -193,11 +201,8 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
             canvas.drawText( "Not tagged", m_pos_x, m_pos_y + TEXT_HEIGHT, mPaint );
         }
 
-        for( Tag tag : tags )
-            add_item( canvas, tag );
-
-        if( m_flag_editable )
-            add_item( canvas, m_add_tag_item );
+        for( TagItem ti : m_items )
+            add_item( canvas, ti );
 
         // TODO: set_size_request( -1, m_pos_y + TEXT_HEIGHT + MARGIN );
     }
@@ -212,6 +217,13 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
 
     // GestureDetector.OnGestureListener INTERFACE METHODS
     public boolean onDown( MotionEvent event ) {
+        for( TagItem ti : m_items ) {
+            if( event.getX() > ti.xl && event.getX() < ti.xr ) {
+                ti.hovered = true;
+                update();
+                break;
+            }
+        }
         return true;
     }
 
@@ -227,6 +239,15 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
     }
 
     public void onShowPress( MotionEvent event ) {
+        Tag tag = null;
+        for( TagItem ti : m_items ) {
+            if( ti.hovered ) {
+                ti.hovered = false;
+                tag = ti.tag;
+            }
+        }
+        update();
+        mListener.onTagSelected( tag );
     }
 
     public boolean onSingleTapUp( MotionEvent event ) {
@@ -236,7 +257,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
     // INTERFACE
     public interface Listener
     {
-        void onTypeChanged( int type );
+        void onTagSelected( Tag tag );
     }
 
     // DATA
@@ -245,20 +266,18 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
 
     class TagItem
     {
-        Tag tag;
-        float xl, xr, yl, yr;
-    }
-
-    class AddTagItem extends Tag
-    {
-        public AddTagItem()  {
-            super( null, "Add Tag", null );
+        TagItem( String l ) {
+            label = l;
         }
+
+        Tag tag = null;
+        String label = "";
+        float xl, xr, yl, yr;
+        boolean hovered = false;
+        boolean flag_add_item = false;
     }
 
     private java.util.List< TagItem > m_items = new java.util.ArrayList< TagItem >();
-    private AddTagItem m_add_tag_item = new AddTagItem();
-    private Tag m_hovered_tag = null;
 
     // GEOMETRICAL VARIABLES
     private int m_width = 0;

@@ -499,15 +499,19 @@ public class Diary extends DiaryElementChart
         m_tag_categories.remove( ctg.m_name );
     }
 
-    public Tag create_tag( String name, Tag.Category ctg ) {
+    public Tag create_tag( String name, Tag.Category ctg, int chart_type ) {
         Tag tag = m_tags.get( name );
         if( tag != null ) {
             Log.e( Lifeograph.TAG, "Tag already exists: " + name );
             return( tag );
         }
-        tag = new Tag( this, name, ctg );
+        tag = new Tag( this, name, ctg, chart_type );
         m_tags.put( name, tag );
         return tag;
+    }
+
+    public Tag create_tag( String name, Tag.Category ctg ) {
+        return create_tag( name, ctg, ChartPoints.DEFAULT );
     }
 
     public void dismiss_tag( Tag tag ) {

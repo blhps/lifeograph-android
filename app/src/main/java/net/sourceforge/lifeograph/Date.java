@@ -397,8 +397,8 @@ public class Date {
         m_date += ORDINAL_STEP;
     }
 
-    public void forward_year() {
-        m_date += make_year( 1 );
+    public void forward_years( int years ) {
+        m_date += make_year( years );
     }
 
     public void backward_month() {
@@ -416,7 +416,7 @@ public class Date {
     }
 
     public void forward_months( int months ) {
-        months += ( ( m_date & MONTH_FILTER )>>15 ); // get month
+        months += get_month();
         m_date &= YEAR_FILTER;   // isolate year
         int mod_months = months % 12;
         if( mod_months == 0 ) {
@@ -427,20 +427,6 @@ public class Date {
             m_date += make_year( months / 12 );
             m_date |= make_month( mod_months );
         }
-    }
-    // IMPROVED METHODS WRT C++ COUNTERPARTS
-    public void forward_month() {
-        int day = get_day();
-        int month = ( get_month() % 12 ) + 1;
-        int year = get_year();
-        if( month == 1 )
-            year++;
-        m_date = make_year( year ) | make_month( month );
-
-        if( day > get_days_in_month() )
-            day = get_days_in_month();
-
-        m_date |= make_day( day );
     }
 
     public int get_weekday() {
@@ -463,8 +449,6 @@ public class Date {
     public String get_weekday_str() {
         return WEEKDAYS[ get_weekday() + 1 ];
     }
-
-    // EOF IMPR.
 
     public int get_days_in_month() {
         int length = MONTHLENGHTS[ get_month() - 1 ];
