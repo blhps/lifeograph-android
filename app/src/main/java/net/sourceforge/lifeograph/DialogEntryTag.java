@@ -52,7 +52,8 @@ public class DialogEntryTag extends Dialog
 
         // mButtonAction must come before mInput as it is referenced there
         mButtonAction = ( Button ) findViewById( R.id.entry_tag_action );
-        mButtonAction.setOnClickListener( new View.OnClickListener() {
+        mButtonAction.setOnClickListener( new View.OnClickListener()
+        {
             public void onClick( View v ) { go(); }
         } );
 
@@ -60,6 +61,9 @@ public class DialogEntryTag extends Dialog
         mButtonTheme.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {
+                if( mTagFirst.get_has_own_theme() )
+                    mEntry.set_theme_tag( mTagFirst );
+                mListener.onTagsChanged();
                 dismiss();
             }
         } );
@@ -123,8 +127,7 @@ public class DialogEntryTag extends Dialog
                 else
                     mAction = TagOperation.TO_CREATE_CUMULATIVE;
             }
-            else
-            {
+            else {
                 if( tag.is_boolean() && mNAV.value != 1 ) {
                     tag = null;
                     mAction = TagOperation.TO_INVALID;
@@ -191,8 +194,7 @@ public class DialogEntryTag extends Dialog
     private void go() {
         Tag tag;
 
-        switch( mAction )
-        {
+        switch( mAction ) {
             case TO_NONE:
             case TO_INVALID:
                 break; // don't even clear
@@ -204,9 +206,9 @@ public class DialogEntryTag extends Dialog
             case TO_CREATE_CUMULATIVE:
                 if( mAction == TagOperation.TO_CREATE_CUMULATIVE )
                     tag = Diary.diary.create_tag( mNAV.name, null,
-                                                  ChartPoints.MONTHLY|ChartPoints.CUMULATIVE );
+                                                  ChartPoints.MONTHLY | ChartPoints.CUMULATIVE );
                 else
-                tag = Diary.diary.create_tag( mNAV.name, null );
+                    tag = Diary.diary.create_tag( mNAV.name, null );
 
                 mEntry.add_tag( tag, mNAV.value );
                 break;
