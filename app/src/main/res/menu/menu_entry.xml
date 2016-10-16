@@ -23,11 +23,6 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:compat="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/add_tag"
-          android:title="0"
-          android:icon="@drawable/ic_action_tag"
-          android:orderInCategory="90"
-          compat:showAsAction="always|withText" />
     <item android:id="@+id/change_todo_status"
           android:title="@string/change_todo_status"
           android:icon="@drawable/ic_action_todo"

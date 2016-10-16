@@ -67,8 +67,7 @@ import android.widget.TextView;
 
 public class ActivityEntry extends ActionBarActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        DialogTags.DialogTagsHost, PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener,
-        DialogEntryTag.Listener
+        PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener, DialogEntryTag.Listener
 {
     // CHAR FLAGS
     public final int CF_NOT_SET = 0;
@@ -518,10 +517,6 @@ public class ActivityEntry extends ActionBarActivity
 
         boolean flagWritable = !Diary.diary.is_read_only();
 
-        MenuItem item = menu.findItem( R.id.add_tag );
-        item.setTitle( String.valueOf( m_ptr2entry.m_tags.size() ) );
-
-        menu.findItem( R.id.add_tag ).setVisible( flagWritable );
         menu.findItem( R.id.change_todo_status ).setVisible( flagWritable );
         menu.findItem( R.id.toggle_favorite ).setVisible( flagWritable );
         menu.findItem( R.id.edit_date ).setVisible( flagWritable );
@@ -537,9 +532,6 @@ public class ActivityEntry extends ActionBarActivity
                 //NavUtils.navigateUpFromSameTask( this );
                 Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
-                return true;
-            case R.id.add_tag:
-                showTagDialog();
                 return true;
             case R.id.toggle_favorite:
                 toggleFavorite();
@@ -695,11 +687,6 @@ public class ActivityEntry extends ActionBarActivity
                                            }, null );
     }
 
-    private void showTagDialog() {
-        Dialog dialog = new DialogTags( this, this );
-        dialog.show();
-    }
-
     public void createListLineMenu( View v ) {
         PopupMenu popup = new PopupMenu( this, v );
         popup.setOnMenuItemClickListener( this );
@@ -803,28 +790,6 @@ public class ActivityEntry extends ActionBarActivity
         // update theme
         updateTheme();
         parse_text( 0, mEditText.getText().length() );
-    }
-
-    // TAG DIALOG HOST METHODS =====================================================================
-    public void onDialogTagsClose() {
-        // update tags label
-        invalidateOptionsMenu();
-
-        // update theme
-        updateTheme();
-        parse_text( 0, mEditText.getText().length() );
-    }
-    public Entry getEntry() {
-        return m_ptr2entry;
-    }
-    public List< Tag > getTags() {
-        return m_ptr2entry.m_tags;
-    }
-    public void addTag( Tag t ) {
-        m_ptr2entry.add_tag( t );
-    }
-    public void removeTag( Tag t ) {
-        m_ptr2entry.remove_tag( t );
     }
 
     // FORMATTING BUTTONS ==========================================================================
