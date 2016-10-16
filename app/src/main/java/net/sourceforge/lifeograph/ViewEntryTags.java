@@ -192,10 +192,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         mPaint.setStyle( Paint.Style.FILL );
         mPaint.setStrokeWidth( 2.0f );
 
-        java.util.List< Tag > tags = m_ptr2entry.get_tags();
-
-        if( tags.isEmpty() && !m_flag_editable )
-        {
+        if( m_items.isEmpty() && !m_flag_editable ) {
             mPaint.setColor( m_color_text_default );
             canvas.drawText( "Not tagged", m_pos_x, m_pos_y + TEXT_HEIGHT, mPaint );
         }

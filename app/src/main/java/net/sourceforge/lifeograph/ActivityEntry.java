@@ -798,7 +798,7 @@ public class ActivityEntry extends ActionBarActivity
     }
 
     public void onTagsChanged() {
-        mViewTags.update();
+        mViewTags.set_entry( m_ptr2entry ); // forces full update
 
         // update theme
         updateTheme();
