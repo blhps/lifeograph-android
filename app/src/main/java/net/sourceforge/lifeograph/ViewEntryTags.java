@@ -30,6 +30,7 @@ import android.util.AttributeSet;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.ViewGroup;
 
 
 public class ViewEntryTags extends View implements GestureDetector.OnGestureListener
@@ -98,7 +99,8 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         float text_width = mPaint.measureText( ti.label );
         if( m_pos_x + ICON_SIZE + LABEL_OFFSET + text_width + MARGIN > m_width ) {
             m_pos_x = MARGIN;
-            m_pos_y += ( ICON_SIZE + VSPACING );
+            m_pos_y += ( ITEM_HEIGHT + VSPACING );
+            mDesiredHeight += ( ITEM_HEIGHT + VSPACING );
         }
 
         ti.xl = m_pos_x - ITEM_BORDER;
@@ -177,7 +179,6 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         super.onSizeChanged( w, h, oldw, oldh );
 
         m_width = w;
-        m_height = h;
     }
 
     @Override
@@ -188,6 +189,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
             return;
 
         m_pos_x = m_pos_y = MARGIN;
+        mDesiredHeight = ( int ) ( MARGIN + ITEM_HEIGHT + MARGIN );
         mPaint.setTextSize( TEXT_HEIGHT );
         mPaint.setStyle( Paint.Style.FILL );
         mPaint.setStrokeWidth( 2.0f );
@@ -200,7 +202,9 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         for( TagItem ti : m_items )
             add_item( canvas, ti );
 
-        // TODO: set_size_request( -1, m_pos_y + TEXT_HEIGHT + MARGIN );
+        ViewGroup.LayoutParams lp = getLayoutParams();
+        lp.height = mDesiredHeight;
+        setLayoutParams( lp );
     }
 
     //override the onTouchEvent
@@ -214,7 +218,8 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
     // GestureDetector.OnGestureListener INTERFACE METHODS
     public boolean onDown( MotionEvent event ) {
         for( TagItem ti : m_items ) {
-            if( event.getX() > ti.xl && event.getX() < ti.xr ) {
+            if( event.getX() > ti.xl && event.getX() < ti.xr &&
+                ti.yl < event.getY() && ti.yr > event.getY() ) {
                 ti.hovered = true;
                 update();
                 break;
@@ -276,7 +281,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
 
     // GEOMETRICAL VARIABLES
     private int m_width = 0;
-    private int m_height = 0;
+    private int mDesiredHeight;
     float m_pos_x = MARGIN;
     float m_pos_y = MARGIN;
 
