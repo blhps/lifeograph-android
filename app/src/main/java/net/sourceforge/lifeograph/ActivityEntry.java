@@ -56,6 +56,7 @@ import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
@@ -417,8 +418,12 @@ public class ActivityEntry extends ActionBarActivity
         mViewTags = ( ViewEntryTags ) findViewById( R.id.view_entry_tags );
         mViewTags.setListener( this );
 
-        show( Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) ),
-              savedInstanceState == null );
+        Entry entry = Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) );
+
+        if( entry.get_size() > 0 ) {
+            getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
+        }
+        show( entry, savedInstanceState == null );
 
         if( !Lifeograph.getAddFreeNotPurchased() ) {
             LinearLayout container = ( LinearLayout ) findViewById( R.id.main_container );
