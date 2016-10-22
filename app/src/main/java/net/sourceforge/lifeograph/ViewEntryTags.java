@@ -204,12 +204,14 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
 
     // GestureDetector.OnGestureListener INTERFACE METHODS
     public boolean onDown( MotionEvent event ) {
-        for( TagItem ti : m_items ) {
-            if( event.getX() > ti.xl && event.getX() < ti.xr &&
-                ti.yl < event.getY() && ti.yr > event.getY() ) {
-                ti.hovered = true;
-                update();
-                break;
+        if( m_flag_editable ) {
+            for( TagItem ti : m_items ) {
+                if( event.getX() > ti.xl && event.getX() < ti.xr &&
+                    ti.yl < event.getY() && ti.yr > event.getY() ) {
+                    ti.hovered = true;
+                    update();
+                    break;
+                }
             }
         }
         return true;
@@ -227,15 +229,17 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
     }
 
     public void onShowPress( MotionEvent event ) {
-        Tag tag = null;
-        for( TagItem ti : m_items ) {
-            if( ti.hovered ) {
-                ti.hovered = false;
-                tag = ti.tag;
+        if( m_flag_editable ) {
+            Tag tag = null;
+            for( TagItem ti : m_items ) {
+                if( ti.hovered ) {
+                    ti.hovered = false;
+                    tag = ti.tag;
+                }
             }
+            update();
+            mListener.onTagSelected( tag );
         }
-        update();
-        mListener.onTagSelected( tag );
     }
 
     public boolean onSingleTapUp( MotionEvent event ) {
@@ -276,7 +280,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
     private Paint mPaint;
     private Path mPath;
 
-    boolean m_flag_editable = true;    // not read-only
+    boolean m_flag_editable = ! Diary.diary.is_read_only();
 
     private GestureDetector mGestureDetector;
     private Listener mListener = null;
