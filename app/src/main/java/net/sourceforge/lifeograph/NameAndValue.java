@@ -30,6 +30,7 @@ public class NameAndValue
     final static int HAS_NAME = 0x1;
     final static int HAS_VALUE = 0x2;
     final static int HAS_UNIT = 0x4;
+    final static int HAS_EQUAL = 0x8;
 
     NameAndValue() {
     }
@@ -170,9 +171,11 @@ public class NameAndValue
         }
 
         if( lf == '$' )
-            nav.status |= ( NameAndValue.HAS_NAME | NameAndValue.HAS_UNIT );
+            nav.status |= ( HAS_NAME | HAS_EQUAL | HAS_UNIT );
+        else if( lf == '#' )
+            nav.status |= ( HAS_NAME | HAS_EQUAL );
         else if( !nav.name.isEmpty() )
-            nav.status |= NameAndValue.HAS_NAME;
+            nav.status = HAS_NAME;
 
         if( trim_length != 0 )
             nav.name = nav.name.substring( 0, nav.name.length() - trim_length );

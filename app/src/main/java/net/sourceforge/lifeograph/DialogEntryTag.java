@@ -39,7 +39,7 @@ public class DialogEntryTag extends Dialog
         super( context );
 
         mListener = listener;
-        mTagFirst = tag;
+        mTag = tag;
         mEntry = entry;
     }
 
@@ -61,19 +61,22 @@ public class DialogEntryTag extends Dialog
         mButtonTheme.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {
-                if( mTagFirst.get_has_own_theme() )
-                    mEntry.set_theme_tag( mTagFirst );
+                if( mTag.get_has_own_theme() )
+                    mEntry.set_theme_tag( mTag );
                 mListener.onTagsChanged();
                 dismiss();
             }
         } );
 
         mInput1 = ( AutoCompleteTextView ) findViewById( R.id.entry_tag_edit );
-        if( mTagFirst != null ) // add new tag case
-            mInput1.setText( mTagFirst.get_name_and_value( mEntry, true, true ) );
+        if( mTag != null ) // add new tag case
+            mInput1.setText( mTag.get_name_and_value( mEntry, true, true ) );
 
-        String[] tags = Diary.diary.m_tags.keySet().toArray(
-                new String[ Diary.diary.m_tags.size() ] );
+        String[] tags = new String[ Diary.diary.m_tags.size() ];
+        int i = 0;
+        for( String tag : Diary.diary.m_tags.keySet() ) {
+            tags[ i++ ] = Tag.escape_name( tag );
+        }
         ArrayAdapter< String > adapter_tags = new ArrayAdapter< String >
                 ( getContext(), android.R.layout.simple_dropdown_item_1line, tags );
         mInput1.setAdapter( adapter_tags );
@@ -99,7 +102,7 @@ public class DialogEntryTag extends Dialog
             }
 
             public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                handleNameEdited( s );
+                handleNameEdited( s, count - before );
             }
         } );
         mInput1.setOnEditorActionListener( new TextView.OnEditorActionListener()
@@ -110,17 +113,11 @@ public class DialogEntryTag extends Dialog
             }
         } );
 
-        handleNameEdited( mInput1.getText() );
+        handleNameEdited( mInput1.getText(), 1000 ); // 1000 just means positive direction here
     }
 
-    private void handleNameEdited( CharSequence text ) {
+    private void handleNameEdited( CharSequence text, int direction ) {
         Tag tag = null;
-        /*static boolean flag_unit_append_in_progress = false;
-
-        if( flag_unit_append_in_progress )
-        {
-            return;
-        }*/
 
         mNAV = NameAndValue.parse( text.toString() );
 
@@ -136,21 +133,20 @@ public class DialogEntryTag extends Dialog
                 else
                     mAction = TagOperation.TO_CREATE_CUMULATIVE;
             }
-            else {
-                if( tag.is_boolean() && mNAV.value != 1 ) {
+            else if( tag.is_boolean() && mNAV.value != 1 ) {
                     tag = null;
                     mAction = TagOperation.TO_INVALID;
+            }
+            else
+            {
+                if( ! tag.is_boolean() && ( mNAV.status & NameAndValue.HAS_EQUAL ) == 0 &&
+                    direction > 0 ) { // we don't want this to engage on erase
+                    String txt = Tag.escape_name( tag.get_name() ) + " = ";
+
+                    mInput1.setText( txt );
+                    mInput1.setSelection( txt.length() );
                 }
-                else if( mEntry.get_tags().contains( tag ) ) {
-                    /*if( ( mNAV.status & NameAndValue.HAS_VALUE ) == 0 &&
-                        ( mNAV.status & NameAndValue.HAS_UNIT ) != 0 &&
-                        !tag.get_unit().isEmpty() )
-                    {
-                        int pos = text.length();
-                        flag_unit_append_in_progress = true;
-                        insert_text( " " + tag.get_unit(), -1, pos );
-                        flag_unit_append_in_progress = false;
-                    }*/
+                if( mEntry.get_tags().contains( tag ) ) {
                     if( tag.get_value( mEntry ) != mNAV.value )
                         mAction = TagOperation.TO_CHANGE_VALUE;
                     else
@@ -162,7 +158,7 @@ public class DialogEntryTag extends Dialog
             }
         }
 
-        mTagFirst = tag;
+        mTag = tag;
 
         if( mAction == TagOperation.TO_INVALID )
             mInput1.setError( "Invalid expression" );
@@ -186,7 +182,7 @@ public class DialogEntryTag extends Dialog
             case TO_REMOVE:
                 mButtonAction.setText( "Remove Tag" );
 
-                if( mTagFirst.get_has_own_theme() && mEntry.get_theme_tag() != mTagFirst )
+                if( mTag.get_has_own_theme() && mEntry.get_theme_tag() != mTag )
                     mButtonTheme.setVisibility( View.VISIBLE );
                 break;
             case TO_ADD:
@@ -251,7 +247,7 @@ public class DialogEntryTag extends Dialog
     private Button mButtonAction;
     private Button mButtonTheme;
     private Listener mListener;
-    private Tag mTagFirst;
+    private Tag mTag;
     private Entry mEntry;
     private NameAndValue mNAV;
     private TagOperation mAction;

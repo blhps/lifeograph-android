@@ -113,7 +113,7 @@ public class Tag extends DiaryElementChart {
         return( "Tag with " + get_size() + " entries" );
     }
 
-    String escape_name( String name ) {
+    static String escape_name( String name ) {
         StringBuilder result = new StringBuilder();
         char c;
 
