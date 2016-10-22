@@ -605,9 +605,6 @@ public class ActivityDiary extends ActionBarActivity
     public void onDialogTagsClose() {
         updateList();
     }
-    public Entry getEntry() {
-        return null;
-    }
     public List< Tag > getTags() {
         return( ( Tag.Category ) mElemMenu ).mTags;
     }

@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -47,6 +47,9 @@
     <TextView
         android:id="@+id/title"
         android:paddingLeft="5dp"
+        android:paddingStart="5dp"
+        android:paddingRight="5dp"
+        android:paddingEnd="5dp"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:layout_weight=".99"
