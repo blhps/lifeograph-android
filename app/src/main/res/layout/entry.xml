@@ -114,6 +114,8 @@
             android:layout_height="0dp"
             android:layout_weight=".99"
             android:gravity="top"
+            android:paddingTop="0dp"
+            android:paddingBottom="0dp"
             android:inputType="textMultiLine|textCapSentences" >
             <requestFocus />
         </EditText>
