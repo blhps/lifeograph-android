@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -35,7 +35,7 @@ import android.widget.TextView;
 
 public class DialogInquireText extends Dialog
 {
-    public DialogInquireText( Context context, int resTitle, String resDefName, int resActName,
+    DialogInquireText( Context context, int resTitle, String resDefName, int resActName,
                               InquireListener listener ) {
         super( context );
 
@@ -108,10 +108,10 @@ public class DialogInquireText extends Dialog
         dismiss();
     }
 
-    public interface InquireListener
+    interface InquireListener
     {
-        public void onInquireAction( int id, String text );
-        public boolean onInquireTextChanged( int id, String text );
+        void onInquireAction( int id, String text );
+        boolean onInquireTextChanged( int id, String text );
     }
 
     //private Context mContext;

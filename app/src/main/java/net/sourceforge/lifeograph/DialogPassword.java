@@ -1,6 +1,6 @@
 /***********************************************************************************
 
- Copyright (C) 2012-2015 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -34,16 +34,15 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.google.android.gms.plus.model.people.Person;
 
-public class DialogPassword extends Dialog
+class DialogPassword extends Dialog
 {
     enum DPAction {
         DPA_LOGIN, DPA_AUTHENTICATE, DPA_ADD,
         DPAR_AUTH_FAILED // just returned as a result
     }
 
-    public DialogPassword( Context context, Diary diary, DPAction action, Listener listener ) {
+    DialogPassword( Context context, Diary diary, DPAction action, Listener listener ) {
         super( context );
 
         mListener = listener;
@@ -73,21 +72,21 @@ public class DialogPassword extends Dialog
         switch( mAction ) {
             case DPA_LOGIN:
                 setTitle( "Enter password for " + mDiary.get_name() );
-                mButtonOk.setText( "Open" );
+                mButtonOk.setText( Lifeograph.getStr( R.string.open ) );
                 mInput2.setVisibility( View.GONE );
                 mImage1.setVisibility( View.GONE );
                 mImage2.setVisibility( View.GONE );
                 break;
             case DPA_AUTHENTICATE:
                 setTitle( "Enter the current password" );
-                mButtonOk.setText( "Authenticate" );
+                mButtonOk.setText( Lifeograph.getStr( R.string.authenticate ));
                 mInput2.setVisibility( View.GONE );
                 mImage1.setVisibility( View.GONE );
                 mImage2.setVisibility( View.GONE );
                 break;
             case DPA_ADD:
                 setTitle( "Enter the new password" );
-                mButtonOk.setText( "Set Password" );
+                mButtonOk.setText( Lifeograph.getStr( R.string.set_password ) );
                 break;
         }
 
@@ -189,7 +188,7 @@ public class DialogPassword extends Dialog
 
     public interface Listener
     {
-        public void onDPAction( DPAction action );
+        void onDPAction( DPAction action );
     }
 
     private EditText mInput1;

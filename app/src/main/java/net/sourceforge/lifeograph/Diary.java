@@ -56,22 +56,22 @@ public class Diary extends DiaryElementChart
         initCipher();
     }
 
-    public static final char SC_DATE = 'd';
+    static final char SC_DATE = 'd';
 //    public static final char SC_SIZE = 's';
 
-    public final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    public final static int DB_FILE_VERSION_INT = 1040;
-    public final static int DB_FILE_VERSION_INT_MIN = 110;
-    public static final String LOCK_SUFFIX = ".~LOCK~";
+    final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
+    final static int DB_FILE_VERSION_INT = 1040;
+    final static int DB_FILE_VERSION_INT_MIN = 110;
+    static final String LOCK_SUFFIX = ".~LOCK~";
 
-    public static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
-    public static final String sExampleDiaryName = "*** Example Diary ***";
+    static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
+    static final String sExampleDiaryName = "*** Example Diary ***";
 
-    public final static int PASSPHRASE_MIN_SIZE = 4;
+    final static int PASSPHRASE_MIN_SIZE = 4;
 
     public static Diary diary = null;
 
-    public enum SetPathType { NORMAL, READ_ONLY, NEW }
+    enum SetPathType { NORMAL, READ_ONLY, NEW }
 
     public Diary() {
         super( null, DiaryElement.DEID_DIARY, ES_VOID );
@@ -79,7 +79,7 @@ public class Diary extends DiaryElementChart
         m_force_id = DiaryElement.DEID_UNSET;
     }
 
-    public Result init_new( String path ) {
+    Result init_new( String path ) {
         clear();
         Result result = set_path( path, SetPathType.NEW );
 

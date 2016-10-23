@@ -1,6 +1,6 @@
 /***********************************************************************************
 
- Copyright (C) 2012-2015 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -33,9 +33,9 @@ import android.widget.ImageButton;
 import yuku.ambilwarna.AmbilWarnaDialog;
 
 
-public class DialogTheme extends Dialog
+class DialogTheme extends Dialog
 {
-    public DialogTheme( Context context, Tag tag, DialogThemeHost host ) {
+    DialogTheme( Context context, Tag tag, DialogThemeHost host ) {
         super( context );
         mTag = tag;
         mHost = host;
@@ -110,7 +110,7 @@ public class DialogTheme extends Dialog
         mHost.onDialogThemeClose();
     }
 
-    void showColorDialog( int prevColor ) {
+    private void showColorDialog( int prevColor ) {
         // create a new theme if there is not
         AmbilWarnaDialog dlg = new AmbilWarnaDialog( getContext(), prevColor,
                                                      new AmbilWarnaDialog.OnAmbilWarnaListener()
@@ -167,20 +167,20 @@ public class DialogTheme extends Dialog
     }
 
     private Tag mTag;
-    public static int sIndex;
+    private static int sIndex;
 
-    ImageButton mButtonTextColor;
-    ImageButton mButtonBaseColor;
-    ImageButton mButtonHeadingColor;
-    ImageButton mButtonSubheadingColor;
-    ImageButton mButtonHighlightColor;
-    Button mButtonReset;
+    private ImageButton mButtonTextColor;
+    private ImageButton mButtonBaseColor;
+    private ImageButton mButtonHeadingColor;
+    private ImageButton mButtonSubheadingColor;
+    private ImageButton mButtonHighlightColor;
+    private Button mButtonReset;
 
     // INTERFACE WITH THE HOST ACTIVITY ============================================================
-    public interface DialogThemeHost
+    interface DialogThemeHost
     {
         void onDialogThemeClose();
     }
 
-    protected DialogThemeHost mHost;
+    private DialogThemeHost mHost;
 }

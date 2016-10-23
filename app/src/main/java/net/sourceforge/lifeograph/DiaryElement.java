@@ -25,21 +25,21 @@ import java.util.Comparator;
 
 public abstract class DiaryElement {
     // DEID
-    public final static int DEID_DIARY = 10000; // reserved for Diary
-    public final static int DEID_FIRST = 10001; // first sub item in the diary
-    public final static int DEID_UNSET = 404; // :)
-    public final static int HOME_CURRENT_ELEM = 1; // element shown at startup
-    public final static int HOME_LAST_ELEM = 2; // element shown at startup
-    public final static int HOME_FIXED_ELEM = 3;
+    final static int DEID_DIARY = 10000; // reserved for Diary
+    final static int DEID_FIRST = 10001; // first sub item in the diary
+    final static int DEID_UNSET = 404; // :)
+    final static int HOME_CURRENT_ELEM = 1; // element shown at startup
+    final static int HOME_LAST_ELEM = 2; // element shown at startup
+    final static int HOME_FIXED_ELEM = 3;
 
     // SORTING CRITERIA
-    public final static char SC_DATE = 'd';
-    public final static char SC_SIZE = 's';
+    final static char SC_DATE = 'd';
+    final static char SC_SIZE = 's';
 
-    public final static CharSequence STR_SEPARATOR = " - ";
+    final static CharSequence STR_SEPARATOR = " - ";
 
     // layout type for list view section headers
-    public static enum LayoutType {
+    static enum LayoutType {
         ELEMENT, HEADER_SIMPLE, HEADER_TAG_CTG, HEADER_CHAPTER_CTG
     }
 
@@ -64,7 +64,7 @@ public abstract class DiaryElement {
         public final LayoutType layout_type;
         public final int i;
 
-        private Type( int order, LayoutType l, String v ) {
+        Type( int order, LayoutType l, String v ) {
             this.i = order;
             this.layout_type = l;
             this.str = v;
@@ -72,50 +72,44 @@ public abstract class DiaryElement {
     }
 
     // ELEMENT STATUSES
-    public final static int ES_VOID             = 0x0;
-    public final static int ES_EXPANDED         = 0x40;
-
-    public final static int ES_NOT_FAVORED      = 0x100;
-    public final static int ES_FAVORED          = 0x200;
-    public final static int ES_FILTER_FAVORED   = ES_NOT_FAVORED|ES_FAVORED;
-    public final static int ES_NOT_TRASHED      = 0x400;
-    public final static int ES_TRASHED          = 0x800;
-    public final static int ES_FILTER_TRASHED   = ES_NOT_TRASHED|ES_TRASHED;
-    public final static int ES_NOT_TODO         = 0x1000;
-    public final static int ES_TODO             = 0x2000;
-    public final static int ES_PROGRESSED       = 0x4000;
-    public final static int ES_DONE             = 0x8000;
-    public final static int ES_CANCELED         = 0x10000;
-    public final static int ES_FILTER_TODO      =
-            ES_NOT_TODO|ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
-
-    public final static int ES_ENTRY_DEFAULT        = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
-    public final static int ES_ENTRY_DEFAULT_FAV    = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
-    public final static int ES_CHAPTER_DEFAULT      = ES_EXPANDED|ES_NOT_TODO;
+    final static int ES_VOID             = 0x0;
+    final static int ES_EXPANDED         = 0x40;
+    final static int ES_NOT_FAVORED      = 0x100;
+    final static int ES_FAVORED          = 0x200;
+    final static int ES_FILTER_FAVORED   = ES_NOT_FAVORED|ES_FAVORED;
+    final static int ES_NOT_TRASHED      = 0x400;
+    final static int ES_TRASHED          = 0x800;
+    final static int ES_FILTER_TRASHED   = ES_NOT_TRASHED|ES_TRASHED;
+    final static int ES_NOT_TODO         = 0x1000;
+    final static int ES_TODO             = 0x2000;
+    final static int ES_PROGRESSED       = 0x4000;
+    final static int ES_DONE             = 0x8000;
+    final static int ES_CANCELED         = 0x10000;
+    final static int ES_FILTER_TODO      =  ES_NOT_TODO|ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
+    final static int ES_ENTRY_DEFAULT    = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
+    final static int ES_ENTRY_DEFAULT_FAV    = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
+    final static int ES_CHAPTER_DEFAULT      = ES_EXPANDED|ES_NOT_TODO;
 
     // FILTER RELATED CONSTANTS AND ALIASES
-    public final static int ES_SHOW_NOT_FAVORED = ES_NOT_FAVORED;
-    public final static int ES_SHOW_FAVORED     = ES_FAVORED;
-    public final static int ES_SHOW_NOT_TRASHED = ES_NOT_TRASHED;
-    public final static int ES_SHOW_TRASHED     = ES_TRASHED;
-    public final static int ES_SHOW_NOT_TODO    = ES_NOT_TODO;
-    public final static int ES_SHOW_TODO        = ES_TODO;
-    public final static int ES_SHOW_PROGRESSED  = ES_PROGRESSED;
-    public final static int ES_SHOW_DONE        = ES_DONE;
-    public final static int ES_SHOW_CANCELED    = ES_CANCELED;
-
-    public final static int ES_FILTER_TAG           = 0x100000;
-    public final static int ES_FILTER_DATE_BEGIN    = 0x200000;
-    public final static int ES_FILTER_DATE_END      = 0x400000;
-    public final static int ES_FILTER_INDIVIDUAL    = 0x800000;
-    public final static int ES_FILTER_OUTSTANDING   = 0x20000000;
-
-    public final static int ES_FILTERED_OUT         = 0x40000000;
-
-    public final static int ES_FILTER_RESET         =
+    final static int ES_SHOW_NOT_FAVORED = ES_NOT_FAVORED;
+    final static int ES_SHOW_FAVORED     = ES_FAVORED;
+    final static int ES_SHOW_NOT_TRASHED = ES_NOT_TRASHED;
+    final static int ES_SHOW_TRASHED     = ES_TRASHED;
+    final static int ES_SHOW_NOT_TODO    = ES_NOT_TODO;
+    final static int ES_SHOW_TODO        = ES_TODO;
+    final static int ES_SHOW_PROGRESSED  = ES_PROGRESSED;
+    final static int ES_SHOW_DONE        = ES_DONE;
+    final static int ES_SHOW_CANCELED    = ES_CANCELED;
+    final static int ES_FILTER_TAG           = 0x100000;
+    final static int ES_FILTER_DATE_BEGIN    = 0x200000;
+    final static int ES_FILTER_DATE_END      = 0x400000;
+    final static int ES_FILTER_INDIVIDUAL    = 0x800000;
+    final static int ES_FILTER_OUTSTANDING   = 0x20000000;
+    final static int ES_FILTERED_OUT         = 0x40000000;
+    final static int ES_FILTER_RESET         =
             ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO|ES_SHOW_PROGRESSED
-                    |ES_FILTER_OUTSTANDING;
-    public final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
+             |ES_FILTER_OUTSTANDING;
+    final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
 
     public DiaryElement( Diary diary, String name, int status ) {
         m_ptr2diary = diary;

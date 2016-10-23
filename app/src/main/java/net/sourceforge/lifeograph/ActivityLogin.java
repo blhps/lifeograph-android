@@ -556,7 +556,7 @@ public class ActivityLogin extends ActionBarActivity
     // ABOUT DIALOG ================================================================================
     public class DialogAbout extends Dialog
     {
-        public DialogAbout( Context context ) {
+        DialogAbout( Context context ) {
             super( context );
         }
 

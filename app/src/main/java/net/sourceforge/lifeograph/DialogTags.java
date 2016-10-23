@@ -26,6 +26,7 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.KeyEvent;
@@ -47,7 +48,7 @@ import java.util.List;
 
 class DialogTags extends Dialog
 {
-    public DialogTags( Context context, DialogTagsHost host ) {
+    DialogTags( Context context, DialogTagsHost host ) {
         super( context );
 
         mHost = host;
@@ -139,26 +140,26 @@ class DialogTags extends Dialog
     }
 
     // VARIABLES
-    protected EditText editText;
-    protected String mFilterText = "";
-    protected Button buttonAdd;
+    private EditText editText;
+    private String mFilterText = "";
+    private Button buttonAdd;
     private java.util.List< Tag > mTags = new ArrayList< Tag >();
     private TagListAdapter mAdapterTags;
 
     // TAG LIST ADAPTER CLASS ======================================================================
     class TagListAdapter extends ArrayAdapter< Tag > implements View.OnClickListener
     {
-        public TagListAdapter( Context context,
-                               int resource,
-                               int textViewResourceId,
-                               java.util.List< Tag > objects,
-                               LayoutInflater inflater ) {
+        TagListAdapter( Context context,
+                        int resource,
+                        int textViewResourceId,
+                        java.util.List< Tag > objects,
+                        LayoutInflater inflater ) {
             super( context, resource, textViewResourceId, objects );
             mInflater = inflater;
         }
 
         @Override
-        public View getView( int position, View convertView, ViewGroup parent ) {
+        public @NonNull View getView( int position, View convertView, @NonNull ViewGroup parent ) {
             ViewHolder holder;
             final Tag tag = getItem( position );
 
@@ -225,7 +226,7 @@ class DialogTags extends Dialog
 
             private DiaryElement.Type mType;
 
-            public ViewHolder( View row, DiaryElement.Type type ) {
+            ViewHolder( View row, DiaryElement.Type type ) {
                 mRow = row;
                 mType = type;
             }
@@ -248,7 +249,7 @@ class DialogTags extends Dialog
                 return mIcon;
             }
 
-            public CheckBox getCheckBox() {
+            CheckBox getCheckBox() {
                 if( mCheckBox == null ) {
                     mCheckBox = ( CheckBox ) mRow.findViewById( R.id.checkBox );
                 }
@@ -258,7 +259,7 @@ class DialogTags extends Dialog
     }
 
     // INTERFACE WITH THE HOST ACTIVITY ============================================================
-    public interface DialogTagsHost
+    interface DialogTagsHost
     {
         void onDialogTagsClose();
         List< Tag > getTags();
@@ -266,5 +267,5 @@ class DialogTags extends Dialog
         void removeTag( Tag t );
     }
 
-    protected DialogTagsHost mHost;
+    private DialogTagsHost mHost;
 }

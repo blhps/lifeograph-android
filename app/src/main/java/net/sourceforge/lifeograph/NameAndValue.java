@@ -25,7 +25,7 @@ package net.sourceforge.lifeograph;
 
 import android.util.Log;
 
-public class NameAndValue
+class NameAndValue
 {
     final static int HAS_NAME = 0x1;
     final static int HAS_VALUE = 0x2;

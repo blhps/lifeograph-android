@@ -35,7 +35,7 @@ import android.widget.TextView;
 
 public class DialogEntryTag extends Dialog
 {
-    public DialogEntryTag( Context context, Tag tag, Entry entry, Listener listener ) {
+    DialogEntryTag( Context context, Tag tag, Entry entry, Listener listener ) {
         super( context );
 
         mListener = listener;
@@ -177,19 +177,19 @@ public class DialogEntryTag extends Dialog
                 break;
             case TO_CREATE_BOOLEAN:
             case TO_CREATE_CUMULATIVE:
-                mButtonAction.setText( "Create Tag" );
+                mButtonAction.setText( Lifeograph.getStr( R.string.create_tag ) );
                 break;
             case TO_REMOVE:
-                mButtonAction.setText( "Remove Tag" );
+                mButtonAction.setText( Lifeograph.getStr( R.string.remove_tag ) );
 
                 if( mTag.get_has_own_theme() && mEntry.get_theme_tag() != mTag )
                     mButtonTheme.setVisibility( View.VISIBLE );
                 break;
             case TO_ADD:
-                mButtonAction.setText( "Add Tag" );
+                mButtonAction.setText( Lifeograph.getStr( R.string.add_tag ) );
                 break;
             case TO_CHANGE_VALUE:
-                mButtonAction.setText( "Change Value" );
+                mButtonAction.setText( Lifeograph.getStr( R.string.change_value ) );
                 break;
             default:
                 break;
@@ -240,8 +240,8 @@ public class DialogEntryTag extends Dialog
         void onTagsChanged();
     }
 
-    public enum TagOperation { TO_NONE, TO_INVALID, TO_ADD, TO_REMOVE, TO_CHANGE_VALUE,
-                               TO_CREATE_BOOLEAN, TO_CREATE_CUMULATIVE }
+    private enum TagOperation { TO_NONE, TO_INVALID, TO_ADD, TO_REMOVE, TO_CHANGE_VALUE,
+                                TO_CREATE_BOOLEAN, TO_CREATE_CUMULATIVE }
 
     private AutoCompleteTextView mInput1;
     private Button mButtonAction;

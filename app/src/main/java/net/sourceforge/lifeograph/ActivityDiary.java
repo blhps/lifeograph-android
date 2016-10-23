@@ -656,7 +656,7 @@ public class ActivityDiary extends ActionBarActivity
             }
         }
 
-        public TabsAdapter( ActionBarActivity activity, ViewPager pager ) {
+        TabsAdapter( ActionBarActivity activity, ViewPager pager ) {
             mContext = activity;
             mActionBar = activity.getSupportActionBar();
             mFragMan = activity.getSupportFragmentManager();
@@ -746,11 +746,11 @@ public class ActivityDiary extends ActionBarActivity
         public void restoreState( Parcelable state, ClassLoader loader ) {
         }
 
-        public static String makeFragmentName( int index ) {
+        static String makeFragmentName( int index ) {
             return "DiaryTabs.fragment" + index;
         }
 
-        public void addTab( ActionBar.Tab tab, Class< ? > clss, Bundle args ) {
+        void addTab( ActionBar.Tab tab, Class< ? > clss, Bundle args ) {
             TabInfo info = new TabInfo( clss, args );
             tab.setTag( info );
             tab.setTabListener( this );
@@ -759,7 +759,7 @@ public class ActivityDiary extends ActionBarActivity
             notifyDataSetChanged();
         }
 
-        public Fragment getItem( int position ) {
+        Fragment getItem( int position ) {
             TabInfo info = mTabs.get( position );
             return Fragment.instantiate( mContext, info.clss.getName(), info.args );
         }
@@ -794,7 +794,7 @@ public class ActivityDiary extends ActionBarActivity
     public class PagerAdapterCalendar extends PagerAdapter
             implements ViewPager.OnPageChangeListener
     {
-        public PagerAdapterCalendar( ViewPager pager ) {
+        PagerAdapterCalendar( ViewPager pager ) {
             mViewPager = pager;
             mViewPager.setAdapter( this );
             mViewPager.setOnPageChangeListener( this );
@@ -847,7 +847,7 @@ public class ActivityDiary extends ActionBarActivity
             mButtonCalendar.setText( mDateCur.format_string_ym() );
         }
 
-        public Date getSelectedDate() {
+        Date getSelectedDate() {
             return mGridAdapters[ 1 ].mDateCurrent;
         }
 
@@ -897,7 +897,7 @@ public class ActivityDiary extends ActionBarActivity
             }
         }
 
-        protected final ViewPager mViewPager;
+        final ViewPager mViewPager;
         Date mDateCur = new Date( Date.get_today( 0 ) );
         int mPosCur = 1;
 

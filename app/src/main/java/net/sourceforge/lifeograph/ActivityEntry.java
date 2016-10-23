@@ -22,12 +22,11 @@
 package net.sourceforge.lifeograph;
 
 import java.util.ArrayList;
-import java.util.List;
 
+import android.annotation.SuppressLint;
 import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.app.ActionBar;
-import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Bitmap;
@@ -1210,42 +1209,47 @@ public class ActivityEntry extends ActionBarActivity
             return ' ';
         }
     }
+    @SuppressLint( "ParcelCreator" )
     private class SpanBold extends StyleSpan implements AdvancedSpan
     {
-        public SpanBold() {
+        SpanBold() {
             super( Typeface.BOLD );
         }
         public char getType() {
             return '*';
         }
     }
+    @SuppressLint( "ParcelCreator" )
     private class SpanItalic extends StyleSpan implements AdvancedSpan
     {
-        public SpanItalic() {
+        SpanItalic() {
             super( Typeface.ITALIC );
         }
         public char getType() {
             return '_';
         }
     }
+    @SuppressLint( "ParcelCreator" )
     private class SpanHighlight extends BackgroundColorSpan implements AdvancedSpan
     {
-        public SpanHighlight() {
+        SpanHighlight() {
             super( m_ptr2entry.get_theme().color_highlight );
         }
         public char getType() {
             return '#';
         }
     }
+    @SuppressLint( "ParcelCreator" )
     private class SpanStrikethrough extends StrikethroughSpan implements AdvancedSpan
     {
         public char getType() {
             return '=';
         }
     }
+    @SuppressLint( "ParcelCreator" )
     private class SpanMarkup extends ForegroundColorSpan implements AdvancedSpan
     {
-        public SpanMarkup() {
+        SpanMarkup() {
             super( mColorMid );
         }
         public char getType() {
@@ -1255,7 +1259,7 @@ public class ActivityEntry extends ActionBarActivity
 
     private class LinkDate extends ClickableSpan implements AdvancedSpan
     {
-        public LinkDate( long date ) {
+        LinkDate( long date ) {
             mDate = date;
         }
 
@@ -1277,7 +1281,7 @@ public class ActivityEntry extends ActionBarActivity
     }
     private class LinkUri extends ClickableSpan implements AdvancedSpan
     {
-        public LinkUri( String uri ) {
+        LinkUri( String uri ) {
             mUri = uri;
         }
 
@@ -1295,7 +1299,7 @@ public class ActivityEntry extends ActionBarActivity
     }
     private class LinkID extends ClickableSpan implements AdvancedSpan
     {
-        public LinkID( int id ) {
+        LinkID( int id ) {
             mId = id;
         }
 
