@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -27,11 +27,23 @@
         android:layout_gravity="center_vertical"
         android:orientation="vertical" >
 
-        <DatePicker
-            android:id="@+id/datePickerCalendar"
+        <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:calendarViewShown="false" />
+            android:orientation="horizontal"
+            android:background="@color/t_lightest" >
+            <NumberPicker
+                android:layout_width="0dp"
+                android:layout_weight=".5"
+                android:layout_height="wrap_content"
+                android:id="@+id/numberPickerMonth"/>
+
+            <NumberPicker
+                android:layout_width="0dp"
+                android:layout_weight=".5"
+                android:layout_height="wrap_content"
+                android:id="@+id/numberPickerYear"/>
+        </LinearLayout>
 
         <GridView
             android:id="@+id/gridViewCalendar"

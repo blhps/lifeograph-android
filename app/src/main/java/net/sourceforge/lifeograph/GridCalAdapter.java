@@ -161,7 +161,7 @@ class GridCalAdapter extends BaseAdapter
                 tvDayNo.setBackgroundColor(
                         mContext.getResources().getColor( R.color.t_lightest ) );
             else
-                tvDayNo.setBackgroundColor( Color.WHITE );
+                tvDayNo.setBackgroundColor( Color.TRANSPARENT );
         }
         return row;
     }

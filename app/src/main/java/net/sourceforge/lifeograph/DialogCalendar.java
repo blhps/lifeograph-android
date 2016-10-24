@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -27,17 +27,17 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
+import android.view.WindowManager;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
-import android.widget.DatePicker;
 import android.widget.GridView;
+import android.widget.NumberPicker;
 
 
-public class DialogCalendar extends Dialog
+class DialogCalendar extends Dialog
 {
-    public DialogCalendar( Listener listener,
-                           boolean allowCreation ) {
+    DialogCalendar( Listener listener, boolean allowCreation ) {
         super( listener.getActivity(), R.style.FullHeightDialog );
         mListener = listener;
         mAllowEntryCreation = allowCreation;
@@ -51,11 +51,12 @@ public class DialogCalendar extends Dialog
 
         setTitle( R.string.calendar );
 
-        Date date_today = new Date( Date.get_today( 0 ) );
+        mDate = new Date( Date.get_today( 0 ) );
 
         GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
-        mAdapter = new GridCalAdapter( Lifeograph.sContext, date_today );
-        mDatePicker = ( DatePicker ) findViewById( R.id.datePickerCalendar );
+        mAdapter = new GridCalAdapter( Lifeograph.sContext, mDate );
+        mNumberPickerMonth = ( NumberPicker ) findViewById( R.id.numberPickerMonth );
+        mNumberPickerYear = ( NumberPicker ) findViewById( R.id.numberPickerYear );
         Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
         mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
 
@@ -67,12 +68,31 @@ public class DialogCalendar extends Dialog
                 handleDayClicked( pos );
             }
         } );
-        mDatePicker.init( date_today.get_year(), date_today.get_month() - 1, date_today.get_day(),
-                          new DatePicker.OnDateChangedListener() {
-                              public void onDateChanged( DatePicker view, int y, int m, int d ) {
-                                  handleDayChanged( new Date( y, m + 1, d ) );
-                              }
-                          } );
+
+        mNumberPickerMonth.setOnValueChangedListener(
+                new NumberPicker.OnValueChangeListener() {
+                    public void onValueChange( NumberPicker picker, int old, int n ) {
+                        mDate.set_month( n );
+                        if( mDate.get_day() > mDate.get_days_in_month() )
+                            mDate.set_day( mDate.get_days_in_month() );
+                        handleDayChanged();
+                    }
+                } );
+        mNumberPickerYear.setOnValueChangedListener(
+                new NumberPicker.OnValueChangeListener() {
+                    public void onValueChange( NumberPicker picker, int old, int n ) {
+                        mDate.set_year( n );
+                        mDate.set_day( mDate.get_days_in_month() );
+                        handleDayChanged();
+                    }
+                } );
+        mNumberPickerMonth.setMinValue( 1 );
+        mNumberPickerMonth.setMaxValue( 12 );
+        mNumberPickerYear.setMinValue( ( int ) Date.YEAR_MIN );
+        mNumberPickerYear.setMaxValue( ( int ) Date.YEAR_MAX );
+
+        mNumberPickerMonth.setValue( mDate.get_month() );
+        mNumberPickerYear.setValue( mDate.get_year() );
 
         buttonCreateEntry.setOnClickListener( new View.OnClickListener()
         {
@@ -89,25 +109,27 @@ public class DialogCalendar extends Dialog
             }
         } );
         mButtonCreateChapter.setEnabled(
-                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date_today.m_date ) );
+                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
         mButtonCreateChapter.setVisibility( mAllowChapterCreation ? View.VISIBLE : View.INVISIBLE );
+
+        getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
     }
 
-    void createEntry() {
+    private void createEntry() {
         Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
         dismiss();
         Lifeograph.showElem( e );
     }
 
-    void createChapter() {
+    private void createChapter() {
         dismiss();
         mListener.createChapter( mAdapter.mDateCurrent.m_date );
     }
 
-    private void handleDayChanged( Date date ) {
-        mAdapter.showMonth( date );
+    private void handleDayChanged() {
+        mAdapter.showMonth( mDate );
         mButtonCreateChapter.setEnabled(
-                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( date.m_date ) );
+                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
     }
 
     private void handleDayClicked( int pos ) {
@@ -119,13 +141,17 @@ public class DialogCalendar extends Dialog
             Lifeograph.showElem( e );
         }
         else {
-            Date d = new Date( mAdapter.mListDays.get( pos ) );
-            mDatePicker.updateDate( d.get_year(), d.get_month() - 1, d.get_day() );
+            mDate.m_date = mAdapter.mListDays.get( pos );
+            mNumberPickerMonth.setValue( mDate.get_month() );
+            mNumberPickerYear.setValue( mDate.get_year() );
+            handleDayChanged();
         }
     }
 
     private GridCalAdapter mAdapter = null;
-    private DatePicker mDatePicker = null;
+    private Date mDate;
+    private NumberPicker mNumberPickerMonth = null;
+    private NumberPicker mNumberPickerYear = null;
     private Button mButtonCreateChapter = null;
 
     private boolean mAllowEntryCreation;
