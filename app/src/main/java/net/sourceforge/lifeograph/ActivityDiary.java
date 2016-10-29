@@ -129,7 +129,7 @@ public class ActivityDiary extends ActionBarActivity
         if( mActionBar != null ) {
             mActionBar.setDisplayHomeAsUpEnabled( true );
             mActionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
-            mActionBar.setIcon( R.drawable.ic_diary );
+            //mActionBar.setIcon( R.drawable.ic_diary );
             setTitle( Diary.diary.get_title_str() );
             mActionBar.setSubtitle( Diary.diary.get_info_str() );
         }

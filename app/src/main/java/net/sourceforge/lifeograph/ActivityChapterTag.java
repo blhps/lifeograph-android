@@ -178,7 +178,7 @@ public class ActivityChapterTag extends ActionBarActivity
         mActionBar = getSupportActionBar();
         if( mActionBar != null ) {
             mActionBar.setDisplayHomeAsUpEnabled( true );
-            mActionBar.setIcon( mElement.get_icon() );
+            // mActionBar.setIcon( mElement.get_icon() );
             setTitle( mElement.get_title_str() );
             mActionBar.setSubtitle( mElement.get_info_str() );
         }
@@ -499,7 +499,7 @@ public class ActivityChapterTag extends ActionBarActivity
 
     // DialogThemeHost INTERFACE METHODS
     public void onDialogThemeClose() {
-        mActionBar.setIcon( mElement.get_icon() );
+        //mActionBar.setIcon( mElement.get_icon() );
     }
 
     // Spinner INTERFACE METHODS
