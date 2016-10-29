@@ -30,7 +30,7 @@
           compat:showAsAction="ifRoom" />
     <item android:id="@+id/change_todo_status"
           android:title="@string/change_todo_status"
-          android:icon="@drawable/ic_action_todo"
+          android:icon="@drawable/ic_action_todo_done"
           android:orderInCategory="90"
           compat:actionProviderClass="net.sourceforge.lifeograph.ToDoAction"
           compat:showAsAction="always" />

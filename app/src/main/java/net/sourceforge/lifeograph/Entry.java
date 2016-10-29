@@ -66,20 +66,20 @@ public class Entry extends DiaryElement {
 
     @Override
     public int get_icon() {
-        //return( is_favored() ? R.drawable.ic_favorite : R.drawable.ic_entry );
+        //return( is_favored() ? R.mipmap.ic_action_favorite : R.mipmap.ic_entry );
 
         switch( get_todo_status() )
         {
             case ES_TODO:
-                return R.drawable.ic_todo_open;
+                return R.mipmap.ic_todo_open;
             case ES_PROGRESSED:
-                return R.drawable.ic_todo_progressed;
+                return R.mipmap.ic_todo_progressed;
             case ES_DONE:
-                return R.drawable.ic_todo_done;
+                return R.mipmap.ic_todo_done;
             case ES_CANCELED:
-                return R.drawable.ic_todo_canceled;
+                return R.mipmap.ic_todo_canceled;
             default:
-                return R.drawable.ic_entry;
+                return R.mipmap.ic_entry;
         }
     }
 

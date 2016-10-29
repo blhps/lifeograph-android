@@ -143,28 +143,28 @@ class DialogPassword extends Dialog
         String passphrase2 = mInput2.getText().toString();
 
         if( passphrase.length() >= Diary.PASSPHRASE_MIN_SIZE ) {
-            mImage1.setImageResource( R.drawable.ic_todo_done );
+            mImage1.setImageResource( R.mipmap.ic_todo_done );
             if( mAction != DPAction.DPA_ADD ) {
                 mButtonOk.setEnabled( true );
             }
             else if( passphrase.equals( passphrase2 ) ) {
-                mImage2.setImageResource( R.drawable.ic_todo_done );
+                mImage2.setImageResource( R.mipmap.ic_todo_done );
                 mButtonOk.setEnabled( true );
             }
             else {
                 mImage2.setImageResource( passphrase2.isEmpty() ?
-                                                  R.drawable.ic_todo_open :
-                                                  R.drawable.ic_todo_canceled );
+                                                  R.mipmap.ic_todo_open :
+                                                  R.mipmap.ic_todo_canceled );
                 mButtonOk.setEnabled( false );
             }
         }
         else {
             mImage1.setImageResource( passphrase.isEmpty() ?
-                                              R.drawable.ic_todo_open :
-                                              R.drawable.ic_todo_canceled );
+                                              R.mipmap.ic_todo_open :
+                                              R.mipmap.ic_todo_canceled );
             mImage2.setImageResource( passphrase2.isEmpty() ?
-                                              R.drawable.ic_todo_open :
-                                              R.drawable.ic_todo_canceled );
+                                              R.mipmap.ic_todo_open :
+                                              R.mipmap.ic_todo_canceled );
             mButtonOk.setEnabled( false );
         }
     }

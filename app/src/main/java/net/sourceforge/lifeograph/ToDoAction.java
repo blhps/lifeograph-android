@@ -50,19 +50,19 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
                 .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.todo_open, 1, R.string.todo_open )
-                .setIcon( R.drawable.ic_todo_open )
+                .setIcon( R.mipmap.ic_todo_open )
                 .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.todo_progressed, 1, R.string.todo_progressed )
-                .setIcon( R.drawable.ic_todo_progressed )
+                .setIcon( R.mipmap.ic_todo_progressed )
                 .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.todo_done, 1, R.string.todo_done )
-                .setIcon( R.drawable.ic_todo_done )
+                .setIcon( R.mipmap.ic_todo_done )
                 .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.todo_canceled, 1, R.string.todo_canceled )
-                .setIcon( R.drawable.ic_todo_canceled )
+                .setIcon( R.mipmap.ic_todo_canceled )
                 .setOnMenuItemClickListener( this );
     }
 

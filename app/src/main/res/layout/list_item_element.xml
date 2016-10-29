@@ -46,7 +46,7 @@
             android:layout_height="24dp"
             android:layout_alignBottom="@id/icon"
             android:layout_alignRight="@id/icon"
-            android:src="@drawable/ic_favorite"
+            android:src="@drawable/ic_action_favorite"
             android:scaleType="centerInside" />
 
     </RelativeLayout>

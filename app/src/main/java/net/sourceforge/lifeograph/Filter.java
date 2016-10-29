@@ -45,7 +45,7 @@ public class Filter extends DiaryElement
 
     @Override
     public int get_icon() {
-        return R.drawable.ic_filter;
+        return 0;
     }
 
     @Override

@@ -46,20 +46,20 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
         menu.clear();
 
         menu.add( 0, R.id.add_today, 0, R.string.add_today )
-            .setIcon( R.drawable.ic_entry )
+            .setIcon( R.mipmap.ic_entry )
             .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.add_topic, 1, R.string.topic )
-            .setIcon( R.drawable.ic_chapter_ord )
+            .setIcon( R.mipmap.ic_chapter_o )
             .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.add_group, 1, R.string.group )
-            .setIcon( R.drawable.ic_chapter_ord )
+            .setIcon( R.mipmap.ic_chapter_f )
             .setOnMenuItemClickListener( this );
 
         if( mParent.mPager.getCurrentItem() == 2 )
             menu.add( 0, R.id.add_tag_ctg, 1, R.string.tag_ctg )
-                //.setIcon( R.drawable.ic_tag )
+                .setIcon( R.mipmap.ic_tag_ctg )
                 .setOnMenuItemClickListener( this );
     }
 

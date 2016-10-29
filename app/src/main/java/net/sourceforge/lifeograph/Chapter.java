@@ -198,15 +198,18 @@ public class Chapter extends DiaryElementChart {
         switch( m_status & ES_FILTER_TODO )
         {
             case ES_TODO:
-                return R.drawable.ic_todo_open;
+                return R.mipmap.ic_todo_open;
             case ES_PROGRESSED:
-                return R.drawable.ic_todo_progressed;
+                return R.mipmap.ic_todo_progressed;
             case ES_DONE:
-                return R.drawable.ic_todo_done;
+                return R.mipmap.ic_todo_done;
             case ES_CANCELED:
-                return R.drawable.ic_todo_canceled;
+                return R.mipmap.ic_todo_canceled;
             default:
-                return( m_date_begin.is_ordinal() ? R.drawable.ic_chapter_ord : R.drawable.ic_calendar );
+                return( m_date_begin.is_ordinal() ?
+                        ( m_date_begin.is_hidden() ?
+                          R.mipmap.ic_chapter_f : R.mipmap.ic_chapter_o ) :
+                        R.mipmap.ic_chapter_t );
         }
     }
 

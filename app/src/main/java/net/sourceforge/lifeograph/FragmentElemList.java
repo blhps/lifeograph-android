@@ -413,7 +413,7 @@ public class FragmentElemList extends ListFragment
                     icon.setImageResource( elem.get_icon() );
 
                     ImageView icon2 = holder.getIcon2();
-                    icon2.setImageResource( R.drawable.ic_favorite );
+                    icon2.setImageResource( R.mipmap.ic_favorite );
                     icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
                     break;
                 }

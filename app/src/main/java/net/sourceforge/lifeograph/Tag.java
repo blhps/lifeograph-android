@@ -46,7 +46,7 @@ public class Tag extends DiaryElementChart {
 
         @Override
         public int get_icon() {
-            return R.drawable.ic_tag;
+            return R.mipmap.ic_tag;
         }
 
         @Override
@@ -100,7 +100,7 @@ public class Tag extends DiaryElementChart {
 
     @Override
     public int get_icon() {
-        return( get_has_own_theme() ? R.drawable.ic_theme_tag : R.drawable.ic_tag );
+        return( get_has_own_theme() ? R.mipmap.ic_theme_tag : R.mipmap.ic_tag );
     }
 
     @Override

@@ -1,6 +1,6 @@
 /***********************************************************************************
 
- Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -36,7 +36,7 @@ public class Untagged extends Tag
 
     @Override
     public int get_icon() {
-        return R.drawable.ic_untagged;
+        return R.mipmap.ic_untagged;
     }
 
     public void reset() {

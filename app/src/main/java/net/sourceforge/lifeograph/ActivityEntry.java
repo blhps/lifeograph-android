@@ -139,6 +139,7 @@ public class ActivityEntry extends ActionBarActivity
 
     private ActionBar mActionBar = null;
     //private DrawerLayout mDrawerLayout = null;
+    private Menu mMenu = null;
     private EditText mEditText = null;
     private ViewEntryTags mViewTags = null;
     private Entry m_ptr2entry = null;
@@ -512,6 +513,9 @@ public class ActivityEntry extends ActionBarActivity
             }
         } );
 
+        mMenu = menu;
+        updateIcon();
+
         return true;
     }
 
@@ -587,14 +591,14 @@ public class ActivityEntry extends ActionBarActivity
     }
 
     void updateIcon() {
-        if( m_ptr2entry.is_favored() ) {
+        /*if( m_ptr2entry.is_favored() ) {
             Bitmap bmp = BitmapFactory.decodeResource(
                     getResources(), m_ptr2entry.get_icon() )
                             .copy( Bitmap.Config.ARGB_8888, true ); // make the bitmap mutable
 
             Canvas canvas = new Canvas( bmp );
 
-            Bitmap bmp2 = BitmapFactory.decodeResource( getResources(), R.drawable.ic_favorite );
+            Bitmap bmp2 = BitmapFactory.decodeResource( getResources(), R.drawable.ic_action_favorite );
 
             Rect rectDest = new Rect(
                     bmp.getWidth()/2, bmp.getHeight()/2,
@@ -608,7 +612,32 @@ public class ActivityEntry extends ActionBarActivity
             mActionBar.setIcon( bd );
         }
         else
-            mActionBar.setIcon( m_ptr2entry.get_icon() );
+            mActionBar.setIcon( m_ptr2entry.get_icon() );*/
+
+
+        if( mMenu != null ) {
+            int icon = R.drawable.ic_action_not_todo;
+
+            mMenu.findItem( R.id.toggle_favorite ).setIcon(
+                    m_ptr2entry.is_favored() ? R.drawable.ic_action_favorite :
+                          R.drawable.ic_action_not_favorite );
+
+            switch( m_ptr2entry.get_todo_status() ) {
+                case Entry.ES_TODO:
+                    icon = R.drawable.ic_action_todo_open;
+                    break;
+                case Entry.ES_PROGRESSED:
+                    icon = R.drawable.ic_action_todo_progressed;
+                    break;
+                case Entry.ES_DONE:
+                    icon = R.drawable.ic_action_todo_done;
+                    break;
+                case Entry.ES_CANCELED:
+                    icon = R.drawable.ic_action_todo_canceled;
+                    break;
+            }
+            mMenu.findItem( R.id.change_todo_status ).setIcon( icon );
+        }
     }
 
     void updateTheme() {

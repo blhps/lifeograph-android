@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -227,6 +227,9 @@ public class ActivityChapterTag extends ActionBarActivity
         ToDoAction ToDoAction = ( ToDoAction ) MenuItemCompat.getActionProvider( item );
         ToDoAction.mObject = this;
 
+        mMenu = menu;
+        updateIcon();
+
         return true;
     }
 
@@ -436,7 +439,7 @@ public class ActivityChapterTag extends ActionBarActivity
                 case GROUP:
                     Chapter chapter = ( Chapter ) mElement;
                     chapter.set_todo_status( s );
-                    mActionBar.setIcon( mElement.get_icon() );
+                    updateIcon();
                     return;
                 default:
                     break;
@@ -444,6 +447,28 @@ public class ActivityChapterTag extends ActionBarActivity
         }
 
         Log.w( Lifeograph.TAG, "cannot set todo status" );
+    }
+
+    void updateIcon() {
+        if( mMenu != null ) {
+            int icon = R.drawable.ic_action_not_todo;
+
+            switch( mElement.get_todo_status() ) {
+                case Entry.ES_TODO:
+                    icon = R.drawable.ic_action_todo_open;
+                    break;
+                case Entry.ES_PROGRESSED:
+                    icon = R.drawable.ic_action_todo_progressed;
+                    break;
+                case Entry.ES_DONE:
+                    icon = R.drawable.ic_action_todo_done;
+                    break;
+                case Entry.ES_CANCELED:
+                    icon = R.drawable.ic_action_todo_canceled;
+                    break;
+            }
+            mMenu.findItem( R.id.change_todo_status ).setIcon( icon );
+        }
     }
 
     // DialogCalendar.Listener INTERFACE METHODS
@@ -501,6 +526,7 @@ public class ActivityChapterTag extends ActionBarActivity
 
     private FragmentElemList mFragmentList = null;
     private ActionBar mActionBar = null;
+    private Menu mMenu = null;
     private DrawerLayout mDrawerLayout = null;
     private ViewChart mViewChart;
     private AutoCompleteTextView mAtvTagUnit;
