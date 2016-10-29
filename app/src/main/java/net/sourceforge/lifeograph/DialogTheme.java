@@ -25,10 +25,10 @@ package net.sourceforge.lifeograph;
 
 import android.app.Dialog;
 import android.content.Context;
+import android.graphics.Color;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageButton;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
 
@@ -48,11 +48,11 @@ class DialogTheme extends Dialog
 
         setTitle( mTag.get_name() );
 
-        mButtonTextColor = ( ImageButton ) findViewById( R.id.button_text_color );
-        mButtonBaseColor = ( ImageButton ) findViewById( R.id.button_base_color );
-        mButtonHeadingColor = ( ImageButton ) findViewById( R.id.button_heading_color );
-        mButtonSubheadingColor = ( ImageButton ) findViewById( R.id.button_subheading_color );
-        mButtonHighlightColor = ( ImageButton ) findViewById( R.id.button_highlight_color );
+        mButtonTextColor = ( Button ) findViewById( R.id.button_text_color );
+        mButtonBaseColor = ( Button ) findViewById( R.id.button_base_color );
+        mButtonHeadingColor = ( Button ) findViewById( R.id.button_heading_color );
+        mButtonSubheadingColor = ( Button ) findViewById( R.id.button_subheading_color );
+        mButtonHighlightColor = ( Button ) findViewById( R.id.button_highlight_color );
 
         mButtonReset = ( Button ) findViewById( R.id.button_theme_reset );
 
@@ -89,7 +89,7 @@ class DialogTheme extends Dialog
         mButtonHighlightColor.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {
-                sIndex = 3;
+                sIndex = 4;
                 showColorDialog( mTag.get_theme().color_highlight + 0xff000000 );
             }
         } );
@@ -123,25 +123,22 @@ class DialogTheme extends Dialog
                 switch( sIndex ) {
                     case 0:
                         mTag.get_theme().color_text = color;
-                        mButtonTextColor.setBackgroundColor( color );
                         break;
                     case 1:
                         mTag.get_theme().color_base = color;
-                        mButtonBaseColor.setBackgroundColor( color );
                         break;
                     case 2:
                         mTag.get_theme().color_heading = color;
-                        mButtonHeadingColor.setBackgroundColor( color );
                         break;
                     case 3:
                         mTag.get_theme().color_subheading = color;
-                        mButtonSubheadingColor.setBackgroundColor( color );
                         break;
                     case 4:
                         mTag.get_theme().color_highlight = color;
-                        mButtonHighlightColor.setBackgroundColor( color );
                         break;
                 }
+
+                updateButtonColors();
             }
 
             public void onCancel( AmbilWarnaDialog dialog ) {
@@ -159,21 +156,35 @@ class DialogTheme extends Dialog
     }
 
     private void updateButtonColors() {
-        mButtonTextColor.setBackgroundColor( mTag.get_theme().color_text );
-        mButtonBaseColor.setBackgroundColor( mTag.get_theme().color_base );
-        mButtonHeadingColor.setBackgroundColor( mTag.get_theme().color_heading );
-        mButtonSubheadingColor.setBackgroundColor( mTag.get_theme().color_subheading );
-        mButtonHighlightColor.setBackgroundColor( mTag.get_theme().color_highlight );
+        Theme theme =  mTag.get_theme();
+        mButtonTextColor.setBackgroundColor( theme.color_text );
+        mButtonBaseColor.setBackgroundColor( theme.color_base );
+        mButtonHeadingColor.setBackgroundColor( theme.color_heading );
+        mButtonSubheadingColor.setBackgroundColor( theme.color_subheading );
+        mButtonHighlightColor.setBackgroundColor( theme.color_highlight );
+
+        mButtonTextColor.setTextColor( getContrastColor( theme.color_text ) );
+        mButtonBaseColor.setTextColor( getContrastColor( theme.color_base ) );
+        mButtonHeadingColor.setTextColor( getContrastColor( theme.color_heading ) );
+        mButtonSubheadingColor.setTextColor( getContrastColor( theme.color_subheading ) );
+        mButtonHighlightColor.setTextColor( getContrastColor( theme.color_highlight ) );
+    }
+
+    // from: http://stackoverflow.com/questions/4672271/reverse-opposing-colors
+    private static int getContrastColor( int color ) {
+        double y = ( 299 * Color.red( color ) + 587 * Color.green( color ) + 114 * Color.blue(
+                color ) ) / 1000;
+        return y >= 128 ? Color.BLACK : Color.WHITE;
     }
 
     private Tag mTag;
     private static int sIndex;
 
-    private ImageButton mButtonTextColor;
-    private ImageButton mButtonBaseColor;
-    private ImageButton mButtonHeadingColor;
-    private ImageButton mButtonSubheadingColor;
-    private ImageButton mButtonHighlightColor;
+    private Button mButtonTextColor;
+    private Button mButtonBaseColor;
+    private Button mButtonHeadingColor;
+    private Button mButtonSubheadingColor;
+    private Button mButtonHighlightColor;
     private Button mButtonReset;
 
     // INTERFACE WITH THE HOST ACTIVITY ============================================================

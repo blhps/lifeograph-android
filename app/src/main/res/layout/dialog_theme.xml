@@ -1,144 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+<!-- ***************************************************************************
+
+    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+
+    This file is part of Lifeograph.
+
+    Lifeograph is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Lifeograph is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+
+**************************************************************************** -->
+
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
               android:orientation="vertical"
               android:layout_width="match_parent"
               android:layout_height="match_parent">
 
-    <TableLayout
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:dividerPadding="2dp"
-        android:padding="10dp" >
+        android:orientation="vertical" >
 
-        <TableRow
+        <Button
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            >
+            android:layout_height="wrap_content"
+            android:id="@+id/button_text_color"
+            android:padding="5dp"
+            android:layout_margin="3dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/text_color"
+            android:contentDescription="@string/text_color"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/text_color"
-                android:id="@+id/textView"
-                android:layout_column="1"
-                android:layout_gravity="center_vertical|right"
-                android:paddingRight="10dp"
-                style="@style/normalText"/>
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/button_text_color"
-                android:layout_column="2"
-                android:layout_weight=".9"
-                android:layout_gravity="center_vertical"
-                android:contentDescription="@string/text_color"/>
-        </TableRow>
-
-        <TableRow
+        <Button
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:id="@+id/button_base_color"
+            android:padding="5dp"
+            android:layout_margin="3dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/base_color"
+            android:contentDescription="@string/base_color"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/base_color"
-                android:id="@+id/textView2"
-                android:layout_column="1"
-                android:layout_gravity="center_vertical|right"
-                android:paddingRight="10dp"
-                style="@style/normalText"/>
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/button_base_color"
-                android:layout_column="2"
-                android:layout_weight=".9"
-                android:layout_gravity="center_vertical"
-                android:contentDescription="@string/base_color"/>
-
-        </TableRow>
-
-        <TableRow
+        <Button
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:id="@+id/button_heading_color"
+            android:padding="5dp"
+            android:layout_margin="3dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/heading_color"
+            android:contentDescription="@string/heading_color"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/heading_color"
-                android:id="@+id/textView3"
-                android:layout_column="1"
-                android:layout_gravity="center_vertical|right"
-                android:paddingRight="10dp"
-                style="@style/normalText"/>
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/button_heading_color"
-                android:layout_column="2"
-                android:layout_weight=".9"
-                android:layout_gravity="center_vertical"
-                android:contentDescription="@string/heading_color"/>
-
-        </TableRow>
-
-        <TableRow
+        <Button
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:id="@+id/button_subheading_color"
+            android:padding="5dp"
+            android:layout_margin="3dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/subheading_color"
+            android:contentDescription="@string/subheading_color"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/subheading_color"
-                android:id="@+id/textView4"
-                android:layout_column="1"
-                android:layout_gravity="center_vertical|right"
-                android:paddingRight="10dp"
-                style="@style/normalText"/>
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/button_subheading_color"
-                android:layout_column="2"
-                android:layout_weight=".9"
-                android:layout_gravity="center_vertical"
-                android:contentDescription="@string/subheading_color"/>
-
-        </TableRow>
-
-        <TableRow
+        <Button
             android:layout_width="match_parent"
-            android:layout_height="match_parent">
+            android:layout_height="wrap_content"
+            android:id="@+id/button_highlight_color"
+            android:padding="5dp"
+            android:layout_margin="3dp"
+            android:layout_gravity="center_vertical"
+            android:text="@string/highlight_color"
+            android:contentDescription="@string/highlight_color"/>
 
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/highlight_color"
-                android:id="@+id/textView5"
-                android:layout_column="1"
-                android:layout_gravity="center_vertical|right"
-                android:paddingRight="10dp"
-                style="@style/normalText"/>
-
-            <ImageButton
-                android:layout_width="0dp"
-                android:layout_height="wrap_content"
-                android:id="@+id/button_highlight_color"
-                android:layout_column="2"
-                android:layout_weight=".9"
-                android:layout_gravity="center_vertical"
-                android:contentDescription="@string/highlight_color"/>
-
-        </TableRow>
-    </TableLayout>
+    </LinearLayout>
 
     <Button
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        style="?android:attr/buttonBarButtonStyle"
         android:text="@string/reset_to_default"
         android:id="@+id/button_theme_reset"/>
 
