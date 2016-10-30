@@ -8,7 +8,7 @@
 
         <item name="colorAccent">@color/t_lighter</item>
         <item name="colorPrimary">@color/t_light</item>
-        <item name="colorPrimaryDark">@color/t_darker</item>
+        <item name="colorPrimaryDark">@color/t_darkest</item>
     </style>
 
     <!-- ACTIONBAR STYLES -->
