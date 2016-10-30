@@ -34,16 +34,17 @@ import android.view.View;
 public class ViewChart extends View implements GestureDetector.OnGestureListener
 {
     // CONSTANTS
-    static final float      border_curve = 30f;
-    static final float      border_label = 10f;
-    static final float      offset_label = 5f;
-    static final float      label_height = 20f; // different in Android
-    static final float      OVERVIEW_COEFFICIENT = 15f;
-    static final float      COLUMN_WIDTH_MIN= 60f;
-    // CALCULATED CONSTANTS
-    static final float      label_y = offset_label + label_height;
-    static final float      s_x_min = border_curve + border_label;
-    static final float      s_y_min = border_curve;
+    final float border_curve = Lifeograph.getScreenShortEdge() * Lifeograph.sDPIX / 25f;
+    final float border_label = border_curve / 3f;
+    final float offset_label = border_curve / 6f;
+    final float LABEL_HEIGHT = border_curve / 1.75f;
+    final float OVERVIEW_COEFFICIENT = border_curve / 2f;
+    final float COLUMN_WIDTH_MIN = border_curve * 2f;
+    final float STROKE_WIDTH = border_curve / 30f;
+    private final float BAR_HEIGHT = LABEL_HEIGHT + offset_label;
+    final float label_y = LABEL_HEIGHT;
+    final float s_x_min = border_curve + border_label;
+    final float s_y_min = border_curve;
 
     public ViewChart( Context c, AttributeSet attrs ) {
         super( c, attrs );
@@ -58,7 +59,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         mPaint.setColor( Color.BLACK );
         mPaint.setStyle( Paint.Style.STROKE );
         mPaint.setStrokeJoin( Paint.Join.ROUND );
-        mPaint.setStrokeWidth( 4f );
+        mPaint.setStrokeWidth( 4 * STROKE_WIDTH );
 
         mGestureDetector = new GestureDetector( c, this );
     }
@@ -91,7 +92,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
                     ( float ) Math.log10( m_height ) * OVERVIEW_COEFFICIENT : 0f;
 
             int mltp = ( m_points.type & ChartPoints.PERIOD_MASK ) == ChartPoints.YEARLY ? 1 : 2;
-            m_y_max = m_height - mltp * m_bar_height - m_ov_height;
+            m_y_max = m_height - mltp * BAR_HEIGHT - m_ov_height;
             m_y_mid = ( m_y_max + s_y_min ) / 2;
             m_amplitude = m_y_max - s_y_min;
             m_coefficient = m_points.value_max.equals( m_points.value_min ) ? 0f :
@@ -124,8 +125,6 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         m_x_max = m_width - border_curve;
         m_length = m_x_max - s_x_min;
 
-        m_bar_height = h * 0.1f;
-
         update_col_geom( flag_first );
     }
 
@@ -141,10 +140,10 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         // HANDLE THERE-IS-TOO-FEW-ENTRIES-CASE SPECIALLY
         if( m_points == null || m_span < 2 ) {
-            mPaint.setTextSize( 2f * label_height );
+            mPaint.setTextSize( 2f * LABEL_HEIGHT );
             mPaint.setColor( Color.RED );
             mPaint.setTextAlign( Paint.Align.CENTER );
-            mPaint.setStrokeWidth( 0f );
+            mPaint.setStyle( Paint.Style.FILL );
             canvas.drawText( "INSUFFICIENT DATA FOR GRAPH", m_width / 2, m_height / 2, mPaint );
             return;
         }
@@ -193,7 +192,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         int period = m_points.type & ChartPoints.PERIOD_MASK;
         canvas.drawRect( 0f, m_y_max, m_width,
                          m_y_max + ( period == ChartPoints.YEARLY ?
-                                     m_bar_height : m_bar_height * 2 ),
+                                     BAR_HEIGHT : BAR_HEIGHT * 2 ),
                          mPaint );
 
         // VERTICAL LINES
@@ -201,7 +200,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         boolean flag_print_label;
 
         mPaint.setColor( Color.BLACK );
-        mPaint.setStrokeWidth( 1.0f );
+        mPaint.setStrokeWidth( STROKE_WIDTH );
         mPaint.setStyle( Paint.Style.STROKE );
         for( int i = 0; i < m_step_count; ++i ) {
             flag_print_label = ( cumulative_width == 0 );
@@ -226,7 +225,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         // GRAPH LINE
         mPaint.setColor( getResources().getColor( R.color.t_darker ) );
-        mPaint.setStrokeWidth( 4.0f );
+        mPaint.setStrokeWidth( 4 * STROKE_WIDTH );
 
         mPath.moveTo( s_x_min - m_step_x * pre_steps,
                       m_y_max - m_coefficient *
@@ -244,8 +243,8 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         // YEAR & MONTH LABELS
         mPaint.setColor( Color.WHITE );
-        mPaint.setTextSize( label_height );
-        mPaint.setStrokeWidth( 0f );
+        mPaint.setTextSize( LABEL_HEIGHT );
+        mPaint.setStyle( Paint.Style.FILL );
 
         mLabelDate.m_date = m_points.start_date;
         if( period == ChartPoints.MONTHLY )
@@ -272,7 +271,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
                     if( i == 0 || year_last != mLabelDate.get_year() ) {
                         canvas.drawText( mLabelDate.format_string( "Y" ),
                                          s_x_min + m_step_x * i + offset_label,
-                                         m_y_max + m_bar_height + label_y / 1.5f,
+                                         m_y_max + BAR_HEIGHT + label_y,
                                          mPaint );
                         year_last = mLabelDate.get_year();
                     }
@@ -356,8 +355,6 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     private int m_step_count = 0;
     private int m_step_start = 0;
     private float m_zoom_level = 1.0f;
-
-    private float m_bar_height;
     private float m_x_max = 0.0f, m_y_max = 0.0f, m_y_mid = 0.0f;
     private float m_amplitude = 0.0f, m_length = 0.0f;
     private float m_step_x = 0.0f, m_coefficient = 0.0f;

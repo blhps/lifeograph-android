@@ -36,13 +36,14 @@ import android.view.ViewGroup;
 public class ViewEntryTags extends View implements GestureDetector.OnGestureListener
 {
     // CONSTANTS (different in Android)
-    static final float MARGIN = 14f;
-    static final float HSPACING = 12f;
-    static final float VSPACING = 20f;
-    static final float TEXT_HEIGHT = 35f;
-    static final float TEXT_PADDING = 5f;
+    static final float MARGIN = Lifeograph.getScreenShortEdge() * Lifeograph.sDPIX / 75f;
+    static final float HSPACING = MARGIN / 1.16f;
+    static final float VSPACING = MARGIN / 0.7f;
+    static final float TEXT_HEIGHT = MARGIN / 0.4f;
+    static final float TEXT_PADDING = MARGIN / 2.8f;
     static final float ITEM_HEIGHT =  TEXT_HEIGHT + ( 2 * TEXT_PADDING );
-    static final float HALF_HEIGHT = ITEM_HEIGHT/2;
+    static final float HALF_HEIGHT = ITEM_HEIGHT / 2;
+    static final float STROKE_WIDTH = MARGIN / 14f;
 
     public ViewEntryTags( Context c, AttributeSet attrs ) {
         super( c, attrs );
@@ -57,7 +58,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         mPaint.setColor( Color.BLACK );
         mPaint.setStyle( Paint.Style.FILL );
         mPaint.setStrokeJoin( Paint.Join.ROUND );
-        mPaint.setStrokeWidth( 4f );
+        mPaint.setStrokeWidth( 4 * STROKE_WIDTH );
 
         mGestureDetector = new GestureDetector( c, this );
     }
@@ -118,7 +119,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
             mPath.close();
 
             if( ti.hovered && m_flag_editable )
-                mPaint.setStrokeWidth( 6.0f );
+                mPaint.setStrokeWidth( 6 * STROKE_WIDTH );
 
             if( ti.tag != null && ti.tag.get_has_own_theme() ) {
                 mPaint.setColor( ti.tag.get_theme().color_base );
@@ -142,7 +143,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
             mPaint.setStyle( Paint.Style.FILL );
 
             if( ti.hovered && m_flag_editable )
-                mPaint.setStrokeWidth( 1.0f );  // restore the stroke width
+                mPaint.setStrokeWidth( STROKE_WIDTH );  // restore the stroke width
         }
 
         // LABEL
@@ -179,7 +180,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
         mDesiredHeight = ( int ) ( MARGIN + ITEM_HEIGHT + MARGIN );
         mPaint.setTextSize( TEXT_HEIGHT );
         mPaint.setStyle( Paint.Style.FILL );
-        mPaint.setStrokeWidth( 1.0f );
+        mPaint.setStrokeWidth( STROKE_WIDTH );
 
         if( m_items.isEmpty() && !m_flag_editable ) {
             mPaint.setColor( m_color_text_default );
