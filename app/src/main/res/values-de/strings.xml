@@ -33,7 +33,6 @@
 
     <string name="new_diary">Neues Tagebuch</string>
     <string name="new_chapter">Neuer Abschnitt</string>
-    <string name="new_tag">Neues Stichwort</string>
     <string name="new_tag_ctg">Neue Stichwort-Kategorie</string>
 
     <string name="open_entry">Eintrag öffnen</string>
@@ -135,6 +134,12 @@
         <item>Internal Storage (Deleted on uninstall)</item>
     </string-array>
 
+    <string-array name="array_tag_types">
+        <item>Klassisch (Boolean)</item>
+        <item>Kumulativ</item>
+        <item>Durchschnittlich</item>
+    </string-array>
+
     <string name="edit_theme">Stil bearbeiten</string>
     <string name="heading_color">Überschrift</string>
     <string name="highlight_color">Hervorhebung</string>
@@ -154,6 +159,15 @@
     <string name="text_color">Normaler Text</string>
     <string name="todo_progressed_icon">[~] In Bearbeitung</string>
     <string name="ignore">Ignorieren</string>
+    <string name="authenticate">Authentifizierung</string>
+    <string name="create_tag">Stichwort Erstellen</string>
+    <string name="open">Öffnen</string>
+    <string name="remove_tag">Stichwörter entfernen</string>
+    <string name="add_tag">Stichwort Erstellen</string>
+    <string name="change_value">Wert  ändern</string>
+    <string name="read_only">Schreibgeschützt</string>
+    <string name="unitless">Uneinheitlich</string>
+    <string name="set_password">Passwort festlegen</string>
 
 </resources>
 

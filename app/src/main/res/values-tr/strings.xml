@@ -57,7 +57,6 @@
     <string name="logoutwosaving_confirm">Kaydetmeden kapatmak istediğinizden emin misiniz?</string>
     <string name="new_chapter">Yeni Fasıl</string>
     <string name="new_diary">Yeni Günlük</string>
-    <string name="new_tag">Yeni Yafta</string>
     <string name="new_tag_ctg">Yeni Yafta Kategorisi</string>
     <string name="open_entry">Girişi aç</string>
     <string name="numbered_chapters">Numaralı fasıllar</string>
@@ -119,6 +118,12 @@
         <item>Dahili alan (Program kaldrıldığında silinir)</item>
     </string-array>
 
+    <string-array name="array_tag_types">
+        <item>Klasik (Boolean)</item>
+        <item>Toplam</item>
+        <item>Ortalama</item>
+    </string-array>
+
     <string name="edit_theme">Temayı Düzenle</string>
     <string name="heading_color">Başlık</string>
     <string name="highlight_color">Vurgu</string>
@@ -138,5 +143,14 @@
     <string name="bullet_icon">• Koyu nokta</string>
     <string name="base_color">Arka Plan</string>
     <string name="ignore">Göz ardı et</string>
+    <string name="add_tag">Yafta Ekle</string>
+    <string name="authenticate">Doğrula</string>
+    <string name="change_value">Değeri Değiştir</string>
+    <string name="create_tag">Yafta Oluştur</string>
+    <string name="open">Aç</string>
+    <string name="read_only">Yalnızca Okunur</string>
+    <string name="remove_tag">Yaftaları Kaldır</string>
+    <string name="set_password">Şifreyi Ata</string>
+    <string name="unitless">Birimsiz</string>
 
 </resources>
