@@ -36,7 +36,9 @@ import android.view.ViewGroup;
 public class ViewEntryTags extends View implements GestureDetector.OnGestureListener
 {
     // CONSTANTS (different in Android)
-    static final float MARGIN = Lifeograph.getScreenShortEdge() * Lifeograph.sDPIX / 75f;
+    static final float MARGIN = Lifeograph.getScreenShortEdge() * Lifeograph.sDPIX / 70f /
+                                ( Lifeograph.getScreenShortEdge() >= 2.8 ?
+                                ( float ) Math.log( Lifeograph.getScreenShortEdge() ) : 1f );
     static final float HSPACING = MARGIN / 1.16f;
     static final float VSPACING = MARGIN / 0.7f;
     static final float TEXT_HEIGHT = MARGIN / 0.4f;
