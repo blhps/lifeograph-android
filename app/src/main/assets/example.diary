@@ -1,13 +1,14 @@
 LIFEOGRAPHDB
-V 1030
+V 1040
 E no
 
 O d
 l en_US
 S 10034
-L 10011
+L 10005
 ID10043
 t general
+tc17
 mfCantarell 11
 mb#DDC2EB05F92B
 mt#000000000000
@@ -18,12 +19,14 @@ ID10036
 TeImportance
 ID10008
 t major milestone
+tc17
 mfCantarell 11
 mb#F33233123312
 mt#EEEEEEEEECEC
 mh#000000000000
 ms#2E2E34343636
 ml#CCCC00000000
+uc17
 ID10032
 CO3221225472	General Info
 Cpen
@@ -40,19 +43,19 @@ fs_tFfNTP__
 ID10002
 E__n3221225475
 Dr1420385672
-Dh1453038382
+Dh1478417298
 Ds1420385672
 TTgeneral
 P Comparison with Desktop Version
 P 
 P Android version provides most of the features in the Linux desktop version and the missing functionality -as long as it makes sense in Android environment- will be implemented in the future releases. The main differences are as follows:
 P 
-P 	• Android version can open any file created by the desktop version. Unsupported information will be preserved on save
 P 	• Hidden entries and filtering by date interval are missing
 P 	• Trash is not supported
 P 	• Printing is not available
 P 	• Importing is not available
 P 
+P Android version can open any file created by the desktop version. Unsupported information will be preserved on save.
 
 ID10033
 Ef_n3221225474
@@ -88,6 +91,22 @@ Ds1339235609
 P Welcome to Lifeograph for Android
 P 
 P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID10005
+E__n1057337345
+Dr1478417410
+Dh1478418896
+Ds1478417410
+TTmajor milestone
+P 0.7.0 / Parametric tags
+P 
+P  What is new?
+P 	• New UI for tagging entries akin to the desktop version
+P 	• Read-only mode
+P 	• Statistical graphs
+P 	• Support for parametic tags
+P 	• Adoption of Material Design and various UI improvements
+P 	• Several fixes and minor improvements
 
 ID10011
 E__n1057014785
