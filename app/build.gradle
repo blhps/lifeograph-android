@@ -22,8 +22,8 @@ android {
 
     buildTypes {
         release {
-            minifyEnabled true
-            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.txt'
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt')
             zipAlignEnabled true
         }
         debug {
@@ -36,7 +36,7 @@ android {
 
 dependencies {
     compile 'com.android.support:support-v4:25.0.0'
-    compile 'com.google.android.gms:play-services:9.8.0'
-    compile 'com.github.yukuku:ambilwarna:2.0'
+    compile 'com.google.android.gms:play-services-ads:9.8.0'
+    compile 'com.github.yukuku:ambilwarna:2.0.1'
     compile 'com.android.support:appcompat-v7:25.0.0'
 }
