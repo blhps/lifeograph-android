@@ -27,10 +27,12 @@
     <string-array name="pref_DIARY_STORAGE_titles">
         <item>External Storage/SD Card</item>
         <item>Internal Storage (Deleted on uninstall)</item>
+        <item>Custom (Type full path as folder name)</item>
     </string-array>
     <string-array name="pref_DIARY_STORAGE_values" translatable="false">
         <item>E</item>
         <item>I</item>
+        <item>C</item>
     </string-array>
 
     <string-array name="pref_DATE_FORMAT_ORDER_titles">

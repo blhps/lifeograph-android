@@ -306,10 +306,29 @@ public class ActivityLogin extends ActionBarActivity
     }
 
     File getDiariesDir() {
-        if( sExternalStorage.equals( "I" ) || !Lifeograph.isExternalStorageWritable() )
-            return new File( getFilesDir(), sDiaryPath );
-        else
-            return new File( Environment.getExternalStorageDirectory(), sDiaryPath );
+        if( sExternalStorage.equals( "C" ) ) {
+            return new File( sDiaryPath );
+        }
+        else if( sExternalStorage.equals( "E" ) ) {
+            String state = Environment.getExternalStorageState();
+
+            if( Environment.MEDIA_MOUNTED.equals( state ) ) {
+                // We can read and write the media
+                return new File( Environment.getExternalStorageDirectory(), sDiaryPath );
+            }
+            else if( Environment.MEDIA_MOUNTED_READ_ONLY.equals( state ) ) {
+                // We can only read the media (we may do something else here)
+                Lifeograph.showToast( R.string.storage_not_available );
+                Log.d( Lifeograph.TAG, "Storage is read-only" );
+            }
+            else {
+                // Something else is wrong. It may be one of many other states, but
+                // all we need to know is we can neither read nor write
+                Lifeograph.showToast( R.string.storage_not_available );
+            }
+        }
+
+        return new File( getFilesDir(), sDiaryPath );
     }
 
     // InquireListener INTERFACE METHODS
@@ -351,38 +370,19 @@ public class ActivityLogin extends ActionBarActivity
     }
 
     void populate_diaries() {
-        boolean externalStorageAvailable;
-        boolean externalStorageWritable;
 
         mAdapterDiaries.clear();
         mPaths.clear();
 
-        String state = Environment.getExternalStorageState();
-
-        if( Environment.MEDIA_MOUNTED.equals( state ) ) {
-            // We can read and write the media
-            externalStorageAvailable = externalStorageWritable = true;
-        }
-        else if( Environment.MEDIA_MOUNTED_READ_ONLY.equals( state ) ) {
-            // We can only read the media
-            externalStorageAvailable = true;
-            externalStorageWritable = false;
+        File dir = getDiariesDir();
+        Log.d( Lifeograph.TAG, dir.getPath() );
+        if( !dir.exists() ) {
+            if( !dir.mkdirs() )
+                Lifeograph.showToast( "Failed to create the diary folder" );
         }
         else {
-            // Something else is wrong. It may be one of many other states, but
-            // all we need to know is we can neither read nor write
-            externalStorageAvailable = externalStorageWritable = false;
-        }
-
-        if( externalStorageAvailable && externalStorageWritable ) {
-            File dir = getDiariesDir();
-            Log.d( Lifeograph.TAG, dir.getPath() );
-            if( !dir.exists() ) {
-                if( !dir.mkdirs() )
-                    Lifeograph.showToast( "Failed to create the diary folder" );
-            }
-            else {
-                File[] dirs = dir.listFiles();
+            File[] dirs = dir.listFiles();
+            if( dirs != null ) {
                 for( File ff : dirs ) {
                     if( !ff.isDirectory() ) {
                         mAdapterDiaries.add( ff.getName() );
@@ -391,8 +391,6 @@ public class ActivityLogin extends ActionBarActivity
                 }
             }
         }
-        else
-            Lifeograph.showToast( R.string.storage_not_available );
 
         mPaths.add( Diary.sExampleDiaryPath );
         mAdapterDiaries.add( Diary.sExampleDiaryName );
