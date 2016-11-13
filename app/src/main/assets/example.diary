@@ -93,9 +93,9 @@ P
 P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
 
 ID10005
-E__n1057337345
+E__n1057338369
 Dr1478417410
-Dh1478418896
+Dh1479068781
 Ds1478417410
 TTmajor milestone
 P 0.7.0 / Parametric tags
@@ -104,8 +104,9 @@ P  What is new?
 P 	• New UI for tagging entries akin to the desktop version
 P 	• Read-only mode
 P 	• Statistical graphs
-P 	• Support for parametic tags
+P 	• Support for parametric tags
 P 	• Adoption of Material Design and various UI improvements
+P 	• Ability to enter custom diary paths
 P 	• Several fixes and minor improvements
 
 ID10011
