@@ -6,6 +6,8 @@ ABS_PATH    := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 # ADJUSTABLE VARIABLES =============================================================================
 NDK_PATH        ?= $(ABS_PATH)/android-ndk
 NDK_ABI         ?= arm
+# NDK platform level, aka APP_PLATFORM, is equivalent to minSdkVersion
+NDK_PLATFORM    := android-14
 
 PLATFORM_PREFIX ?= $(ABS_PATH)/prefix/$(NDK_ABI)
 
@@ -18,6 +20,16 @@ else ifeq ($(NDK_ABI),mips)
  HOST            := mipsel-linux-android
  HOST_GPG_ERROR  := mipsel-linux-android
  NDK_TOOLCHAIN   := mipsel-linux-android-4.9
+else ifeq ($(NDK_ABI),mips64)
+ HOST            := mips64el-linux-android
+ HOST_GPG_ERROR  := mips64el-linux-android
+ NDK_TOOLCHAIN   := mips64el-linux-android-4.9
+ NDK_PLATFORM    := android-24
+else ifeq ($(NDK_ABI),arm64)
+ HOST            := aarch64-linux-android
+ HOST_GPG_ERROR  := aarch64-linux-android
+ NDK_TOOLCHAIN   := aarch64-linux-androideabi-4.9
+ NDK_PLATFORM    := android-24
 else
  HOST            := arm-linux-androideabi
  HOST_GPG_ERROR  := arm-linux-androideabi
@@ -27,9 +39,6 @@ endif
 
 
 # OTHER VARIABLES ==================================================================================
-NDK_PLATFORM    := android-14
-
-# NDK platform level, aka APP_PLATFORM, is equivalent to minSdkVersion
 NDK_SYSROOT     := $(NDK_PATH)/platforms/$(NDK_PLATFORM)/arch-$(NDK_ABI)
 
 CC      := $(PLATFORM_PREFIX)/bin/$(HOST)-gcc --sysroot=$(NDK_SYSROOT)
@@ -46,13 +55,13 @@ LDFLAGS = -llog -L$(LOCAL)/lib $(TARGET_LDFLAGS)
 
 # include Android's build flags ====================================================================
 TARGET_ARCH_ABI = $(APP_ABI)
-include $(NDK_PATH)/toolchains/$(NDK_TOOLCHAIN)/setup.mk
+#include $(NDK_PATH)/toolchains/$(NDK_TOOLCHAIN)/setup.mk
 
 
 
 # INITIALIZE TOOLCHAIN =============================================================================
 initialize-toolchain:
-	mkdir $(PLATFORM_PREFIX)
+	#mkdir $(PLATFORM_PREFIX)
 	$(NDK_PATH)/build/tools/make-standalone-toolchain.sh --platform=$(NDK_PLATFORM) \
 		--install-dir=$(PLATFORM_PREFIX) --toolchain=$(NDK_TOOLCHAIN)
 
@@ -62,7 +71,7 @@ initialize-toolchain:
 # https://github.com/guardianproject/gnupg-for-android
 # libgpg-error =====================================================================================
 libgpg-error-configure:
-	cd libgpg-error && \
+	cd libgpg-error-$(NDK_ABI) && \
 		./configure \
 			CC="$(CC)" AR=$(AR) RANLIB=$(RANLIB) \
 			CFLAGS="$(CFLAGS)" \
@@ -82,19 +91,19 @@ libgpg-error-configure:
 	sed -i 's,^sys_lib_dlsearch_path_spec=.*,sys_lib_dlsearch_path_spec="/lib /usr/lib",' libgpg-error/libtool
 
 libgpg-error-make:
-	$(MAKE) -C libgpg-error
+	$(MAKE) -C libgpg-error-$(NDK_ABI)
 
 libgpg-error-install:
-	$(MAKE) -C libgpg-error install
+	$(MAKE) -C libgpg-error-$(NDK_ABI) install
 
 libgpg-error-clean:
-	$(MAKE) -C libgpg-error clean
+	$(MAKE) -C libgpg-error-$(NDK_ABI) clean
 
 
 
 # libgcrypt ========================================================================================
 libgcrypt-configure:
-	cd libgcrypt && \
+	cd libgcrypt-$(NDK_ABI) && \
 		CC="$(CC)" AR="$(AR)" RANLIB=$(RANLIB) \
 			./configure \
 				--enable-maintainer-mode \
@@ -105,13 +114,13 @@ libgcrypt-configure:
                 $(CONFIG_FLAGS)
 
 libgcrypt-make:
-	$(MAKE) -C libgcrypt
+	$(MAKE) -C libgcrypt-$(NDK_ABI)
 
 libgcrypt-install:
-	$(MAKE) -C libgcrypt install
+	$(MAKE) -C libgcrypt-$(NDK_ABI) install
 
 libgcrypt-clean:
-	$(MAKE) -C libgcrypt clean
+	$(MAKE) -C libgcrypt-$(NDK_ABI) clean
 
 
 
