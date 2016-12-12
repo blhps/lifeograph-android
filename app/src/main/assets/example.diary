@@ -5,7 +5,7 @@ E no
 O d
 l en_US
 S 10034
-L 10005
+L 10012
 ID10043
 t general
 tc17
@@ -91,6 +91,17 @@ Ds1339235609
 P Welcome to Lifeograph for Android
 P 
 P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID10012
+E__n1057370113
+Dr1481571938
+Dh1481572018
+Ds1481571938
+P 0.7.1 /
+P 
+P  What is new?
+P 
+P 	• Improved reading encrypted files
 
 ID10005
 E__n1057338369
