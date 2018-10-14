@@ -25,7 +25,7 @@ package net.sourceforge.lifeograph;
 import android.support.v7.app.ActionBar;
 import android.app.Activity;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.app.Dialog;
 import android.content.DialogInterface;
 import android.os.Bundle;
@@ -43,7 +43,7 @@ import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
 
-public class ActivityChapterTag extends ActionBarActivity
+public class ActivityChapterTag extends AppCompatActivity
         implements ToDoAction.ToDoObject,
         DialogInquireText.InquireListener, DialogCalendar.Listener, FragmentElemList.DiaryManager,
         FragmentElemList.ListOperations, DialogTheme.DialogThemeHost, Spinner.OnItemSelectedListener

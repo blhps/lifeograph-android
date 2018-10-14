@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
 import android.support.v4.view.MenuItemCompat;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -65,7 +65,7 @@ import android.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 
-public class ActivityEntry extends ActionBarActivity
+public class ActivityEntry extends AppCompatActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
         PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener, DialogEntryTag.Listener
 {

@@ -26,7 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -52,7 +52,7 @@ import net.sourceforge.lifeograph.inappbilling.util.IabResult;
 import net.sourceforge.lifeograph.inappbilling.util.Inventory;
 import net.sourceforge.lifeograph.inappbilling.util.Purchase;
 
-public class ActivityLogin extends ActionBarActivity
+public class ActivityLogin extends AppCompatActivity
         implements DialogInquireText.InquireListener, DialogPassword.Listener,
         IabBroadcastReceiver.IabBroadcastListener
 {
