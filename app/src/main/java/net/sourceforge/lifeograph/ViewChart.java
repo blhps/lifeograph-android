@@ -140,13 +140,11 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         // HANDLE THERE-IS-TOO-FEW-ENTRIES-CASE SPECIALLY
         if( m_points == null || m_span < 2 ) {
-            mPaint.setTextSize( 2f * LABEL_HEIGHT );
-            mPaint.setColor( Color.RED );
-            mPaint.setTextAlign( Paint.Align.CENTER );
-            mPaint.setStyle( Paint.Style.FILL );
-            canvas.drawText( "INSUFFICIENT DATA FOR GRAPH", m_width / 2, m_height / 2, mPaint );
+            this.setVisibility( View.GONE );
             return;
         }
+        else
+            this.setVisibility( View.VISIBLE );
 
         // NUMBER OF STEPS IN THE PRE AND POST BORDERS
         int pre_steps = ( int ) Math.ceil( s_x_min / m_step_x );
