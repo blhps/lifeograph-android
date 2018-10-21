@@ -37,6 +37,7 @@ public class Lifeograph
 {
     // CONSTANTS ===================================================================================
     //public static final String PROGRAM_NAME = "Lifeograph";
+    public static final String LIFEOGRAPH_RELEASE_CODENAME = "artemisia";
 
     static final String LANG_INHERIT_DIARY = "d";
 

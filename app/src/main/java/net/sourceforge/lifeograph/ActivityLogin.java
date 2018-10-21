@@ -570,7 +570,8 @@ public class ActivityLogin extends AppCompatActivity
             tv.setMovementMethod( LinkMovementMethod.getInstance() );
 
             tv = ( TextView ) findViewById( R.id.textViewVersion );
-            tv.setText( BuildConfig.VERSION_NAME );
+            tv.setText( BuildConfig.VERSION_NAME + "\n\"" +
+                        Lifeograph.LIFEOGRAPH_RELEASE_CODENAME + "\"" );
         }
     }
 }
