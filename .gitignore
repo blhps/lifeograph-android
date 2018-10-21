@@ -8,28 +8,27 @@
 # Java class files
 *.class
 
-# generated files
-bin/
-gen/
-
 # Local configuration file (sdk path, etc)
 local.properties
-
-# Eclipse project files
-.classpath
-.project
 
 # Android Studio
 .gradle
 .idea/
-build/
+app/.externalNativeBuild/
 app/build/
 app/src/main/libs/
 app/src/main/obj/
 app/src/main/java/net/sourceforge/lifeograph/IDs.java
+build/
+captures/
+libs/
 
 # jni
-external/libgcrypt/
-external/libgpg-error/
-external/prefix/
 external/android-ndk
+external/libgcrypt-arm/
+external/libgcrypt-mips/
+external/libgcrypt-x86/
+external/libgpg-error-arm/
+external/libgpg-error-mips/
+external/libgpg-error-x86/
+external/prefix/
