@@ -117,6 +117,7 @@
     <string name="reset_to_default">Reset to Default</string>
     <string name="toggle_favorite">Toggle Favoredness</string>
     <string name="change_todo_status">Change Todo Status</string>
+    <string name="todo_auto">Auto</string>
     <string name="todo_not">Not To Do</string>
     <string name="todo_open">To Do</string>
     <string name="todo_progressed">In Progress</string>

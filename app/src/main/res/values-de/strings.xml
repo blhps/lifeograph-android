@@ -168,6 +168,7 @@
     <string name="read_only">Schreibgeschützt</string>
     <string name="unitless">Uneinheitlich</string>
     <string name="set_password">Passwort festlegen</string>
+    <string name="todo_auto">Automatisch</string>
 
 </resources>
 

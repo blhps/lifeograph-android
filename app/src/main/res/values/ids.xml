@@ -7,6 +7,7 @@
 
     <item name="visit_link" type="id"/>
 
+    <item name="todo_auto" type="id"/>
     <item name="todo_not" type="id"/>
     <item name="todo_open" type="id"/>
     <item name="todo_progressed" type="id"/>

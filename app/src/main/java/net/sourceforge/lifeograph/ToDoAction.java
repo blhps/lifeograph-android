@@ -46,7 +46,8 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
 
         menu.clear();
 
-        menu.add( 0, R.id.todo_not, 0, R.string.todo_not )
+        menu.add( 0, R.id.todo_auto, 0, R.string.todo_auto )
+                .setIcon( R.mipmap.ic_todo_auto )
                 .setOnMenuItemClickListener( this );
 
         menu.add( 0, R.id.todo_open, 1, R.string.todo_open )
@@ -72,7 +73,7 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
         {
             case android.R.id.home:
                 return true;
-            case R.id.todo_not:
+            case R.id.todo_auto:
                 mObject.setTodoStatus( DiaryElement.ES_NOT_TODO );
                 return true;
             case R.id.todo_open:

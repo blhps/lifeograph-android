@@ -152,5 +152,6 @@
     <string name="remove_tag">Yaftaları Kaldır</string>
     <string name="set_password">Şifreyi Ata</string>
     <string name="unitless">Birimsiz</string>
+    <string name="todo_auto">Otomatik</string>
 
 </resources>
