@@ -10,8 +10,8 @@ android {
             sourceCompatibility JavaVersion.VERSION_1_6
             targetCompatibility JavaVersion.VERSION_1_6
         }
-        versionName '0.7.1'
-        versionCode 7010
+        versionName '0.8.0'
+        versionCode 8000
     }
 
     // disable automatic handling of jni folder by gradle

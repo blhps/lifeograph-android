@@ -179,7 +179,7 @@ public class Diary extends DiaryElementChart
 
     @Override
     public int get_icon() {
-        return R.drawable.ic_diary;
+        return R.mipmap.ic_diary;
     }
 
     @Override

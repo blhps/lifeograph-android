@@ -33,7 +33,7 @@
         android:layout_height="wrap_content"
         android:scaleType="centerInside"
         android:contentDescription="@string/icon"
-        android:src="@drawable/ic_diary" />
+        android:src="@mipmap/ic_diary" />
 
     <TextView
         android:id="@+id/title"
