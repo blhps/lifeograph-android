@@ -1127,7 +1127,7 @@ public class Diary extends DiaryElementChart
                                 entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
                                 break;
                             case 'h':
-                                entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
+                                entry_new.m_date_edited = Long.parseLong( line.substring( 2 ) );
                                 break;
                             case 's':
                                 entry_new.m_date_status = Long.parseLong( line.substring( 2 ) );
@@ -1388,7 +1388,7 @@ public class Diary extends DiaryElementChart
                         if( line.charAt( 1 ) == 'r' )
                             entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
                         else    // it should be 'h'
-                            entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
+                            entry_new.m_date_edited = Long.parseLong( line.substring( 2 ) );
                         break;
                     case 'T':   // tag
                         if( entry_new == null )
@@ -1705,7 +1705,7 @@ public class Diary extends DiaryElementChart
 
             mBufferedWriter.append( "Dr" ).append( Long.toString( entry.m_date_created ) )
                            .append( '\n' );
-            mBufferedWriter.append( "Dh" ).append( Long.toString( entry.m_date_changed ) )
+            mBufferedWriter.append( "Dh" ).append( Long.toString( entry.m_date_edited ) )
                            .append( '\n' );
             mBufferedWriter.append( "Ds" ).append( Long.toString( entry.m_date_status ) )
                            .append( '\n' );

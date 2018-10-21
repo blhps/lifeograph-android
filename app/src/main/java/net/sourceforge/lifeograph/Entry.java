@@ -21,8 +21,6 @@
 
 package net.sourceforge.lifeograph;
 
-import android.util.Log;
-
 import java.util.ArrayList;
 
 public class Entry extends DiaryElement {
@@ -33,7 +31,7 @@ public class Entry extends DiaryElement {
         // java.util.Date jd = new java.util.Date();
         // m_date_created = jd.getTime() / 1000;
         m_date_created = ( int ) ( System.currentTimeMillis() / 1000L );
-        m_date_changed = m_date_created;
+        m_date_edited = m_date_created;
         m_date_status = m_date_created;
 
         m_text = text;
@@ -48,7 +46,7 @@ public class Entry extends DiaryElement {
 
         java.util.Date jd = new java.util.Date();
         m_date_created = ( int ) ( jd.getTime() / 1000L );
-        m_date_changed = m_date_created;
+        m_date_edited = m_date_created;
         m_date_status = m_date_created;
 
         m_ptr2theme_tag = null;
@@ -112,7 +110,7 @@ public class Entry extends DiaryElement {
 
     @Override
     public String get_info_str() {
-        return( Date.format_string_d( m_date_changed ) );
+        return( Date.format_string_d( m_date_edited ) );
     }
 
     @Override
@@ -127,7 +125,7 @@ public class Entry extends DiaryElement {
     public String getListStrSecondary() {
         if( m_date.is_ordinal() ) {
             return( Lifeograph.getStr( R.string.entry_last_changed_on ) + " " +
-                    Date.format_string_d( m_date_changed ) );
+                    Date.format_string_d( m_date_edited ) );
         }
         else {
             return m_date.get_weekday_str();
@@ -473,7 +471,7 @@ public class Entry extends DiaryElement {
 
     Date m_date;
     long m_date_created;
-    long m_date_changed;
+    long m_date_edited;
     long m_date_status;
     String m_text = ""; // must be initialized to prevent crashes on empty entries with tags
     java.util.List< Tag > m_tags = new ArrayList< Tag >();

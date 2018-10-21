@@ -60,6 +60,8 @@ import android.widget.PopupMenu;
 import android.support.v7.widget.SearchView;
 import android.widget.TextView;
 
+import static net.sourceforge.lifeograph.DiaryElement.ES_NOT_TODO;
+
 public class ActivityEntry extends AppCompatActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
         PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener, DialogEntryTag.Listener
@@ -209,7 +211,7 @@ public class ActivityEntry extends AppCompatActivity
                     // }
                     mFlagEntryChanged = true;
                 }
-                parse_text( 0, mEditText.getText().length() );
+                parse( 0, mEditText.getText().length() );
             }
         } );
 
@@ -496,7 +498,7 @@ public class ActivityEntry extends AppCompatActivity
             public boolean onQueryTextChange( String s ) {
                 if( mFlagSearchIsOpen ) {
                     Diary.diary.set_search_text( s.toLowerCase() );
-                    parse_text( 0, mEditText.getText().length() );
+                    parse( 0, mEditText.getText().length() );
                 }
                 return true;
             }
@@ -617,7 +619,7 @@ public class ActivityEntry extends AppCompatActivity
                     m_ptr2entry.is_favored() ? R.drawable.ic_action_favorite :
                           R.drawable.ic_action_not_favorite );
 
-            switch( m_ptr2entry.get_todo_status() ) {
+            switch( m_ptr2entry.get_todo_status_effective() ) {
                 case Entry.ES_TODO:
                     icon = R.drawable.ic_action_todo_open;
                     break;
@@ -659,7 +661,8 @@ public class ActivityEntry extends AppCompatActivity
 
     void sync() {
         if( mFlagEntryChanged ) {
-            m_ptr2entry.m_date_changed = ( int ) ( System.currentTimeMillis() / 1000L );
+
+            m_ptr2entry.m_date_edited = ( int ) ( System.currentTimeMillis() / 1000L );
             m_ptr2entry.m_text = mEditText.getText().toString();
             mFlagEntryChanged = false;
         }
@@ -688,7 +691,7 @@ public class ActivityEntry extends AppCompatActivity
         // mFlagSetTextOperation = false;
 
         // if( flagParse )
-        // parse_text();
+        // parse();
 
         setTitle( entry.get_title_str() );
         mActionBar.setSubtitle( entry.get_info_str() );
@@ -817,7 +820,7 @@ public class ActivityEntry extends AppCompatActivity
 
         // update theme
         updateTheme();
-        parse_text( 0, mEditText.getText().length() );
+        parse( 0, mEditText.getText().length() );
     }
 
     // FORMATTING BUTTONS ==========================================================================
@@ -1379,9 +1382,12 @@ public class ActivityEntry extends AppCompatActivity
         }
     }
 
-    void parse_text( int start, int end ) {
-        // everything below should go to Parser when there is one (and there is nothing above
-        // as of yet...)
+    void parse( int start, int end ) {
+        m_ptr2entry.m_text = mEditText.getText().toString();
+
+        update_todo_status();
+
+        // NOTE: everything below should go to Parser when there is one
         reset( start, end );
 
         // this part is different than in c++
@@ -2153,5 +2159,13 @@ public class ActivityEntry extends AppCompatActivity
                  Spanned.SPAN_INTERMEDIATE );
         addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_base ),
                  pos_search, m_pos_current + 1, 0 );
+    }
+
+    private void update_todo_status() {
+        if( ( m_ptr2entry.get_status() & ES_NOT_TODO ) != 0 &&
+            m_ptr2entry.calculate_todo_status() ) {
+            updateIcon();
+            // Not relevant now: panel_diary->handle_elem_changed( m_ptr2entry );
+        }
     }
 }
