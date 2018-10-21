@@ -30,11 +30,7 @@ public abstract class DiaryElement {
     final static int DEID_UNSET = 404; // :)
     final static int HOME_CURRENT_ELEM = 1; // element shown at startup
     final static int HOME_LAST_ELEM = 2; // element shown at startup
-    final static int HOME_FIXED_ELEM = 3;
-
-    // SORTING CRITERIA
-    final static char SC_DATE = 'd';
-    final static char SC_SIZE = 's';
+    // NOTE: when HOME is fixed element, elements ID is used
 
     final static CharSequence STR_SEPARATOR = " - ";
 
@@ -81,14 +77,16 @@ public abstract class DiaryElement {
     final static int ES_TRASHED          = 0x800;
     final static int ES_FILTER_TRASHED   = ES_NOT_TRASHED|ES_TRASHED;
     final static int ES_NOT_TODO         = 0x1000;
+    // NOTE: NOT_TODO means AUTO when used together with other to do statuses
     final static int ES_TODO             = 0x2000;
     final static int ES_PROGRESSED       = 0x4000;
     final static int ES_DONE             = 0x8000;
     final static int ES_CANCELED         = 0x10000;
-    final static int ES_FILTER_TODO      =  ES_NOT_TODO|ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
+    final static int ES_FILTER_TODO      = ES_NOT_TODO|ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
+    final static int ES_FILTER_TODO_PURE = ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
     final static int ES_ENTRY_DEFAULT    = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
     final static int ES_ENTRY_DEFAULT_FAV    = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
-    final static int ES_CHAPTER_DEFAULT      = ES_EXPANDED|ES_NOT_TODO;
+    final static int ES_CHAPTER_DEFAULT  = ES_EXPANDED|ES_NOT_TODO;
 
     // FILTER RELATED CONSTANTS AND ALIASES
     final static int ES_SHOW_NOT_FAVORED = ES_NOT_FAVORED;
@@ -175,9 +173,13 @@ public abstract class DiaryElement {
         else if( ( m_status & flag ) != 0 )
             m_status -= flag;
     }
-    // only for entries and chapters:
+    // only works for entries and chapters:
     public int get_todo_status() {
         return ( m_status & ES_FILTER_TODO );
+    }
+    public int get_todo_status_effective() {
+        final int s = ( m_status & ES_FILTER_TODO_PURE );
+        return( s != 0 ? s : ES_NOT_TODO );
     }
     public void set_todo_status( int s ) {
         m_status -= ( m_status & ES_FILTER_TODO );

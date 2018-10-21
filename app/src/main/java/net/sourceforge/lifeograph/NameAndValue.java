@@ -30,7 +30,7 @@ class NameAndValue
     final static int HAS_NAME = 0x1;
     final static int HAS_VALUE = 0x2;
     final static int HAS_UNIT = 0x4;
-    final static int HAS_EQUAL = 0x8;
+    final static int HAS_EQUAL = 0x10;
 
     NameAndValue() {
     }
@@ -83,7 +83,10 @@ class NameAndValue
                         lf = '$';
                     }
                     else // i.e. ( lf == '=' )
+                    {
+                        nav.status |= NameAndValue.HAS_EQUAL;
                         lf = '#';
+                    }
                     break;
                 case ' ':
                 case '\t':
@@ -139,7 +142,7 @@ class NameAndValue
                 case '8':
                 case '9':
                     if( lf == '#' ) {
-                        nav.status = NameAndValue.HAS_VALUE;
+                        nav.status |= NameAndValue.HAS_VALUE;
                         nav.value *= 10;
                         nav.value += ( c - '0' );
                         if( divider != 0 )

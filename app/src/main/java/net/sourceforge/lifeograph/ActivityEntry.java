@@ -29,12 +29,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Canvas;
-import android.graphics.Rect;
 import android.graphics.Typeface;
-import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -1191,9 +1186,9 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     // PARSING VARIABLES ===========================================================================
-    private int m_pos_start, m_pos_end, pos_current;
+    private int m_pos_start, m_pos_end, m_pos_current;
     private int pos_word, /*pos_regular,*/ pos_search, pos_tab;
-    private char char_current;
+    private char m_char_current;
     private int m_cf_last, m_cf_req = CF_ANY;
     private StringBuilder word_last = new StringBuilder();
     private int int_last;
@@ -1356,7 +1351,7 @@ public class ActivityEntry extends AppCompatActivity
     private void reset( int start, int end ) {
         m_pos_start = start;
         m_pos_end = end;
-        pos_current = pos_word = /*pos_regular =*/ start;
+        m_pos_current = pos_word = /*pos_regular =*/ start;
 
         // TODO: only remove spans within the parsing boundaries...
         // mEditText.getText().clearSpans(); <-- problematic!!
@@ -1395,13 +1390,13 @@ public class ActivityEntry extends AppCompatActivity
         int i_search = 0;
         int i_search_end = Diary.diary.get_search_text().length() - 1;
 
-        for( ; pos_current < m_pos_end; ++pos_current ) {
-            char_current = mEditText.getText().charAt( pos_current );
+        for( ; m_pos_current < m_pos_end; ++m_pos_current ) {
+            m_char_current = mEditText.getText().charAt( m_pos_current );
 
             if( flag_search_active ) {
-                if( search_text.charAt( i_search ) == Character.toLowerCase( char_current ) ) {
+                if( search_text.charAt( i_search ) == Character.toLowerCase( m_char_current ) ) {
                     if( i_search == 0 )
-                        pos_search = pos_current;
+                        pos_search = m_pos_current;
                     if( i_search == i_search_end ) {
                         apply_match();
                         i_search = 0;
@@ -1414,7 +1409,7 @@ public class ActivityEntry extends AppCompatActivity
             }
 
             // MARKUP PARSING
-            switch( char_current ) {
+            switch( m_char_current ) {
                 case '\n':
                 case '\r':
                     process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH
@@ -1483,7 +1478,9 @@ public class ActivityEntry extends AppCompatActivity
                                   CF_NOTHING, ParSel.TR_LNAT );
                     break;
                 case '>':
-                    process_char( CF_MORE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE, 0,
+                    // marks deferred when used in to do context
+                    process_char( CF_TODO|CF_MORE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH |
+                                                   CF_DOTDATE, 0,
                                   ParSel.NULL );
                     break;
                 case '\t':
@@ -1689,7 +1686,7 @@ public class ActivityEntry extends AppCompatActivity
                 m_applier_nl = ParSel.NULL;
             }
             else if( ( char_flags & CF_EOT ) != 0 && !flag_apply ) {
-                m_pos_start = pos_current + 1;
+                m_pos_start = m_pos_current + 1;
                 //apply_regular();
             }
         }
@@ -1709,8 +1706,8 @@ public class ActivityEntry extends AppCompatActivity
             word_last.setLength( 0 );
         else {
             if( word_last.length() == 0 )
-                pos_word = pos_current;
-            word_last.append( char_current );
+                pos_word = m_pos_current;
+            word_last.append( m_char_current );
         }
 
         // UPDATE CHAR CLASS
@@ -1721,10 +1718,10 @@ public class ActivityEntry extends AppCompatActivity
     private void handle_number() {
         if( m_cf_last == CF_NUMBER ) {
             int_last *= 10;
-            int_last += ( char_current - '0' );
+            int_last += ( m_char_current - '0' );
         }
         else
-            int_last = ( char_current - '0' );
+            int_last = ( m_char_current - '0' );
     }
 
     // PARSING TRIGGERERS ==========================================================================
@@ -1733,7 +1730,7 @@ public class ActivityEntry extends AppCompatActivity
             m_chars_looked_for.clear();
             m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.AP_SUBH ) );
             m_cf_req = CF_ANY;
-            m_pos_start = pos_current;
+            m_pos_start = m_pos_current;
         }
     }
 
@@ -1745,7 +1742,7 @@ public class ActivityEntry extends AppCompatActivity
         m_chars_looked_for.add( new AbsChar( CF_NONSPACE - lf, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( lf, ps ) );
         m_cf_req = CF_NOT_SEPARATOR;
-        m_pos_start = pos_current;
+        m_pos_start = m_pos_current;
     }
 
     private void trigger_bold() {
@@ -1770,7 +1767,7 @@ public class ActivityEntry extends AppCompatActivity
         m_chars_looked_for.add( new AbsChar( CF_SBE, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( CF_SBE|CF_IMMEDIATE, ParSel.AP_CMNT ) );
         m_cf_req = CF_ANY;
-        m_pos_start = pos_current;
+        m_pos_start = m_pos_current;
     }
 
     private void trigger_link() {
@@ -1861,10 +1858,10 @@ public class ActivityEntry extends AppCompatActivity
             m_chars_looked_for.add( new AbsChar( CF_TAB, ParSel.JK_LNHT, true ) );
             m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.NULL ) );
             m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LNDT ) );
-            m_pos_start = pos_current - 1;
+            m_pos_start = m_pos_current - 1;
         }
         else {
-            m_pos_start = pos_current;
+            m_pos_start = m_pos_current;
             // applier is called by junction_link_date() in this case
         }
     }
@@ -1876,7 +1873,7 @@ public class ActivityEntry extends AppCompatActivity
         m_chars_looked_for.clear();
         m_chars_looked_for.add( new AbsChar( CF_NONTAB, ParSel.JK_LIST, true ) );
         m_cf_req = CF_ANY;
-        m_pos_start = pos_current;
+        m_pos_start = m_pos_current;
     }
 
     private void trigger_ignore() {
@@ -1884,7 +1881,7 @@ public class ActivityEntry extends AppCompatActivity
             m_chars_looked_for.clear();
             m_chars_looked_for.add( new AbsChar( CF_TAB|CF_IMMEDIATE, ParSel.JK_IGNR, true ) );
             m_cf_req = CF_ANY;
-            m_pos_start = pos_current;
+            m_pos_start = m_pos_current;
         }
     }
 
@@ -1906,7 +1903,7 @@ public class ActivityEntry extends AppCompatActivity
 
     private void junction_link_hidden_tab() {
         m_chars_looked_for.remove( 0 );
-        pos_tab = pos_current + 1;
+        pos_tab = m_pos_current + 1;
         id_last = int_last;     // if not id link assignment is in vain
     }
 
@@ -1914,7 +1911,7 @@ public class ActivityEntry extends AppCompatActivity
         //apply_indent();
         m_cf_req = CF_ANY;
 
-        switch( char_current ) {
+        switch( m_char_current ) {
             case '[':
                 m_chars_looked_for.remove( 0 );
                 m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_TODO | CF_IMMEDIATE,
@@ -1932,7 +1929,7 @@ public class ActivityEntry extends AppCompatActivity
     private void junction_list2() {
         m_cf_req = CF_ANY;
 
-        switch( char_current )
+        switch( m_char_current )
         {
             case ' ':
                 m_chars_looked_for.remove( 0 );
@@ -1948,6 +1945,7 @@ public class ActivityEntry extends AppCompatActivity
                 break;
             case 'x':
             case 'X':
+            case '>':
                 m_chars_looked_for.remove( 0 );
                 m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CCCL ) );
                 break;
@@ -1971,8 +1969,8 @@ public class ActivityEntry extends AppCompatActivity
 
     private void junction_date_dotmd() { // dot between month and day
         if( int_last >= 1 && int_last <= 12
-        // two separators must be the same:
-            && char_current == word_last.charAt( word_last.length() - 3 ) ) {
+            // two separators must be the same:
+            && m_char_current == word_last.charAt( word_last.length() - 3 ) ) {
             date_last.set_month( int_last );
             m_chars_looked_for.remove( 0 );
         }
@@ -2038,25 +2036,25 @@ public class ActivityEntry extends AppCompatActivity
                  Spanned.SPAN_INTERMEDIATE );
         addSpan( new SpanMarkup(), m_pos_start, m_pos_start + 1, 0 );
 
-        addSpan( span, m_pos_start + 1, pos_current, 0 );
+        addSpan( span, m_pos_start + 1, m_pos_current, 0 );
 
-        addSpan( new RelativeSizeSpan( sMarkupScale ), pos_current, pos_current + 1,
+        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_current, m_pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
-        addSpan( new SpanMarkup(), pos_current, pos_current + 1, 0 );
+        addSpan( new SpanMarkup(), m_pos_current, m_pos_current + 1, 0 );
     }
 
     private void apply_comment() {
-        addSpan( new TextAppearanceSpan( this, R.style.commentSpan ), m_pos_start, pos_current + 1,
+        addSpan( new TextAppearanceSpan( this, R.style.commentSpan ), m_pos_start, m_pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
 
-        addSpan( new ForegroundColorSpan( mColorMid ), m_pos_start, pos_current + 1,
+        addSpan( new ForegroundColorSpan( mColorMid ), m_pos_start, m_pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
 
-        addSpan( new SuperscriptSpan(), m_pos_start, pos_current + 1, 0 );
+        addSpan( new SuperscriptSpan(), m_pos_start, m_pos_current + 1, 0 );
     }
 
     private void apply_ignore() {
-        int end = pos_current;
+        int end = m_pos_current;
         if( mEditText.getText().charAt( end ) != '\n' )
             end = mEditText.getText().toString().indexOf( '\n', end );
         if( end < 0 )
@@ -2068,18 +2066,18 @@ public class ActivityEntry extends AppCompatActivity
         addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_start, pos_tab,
                  Spanned.SPAN_INTERMEDIATE );
         addSpan( new SpanMarkup(), m_pos_start, pos_tab, 0 );
-        addSpan( new RelativeSizeSpan( sMarkupScale ), pos_current, end,
+        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_current, end,
                  Spanned.SPAN_INTERMEDIATE );
-        addSpan( new SpanMarkup(), pos_current, end, 0 );
+        addSpan( new SpanMarkup(), m_pos_current, end, 0 );
 
-        addSpan( spanLink, pos_tab, pos_current, 0 );
+        addSpan( spanLink, pos_tab, m_pos_current, 0 );
     }
 
     private void apply_link() {
         if( m_flag_hidden_link )
-            apply_hidden_link_tags( pos_current + 1, new LinkUri( word_last.toString() ) );
+            apply_hidden_link_tags( m_pos_current + 1, new LinkUri( word_last.toString() ) );
         else
-            addSpan( new LinkUri( word_last.toString() ), m_pos_start, pos_current, 0 );
+            addSpan( new LinkUri( word_last.toString() ), m_pos_start, m_pos_current, 0 );
     }
 
     private void apply_link_id() {
@@ -2087,7 +2085,7 @@ public class ActivityEntry extends AppCompatActivity
 
         if( element != null ) {
             if( element.get_type() == DiaryElement.Type.ENTRY ) {
-                apply_hidden_link_tags( pos_current + 1, new LinkID( id_last ) );
+                apply_hidden_link_tags( m_pos_current + 1, new LinkID( id_last ) );
                 //return;
             }
         }
@@ -2107,7 +2105,7 @@ public class ActivityEntry extends AppCompatActivity
                     LinkStatus.LS_OK : LinkStatus.LS_CYCLIC;
 
         if( status == LinkStatus.LS_OK || status == LinkStatus.LS_ENTRY_UNAVAILABLE ) {
-            int end = pos_current + 1;
+            int end = m_pos_current + 1;
 
             if( m_flag_hidden_link )
                 apply_hidden_link_tags( end, new LinkDate( date_last.m_date ) );
@@ -2117,9 +2115,9 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     private void apply_check( Object tag_box, Object tag/*, int c*/ ) {
-        int pos_start = pos_current - 3;
-        int pos_box = pos_current;
-        int pos_end = mEditText.getText().toString().indexOf( '\n', pos_current );
+        int pos_start = m_pos_current - 3;
+        int pos_box = m_pos_current;
+        int pos_end = mEditText.getText().toString().indexOf( '\n', m_pos_current );
         if( pos_end == -1 )
             pos_end = mEditText.getText().length();
         /*if( ! Diary.diary.is_read_only() )
@@ -2151,9 +2149,9 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     private void apply_match() {
-        addSpan( new BackgroundColorSpan( mColorMatchBG ), pos_search, pos_current + 1,
+        addSpan( new BackgroundColorSpan( mColorMatchBG ), pos_search, m_pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
         addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_base ),
-                 pos_search, pos_current + 1, 0 );
+                 pos_search, m_pos_current + 1, 0 );
     }
 }

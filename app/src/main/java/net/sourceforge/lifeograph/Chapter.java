@@ -206,11 +206,14 @@ public class Chapter extends DiaryElementChart {
             case ES_CANCELED:
                 return R.mipmap.ic_todo_canceled;
             default:
-                return( m_date_begin.is_ordinal() ?
-                        ( m_date_begin.is_hidden() ?
-                          R.mipmap.ic_chapter_f : R.mipmap.ic_chapter_o ) :
-                        R.mipmap.ic_chapter_t );
+                return( get_date_icon() );
         }
+    }
+
+    private int get_date_icon() {
+        return( m_date_begin.is_ordinal() ?
+                    ( m_date_begin.is_hidden() ? R.mipmap.ic_chapter_f : R.mipmap.ic_chapter_o ) :
+                    R.mipmap.ic_chapter_t );
     }
 
     @Override

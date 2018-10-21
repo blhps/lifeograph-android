@@ -85,7 +85,7 @@ public class Tag extends DiaryElementChart {
     }
 
     public Tag( Diary diary, String name, Category ctg ) {
-        this( diary, name, ctg, ChartPoints.DEFAULT );
+        this( diary, name, ctg, DEFAULT_CHART_TYPE );
     }
 
     @Override
@@ -214,6 +214,17 @@ public class Tag extends DiaryElementChart {
             return -404;
     }
 
+    double get_combined_value() {
+        double grand = 0;
+        for( double value : mEntries.values() )
+            grand += value;
+
+        return( ( m_chart_type & ChartPoints.AVERAGE ) != 0 ? grand/mEntries.size() : grand );
+    }
+    String get_combined_value_str() {
+        return( get_combined_value() + " " + m_unit );
+    }
+
     boolean is_boolean() {
         return ( ( m_chart_type & ChartPoints.VALUE_TYPE_MASK ) == ChartPoints.BOOLEAN );
     }
@@ -232,7 +243,8 @@ public class Tag extends DiaryElementChart {
             return null;
 
         ChartPoints cp = new ChartPoints( m_chart_type );
-        cp.unit = m_unit;
+        if( ! is_boolean() )
+            cp.unit = m_unit;
 
         // order from old to new: d/v_before > d/v_last > d/v
         Date d_before = new Date( Date.NOT_SET );

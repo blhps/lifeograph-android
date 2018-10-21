@@ -57,11 +57,14 @@ public class Diary extends DiaryElementChart
     }
 
     static final char SC_DATE = 'd';
-//    public static final char SC_SIZE = 's';
+    static final char SC_SIZE_C = 's';
+    static final char SC_CHANGE = 's';
+    static final char SD_DESCENDING = 'd';
+    static final char SD_ASCENDING = 'a';
 
     final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    final static int DB_FILE_VERSION_INT = 1040;
-    final static int DB_FILE_VERSION_INT_MIN = 110;
+    final static int DB_FILE_VERSION_INT = 1050;
+    final static int DB_FILE_VERSION_INT_MIN = 1010;
     static final String LOCK_SUFFIX = ".~LOCK~";
 
     static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
@@ -145,6 +148,7 @@ public class Diary extends DiaryElementChart
 
         m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
         m_last_elem_id = DiaryElement.DEID_DIARY;
+        m_chart_type = DEFAULT_CHART_TYPE;
 
         m_passphrase = "";
 
@@ -155,6 +159,7 @@ public class Diary extends DiaryElementChart
         // NOTE: only reset body options here:
         m_language = "";
         m_option_sorting_criteria = SC_DATE;
+        m_option_sorting_dir = SD_DESCENDING;
 
         //m_flag_changed = false;
 
@@ -511,7 +516,7 @@ public class Diary extends DiaryElementChart
     }
 
     public Tag create_tag( String name, Tag.Category ctg ) {
-        return create_tag( name, ctg, ChartPoints.DEFAULT );
+        return create_tag( name, ctg, DEFAULT_CHART_TYPE );
     }
 
     public void dismiss_tag( Tag tag ) {
@@ -836,7 +841,7 @@ public class Diary extends DiaryElementChart
         if( m_chapter_categories.size() < 1 )
             m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO: i18n
 
-        if( m_startup_elem_id > DiaryElement.HOME_FIXED_ELEM )
+        if( m_startup_elem_id > DiaryElement.DEID_DIARY )
             if( get_element( m_startup_elem_id ) == null )
             {
                 Log.w( Lifeograph.TAG, "Startup element cannot be found in db" );
@@ -854,14 +859,26 @@ public class Diary extends DiaryElementChart
             case 't':
                 elem.set_todo_status( ES_TODO );
                 break;
+            case 'T':
+                elem.set_todo_status( ES_NOT_TODO | ES_TODO );
+                break;
             case 'p':
                 elem.set_todo_status( ES_PROGRESSED );
+                break;
+            case 'P':
+                elem.set_todo_status( ES_NOT_TODO | ES_PROGRESSED );
                 break;
             case 'd':
                 elem.set_todo_status( ES_DONE );
                 break;
+            case 'D':
+                elem.set_todo_status( ES_NOT_TODO | ES_DONE );
+                break;
             case 'c':
                 elem.set_todo_status( ES_CANCELED );
+                break;
+            case 'C':
+                elem.set_todo_status( ES_NOT_TODO | ES_CANCELED );
                 break;
         }
     }
@@ -870,19 +887,17 @@ public class Diary extends DiaryElementChart
     private Result parse_db_body_text() {
         switch( m_read_version )
         {
+            case 1050:
             case 1040:
             case 1030:
             case 1020:
-                return parse_db_body_text_1040();
-            case 1011:
-            case 1010:
+                return parse_db_body_text_1050();
+            default: // (1011 & 1010):
                 return parse_db_body_text_1010();
-            default:
-                return parse_db_body_text_110();
         }
     }
 
-    private Result parse_db_body_text_1040() {
+    private Result parse_db_body_text_1050() {
         String line;
         Entry entry_new = null;
         Chapter.Category ptr2chapter_ctg = null;
@@ -1045,8 +1060,15 @@ public class Diary extends DiaryElementChart
                             break;
                         case 'O': // options
                             m_option_sorting_criteria = line.charAt( 2 );
-                            if( line.length() > 3 && line.charAt( 3 ) == 'Y' )
-                                set_chart_type( ChartPoints.YEARLY );
+                            if( m_read_version >= 1050 ) {
+                                m_option_sorting_dir = line.charAt( 3 );
+                                if( line.length() > 4 && line.charAt( 4 ) == 'Y' )
+                                    set_chart_type( ChartPoints.YEARLY );
+                            }
+                            else {
+                                if( line.length() > 3 && line.charAt( 3 ) == 'Y' )
+                                    set_chart_type( ChartPoints.YEARLY );
+                            }
                             break;
                         case 'l': // language
                             m_language = line.substring( 2 );
@@ -1158,7 +1180,10 @@ public class Diary extends DiaryElementChart
         m_filter_active.set( m_filter_default );
 
         if( m_read_version == 1020 )
-            upgrade_entries();
+            upgrade_entries_to_1030();
+
+        if( m_read_version < 1050 )
+            upgrade_entries_to_1050();
 
         return Result.SUCCESS;
     }
@@ -1418,214 +1443,13 @@ public class Diary extends DiaryElementChart
 
         m_filter_active.set( m_filter_default );   // employ the default filter
 
-        upgrade_entries();
+        upgrade_entries_to_1030();
+        upgrade_entries_to_1050();
 
         return Result.SUCCESS;
     }
 
-    private Result parse_db_body_text_110() {
-        String line;
-        Entry entry_new = null;
-        Chapter.Category ptr2chapter_ctg = null;
-        Chapter ptr2chapter = null;
-        Tag.Category ptr2tag_ctg = null;
-        Theme ptr2theme = null;
-        Theme ptr2default_theme = null;
-        boolean flag_first_paragraph = false;
-
-        // add tag for system theme
-        create_tag( "[ - 0 - ]", null ).create_own_theme_duplicating( Theme.System.get() );
-
-        // TAG DEFINITIONS & CHAPTERS
-        try {
-            while( ( line = mBufferedReader.readLine() ) != null )
-            {
-                if( line.length() < 1 ) // end of section
-                    break;
-                else if( line.length() >= 3 ) {
-                    switch( line.charAt( 0 ) ) {
-                        case 'I':
-                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
-                            break;
-                        case 'T': // tag category
-                            ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
-                            ptr2tag_ctg.set_expanded( line.charAt( 1 ) == 'e' );
-                            break;
-                        case 't': // tag
-                            create_tag( line.substring( 2 ), ptr2tag_ctg );
-                            break;
-                        case 'C': // chapter category
-                            ptr2chapter_ctg = create_chapter_ctg( line.substring( 2 ) );
-                            if( line.charAt( 1 ) == 'c' )
-                                m_ptr2chapter_ctg_cur = ptr2chapter_ctg;
-                            break;
-                        case 'o': // ordinal chapter (topic)
-                            ptr2chapter =
-                                    m_topics.create_chapter( get_db_line_name( line ),
-                                            fix_pre_1020_date( get_db_line_date( line ) ) );
-                            ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
-                            break;
-                        case 'c': // chapter
-                            if( ptr2chapter_ctg == null ) {
-                                Log.e( Lifeograph.TAG, "No chapter category defined" );
-                                break;
-                            }
-                            ptr2chapter =
-                                    ptr2chapter_ctg.create_chapter(
-                                            get_db_line_name( line ),
-                                            fix_pre_1020_date( get_db_line_date( line ) ) );
-                            ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
-                            break;
-                        case 'M':
-                            // themes with same name as tags are merged into existing tags
-                            ptr2theme = create_tag( line.substring( 2 ), null ).get_own_theme();
-                            if( line.charAt( 1 ) == 'd' )
-                                ptr2default_theme = ptr2theme;
-                            break;
-                        case 'm':
-                            if( ptr2theme == null ) {
-                                Log.e( Lifeograph.TAG, "No theme declared" );
-                                break;
-                            }
-                            switch( line.charAt( 1 ) ) {
-                                case 'f': // font
-                                    ptr2theme.font = line.substring( 2 );
-                                    break;
-                                case 'b': // base color
-                                    ptr2theme.color_base = Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 't': // text color
-                                    ptr2theme.color_text = Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 'h': // heading color
-                                    ptr2theme.color_heading =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 's': // subheading color
-                                    ptr2theme.color_subheading =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 'l': // highlight color
-                                    ptr2theme.color_highlight =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                            }
-                            break;
-                        case 'O': // options
-                            if( line.length() < 4 )
-                                break;
-                            m_option_sorting_criteria = line.charAt( 3 );
-                            break;
-                        case 'l': // language
-                            m_language = line.substring( 2 );
-                            break;
-                        case 'S': // startup action
-                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
-                            break;
-                        case 'L':
-                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
-                            break;
-                        default:
-                            Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
-                            clear();
-                            return Result.CORRUPT_FILE;
-                    }
-                }
-            }
-
-            // ENTRIES
-            while( ( line = mBufferedReader.readLine() ) != null ) {
-                if( line.length() < 2 )
-                    continue;
-
-                switch( line.charAt( 0 ) ) {
-                    case 'I':
-                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
-                        break;
-                    case 'E': // new entry
-                    case 'e': // trashed
-                        long date = fix_pre_1020_date( Long.parseLong( line.substring( 2 ) ) );
-                        entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
-                        m_entries.put( date, entry_new );
-                        add_entry_to_related_chapter( entry_new );
-                        m_untagged.add_entry( entry_new );
-
-                        if( line.charAt( 0 ) == 'e' )
-                            entry_new.set_trashed( true );
-
-                        flag_first_paragraph = true;
-                        break;
-                    case 'D': // creation & change dates (optional)
-                        if( entry_new == null ) {
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                            break;
-                        }
-                        if( line.charAt( 1 ) == 'r' )
-                            entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
-                        else
-                            // it should be 'h'
-                            entry_new.m_date_changed = Long.parseLong( line.substring( 2 ) );
-                        break;
-                    case 'M': // themes are converted into tags
-                    case 'T': // tag
-                        if( entry_new == null )
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                        else
-                        {
-                            Tag tag = m_tags.get( line.substring( 2 ) );
-                            if( tag != null )
-                                entry_new.add_tag( tag );
-                            else
-                                Log.e( Lifeograph.TAG, "Reference to undefined tag: " + line
-                                        .substring( 2
-                                ) );
-                        }
-                        break;
-                    case 'l': // language
-                        if( entry_new == null )
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                        else
-                            entry_new.set_lang( line.substring( 2 ) );
-                        break;
-                    case 'P': // paragraph
-                        if( entry_new == null ) {
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                            break;
-                        }
-                        if( flag_first_paragraph ) {
-                            if( line.length() > 2 )
-                                entry_new.m_text = line.substring( 2 );
-                            entry_new.m_name = entry_new.m_text;
-                            flag_first_paragraph = false;
-                        }
-                        else {
-                            entry_new.m_text += "\n";
-                            entry_new.m_text += line.substring( 2 );
-                        }
-                        break;
-                    default:
-                        Log.e( Lifeograph.TAG, "Unrecognized line (110):\n" + line );
-                        clear();
-                        return Result.CORRUPT_FILE;
-                }
-            }
-        }
-        catch( IOException e ) {
-            return Result.CORRUPT_FILE;
-        }
-
-        do_standard_checks_after_parse();
-
-        // if default theme is different than the system theme, set the untagged accordingly
-        if( ptr2default_theme != null )
-            m_untagged.create_own_theme_duplicating( ptr2default_theme );
-
-        upgrade_entries();
-
-        return Result.SUCCESS;
-    }
-
-    private void upgrade_entries() {
+    private void upgrade_entries_to_1030() {
         for( Entry entry : m_entries.values() ) {
             entry.m_date_status = entry.m_date_created; // initialize the status date
 
@@ -1681,23 +1505,43 @@ public class Diary extends DiaryElementChart
         }
     }
 
+    private void upgrade_entries_to_1050() {
+        for( Entry entry : m_entries.values() ) {
+            if( entry.get_todo_status() == ES_NOT_TODO )
+                entry.set_todo_status( entry.calculate_todo_status_internal() );
+        }
+    }
+
     // DB CREATING HELPER FUNCTIONS ================================================================
     private void create_db_todo_status_text( DiaryElement elem ) throws IOException {
         switch( elem.get_todo_status() ) {
-            case ES_NOT_TODO:
-                mBufferedWriter.append( 'n' );
-                break;
             case ES_TODO:
                 mBufferedWriter.append( 't' );
+                break;
+            case ES_NOT_TODO | ES_TODO:
+                mBufferedWriter.append( 'T' );
                 break;
             case ES_PROGRESSED:
                 mBufferedWriter.append( 'p' );
                 break;
+            case ES_NOT_TODO | ES_PROGRESSED:
+                mBufferedWriter.append( 'P' );
+                break;
             case ES_DONE:
-                mBufferedWriter.append( 'd');
+                mBufferedWriter.append( 'd' );
+                break;
+            case ES_NOT_TODO | ES_DONE:
+                mBufferedWriter.append( 'D' );
                 break;
             case ES_CANCELED:
                 mBufferedWriter.append( 'c' );
+                break;
+            case ES_NOT_TODO | ES_CANCELED:
+                mBufferedWriter.append( 'C' );
+                break;
+            case ES_NOT_TODO:
+            default:
+                mBufferedWriter.append( 'n' );
                 break;
         }
     }
@@ -1769,8 +1613,10 @@ public class Diary extends DiaryElementChart
 
     private boolean create_db_body_text() throws IOException {
         // OPTIONS
-        mBufferedWriter.append( "O " ).append( m_option_sorting_criteria )
-                       .append( ( m_chart_type & ChartPoints.YEARLY ) != 0 ? "Y\n" : "\n" );
+        mBufferedWriter.append( "O " )
+                       .append( m_option_sorting_criteria )
+                       .append( m_option_sorting_dir )
+                       .append( ( m_chart_type & ChartPoints.YEARLY ) != 0 ? "Y\n" : "M\n" );
         if( ! m_language.isEmpty() )
             mBufferedWriter.append( "l " ).append( m_language ).append( '\n' );
 
@@ -2348,6 +2194,7 @@ public class Diary extends DiaryElementChart
     private int m_last_elem_id; // DEID
     // options & flags
     private char m_option_sorting_criteria;
+    private char m_option_sorting_dir;
     private int m_read_version;
     //private boolean m_flag_only_save_filtered;
     //private boolean m_flag_changed;

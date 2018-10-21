@@ -68,8 +68,7 @@ public class Entry extends DiaryElement {
     public int get_icon() {
         //return( is_favored() ? R.mipmap.ic_action_favorite : R.mipmap.ic_entry );
 
-        switch( get_todo_status() )
-        {
+        switch( get_todo_status_effective() ) {
             case ES_TODO:
                 return R.mipmap.ic_todo_open;
             case ES_PROGRESSED:
@@ -153,9 +152,8 @@ public class Entry extends DiaryElement {
         while( ( fs & ES_FILTER_OUTSTANDING ) != 0 )  // this loop is meant for a single iteration
         // loop used instead of if to be able to break out
         {
-//            TODO WILL BE IMPLEMENTED IN 0.3
+//            TODO: WILL BE IMPLEMENTED LATER
 //            flag_filteredout = ( ( fs & ES_FILTER_TRASHED & m_status ) == 0 );
-//
 //            // no need to continue if already filtered out
 //            if( flag_filteredout )
 //                break;
@@ -164,7 +162,7 @@ public class Entry extends DiaryElement {
             if( flag_filteredout )
                 break;
 
-            flag_filteredout = ( ( fs & ES_FILTER_TODO & m_status ) == 0 );
+            flag_filteredout = ( ( fs & get_todo_status_effective() ) == 0 );
             if( flag_filteredout )
                 break;
 
@@ -386,6 +384,91 @@ public class Entry extends DiaryElement {
             else
                 m_name = text.substring( 0, pos );
         }
+    }
+
+    public int calculate_todo_status_internal() {
+        int pos_current = 0;
+        int pos_end = m_text.length();
+        char ch;
+        char lf = '\t';
+        int status = 0;
+        int status2apply = 0;
+
+        for( ; pos_current < pos_end; ++pos_current )
+        {
+            ch = m_text.charAt( pos_current );
+
+            // MARKUP PARSING
+            switch( ch )
+            {
+                case '\t':
+                    if( lf == ch )
+                        lf = '[';
+                    else if( lf != '[' )
+                        lf = '\t';
+                    break;
+                case '[':
+                    if( lf == ch )
+                        lf = 's';
+                    else
+                        lf = '\t';
+                    break;
+                case ' ':
+                    if( lf == ' ' )
+                        status |= status2apply;
+                    else
+                        if( lf == 's' ){ lf = ']'; status2apply = ES_TODO; } else lf = '\t';
+                    break;
+                case '~':
+                    if( lf == 's' ){ lf = ']'; status2apply = ES_PROGRESSED; } else lf = '\t';
+                    break;
+                case '+':
+                    if( lf == 's' ){ lf = ']'; status2apply = ES_DONE; } else lf = '\t';
+                    break;
+                case 'x':
+                case 'X':
+                    if( lf == 's' ){ lf = ']'; status2apply = ES_CANCELED; } else lf = '\t';
+                    break;
+                case ']':
+                    if( lf == ch )
+                        lf = ' ';
+                    else
+                        lf = '\t';
+                    break;
+                default:
+                    lf = '\t';
+                    break;
+            }
+
+            if( ( status & ES_PROGRESSED ) != 0  ||
+                ( ( ( status & ES_TODO ) != 0 ) && ( ( status & ES_DONE ) != 0 ) ) )
+                return( ES_NOT_TODO|ES_PROGRESSED );
+        }
+
+        switch( status ) {
+            case ES_CANCELED:
+                return( ES_NOT_TODO|ES_CANCELED );
+            case ES_TODO:
+            case ES_TODO|ES_CANCELED:
+                return( ES_NOT_TODO|ES_TODO );
+            case ES_DONE:
+            case ES_DONE|ES_CANCELED:
+                return( ES_NOT_TODO|ES_DONE );
+            default:
+                return ES_NOT_TODO;
+        }
+    }
+
+    public boolean calculate_todo_status() {
+        int es = calculate_todo_status_internal();
+
+        if( es != get_todo_status() ) {
+            set_todo_status( es );
+            m_date_status = ( int ) ( System.currentTimeMillis() / 1000L );
+            return true;
+        }
+
+        return false;
     }
 
     Date m_date;

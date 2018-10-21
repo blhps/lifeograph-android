@@ -25,6 +25,8 @@ package net.sourceforge.lifeograph;
 
 public abstract class DiaryElementChart extends DiaryElement
 {
+    public final static int DEFAULT_CHART_TYPE = ChartPoints.MONTHLY | ChartPoints.BOOLEAN;
+
     DiaryElementChart( Diary diary, String name, int status ) {
         super( diary, name, status );
     }
@@ -53,5 +55,5 @@ public abstract class DiaryElementChart extends DiaryElement
     }
 
     // thanks to multiple inheritance, the initialization is done in constructor in C++:
-    int m_chart_type = ChartPoints.DEFAULT;
+    int m_chart_type = DEFAULT_CHART_TYPE;
 }
