@@ -42,7 +42,8 @@ import android.util.Log;
 
 enum Result {
     OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, /*COULD_NOT_FINISH,*/ WRONG_PASSWORD,
-    /*APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE,*/ INCOMPATIBLE_FILE, CORRUPT_FILE,
+    /*APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE,*/
+    INCOMPATIBLE_FILE_OLD, INCOMPATIBLE_FILE_NEW, CORRUPT_FILE,
     FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_LOCKED
 }
 
@@ -260,6 +261,10 @@ public class Diary extends DiaryElementChart
 
     public boolean is_encrypted() {
         return( !m_passphrase.isEmpty() );
+    }
+
+    public boolean is_old() {
+        return( m_read_version < DB_FILE_VERSION_INT );
     }
 
     public String get_lang() {
@@ -1992,10 +1997,13 @@ public class Diary extends DiaryElementChart
                 switch( line.charAt( 0 ) ) {
                     case 'V':
                         m_read_version = Integer.parseInt( line.substring( 2 ) );
-                        if( m_read_version < DB_FILE_VERSION_INT_MIN
-                                || m_read_version > DB_FILE_VERSION_INT ) {
+                        if( m_read_version < DB_FILE_VERSION_INT_MIN ) {
                             clear();
-                            return Result.INCOMPATIBLE_FILE;
+                            return Result.INCOMPATIBLE_FILE_OLD;
+                        }
+                        else if( m_read_version > DB_FILE_VERSION_INT ) {
+                            clear();
+                            return Result.INCOMPATIBLE_FILE_NEW;
                         }
                         break;
                     case 'E':

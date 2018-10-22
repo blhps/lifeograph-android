@@ -169,6 +169,8 @@
     <string name="unitless">Uneinheitlich</string>
     <string name="set_password">Passwort festlegen</string>
     <string name="todo_auto">Automatisch</string>
+    <string name="diary_upgrade_confirm">Bist du sicher, dass du das Tagebuch upgraden willst?</string>
+    <string name="upgrade_diary">Upgrade das Tagebuch</string>
 
 </resources>
 

@@ -26,6 +26,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.support.v7.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -136,13 +137,13 @@ public class ActivityLogin extends AppCompatActivity
         {
             public void onItemClick( AdapterView< ? > parent, View v, int pos, long id ) {
                 Log.d( Lifeograph.TAG, "on item selected" );
-                boolean flag_open_ready = false;
+                m_flag_open_ready = false;
 
                 Diary.diary.clear();
 
                 switch( Diary.diary.set_path( mPaths.get( pos ), mSetPathType ) ) {
                     case SUCCESS:
-                        flag_open_ready = true;
+                        m_flag_open_ready = true;
                         break;
                     case FILE_NOT_FOUND:
                         Lifeograph.showToast( "File is not found" );
@@ -158,14 +159,17 @@ public class ActivityLogin extends AppCompatActivity
                         break;
                 }
 
-                if( flag_open_ready ) {
-                    flag_open_ready = false;
+                if( m_flag_open_ready ) {
+                    m_flag_open_ready = false;
                     switch( Diary.diary.read_header( getAssets() ) ) {
                         case SUCCESS:
-                            flag_open_ready = true;
+                            m_flag_open_ready = true;
                             break;
-                        case INCOMPATIBLE_FILE:
-                            Lifeograph.showToast( "Incompatible diary version" );
+                        case INCOMPATIBLE_FILE_OLD:
+                            Lifeograph.showToast( "Incompatible diary version (TOO OLD)" );
+                            break;
+                        case INCOMPATIBLE_FILE_NEW:
+                            Lifeograph.showToast( "Incompatible diary version (TOO NEW)" );
                             break;
                         case CORRUPT_FILE:
                             Lifeograph.showToast( "Corrupt file" );
@@ -176,12 +180,25 @@ public class ActivityLogin extends AppCompatActivity
                     }
                 }
 
-        /*
-         * TODO: if( flag_open_ready && ( ! flag_encrypted ) && m_flag_open_directly ) {
-         * handle_button_opendb_clicked(); return; }
-         */
-
-                if( flag_open_ready ) {
+                // HANDLE OLD DIARY
+                if( m_flag_open_ready && Diary.diary.is_old() &&
+                    mSetPathType != Diary.SetPathType.READ_ONLY &&
+                    m_password_attempt_no == 0 ) {
+                        Lifeograph.showConfirmationPrompt(
+                                R.string.diary_upgrade_confirm,
+                                R.string.upgrade_diary,
+                                new DialogInterface.OnClickListener()
+                                {
+                                    public void onClick( DialogInterface dialog, int id ) {
+                                        if( Diary.diary.is_encrypted() )
+                                            askPassword();
+                                        else
+                                            readBody();
+                                    }
+                                },
+                                null );
+                }
+                else if( m_flag_open_ready ) {
                     if( Diary.diary.is_encrypted() )
                         askPassword();
                     else
@@ -285,6 +302,7 @@ public class ActivityLogin extends AppCompatActivity
                                                  DialogPassword.DPAction.DPA_LOGIN,
                                                  this );
         dlg.show();
+        m_password_attempt_no++;
     }
 
     private void readBody() {
@@ -303,6 +321,8 @@ public class ActivityLogin extends AppCompatActivity
             default:
                 break;
         }
+
+        m_password_attempt_no = 0;
     }
 
     File getDiariesDir() {
@@ -433,6 +453,8 @@ public class ActivityLogin extends AppCompatActivity
     private ArrayAdapter< String > mAdapterDiaries;
     private Diary.SetPathType mSetPathType = Diary.SetPathType.NORMAL;
     //private DiaryAdapter mAdapterDiaries; MAYBE LATER
+    private boolean m_flag_open_ready = false;
+    private int m_password_attempt_no = 0;
 
     // DIARY ELEMENT ADAPTER CLASS =================================================================
 //    class DiaryAdapter extends ArrayAdapter< Diary >
