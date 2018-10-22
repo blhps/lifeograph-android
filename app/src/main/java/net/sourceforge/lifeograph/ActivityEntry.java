@@ -167,10 +167,9 @@ public class ActivityEntry extends AppCompatActivity
 
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
 
-        HorizontalScrollView toolbar = ( HorizontalScrollView )
-                findViewById( R.id.toolbar_text_edit );
+        HorizontalScrollView toolbar = findViewById( R.id.toolbar_text_edit );
 
-        mEditText = ( EditText ) findViewById( R.id.editTextEntry );
+        mEditText = findViewById( R.id.editTextEntry );
         //mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
 
         if( Diary.diary.is_read_only() ) {
@@ -240,7 +239,7 @@ public class ActivityEntry extends AppCompatActivity
 
                     for( ; iter_start != iter_end; ++iter_start ) {
                         switch( v.getText().charAt( iter_start ) ) {
-                            // BULLETED LIST
+                            // BULLET LIST
                             case '•':
                                 if( char_lf != '*' )
                                     return false;
@@ -366,21 +365,21 @@ public class ActivityEntry extends AppCompatActivity
             }
         } );
 
-        Button mButtonBold = ( Button ) findViewById( R.id.buttonBold );
+        Button mButtonBold = findViewById( R.id.buttonBold );
         mButtonBold.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleFormat( "*" );
             }
         } );
 
-        Button mButtonItalic = ( Button ) findViewById( R.id.buttonItalic );
+        Button mButtonItalic = findViewById( R.id.buttonItalic );
         mButtonItalic.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleFormat( "_" );
             }
         } );
 
-        Button mButtonStrikethrough = ( Button ) findViewById( R.id.buttonStrikethrough );
+        Button mButtonStrikethrough = findViewById( R.id.buttonStrikethrough );
         SpannableString spanStringS = new SpannableString( "S" );
         spanStringS.setSpan( new StrikethroughSpan(), 0, 1, 0 );
         mButtonStrikethrough.setText( spanStringS );
@@ -391,7 +390,7 @@ public class ActivityEntry extends AppCompatActivity
             }
         } );
 
-        mButtonHighlight = ( Button ) findViewById( R.id.buttonHighlight );
+        mButtonHighlight = findViewById( R.id.buttonHighlight );
         mButtonHighlight.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {
@@ -399,21 +398,21 @@ public class ActivityEntry extends AppCompatActivity
             }
         } );
 
-        Button mButtonIgnore = ( Button ) findViewById( R.id.button_ignore );
+        Button mButtonIgnore = findViewById( R.id.button_ignore );
         mButtonIgnore.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 toggleIgnoreParagraph();
             }
         } );
 
-        Button mButtonComment = ( Button ) findViewById( R.id.button_comment );
+        Button mButtonComment = findViewById( R.id.button_comment );
         mButtonComment.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) {
                 addComment();
             }
         } );
 
-        mViewTags = ( ViewEntryTags ) findViewById( R.id.view_entry_tags );
+        mViewTags = findViewById( R.id.view_entry_tags );
         mViewTags.setListener( this );
 
         Entry entry = Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) );
@@ -424,7 +423,7 @@ public class ActivityEntry extends AppCompatActivity
         show( entry, savedInstanceState == null );
 
         if( !Lifeograph.getAddFreeNotPurchased() ) {
-            LinearLayout container = ( LinearLayout ) findViewById( R.id.main_container );
+            LinearLayout container = findViewById( R.id.main_container );
             View ad = findViewById( R.id.fragmentAd );
             container.removeView( ad );
         }
@@ -477,8 +476,8 @@ public class ActivityEntry extends AppCompatActivity
         ToDoAction.mObject = this;
 
         item = menu.findItem( R.id.search_text );
-        final SearchView searchView = ( SearchView ) MenuItemCompat.getActionView( item );
-        MenuItemCompat.setOnActionExpandListener( item, new MenuItemCompat.OnActionExpandListener()
+        final SearchView searchView = ( SearchView ) item.getActionView();
+        item.setOnActionExpandListener( new MenuItem.OnActionExpandListener()
         {
             public boolean onMenuItemActionExpand( MenuItem menuItem ) {
                 searchView.setQuery( Diary.diary.get_search_text(), false );
@@ -768,7 +767,7 @@ public class ActivityEntry extends AppCompatActivity
         if( iter_end == -1 )
             iter_end = v.getText().length() - 1;
 
-        StringBuilder text = new StringBuilder( "" );
+        StringBuilder text = new StringBuilder();
         int value = 0;
         char char_lf = 't';
 
