@@ -44,6 +44,7 @@ import android.text.style.StrikethroughSpan;
 import android.text.style.StyleSpan;
 import android.text.style.SuperscriptSpan;
 import android.text.style.TextAppearanceSpan;
+import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.KeyEvent;
@@ -2132,6 +2133,7 @@ public class ActivityEntry extends AppCompatActivity
                                                    c ) );*/
 
         addSpan( tag_box, pos_start, pos_box, 0 );
+        addSpan( new TypefaceSpan( "monospace" ), pos_start, pos_box, 0 );
         if( tag != null )
             addSpan( tag, pos_box + 1, pos_end, 0 ); // ++ to skip separating space char
     }
