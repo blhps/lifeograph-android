@@ -43,7 +43,7 @@ public class FragmentAd extends Fragment
         super.onActivityCreated( bundle );
 
         if( Lifeograph.getAddFreeNotPurchased() ) {
-            AdView adView = ( AdView ) getView().findViewById( R.id.adView );
+            AdView adView = getView().findViewById( R.id.adView );
             AdRequest adRequest = new AdRequest.Builder().build();
             adView.loadAd( adRequest );
         }

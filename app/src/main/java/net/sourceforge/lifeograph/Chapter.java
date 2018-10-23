@@ -76,8 +76,10 @@ public class Chapter extends DiaryElementChart {
         }
 
         public boolean set_chapter_date( Chapter chapter, long date ) {
-            assert( !chapter.is_ordinal() );
-            assert( !mMap.containsKey( date ) );
+            if( BuildConfig.DEBUG ) {
+                if( chapter.is_ordinal() ) { throw new AssertionError(); }
+                if( mMap.containsKey( date ) ) { throw new AssertionError(); }
+            }
 
             if( chapter.m_date_begin.m_date != Date.NOT_SET ) {
                 // fix time span

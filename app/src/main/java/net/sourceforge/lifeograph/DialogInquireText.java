@@ -94,7 +94,7 @@ public class DialogInquireText extends Dialog
         mInput.setText( mDefName );
         mInput.selectAll();
 
-        Button buttonNegative = ( Button ) findViewById( R.id.inquireTextButtonNegative );
+        Button buttonNegative = findViewById( R.id.inquireTextButtonNegative );
         buttonNegative.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {

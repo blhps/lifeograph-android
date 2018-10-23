@@ -121,7 +121,7 @@ class GridCalAdapter extends BaseAdapter
             row = inflater.inflate( R.layout.cal_day, parent, false );
         }
 
-        TextView tvDayNo = ( TextView ) row.findViewById( R.id.calendar_day_gridcell );
+        TextView tvDayNo = row.findViewById( R.id.calendar_day_gridcell );
         //TextView num_events_per_day = ( TextView ) row.findViewById( R.id.num_events_per_day );
         //num_events_per_day.setTextColor( Color.GREEN );
 

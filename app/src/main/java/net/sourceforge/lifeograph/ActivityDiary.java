@@ -72,7 +72,7 @@ public class ActivityDiary extends AppCompatActivity
         if( Lifeograph.getScreenWidth() >= 4.0 ) {
             setContentView( R.layout.diary_wide );
 
-            mButtonCalendar = ( Button ) findViewById( R.id.button_calendar );
+            mButtonCalendar = findViewById( R.id.button_calendar );
             mButtonCalendar.setOnClickListener( new View.OnClickListener()
             {
                 public void onClick( View view ) {
@@ -80,7 +80,7 @@ public class ActivityDiary extends AppCompatActivity
                 }
             } );
 
-            ViewPager pagerCalendar = ( ViewPager ) findViewById( R.id.pager_calendar );
+            ViewPager pagerCalendar = findViewById( R.id.pager_calendar );
             mCalPagerAdapter = new PagerAdapterCalendar( pagerCalendar );
         }
         else {
@@ -89,7 +89,7 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         // FILLING WIDGETS
-        mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
+        mDrawerLayout = findViewById( R.id.drawer_layout );
         //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
         // LISTENERS
@@ -134,7 +134,7 @@ public class ActivityDiary extends AppCompatActivity
             mActionBar.setSubtitle( Diary.diary.get_info_str() );
         }
 
-        mPager = ( ViewPager ) findViewById( R.id.pager );
+        mPager = findViewById( R.id.pager );
         TabsAdapter mTabsAdapter = new TabsAdapter( this, mPager );
 
         Bundle args = new Bundle();
@@ -151,7 +151,7 @@ public class ActivityDiary extends AppCompatActivity
                              FragmentElemList.class, args );
 
         // CHART
-        mViewChart = ( ViewChart ) findViewById( R.id.chart_view_diary );
+        mViewChart = findViewById( R.id.chart_view_diary );
         mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
         mViewChart.setListener( new ViewChart.Listener()
         {
@@ -166,7 +166,7 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         if( !Lifeograph.getAddFreeNotPurchased() ) {
-            LinearLayout container = ( LinearLayout ) findViewById( R.id.main_container );
+            LinearLayout container = findViewById( R.id.main_container );
             View ad = findViewById( R.id.fragmentAd );
             container.removeView( ad );
         }

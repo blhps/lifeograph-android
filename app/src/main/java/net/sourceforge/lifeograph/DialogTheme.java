@@ -48,7 +48,7 @@ class DialogTheme extends Dialog
 
         setTitle( mTag.get_name() );
 
-        mButtonTextColor = ( Button ) findViewById( R.id.button_text_color );
+        mButtonTextColor = findViewById( R.id.button_text_color );
         mButtonBaseColor = ( Button ) findViewById( R.id.button_base_color );
         mButtonHeadingColor = ( Button ) findViewById( R.id.button_heading_color );
         mButtonSubheadingColor = ( Button ) findViewById( R.id.button_subheading_color );

@@ -497,7 +497,7 @@ public class Diary extends DiaryElementChart
         // fix or dismiss contained tags
         // we work on copies to prevent ConcurrentModificationException
         if( flag_dismiss_contained ) {
-            for( Tag tag : ctg.mTags.toArray( new Tag[ ctg.mTags.size() ] ) )
+            for( Tag tag : ctg.mTags.toArray( new Tag[ 0 ] ) )
                 dismiss_tag( tag );
         }
         else {

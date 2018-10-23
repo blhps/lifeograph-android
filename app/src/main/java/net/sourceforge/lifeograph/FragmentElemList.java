@@ -130,9 +130,7 @@ public class FragmentElemList extends ListFragment
                     // FREE CHAPTERS
                     if( !Diary.diary.m_groups.mMap.isEmpty() ) {
                         mElems.add( new HeaderElem( R.string.free_chapters ) );
-                        for( Chapter c : Diary.diary.m_groups.mMap.descendingMap().values() ) {
-                            mElems.add( c );
-                        }
+                        mElems.addAll( Diary.diary.m_groups.mMap.descendingMap().values() );
                     }
                     // NUMBERED CHAPTERS
                     if( !Diary.diary.m_topics.mMap.isEmpty() ) {
@@ -455,7 +453,7 @@ public class FragmentElemList extends ListFragment
 
             public TextView getName() {
                 if( mTitle == null ) {
-                    mTitle = ( TextView ) mRow.findViewById( R.id.title );
+                    mTitle = mRow.findViewById( R.id.title );
                 }
                 return mTitle;
             }

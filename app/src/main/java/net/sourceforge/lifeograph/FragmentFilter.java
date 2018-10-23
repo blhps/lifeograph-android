@@ -49,15 +49,15 @@ public class FragmentFilter extends Fragment
                 R.layout.fragment_filter, container, false );
 
         // FILLING WIDGETS
-        mEditSearch = ( EditText ) rootView.findViewById( R.id.editTextSearch );
+        mEditSearch = rootView.findViewById( R.id.editTextSearch );
         mButtonSearchTextClear = ( Button ) rootView.findViewById( R.id.buttonClearText );
 
-        mButtonShowTodoNot = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_not );
-        mButtonShowTodoOpen = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_open );
-        mButtonShowTodoProgressed = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_progressed );
-        mButtonShowTodoDone = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_done );
-        mButtonShowTodoCanceled = ( ToggleImageButton ) rootView.findViewById( R.id.show_todo_canceled );
-        mSpinnerShowFavorite = ( Spinner ) rootView.findViewById( R.id.spinnerFavorites );
+        mButtonShowTodoNot = rootView.findViewById( R.id.show_todo_not );
+        mButtonShowTodoOpen = rootView.findViewById( R.id.show_todo_open );
+        mButtonShowTodoProgressed = rootView.findViewById( R.id.show_todo_progressed );
+        mButtonShowTodoDone = rootView.findViewById( R.id.show_todo_done );
+        mButtonShowTodoCanceled = rootView.findViewById( R.id.show_todo_canceled );
+        mSpinnerShowFavorite = rootView.findViewById( R.id.spinnerFavorites );
 
         if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
             mEditSearch.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );

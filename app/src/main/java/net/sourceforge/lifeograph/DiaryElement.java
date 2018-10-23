@@ -190,7 +190,7 @@ public abstract class DiaryElement {
     { return false; }
 
     String m_name;
-    Diary m_ptr2diary = null;
+    Diary m_ptr2diary;
     int m_id = 0;
     int m_status;
 

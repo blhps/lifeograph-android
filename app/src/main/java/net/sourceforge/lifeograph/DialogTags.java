@@ -73,7 +73,7 @@ class DialogTags extends Dialog
             }
         } );
 
-        ListView listViewTags = ( ListView ) findViewById( R.id.listViewTags );
+        ListView listViewTags = findViewById( R.id.listViewTags );
         listViewTags.setAdapter( mAdapterTags );
         listViewTags.setItemsCanFocus( false );
 

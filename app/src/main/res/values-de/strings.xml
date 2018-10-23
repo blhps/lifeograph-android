@@ -129,11 +129,6 @@
         <item>Nur Favoriten-Einträge</item>
     </string-array>
 
-    <string-array name="pref_DIARY_STORAGE_titles">
-        <item>External Storage/SD Card</item>
-        <item>Internal Storage (Deleted on uninstall)</item>
-    </string-array>
-
     <string-array name="array_tag_types">
         <item>Klassisch (Boolean)</item>
         <item>Kumulativ</item>

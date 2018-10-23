@@ -112,7 +112,7 @@ public class ActivityLogin extends AppCompatActivity
         setContentView( R.layout.login );
 
         // READ-ONLY SWITCH
-        SwitchCompat switchReadOnly = ( SwitchCompat ) findViewById( R.id.switch_read_only );
+        SwitchCompat switchReadOnly = findViewById( R.id.switch_read_only );
         switchReadOnly.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener()
         {
             public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {

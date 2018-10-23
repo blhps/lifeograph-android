@@ -58,7 +58,7 @@ class DialogPassword extends Dialog
         setCancelable( true );
 
         // mButtonOk must come before mInput as it is referenced there
-        mButtonOk = ( Button ) findViewById( R.id.passwordButtonPositive );
+        mButtonOk = findViewById( R.id.passwordButtonPositive );
         mButtonOk.setOnClickListener( new View.OnClickListener() {
             public void onClick( View v ) { go(); }
         } );

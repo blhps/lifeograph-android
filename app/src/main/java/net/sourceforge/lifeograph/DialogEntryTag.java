@@ -57,7 +57,7 @@ public class DialogEntryTag extends Dialog
             public void onClick( View v ) { go(); }
         } );
 
-        mButtonTheme = ( Button ) findViewById( R.id.entry_set_theme );
+        mButtonTheme = findViewById( R.id.entry_set_theme );
         mButtonTheme.setOnClickListener( new View.OnClickListener()
         {
             public void onClick( View v ) {

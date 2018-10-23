@@ -26,7 +26,8 @@
     android:orientation="horizontal"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/themed_selector" >
+    android:background="@drawable/themed_selector"
+    android:baselineAligned="false">
 
     <RelativeLayout
         android:layout_width="48dp"

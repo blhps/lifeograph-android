@@ -73,7 +73,7 @@ public class ActivityChapterTag extends AppCompatActivity
         }
 
         // FILLING WIDGETS
-        mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
+        mDrawerLayout = findViewById( R.id.drawer_layout );
         //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
         LinearLayout layoutTagProperties = ( LinearLayout ) findViewById( R.id.tag_properties );

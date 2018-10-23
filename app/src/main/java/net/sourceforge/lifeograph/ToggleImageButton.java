@@ -30,7 +30,7 @@ import android.util.AttributeSet;
 import android.widget.Checkable;
 import android.widget.ImageButton;
 
-public class ToggleImageButton extends ImageButton implements Checkable
+public class ToggleImageButton extends android.support.v7.widget.AppCompatImageButton implements Checkable
 {
     private OnCheckedChangeListener onCheckedChangeListener;
 

@@ -55,7 +55,7 @@ class DialogCalendar extends Dialog
 
         GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
         mAdapter = new GridCalAdapter( Lifeograph.sContext, mDate );
-        mNumberPickerMonth = ( NumberPicker ) findViewById( R.id.numberPickerMonth );
+        mNumberPickerMonth = findViewById( R.id.numberPickerMonth );
         mNumberPickerYear = ( NumberPicker ) findViewById( R.id.numberPickerYear );
         Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
         mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
