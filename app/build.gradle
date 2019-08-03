@@ -4,14 +4,29 @@ android {
     buildToolsVersion '28.0.3'
     defaultConfig {
         applicationId 'net.sourceforge.lifeograph'
-        minSdkVersion 14
+        minSdkVersion 16
         targetSdkVersion 28
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_6
             targetCompatibility JavaVersion.VERSION_1_6
+
+//            externalNativeBuild {
+//                cmake {
+//                    cppFlags "-std=c++11 -fexceptions"
+//                    arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_STL=c++_shared"
+//
+//                }
+//            }
+//
+//            ndk {
+//                // Specifies the ABI configurations of your native
+//                // libraries Gradle should build and package with your APK.
+//                abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a' /*, 'mips', 'mips64'*/
+//            }
+
         }
-        versionName '0.8.0'
-        versionCode 8000
+        versionName '0.8.1'
+        versionCode 8010
     }
 
     // disable automatic handling of jni folder by gradle
@@ -30,6 +45,14 @@ android {
             jniDebuggable true
         }
     }
+
+//    externalNativeBuild {
+//        cmake {
+//            path "src/main/jni/CMakeLists.txt"
+//            version "3.10.2"
+//        }
+//    }
+
     productFlavors {
     }
 
@@ -37,9 +60,9 @@ android {
 }
 
 dependencies {
-    implementation 'com.android.support:support-v4:28.0.0'
-    implementation 'com.android.support:customtabs:28.0.0'
-    implementation 'com.google.android.gms:play-services-ads:17.0.0'
+    implementation 'androidx.legacy:legacy-support-v4:1.0.0'
+    implementation 'androidx.browser:browser:1.0.0'
+    implementation 'com.google.android.gms:play-services-ads:18.1.1'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
-    implementation 'com.android.support:appcompat-v7:28.0.0'
+    implementation 'androidx.appcompat:appcompat:1.0.2'
 }

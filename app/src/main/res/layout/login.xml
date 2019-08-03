@@ -47,7 +47,7 @@
             android:textStyle="bold"
             android:textIsSelectable="true"/>
 
-        <android.support.v7.widget.SwitchCompat
+        <androidx.appcompat.widget.SwitchCompat
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="@string/read_only"

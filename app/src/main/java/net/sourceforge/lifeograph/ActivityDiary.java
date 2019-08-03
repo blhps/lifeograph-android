@@ -30,16 +30,17 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.support.annotation.NonNull;
-import android.support.v4.app.Fragment;
-import android.support.v4.app.FragmentManager;
-import android.support.v4.app.FragmentTransaction;
-import android.support.v4.view.MenuItemCompat;
-import android.support.v4.view.PagerAdapter;
-import android.support.v4.view.ViewPager;
-import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.app.ActionBar;
+import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.view.MenuItemCompat;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Gravity;
@@ -263,10 +264,10 @@ public class ActivityDiary extends AppCompatActivity
                 new DialogCalendar( this, !Diary.diary.is_read_only() ).show();
                 return true;
             case R.id.filter:
-                if( mDrawerLayout.isDrawerOpen( Gravity.END ) )
-                    mDrawerLayout.closeDrawer( Gravity.END );
+                if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+                    mDrawerLayout.closeDrawer( GravityCompat.END );
                 else
-                    mDrawerLayout.openDrawer( Gravity.END );
+                    mDrawerLayout.openDrawer( GravityCompat.END );
                 return true;
             case R.id.add_password:
                 new DialogPassword( this,

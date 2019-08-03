@@ -1734,21 +1734,23 @@ public class Diary extends DiaryElementChart
                 mBufferedWriter.append( '\n' );
             else {
                 int pt_start = 0, pt_end;
-                //mStrIO += entry.m_text;
+                boolean flag_terminate_loop = false;
+
                 while( true ) {
                     pt_end = entry.m_text.indexOf( '\n', pt_start );
                     if( pt_end == -1 ) {
                         pt_end = entry.m_text.length();
-                        mBufferedWriter.append( "P " )
-                                       .append( entry.m_text.substring( pt_start, pt_end ) );
-                        break; // end of while( true )
+                        flag_terminate_loop = true;
                     }
-                    else {
+                    else
                         pt_end++;
-                        mBufferedWriter.append( "P " )
-                                       .append( entry.m_text.substring( pt_start, pt_end ) );
-                        pt_start = pt_end;
-                    }
+
+                    mBufferedWriter.append( "P " )
+                                   .append( entry.m_text.substring( pt_start, pt_end ) );
+                    if( flag_terminate_loop )
+                        break; // end of while( true )
+
+                    pt_start = pt_end;
                 }
 
                 mBufferedWriter.append( "\n\n" );

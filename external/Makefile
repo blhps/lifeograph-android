@@ -7,50 +7,58 @@ ABS_PATH    := $(shell dirname $(realpath $(lastword $(MAKEFILE_LIST))))
 NDK_PATH        ?= $(ABS_PATH)/android-ndk
 NDK_ABI         ?= arm
 # NDK platform level, aka APP_PLATFORM, is equivalent to minSdkVersion
-NDK_PLATFORM    := android-14
+API             ?= 16
 
 PLATFORM_PREFIX ?= $(ABS_PATH)/prefix/$(NDK_ABI)
 
 ifeq ($(NDK_ABI),x86)
- HOST            := i686-linux-android
+ TRIPLE          := i686-linux-android
+ HOST            := i686-linux-android$(API)
  HOST_GPG_ERROR  := i486-linux-gnu
  NDK_TOOLCHAIN   := x86-4.9
  CONFIG_FLAGS    := --disable-asm
-else ifeq ($(NDK_ABI),mips)
- HOST            := mipsel-linux-android
- HOST_GPG_ERROR  := mipsel-linux-android
- NDK_TOOLCHAIN   := mipsel-linux-android-4.9
-else ifeq ($(NDK_ABI),mips64)
- HOST            := mips64el-linux-android
- HOST_GPG_ERROR  := mips64el-linux-android
- NDK_TOOLCHAIN   := mips64el-linux-android-4.9
- NDK_PLATFORM    := android-24
+ AR              := $(PLATFORM_PREFIX)/bin/i686-linux-android-ar
+ LD              := $(PLATFORM_PREFIX)/bin/i686-linux-android-ld
+ RANLIB          := $(PLATFORM_PREFIX)/bin/i686-linux-android-ranlib
+else ifeq ($(NDK_ABI),x86_64)
+ API             := 21
+ TRIPLE          := x86_64-linux-android
+ HOST            := x86_64-linux-android
+ HOST_GPG_ERROR  := x86_64-linux-gnu
+ NDK_TOOLCHAIN   := x86_64-4.9
+ CONFIG_FLAGS    := --disable-asm
+ AR              := $(PLATFORM_PREFIX)/bin/x86_64-linux-android-ar
+ LD              := $(PLATFORM_PREFIX)/bin/x86_64-linux-android-ld
+ RANLIB          := $(PLATFORM_PREFIX)/bin/x86_64-linux-android-ranlib
 else ifeq ($(NDK_ABI),arm64)
+ API             := 21
+ TRIPLE          := aarch64-linux-android
  HOST            := aarch64-linux-android
- HOST_GPG_ERROR  := aarch64-linux-android
+ HOST_GPG_ERROR  := aarch64-linux-gnu
  NDK_TOOLCHAIN   := aarch64-linux-androideabi-4.9
- NDK_PLATFORM    := android-24
-else
+ AR              := $(PLATFORM_PREFIX)/bin/aarch64-linux-android-ar
+ LD              := $(PLATFORM_PREFIX)/bin/aarch64-linux-android-ld
+ RANLIB          := $(PLATFORM_PREFIX)/bin/aarch64-linux-android-ranlib
+else #ifeq ($(NDK_ABI),arm)
+ TRIPLE          := arm-linux-androideabi
  HOST            := arm-linux-androideabi
  HOST_GPG_ERROR  := arm-linux-androideabi
  NDK_TOOLCHAIN   := arm-linux-androideabi-4.9
+ AR              := $(PLATFORM_PREFIX)/bin/arm-linux-androideabi-ar
+ LD              := $(PLATFORM_PREFIX)/bin/arm-linux-androideabi-ld
+ RANLIB          := $(PLATFORM_PREFIX)/bin/arm-linux-androideabi-ranlib
 endif
 
-
+NDK_PLATFORM    := android-$(API)
 
 # OTHER VARIABLES ==================================================================================
-NDK_SYSROOT     := $(NDK_PATH)/platforms/$(NDK_PLATFORM)/arch-$(NDK_ABI)
+NDK_SYSROOT     := $(PLATFORM_PREFIX)/sysroot
 
-CC      := $(PLATFORM_PREFIX)/bin/$(HOST)-gcc --sysroot=$(NDK_SYSROOT)
-CXX     := $(PLATFORM_PREFIX)/bin/$(HOST)-g++
+CC      := $(PLATFORM_PREFIX)/bin/$(HOST)-clang
+CXX     := $(PLATFORM_PREFIX)/bin/$(HOST)-clang++
 CPP     := $(PLATFORM_PREFIX)/bin/$(HOST)-cpp
-LD      := $(PLATFORM_PREFIX)/bin/$(HOST)-ld
-AR      := $(PLATFORM_PREFIX)/bin/$(HOST)-ar
-RANLIB  := $(PLATFORM_PREFIX)/bin/$(HOST)-ranlib
-
-CFLAGS  = -DANDROID -I$(LOCAL)/include $(TARGET_CFLAGS)
-LDFLAGS = -llog -L$(LOCAL)/lib $(TARGET_LDFLAGS)
-
+CFLAGS  = -fPIE -fPIC -D__ANDROID_API__=$(API) -DANDROID $(TARGET_CFLAGS) -isystem $(PLATFORM_PREFIX)/sysroot/usr/include/$(TRIPLE)
+LDFLAGS = -latomic -pie
 
 
 # include Android's build flags ====================================================================
@@ -61,8 +69,8 @@ TARGET_ARCH_ABI = $(APP_ABI)
 
 # INITIALIZE TOOLCHAIN =============================================================================
 initialize-toolchain:
-	#mkdir $(PLATFORM_PREFIX)
-	$(NDK_PATH)/build/tools/make-standalone-toolchain.sh --platform=$(NDK_PLATFORM) \
+	$(NDK_PATH)/build/tools/make-standalone-toolchain.sh \
+		--arch=$(NDK_ABI) --platform=$(NDK_PLATFORM) \
 		--install-dir=$(PLATFORM_PREFIX) --toolchain=$(NDK_TOOLCHAIN)
 
 
@@ -79,16 +87,16 @@ libgpg-error-configure:
 			--disable-languages \
 			--enable-static \
 			--host=$(HOST_GPG_ERROR) \
-			--prefix=$(PLATFORM_PREFIX)
-	ls -l libgpg-error/libtool
+			--prefix=$(PLATFORM_PREFIX)/sysroot
 	# brute force and ignorance to make libtool comply with android style
-	sed -i 's,^fast_install=.*,fast_install=needless,' libgpg-error/libtool
-	sed -i 's,^version_type=.*,version_type=none,' libgpg-error/libtool
-	sed -i 's,^shlibpath_overrides_runpath=.*,shlibpath_overrides_runpath=yes,' libgpg-error/libtool
-	sed -i 's,^library_names_spec=.*,library_names_spec="\\$$libname\\$$release\\$$shared_ext",' libgpg-error/libtool
-	sed -i 's,^soname_spec=.*,soname_spec="\\$$libname\\$$release\\$$shared_ext",' libgpg-error/libtool
-	sed -i 's,^finish_cmds=.*,finish_cmds="",' libgpg-error/libtool
-	sed -i 's,^sys_lib_dlsearch_path_spec=.*,sys_lib_dlsearch_path_spec="/lib /usr/lib",' libgpg-error/libtool
+	# ls -l libgpg-error-$(NDK_ABI)/libtool
+	# sed -i 's,^fast_install=.*,fast_install=needless,' libgpg-error-$(NDK_ABI)/libtool
+	# sed -i 's,^version_type=.*,version_type=none,' libgpg-error-$(NDK_ABI)/libtool
+	# sed -i 's,^shlibpath_overrides_runpath=.*,shlibpath_overrides_runpath=yes,' libgpg-error-$(NDK_ABI)/libtool
+	# sed -i 's,^library_names_spec=.*,library_names_spec="\\$$libname\\$$release\\$$shared_ext",' libgpg-error-$(NDK_ABI)/libtool
+	# sed -i 's,^soname_spec=.*,soname_spec="\\$$libname\\$$release\\$$shared_ext",' libgpg-error-$(NDK_ABI)/libtool
+	# sed -i 's,^finish_cmds=.*,finish_cmds="",' libgpg-error-$(NDK_ABI)/libtool
+	# sed -i 's,^sys_lib_dlsearch_path_spec=.*,sys_lib_dlsearch_path_spec="/lib /usr/lib",' libgpg-error-$(NDK_ABI)/libtool
 
 libgpg-error-make:
 	$(MAKE) -C libgpg-error-$(NDK_ABI)
@@ -109,8 +117,8 @@ libgcrypt-configure:
 				--enable-maintainer-mode \
 				--enable-static \
 				--host=$(HOST) \
-				--with-gpg-error-prefix=$(PLATFORM_PREFIX) \
-				--prefix=$(PLATFORM_PREFIX)\
+				--with-gpg-error-prefix=$(PLATFORM_PREFIX)/sysroot \
+				--prefix=$(PLATFORM_PREFIX)/sysroot \
                 $(CONFIG_FLAGS)
 
 libgcrypt-make:
