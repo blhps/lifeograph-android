@@ -32,9 +32,9 @@ public class Theme {
             font = "";
             color_base = Color.WHITE;
             color_text = Color.BLACK;
-            color_heading = Color.BLUE;
-            color_subheading = Color.parseColor( "#F066FC" );
-            color_highlight = Color.parseColor( "#FFF955" );
+            color_heading = Color.parseColor( "#B72525" );
+            color_subheading = Color.parseColor( "#963F3F" );
+            color_highlight = Color.parseColor( "#FFBBBB" );
         }
 
         @Override
