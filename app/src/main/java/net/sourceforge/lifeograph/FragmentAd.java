@@ -27,6 +27,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.ads.mediation.admob.AdMobAdapter;
 import com.google.android.gms.ads.AdRequest;
 import com.google.android.gms.ads.AdView;
 
@@ -44,7 +45,16 @@ public class FragmentAd extends Fragment
 
         if( Lifeograph.getAddFreeNotPurchased() ) {
             AdView adView = getView().findViewById( R.id.adView );
-            AdRequest adRequest = new AdRequest.Builder().build();
+
+            Bundle extras = new Bundle();
+            extras.putString( "max_ad_content_rating", "G" );
+
+            AdRequest adRequest = new AdRequest.Builder()
+                    .addNetworkExtrasBundle( AdMobAdapter.class, extras )
+                    .tagForChildDirectedTreatment( true )
+                    //TAG_FOR_CHILD_DIRECTED_TREATMENT_TRUE but how???
+                    .build();
+
             adView.loadAd( adRequest );
         }
     }
