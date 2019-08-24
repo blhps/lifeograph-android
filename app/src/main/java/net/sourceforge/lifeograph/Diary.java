@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
+import java.util.Random;
 import java.util.TreeMap;
 
 import android.content.res.AssetManager;
@@ -207,16 +208,18 @@ public class Diary extends DiaryElementChart
     // ID HANDLING =================================================================================
     public int create_new_id( DiaryElement element ) {
         int retval;
-        if( m_force_id == DiaryElement.DEID_UNSET )
-            retval = m_current_id;
+        if( m_force_id == DiaryElement.DEID_UNSET ) {
+            Random random = new Random();
+            do {
+                retval = 1000000 + random.nextInt( 9000000 );
+            }
+            while( m_ids.containsKey( retval ) );
+        }
         else {
             retval = m_force_id;
             m_force_id = DiaryElement.DEID_UNSET;
         }
         m_ids.put( retval, element );
-
-        while( m_ids.containsKey( m_current_id ) )
-            m_current_id++;
 
         return retval;
     }
