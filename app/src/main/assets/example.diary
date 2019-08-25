@@ -5,7 +5,7 @@ E no
 O ddM
 l en_US
 S 10034
-L 10013
+L 2112607
 ID10043
 t general
 tc17
@@ -91,6 +91,21 @@ Ds1339235609
 P Welcome to Lifeograph for Android
 P 
 P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID2112607
+E__n1058825217
+Dr1566717252
+Dh1566717596
+Ds1566717252
+P 0.8.1 /
+P 
+P  What is new?
+P 
+P 	• Added support for 64bit native code
+P 	• Create element IDs randomly to eliminate false matches during synchronization
+P 	• Updated default theme colors to match Lifeograph palette
+P 	• Improved contrast of button text
+P 	• Updated dependencies
 
 ID10013
 E__n1058364417
