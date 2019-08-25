@@ -28,7 +28,6 @@
     android:background="@android:color/background_light">
 
     <LinearLayout
-        xmlns:android="http://schemas.android.com/apk/res/android"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:orientation="vertical"
@@ -59,8 +58,8 @@
                 android:id="@+id/buttonClearText"
                 android:layout_width="24dp"
                 android:layout_height="24dp"
-                android:layout_marginRight="8dp"
-                android:layout_gravity="right|center_vertical"
+                android:layout_marginEnd="8dp"
+                android:layout_gravity="end|center_vertical"
                 android:scaleType="centerInside"
                 android:background="@drawable/ic_clear"
                 android:visibility="invisible" />
@@ -206,19 +205,19 @@
             style="?android:attr/buttonBarStyle" >
 
             <Button
+                android:id="@+id/buttonFilterReset"
+                style="@style/LifeoButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
-                android:id="@+id/buttonFilterReset"
-                style="?android:attr/buttonBarButtonStyle"
                 android:text="@string/reset" />
 
             <Button
+                android:id="@+id/buttonFilterSave"
+                style="@style/LifeoButtonStyle"
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
-                android:id="@+id/buttonFilterSave"
-                style="?android:attr/buttonBarButtonStyle"
                 android:text="@string/save" />
 
         </LinearLayout>

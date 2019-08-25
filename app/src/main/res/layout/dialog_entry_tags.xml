@@ -47,18 +47,18 @@
 
         <Button
             android:id="@+id/entry_set_theme"
+            style="@style/LifeoButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            style="?android:attr/buttonBarButtonStyle"
             android:text="@string/theme" />
 
         <Button
             android:id="@+id/entry_tag_action"
+            style="@style/LifeoButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            style="?android:attr/buttonBarButtonStyle"
             android:text="@android:string/ok" />
 
     </LinearLayout>

@@ -46,18 +46,18 @@
 
         <Button
             android:id="@+id/inquireTextButtonNegative"
+            style="@style/LifeoButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            style="?android:attr/buttonBarButtonStyle"
             android:text="@android:string/cancel" />
 
         <Button
             android:id="@+id/inquireTextButtonPositive"
+            style="@style/LifeoButtonStyle"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight=".5"
-            style="?android:attr/buttonBarButtonStyle"
             android:text="@android:string/ok" />
 
     </LinearLayout>

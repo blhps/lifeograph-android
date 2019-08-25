@@ -53,10 +53,11 @@
 
         <Button
             android:id="@+id/buttonAddTag"
+            style="@style/LifeoButtonStyle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_alignParentRight="true"
             android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
             android:layout_centerVertical="true"
             android:text="@string/create" />
 

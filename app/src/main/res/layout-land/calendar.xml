@@ -34,7 +34,7 @@
             android:orientation="horizontal"
             android:baselineAligned="false">
 
-            <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            <LinearLayout
                           android:layout_width="0dp"
                           android:layout_height="match_parent"
                           android:layout_weight=".3"
@@ -79,7 +79,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/LifeoButtonStyle"
                 android:text="@string/create_entry" />
 
             <Button
@@ -87,7 +87,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
-                style="?android:attr/buttonBarButtonStyle"
+                style="@style/LifeoButtonStyle"
                 android:text="@string/create_chapter" />
         </LinearLayout>
 

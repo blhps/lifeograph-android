@@ -11,6 +11,11 @@
         <item name="colorPrimaryDark">@color/t_darkest</item>
     </style>
 
+    <style name="LifeoButtonStyle"
+           parent="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog">
+        <item name="android:textColor">@color/t_darker</item>
+    </style>
+
     <!-- ACTIONBAR STYLES -->
     <style name="LifeoTheme.ActionBarStyle"
            parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
