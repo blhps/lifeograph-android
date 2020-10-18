@@ -28,7 +28,11 @@ external/android-ndk
 external/libgcrypt-arm/
 external/libgcrypt-mips/
 external/libgcrypt-x86/
+external/libgcrypt-x86_64/
+external/libgcrypt-arm64/
 external/libgpg-error-arm/
 external/libgpg-error-mips/
 external/libgpg-error-x86/
+external/libgpg-error-x86_64/
+external/libgpg-error-arm64/
 external/prefix/
