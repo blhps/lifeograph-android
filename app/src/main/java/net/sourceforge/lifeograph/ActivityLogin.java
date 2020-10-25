@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -26,7 +26,6 @@ import java.util.ArrayList;
 import java.util.List;
 
 import android.app.Dialog;
-import android.content.DialogInterface;
 import androidx.appcompat.app.AppCompatActivity;
 import android.content.Context;
 import android.content.Intent;
@@ -39,8 +38,6 @@ import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.View;
-import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
@@ -69,27 +66,24 @@ public class ActivityLogin extends AppCompatActivity
         mIabHelper = new IabHelper( this, IDs.base64EncodedPublicKey );
         //mIabHelper.enableDebugLogging( true );
 
-        mIabHelper.startSetup( new IabHelper.OnIabSetupFinishedListener()
-        {
-            public void onIabSetupFinished( IabResult result ) {
-                if( !result.isSuccess() ) {
-                    Log.d( Lifeograph.TAG, "IAB setup failed: " + result );
-                    return;
-                }
-                if( mIabHelper == null )
-                    return;
-                mIabBroadcastReceiver = new IabBroadcastReceiver( ActivityLogin.this );
-                IntentFilter broadcastFilter = new IntentFilter( IabBroadcastReceiver.ACTION );
-                registerReceiver( mIabBroadcastReceiver, broadcastFilter );
-                Log.d( Lifeograph.TAG, "IAB setup successful" );
+        mIabHelper.startSetup( result -> {
+            if( !result.isSuccess() ) {
+                Log.d( Lifeograph.TAG, "IAB setup failed: " + result );
+                return;
+            }
+            if( mIabHelper == null )
+                return;
+            mIabBroadcastReceiver = new IabBroadcastReceiver( ActivityLogin.this );
+            IntentFilter broadcastFilter = new IntentFilter( IabBroadcastReceiver.ACTION );
+            registerReceiver( mIabBroadcastReceiver, broadcastFilter );
+            Log.d( Lifeograph.TAG, "IAB setup successful" );
 
-                try {
-                    mIabHelper.queryInventoryAsync( mGotInventoryListener );
-                }
-                catch( IabHelper.IabAsyncInProgressException e ) {
-                    Log.e( Lifeograph.TAG,
-                           "Error querying inventory. Another async operation in progress." );
-                }
+            try {
+                mIabHelper.queryInventoryAsync( mGotInventoryListener );
+            }
+            catch( IabHelper.IabAsyncInProgressException e ) {
+                Log.e( Lifeograph.TAG,
+                       "Error querying inventory. Another async operation in progress." );
             }
         } );
 
@@ -110,85 +104,78 @@ public class ActivityLogin extends AppCompatActivity
         setContentView( R.layout.login );
 
         // DIARY LIST
-        mAdapterDiaries = new ArrayAdapter< String >( this,
-                                                      R.layout.list_item_diary,
-                                                      R.id.title );
+        mAdapterDiaries = new ArrayAdapter<>( this,
+                                              R.layout.list_item_diary,
+                                              R.id.title );
 
-        ListView lv = ( ListView ) findViewById( R.id.list_diaries );
+        ListView lv = findViewById( R.id.list_diaries );
         lv.setAdapter( mAdapterDiaries );
-        lv.setOnItemClickListener( new ListView.OnItemClickListener()
-        {
-            public void onItemClick( AdapterView< ? > parent, View v, int pos, long id ) {
-                Log.d( Lifeograph.TAG, "on item selected" );
+        lv.setOnItemClickListener( ( parent, v, pos, id ) -> {
+            Log.d( Lifeograph.TAG, "on item selected" );
+            m_flag_open_ready = false;
+
+            Diary.diary.clear();
+
+            switch( Diary.diary.set_path( mPaths.get( pos ), mSetPathType ) ) {
+                case SUCCESS:
+                    m_flag_open_ready = true;
+                    break;
+                case FILE_NOT_FOUND:
+                    Lifeograph.showToast( "File is not found" );
+                    break;
+                case FILE_NOT_READABLE:
+                    Lifeograph.showToast( "File is not readable" );
+                    break;
+                case FILE_LOCKED:
+                    Lifeograph.showToast( "File is locked" );
+                    break;
+                default:
+                    Lifeograph.showToast( "Failed to open the diary" );
+                    break;
+            }
+
+            if( m_flag_open_ready ) {
                 m_flag_open_ready = false;
-
-                Diary.diary.clear();
-
-                switch( Diary.diary.set_path( mPaths.get( pos ), mSetPathType ) ) {
+                switch( Diary.diary.read_header( getAssets() ) ) {
                     case SUCCESS:
                         m_flag_open_ready = true;
                         break;
-                    case FILE_NOT_FOUND:
-                        Lifeograph.showToast( "File is not found" );
+                    case INCOMPATIBLE_FILE_OLD:
+                        Lifeograph.showToast( "Incompatible diary version (TOO OLD)" );
                         break;
-                    case FILE_NOT_READABLE:
-                        Lifeograph.showToast( "File is not readable" );
+                    case INCOMPATIBLE_FILE_NEW:
+                        Lifeograph.showToast( "Incompatible diary version (TOO NEW)" );
                         break;
-                    case FILE_LOCKED:
-                        Lifeograph.showToast( "File is locked" );
+                    case CORRUPT_FILE:
+                        Lifeograph.showToast( "Corrupt file" );
                         break;
                     default:
-                        Lifeograph.showToast( "Failed to open the diary" );
+                        Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
                         break;
-                }
-
-                if( m_flag_open_ready ) {
-                    m_flag_open_ready = false;
-                    switch( Diary.diary.read_header( getAssets() ) ) {
-                        case SUCCESS:
-                            m_flag_open_ready = true;
-                            break;
-                        case INCOMPATIBLE_FILE_OLD:
-                            Lifeograph.showToast( "Incompatible diary version (TOO OLD)" );
-                            break;
-                        case INCOMPATIBLE_FILE_NEW:
-                            Lifeograph.showToast( "Incompatible diary version (TOO NEW)" );
-                            break;
-                        case CORRUPT_FILE:
-                            Lifeograph.showToast( "Corrupt file" );
-                            break;
-                        default:
-                            Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
-                            break;
-                    }
-                }
-
-                // HANDLE OLD DIARY
-                if( m_flag_open_ready && Diary.diary.is_old() &&
-                    mSetPathType != Diary.SetPathType.READ_ONLY &&
-                    m_password_attempt_no == 0 ) {
-                        Lifeograph.showConfirmationPrompt(
-                                R.string.diary_upgrade_confirm,
-                                R.string.upgrade_diary,
-                                new DialogInterface.OnClickListener()
-                                {
-                                    public void onClick( DialogInterface dialog, int id ) {
-                                        if( Diary.diary.is_encrypted() )
-                                            askPassword();
-                                        else
-                                            readBody();
-                                    }
-                                },
-                                null );
-                }
-                else if( m_flag_open_ready ) {
-                    if( Diary.diary.is_encrypted() )
-                        askPassword();
-                    else
-                        readBody();
                 }
             }
 
+            // HANDLE OLD DIARY
+            if( m_flag_open_ready && Diary.diary.is_old() &&
+                mSetPathType != Diary.SetPathType.READ_ONLY &&
+                m_password_attempt_no == 0 ) {
+                    Lifeograph.showConfirmationPrompt(
+                            R.string.diary_upgrade_confirm,
+                            R.string.upgrade_diary,
+                            ( dialog, id1 ) -> {
+                                if( Diary.diary.is_encrypted() )
+                                    askPassword();
+                                else
+                                    readBody();
+                            },
+                            null );
+            }
+            else if( m_flag_open_ready ) {
+                if( Diary.diary.is_encrypted() )
+                    askPassword();
+                else
+                    readBody();
+            }
         } );
 
         registerForContextMenu( lv ); // ???? What does this do?
@@ -430,7 +417,7 @@ public class ActivityLogin extends AppCompatActivity
     // VARIABLES
     public static String sExternalStorage = "";
     public static String sDiaryPath;
-    private List< String > mPaths = new ArrayList< String >();
+    private List< String > mPaths = new ArrayList<>();
     private ArrayAdapter< String > mAdapterDiaries;
     private Diary.SetPathType mSetPathType = Diary.SetPathType.NORMAL;
     //private DiaryAdapter mAdapterDiaries; MAYBE LATER
@@ -555,7 +542,7 @@ public class ActivityLogin extends AppCompatActivity
             };
 
     // ABOUT DIALOG ================================================================================
-    public class DialogAbout extends Dialog
+    public static class DialogAbout extends Dialog
     {
         DialogAbout( Context context ) {
             super( context );
@@ -569,12 +556,12 @@ public class ActivityLogin extends AppCompatActivity
             setTitle( R.string.program_name );
             setCancelable( true );
 
-            TextView tv = ( TextView ) findViewById( R.id.textViewWebsite );
+            TextView tv = findViewById( R.id.textViewWebsite );
             tv.setMovementMethod( LinkMovementMethod.getInstance() );
 
-            tv = ( TextView ) findViewById( R.id.textViewVersion );
-            tv.setText( BuildConfig.VERSION_NAME + "\n\"" +
-                        Lifeograph.LIFEOGRAPH_RELEASE_CODENAME + "\"" );
+            tv = findViewById( R.id.textViewVersion );
+            tv.setText( String.format( "%s\n\"%s\"", BuildConfig.VERSION_NAME,
+                                       Lifeograph.LIFEOGRAPH_RELEASE_CODENAME ) );
         }
     }
 }
