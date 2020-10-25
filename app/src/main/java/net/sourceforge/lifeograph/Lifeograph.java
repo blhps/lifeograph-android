@@ -83,10 +83,10 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    static void logout() {
+    static void prepareForLogout() {
         Log.d( Lifeograph.TAG, "Lifeograph.prepareForLogout()" );
 
-        if( Diary.diary.is_open() ) {
+        if( !sFlagStartingDiaryEditingActivity && Diary.diary.is_open() ) {
             if( sSaveDiaryOnLogout && Diary.diary.is_in_edit_mode() ) {
                 if( Diary.diary.write() == Result.SUCCESS )
                     showToast( "Diary saved successfully" );
@@ -95,14 +95,7 @@ public class Lifeograph
             }
             else
                 Log.d( Lifeograph.TAG, "Diary is not saved" );
-
-            Diary.diary.clear();
         }
-    }
-
-    static void handleDiaryEditingActivityDestroyed() {
-        if( !sFlagStartingDiaryEditingActivity )
-            logout();
         sFlagStartingDiaryEditingActivity = false;
     }
 

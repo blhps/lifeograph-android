@@ -419,7 +419,7 @@ public class ActivityEntry extends AppCompatActivity
         else
             sync();
 
-        Lifeograph.handleDiaryEditingActivityDestroyed();
+        Lifeograph.prepareForLogout();
     }
 
     @Override

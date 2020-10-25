@@ -190,7 +190,8 @@ public class ActivityLogin extends AppCompatActivity
         Lifeograph.sContext = this;
 
         if( Diary.diary.is_open() ) {
-            Lifeograph.logout();
+            Lifeograph.prepareForLogout();
+            Diary.diary.clear();
         }
 
         populate_diaries(); // this also helps with the changes in the diary path

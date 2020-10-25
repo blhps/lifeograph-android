@@ -175,7 +175,7 @@ public class ActivityDiary extends AppCompatActivity
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onStop()" );
 
-        Lifeograph.handleDiaryEditingActivityDestroyed();
+        Lifeograph.prepareForLogout();
     }
 
     @Override
