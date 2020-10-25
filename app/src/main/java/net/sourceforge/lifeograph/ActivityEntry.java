@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -24,9 +24,6 @@ package net.sourceforge.lifeograph;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.ActionBar;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
@@ -36,6 +33,7 @@ import android.text.Editable;
 import android.text.SpannableString;
 import android.text.Spanned;
 import android.text.TextWatcher;
+import android.text.method.KeyListener;
 import android.text.style.BackgroundColorSpan;
 import android.text.style.ClickableSpan;
 import android.text.style.ForegroundColorSpan;
@@ -47,7 +45,6 @@ import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.ActionMode;
-import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -55,11 +52,14 @@ import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.HorizontalScrollView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
-import androidx.appcompat.widget.SearchView;
 import android.widget.TextView;
+
+import androidx.appcompat.widget.SearchView;
+import androidx.core.view.MenuItemCompat;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
 
 import static net.sourceforge.lifeograph.DiaryElement.ES_NOT_TODO;
 
@@ -139,6 +139,7 @@ public class ActivityEntry extends AppCompatActivity
     //private DrawerLayout mDrawerLayout = null;
     private Menu mMenu = null;
     private EditText mEditText = null;
+    private KeyListener mKeyListener;
     private ViewEntryTags mViewTags = null;
     private Entry m_ptr2entry = null;
     Button mButtonHighlight;
@@ -167,18 +168,17 @@ public class ActivityEntry extends AppCompatActivity
 
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
 
-        HorizontalScrollView toolbar = findViewById( R.id.toolbar_text_edit );
-
         mEditText = findViewById( R.id.editTextEntry );
         //mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
+        mKeyListener = mEditText.getKeyListener();
 
-        if( Diary.diary.is_read_only() ) {
+        if( ! Diary.diary.is_in_edit_mode() ) {
             //mEditText.setInputType( InputType.TYPE_NULL ); does not seem necessary, besides
             // disables text wrap
             mEditText.setTextIsSelectable( true );
             mEditText.setKeyListener( null );
 
-            toolbar.setVisibility( View.GONE );
+            findViewById( R.id.toolbar_text_edit ).setVisibility( View.GONE );
         }
 
         if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
@@ -215,122 +215,119 @@ public class ActivityEntry extends AppCompatActivity
             }
         } );
 
-        mEditText.setOnEditorActionListener( new TextView.OnEditorActionListener()
-        {
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                if( mFlagEditorActionInProgress ) {
-                    mFlagEditorActionInProgress = false;
-                    return false;
-                }
-
-                int iter_end = v.getSelectionStart();
-                int iter_start = v.getText().toString().lastIndexOf( '\n', iter_end - 1 );
-                if( iter_start < 0 || iter_start == v.getText().length() - 1 )
-                    return false;
-
-                iter_start++;   // get rid of the new line char
-                int offset_start = iter_start;   // save for future
-
-                if( v.getText().charAt( iter_start ) == '\t' ) {
-                    StringBuilder text = new StringBuilder( "\n\t" );
-                    int value = 0;
-                    char char_lf = '*';
-                    iter_start++;   // first tab is already handled, so skip it
-
-                    for( ; iter_start != iter_end; ++iter_start ) {
-                        switch( v.getText().charAt( iter_start ) ) {
-                            // BULLET LIST
-                            case '•':
-                                if( char_lf != '*' )
-                                    return false;
-                                char_lf = ' ';
-                                text.append( "• " );
-                                break;
-                            // CHECK LIST
-                            case '[':
-                                if( char_lf != '*' )
-                                    return false;
-                                char_lf = 'c';
-                                break;
-                            case '~':
-                            case '+':
-                            case 'x':
-                            case 'X':
-                                if( char_lf != 'c' )
-                                    return false;
-                                char_lf = ']';
-                                break;
-                            case ']':
-                                if( char_lf != ']' )
-                                    return false;
-                                char_lf = ' ';
-                                text.append( "[ ] " );
-                                break;
-                            // NUMBERED LIST
-                            case '0': case '1': case '2': case '3': case '4':
-                            case '5': case '6': case '7': case '8': case '9':
-                                if( char_lf != '*' && char_lf != '1' )
-                                    return false;
-                                char_lf = '1';
-                                value *= 10;
-                                value += v.getText().charAt( iter_start ) - '0';
-                                break;
-                            case '-':
-                                if( char_lf == '*' ) {
-                                    char_lf = ' ';
-                                    text.append(  "- " );
-                                    break;
-                                }
-                                // no break
-                            case '.':
-                            case ')':
-                                if( char_lf != '1' )
-                                    return false;
-                                char_lf = ' ';
-                                text.append( ++value )
-                                    .append( v.getText().charAt( iter_start ) )
-                                    .append( ' ' );
-                                break;
-                            case '\t':
-                                if( char_lf != '*' )
-                                    return false;
-                                text.append( '\t' );
-                                break;
-                            case ' ':
-                                if( char_lf == 'c' ) {
-                                    char_lf = ']';
-                                    break;
-                                }
-                                else if( char_lf != ' ' )
-                                    return false;
-                                // remove the last bullet if no text follows it:
-                                if( iter_start == iter_end - 1 ) {
-                                    iter_start = offset_start;
-                                    mFlagEditorActionInProgress = true;
-                                    mEditText.getText().delete( iter_start, iter_end );
-                                    mEditText.getText().insert( iter_start, "\n" );
-                                    return true;
-                                }
-                                else {
-                                    mFlagEditorActionInProgress = true;
-                                    mEditText.getText().insert( iter_end, text );
-                                    iter_start = iter_end + text.length();
-                                    if( value > 0 ) {
-                                        iter_start++;
-                                        while( ( iter_start = increment_numbered_line(
-                                                    iter_start, value++, v ) ) > 0 ) {
-                                            iter_start++;
-                                        }
-                                    }
-                                    return true;
-                                }
-                            default:
-                                return false;
-                        }
-                    }
-                }
+        mEditText.setOnEditorActionListener( ( v, actionId, event ) -> {
+            if( mFlagEditorActionInProgress ) {
+                mFlagEditorActionInProgress = false;
                 return false;
             }
+
+            int iter_end = v.getSelectionStart();
+            int iter_start = v.getText().toString().lastIndexOf( '\n', iter_end - 1 );
+            if( iter_start < 0 || iter_start == v.getText().length() - 1 )
+                return false;
+
+            iter_start++;   // get rid of the new line char
+            int offset_start = iter_start;   // save for future
+
+            if( v.getText().charAt( iter_start ) == '\t' ) {
+                StringBuilder text = new StringBuilder( "\n\t" );
+                int value = 0;
+                char char_lf = '*';
+                iter_start++;   // first tab is already handled, so skip it
+
+                for( ; iter_start != iter_end; ++iter_start ) {
+                    switch( v.getText().charAt( iter_start ) ) {
+                        // BULLET LIST
+                        case '•':
+                            if( char_lf != '*' )
+                                return false;
+                            char_lf = ' ';
+                            text.append( "• " );
+                            break;
+                        // CHECK LIST
+                        case '[':
+                            if( char_lf != '*' )
+                                return false;
+                            char_lf = 'c';
+                            break;
+                        case '~':
+                        case '+':
+                        case 'x':
+                        case 'X':
+                            if( char_lf != 'c' )
+                                return false;
+                            char_lf = ']';
+                            break;
+                        case ']':
+                            if( char_lf != ']' )
+                                return false;
+                            char_lf = ' ';
+                            text.append( "[ ] " );
+                            break;
+                        // NUMBERED LIST
+                        case '0': case '1': case '2': case '3': case '4':
+                        case '5': case '6': case '7': case '8': case '9':
+                            if( char_lf != '*' && char_lf != '1' )
+                                return false;
+                            char_lf = '1';
+                            value *= 10;
+                            value += v.getText().charAt( iter_start ) - '0';
+                            break;
+                        case '-':
+                            if( char_lf == '*' ) {
+                                char_lf = ' ';
+                                text.append(  "- " );
+                                break;
+                            }
+                            // no break
+                        case '.':
+                        case ')':
+                            if( char_lf != '1' )
+                                return false;
+                            char_lf = ' ';
+                            text.append( ++value )
+                                .append( v.getText().charAt( iter_start ) )
+                                .append( ' ' );
+                            break;
+                        case '\t':
+                            if( char_lf != '*' )
+                                return false;
+                            text.append( '\t' );
+                            break;
+                        case ' ':
+                            if( char_lf == 'c' ) {
+                                char_lf = ']';
+                                break;
+                            }
+                            else if( char_lf != ' ' )
+                                return false;
+                            // remove the last bullet if no text follows it:
+                            if( iter_start == iter_end - 1 ) {
+                                iter_start = offset_start;
+                                mFlagEditorActionInProgress = true;
+                                mEditText.getText().delete( iter_start, iter_end );
+                                mEditText.getText().insert( iter_start, "\n" );
+                                return true;
+                            }
+                            else {
+                                mFlagEditorActionInProgress = true;
+                                mEditText.getText().insert( iter_end, text );
+                                iter_start = iter_end + text.length();
+                                if( value > 0 ) {
+                                    iter_start++;
+                                    while( ( iter_start = increment_numbered_line(
+                                                iter_start, value++, v ) ) > 0 ) {
+                                        iter_start++;
+                                    }
+                                }
+                                return true;
+                            }
+                        default:
+                            return false;
+                    }
+                }
+            }
+            return false;
         } );
 
         mEditText.setCustomSelectionActionModeCallback( new ActionMode.Callback()
@@ -366,51 +363,25 @@ public class ActivityEntry extends AppCompatActivity
         } );
 
         Button mButtonBold = findViewById( R.id.buttonBold );
-        mButtonBold.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                toggleFormat( "*" );
-            }
-        } );
+        mButtonBold.setOnClickListener( v -> toggleFormat( "*" ) );
 
         Button mButtonItalic = findViewById( R.id.buttonItalic );
-        mButtonItalic.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                toggleFormat( "_" );
-            }
-        } );
+        mButtonItalic.setOnClickListener( v -> toggleFormat( "_" ) );
 
         Button mButtonStrikethrough = findViewById( R.id.buttonStrikethrough );
         SpannableString spanStringS = new SpannableString( "S" );
         spanStringS.setSpan( new StrikethroughSpan(), 0, 1, 0 );
         mButtonStrikethrough.setText( spanStringS );
-        mButtonStrikethrough.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                toggleFormat( "=" );
-            }
-        } );
+        mButtonStrikethrough.setOnClickListener( v -> toggleFormat( "=" ) );
 
         mButtonHighlight = findViewById( R.id.buttonHighlight );
-        mButtonHighlight.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                toggleFormat( "#" );
-            }
-        } );
+        mButtonHighlight.setOnClickListener( v -> toggleFormat( "#" ) );
 
         Button mButtonIgnore = findViewById( R.id.button_ignore );
-        mButtonIgnore.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                toggleIgnoreParagraph();
-            }
-        } );
+        mButtonIgnore.setOnClickListener( v -> toggleIgnoreParagraph() );
 
         Button mButtonComment = findViewById( R.id.button_comment );
-        mButtonComment.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                addComment();
-            }
-        } );
+        mButtonComment.setOnClickListener( v -> addComment() );
 
         mViewTags = findViewById( R.id.view_entry_tags );
         mViewTags.setListener( this );
@@ -457,6 +428,9 @@ public class ActivityEntry extends AppCompatActivity
         Log.d( Lifeograph.TAG, "ActivityEntry.onResume()" );
 
         Lifeograph.sContext = this;
+
+        if( mMenu != null )
+            updateMenuVisibilities();
     }
 
     @Override
@@ -503,12 +477,7 @@ public class ActivityEntry extends AppCompatActivity
                 return true;
             }
         } );
-        searchView.setOnQueryTextFocusChangeListener( new View.OnFocusChangeListener()
-        {
-            public void onFocusChange( View view, boolean b ) {
-                mFlagSearchIsOpen = b;
-            }
-        } );
+        searchView.setOnQueryTextFocusChangeListener( ( view, b ) -> mFlagSearchIsOpen = b );
 
         mMenu = menu;
         updateIcon();
@@ -520,12 +489,7 @@ public class ActivityEntry extends AppCompatActivity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        boolean flagWritable = !Diary.diary.is_read_only();
-
-        menu.findItem( R.id.change_todo_status ).setVisible( flagWritable );
-        menu.findItem( R.id.toggle_favorite ).setVisible( flagWritable );
-        menu.findItem( R.id.edit_date ).setVisible( flagWritable );
-        menu.findItem( R.id.dismiss ).setVisible( flagWritable );
+        updateMenuVisibilities();
 
         return true;
     }
@@ -533,6 +497,9 @@ public class ActivityEntry extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
+            case R.id.enable_edit:
+                enableEditing();
+                return true;
             case android.R.id.home:
                 //NavUtils.navigateUpFromSameTask( this );
                 Lifeograph.sFlagStartingDiaryEditingActivity = true;
@@ -585,6 +552,35 @@ public class ActivityEntry extends AppCompatActivity
             default:
                 return false;
         }
+    }
+
+    private void updateMenuVisibilities() {
+        boolean flagWritable = Diary.diary.is_in_edit_mode();
+
+        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable );
+
+        mMenu.findItem( R.id.change_todo_status ).setVisible( flagWritable );
+        mMenu.findItem( R.id.toggle_favorite ).setVisible( flagWritable );
+        mMenu.findItem( R.id.edit_date ).setVisible( flagWritable );
+        mMenu.findItem( R.id.dismiss ).setVisible( flagWritable );
+    }
+
+    private void enableEditing(){
+        if( !Diary.diary.can_enter_edit_mode() ) return;
+
+        mMenu.findItem( R.id.enable_edit ).setVisible( false );
+
+        mMenu.findItem( R.id.change_todo_status ).setVisible( true );
+        mMenu.findItem( R.id.toggle_favorite ).setVisible( true );
+        mMenu.findItem( R.id.edit_date ).setVisible( true );
+        mMenu.findItem( R.id.dismiss ).setVisible( true );
+
+        //mEditText.setTextIsSelectable( true );
+        mEditText.setKeyListener( mKeyListener );
+
+        findViewById( R.id.toolbar_text_edit ).setVisibility( View.VISIBLE );
+
+        Diary.diary.enable_editing();
     }
 
     void updateIcon() {
@@ -2102,7 +2098,7 @@ public class ActivityEntry extends AppCompatActivity
         LinkStatus status = LinkStatus.LS_OK;
         Entry ptr2entry = Diary.diary.get_entry( date_last.m_date + 1 ); // + 1 fixes order
         if( ptr2entry == null ) {
-            if( Diary.diary.is_read_only() )
+            if( ! Diary.diary.can_enter_edit_mode() )
                 return;
             status = LinkStatus.LS_ENTRY_UNAVAILABLE;
         }

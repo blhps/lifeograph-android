@@ -150,5 +150,6 @@
     <string name="todo_auto">Otomatik</string>
     <string name="diary_upgrade_confirm">Günlüğü yükseltmek istediğinizden emin misiniz?</string>
     <string name="upgrade_diary">Günlüğü Yükselt</string>
+    <string name="edit">Düzenle</string>
 
 </resources>

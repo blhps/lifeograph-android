@@ -238,7 +238,7 @@ public class ActivityChapterTag extends AppCompatActivity
         super.onPrepareOptionsMenu( menu );
 
         boolean flagPseudoElement = ( mElement == Diary.diary.m_orphans );
-        boolean flagWritable = !Diary.diary.is_read_only();
+        boolean flagWritable = Diary.diary.is_in_edit_mode();
         DiaryElement.Type type = mElement.get_type();
 
         MenuItem item = menu.findItem( R.id.change_todo_status );

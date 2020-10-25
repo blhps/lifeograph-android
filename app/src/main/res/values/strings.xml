@@ -13,6 +13,7 @@
     <string name="dismiss">Dismiss</string>
     <string name="rename">Rename</string>
     <string name="open">Open</string>
+    <string name="edit">Edit</string>
     <string name="authenticate">Authenticate</string>
     <string name="about">About</string>
     <string name="settings">Settings</string>

@@ -35,7 +35,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Environment;
 import android.preference.PreferenceManager;
-import androidx.appcompat.widget.SwitchCompat;
 import android.text.method.LinkMovementMethod;
 import android.util.Log;
 import android.view.Menu;
@@ -43,7 +42,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
-import android.widget.CompoundButton;
 import android.widget.ListView;
 import android.widget.TextView;
 
@@ -110,21 +108,6 @@ public class ActivityLogin extends AppCompatActivity
                 Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ), "." ).charAt( 0 );
 
         setContentView( R.layout.login );
-
-        // READ-ONLY SWITCH
-        SwitchCompat switchReadOnly = findViewById( R.id.switch_read_only );
-        switchReadOnly.setOnCheckedChangeListener( new CompoundButton.OnCheckedChangeListener()
-        {
-            public void onCheckedChanged( CompoundButton buttonView, boolean isChecked ) {
-                if( isChecked ) {
-                    mSetPathType = Diary.SetPathType.READ_ONLY;
-                }
-                else {
-                    mSetPathType = Diary.SetPathType.NORMAL;
-                }
-
-            }
-        } );
 
         // DIARY LIST
         mAdapterDiaries = new ArrayAdapter< String >( this,
@@ -219,10 +202,8 @@ public class ActivityLogin extends AppCompatActivity
 
         Lifeograph.sContext = this;
 
-        if( Lifeograph.sLoginStatus == Lifeograph.LoginStatus.LOGGED_IN ) {
-            Lifeograph.prepareForLogout();
-
-            Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_OUT;
+        if( Diary.diary.is_open() ) {
+            Lifeograph.logout();
         }
 
         populate_diaries(); // this also helps with the changes in the diary path

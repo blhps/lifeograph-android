@@ -1,6 +1,6 @@
 /***********************************************************************************
 
- Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -23,6 +23,8 @@ package net.sourceforge.lifeograph;
 
 
 import android.app.Activity;
+
+import androidx.annotation.NonNull;
 import androidx.fragment.app.ListFragment;
 import android.content.Context;
 import android.os.Bundle;
@@ -43,7 +45,7 @@ import java.util.Comparator;
 public class FragmentElemList extends ListFragment
 {
     @Override
-    public View onCreateView( LayoutInflater inflater,
+    public View onCreateView( @NonNull LayoutInflater inflater,
                               ViewGroup container,
                               Bundle savedInstanceState ) {
         Log.d( Lifeograph.TAG, "FragmentElemList.onCreateView()" );
@@ -70,15 +72,15 @@ public class FragmentElemList extends ListFragment
     }
 
     @Override
-    public void onAttach( Activity activity ) {
-        super.onAttach( activity );
+    public void onAttach( @NonNull Context context ) {
+        super.onAttach( context );
 
-        Log.d( Lifeograph.TAG, "FragmentElemList.onAttach() - " + activity.toString() );
+        Log.d( Lifeograph.TAG, "FragmentElemList.onAttach() - " + context.toString() );
 
-        if( DiaryManager.class.isInstance( activity ) )
-            mDiaryManager = ( DiaryManager ) activity;
+        if( context instanceof DiaryManager && context instanceof Activity )
+            mDiaryManager = ( DiaryManager ) context;
         else
-            throw new ClassCastException( activity.toString() + " must be a DiaryManager" );
+            throw new ClassCastException( context.toString() + " must be a DiaryManager" );
 
         mDiaryManager.addFragment( this );
     }
@@ -93,7 +95,7 @@ public class FragmentElemList extends ListFragment
     }
 
     @Override
-    public void onListItemClick( ListView l, View v, int pos, long id ) {
+    public void onListItemClick( @NonNull ListView l, @NonNull View v, int pos, long id ) {
         super.onListItemClick( l, v, pos, id );
         switch( mElems.get( pos ).get_type() ) {
             case ENTRY:
@@ -135,9 +137,7 @@ public class FragmentElemList extends ListFragment
                     // NUMBERED CHAPTERS
                     if( !Diary.diary.m_topics.mMap.isEmpty() ) {
                         mElems.add( new HeaderElem( R.string.numbered_chapters ) );
-                        for( Chapter c : Diary.diary.m_topics.mMap.descendingMap().values() ) {
-                            mElems.add( c );
-                        }
+                        mElems.addAll( Diary.diary.m_topics.mMap.descendingMap().values() );
                     }
                     // DATED CHAPTERS
                     if( Diary.diary.m_chapter_categories.size() == 1 &&
@@ -149,9 +149,7 @@ public class FragmentElemList extends ListFragment
                             mElems.add( cc );
 
                         if( cc == Diary.diary.m_ptr2chapter_ctg_cur ) {
-                            for( Chapter c : cc.mMap.values() ) {
-                                mElems.add( c );
-                            }
+                            mElems.addAll( cc.mMap.values() );
                         }
                     }
                     // ORPHANED ENTRIES VIRTUAL CHAPTER
@@ -174,8 +172,7 @@ public class FragmentElemList extends ListFragment
                     for( Tag.Category c : Diary.diary.m_tag_categories.values() ) {
                         mElems.add( c );
                         if( c.get_expanded() ) {
-                            for( Tag t : c.mTags )
-                                mElems.add( t );
+                            mElems.addAll( c.mTags );
                         }
                     }
                     // UNTAGGED META TAG
@@ -222,7 +219,7 @@ public class FragmentElemList extends ListFragment
         DiaryElement getElement();
     }
 
-    private java.util.List< DiaryElement > mElems = new ArrayList< DiaryElement >();
+    private java.util.List< DiaryElement > mElems = new ArrayList<>();
     private DiaryElemAdapter mAdapterEntries = null;
     DiaryManager mDiaryManager;
     private int mCurTabIndex = 0;
@@ -230,7 +227,7 @@ public class FragmentElemList extends ListFragment
     // ELEMENT LIST INTERFACE ======================================================================
     public interface ListOperations
     {
-        public void updateList();
+        void updateList();
     }
 
     // COMPARATOR ==================================================================================
@@ -262,7 +259,7 @@ public class FragmentElemList extends ListFragment
     static final CompareListElems compareElems = new CompareListElems();
 
     // HEADER PSEUDO ELEMENT CLASS =================================================================
-    class HeaderElem extends DiaryElement
+    static class HeaderElem extends DiaryElement
     {
         public HeaderElem( int nameRsc ) {
             super( null, Lifeograph.getStr( nameRsc ), ES_VOID );
@@ -344,11 +341,13 @@ public class FragmentElemList extends ListFragment
             updateList();
         }
 
+        @NonNull
         @Override
-        public View getView( int position, View convertView, ViewGroup parent ) {
+        public View getView( int position, View convertView, @NonNull ViewGroup parent ) {
             ViewHolder holder;
             TextView title;
             final DiaryElement elem = getItem( position );
+            assert elem != null;
 
             if( convertView == null ) {
                 holder = setHolder( elem, parent );
@@ -367,23 +366,18 @@ public class FragmentElemList extends ListFragment
             title.setText( elem.get_list_str() );
 
             switch( holder.getLayoutType() ) {
-                case HEADER_SIMPLE:
-                    break;
+//                case HEADER_SIMPLE:
+//                    break;
                 case HEADER_TAG_CTG: {
                     Tag.Category tc = ( Tag.Category ) elem;
                     ImageButton iconCollapse = holder.getIconCollapse();
                     iconCollapse.setImageResource(
                             tc.get_expanded() ? R.drawable.ic_expanded : R.drawable.ic_collapsed );
-                    iconCollapse.setOnClickListener( new View.OnClickListener()
-                    {
-                        public void onClick( View v ) {
-                            handleCollapse( elem );
-                        }
-                    } );
-                    if( Diary.diary.is_read_only() )
-                        holder.getIconOptions().setVisibility( View.INVISIBLE );
-                    else
+                    iconCollapse.setOnClickListener( v -> handleCollapse( elem ) );
+                    if( Diary.diary.is_in_edit_mode() )
                         holder.getIconOptions().setTag( tc );
+                    else
+                        holder.getIconOptions().setVisibility( View.INVISIBLE );
                     break;
                 }
                 case HEADER_CHAPTER_CTG: {
@@ -391,16 +385,11 @@ public class FragmentElemList extends ListFragment
                     ImageButton iconCollapse = holder.getIconCollapse();
                     iconCollapse.setImageResource( cc == Diary.diary.m_ptr2chapter_ctg_cur ?
                                                            R.drawable.ic_radio_sel : R.drawable.ic_radio_empty );
-                    iconCollapse.setOnClickListener( new View.OnClickListener()
-                    {
-                        public void onClick( View v ) {
-                            handleCollapse( elem );
-                        }
-                    } );
-                    if( Diary.diary.is_read_only() )
-                        holder.getIconOptions().setVisibility( View.INVISIBLE );
-                    else
+                    iconCollapse.setOnClickListener( v -> handleCollapse( elem ) );
+                    if( Diary.diary.is_in_edit_mode() )
                         holder.getIconOptions().setTag( cc );
+                    else
+                        holder.getIconOptions().setVisibility( View.INVISIBLE );
                     break;
                 }
                 case ELEMENT: {
@@ -460,35 +449,35 @@ public class FragmentElemList extends ListFragment
 
             public TextView getDetail() {
                 if( mDetail == null ) {
-                    mDetail = ( TextView ) mRow.findViewById( R.id.detail );
+                    mDetail = mRow.findViewById( R.id.detail );
                 }
                 return mDetail;
             }
 
             public ImageView getIcon() {
                 if( mIcon == null ) {
-                    mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
+                    mIcon = mRow.findViewById( R.id.icon );
                 }
                 return mIcon;
             }
 
             public ImageView getIcon2() {
                 if( mIcon2 == null ) {
-                    mIcon2 = ( ImageView ) mRow.findViewById( R.id.icon2 );
+                    mIcon2 = mRow.findViewById( R.id.icon2 );
                 }
                 return mIcon2;
             }
 
             public ImageButton getIconCollapse() {
                 if( mIconCollapse == null ) {
-                    mIconCollapse = ( ImageButton ) mRow.findViewById( R.id.icon_collapse );
+                    mIconCollapse = mRow.findViewById( R.id.icon_collapse );
                 }
                 return mIconCollapse;
             }
 
             public ImageButton getIconOptions() {
                 if( mIconOptions == null ) {
-                    mIconOptions = ( ImageButton ) mRow.findViewById( R.id.icon_options );
+                    mIconOptions = mRow.findViewById( R.id.icon_options );
                 }
                 return mIconOptions;
             }

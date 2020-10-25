@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -45,9 +45,6 @@ public class Lifeograph
     static boolean sSaveDiaryOnLogout = true;
     static boolean sFlagStartingDiaryEditingActivity = false;
 
-    enum LoginStatus { LOGGED_OUT, LOGGED_IN }
-    static LoginStatus sLoginStatus = LoginStatus.LOGGED_OUT;
-
     private enum PurchaseStatus { PS_UNKNOWN, PURCHASED, NOT_PURCHASED }
     private static PurchaseStatus mAdFreePurchased = PurchaseStatus.PS_UNKNOWN;
 
@@ -87,11 +84,11 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    static void prepareForLogout() {
+    static void logout() {
         Log.d( Lifeograph.TAG, "Lifeograph.prepareForLogout()" );
 
-        if( sLoginStatus == LoginStatus.LOGGED_IN ) {
-            if( sSaveDiaryOnLogout && !Diary.diary.is_read_only() ) {
+        if( Diary.diary.is_open() ) {
+            if( sSaveDiaryOnLogout && Diary.diary.is_in_edit_mode() ) {
                 if( Diary.diary.write() == Result.SUCCESS )
                     showToast( "Diary saved successfully" );
                 else
@@ -99,12 +96,14 @@ public class Lifeograph
             }
             else
                 Log.d( Lifeograph.TAG, "Diary is not saved" );
+
+            Diary.diary.clear();
         }
     }
 
     static void handleDiaryEditingActivityDestroyed() {
         if( !sFlagStartingDiaryEditingActivity )
-            prepareForLogout();
+            logout();
         sFlagStartingDiaryEditingActivity = false;
     }
 

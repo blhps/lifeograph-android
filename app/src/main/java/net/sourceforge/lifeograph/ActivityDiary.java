@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -27,7 +27,6 @@ import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.os.Bundle;
 import android.os.Parcelable;
 import androidx.annotation.NonNull;
@@ -43,13 +42,11 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.ActionBar;
 import android.util.Log;
 import android.view.ActionMode;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
@@ -74,12 +71,7 @@ public class ActivityDiary extends AppCompatActivity
             setContentView( R.layout.diary_wide );
 
             mButtonCalendar = findViewById( R.id.button_calendar );
-            mButtonCalendar.setOnClickListener( new View.OnClickListener()
-            {
-                public void onClick( View view ) {
-                    new DialogCalendar( ActivityDiary.this, !Diary.diary.is_read_only() ).show();
-                }
-            } );
+            mButtonCalendar.setOnClickListener( view -> new DialogCalendar( ActivityDiary.this, Diary.diary.is_in_edit_mode() ).show() );
 
             ViewPager pagerCalendar = findViewById( R.id.pager_calendar );
             mCalPagerAdapter = new PagerAdapterCalendar( pagerCalendar );
@@ -154,12 +146,9 @@ public class ActivityDiary extends AppCompatActivity
         // CHART
         mViewChart = findViewById( R.id.chart_view_diary );
         mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
-        mViewChart.setListener( new ViewChart.Listener()
-        {
-            public void onTypeChanged( int type ) {
-                Diary.diary.set_chart_type( type );
-                mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
-            }
+        mViewChart.setListener( type -> {
+            Diary.diary.set_chart_type( type );
+            mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
         } );
 
         if( savedInstanceState != null ) {
@@ -171,8 +160,6 @@ public class ActivityDiary extends AppCompatActivity
             View ad = findViewById( R.id.fragmentAd );
             container.removeView( ad );
         }
-
-        Lifeograph.sLoginStatus = Lifeograph.LoginStatus.LOGGED_IN;
     }
 
     /*@Override
@@ -198,8 +185,10 @@ public class ActivityDiary extends AppCompatActivity
         Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
 
         Lifeograph.sContext = this;
-
         Lifeograph.sSaveDiaryOnLogout = true;
+
+        if( mMenu != null )
+            updateMenuVisibilities();
     }
 
     @Override
@@ -226,6 +215,8 @@ public class ActivityDiary extends AppCompatActivity
         AddElemAction addElemAction = ( AddElemAction ) MenuItemCompat.getActionProvider( item );
         addElemAction.mParent = this;
 
+        mMenu = menu;
+
         return true;
     }
 
@@ -233,22 +224,7 @@ public class ActivityDiary extends AppCompatActivity
     public boolean onPrepareOptionsMenu( Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
-        boolean flagWritable = !Diary.diary.is_read_only();
-        boolean flagEncrypted = Diary.diary.is_encrypted();
-
-        menu.findItem( R.id.add_elem ).setVisible( flagWritable );
-
-        menu.findItem( R.id.calendar ).setVisible( mCalPagerAdapter == null );
-
-//  TODO WILL BE IMPLEMENTED IN 0.5
-//        menu.findItem( R.id.change_sort_type ).setVisible( mParentElem != null );
-
-        menu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
-
-        menu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
-        menu.findItem( R.id.change_password ).setVisible( flagWritable && flagEncrypted );
-
-        menu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
+        updateMenuVisibilities();
 
         return true;
     }
@@ -256,12 +232,15 @@ public class ActivityDiary extends AppCompatActivity
     @Override
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
+            case R.id.enable_edit:
+                enableEditing();
+                return true;
             case android.R.id.home:
                 Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
                 return true;
             case R.id.calendar:
-                new DialogCalendar( this, !Diary.diary.is_read_only() ).show();
+                new DialogCalendar( this, Diary.diary.is_in_edit_mode() ).show();
                 return true;
             case R.id.filter:
                 if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
@@ -290,22 +269,13 @@ public class ActivityDiary extends AppCompatActivity
             case R.id.logout_wo_save:
                 Lifeograph.showConfirmationPrompt( R.string.logoutwosaving_confirm,
                                                    R.string.logoutwosaving,
-                                                   new DialogInterface.OnClickListener()
-                                                   {
-                                                       public void onClick( DialogInterface
-                                                                                    dialog,
-                                                                            int id ) {
-                                                           // unlike desktop version Android version
-                                                           // does not back up changes
-                                                           Lifeograph.sSaveDiaryOnLogout = false;
-                                                           finish();
-                                                       }
+                                                   ( dialog, id ) -> {
+                                                       // unlike desktop version Android version
+                                                       // does not back up changes
+                                                       Lifeograph.sSaveDiaryOnLogout = false;
+                                                       finish();
                                                    }, null );
                 return true;
-//  TODO WILL BE IMPLEMENTED IN 0.5
-//            case R.id.import_sms:
-//                import_messages();
-//                return true;
         }
         return super.onOptionsItemSelected( item );
     }
@@ -348,6 +318,41 @@ public class ActivityDiary extends AppCompatActivity
             popup.inflate( R.menu.menu_chapter_ctg );
 
         popup.show();
+    }
+
+    private void updateMenuVisibilities(){
+        boolean flagWritable = Diary.diary.is_in_edit_mode();
+        boolean flagEncrypted = Diary.diary.is_encrypted();
+
+        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable );
+
+        mMenu.findItem( R.id.add_elem ).setVisible( flagWritable );
+
+        mMenu.findItem( R.id.calendar ).setVisible( mCalPagerAdapter == null );
+
+        mMenu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
+
+        mMenu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
+        mMenu.findItem( R.id.change_password ).setVisible( flagWritable && flagEncrypted );
+
+        mMenu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
+    }
+
+    private void enableEditing(){
+        if( !Diary.diary.can_enter_edit_mode() ) return;
+
+        boolean flagEncrypted = Diary.diary.is_encrypted();
+
+        mMenu.findItem( R.id.enable_edit ).setVisible( false );
+
+        mMenu.findItem( R.id.add_elem ).setVisible( true );
+
+        mMenu.findItem( R.id.add_password ).setVisible( !flagEncrypted );
+        mMenu.findItem( R.id.change_password ).setVisible( flagEncrypted );
+
+        mMenu.findItem( R.id.logout_wo_save ).setVisible( true );
+
+        Diary.diary.enable_editing();
     }
 
     void goToToday() {
@@ -411,28 +416,20 @@ public class ActivityDiary extends AppCompatActivity
                                                    R.string.tag_ctg_dismiss_with_entries_confirm :
                                                    R.string.tag_ctg_dismiss_confirm,
                                            R.string.dismiss,
-                                           new DialogInterface.OnClickListener()
-                                           {
-                                               public void onClick( DialogInterface dialog,
-                                                                    int id ) {
-                                                   Diary.diary.dismiss_tag_ctg(
-                                                           ( Tag.Category ) mElemMenu, tags_too );
-                                                   updateList();
-                                               }
+                                           ( dialog, id ) -> {
+                                               Diary.diary.dismiss_tag_ctg(
+                                                       ( Tag.Category ) mElemMenu, tags_too );
+                                               updateList();
                                            },
                                            null );
     }
     void dismissChapterCtg() {
         Lifeograph.showConfirmationPrompt( R.string.chapter_ctg_dismiss_confirm,
                                            R.string.dismiss,
-                                           new DialogInterface.OnClickListener()
-                                           {
-                                               public void onClick( DialogInterface dialog,
-                                                                    int id ) {
-                                                   Diary.diary.dismiss_chapter_ctg(
-                                                           ( Chapter.Category ) mElemMenu );
-                                                   updateList();
-                                               }
+                                           ( dialog, id ) -> {
+                                               Diary.diary.dismiss_chapter_ctg(
+                                                       ( Chapter.Category ) mElemMenu );
+                                               updateList();
                                            },
                                            null );
     }
@@ -621,6 +618,8 @@ public class ActivityDiary extends AppCompatActivity
     protected ViewPager mPager;
     private PagerAdapterCalendar mCalPagerAdapter = null;
     private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
+
+    private Menu mMenu = null;
 
     private Button mButtonCalendar;
 
@@ -817,21 +816,17 @@ public class ActivityDiary extends AppCompatActivity
                 mGVs[ i ].setSelector( R.drawable.themed_selector );
             }
 
-            mGVs[ 1 ].setOnItemLongClickListener( new AdapterView.OnItemLongClickListener()
-            {
-                public boolean onItemLongClick( AdapterView< ? > arg0, View view,
-                                                int pos, long arg3 ) {
-                    mGridAdapters[ 1 ].mDateCurrent =
-                            new Date( mGridAdapters[ 1 ].mListDays.get( pos ) );
-                    view.setSelected( true );
+            mGVs[ 1 ].setOnItemLongClickListener( ( arg0, view, pos, arg3 ) -> {
+                mGridAdapters[ 1 ].mDateCurrent =
+                        new Date( mGridAdapters[ 1 ].mListDays.get( pos ) );
+                view.setSelected( true );
 
-                    if( mActionMode != null )
-                        mActionMode.finish();
+                if( mActionMode != null )
+                    mActionMode.finish();
 
-                    mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
+                mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
 
-                    return false;
-                }
+                return false;
             } );
         }
 

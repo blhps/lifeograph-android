@@ -1,5 +1,5 @@
 /***********************************************************************************
- * Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+ * Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
  * <p/>
  * This file is part of Lifeograph.
  * <p/>
@@ -283,7 +283,7 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
     private Paint mPaint;
     private Path mPath;
 
-    boolean m_flag_editable = ! Diary.diary.is_read_only();
+    boolean m_flag_editable = Diary.diary.is_in_edit_mode();
 
     private GestureDetector mGestureDetector;
     private Listener mListener = null;

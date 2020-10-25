@@ -47,17 +47,6 @@
             android:textStyle="bold"
             android:textIsSelectable="true"/>
 
-        <androidx.appcompat.widget.SwitchCompat
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/read_only"
-            android:id="@+id/switch_read_only"
-            android:layout_gravity="end|center_vertical"
-            android:singleLine="true"
-            android:textColor="@color/t_darker"
-            android:ellipsize="middle"
-            android:shadowColor="@color/t_darkest" />
-
     </LinearLayout>
 
     <!--TextView

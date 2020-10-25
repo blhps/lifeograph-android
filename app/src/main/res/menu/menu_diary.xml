@@ -23,6 +23,10 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:compat="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/enable_edit"
+          android:title="@string/edit"
+          android:orderInCategory="80"
+          compat:showAsAction="always|withText" />
     <item android:id="@+id/add_elem"
           android:title="@string/add"
           android:icon="@drawable/ic_action_add"
