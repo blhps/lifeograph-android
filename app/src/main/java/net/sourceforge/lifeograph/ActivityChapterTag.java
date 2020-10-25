@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* **********************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -22,18 +22,12 @@
 package net.sourceforge.lifeograph;
 
 
-import androidx.appcompat.app.ActionBar;
 import android.app.Activity;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import android.app.Dialog;
-import android.content.DialogInterface;
 import android.os.Bundle;
-import androidx.drawerlayout.widget.DrawerLayout;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
-import android.view.Gravity;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -42,6 +36,13 @@ import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.LinearLayout;
 import android.widget.Spinner;
+
+import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.view.GravityCompat;
+import androidx.core.view.MenuItemCompat;
+import androidx.drawerlayout.widget.DrawerLayout;
 
 public class ActivityChapterTag extends AppCompatActivity
         implements ToDoAction.ToDoObject,
@@ -74,13 +75,13 @@ public class ActivityChapterTag extends AppCompatActivity
 
         // FILLING WIDGETS
         mDrawerLayout = findViewById( R.id.drawer_layout );
-        //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
+        //mInflater = getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
-        LinearLayout layoutTagProperties = ( LinearLayout ) findViewById( R.id.tag_properties );
-        Spinner spinnerTagType = ( Spinner ) findViewById( R.id.tag_type );
-        mAtvTagUnit = ( AutoCompleteTextView ) findViewById( R.id.tag_unit );
+        LinearLayout layoutTagProperties = findViewById( R.id.tag_properties );
+        Spinner spinnerTagType = findViewById( R.id.tag_type );
+        mAtvTagUnit = findViewById( R.id.tag_unit );
 
-        mViewChart = ( ViewChart ) findViewById( R.id.chart_view_tag );
+        mViewChart = findViewById( R.id.chart_view_tag );
 
         // UI UPDATES (must come before listeners)
         if( mElement != null )
@@ -125,16 +126,11 @@ public class ActivityChapterTag extends AppCompatActivity
         spinnerTagType.setOnItemSelectedListener( this );
 
         String[] units = getResources().getStringArray( R.array.array_tag_units );
-        ArrayAdapter< String > adapter_units = new ArrayAdapter< String >
+        ArrayAdapter< String > adapter_units = new ArrayAdapter<>
                 ( this, android.R.layout.simple_dropdown_item_1line, units );
         mAtvTagUnit.setAdapter( adapter_units );
         // show all suggestions w/o entering text:
-        mAtvTagUnit.setOnClickListener( new AutoCompleteTextView.OnClickListener() {
-                                            public void onClick( View view ) {
-                                                mAtvTagUnit.showDropDown();
-                                            }
-                                        }
-        );
+        mAtvTagUnit.setOnClickListener( view -> mAtvTagUnit.showDropDown() );
         mAtvTagUnit.addTextChangedListener( new TextWatcher()
         {
             public void afterTextChanged( Editable s ) {
@@ -149,24 +145,21 @@ public class ActivityChapterTag extends AppCompatActivity
             }
         } );
 
-        mViewChart.setListener( new ViewChart.Listener()
-        {
-            public void onTypeChanged( int type ) {
-                mElement.set_chart_type( type );
-                mViewChart.set_points( mElement.create_chart_data(), 1f );
-            }
+        mViewChart.setListener( type -> {
+            mElement.set_chart_type( type );
+            mViewChart.set_points( mElement.create_chart_data(), 1f );
         } );
 
-        mDrawerLayout.setDrawerListener( new DrawerLayout.DrawerListener()
+        mDrawerLayout.addDrawerListener( new DrawerLayout.DrawerListener()
         {
-            public void onDrawerSlide( View view, float v ) { }
+            public void onDrawerSlide( @NonNull View view, float v ) { }
 
-            public void onDrawerOpened( View view ) {
+            public void onDrawerOpened( @NonNull View view ) {
                 if( mFragmentList != null )
                     mFragmentList.getListView().setEnabled( false );
             }
 
-            public void onDrawerClosed( View view ) {
+            public void onDrawerClosed( @NonNull View view ) {
                 if( mFragmentList != null )
                     mFragmentList.getListView().setEnabled( true );
             }
@@ -277,10 +270,10 @@ public class ActivityChapterTag extends AppCompatActivity
                 finish();
                 return true;
             case R.id.filter:
-                if( mDrawerLayout.isDrawerOpen( Gravity.RIGHT ) )
-                    mDrawerLayout.closeDrawer( Gravity.RIGHT );
+                if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
+                    mDrawerLayout.closeDrawer( GravityCompat.END );
                 else
-                    mDrawerLayout.openDrawer( Gravity.RIGHT );
+                    mDrawerLayout.openDrawer( GravityCompat.END );
                 return true;
             case R.id.add_entry: {
                 Entry entry = Diary.diary.create_entry(
@@ -357,30 +350,21 @@ public class ActivityChapterTag extends AppCompatActivity
     private void dismiss_chapter() {
         Lifeograph.showConfirmationPrompt( R.string.chapter_dismiss_confirm,
                                            R.string.dismiss,
-                                           new DialogInterface.OnClickListener()
-                                           {
-                                               public void onClick( DialogInterface dialog,
-                                                                    int id ) {
-                                                   Diary.diary.dismiss_chapter(
-                                                           ( Chapter ) mElement );
-                                                   // go up:
-                                                   finish();
-                                               }
-                                           }
-        );
+                                           ( dialog, id ) -> {
+                                               Diary.diary.dismiss_chapter(
+                                                       ( Chapter ) mElement );
+                                               // go up:
+                                               finish();
+                                           } );
     }
 
     private void dismiss_tag() {
         Lifeograph.showConfirmationPrompt( R.string.tag_dismiss_confirm, R.string.dismiss,
-                                           new DialogInterface.OnClickListener()
-                                           {
-                                               public void onClick( DialogInterface dialog,
-                                                                    int id ) {
-                                                   Diary.diary.dismiss_tag(
-                                                           ( Tag ) mElement );
-                                                   // go up:
-                                                   finish();
-                                               }
+                                           ( dialog, id ) -> {
+                                               Diary.diary.dismiss_tag(
+                                                       ( Tag ) mElement );
+                                               // go up:
+                                               finish();
                                            } );
     }
 
@@ -486,9 +470,6 @@ public class ActivityChapterTag extends AppCompatActivity
     }
     public DiaryElement getElement() {
         return mElement;
-    }
-    public int getTabIndex() { // dummy
-        return 0;
     }
 
     // ListOperations INTERFACE METHODS
