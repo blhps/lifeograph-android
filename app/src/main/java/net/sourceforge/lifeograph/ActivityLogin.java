@@ -167,8 +167,8 @@ public class ActivityLogin extends AppCompatActivity
                                     askPassword();
                                 else
                                     readBody();
-                            },
-                            null );
+                            }
+                    );
             }
             else if( m_flag_open_ready ) {
                 if( Diary.diary.is_encrypted() )

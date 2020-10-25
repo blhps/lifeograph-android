@@ -711,7 +711,7 @@ public class ActivityEntry extends AppCompatActivity
                                                    mFlagDismissOnExit = true;
                                                    ActivityEntry.this.finish();
                                                }
-                                           }, null );
+                                           } );
     }
 
     public void createListLineMenu( View v ) {

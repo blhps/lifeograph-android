@@ -27,7 +27,6 @@ import android.app.AlertDialog;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.os.Environment;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -126,12 +125,11 @@ public class Lifeograph
 
     static void showConfirmationPrompt( int message,
                                         int positiveText,
-                                        DialogInterface.OnClickListener posListener,
-                                        DialogInterface.OnClickListener negListener ) {
+                                        DialogInterface.OnClickListener posListener ) {
         AlertDialog.Builder builder = new AlertDialog.Builder( sContext );
         builder.setMessage( message )
                .setPositiveButton( positiveText, posListener )
-               .setNegativeButton( R.string.cancel, negListener );
+               .setNegativeButton( R.string.cancel, null );
 
         //AlertDialog alert = builder.create();
         builder.show();
@@ -176,7 +174,7 @@ public class Lifeograph
     }
 
     static float getScreenShortEdge() {
-        return( sScreenHeight > sScreenWidth ? sScreenWidth : sScreenHeight );
+        return( Math.min( sScreenHeight, sScreenWidth ) );
     }
     static float getScreenWidth() {
         return sScreenWidth;
@@ -188,9 +186,9 @@ public class Lifeograph
 //        return sIsLargeScreen;
 //    }
 
-    static boolean isExternalStorageWritable() {
-        String state = Environment.getExternalStorageState();
-        return Environment.MEDIA_MOUNTED.equals( state );
-    }
+//    static boolean isExternalStorageWritable() {
+//        String state = Environment.getExternalStorageState();
+//        return Environment.MEDIA_MOUNTED.equals( state );
+//    }
 
 }

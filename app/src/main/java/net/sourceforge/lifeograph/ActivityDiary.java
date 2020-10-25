@@ -274,7 +274,7 @@ public class ActivityDiary extends AppCompatActivity
                                                        // does not back up changes
                                                        Lifeograph.sSaveDiaryOnLogout = false;
                                                        finish();
-                                                   }, null );
+                                                   } );
                 return true;
         }
         return super.onOptionsItemSelected( item );
@@ -420,8 +420,8 @@ public class ActivityDiary extends AppCompatActivity
                                                Diary.diary.dismiss_tag_ctg(
                                                        ( Tag.Category ) mElemMenu, tags_too );
                                                updateList();
-                                           },
-                                           null );
+                                           }
+        );
     }
     void dismissChapterCtg() {
         Lifeograph.showConfirmationPrompt( R.string.chapter_ctg_dismiss_confirm,
@@ -430,8 +430,8 @@ public class ActivityDiary extends AppCompatActivity
                                                Diary.diary.dismiss_chapter_ctg(
                                                        ( Chapter.Category ) mElemMenu );
                                                updateList();
-                                           },
-                                           null );
+                                           }
+        );
     }
 
     //  TODO WILL BE IMPLEMENTED IN 0.8+

@@ -366,8 +366,8 @@ public class ActivityChapterTag extends AppCompatActivity
                                                    // go up:
                                                    finish();
                                                }
-                                           },
-                                           null );
+                                           }
+        );
     }
 
     private void dismiss_tag() {
@@ -381,7 +381,7 @@ public class ActivityChapterTag extends AppCompatActivity
                                                    // go up:
                                                    finish();
                                                }
-                                           }, null );
+                                           } );
     }
 
     // InquireListener INTERFACE METHODS
