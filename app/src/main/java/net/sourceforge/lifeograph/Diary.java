@@ -34,6 +34,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
+import java.util.Objects;
 import java.util.Random;
 import java.util.TreeMap;
 
@@ -485,8 +486,9 @@ public class Diary extends DiaryElementChart
             for( Entry entry_shift = m_entries.get( --d );
                  d >= date.m_date;
                  entry_shift = m_entries.get( --d ) ) {
+                assert entry_shift != null;
                 m_entries.remove( d );
-                entry_shift.set_date( d+1 );
+                entry_shift.set_date( d + 1 );
                 m_entries.put( d + 1, entry_shift );
             }
         }
@@ -584,7 +586,7 @@ public class Diary extends DiaryElementChart
 
     public void dismiss_tag( Tag tag ) {
         // remove from entries: (work on a copy to prevent ConcurrentModificationException)
-        for( Entry e : tag.mEntries.keySet().toArray( new Entry[ tag.mEntries.size() ] ) )
+        for( Entry e : tag.mEntries.keySet().toArray( new Entry[ 0 ] ) )
             e.remove_tag( tag );
 
         // remove from category if any:
@@ -1827,7 +1829,7 @@ public class Diary extends DiaryElementChart
             }
         }
         catch( IOException e ) {
-            Log.e( Lifeograph.TAG, e.getMessage() );
+            Log.e( Lifeograph.TAG, Objects.requireNonNull( e.getMessage() ) );
         }
     }
 

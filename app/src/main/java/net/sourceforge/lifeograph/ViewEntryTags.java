@@ -259,19 +259,19 @@ public class ViewEntryTags extends View implements GestureDetector.OnGestureList
     private Entry m_ptr2entry = null;
     private int m_color_text_default = getResources().getColor( R.color.t_mid );
 
-    class TagItem
+    static class TagItem
     {
         TagItem( String l ) {
             label = l;
         }
 
         Tag tag = null;
-        String label = "";
+        String label;
         float xl, xr, yl, yr;
         boolean hovered = false;
     }
 
-    private java.util.List< TagItem > m_items = new java.util.ArrayList< TagItem >();
+    private java.util.List< TagItem > m_items = new java.util.ArrayList<>();
 
     // GEOMETRICAL VARIABLES
     private int m_width = 0;
