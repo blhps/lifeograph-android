@@ -24,7 +24,6 @@ package net.sourceforge.lifeograph;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -56,6 +55,7 @@ import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuItemCompat;
 import androidx.appcompat.app.AppCompatActivity;
@@ -164,6 +164,7 @@ public class ActivityEntry extends AppCompatActivity
         Lifeograph.updateScreenSizes();
 
         mActionBar = getSupportActionBar();
+        assert mActionBar != null;
         mActionBar.setDisplayHomeAsUpEnabled( true );
 
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
@@ -307,7 +308,6 @@ public class ActivityEntry extends AppCompatActivity
                                 mFlagEditorActionInProgress = true;
                                 mEditText.getText().delete( iter_start, iter_end );
                                 mEditText.getText().insert( iter_start, "\n" );
-                                return true;
                             }
                             else {
                                 mFlagEditorActionInProgress = true;
@@ -320,8 +320,8 @@ public class ActivityEntry extends AppCompatActivity
                                         iter_start++;
                                     }
                                 }
-                                return true;
                             }
+                            return true;
                         default:
                             return false;
                     }
@@ -387,6 +387,7 @@ public class ActivityEntry extends AppCompatActivity
         mViewTags.setListener( this );
 
         Entry entry = Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) );
+        assert entry != null;
 
         if( entry.get_size() > 0 ) {
             getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
@@ -704,13 +705,9 @@ public class ActivityEntry extends AppCompatActivity
 
     private void dismiss() {
         Lifeograph.showConfirmationPrompt( R.string.entry_dismiss_confirm, R.string.dismiss,
-                                           new DialogInterface.OnClickListener()
-                                           {
-                                               public void onClick( DialogInterface dialog,
-                                                                    int id ) {
-                                                   mFlagDismissOnExit = true;
-                                                   ActivityEntry.this.finish();
-                                               }
+                                           ( dialog, id ) -> {
+                                               mFlagDismissOnExit = true;
+                                               ActivityEntry.this.finish();
                                            } );
     }
 
@@ -830,12 +827,12 @@ public class ActivityEntry extends AppCompatActivity
         else {
             bounds[ 0 ] = bounds[ 1 ] = mEditText.getSelectionStart();
             if( bounds[ 0 ] == 0 )
-                return false;
+                return true;
             if( str.charAt( bounds[ 0 ] - 1 ) == '\n' ) {
                 if( bounds[ 0 ] == str.length() )
-                    return true;
+                    return false;
                 if( str.charAt( bounds[ 0 ] ) == '\n' )
-                    return true;
+                    return false;
             }
         }
 
@@ -843,7 +840,7 @@ public class ActivityEntry extends AppCompatActivity
 
         if( str.lastIndexOf( '\n', bounds[ 0 ] ) == -1 ) {
             if( str.indexOf( '\n', bounds[ 0 ] ) == -1 )
-                return false;
+                return true;
             else
                 bounds[ 0 ] = str.indexOf( '\n', bounds[ 0 ] ) + 1;
         }
@@ -855,7 +852,7 @@ public class ActivityEntry extends AppCompatActivity
         else
             bounds[ 1 ] = str.indexOf( '\n', bounds[ 1 ] ) - 1;
 
-        return( bounds[ 0 ] <= bounds[ 1 ] );
+        return ( bounds[ 0 ] > bounds[ 1 ] );
     }
 
     private void toggleFormat( String markup ) {
@@ -959,16 +956,16 @@ public class ActivityEntry extends AppCompatActivity
                     p_start += 2;
             }
 
-            Object theSpan = hasSpan( p_start, markup.charAt( 0 ) );
+            AdvancedSpan theSpan = hasSpan( p_start, markup.charAt( 0 ) );
 
             // if already has the markup remove it
-            if( ( ( AdvancedSpan ) theSpan ).getType() == markup.charAt( 0 ) ) {
+            if( theSpan.getType() == markup.charAt( 0 ) ) {
                 p_start = mEditText.getText().getSpanStart( theSpan );
                 p_end = mEditText.getText().getSpanEnd( theSpan );
                 mEditText.getText().delete( p_start - 1, p_start );
                 mEditText.getText().delete( p_end - 1, p_end );
             }
-            else if( ( ( AdvancedSpan ) theSpan ).getType() == ' ' ) {
+            else if( theSpan.getType() == ' ' ) {
                 // find word boundaries:
                 while( p_start > 0 ) {
                     char c = mEditText.getText().charAt( p_start );
@@ -995,7 +992,7 @@ public class ActivityEntry extends AppCompatActivity
 
     public void set_list_item_mark( char target_item_type ) {
         int[] bounds = { 0, 0 };
-        if( !calculate_multi_para_bounds( bounds ) )
+        if( calculate_multi_para_bounds( bounds ) )
             return;
 
         int pos = bounds[ 0 ];
@@ -1028,7 +1025,7 @@ public class ActivityEntry extends AppCompatActivity
         int pos_erase_begin = pos;
         char item_type = 0;    // none
         char char_lf = 't';    // tab
-        Integer value = 1; // for numeric lists
+        int value = 1; // for numeric lists
 
         while( pos <= pos_end ) {
             switch( mEditText.getText().toString().charAt( pos ) ) {
@@ -1107,7 +1104,7 @@ public class ActivityEntry extends AppCompatActivity
                                 pos_end += 5;
                                 break;
                             case '1':
-                                mEditText.getText().insert( pos, "\t" + value.toString() + "- " );
+                                mEditText.getText().insert( pos, "\t" + value + "- " );
                                 value++;
                                 break;
                         }
@@ -1137,7 +1134,7 @@ public class ActivityEntry extends AppCompatActivity
 
     private void toggleIgnoreParagraph() {
         int[] bounds = { 0, 0 };
-        if( !calculate_multi_para_bounds( bounds ) )
+        if( calculate_multi_para_bounds( bounds ) )
             return;
 
         if ( bounds[ 0 ] == bounds[ 1 ] ) { // empty line
@@ -1195,10 +1192,10 @@ public class ActivityEntry extends AppCompatActivity
     private Date date_last = new Date();
     protected boolean m_flag_hidden_link;
 
-    private java.util.List< AbsChar > m_chars_looked_for = new ArrayList< AbsChar >();
+    private java.util.List< AbsChar > m_chars_looked_for = new ArrayList<>();
     private ParSel m_applier_nl;
 
-    private class AbsChar  // abstract char
+    private static class AbsChar  // abstract char
     {
         AbsChar( int f, ParSel a, boolean j ) {
             flags = f;
@@ -1220,20 +1217,20 @@ public class ActivityEntry extends AppCompatActivity
     {
         char getType();
     }
-    private class SpanOther implements  AdvancedSpan
+    private static class SpanOther implements  AdvancedSpan
     {
         public char getType() {
             return 'O';
         }
     }
-    private class SpanNull implements  AdvancedSpan
+    private static class SpanNull implements  AdvancedSpan
     {
         public char getType() {
             return ' ';
         }
     }
     @SuppressLint( "ParcelCreator" )
-    private class SpanBold extends StyleSpan implements AdvancedSpan
+    private static class SpanBold extends StyleSpan implements AdvancedSpan
     {
         SpanBold() {
             super( Typeface.BOLD );
@@ -1243,7 +1240,7 @@ public class ActivityEntry extends AppCompatActivity
         }
     }
     @SuppressLint( "ParcelCreator" )
-    private class SpanItalic extends StyleSpan implements AdvancedSpan
+    private static class SpanItalic extends StyleSpan implements AdvancedSpan
     {
         SpanItalic() {
             super( Typeface.ITALIC );
@@ -1263,7 +1260,7 @@ public class ActivityEntry extends AppCompatActivity
         }
     }
     @SuppressLint( "ParcelCreator" )
-    private class SpanStrikethrough extends StrikethroughSpan implements AdvancedSpan
+    private static class SpanStrikethrough extends StrikethroughSpan implements AdvancedSpan
     {
         public char getType() {
             return '=';
@@ -1280,14 +1277,14 @@ public class ActivityEntry extends AppCompatActivity
         }
     }
 
-    private class LinkDate extends ClickableSpan implements AdvancedSpan
+    private static class LinkDate extends ClickableSpan implements AdvancedSpan
     {
         LinkDate( long date ) {
             mDate = date;
         }
 
         @Override
-        public void onClick( View widget ) {
+        public void onClick( @NonNull View widget ) {
             Entry entry = Diary.diary.get_entry( mDate );
 
             if( entry == null )
@@ -1309,7 +1306,7 @@ public class ActivityEntry extends AppCompatActivity
         }
 
         @Override
-        public void onClick( View widget ) {
+        public void onClick( @NonNull View widget ) {
             Intent browserIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( mUri ) );
             startActivity( browserIntent );
         }
@@ -1320,14 +1317,14 @@ public class ActivityEntry extends AppCompatActivity
 
         private final String mUri;
     }
-    private class LinkID extends ClickableSpan implements AdvancedSpan
+    private static class LinkID extends ClickableSpan implements AdvancedSpan
     {
         LinkID( int id ) {
             mId = id;
         }
 
         @Override
-        public void onClick( View widget ) {
+        public void onClick( @NonNull View widget ) {
             DiaryElement elem = Diary.diary.get_element( mId );
             if( elem != null ) {
                 if( elem.get_type() != DiaryElement.Type.ENTRY )
@@ -1344,7 +1341,7 @@ public class ActivityEntry extends AppCompatActivity
         private final int mId;
     }
 
-    private java.util.Vector< Object > mSpans = new java.util.Vector< Object >();
+    private java.util.Vector< Object > mSpans = new java.util.Vector<>();
 
     // PARSING =====================================================================================
     private void reset( int start, int end ) {
@@ -1765,9 +1762,9 @@ public class ActivityEntry extends AppCompatActivity
 
     private void trigger_comment() {
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_SBB|CF_IMMEDIATE, ParSel.NULL ) );
+        m_chars_looked_for.add( new AbsChar( CF_SBB | CF_IMMEDIATE, ParSel.NULL ) );
         m_chars_looked_for.add( new AbsChar( CF_SBE, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_SBE|CF_IMMEDIATE, ParSel.AP_CMNT ) );
+        m_chars_looked_for.add( new AbsChar( CF_SBE | CF_IMMEDIATE, ParSel.AP_CMNT ) );
         m_cf_req = CF_ANY;
         m_pos_start = m_pos_current;
     }
@@ -1796,8 +1793,8 @@ public class ActivityEntry extends AppCompatActivity
 //                m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.NULL ) );
 //            }
 //            else
-                m_chars_looked_for.add( new AbsChar( CF_ALPHA|CF_NUMBER,
-                                        ParSel.NULL ) ); // TODO: add dash
+                m_chars_looked_for.add( new AbsChar( CF_ALPHA | CF_NUMBER,
+                                                     ParSel.NULL ) ); // TODO: add dash
         }
         else if( wl_str.equals( "mailto" ) ) {
             m_chars_looked_for.clear();
@@ -1824,7 +1821,7 @@ public class ActivityEntry extends AppCompatActivity
             m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LINK ) );
         }
         else {
-            m_chars_looked_for.add( new AbsChar( CF_TAB|CF_NEWLINE|CF_SPACE, ParSel.AP_LINK ) );
+            m_chars_looked_for.add( new AbsChar( CF_TAB | CF_NEWLINE | CF_SPACE, ParSel.AP_LINK ) );
         }
         m_pos_start = pos_word;
     }
@@ -1836,8 +1833,8 @@ public class ActivityEntry extends AppCompatActivity
         m_flag_hidden_link = false;
         word_last.insert( 0, "mailto:" );
         m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_ALPHA|CF_NUMBER, ParSel.NULL ) ); // TODO: add dash
-        m_chars_looked_for.add( new AbsChar( CF_TAB|CF_NEWLINE|CF_SPACE, ParSel.AP_LINK ) );
+        m_chars_looked_for.add( new AbsChar( CF_ALPHA | CF_NUMBER, ParSel.NULL ) ); // TODO: add dash
+        m_chars_looked_for.add( new AbsChar( CF_TAB | CF_NEWLINE | CF_SPACE, ParSel.AP_LINK ) );
         m_cf_req = CF_ANY;
         m_pos_start = pos_word;
     }
@@ -1881,7 +1878,7 @@ public class ActivityEntry extends AppCompatActivity
     private void trigger_ignore() {
         if( m_cf_last == CF_NEWLINE ) {
             m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_TAB|CF_IMMEDIATE, ParSel.JK_IGNR, true ) );
+            m_chars_looked_for.add( new AbsChar( CF_TAB | CF_IMMEDIATE, ParSel.JK_IGNR, true ) );
             m_cf_req = CF_ANY;
             m_pos_start = m_pos_current;
         }
@@ -1913,18 +1910,16 @@ public class ActivityEntry extends AppCompatActivity
         //apply_indent();
         m_cf_req = CF_ANY;
 
-        switch( m_char_current ) {
-            case '[':
-                m_chars_looked_for.remove( 0 );
-                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_TODO | CF_IMMEDIATE,
-                                                     ParSel.JK_LST2, true ) );
+        if( m_char_current == '[' ) {
+            m_chars_looked_for.remove( 0 );
+            m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_TODO | CF_IMMEDIATE,
+                                                 ParSel.JK_LST2, true ) );
 
-                m_chars_looked_for.add( new AbsChar( CF_SBE | CF_IMMEDIATE, ParSel.NULL ) );
-                break;
-            default:
-                m_chars_looked_for.clear();
-                m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-                break;
+            m_chars_looked_for.add( new AbsChar( CF_SBE | CF_IMMEDIATE, ParSel.NULL ) );
+        }
+        else {
+            m_chars_looked_for.clear();
+            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
         }
     }
 
