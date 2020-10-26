@@ -190,7 +190,7 @@ public class ActivityChapterTag extends AppCompatActivity
 
         Log.d( Lifeograph.TAG, "ActivityChapterTag.onStop()" );
 
-        Lifeograph.prepareForLogout();
+        Diary.diary.write_lock();
     }
 
     @Override

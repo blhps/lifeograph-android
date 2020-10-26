@@ -168,6 +168,7 @@ public class Diary extends DiaryElementChart
 
         //m_flag_changed = false;
         m_flag_read_only = false;
+        m_flag_ignore_locks = false;
         m_login_status =LoginStatus.LOGGED_OUT;
 
         // java specific:
@@ -193,23 +194,25 @@ public class Diary extends DiaryElementChart
         File lockFile = new File( m_path + LOCK_SUFFIX );
         if( lockFile.exists() )
         {
-            /* option for ignoring locks may never come to Android
-            if( s_flag_ignore_locks )
+            if( m_flag_ignore_locks )
                 Log.w( Lifeograph.TAG, "Ignored file lock" );
-            else*/
-            return Result.FILE_LOCKED;
+            else
+            {
+                Lifeograph.showConfirmationPrompt( R.string.ignore_locks_confirmation,
+                                                   R.string.do_ignore_locks,
+                                                   ( a, b ) -> m_flag_ignore_locks = true );
+                return Result.FILE_LOCKED;
+            }
         }
 
-        /* TODO - locking will be implemented in 0.8
-
-        {
-            try {
-                lockFile.createNewFile();
-            }
-            catch( IOException ex ) {
-                Log.w( Lifeograph.TAG, "Could not create lock file" );
-            }
-        }*/
+        try {
+            if( !lockFile.createNewFile() )
+                return Result.FILE_NOT_WRITABLE;
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not create lock file" );
+            return Result.FILE_NOT_WRITABLE;
+        }
 
         m_login_status = LoginStatus.LOGGED_IN_EDIT;
 
@@ -278,12 +281,10 @@ public class Diary extends DiaryElementChart
         return true;
     }
 
-    public boolean make_free_entry_order( Date date ) {
+    public void make_free_entry_order( Date date ) {
         date.reset_order_1();
         while( m_entries.get( date.m_date ) != null )
             date.m_date += 1;
-
-        return true; // reserved for bounds checking
     }
 
     public String create_unique_name_for_map( TreeMap map, String name0 ) {
@@ -424,7 +425,7 @@ public class Diary extends DiaryElementChart
         return create_entry( date, "", false );
     }
 
-    public boolean dismiss_entry( Entry entry ) {
+    public void dismiss_entry( Entry entry ) {
         long date = entry.m_date.m_date;
 
         // fix startup element
@@ -458,8 +459,6 @@ public class Diary extends DiaryElementChart
             m_entries.put( e.m_date.m_date, e );
             ++i;
         }
-
-        return true;
     }
 
     public void set_entry_date( Entry entry, Date date ) {
@@ -561,7 +560,7 @@ public class Diary extends DiaryElementChart
                 dismiss_tag( tag );
         }
         else {
-            for( Tag tag : ctg.mTags.toArray( new Tag[ ctg.mTags.size() ] ) )
+            for( Tag tag : ctg.mTags.toArray( new Tag[ 0 ] ) )
                 tag.set_category( null );
         }
 
@@ -785,7 +784,7 @@ public class Diary extends DiaryElementChart
     public void update_entries_in_chapters() {
         Log.d( Lifeograph.TAG, "update_entries_in_chapters()" );
 
-        Chapter.Category chapters[] = new Chapter.Category[] { m_topics, m_groups,
+        Chapter.Category[] chapters = new Chapter.Category[] { m_topics, m_groups,
                                                                m_ptr2chapter_ctg_cur };
         long date_last = m_entries.isEmpty() ? 0 : m_entries.firstEntry().getKey();
         boolean entries_finished = false;
@@ -1667,16 +1666,14 @@ public class Diary extends DiaryElementChart
     }
 
     // DB CREATING MAIN FUNCTIONS ==================================================================
-    private boolean create_db_header_text( boolean encrypted ) throws IOException {
+    private void create_db_header_text( boolean encrypted ) throws IOException {
         mBufferedWriter.write( DB_FILE_HEADER );
         mBufferedWriter.append( "\nV "+DB_FILE_VERSION_INT )
                        .append( encrypted ? "\nE yes" : "\nE no" )
                        .append( "\n\n" ); // end of header
-
-        return true;
     }
 
-    private boolean create_db_body_text() throws IOException {
+    private void create_db_body_text() throws IOException {
         // OPTIONS
         mBufferedWriter.append( "O " )
                        .append( m_option_sorting_criteria )
@@ -1816,8 +1813,6 @@ public class Diary extends DiaryElementChart
                 mBufferedWriter.append( "\n\n" );
             }
         }
-
-        return true;
     }
 
     // DB READ/WRITE ===============================================================================
@@ -1943,6 +1938,16 @@ public class Diary extends DiaryElementChart
         return Result.SUCCESS;
     }
 
+    boolean remove_lock_if_necessary() {
+        if( m_login_status != LoginStatus.LOGGED_IN_EDIT || m_path.isEmpty() )
+            return false;
+
+        File fp = new File( m_path + LOCK_SUFFIX );
+        if( fp.exists() )
+            return fp.delete();
+        return true;
+    }
+
     // DISK I/O ====================================================================================
     public Result set_path( String path, SetPathType type ) {
         // ANDROID ONLY:
@@ -1971,7 +1976,8 @@ public class Diary extends DiaryElementChart
             return Result.FILE_NOT_WRITABLE;
         }
 
-        // TODO: REMOVE PREVIOUS LOCK IF ANY
+        // REMOVE PREVIOUS LOCK IF ANY
+        remove_lock_if_necessary();
 
         // ACCEPT PATH
         m_path = path;
@@ -2120,7 +2126,7 @@ public class Diary extends DiaryElementChart
             // HELPERS
             Chapter.Category dummy_ctg_orphans = new Chapter.Category( null, "" );
             dummy_ctg_orphans.mMap.put( 0L, m_orphans );
-            Chapter.Category chapters[] = new Chapter.Category[]
+            Chapter.Category[] chapters = new Chapter.Category[]
                     { dummy_ctg_orphans, m_ptr2chapter_ctg_cur, m_topics, m_groups };
             final String separator         = "---------------------------------------------\n";
             final String separator_favored = "+++++++++++++++++++++++++++++++++++++++++++++\n";
@@ -2203,6 +2209,30 @@ public class Diary extends DiaryElementChart
         }
     }
 
+    // Java only
+    public void write_at_logout() {
+        if( m_flag_save_enabled && is_in_edit_mode() ) {
+            if( write() == Result.SUCCESS )
+                Log.d( Lifeograph.TAG, "LOCK file saved successfully" );
+            else
+                Lifeograph.showToast( "Cannot save the lock file" );
+        }
+        else
+            Log.d( Lifeograph.TAG, "Diary is not saved" );
+    }
+
+    // Java only
+    public void write_lock() {
+        if( m_flag_save_enabled && is_in_edit_mode() ) {
+            if( write( m_path + LOCK_SUFFIX ) == Result.SUCCESS )
+                Log.d( Lifeograph.TAG, "LOCK file saved successfully" );
+            else
+                Lifeograph.showToast( "Cannot save the lock file" );
+        }
+        else
+            Log.d( Lifeograph.TAG, "Diary is not saved" );
+    }
+
     // NATIVE ENCRYPTION METHODS ===================================================================
     private static native boolean initCipher();
     private native String decryptBuffer( String passphrase, byte[] salt,
@@ -2213,38 +2243,41 @@ public class Diary extends DiaryElementChart
     private String m_path;
     private String m_passphrase;
 
+    //ids (DEID)
+    private int m_startup_elem_id;
+    private int m_last_elem_id;
     private int m_current_id;
     private int m_force_id;
-    private java.util.TreeMap< Integer, DiaryElement > m_ids =
-            new TreeMap< Integer, DiaryElement >();
+    private java.util.TreeMap< Integer, DiaryElement > m_ids = new TreeMap<>();
 
-    java.util.TreeMap< Long, Entry > m_entries =
-            new TreeMap< Long, Entry >( DiaryElement.compare_dates );
+    java.util.TreeMap< Long, Entry > m_entries = new TreeMap<>( DiaryElement.compare_dates );
     Untagged m_untagged = new Untagged();
-    java.util.TreeMap< String, Tag > m_tags = new TreeMap< String, Tag >( DiaryElement.compare_names );
+    java.util.TreeMap< String, Tag > m_tags = new TreeMap<>( DiaryElement.compare_names );
     java.util.TreeMap< String, Tag.Category > m_tag_categories =
-            new TreeMap< String, Tag.Category >( DiaryElement.compare_names );
+            new TreeMap<>( DiaryElement.compare_names );
     java.util.TreeMap< String, Chapter.Category > m_chapter_categories =
-            new TreeMap< String, Chapter.Category >( DiaryElement.compare_names );
+            new TreeMap<>( DiaryElement.compare_names );
     Chapter.Category m_ptr2chapter_ctg_cur = null;
     Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
     Chapter.Category m_groups = new Chapter.Category( this, Date.GROUP_MIN );
     Chapter m_orphans = new Chapter( null, "<Other Entries>", Date.DATE_MAX );
 
-    private int m_startup_elem_id; // DEID
-    private int m_last_elem_id; // DEID
+    private String m_language;
+
+    private int m_read_version;
+
     // options & flags
     private char m_option_sorting_criteria;
     private char m_option_sorting_dir;
-    private int m_read_version;
+    private boolean m_flag_read_only;
+    private boolean m_flag_ignore_locks = false;
+    private boolean m_flag_save_enabled = true;
     //private boolean m_flag_only_save_filtered;
     //private boolean m_flag_changed;
 
     enum LoginStatus{ LOGGED_OUT, LOGGED_TIME_OUT, LOGGED_IN_RO, LOGGED_IN_EDIT }
     private LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
 
-    private boolean m_flag_read_only;
-    private String m_language;
     // filtering
     private String m_search_text;
     Filter m_filter_active = new Filter( null, "Active Filter" );

@@ -22,6 +22,11 @@
 package net.sourceforge.lifeograph;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 
 import android.app.AlertDialog;
 import android.content.Context;
@@ -83,22 +88,6 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
-    static void prepareForLogout() {
-        Log.d( Lifeograph.TAG, "Lifeograph.prepareForLogout()" );
-
-        if( !sFlagStartingDiaryEditingActivity && Diary.diary.is_open() ) {
-            if( sSaveDiaryOnLogout && Diary.diary.is_in_edit_mode() ) {
-                if( Diary.diary.write() == Result.SUCCESS )
-                    showToast( "Diary saved successfully" );
-                else
-                    showToast( "Cannot write back changes" );
-            }
-            else
-                Log.d( Lifeograph.TAG, "Diary is not saved" );
-        }
-        sFlagStartingDiaryEditingActivity = false;
-    }
-
     // ANDROID & JAVA HELPERS ======================================================================
     public static final String TAG = "LFO";
 
@@ -138,6 +127,19 @@ public class Lifeograph
     static String joinPath( String p1, String p2) {
         File file1 = new File( p1 );
         return new File( file1, p2 ).getPath();
+    }
+
+    public static void copyFile( File src, File dst ) throws IOException {
+        try( InputStream in = new FileInputStream( src ) ) {
+            try( OutputStream out = new FileOutputStream( dst ) ) {
+                // Transfer bytes from in to out
+                byte[] buf = new byte[ 1024 ];
+                int len;
+                while( ( len = in.read( buf ) ) > 0 ) {
+                    out.write( buf, 0, len );
+                }
+            }
+        }
     }
 
 //    public static String getEnvLang() {

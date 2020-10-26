@@ -89,6 +89,9 @@
     <string name="change_password">Change Password</string>
     <string name="wrong_password">Wrong password</string>
 
+    <string name="ignore_locks_confirmation">The diary is locked. Do you want to ignore the
+    lock next time?</string>
+    <string name="do_ignore_locks">Ignore Locks</string>
     <string name="logoutwosaving">Close without Saving</string>
     <string name="logoutwosaving_confirm">Are you sure you want to close the diary without
         saving?</string>

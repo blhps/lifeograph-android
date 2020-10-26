@@ -419,7 +419,7 @@ public class ActivityEntry extends AppCompatActivity
         else
             sync();
 
-        Lifeograph.prepareForLogout();
+        Diary.diary.write_lock();
     }
 
     @Override
@@ -555,7 +555,7 @@ public class ActivityEntry extends AppCompatActivity
         }
     }
 
-    private void updateMenuVisibilities() {
+    private void updateMenuVisibilities(){
         boolean flagWritable = Diary.diary.is_in_edit_mode();
 
         mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable );
@@ -568,6 +568,7 @@ public class ActivityEntry extends AppCompatActivity
 
     private void enableEditing(){
         if( !Diary.diary.can_enter_edit_mode() ) return;
+        if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
 
         mMenu.findItem( R.id.enable_edit ).setVisible( false );
 
@@ -580,8 +581,6 @@ public class ActivityEntry extends AppCompatActivity
         mEditText.setKeyListener( mKeyListener );
 
         findViewById( R.id.toolbar_text_edit ).setVisibility( View.VISIBLE );
-
-        Diary.diary.enable_editing();
     }
 
     void updateIcon() {

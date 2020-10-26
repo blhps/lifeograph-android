@@ -190,7 +190,8 @@ public class ActivityLogin extends AppCompatActivity
         Lifeograph.sContext = this;
 
         if( Diary.diary.is_open() ) {
-            Lifeograph.prepareForLogout();
+            Diary.diary.write_at_logout();
+            Diary.diary.remove_lock_if_necessary();
             Diary.diary.clear();
         }
 

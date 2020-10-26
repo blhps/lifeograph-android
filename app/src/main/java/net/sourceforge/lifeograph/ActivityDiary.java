@@ -175,7 +175,7 @@ public class ActivityDiary extends AppCompatActivity
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onStop()" );
 
-        Lifeograph.prepareForLogout();
+        Diary.diary.write_lock();
     }
 
     @Override
@@ -340,6 +340,7 @@ public class ActivityDiary extends AppCompatActivity
 
     private void enableEditing(){
         if( !Diary.diary.can_enter_edit_mode() ) return;
+        if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
 
         boolean flagEncrypted = Diary.diary.is_encrypted();
 
@@ -351,8 +352,6 @@ public class ActivityDiary extends AppCompatActivity
         mMenu.findItem( R.id.change_password ).setVisible( flagEncrypted );
 
         mMenu.findItem( R.id.logout_wo_save ).setVisible( true );
-
-        Diary.diary.enable_editing();
     }
 
     void goToToday() {
