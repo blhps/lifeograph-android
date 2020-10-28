@@ -374,7 +374,7 @@ public class ActivityLogin extends AppCompatActivity
             File[] dirs = dir.listFiles();
             if( dirs != null ) {
                 for( File ff : dirs ) {
-                    if( !ff.isDirectory() ) {
+                    if( !ff.isDirectory() && !ff.getPath().endsWith( Diary.LOCK_SUFFIX ) ) {
                         mAdapterDiaries.add( ff.getName() );
                         mPaths.add( ff.getPath() );
                     }
