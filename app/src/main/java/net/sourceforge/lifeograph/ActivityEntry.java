@@ -1,4 +1,4 @@
-/***********************************************************************************
+/* *********************************************************************************
 
     Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
@@ -24,6 +24,7 @@ package net.sourceforge.lifeograph;
 import java.util.ArrayList;
 
 import android.annotation.SuppressLint;
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Typeface;
 import android.net.Uri;
@@ -49,6 +50,7 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.LinearLayout;
@@ -577,8 +579,13 @@ public class ActivityEntry extends AppCompatActivity
         mMenu.findItem( R.id.edit_date ).setVisible( true );
         mMenu.findItem( R.id.dismiss ).setVisible( true );
 
-        //mEditText.setTextIsSelectable( true );
         mEditText.setKeyListener( mKeyListener );
+        // force soft keyboard to be shown:
+        if( mEditText.requestFocus() ){
+            InputMethodManager imm =
+                    (InputMethodManager) getSystemService( Context.INPUT_METHOD_SERVICE );
+            imm.showSoftInput( mEditText, InputMethodManager.SHOW_IMPLICIT );
+        }
 
         findViewById( R.id.toolbar_text_edit ).setVisibility( View.VISIBLE );
     }
