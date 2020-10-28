@@ -194,9 +194,7 @@ public class Diary extends DiaryElementChart
         File lockFile = new File( m_path + LOCK_SUFFIX );
         if( lockFile.exists() )
         {
-            if( m_flag_ignore_locks )
-                Log.w( Lifeograph.TAG, "Ignored file lock" );
-            else
+            if( !m_flag_ignore_locks )
             {
                 Lifeograph.showConfirmationPrompt( R.string.ignore_locks_confirmation,
                                                    R.string.do_ignore_locks,
@@ -207,7 +205,7 @@ public class Diary extends DiaryElementChart
 
         try {
             if( !lockFile.createNewFile() )
-                return Result.FILE_NOT_WRITABLE;
+                Log.w( Lifeograph.TAG, "Ignored file lock" );
         }
         catch( IOException ex ) {
             Log.e( Lifeograph.TAG, "Could not create lock file" );
