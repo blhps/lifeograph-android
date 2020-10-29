@@ -206,7 +206,6 @@ public class ActivityChapterTag extends AppCompatActivity
 
     @Override
     public void onBackPressed() {
-        Lifeograph.sFlagStartingDiaryEditingActivity = true;
         super.onBackPressed();
     }
 
@@ -266,7 +265,6 @@ public class ActivityChapterTag extends AppCompatActivity
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case android.R.id.home:
-                Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
                 return true;
             case R.id.filter:

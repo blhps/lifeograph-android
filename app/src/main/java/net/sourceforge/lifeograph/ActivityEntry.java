@@ -436,11 +436,10 @@ public class ActivityEntry extends AppCompatActivity
             updateMenuVisibilities();
     }
 
-    @Override
-    public void onBackPressed() {
-        Lifeograph.sFlagStartingDiaryEditingActivity = true;
-        super.onBackPressed();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//    }
 
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
@@ -505,7 +504,6 @@ public class ActivityEntry extends AppCompatActivity
                 return true;
             case android.R.id.home:
                 //NavUtils.navigateUpFromSameTask( this );
-                Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
                 return true;
             case R.id.toggle_favorite:

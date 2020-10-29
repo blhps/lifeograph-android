@@ -46,9 +46,6 @@ public class Lifeograph
     static final String LANG_INHERIT_DIARY = "d";
 
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
-    static boolean sSaveDiaryOnLogout = true;
-    static boolean sFlagStartingDiaryEditingActivity = false;
-
     private enum PurchaseStatus { PS_UNKNOWN, PURCHASED, NOT_PURCHASED }
     private static PurchaseStatus mAdFreePurchased = PurchaseStatus.PS_UNKNOWN;
 
@@ -66,7 +63,6 @@ public class Lifeograph
                 case ENTRY: {
                     Intent i = new Intent( sContext, ActivityEntry.class );
                     i.putExtra( "entry", elem.get_date_t() );
-                    sFlagStartingDiaryEditingActivity = true;
                     sContext.startActivity( i );
                     break;
                 }
@@ -78,7 +74,6 @@ public class Lifeograph
                     Intent i = new Intent( sContext, ActivityChapterTag.class );
                     i.putExtra( "elem", elem.get_id() );
                     i.putExtra( "type", elem.get_type().i );
-                    sFlagStartingDiaryEditingActivity = true;
                     sContext.startActivity( i );
                     break;
                 }

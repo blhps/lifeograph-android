@@ -1946,6 +1946,10 @@ public class Diary extends DiaryElementChart
         return true;
     }
 
+    void set_saving_enabled( boolean flag ) {
+        m_flag_save_enabled = flag;
+    }
+
     // DISK I/O ====================================================================================
     public Result set_path( String path, SetPathType type ) {
         // ANDROID ONLY:

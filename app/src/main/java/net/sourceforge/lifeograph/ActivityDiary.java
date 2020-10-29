@@ -185,7 +185,7 @@ public class ActivityDiary extends AppCompatActivity
         Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
 
         Lifeograph.sContext = this;
-        Lifeograph.sSaveDiaryOnLogout = true;
+        Diary.diary.set_saving_enabled( true );
 
         if( mMenu != null )
             updateMenuVisibilities();
@@ -199,11 +199,10 @@ public class ActivityDiary extends AppCompatActivity
         Log.d( Lifeograph.TAG, "ActivityDiary.onSaveInstanceState()" );
     }
 
-    @Override
-    public void onBackPressed() {
-        Lifeograph.sFlagStartingDiaryEditingActivity = true;
-        super.onBackPressed();
-    }
+//    @Override
+//    public void onBackPressed() {
+//        super.onBackPressed();
+//    }
 
     @Override
     public boolean onCreateOptionsMenu( Menu menu ) {
@@ -236,7 +235,6 @@ public class ActivityDiary extends AppCompatActivity
                 enableEditing();
                 return true;
             case android.R.id.home:
-                Lifeograph.sFlagStartingDiaryEditingActivity = true;
                 finish();
                 return true;
             case R.id.calendar:
@@ -272,7 +270,7 @@ public class ActivityDiary extends AppCompatActivity
                                                    ( dialog, id ) -> {
                                                        // unlike desktop version Android version
                                                        // does not back up changes
-                                                       Lifeograph.sSaveDiaryOnLogout = false;
+                                                       Diary.diary.set_saving_enabled( false );
                                                        finish();
                                                    } );
                 return true;
