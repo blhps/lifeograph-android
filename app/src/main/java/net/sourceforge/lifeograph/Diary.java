@@ -169,52 +169,11 @@ public class Diary extends DiaryElementChart
         //m_flag_changed = false;
         m_flag_read_only = false;
         m_flag_ignore_locks = false;
+        m_flag_skip_old_check = false;
         m_login_status =LoginStatus.LOGGED_OUT;
 
         // java specific:
         mBufferedReader = null;
-    }
-
-    public Result enable_editing()
-    {
-        if( m_flag_read_only )
-        {
-            Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
-            return Result.FILE_LOCKED;
-        }
-
-        File fp = new File( m_path );
-        if( !fp.canWrite() ) // check write access
-        {
-            Log.e( Lifeograph.TAG, "File is not writable" );
-            return Result.FILE_NOT_WRITABLE;
-        }
-
-        // CHECK AND "TOUCH" THE NEW LOCK
-        File lockFile = new File( m_path + LOCK_SUFFIX );
-        if( lockFile.exists() )
-        {
-            if( !m_flag_ignore_locks )
-            {
-                Lifeograph.showConfirmationPrompt( R.string.ignore_locks_confirmation,
-                                                   R.string.do_ignore_locks,
-                                                   ( a, b ) -> m_flag_ignore_locks = true );
-                return Result.FILE_LOCKED;
-            }
-        }
-
-        try {
-            if( !lockFile.createNewFile() )
-                Log.w( Lifeograph.TAG, "Ignored file lock" );
-        }
-        catch( IOException ex ) {
-            Log.e( Lifeograph.TAG, "Could not create lock file" );
-            return Result.FILE_NOT_WRITABLE;
-        }
-
-        m_login_status = LoginStatus.LOGGED_IN_EDIT;
-
-        return Result.SUCCESS;
     }
 
     @Override
@@ -1946,12 +1905,19 @@ public class Diary extends DiaryElementChart
         return true;
     }
 
+    public boolean is_locked() {
+        File lockFile = new File( m_path + LOCK_SUFFIX );
+        return( lockFile.exists() );
+    }
+
     void set_saving_enabled( boolean flag ) {
         m_flag_save_enabled = flag;
     }
 
     // DISK I/O ====================================================================================
     public Result set_path( String path, SetPathType type ) {
+        clear();
+
         // ANDROID ONLY:
         if( path.equals( sExampleDiaryPath ) ) {
             m_path = path;
@@ -1978,9 +1944,6 @@ public class Diary extends DiaryElementChart
             return Result.FILE_NOT_WRITABLE;
         }
 
-        // REMOVE PREVIOUS LOCK IF ANY
-        remove_lock_if_necessary();
-
         // ACCEPT PATH
         m_path = path;
 
@@ -1992,6 +1955,57 @@ public class Diary extends DiaryElementChart
             m_name = m_path.substring( i + 1 );
 
         m_flag_read_only = ( type == SetPathType.READ_ONLY );
+
+        if( !m_flag_read_only && is_locked() )
+            return Result.FILE_LOCKED;
+        else
+            return Result.SUCCESS;
+    }
+
+    // ANDROID ONLY:
+    public void enable_working_on_lockfile( boolean enable ) {
+        if( enable )
+            m_path += LOCK_SUFFIX;
+        else if( m_path.endsWith( LOCK_SUFFIX ) )
+            m_path = m_path.substring( 0, m_path.length() - LOCK_SUFFIX.length() );
+    }
+
+    public Result enable_editing()
+    {
+        if( m_flag_read_only )
+        {
+            Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
+            return Result.FILE_LOCKED;
+        }
+
+        // HANDLE OLD DIARY
+        if( !m_flag_skip_old_check && is_old() ) {
+            Lifeograph.showConfirmationPrompt(
+                    Lifeograph.sContext,
+                    R.string.diary_upgrade_confirm,
+                    R.string.upgrade_diary,
+                    ( dialog, id1 ) -> m_flag_skip_old_check = true );
+            return Result.FILE_LOCKED;
+        }
+
+        File fp = new File( m_path );
+        if( !fp.canWrite() ) // check write access
+        {
+            Log.e( Lifeograph.TAG, "File is not writable" );
+            return Result.FILE_NOT_WRITABLE;
+        }
+
+        // CREATE THE LOCK FILE
+        File lockFile = new File( m_path + LOCK_SUFFIX );
+        try {
+            Lifeograph.copyFile( fp, lockFile );
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not create lock file" );
+            return Result.FILE_NOT_WRITABLE;
+        }
+
+        m_login_status = LoginStatus.LOGGED_IN_EDIT;
 
         return Result.SUCCESS;
     }
@@ -2075,6 +2089,8 @@ public class Diary extends DiaryElementChart
         Result res = m_passphrase.isEmpty() ? read_plain() : read_encrypted();
 
         close_file();
+
+        enable_working_on_lockfile( false );
 
         if( res == Result.SUCCESS )
             m_login_status = LoginStatus.LOGGED_IN_RO;
@@ -2215,9 +2231,9 @@ public class Diary extends DiaryElementChart
     public void write_at_logout() {
         if( m_flag_save_enabled && is_in_edit_mode() ) {
             if( write() == Result.SUCCESS )
-                Log.d( Lifeograph.TAG, "LOCK file saved successfully" );
+                Log.d( Lifeograph.TAG, "File saved successfully" );
             else
-                Lifeograph.showToast( "Cannot save the lock file" );
+                Lifeograph.showToast( "Cannot save the diary file" );
         }
         else
             Log.d( Lifeograph.TAG, "Diary is not saved" );
@@ -2273,6 +2289,7 @@ public class Diary extends DiaryElementChart
     private char m_option_sorting_dir;
     private boolean m_flag_read_only;
     private boolean m_flag_ignore_locks = false;
+    private boolean m_flag_skip_old_check = false;
     private boolean m_flag_save_enabled = true;
     //private boolean m_flag_only_save_filtered;
     //private boolean m_flag_changed;

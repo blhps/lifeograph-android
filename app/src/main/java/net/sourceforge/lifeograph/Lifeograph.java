@@ -1,4 +1,4 @@
-/***********************************************************************************
+/* *********************************************************************************
 
     Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
@@ -100,15 +100,29 @@ public class Lifeograph
             return sContext.getString( i );
     }
 
-    static void showConfirmationPrompt( int message,
+    static void showConfirmationPrompt( Context context,
+                                        int message,
                                         int positiveText,
                                         DialogInterface.OnClickListener posListener ) {
-        AlertDialog.Builder builder = new AlertDialog.Builder( sContext );
+        AlertDialog.Builder builder = new AlertDialog.Builder( context );
         builder.setMessage( message )
                .setPositiveButton( positiveText, posListener )
                .setNegativeButton( R.string.cancel, null );
 
         //AlertDialog alert = builder.create();
+        builder.show();
+    }
+    static void showConfirmationPrompt( Context context,
+                                        int message,
+                                        int positiveText,
+                                        DialogInterface.OnClickListener posListener,
+                                        int negativeText,
+                                        DialogInterface.OnClickListener negListener ) {
+        AlertDialog.Builder builder = new AlertDialog.Builder( context );
+        builder.setMessage( message )
+               .setPositiveButton( positiveText, posListener )
+               .setNegativeButton( negativeText, negListener );
+
         builder.show();
     }
 

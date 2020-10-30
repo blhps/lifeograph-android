@@ -265,7 +265,8 @@ public class ActivityDiary extends AppCompatActivity
                     Lifeograph.showToast( R.string.text_export_fail );
                 return true;
             case R.id.logout_wo_save:
-                Lifeograph.showConfirmationPrompt( R.string.logoutwosaving_confirm,
+                Lifeograph.showConfirmationPrompt( this,
+                                                   R.string.logoutwosaving_confirm,
                                                    R.string.logoutwosaving,
                                                    ( dialog, id ) -> {
                                                        // unlike desktop version Android version
@@ -409,7 +410,8 @@ public class ActivityDiary extends AppCompatActivity
     }
 
     void dismissTagCtg( final boolean tags_too ) {
-        Lifeograph.showConfirmationPrompt( tags_too ?
+        Lifeograph.showConfirmationPrompt( this,
+                                           tags_too ?
                                                    R.string.tag_ctg_dismiss_with_entries_confirm :
                                                    R.string.tag_ctg_dismiss_confirm,
                                            R.string.dismiss,
@@ -421,7 +423,8 @@ public class ActivityDiary extends AppCompatActivity
         );
     }
     void dismissChapterCtg() {
-        Lifeograph.showConfirmationPrompt( R.string.chapter_ctg_dismiss_confirm,
+        Lifeograph.showConfirmationPrompt( this,
+                                           R.string.chapter_ctg_dismiss_confirm,
                                            R.string.dismiss,
                                            ( dialog, id ) -> {
                                                Diary.diary.dismiss_chapter_ctg(

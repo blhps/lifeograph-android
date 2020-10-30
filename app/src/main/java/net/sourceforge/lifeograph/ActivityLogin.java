@@ -110,73 +110,7 @@ public class ActivityLogin extends AppCompatActivity
 
         ListView lv = findViewById( R.id.list_diaries );
         lv.setAdapter( mAdapterDiaries );
-        lv.setOnItemClickListener( ( parent, v, pos, id ) -> {
-            Log.d( Lifeograph.TAG, "on item selected" );
-            m_flag_open_ready = false;
-
-            Diary.diary.clear();
-
-            switch( Diary.diary.set_path( mPaths.get( pos ), mSetPathType ) ) {
-                case SUCCESS:
-                    m_flag_open_ready = true;
-                    break;
-                case FILE_NOT_FOUND:
-                    Lifeograph.showToast( "File is not found" );
-                    break;
-                case FILE_NOT_READABLE:
-                    Lifeograph.showToast( "File is not readable" );
-                    break;
-                case FILE_LOCKED:
-                    Lifeograph.showToast( "File is locked" );
-                    break;
-                default:
-                    Lifeograph.showToast( "Failed to open the diary" );
-                    break;
-            }
-
-            if( m_flag_open_ready ) {
-                m_flag_open_ready = false;
-                switch( Diary.diary.read_header( getAssets() ) ) {
-                    case SUCCESS:
-                        m_flag_open_ready = true;
-                        break;
-                    case INCOMPATIBLE_FILE_OLD:
-                        Lifeograph.showToast( "Incompatible diary version (TOO OLD)" );
-                        break;
-                    case INCOMPATIBLE_FILE_NEW:
-                        Lifeograph.showToast( "Incompatible diary version (TOO NEW)" );
-                        break;
-                    case CORRUPT_FILE:
-                        Lifeograph.showToast( "Corrupt file" );
-                        break;
-                    default:
-                        Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
-                        break;
-                }
-            }
-
-            // HANDLE OLD DIARY
-            if( m_flag_open_ready && Diary.diary.is_old() &&
-                mSetPathType != Diary.SetPathType.READ_ONLY &&
-                m_password_attempt_no == 0 ) {
-                    Lifeograph.showConfirmationPrompt(
-                            R.string.diary_upgrade_confirm,
-                            R.string.upgrade_diary,
-                            ( dialog, id1 ) -> {
-                                if( Diary.diary.is_encrypted() )
-                                    askPassword();
-                                else
-                                    readBody();
-                            }
-                    );
-            }
-            else if( m_flag_open_ready ) {
-                if( Diary.diary.is_encrypted() )
-                    askPassword();
-                else
-                    readBody();
-            }
-        } );
+        lv.setOnItemClickListener( ( a, b, pos, d ) -> openDiary1( mPaths.get( pos ) ) );
 
         registerForContextMenu( lv ); // ???? What does this do?
 
@@ -264,6 +198,69 @@ public class ActivityLogin extends AppCompatActivity
         }
 
         return super.onOptionsItemSelected( item );
+    }
+
+    private void openDiary1( String path ) {
+        m_flag_open_ready = false;
+
+        switch( Diary.diary.set_path( path, Diary.SetPathType.NORMAL ) ) {
+            case SUCCESS:
+                m_flag_open_ready = true;
+                break;
+            case FILE_NOT_FOUND:
+                Lifeograph.showToast( "File is not found" );
+                break;
+            case FILE_NOT_READABLE:
+                Lifeograph.showToast( "File is not readable" );
+                break;
+            case FILE_LOCKED:
+                Lifeograph.showConfirmationPrompt(
+                        this,
+                        R.string.continue_from_lock_prompt,
+                        R.string.continue_from_lock,
+                        ( a, b ) -> openDiary2(),
+                        R.string.discard_lock,
+                        ( a, b ) -> openDiary3() );
+                break;
+            default:
+                Lifeograph.showToast( "Failed to open the diary" );
+                break;
+        }
+
+        if( m_flag_open_ready )
+            openDiary3();
+    }
+    private void openDiary2() {
+        Diary.diary.enable_working_on_lockfile( true );
+        openDiary3();
+    }
+    private void openDiary3() {
+        m_flag_open_ready = false;
+
+        switch( Diary.diary.read_header( getAssets() ) ) {
+            case SUCCESS:
+                m_flag_open_ready = true;
+                break;
+            case INCOMPATIBLE_FILE_OLD:
+                Lifeograph.showToast( "Incompatible diary version (TOO OLD)" );
+                break;
+            case INCOMPATIBLE_FILE_NEW:
+                Lifeograph.showToast( "Incompatible diary version (TOO NEW)" );
+                break;
+            case CORRUPT_FILE:
+                Lifeograph.showToast( "Corrupt file" );
+                break;
+            default:
+                Log.e( Lifeograph.TAG, "Unprocessed return value from read_header" );
+                break;
+        }
+
+        if( !m_flag_open_ready ) return;
+
+        if( Diary.diary.is_encrypted() )
+            askPassword();
+        else
+            readBody();
     }
 
     private void askPassword() {
@@ -358,7 +355,6 @@ public class ActivityLogin extends AppCompatActivity
     }
 
     void populate_diaries() {
-
         mAdapterDiaries.clear();
         mPaths.clear();
 
@@ -419,7 +415,6 @@ public class ActivityLogin extends AppCompatActivity
     public static String sDiaryPath;
     private List< String > mPaths = new ArrayList<>();
     private ArrayAdapter< String > mAdapterDiaries;
-    private Diary.SetPathType mSetPathType = Diary.SetPathType.NORMAL;
     //private DiaryAdapter mAdapterDiaries; MAYBE LATER
     private boolean m_flag_open_ready = false;
     private int m_password_attempt_no = 0;

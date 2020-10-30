@@ -708,7 +708,9 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     private void dismiss() {
-        Lifeograph.showConfirmationPrompt( R.string.entry_dismiss_confirm, R.string.dismiss,
+        Lifeograph.showConfirmationPrompt( this,
+                                           R.string.entry_dismiss_confirm,
+                                           R.string.dismiss,
                                            ( dialog, id ) -> {
                                                mFlagDismissOnExit = true;
                                                ActivityEntry.this.finish();

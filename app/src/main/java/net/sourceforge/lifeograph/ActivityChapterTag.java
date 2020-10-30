@@ -346,7 +346,8 @@ public class ActivityChapterTag extends AppCompatActivity
     }
 
     private void dismiss_chapter() {
-        Lifeograph.showConfirmationPrompt( R.string.chapter_dismiss_confirm,
+        Lifeograph.showConfirmationPrompt( this,
+                                           R.string.chapter_dismiss_confirm,
                                            R.string.dismiss,
                                            ( dialog, id ) -> {
                                                Diary.diary.dismiss_chapter(
@@ -357,7 +358,8 @@ public class ActivityChapterTag extends AppCompatActivity
     }
 
     private void dismiss_tag() {
-        Lifeograph.showConfirmationPrompt( R.string.tag_dismiss_confirm, R.string.dismiss,
+        Lifeograph.showConfirmationPrompt( this,
+                                           R.string.tag_dismiss_confirm, R.string.dismiss,
                                            ( dialog, id ) -> {
                                                Diary.diary.dismiss_tag(
                                                        ( Tag ) mElement );
