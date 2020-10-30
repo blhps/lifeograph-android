@@ -1,5 +1,5 @@
-/***********************************************************************************
- * Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+/* *********************************************************************************
+ * Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
  * <p/>
  * This file is part of Lifeograph.
  * <p/>
@@ -83,7 +83,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         if( m_points != null ) {
             // 100% zoom:
             final int step_count_nominal = ( int ) ( m_length / COLUMN_WIDTH_MIN ) + 1;
-            final int step_count_min = m_span > step_count_nominal ? step_count_nominal : m_span;
+            final int step_count_min = Math.min( m_span, step_count_nominal );
 
             m_step_count = ( int ) ( m_zoom_level * ( m_span - step_count_min ) ) + step_count_min;
             m_step_x = ( m_step_count < 3 ? m_length : m_length / ( m_step_count - 1 ) );

@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -35,11 +35,11 @@ public abstract class DiaryElement {
     final static CharSequence STR_SEPARATOR = " - ";
 
     // layout type for list view section headers
-    static enum LayoutType {
+    enum LayoutType {
         ELEMENT, HEADER_SIMPLE, HEADER_TAG_CTG, HEADER_CHAPTER_CTG
     }
 
-    public static enum Type {
+    public enum Type {
         // CAUTION: order is significant and shouldn't be changed!
         NONE( 0, LayoutType.ELEMENT, "" ),
         TAG( 1, LayoutType.ELEMENT, Lifeograph.getStr( R.string.tag ) ),

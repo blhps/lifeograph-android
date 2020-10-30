@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -26,12 +26,9 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
-import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 
 public class DialogInquireText extends Dialog
 {
@@ -57,13 +54,11 @@ public class DialogInquireText extends Dialog
         // setMessage( mMessage );
 
         // mButtonOk must come before mInput as it is referenced there
-        mButtonOk = ( Button ) findViewById( R.id.inquireTextButtonPositive );
+        mButtonOk = findViewById( R.id.inquireTextButtonPositive );
         mButtonOk.setText( mActName );
-        mButtonOk.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) { go(); }
-        } );
+        mButtonOk.setOnClickListener( v -> go() );
 
-        mInput = ( EditText ) findViewById( R.id.inquireTextEdit );
+        mInput = findViewById( R.id.inquireTextEdit );
 
         if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
             mInput.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
@@ -81,26 +76,18 @@ public class DialogInquireText extends Dialog
                         mListener.onInquireTextChanged( mTitle, mInput.getText().toString() ) );
             }
         } );
-        mInput.setOnEditorActionListener( new TextView.OnEditorActionListener()
-        {
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                if( v.getText().length() > 0 ) {
-                    go();
-                    return true;
-                }
-                return false;
+        mInput.setOnEditorActionListener( ( v, actionId, event ) -> {
+            if( v.getText().length() > 0 ) {
+                go();
+                return true;
             }
+            return false;
         } );
         mInput.setText( mDefName );
         mInput.selectAll();
 
         Button buttonNegative = findViewById( R.id.inquireTextButtonNegative );
-        buttonNegative.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                dismiss();
-            }
-        } );
+        buttonNegative.setOnClickListener( v -> dismiss() );
     }
 
     private void go() {

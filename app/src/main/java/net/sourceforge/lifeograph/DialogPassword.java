@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -26,13 +26,11 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 
 class DialogPassword extends Dialog
@@ -59,15 +57,13 @@ class DialogPassword extends Dialog
 
         // mButtonOk must come before mInput as it is referenced there
         mButtonOk = findViewById( R.id.passwordButtonPositive );
-        mButtonOk.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) { go(); }
-        } );
+        mButtonOk.setOnClickListener( v -> go() );
 
-        mInput1 = ( EditText ) findViewById( R.id.edit_password_1 );
-        mInput2 = ( EditText ) findViewById( R.id.edit_password_2 );
+        mInput1 = findViewById( R.id.edit_password_1 );
+        mInput2 = findViewById( R.id.edit_password_2 );
 
-        mImage1 = ( ImageView ) findViewById( R.id.image_password_1 );
-        mImage2 = ( ImageView ) findViewById( R.id.image_password_2 );
+        mImage1 = findViewById( R.id.image_password_1 );
+        mImage2 = findViewById( R.id.image_password_2 );
 
         switch( mAction ) {
             case DPA_LOGIN:
@@ -105,16 +101,13 @@ class DialogPassword extends Dialog
                 check();
             }
         } );
-        mInput1.setOnEditorActionListener( new TextView.OnEditorActionListener()
-        {
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                if( mAction != DPAction.DPA_ADD &&
-                    mInput1.getText().length() >= Diary.PASSPHRASE_MIN_SIZE ) {
-                    go();
-                    return true;
-                }
-                return false;
+        mInput1.setOnEditorActionListener( ( v, actionId, event ) -> {
+            if( mAction != DPAction.DPA_ADD &&
+                mInput1.getText().length() >= Diary.PASSPHRASE_MIN_SIZE ) {
+                go();
+                return true;
             }
+            return false;
         } );
         mInput2.addTextChangedListener( new TextWatcher()
         {
@@ -129,13 +122,8 @@ class DialogPassword extends Dialog
             }
         } );
 
-        Button buttonNegative = ( Button ) findViewById( R.id.passwordButtonNegative );
-        buttonNegative.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                dismiss();
-            }
-        } );
+        Button buttonNegative = findViewById( R.id.passwordButtonNegative );
+        buttonNegative.setOnClickListener( v -> dismiss() );
     }
 
     private void check() {

@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -201,5 +201,5 @@ public class Filter extends DiaryElement
     private Tag m_tag;
     private long m_date_begin;
     private long m_date_end;
-    private java.util.List< Entry > m_entries = new ArrayList< Entry >();
+    private java.util.List< Entry > m_entries = new ArrayList<>();
 }

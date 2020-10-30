@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -86,8 +86,8 @@ public class ToggleImageButton extends androidx.appcompat.widget.AppCompatImageB
         this.onCheckedChangeListener = onCheckedChangeListener;
     }
 
-    public static interface OnCheckedChangeListener
+    public interface OnCheckedChangeListener
     {
-        public void onCheckedChanged( ToggleImageButton buttonView, boolean isChecked );
+        void onCheckedChanged( ToggleImageButton buttonView, boolean isChecked );
     }
 }

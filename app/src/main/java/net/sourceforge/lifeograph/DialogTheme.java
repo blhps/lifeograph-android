@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -27,7 +27,6 @@ import android.app.Dialog;
 import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
-import android.view.View;
 import android.widget.Button;
 
 import yuku.ambilwarna.AmbilWarnaDialog;
@@ -49,59 +48,39 @@ class DialogTheme extends Dialog
         setTitle( mTag.get_name() );
 
         mButtonTextColor = findViewById( R.id.button_text_color );
-        mButtonBaseColor = ( Button ) findViewById( R.id.button_base_color );
-        mButtonHeadingColor = ( Button ) findViewById( R.id.button_heading_color );
-        mButtonSubheadingColor = ( Button ) findViewById( R.id.button_subheading_color );
-        mButtonHighlightColor = ( Button ) findViewById( R.id.button_highlight_color );
+        mButtonBaseColor = findViewById( R.id.button_base_color );
+        mButtonHeadingColor = findViewById( R.id.button_heading_color );
+        mButtonSubheadingColor = findViewById( R.id.button_subheading_color );
+        mButtonHighlightColor = findViewById( R.id.button_highlight_color );
 
-        mButtonReset = ( Button ) findViewById( R.id.button_theme_reset );
+        mButtonReset = findViewById( R.id.button_theme_reset );
 
         updateButtonColors();
 
-        mButtonTextColor.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                sIndex = 0;
-                showColorDialog( mTag.get_theme().color_text + 0xff000000 );
-            }
+        mButtonTextColor.setOnClickListener( v -> {
+            sIndex = 0;
+            showColorDialog( mTag.get_theme().color_text + 0xff000000 );
         } );
-        mButtonBaseColor.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                sIndex = 1;
-                showColorDialog( mTag.get_theme().color_base + 0xff000000 );
-            }
+        mButtonBaseColor.setOnClickListener( v -> {
+            sIndex = 1;
+            showColorDialog( mTag.get_theme().color_base + 0xff000000 );
         } );
-        mButtonHeadingColor.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                sIndex = 2;
-                showColorDialog( mTag.get_theme().color_heading + 0xff000000 );
-            }
+        mButtonHeadingColor.setOnClickListener( v -> {
+            sIndex = 2;
+            showColorDialog( mTag.get_theme().color_heading + 0xff000000 );
         } );
-        mButtonSubheadingColor.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                sIndex = 3;
-                showColorDialog( mTag.get_theme().color_subheading + 0xff000000 );
-            }
+        mButtonSubheadingColor.setOnClickListener( v -> {
+            sIndex = 3;
+            showColorDialog( mTag.get_theme().color_subheading + 0xff000000 );
         } );
-        mButtonHighlightColor.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                sIndex = 4;
-                showColorDialog( mTag.get_theme().color_highlight + 0xff000000 );
-            }
+        mButtonHighlightColor.setOnClickListener( v -> {
+            sIndex = 4;
+            showColorDialog( mTag.get_theme().color_highlight + 0xff000000 );
         } );
 
 
         mButtonReset.setEnabled( mTag.get_has_own_theme() );
-        mButtonReset.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                resetTheme();
-            }
-        } );
+        mButtonReset.setOnClickListener( v -> resetTheme() );
     }
 
     @Override

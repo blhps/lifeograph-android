@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -98,7 +98,7 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
     }
 
     public interface ToDoObject {
-        public void setTodoStatus( int s );
+        void setTodoStatus( int s );
     }
 
     //private Context mContext; // not used now

@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -116,7 +116,7 @@ public class ChartPoints
     Double value_min = Double.POSITIVE_INFINITY;
     Double value_max = Double.NEGATIVE_INFINITY;
 
-    java.util.LinkedList< Double > values = new java.util.LinkedList< Double >();
+    java.util.LinkedList< Double > values = new java.util.LinkedList<>();
     int type;
     long start_date = 0;
 

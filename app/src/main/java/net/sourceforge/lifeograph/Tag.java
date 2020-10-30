@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -70,7 +70,7 @@ public class Tag extends DiaryElementChart {
         }
 
         // CONTENTS
-        java.util.List< Tag > mTags = new ArrayList< Tag >();
+        java.util.List< Tag > mTags = new ArrayList<>();
     }
 
 //    public Tag( Diary diary ) {

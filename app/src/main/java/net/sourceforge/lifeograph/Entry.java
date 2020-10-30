@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -474,7 +474,7 @@ public class Entry extends DiaryElement {
     long m_date_edited;
     long m_date_status;
     String m_text = ""; // must be initialized to prevent crashes on empty entries with tags
-    java.util.List< Tag > m_tags = new ArrayList< Tag >();
+    java.util.List< Tag > m_tags = new ArrayList<>();
     String m_location = "";
     private Tag m_ptr2theme_tag;
     private String m_option_lang = Lifeograph.LANG_INHERIT_DIARY; // empty means off

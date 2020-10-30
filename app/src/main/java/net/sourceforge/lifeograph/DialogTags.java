@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -29,7 +29,6 @@ import android.os.Bundle;
 import androidx.annotation.NonNull;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -67,25 +66,17 @@ class DialogTags extends Dialog
         setContentView( R.layout.dialog_tags );
         setTitle( R.string.edit_tags );
         setCancelable( true );
-        setOnDismissListener( new android.content.DialogInterface.OnDismissListener() {
-            public void onDismiss( android.content.DialogInterface dialog ) {
-                invalidateOptionsMenu();
-            }
-        } );
+        setOnDismissListener( dialog -> invalidateOptionsMenu() );
 
         ListView listViewTags = findViewById( R.id.listViewTags );
         listViewTags.setAdapter( mAdapterTags );
         listViewTags.setItemsCanFocus( false );
 
-        buttonAdd = ( Button ) findViewById( R.id.buttonAddTag );
-        buttonAdd.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                create_tag();
-            }
-        } );
+        buttonAdd = findViewById( R.id.buttonAddTag );
+        buttonAdd.setOnClickListener( v -> create_tag() );
         buttonAdd.setEnabled( false );
 
-        editText = ( EditText ) findViewById( R.id.editTextTag );
+        editText = findViewById( R.id.editTextTag );
 
         if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
             editText.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
@@ -104,14 +95,12 @@ class DialogTags extends Dialog
                     buttonAdd.setEnabled( false );
             }
         } );
-        editText.setOnEditorActionListener( new TextView.OnEditorActionListener() {
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                if( v.getText().length() > 0 ) {
-                    create_tag();
-                    return true;
-                }
-                return false;
+        editText.setOnEditorActionListener( ( v, actionId, event ) -> {
+            if( v.getText().length() > 0 ) {
+                create_tag();
+                return true;
             }
+            return false;
         } );
 
         update_list();
@@ -143,7 +132,7 @@ class DialogTags extends Dialog
     private EditText editText;
     private String mFilterText = "";
     private Button buttonAdd;
-    private java.util.List< Tag > mTags = new ArrayList< Tag >();
+    private java.util.List< Tag > mTags = new ArrayList<>();
     private TagListAdapter mAdapterTags;
 
     // TAG LIST ADAPTER CLASS ======================================================================
@@ -174,6 +163,7 @@ class DialogTags extends Dialog
             }
 
             TextView title = holder.getName();
+            assert tag != null;
             title.setText( tag.get_list_str() );
 
             holder.getIcon().setImageResource( tag.get_icon() );
@@ -237,21 +227,21 @@ class DialogTags extends Dialog
 
             public TextView getName() {
                 if( mTitle == null ) {
-                    mTitle = ( TextView ) mRow.findViewById( R.id.title );
+                    mTitle = mRow.findViewById( R.id.title );
                 }
                 return mTitle;
             }
 
             public ImageView getIcon() {
                 if( mIcon == null ) {
-                    mIcon = ( ImageView ) mRow.findViewById( R.id.icon );
+                    mIcon = mRow.findViewById( R.id.icon );
                 }
                 return mIcon;
             }
 
             CheckBox getCheckBox() {
                 if( mCheckBox == null ) {
-                    mCheckBox = ( CheckBox ) mRow.findViewById( R.id.checkBox );
+                    mCheckBox = mRow.findViewById( R.id.checkBox );
                 }
                 return mCheckBox;
             }

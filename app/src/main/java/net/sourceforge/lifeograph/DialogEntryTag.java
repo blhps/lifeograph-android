@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -26,12 +26,10 @@ import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
-import android.view.KeyEvent;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.AutoCompleteTextView;
 import android.widget.Button;
-import android.widget.TextView;
 
 public class DialogEntryTag extends Dialog
 {
@@ -51,24 +49,18 @@ public class DialogEntryTag extends Dialog
         setCancelable( true );
 
         // mButtonAction must come before mInput as it is referenced there
-        mButtonAction = ( Button ) findViewById( R.id.entry_tag_action );
-        mButtonAction.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) { go(); }
-        } );
+        mButtonAction = findViewById( R.id.entry_tag_action );
+        mButtonAction.setOnClickListener( v -> go() );
 
         mButtonTheme = findViewById( R.id.entry_set_theme );
-        mButtonTheme.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                if( mTag.get_has_own_theme() )
-                    mEntry.set_theme_tag( mTag );
-                mListener.onTagsChanged();
-                dismiss();
-            }
+        mButtonTheme.setOnClickListener( v -> {
+            if( mTag.get_has_own_theme() )
+                mEntry.set_theme_tag( mTag );
+            mListener.onTagsChanged();
+            dismiss();
         } );
 
-        mInput1 = ( AutoCompleteTextView ) findViewById( R.id.entry_tag_edit );
+        mInput1 = findViewById( R.id.entry_tag_edit );
         if( mTag != null ) // add new tag case
             mInput1.setText( mTag.get_name_and_value( mEntry, true, true ) );
 
@@ -77,7 +69,7 @@ public class DialogEntryTag extends Dialog
         for( String tag : Diary.diary.m_tags.keySet() ) {
             tags[ i++ ] = Tag.escape_name( tag );
         }
-        ArrayAdapter< String > adapter_tags = new ArrayAdapter< String >
+        ArrayAdapter< String > adapter_tags = new ArrayAdapter<>
                 ( getContext(), android.R.layout.simple_dropdown_item_1line, tags );
         mInput1.setAdapter( adapter_tags );
 
@@ -85,13 +77,7 @@ public class DialogEntryTag extends Dialog
             mInput1.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );*/
 
         // show all suggestions w/o entering text:
-        mInput1.setOnClickListener( new AutoCompleteTextView.OnClickListener()
-                                    {
-                                        public void onClick( View view ) {
-                                            mInput1.showDropDown();
-                                        }
-                                    }
-        );
+        mInput1.setOnClickListener( view -> mInput1.showDropDown() );
 
         mInput1.addTextChangedListener( new TextWatcher()
         {
@@ -105,12 +91,9 @@ public class DialogEntryTag extends Dialog
                 handleNameEdited( s, count - before );
             }
         } );
-        mInput1.setOnEditorActionListener( new TextView.OnEditorActionListener()
-        {
-            public boolean onEditorAction( TextView v, int actionId, KeyEvent event ) {
-                go();
-                return true;
-            }
+        mInput1.setOnEditorActionListener( ( v, actionId, event ) -> {
+            go();
+            return true;
         } );
 
         handleNameEdited( mInput1.getText(), 1000 ); // 1000 just means positive direction here
@@ -219,11 +202,13 @@ public class DialogEntryTag extends Dialog
                 break;
             case TO_ADD:
                 tag = Diary.diary.m_tags.get( mNAV.name );
+                assert tag != null;
                 mEntry.add_tag( tag, mNAV.value );
                 break;
             case TO_CHANGE_VALUE:
                 tag = Diary.diary.m_tags.get( mNAV.name );
                 mEntry.remove_tag( tag );
+                assert tag != null;
                 mEntry.add_tag( tag, mNAV.value );
                 break;
         }

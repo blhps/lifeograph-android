@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -31,13 +31,13 @@ public class Chapter extends DiaryElementChart {
 
         public Category( Diary diary, String name ) {
             super( diary, name, ES_VOID );
-            mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
+            mMap = new java.util.TreeMap<>( DiaryElement.compare_dates );
             m_date_min = 0;
         }
         // for topics and groups which do not have names:
         public Category( Diary diary, long date_min ) {
             super( diary, DEID_UNSET, ES_VOID );
-            mMap = new java.util.TreeMap< Long, Chapter >( DiaryElement.compare_dates );
+            mMap = new java.util.TreeMap<>( DiaryElement.compare_dates );
             m_date_min = date_min;
         }
 

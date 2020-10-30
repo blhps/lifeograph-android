@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -50,7 +50,7 @@ public class FragmentFilter extends Fragment
 
         // FILLING WIDGETS
         mEditSearch = rootView.findViewById( R.id.editTextSearch );
-        mButtonSearchTextClear = ( Button ) rootView.findViewById( R.id.buttonClearText );
+        mButtonSearchTextClear = rootView.findViewById( R.id.buttonClearText );
 
         mButtonShowTodoNot = rootView.findViewById( R.id.show_todo_not );
         mButtonShowTodoOpen = rootView.findViewById( R.id.show_todo_open );
@@ -86,39 +86,13 @@ public class FragmentFilter extends Fragment
                     mTextInitialized = true;
             }
         } );
-        mButtonSearchTextClear.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                mEditSearch.setText( "" );
-            }
-        } );
+        mButtonSearchTextClear.setOnClickListener( v -> mEditSearch.setText( "" ) );
 
-        mButtonShowTodoNot.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoOpen.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoProgressed.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoDone.setOnClickListener( new View.OnClickListener() {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
-        mButtonShowTodoCanceled.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                handleFilterTodoChanged();
-            }
-        } );
+        mButtonShowTodoNot.setOnClickListener( v -> handleFilterTodoChanged() );
+        mButtonShowTodoOpen.setOnClickListener( v -> handleFilterTodoChanged() );
+        mButtonShowTodoProgressed.setOnClickListener( v -> handleFilterTodoChanged() );
+        mButtonShowTodoDone.setOnClickListener( v -> handleFilterTodoChanged() );
+        mButtonShowTodoCanceled.setOnClickListener( v -> handleFilterTodoChanged() );
 
         mSpinnerShowFavorite.setOnItemSelectedListener( new AdapterView.OnItemSelectedListener()
         {
@@ -137,20 +111,10 @@ public class FragmentFilter extends Fragment
             private boolean mInitialized = false;
         } );
 
-        Button buttonFilterReset = ( Button ) rootView.findViewById( R.id.buttonFilterReset );
-        buttonFilterReset.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                resetFilter();
-            }
-        } );
-        Button buttonFilterSave = ( Button ) rootView.findViewById( R.id.buttonFilterSave );
-        buttonFilterSave.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                saveFilter();
-            }
-        } );
+        Button buttonFilterReset = rootView.findViewById( R.id.buttonFilterReset );
+        buttonFilterReset.setOnClickListener( v -> resetFilter() );
+        Button buttonFilterSave = rootView.findViewById( R.id.buttonFilterSave );
+        buttonFilterSave.setOnClickListener( v -> saveFilter() );
 
         return rootView;
     }
@@ -161,7 +125,7 @@ public class FragmentFilter extends Fragment
 
         Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + activity.toString() );
 
-        if( FragmentElemList.ListOperations.class.isInstance( activity ) )
+        if( activity instanceof FragmentElemList.ListOperations )
             mListOperations = ( FragmentElemList.ListOperations ) activity;
         else
             throw new ClassCastException( activity.toString() + " must implement ListOperations" );
