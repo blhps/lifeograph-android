@@ -58,7 +58,7 @@ public class ActivityChapterTag extends AppCompatActivity
         setContentView( R.layout.chapter );
 
         Lifeograph.sContext = this;
-        Lifeograph.updateScreenSizes();
+        Lifeograph.updateScreenSizes( this );
 
         // ELEMENT TO SHOW
         mElement = ( DiaryElementChart ) Diary.diary.get_element(

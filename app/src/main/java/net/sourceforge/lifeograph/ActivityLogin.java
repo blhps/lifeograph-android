@@ -57,7 +57,7 @@ public class ActivityLogin extends AppCompatActivity
         super.onCreate( savedInstanceState );
 
         Lifeograph.sContext = this;
-        Lifeograph.updateScreenSizes();
+        Lifeograph.updateScreenSizes( this );
 
         if( Diary.diary == null )
             Diary.diary = new Diary();

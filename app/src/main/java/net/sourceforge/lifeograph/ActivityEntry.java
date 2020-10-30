@@ -164,7 +164,7 @@ public class ActivityEntry extends AppCompatActivity
         setContentView( R.layout.entry );
 
         Lifeograph.sContext = this;
-        Lifeograph.updateScreenSizes();
+        Lifeograph.updateScreenSizes( this );
 
         mActionBar = getSupportActionBar();
         assert mActionBar != null;

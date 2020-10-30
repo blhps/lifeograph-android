@@ -65,7 +65,7 @@ public class ActivityDiary extends AppCompatActivity
         Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
 
         Lifeograph.sContext = this;
-        Lifeograph.updateScreenSizes();
+        Lifeograph.updateScreenSizes( this );
 
         // PICKING UP THE APPROPRIATE LAYOUT
         if( Lifeograph.getScreenWidth() >= 4.0 ) {

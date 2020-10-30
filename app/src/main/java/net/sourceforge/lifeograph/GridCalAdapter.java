@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
- Copyright (C) 2012-2014 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -44,14 +44,14 @@ class GridCalAdapter extends BaseAdapter
     public GridCalAdapter( Context context, Date date ) {
         super();
         this.mContext = context;
-        mListDays = new ArrayList< Long >();
+        mListDays = new ArrayList<>();
 
         showMonth( date );
     }
     public GridCalAdapter( Context context ) {
         super();
         this.mContext = context;
-        mListDays = new ArrayList< Long >();
+        mListDays = new ArrayList<>();
     }
 
     // @Override

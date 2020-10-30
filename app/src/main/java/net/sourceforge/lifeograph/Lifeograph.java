@@ -185,13 +185,8 @@ public class Lifeograph
 //                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
 //    }
 
-    static void updateScreenSizes() {
-        if( sContext == null ) {
-            Log.e( TAG, "Failed to update screen sizes" );
-            return;
-        }
-
-        WindowManager wm = ( WindowManager ) sContext.getSystemService( Context.WINDOW_SERVICE );
+    static void updateScreenSizes( Context context ) {
+        WindowManager wm = ( WindowManager ) context.getSystemService( Context.WINDOW_SERVICE );
         DisplayMetrics metrics = new DisplayMetrics();
         wm.getDefaultDisplay().getMetrics( metrics );
         sScreenWidth = metrics.widthPixels / metrics.xdpi;

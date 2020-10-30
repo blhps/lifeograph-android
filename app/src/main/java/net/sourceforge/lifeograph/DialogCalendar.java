@@ -1,6 +1,6 @@
-/***********************************************************************************
+/* *********************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -28,8 +28,6 @@ import android.app.Dialog;
 import android.os.Bundle;
 import android.view.View;
 import android.view.WindowManager;
-import android.widget.AdapterView;
-import android.widget.AdapterView.OnItemClickListener;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.NumberPicker;
@@ -53,38 +51,29 @@ class DialogCalendar extends Dialog
 
         mDate = new Date( Date.get_today( 0 ) );
 
-        GridView gridCalendar = ( GridView ) this.findViewById( R.id.gridViewCalendar );
+        GridView gridCalendar = this.findViewById( R.id.gridViewCalendar );
         mAdapter = new GridCalAdapter( Lifeograph.sContext, mDate );
         mNumberPickerMonth = findViewById( R.id.numberPickerMonth );
-        mNumberPickerYear = ( NumberPicker ) findViewById( R.id.numberPickerYear );
-        Button buttonCreateEntry = ( Button ) findViewById( R.id.buttonCreateEntry );
-        mButtonCreateChapter = ( Button ) findViewById( R.id.buttonCreateChapter );
+        mNumberPickerYear = findViewById( R.id.numberPickerYear );
+        Button buttonCreateEntry = findViewById( R.id.buttonCreateEntry );
+        mButtonCreateChapter = findViewById( R.id.buttonCreateChapter );
 
         mAdapter.notifyDataSetChanged();
         gridCalendar.setAdapter( mAdapter );
-        gridCalendar.setOnItemClickListener( new OnItemClickListener()
-        {
-            public void onItemClick( AdapterView< ? > parent, View v, int pos, long id ) {
-                handleDayClicked( pos );
-            }
-        } );
+        gridCalendar.setOnItemClickListener( ( parent, v, pos, id ) -> handleDayClicked( pos ) );
 
         mNumberPickerMonth.setOnValueChangedListener(
-                new NumberPicker.OnValueChangeListener() {
-                    public void onValueChange( NumberPicker picker, int old, int n ) {
-                        mDate.set_month( n );
-                        if( mDate.get_day() > mDate.get_days_in_month() )
-                            mDate.set_day( mDate.get_days_in_month() );
-                        handleDayChanged();
-                    }
+                ( picker, old, n ) -> {
+                    mDate.set_month( n );
+                    if( mDate.get_day() > mDate.get_days_in_month() )
+                        mDate.set_day( mDate.get_days_in_month() );
+                    handleDayChanged();
                 } );
         mNumberPickerYear.setOnValueChangedListener(
-                new NumberPicker.OnValueChangeListener() {
-                    public void onValueChange( NumberPicker picker, int old, int n ) {
-                        mDate.set_year( n );
-                        mDate.set_day( mDate.get_days_in_month() );
-                        handleDayChanged();
-                    }
+                ( picker, old, n ) -> {
+                    mDate.set_year( n );
+                    mDate.set_day( mDate.get_days_in_month() );
+                    handleDayChanged();
                 } );
         mNumberPickerMonth.setMinValue( 1 );
         mNumberPickerMonth.setMaxValue( 12 );
@@ -94,20 +83,10 @@ class DialogCalendar extends Dialog
         mNumberPickerMonth.setValue( mDate.get_month() );
         mNumberPickerYear.setValue( mDate.get_year() );
 
-        buttonCreateEntry.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                createEntry();
-            }
-        } );
+        buttonCreateEntry.setOnClickListener( v -> createEntry() );
         buttonCreateEntry.setVisibility( mAllowEntryCreation ? View.VISIBLE : View.INVISIBLE );
 
-        mButtonCreateChapter.setOnClickListener( new View.OnClickListener()
-        {
-            public void onClick( View v ) {
-                createChapter();
-            }
-        } );
+        mButtonCreateChapter.setOnClickListener( v -> createChapter() );
         mButtonCreateChapter.setEnabled(
                 !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
         mButtonCreateChapter.setVisibility( mAllowChapterCreation ? View.VISIBLE : View.INVISIBLE );
