@@ -55,7 +55,8 @@ import android.widget.PopupMenu;
 public class ActivityDiary extends AppCompatActivity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
         DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener,
-        DialogTags.DialogTagsHost, ActionMode.Callback, DialogPassword.Listener
+        DialogTags.DialogTagsHost, ActionMode.Callback, DialogPassword.Listener,
+        Lifeograph.DiaryEditor
 {
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
@@ -232,7 +233,7 @@ public class ActivityDiary extends AppCompatActivity
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case R.id.enable_edit:
-                enableEditing();
+                Lifeograph.enableEditing( this );
                 return true;
             case android.R.id.home:
                 finish();
@@ -337,10 +338,12 @@ public class ActivityDiary extends AppCompatActivity
         mMenu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
     }
 
-    private void enableEditing(){
-        if( !Diary.diary.can_enter_edit_mode() ) return;
-        if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
-
+    @Override
+    public Context getContext(){
+        return this;
+    }
+    @Override
+    public void enableEditing(){
         boolean flagEncrypted = Diary.diary.is_encrypted();
 
         mMenu.findItem( R.id.enable_edit ).setVisible( false );

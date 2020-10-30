@@ -57,6 +57,11 @@ public class Lifeograph
         return( mAdFreePurchased == PurchaseStatus.NOT_PURCHASED );
     }
 
+    interface DiaryEditor{
+        void enableEditing();
+        Context getContext();
+    }
+
     static void showElem( DiaryElement elem ) {
         if( elem != null ) {
             switch( elem.get_type() ) {
@@ -83,6 +88,25 @@ public class Lifeograph
             Log.e( TAG, "null element passed to showElem" );
     }
 
+    public static void enableEditing( DiaryEditor editor ) {
+        // HANDLE OLD DIARY
+        if( Diary.diary.is_old() ) {
+            Lifeograph.showConfirmationPrompt(
+                    editor.getContext(),
+                    R.string.diary_upgrade_confirm,
+                    R.string.upgrade_diary,
+                    ( a, b ) -> enableEditing2( editor ) );
+            return;
+        }
+
+        enableEditing2( editor );
+    }
+    private static void enableEditing2( DiaryEditor editor ) {
+        if( !Diary.diary.can_enter_edit_mode() ) return;
+        if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
+
+        editor.enableEditing();
+    }
     // ANDROID & JAVA HELPERS ======================================================================
     public static final String TAG = "LFO";
 

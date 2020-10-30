@@ -67,7 +67,8 @@ import static net.sourceforge.lifeograph.DiaryElement.ES_NOT_TODO;
 
 public class ActivityEntry extends AppCompatActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener, DialogEntryTag.Listener
+        PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener, DialogEntryTag.Listener,
+        Lifeograph.DiaryEditor
 {
     // CHAR FLAGS
     public final int CF_NOT_SET = 0;
@@ -500,7 +501,7 @@ public class ActivityEntry extends AppCompatActivity
     public boolean onOptionsItemSelected( MenuItem item ) {
         switch( item.getItemId() ) {
             case R.id.enable_edit:
-                enableEditing();
+                Lifeograph.enableEditing( this );
                 return true;
             case android.R.id.home:
                 //NavUtils.navigateUpFromSameTask( this );
@@ -566,10 +567,12 @@ public class ActivityEntry extends AppCompatActivity
         mMenu.findItem( R.id.dismiss ).setVisible( flagWritable );
     }
 
-    private void enableEditing(){
-        if( !Diary.diary.can_enter_edit_mode() ) return;
-        if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
-
+    @Override
+    public Context getContext(){
+        return this;
+    }
+    @Override
+    public void enableEditing(){
         mMenu.findItem( R.id.enable_edit ).setVisible( false );
 
         mMenu.findItem( R.id.change_todo_status ).setVisible( true );

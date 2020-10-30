@@ -1,4 +1,4 @@
-/***********************************************************************************
+/* *********************************************************************************
 
     Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
@@ -1975,16 +1975,6 @@ public class Diary extends DiaryElementChart
         if( m_flag_read_only )
         {
             Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
-            return Result.FILE_LOCKED;
-        }
-
-        // HANDLE OLD DIARY
-        if( !m_flag_skip_old_check && is_old() ) {
-            Lifeograph.showConfirmationPrompt(
-                    Lifeograph.sContext,
-                    R.string.diary_upgrade_confirm,
-                    R.string.upgrade_diary,
-                    ( dialog, id1 ) -> m_flag_skip_old_check = true );
             return Result.FILE_LOCKED;
         }
 
