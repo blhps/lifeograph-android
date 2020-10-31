@@ -95,15 +95,16 @@ P This is an example diary showcasing some features of Lifeograph. It also conta
 ID4710117
 E__n1059421185
 Dr1604127746
-Dh1604128735
+Dh1604141675
 Ds1604127746
 P 0.9.0 / one can enter the same data stream twice
 P 
 P  What is new?
 P 
 P 	• Enable editing after opening a diary file, rather than deciding before opening
-P 	• Completed support for lock files. 
+P 	• Completed support for lock files
 P 	• Some huge code cleanups
+P 	• Updated dependencies
 
 ID2112607
 E__n1058825217

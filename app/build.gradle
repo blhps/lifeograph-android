@@ -26,7 +26,7 @@ android {
 
         }
         versionName '0.9.0'
-        versionCode 8011
+        versionCode 9000
     }
 
     // disable automatic handling of jni folder by gradle
