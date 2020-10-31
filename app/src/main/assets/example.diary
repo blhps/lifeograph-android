@@ -5,7 +5,7 @@ E no
 O ddM
 l en_US
 S 10034
-L 2112607
+L 4710117
 ID10043
 t general
 tc17
@@ -91,6 +91,19 @@ Ds1339235609
 P Welcome to Lifeograph for Android
 P 
 P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID4710117
+E__n1059421185
+Dr1604127746
+Dh1604128735
+Ds1604127746
+P 0.9.0 / one can enter the same data stream twice
+P 
+P  What is new?
+P 
+P 	• Enable editing after opening a diary file, rather than deciding before opening
+P 	• Completed support for lock files. 
+P 	• Some huge code cleanups
 
 ID2112607
 E__n1058825217
