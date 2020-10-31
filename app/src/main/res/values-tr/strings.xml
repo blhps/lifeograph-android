@@ -20,7 +20,6 @@
     <string name="chapter_dismiss_confirm">Seçili faslı silmek istediğinizden emin misiniz?</string>
     <string name="chapters">Fasıllar</string>
     <string name="confirm">Tekrarla</string>
-    <string name="copyright">© 2012–2016, Ahmet Öztürk</string>
     <string name="create">Oluştur</string>
     <string name="create_chapter">Tarihli fasıl oluştur</string>
     <string name="create_diary">Yeni günlüğün ismini girin</string>
@@ -151,5 +150,9 @@
     <string name="diary_upgrade_confirm">Günlüğü yükseltmek istediğinizden emin misiniz?</string>
     <string name="upgrade_diary">Günlüğü Yükselt</string>
     <string name="edit">Düzenle</string>
+    <string name="discard_lock">Kilidi Kullanma</string>
+    <string name="continue_from_lock">Kilitten Devam Et</string>
+    <string name="continue_from_lock_prompt">Günlük kilitli. Kilit dosyasından devam etmek ister
+        misiniz?</string>
 
 </resources>
