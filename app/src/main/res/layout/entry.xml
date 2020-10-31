@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -108,17 +108,20 @@
 
         </HorizontalScrollView>
 
-        <EditText
-            android:id="@+id/editTextEntry"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight=".99"
-            android:gravity="top"
-            android:paddingTop="0dp"
-            android:paddingBottom="0dp"
-            android:inputType="textMultiLine|textCapSentences" >
-            <requestFocus />
-        </EditText>
+    <EditText
+        android:id="@+id/editTextEntry"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".99"
+        android:gravity="top"
+        android:hint="@string/empty_entry"
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine|textCapSentences"
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp">
+
+        <requestFocus />
+    </EditText>
 
         <net.sourceforge.lifeograph.ViewEntryTags
             android:layout_width="match_parent"

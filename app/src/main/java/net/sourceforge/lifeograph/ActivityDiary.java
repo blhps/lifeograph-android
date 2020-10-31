@@ -29,17 +29,6 @@ import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.os.Parcelable;
-import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
-import androidx.fragment.app.Fragment;
-import androidx.fragment.app.FragmentManager;
-import androidx.fragment.app.FragmentTransaction;
-import androidx.core.view.MenuItemCompat;
-import androidx.viewpager.widget.PagerAdapter;
-import androidx.viewpager.widget.ViewPager;
-import androidx.drawerlayout.widget.DrawerLayout;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.app.ActionBar;
 import android.util.Log;
 import android.view.ActionMode;
 import android.view.Menu;
@@ -51,6 +40,19 @@ import android.widget.Button;
 import android.widget.GridView;
 import android.widget.LinearLayout;
 import android.widget.PopupMenu;
+
+import androidx.annotation.NonNull;
+import androidx.core.view.GravityCompat;
+import androidx.fragment.app.Fragment;
+import androidx.fragment.app.FragmentManager;
+import androidx.fragment.app.FragmentTransaction;
+import androidx.core.view.MenuItemCompat;
+import androidx.viewpager.widget.PagerAdapter;
+import androidx.viewpager.widget.ViewPager;
+import androidx.drawerlayout.widget.DrawerLayout;
+import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.app.ActionBar;
+
 
 public class ActivityDiary extends AppCompatActivity
         implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
@@ -620,7 +622,7 @@ public class ActivityDiary extends AppCompatActivity
     //private LayoutInflater mInflater;
     protected ViewPager mPager;
     private PagerAdapterCalendar mCalPagerAdapter = null;
-    private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList< FragmentElemList >();
+    private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList<>();
 
     private Menu mMenu = null;
 
@@ -669,7 +671,7 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         @Override
-        public boolean isViewFromObject( View view, Object object ) {
+        public boolean isViewFromObject( @NonNull View view, @NonNull Object object ) {
             return( ( Fragment ) object).getView() == view;
         }
 
@@ -678,8 +680,9 @@ public class ActivityDiary extends AppCompatActivity
             return mTabs.size();
         }
 
+        @NonNull
         @Override
-        public Object instantiateItem( ViewGroup container, int position ) {
+        public Object instantiateItem( @NonNull ViewGroup container, int position ) {
             if( mCurTransaction == null )
                 mCurTransaction = mFragMan.beginTransaction();
 
@@ -703,11 +706,11 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         @Override
-        public void destroyItem( ViewGroup container, int position, Object object ) {
+        public void destroyItem( @NonNull ViewGroup container, int pos, @NonNull Object object ) {
             if( mCurTransaction == null ) {
                 mCurTransaction = mFragMan.beginTransaction();
             }
-            Log.d( Lifeograph.TAG, "Detaching item #" + position + ": f=" + object
+            Log.d( Lifeograph.TAG, "Detaching item #" + pos + ": f=" + object
                     + " v=" + ( ( Fragment ) object ).getView() );
             mCurTransaction.detach( ( Fragment ) object );
         }
@@ -727,11 +730,11 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         @Override
-        public void startUpdate( View container ) {
+        public void startUpdate( @NonNull View container ) {
         }
 
         @Override
-        public void finishUpdate( View container ) {
+        public void finishUpdate( @NonNull View container ) {
             if( mCurTransaction != null ) {
                 Log.d( Lifeograph.TAG, "Commiting item transactions" );
                 mCurTransaction.commitAllowingStateLoss();
@@ -850,6 +853,7 @@ public class ActivityDiary extends AppCompatActivity
             return mGridAdapters[ 1 ].mDateCurrent;
         }
 
+        @NonNull
         @Override
         public Object instantiateItem( ViewGroup container, int position ) {
             Log.d( Lifeograph.TAG, "pager adapter calendar instantiate item: " + position );
@@ -860,7 +864,7 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         @Override
-        public void destroyItem( ViewGroup container, int position, Object object ) {
+        public void destroyItem( ViewGroup container, int pos, @NonNull Object object ) {
             container.removeView( ( View ) object );
         }
 
@@ -870,7 +874,7 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         @Override
-        public boolean isViewFromObject( View view, Object object ) {
+        public boolean isViewFromObject( @NonNull View view, @NonNull Object object ) {
             return( object == view );
         }
 

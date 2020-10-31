@@ -21,85 +21,22 @@
 
 package net.sourceforge.lifeograph;
 
-import android.os.Bundle;
-import android.preference.ListPreference;
-import android.preference.Preference;
-import android.preference.PreferenceActivity;
-import android.preference.PreferenceManager;
 
-public class ActivitySettings extends PreferenceActivity
+import android.os.Bundle;
+
+import androidx.appcompat.app.AppCompatActivity;
+
+
+public class ActivitySettings extends AppCompatActivity
 {
     @Override
-    protected void onPostCreate( Bundle savedInstanceState ) {
-        super.onPostCreate( savedInstanceState );
+    public void onCreate( Bundle savedInstanceState ) {
+        super.onCreate( savedInstanceState );
 
-        addPreferencesFromResource( R.xml.pref_general );
+        setContentView( R.layout.settings );
 
-        // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
-        // their values. When their values change, their summaries are updated
-        // to reflect the new value, per the Android Design guidelines.
-
-        bindPreferenceSummaryToValue(
-                findPreference( getString( R.string.pref_DIARY_STORAGE_key ) ) );
-        bindPreferenceSummaryToValue(
-                findPreference( getString( R.string.pref_DIARY_PATH_key ) ) );
-        bindPreferenceSummaryToValue(
-                findPreference( getString( R.string.pref_DATE_FORMAT_ORDER_key ) ) );
-        bindPreferenceSummaryToValue(
-                findPreference( getString( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) );
-    }
-
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
-            ( pref, value ) -> {
-                String stringValue = value.toString();
-
-                if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ) ) ) {
-                    Date.s_format_order = stringValue;
-                }
-                else if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) {
-                    Date.s_format_separator = stringValue.charAt( 0 );
-                }
-                else if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ) ) ) {
-                    ActivityLogin.sExternalStorage = stringValue;
-                }
-                else if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DIARY_PATH_key ) ) ) {
-                    ActivityLogin.sDiaryPath = stringValue;
-                }
-
-                if( pref instanceof ListPreference ) {
-                    // For list preferences, look up the correct display value in
-                    // the preference's 'entries' list.
-                    ListPreference listPreference = ( ListPreference ) pref;
-                    int index = listPreference.findIndexOfValue( stringValue );
-
-                    // Set the summary to reflect the new value.
-                    pref.setSummary(
-                            index >= 0
-                                    ? listPreference.getEntries()[ index ]
-                                    : null );
-
-                }
-                else {
-                    // For all other preferences, set the summary to the value's
-                    // simple string representation.
-                    pref.setSummary( stringValue );
-                }
-                return true;
-            };
-
-    private static void bindPreferenceSummaryToValue( Preference preference ) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener( sBindPreferenceSummaryToValueListener );
-
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(
-                preference,
-                PreferenceManager.getDefaultSharedPreferences( preference.getContext() )
-                                 .getString( preference.getKey(), "" ) );
+        getSupportFragmentManager().beginTransaction()
+                                   .replace( R.id.fragmentSettingsContnr, new FragmentSettings() )
+                                   .commit();
     }
 }

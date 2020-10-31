@@ -41,10 +41,9 @@
                   android:theme="@style/LifeoTheme"
                   android:windowSoftInputMode="adjustResize" />
 
-        <activity
-            android:name=".ActivitySettings"
-            android:label="@string/title_activity_settings" >
-        </activity>
+        <activity android:name=".ActivitySettings"
+                  android:theme="@style/LifeoTheme"
+                  android:label="@string/title_activity_settings" />
 
         <activity android:name="com.google.android.gms.ads.AdActivity"
                   android:configChanges="keyboard|keyboardHidden|orientation|screenLayout|uiMode|screenSize|smallestScreenSize"

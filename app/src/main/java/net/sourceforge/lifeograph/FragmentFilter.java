@@ -22,8 +22,7 @@
 package net.sourceforge.lifeograph;
 
 
-import android.app.Activity;
-import android.app.Fragment;
+import android.content.Context;
 import android.os.Bundle;
 import android.text.Editable;
 import android.text.TextWatcher;
@@ -36,6 +35,10 @@ import android.widget.AdapterView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Spinner;
+
+import androidx.annotation.NonNull;
+import androidx.fragment.app.Fragment;
+
 
 public class FragmentFilter extends Fragment
 {
@@ -120,15 +123,15 @@ public class FragmentFilter extends Fragment
     }
 
     @Override
-    public void onAttach( Activity activity ) {
-        super.onAttach( activity );
+    public void onAttach( @NonNull Context context ) {
+        super.onAttach( context );
 
-        Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + activity.toString() );
+        Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + context.toString() );
 
-        if( activity instanceof FragmentElemList.ListOperations )
-            mListOperations = ( FragmentElemList.ListOperations ) activity;
+        if( context instanceof FragmentElemList.ListOperations )
+            mListOperations = ( FragmentElemList.ListOperations ) context;
         else
-            throw new ClassCastException( activity.toString() + " must implement ListOperations" );
+            throw new ClassCastException( context.toString() + " must implement ListOperations" );
     }
 
     @Override
