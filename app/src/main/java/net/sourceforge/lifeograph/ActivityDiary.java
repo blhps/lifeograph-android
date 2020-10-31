@@ -89,11 +89,11 @@ public class ActivityDiary extends AppCompatActivity
         //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
         // LISTENERS
-        mDrawerLayout.setDrawerListener( new DrawerLayout.DrawerListener()
+        mDrawerLayout.addDrawerListener( new DrawerLayout.DrawerListener()
         {
-            public void onDrawerSlide( View view, float v ) { }
+            public void onDrawerSlide( @NonNull View view, float v ) { }
 
-            public void onDrawerOpened( View view ) {
+            public void onDrawerOpened( @NonNull View view ) {
 
                 for( FragmentElemList fragment : mDiaryFragments ) {
                     if( fragment.isVisible() )
@@ -110,7 +110,7 @@ public class ActivityDiary extends AppCompatActivity
 //                }
             }
 
-            public void onDrawerClosed( View view ) {
+            public void onDrawerClosed( @NonNull View view ) {
                 for( FragmentElemList fragment : mDiaryFragments ) {
                     if( fragment.isVisible() )
                         fragment.getListView().setEnabled( true );
@@ -136,15 +136,15 @@ public class ActivityDiary extends AppCompatActivity
         Bundle args = new Bundle();
         args.putInt( "tab", 0 );
         mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.all_entries ),
-                             FragmentElemList.class, args );
+                             args );
         args = new Bundle();
         args.putInt( "tab", 1 );
         mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.chapters ),
-                             FragmentElemList.class, args );
+                             args );
         args = new Bundle();
         args.putInt( "tab", 2 );
         mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.tags ),
-                             FragmentElemList.class, args );
+                             args );
 
         // CHART
         mViewChart = findViewById( R.id.chart_view_diary );
@@ -326,7 +326,8 @@ public class ActivityDiary extends AppCompatActivity
         boolean flagWritable = Diary.diary.is_in_edit_mode();
         boolean flagEncrypted = Diary.diary.is_encrypted();
 
-        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable );
+        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable &&
+                                                       Diary.diary.can_enter_edit_mode() );
 
         mMenu.findItem( R.id.add_elem ).setVisible( flagWritable );
 
@@ -645,7 +646,7 @@ public class ActivityDiary extends AppCompatActivity
         private final Context mContext;
         private final ActionBar mActionBar;
         private final ViewPager mViewPager;
-        private final ArrayList< TabInfo > mTabs = new ArrayList< TabInfo >();
+        private final ArrayList< TabInfo > mTabs = new ArrayList<>();
         private final FragmentManager mFragMan;
         private FragmentTransaction mCurTransaction = null;
         private Fragment mCurrentPrimaryItem = null;
@@ -716,25 +717,24 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         @Override
-        public void setPrimaryItem( View container, int position, Object object ) {
+        public void setPrimaryItem( @NonNull ViewGroup container, int pos,
+                                    @NonNull Object object ) {
             Fragment fragment = ( Fragment ) object;
             if( fragment != mCurrentPrimaryItem ) {
                 if( mCurrentPrimaryItem != null ) {
                     mCurrentPrimaryItem.setMenuVisibility( false );
                 }
-                if( fragment != null ) {
-                    fragment.setMenuVisibility( true );
-                }
+                fragment.setMenuVisibility( true );
                 mCurrentPrimaryItem = fragment;
             }
         }
 
         @Override
-        public void startUpdate( @NonNull View container ) {
+        public void startUpdate( @NonNull ViewGroup container ) {
         }
 
         @Override
-        public void finishUpdate( @NonNull View container ) {
+        public void finishUpdate( @NonNull ViewGroup container ) {
             if( mCurTransaction != null ) {
                 Log.d( Lifeograph.TAG, "Commiting item transactions" );
                 mCurTransaction.commitAllowingStateLoss();
@@ -756,8 +756,8 @@ public class ActivityDiary extends AppCompatActivity
             return "DiaryTabs.fragment" + index;
         }
 
-        void addTab( ActionBar.Tab tab, Class< ? > clss, Bundle args ) {
-            TabInfo info = new TabInfo( clss, args );
+        void addTab( ActionBar.Tab tab, Bundle args ) {
+            TabInfo info = new TabInfo( FragmentElemList.class, args );
             tab.setTag( info );
             tab.setTabListener( this );
             mTabs.add( info );

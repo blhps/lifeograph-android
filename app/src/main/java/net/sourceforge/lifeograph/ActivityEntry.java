@@ -559,7 +559,8 @@ public class ActivityEntry extends AppCompatActivity
     private void updateMenuVisibilities(){
         boolean flagWritable = Diary.diary.is_in_edit_mode();
 
-        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable );
+        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable &&
+                                                       Diary.diary.can_enter_edit_mode() );
 
         mMenu.findItem( R.id.change_todo_status ).setVisible( flagWritable );
         mMenu.findItem( R.id.toggle_favorite ).setVisible( flagWritable );
