@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,39 +21,29 @@
 
 package net.sourceforge.lifeograph;
 
-public class Filter extends StringDefElem
+public class Match
 {
-    Filter( Diary d, String name, String definition ) {
-        super( d, name, definition );
+    Match( Paragraph p, int p_entry, int p_para ) {
+        para = p;
+        pos_entry = p_entry;
+        pos_para = p_para;
+
+        p.add_reference( this.para );
     }
 
-    @Override
-    public Type get_type() {
-        return Type.FILTER;
+// TODO: in java we need to remove the reference for it to be deleted
+//    ~Match() {
+//        if( para != null )
+//            para.remove_reference( this.para );
+//    }
+
+    boolean
+    is_equal_to( Match other ) {
+        return( other.para == para && other.pos_para == pos_para );
     }
 
-    @Override
-    public int get_size() {
-        return 0;
-    }
-
-    @Override
-    public int get_icon() {
-        return 0;
-    }
-
-
-    FiltererContainer
-    get_filterer_stack() {
-        if( m_definition.isEmpty() )
-            return null;
-
-        FiltererContainer fc = new FiltererContainer( m_p2diary, null );
-
-        fc.set_from_string( m_definition );
-
-        return fc;
-    }
-
-    public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
+    Paragraph para;
+    int       pos_entry;
+    int       pos_para;
+    boolean   valid = true;
 }

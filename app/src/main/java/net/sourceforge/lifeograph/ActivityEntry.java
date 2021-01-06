@@ -666,7 +666,6 @@ public class ActivityEntry extends AppCompatActivity
 
     void sync() {
         if( mFlagEntryChanged ) {
-
             m_ptr2entry.m_date_edited = ( int ) ( System.currentTimeMillis() / 1000L );
             m_ptr2entry.m_text = mEditText.getText().toString();
             mFlagEntryChanged = false;
@@ -1295,7 +1294,7 @@ public class ActivityEntry extends AppCompatActivity
 
         @Override
         public void onClick( @NonNull View widget ) {
-            Entry entry = Diary.diary.get_entry( mDate );
+            Entry entry = Diary.diary.get_entry_by_date( mDate );
 
             if( entry == null )
                 entry = Diary.diary.create_entry( new Date( mDate ), "", false );
@@ -2101,7 +2100,7 @@ public class ActivityEntry extends AppCompatActivity
 
     private void apply_link_date() {
         LinkStatus status = LinkStatus.LS_OK;
-        Entry ptr2entry = Diary.diary.get_entry( date_last.m_date + 1 ); // + 1 fixes order
+        Entry ptr2entry = Diary.diary.get_entry_by_date( date_last.m_date + 1 ); // + 1 fixes order
         if( ptr2entry == null ) {
             if( ! Diary.diary.can_enter_edit_mode() )
                 return;

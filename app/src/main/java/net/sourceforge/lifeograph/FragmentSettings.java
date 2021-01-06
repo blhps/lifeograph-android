@@ -45,17 +45,15 @@ public class FragmentSettings extends PreferenceFragmentCompat
         // to reflect the new value, per the Android Design guidelines.
 
         bindPreferenceSummaryToValue(
-                Objects.requireNonNull(
-                        findPreference( getString( R.string.pref_DIARY_STORAGE_key ) ) ) );
+                Objects.requireNonNull( findPreference( getString( R.string.pref_DIARY_STORAGE_key ) ) ) );
         bindPreferenceSummaryToValue(
-                Objects.requireNonNull(
-                        findPreference( getString( R.string.pref_DIARY_PATH_key ) ) ) );
+                Objects.requireNonNull( findPreference( getString( R.string.pref_DIARY_PATH_key ) ) ) );
         bindPreferenceSummaryToValue(
-                Objects.requireNonNull(
-                        findPreference( getString( R.string.pref_DATE_FORMAT_ORDER_key ) ) ) );
+                Objects.requireNonNull( findPreference( getString( R.string.pref_DATE_FORMAT_ORDER_key ) ) ) );
         bindPreferenceSummaryToValue(
-                Objects.requireNonNull(
-                        findPreference( getString( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) );
+                Objects.requireNonNull( findPreference( getString( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) );
+        bindPreferenceSummaryToValue(
+                Objects.requireNonNull( findPreference( getString( R.string.pref_UNIT_TYPE_key ) ) ) );
     }
 
     private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =

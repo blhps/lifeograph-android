@@ -157,7 +157,7 @@ class GridCalAdapter extends BaseAdapter
             if( date.get_pure() == mDateCurrent.get_pure() )
                 tvDayNo.setBackgroundColor(
                         mContext.getResources().getColor( R.color.t_lighter ) );
-            else if( Diary.diary.m_ptr2chapter_ctg_cur.getMap().containsKey( date.get_pure() ) )
+            else if( Diary.diary.m_p2chapter_ctg_cur.getMap().containsKey( date.get_pure() ) )
                 tvDayNo.setBackgroundColor(
                         mContext.getResources().getColor( R.color.t_lightest ) );
             else

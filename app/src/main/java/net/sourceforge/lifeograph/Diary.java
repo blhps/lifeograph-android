@@ -34,13 +34,23 @@ import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
 import java.io.RandomAccessFile;
 import java.io.StringReader;
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Random;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.util.Log;
+
+import com.google.common.collect.ArrayListMultimap;
+import com.google.common.collect.ListMultimap;
+
+import androidx.annotation.NonNull;
 
 enum Result {
     OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, /*COULD_NOT_FINISH,*/ WRONG_PASSWORD,
@@ -49,7 +59,7 @@ enum Result {
     FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_LOCKED
 }
 
-public class Diary extends DiaryElementChart
+public class Diary extends DiaryElement
 {
     static {
         System.loadLibrary( "gpg-error" );
@@ -59,34 +69,76 @@ public class Diary extends DiaryElementChart
         initCipher();
     }
 
-    static final char SC_DATE = 'd';
-    static final char SC_SIZE_C = 's';
-    static final char SC_CHANGE = 's';
-    static final char SD_DESCENDING = 'd';
-    static final char SD_ASCENDING = 'a';
+    static final int SoCr_DATE          = 0x1;
+    static final int SoCr_SIZE_C        = 0x2;  // size (char count)
+    static final int SoCr_CHANGE        = 0x3;  // last change date
+    static final int SoCr_NAME          = 0x4;  // name
+    static final int SoCr_FILTER_CRTR   = 0xF;
+    static final int SoCr_DESCENDING    = 0x10;
+    static final int SoCr_ASCENDING     = 0x20;
+    static final int SoCr_FILTER_DIR    = 0xF0;
+    static final int SoCr_INVERSE       = 0x100; // (<2000) inverse dir for ordinals
+    static final int SoCr_DESCENDING_T  = 0x100; // temporal
+    static final int SoCr_ASCENDING_T   = 0x200; // temporal
+    static final int SoCr_FILTER_DIR_T  = 0xF00; // temporal
+    static final int SoCr_DEFAULT       = SoCr_DATE|SoCr_ASCENDING|SoCr_DESCENDING_T;
 
-    final static String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    final static int DB_FILE_VERSION_INT = 1050;
-    final static int DB_FILE_VERSION_INT_MIN = 1010;
+    static final String DB_FILE_HEADER = "LIFEOGRAPHDB";
+    static final int    DB_FILE_VERSION_INT = 1050;
+    static final int    DB_FILE_VERSION_INT_MIN = 1010;
     static final String LOCK_SUFFIX = ".~LOCK~";
 
     static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
     static final String sExampleDiaryName = "*** Example Diary ***";
 
-    final static int PASSPHRASE_MIN_SIZE = 4;
-
-    public static Diary diary = null;
+    static final int PASSPHRASE_MIN_SIZE = 4;
 
     enum SetPathType { NORMAL, READ_ONLY, NEW }
 
     public Diary() {
-        super( null, DiaryElement.DEID_DIARY, ES_VOID );
-        m_current_id = DiaryElement.DEID_FIRST;
-        m_force_id = DiaryElement.DEID_UNSET;
+        super( null, DiaryElement.DEID_UNSET, ES_VOID );
     }
 
-    Result init_new( String path ) {
+    // MAIN FUNCTIONALITY ==========================================================================
+    boolean
+    is_old() {
+        return( m_read_version < DB_FILE_VERSION_INT );
+    }
+
+    boolean
+    is_encrypted() {
+        return( !m_passphrase.isEmpty() );
+    }
+
+    boolean
+    is_open() {
+        return( m_login_status == LoginStatus.LOGGED_IN_RO ||
+                m_login_status == LoginStatus.LOGGED_IN_EDIT );
+    }
+
+    boolean
+    is_in_edit_mode() {
+        return( m_login_status == LoginStatus.LOGGED_IN_EDIT );
+    }
+
+    boolean
+    can_enter_edit_mode() {
+        return( !m_flag_read_only );
+    }
+
+    // not part of c++
+    boolean
+    is_virtual() {
+        return m_path.equals( sExampleDiaryPath );
+    }
+
+    Result
+    init_new( String path, String pw ) {
         clear();
+
+        set_id( create_new_id( this ) ); // adds itself to the ID pool with a unique ID
+
+        m_read_version = DB_FILE_VERSION_INT;
         Result result = set_path( path, SetPathType.NEW );
 
         if( result != Result.SUCCESS ) {
@@ -95,125 +147,127 @@ public class Diary extends DiaryElementChart
         }
 
         // every diary must at least have one chapter category:
-        m_ptr2chapter_ctg_cur = create_chapter_ctg( "Default" );
+        m_p2chapter_ctg_cur = create_chapter_ctg( "Default" );
+
+        m_filter_active = create_filter( "Default", Filter.DEFINITION_DEFAULT );
+        m_chart_active = create_chart( "Default", ChartElem.DEFINITION_DEFAULT );
+        m_table_active = create_table( "Default", TableElem.DEFINITION_DEFAULT );
+
+        m_theme_default = create_theme( Theme.System.get().get_name() );
+        Theme.System.get().copy_to( m_theme_default );
+        //-------------NAME-------------FONT----BASE-------TEXT-------HEADING----SUBHEAD----HLIGHT----
+        create_theme( "Dark",       "Sans 10", "#111111", "#CCCCCC", "#FF6666", "#DD3366", "#661133" );
+        create_theme( "Artemisia", "Serif 10", "#FFEEEE", "#000000", "#CC0000", "#A00000", "#F1BBC4" );
+        create_theme( "Urgent",     "Sans 10", "#A00000", "#FFAA33", "#FFFFFF", "#FFEE44", "#000000" );
+        create_theme( "Well Noted", "Sans 11", "#BBEEEE", "#000000", "#553366", "#224488", "#90E033" );
 
         add_today(); // must come after m_ptr2chapter_ctg_cur is set
-
-        Theme theme = Diary.diary.create_tag( "calm", null ).get_own_theme();
-        theme.font = "Sans 11";
-        theme.color_base = Color.parseColor( "#D1E188" );
-        theme.color_text = Color.parseColor( "#001100" );
-        theme.color_heading =  Color.parseColor( "#D24242" );
-        theme.color_subheading = Color.parseColor( "#793E4C" );
-        theme.color_highlight = Color.parseColor( "#8CCB4D" );
-
-        theme = Diary.diary.create_tag( "lovely", null ).get_own_theme();
-        theme.font = "Sans 11";
-        theme.color_base = Color.parseColor( "#F9F0F0" );
-        theme.color_text = Color.parseColor( "#330909" );
-        theme.color_heading =  Color.parseColor( "#E13333" );
-        theme.color_subheading = Color.parseColor( "#AA4747" );
-        theme.color_highlight = Color.parseColor( "#E69595" );
-
-        theme = Diary.diary.create_tag( "dark", null ).get_own_theme();
-        theme.font = "Sans 11";
-        theme.color_base = Color.parseColor( "#111111" );
-        theme.color_text = Color.parseColor( "#BBBBBB" );
-        theme.color_heading =  Color.parseColor( "#3874AC" );
-        theme.color_subheading = Color.parseColor( "#23538B" );
-        theme.color_highlight = Color.parseColor( "#173353" );
+        set_passphrase( pw );
 
         m_login_status = LoginStatus.LOGGED_IN_RO;
 
-        return Result.SUCCESS;
+        return write();
     }
 
-    public void clear() {
+    void
+    clear() {
         close_file();
 
         m_path = "";
         m_read_version = 0;
 
-        m_current_id = DiaryElement.DEID_FIRST;
-        m_force_id = DiaryElement.DEID_UNSET;
+        set_id( DEID_UNSET );
+        m_force_id = DEID_UNSET;
         m_ids.clear();
-        m_ids.put( DiaryElement.DEID_DIARY, this );
 
         m_entries.clear();
-        m_tags.clear();
-        m_tag_categories.clear();
-        m_untagged.reset();
+        m_entry_names.clear();
 
-        m_ptr2chapter_ctg_cur = null;
         m_chapter_categories.clear();
-        m_topics.mMap.clear();
-        m_groups.mMap.clear();
-        m_orphans.clear();
-        m_orphans.set_date( Date.DATE_MAX );
+        m_p2chapter_ctg_cur = null;
 
-        m_startup_elem_id = DiaryElement.HOME_CURRENT_ELEM;
-        m_last_elem_id = DiaryElement.DEID_DIARY;
-        m_chart_type = DEFAULT_CHART_TYPE;
+        m_search_text = "";
+        clear_matches();
+
+        m_filters.clear();
+        m_filter_active = null;
+
+        m_charts.clear();
+        m_chart_active = null;
+
+        m_tables.clear();
+        m_table_active = null;
+
+        clear_themes();
+        m_theme_default = null;
+
+        m_startup_entry_id = HOME_CURRENT_ENTRY;
+        m_last_entry_id = DEID_UNSET;
+        m_completion_tag_id = DEID_UNSET;
 
         m_passphrase = "";
 
-        m_search_text = "";
-        m_filter_active.reset();
-        m_filter_default.reset();
-
         // NOTE: only reset body options here:
         m_language = "";
-        m_option_sorting_criteria = SC_DATE;
-        m_option_sorting_dir = SD_DESCENDING;
+        m_sorting_criteria = SoCr_DEFAULT;
+        m_opt_show_all_entry_locations = false;
+        m_opt_ext_panel_cur = 1;
 
-        //m_flag_changed = false;
         m_flag_read_only = false;
         m_flag_ignore_locks = false;
         m_flag_skip_old_check = false;
-        m_login_status =LoginStatus.LOGGED_OUT;
+        m_login_status = LoginStatus.LOGGED_OUT;
 
         // java specific:
         mBufferedReader = null;
     }
 
-    @Override
-    public DiaryElement.Type get_type() {
+    // DIARYELEMENT INHERITED FUNCTIONS ============================================================
+    @Override public DiaryElement.Type
+    get_type() {
         return DiaryElement.Type.DIARY;
     }
 
-    @Override
-    public int get_size() {
+    @Override public int
+    get_size() {
         return m_entries.size();
     }
 
-    @Override
-    public int get_icon() {
+    @Override public int
+    get_icon() {
         return R.mipmap.ic_diary;
     }
 
-    @Override
-    public String get_info_str() {
-        return( get_size() + " entries" );
+    // PASSPHRASE ==================================================================================
+    @SuppressWarnings( "UnusedReturnValue" )
+    boolean
+    set_passphrase( String passphrase ) {
+        if( passphrase.length() >= PASSPHRASE_MIN_SIZE ) {
+            m_passphrase = passphrase;
+            return true;
+        }
+        else
+            return false;
     }
 
-    @Override
-    public ChartPoints create_chart_data() {
-        if( m_entries.isEmpty() )
-            return null;
+    boolean
+    compare_passphrase( String passphrase ) {
+        return m_passphrase.equals( passphrase );
+    }
 
-        ChartPoints cp = new ChartPoints( m_chart_type );
-        Date d_last = new Date( Date.NOT_SET );
-
-        for( Entry entry : m_entries.descendingMap().values() )
-            cp.add_plain( d_last, entry.get_date() );
-
-        // TODO: fill_up_chart_points( cp );
-
-        return cp;
+    boolean
+    is_passphrase_Set() {
+        return( !m_passphrase.isEmpty() );
     }
 
     // ID HANDLING =================================================================================
-    public int create_new_id( DiaryElement element ) {
+    DiaryElement
+    get_element( int id ) {
+        return m_ids.get( id );
+    }
+
+    int
+    create_new_id( DiaryElement element ) {
         int retval;
         if( m_force_id == DiaryElement.DEID_UNSET ) {
             Random random = new Random();
@@ -231,93 +285,21 @@ public class Diary extends DiaryElementChart
         return retval;
     }
 
-    public boolean set_force_id( int id ) {
-        if( m_ids.get( id ) != null || id <= DiaryElement.DEID_DIARY )
+    void
+    erase_id( int id ) {
+        m_ids.remove( id );
+    }
+
+    @SuppressWarnings( "UnusedReturnValue" )
+    boolean
+    set_force_id( int id ) {
+        if( m_ids.get( id ) != null || id <= DiaryElement.DEID_MIN )
             return false;
         m_force_id = id;
         return true;
     }
 
-    public void make_free_entry_order( Date date ) {
-        date.reset_order_1();
-        while( m_entries.get( date.m_date ) != null )
-            date.m_date += 1;
-    }
-
-    public String create_unique_name_for_map( TreeMap map, String name0 ) {
-        String name = name0;
-        for( int i = 1; map.containsKey( name ); i++ ) {
-            name = name0 + " " + i;
-        }
-
-        return name;
-    }
-
-    // MEMBER RELATED FUNCS ========================================================================
-    public boolean set_passphrase( String passphrase ) {
-        if( passphrase.length() >= PASSPHRASE_MIN_SIZE ) {
-            m_passphrase = passphrase;
-            return true;
-        }
-        else
-            return false;
-    }
-
-    public boolean compare_passphrase( String passphrase ) {
-        return m_passphrase.equals( passphrase );
-    }
-
-    public boolean is_old() {
-        return( m_read_version < DB_FILE_VERSION_INT );
-    }
-
-    public boolean is_encrypted() {
-        return( !m_passphrase.isEmpty() );
-    }
-
-    public boolean is_open() {
-        return( m_login_status == LoginStatus.LOGGED_IN_RO ||
-                m_login_status == LoginStatus.LOGGED_IN_EDIT );
-    }
-
-    public boolean is_in_edit_mode() {
-        return( m_login_status == LoginStatus.LOGGED_IN_EDIT );
-    }
-
-    public boolean can_enter_edit_mode() {
-        return( !m_flag_read_only );
-    }
-
-    // not part of c++
-    public boolean is_virtual() {
-        return m_path.equals( sExampleDiaryPath );
-    }
-
-    public String get_lang() {
-        return m_language;
-    }
-
-//    public void set_lang( String lang ) {
-//        m_language = lang;
-//    }
-
-    public DiaryElement get_element( int id ) {
-        return m_ids.get( id );
-    }
-
-// NOT USED NOW
-//    public DiaryElement get_startup_elem() {
-//        return null;
-//    }
-//
-//    public DiaryElement get_most_current_elem() {
-//        return null;
-//    }
-//
-//    public DiaryElement get_prev_session_elem() {
-//        return null;
-//    }
-
+    // OPTIONS =====================================================================================
 //    public char get_sorting_criteria() {
 //        return m_option_sorting_criteria;
 //    }
@@ -326,506 +308,1107 @@ public class Diary extends DiaryElementChart
 //        m_option_sorting_criteria = sc;
 //    }
 
-    // FILTERING ===================================================================================
-    public void set_search_text( String text ) {
-        m_search_text = text;
-        m_filter_active.set_status_outstanding();
+    String
+    get_lang() {
+        return m_language;
     }
 
-    public String get_search_text() {
-        return m_search_text;
-    }
-
-    public boolean is_search_active() {
-        return( !m_search_text.isEmpty() );
-    }
-
-    public Filter get_filter() {
-        return m_filter_active;
-    }
+//    public void set_lang( String lang ) {
+//        m_language = lang;
+//    }
 
     // ENTRIES =====================================================================================
-    public Entry get_entry( long date ) {
-        Entry entry = m_entries.get( date );
-        if( entry != null )
-            if( !entry.get_filtered_out() )
-                return entry;
+    Entry
+    get_most_current_entry() {
+        long    date = Date.get_today( 0 );
+        long    diff1 = Date.FLAG_ORDINAL;
+        long    diff2;
+        Entry   most_curr = null;
+        boolean descending = false;
+
+        for( Entry entry : m_entries.values() )
+        {
+            if( ! entry.get_filtered_out() && ! entry.get_date().is_ordinal() ) {
+                diff2 = entry.get_date_t() - date;
+                if( diff2 < 0 )
+                    diff2 *= -1;
+                if( diff2 < diff1 ) {
+                    diff1 = diff2;
+                    most_curr = entry;
+                    descending = true;
+                }
+            else
+                if( descending )
+                    break;
+            }
+        }
+
+        return most_curr;
+    }
+
+    Entry
+    get_entry_today() {
+        return m_entries.get( Date.get_today( 1 ) ); // 1 is the order
+    }
+
+    Entry
+    get_entry_by_id( int id ) {
+        DiaryElement elem = get_element( id );
+
+        if( elem != null && elem.get_type() == Type.ENTRY )
+            return( ( Entry ) elem );
+        else
+            return null;
+    }
+
+    Entry
+    get_entry_by_date( long date ) {
+        return m_entries.get( date ); // unlike the C++ version, does not respect filters
+    }
+
+    Entry
+    get_entry_by_name( String name ) {
+        return m_entry_names.get( name ).get( 0 );
+    }
+
+    List< Entry >
+    get_entries_by_name( String name ) {
+        return m_entry_names.get( name );
+    }
+
+    Vector< Entry >
+    get_entries_by_filter( String filter_name ) {
+        Vector< Entry > ev = new Vector<>();
+        Filter          filter = m_filters.get( filter_name );
+
+        if( filter != null ) {
+            FiltererContainer fc = filter.get_filterer_stack();
+
+            for( Entry entry : m_entries.values() )
+                if( fc.filter( entry ) )
+                    ev.add( entry );
+        }
+
+        return ev;
+    }
+
+    int
+    get_entry_count_on_day( Date date_impure ) {
+        int count = 0;
+        long date = date_impure.get_pure();
+        while( m_entries.containsKey( date + count + 1 ) )
+            count++;
+
+        return count;
+    }
+
+    Entry
+    get_entry_next_in_day( Date date ) {
+        if( date.is_ordinal() )
+            return null;
+
+        for( Map.Entry< Long, Entry > kv_entry : m_entries.descendingMap().entrySet() ) {
+            if( date.get_day() == Date.get_day( kv_entry.getKey() ) &&
+                date.get_order_3rd() < Date.get_order_3rd( kv_entry.getKey() ) )
+                return( kv_entry.getValue() );
+        }
 
         return null;
     }
 
-    public Entry get_entry_today() {
-        return m_entries.get( Date.get_today( 1 ) ); // 1 is the order
+    Entry
+    get_entry_first_untrashed() {
+        for( Entry entry : m_entries.values() ) {
+            if( ! entry.is_trashed() )
+                return entry;
+        }
+        return null;
     }
 
-    public Entry create_entry( Date dateObj, String content, boolean flag_favorite ) {
-        // make it the last entry of its day:
-        dateObj.reset_order_1();
-        long date = dateObj.m_date;
-        while( m_entries.get( date ) != null )
-            ++date;
+    Entry
+    get_entry_latest() {
+        for( Map.Entry< Long, Entry > kv_entry : m_entries.entrySet() ) {
+            if( ! Date.is_ordinal( kv_entry.getKey() ) )
+                return kv_entry.getValue();
+        }
+        return null;
+    }
 
-        Entry entry = new Entry( this, date, content, flag_favorite );
+    Entry
+    get_entry_closest_to( long source, boolean only_unfiltered ) {
+        Entry              entry_after = null;
+        Entry              entry_before = null;
+        int                i = 0;
+        ArrayList< Long >  keys = new ArrayList< Long >( m_entries.keySet() );
+        ArrayList< Entry > entries = new ArrayList< Entry >( m_entries.values() );
+
+
+        for( ; i < keys.size(); i++ ) {
+            if( source < keys.get( i ) ) {
+                entry_before = entries.get( i );
+                break;
+            }
+            else if( source > keys.get( i ) )
+                entry_after = entries.get( i );
+        }
+
+        if( only_unfiltered && entry_after != null && entry_after.get_filtered_out() ) {
+            for( ; i >= 0; i-- ) {
+                if( !entries.get( i ).get_filtered_out() ) {
+                    entry_before = entries.get( i );
+                    break;
+                }
+            }
+        }
+
+        if( only_unfiltered && entry_before != null && entry_before.get_filtered_out() ) {
+            for( ; i < keys.size(); i++ ) {
+                if( !entries.get( i ).get_filtered_out() ) {
+                    entry_before = entries.get( i );
+                    break;
+                }
+            }
+        }
+
+        if( entry_before == null && entry_after == null )
+            return null;
+        if( entry_before != null && entry_after == null )
+            return entry_before;
+        if( entry_before == null && entry_after != null )
+            return entry_after;
+
+        return( ( source - entry_before.get_date_t() ) < ( entry_after.get_date_t() - source ) ?
+                entry_before : entry_after );
+    }
+
+    Entry
+    get_first_descendant( long date ) {
+        if( ! Date.is_ordinal( date ) )
+            return null;
+
+        Entry entry = m_entries.get( date );
+
+        if( entry == null || date == m_entries.firstKey() )
+            return null;
+        else {
+            Map.Entry< Long, Entry > kv_entry = m_entries.ceilingEntry( date + 1 );
+
+            if( kv_entry != null && Date.is_descendant_of( kv_entry.getValue().get_date_t(),
+                                                           date ) )
+                return kv_entry.getValue();
+        }
+
+        return null;
+    }
+
+    void
+    set_entry_date( @NonNull Entry entry, @NonNull Date date ) throws Exception {
+        Vector< Entry > ev = new Vector<>();
+        boolean         flag_move_children = false;
+        boolean         flag_has_children = ( get_first_descendant( entry.get_date_t() ) != null );
+        int             level_diff = ( entry.m_date.get_level() - date.get_level() );
+
+        m_entries.remove( entry.get_date_t() );
+
+        if( entry.is_ordinal() ) {
+            // remove and store sub-entries first
+            if( date.is_ordinal() && date.get_level() + entry.get_descendant_depth() <= 3 ) {
+                flag_move_children = true;
+
+                for( Map.Entry< Long, Entry > kv_entry : m_entries.entrySet() ) {
+                    if( !Date.is_ordinal( kv_entry.getKey() ) )
+                        break;
+
+                    if( Date.is_descendant_of( kv_entry.getKey(), entry.get_date_t() ) )
+                        ev.add( kv_entry.getValue() );
+                }
+
+                for( Entry e : ev ) {
+                    m_entries.remove( e.get_date_t() );
+                }
+
+                // then shift the following siblings and their children backwards
+                shift_entry_orders_after( entry.get_date_t(), -1 );
+
+                // update target date per the shift above
+                if( date.m_date > entry.get_date_t() &&
+                    // below two together mean "is_nephew?"
+                    !( Date.is_sibling( date.m_date, entry.get_date_t() ) ) &&
+                    Date.is_descendant_of( date.m_date, entry.get_date().get_parent() ) )
+                    date.backward_order( entry.get_date().get_level() );
+            }
+            else if( flag_has_children ) // no depth under the target to hold the descendants
+                throw new Exception( "Tried to set an unfit date for the entry" );
+        }
+        else
+        {
+            shift_dated_entry_orders_after( entry.get_date_t(), -1 );
+        }
+
+        if( date.is_ordinal() ) {
+            // then shift the entries after the target forwards to make room (if date is taken)
+            if( m_entries.containsKey( date.m_date ) )
+                shift_entry_orders_after( date.m_date, 1 );
+
+            // add back removed sub entries
+            if( flag_move_children ) {
+                for( Entry e : ev ) {
+                    Date date_new = new Date(
+                            Date.make_ordinal( !date.is_hidden(), 0, 0, 0 ) );
+                    int  level = 1;
+                    // copy all orders from the new parent
+                    for( ; level <= date.get_level(); level++ )
+                        date_new.set_order( level, ( int ) date.get_order( level ) );
+                    // copy all sub-orders from the previous
+                    for( ; level <= 3; level++ )
+                        date_new.set_order( level,
+                                            ( int ) e.m_date.get_order( level + level_diff ) );
+
+                    e.m_date.m_date = date_new.m_date;
+                    m_entries.put( e.get_date_t(), e );
+                }
+            }
+        }
+        else
+        {
+            shift_dated_entry_orders_after( date.m_date, 1 );
+        }
+
+        entry.set_date( date.m_date );
+        m_entries.put( date.m_date, entry );
+
+        update_entries_in_chapters(); // date changes require full update
+    }
+
+    void
+    update_entry_name( Entry entry ) {
+        String  old_name = "";
+        boolean flag_name_changed = true;
+
+        for( Entry e : m_entry_names.values() ) {
+            if( e.get_id() == entry.get_id() ) {
+                old_name = e.get_name();
+
+                if( old_name.equals( entry.get_name() ) )
+                    flag_name_changed = false;
+                else
+                    m_entry_names.remove( e.get_name(), e );
+
+                break;
+            }
+        }
+
+        if( flag_name_changed && entry.has_name() ) {
+            m_entry_names.put( entry.get_name(), entry );
+
+            // update references in other entries
+            if( !old_name.isEmpty() )
+                replace_all_matches( ":" + old_name + ":",
+                                     ":" + entry.get_name() + ":" );
+        }
+    }
+
+    Entry
+    create_entry( long date, String content, boolean flag_favorite ) {
+        // make it the last entry of its day:
+        while( m_entries.containsKey( date ) && Date.get_order_3rd( date ) != 0 ) {
+            if( Date.get_order_3rd( date ) == Date.ORDER_3RD_MAX ) {
+                Log.e( Lifeograph.TAG, "Day is full!" );
+                return null;
+            }
+            ++date;
+        }
+
+        Entry entry = new Entry( this, date,
+                                 flag_favorite ? ES_ENTRY_DEFAULT_FAV : ES_ENTRY_DEFAULT );
+
+        entry.set_text( content );
 
         m_entries.put( date, entry );
-
         add_entry_to_related_chapter( entry );
+        if( entry.has_name() )
+            m_entry_names.put( entry.get_name(), entry );
 
-        m_untagged.add_entry( entry );
+        return( entry );
+    }
+    // USED DURING DIARY FILE READ:
+    Entry
+    create_entry( long date, boolean flag_favorite, boolean flag_trashed, boolean flag_expanded ) {
+        int status = ( ES_NOT_TODO |
+                     ( flag_favorite ? ES_FAVORED : ES_NOT_FAVORED ) |
+                     ( flag_trashed ? ES_TRASHED : ES_NOT_TRASHED ) );
+        if( flag_expanded ) status |= ES_EXPANDED;
+
+        Entry entry = new Entry( this, date, status );
+
+        m_entries.put( date, entry );
+        add_entry_to_related_chapter( entry );
 
         return( entry );
     }
 
     // adds a new entry to today even if there is already one or more:
-    public Entry add_today() {
-        Date date = new Date( Date.get_today( 0 ) );
-        return create_entry( date, "", false );
+    Entry
+    add_today() {
+        return create_entry( Date.get_today( 0 ), "", false );
     }
 
-    public void dismiss_entry( Entry entry ) {
-        long date = entry.m_date.m_date;
-
-        // fix startup element
-        if( m_startup_elem_id == entry.get_id() )
-            m_startup_elem_id = DiaryElement.DEID_DIARY;
-
-        // remove from tags:
-        for( Tag tag : entry.m_tags )
-            tag.mEntries.remove( entry );
-
-        // remove from untagged:
-        m_untagged.remove_entry( entry );
-
-        // remove from chapters:
-        remove_entry_from_chapters( entry );
+    boolean
+    dismiss_entry( @NonNull Entry entry, boolean flag_update_chapters ) {
+        // fix startup element:
+        if( m_startup_entry_id == entry.get_id() )
+            m_startup_entry_id = HOME_CURRENT_ENTRY;
 
         // remove from filters:
-        if( m_filter_active.is_entry_filtered( entry ) )
-            m_filter_active.remove_entry( entry );
-        if( m_filter_default.is_entry_filtered( entry ) )
-            m_filter_default.remove_entry( entry );
+        remove_entry_from_filters( entry );
 
-        // erase entry from map:
-        m_entries.remove( date );
+        // remove from map:
+        m_entries.remove( entry.get_date_t() );
+
+        // remove from name map:
+        m_entry_names.remove( entry.get_name(), entry );
 
         // fix entry order:
-        int i = 1;
-        for( Entry e = m_entries.get( date + i ); e != null; e = m_entries.get( date + i ) ) {
-            m_entries.remove( e.m_date.m_date );
-            e.m_date.m_date--;
-            m_entries.put( e.m_date.m_date, e );
-            ++i;
+        Vector< Entry > ev = new Vector<>();
+        if( entry.is_ordinal() ) {
+            // remove and store sub-entries first
+            for( Map.Entry< Long, Entry > kv_entry : m_entries.entrySet() ) {
+                if( !Date.is_ordinal( kv_entry.getKey() ) )
+                    break;
+
+                if( Date.is_descendant_of( kv_entry.getKey(), entry.get_date_t() ) )
+                    ev.add( kv_entry.getValue() );
+            }
+            
+            for( Entry e : ev )
+                m_entries.remove( e.get_date_t() );
+
+            // then, shift the following top items and their sub items backwards
+            shift_entry_orders_after( entry.get_date_t(), -1 );
+
+            // add back removed sub entries as top level entries
+            Date lowest_top = new Date( get_available_order_1st( entry.is_ordinal_hidden() ) );
+            for( int i = ev.size() - 1; i >= 0; i-- ) {
+                Entry e = ev.elementAt( i );
+                e.m_date.m_date = lowest_top.m_date;
+                m_entries.put( lowest_top.m_date, e );
+                lowest_top.forward_order_1st();
+            }
         }
+        else
+            shift_dated_entry_orders_after( entry.get_date_t(), -1 );
+
+        if( m_entries.isEmpty() ) // an open diary must always contain at least one entry
+            add_today();
+
+        if( flag_update_chapters )
+            update_entries_in_chapters(); // date changes require full update
+
+        return true;
     }
 
-    public void set_entry_date( Entry entry, Date date ) {
-        long d = entry.m_date.m_date;
-        m_entries.remove( d );
+    void
+    shift_entry_orders_after( long begin, int shift ) {
+        if( shift == 0 || !Date.is_ordinal( begin ) )
+            return;
 
-        for( Entry entry_shift = m_entries.get( ++d );
-             entry_shift != null;
-             entry_shift = m_entries.get( ++d ) ) {
-            m_entries.remove( d );
-            entry_shift.set_date( d-1 );
-            m_entries.put( d - 1, entry_shift );
+        Vector< Entry > ev = new Vector<>();
+
+        if( shift < 0 ) {
+            Iterator< Map.Entry< Long, Entry > > iter =
+                    m_entries.descendingMap().entrySet().iterator();
+            while( iter.hasNext() ) {
+                Map.Entry< Long, Entry > kv_entry = iter.next();
+
+                if( ! Date.is_same_kind( begin, kv_entry.getKey() ) ) {
+                    continue;
+                }
+
+                Entry entry = kv_entry.getValue();
+                if( Date.is_descendant_of( entry.get_date_t(), Date.get_parent( begin ) ) &&
+                    entry.get_date_t() > begin ) {
+                    entry.m_date.backward_order( Date.get_level( begin ) );
+                    // TODO check if the following is absolutely necessary:
+                    entry.m_date.m_date = get_available_order_next( entry.get_date() );
+                    ev.add( entry );
+                    iter.remove();
+                }
+            }
         }
+        else {
+            Iterator< Map.Entry< Long, Entry > > iter = m_entries.entrySet().iterator();
+            while( iter.hasNext() ) {
+                Map.Entry< Long, Entry > kv_entry = iter.next();
 
-        // find the last entry in the date/order
-        d = date.m_date;
-        boolean flag_replace = false;
-        while( m_entries.get( d ) != null ) {
-            flag_replace = true;
-            d++;
-        }
+                if( ! Date.is_same_kind( begin, kv_entry.getKey() ) )
+                    continue;
 
-        if( flag_replace ) {
-            for( Entry entry_shift = m_entries.get( --d );
-                 d >= date.m_date;
-                 entry_shift = m_entries.get( --d ) ) {
-                assert entry_shift != null;
-                m_entries.remove( d );
-                entry_shift.set_date( d + 1 );
-                m_entries.put( d + 1, entry_shift );
+                Entry entry = kv_entry.getValue();
+                if( Date.is_descendant_of( entry.get_date_t(), Date.get_parent( begin ) ) &&
+                    entry.get_date_t() >= begin ) {
+                    entry.m_date.forward_order( Date.get_level( begin ) );
+                    ev.add( entry );
+                    iter.remove();
+                }
             }
         }
 
-        entry.set_date( date.m_date );
-        m_entries.put( date.m_date, entry );
-        update_entries_in_chapters(); // date changes require full update
+        for( Entry e : ev )
+            m_entries.put( e.get_date_t(), e );
     }
 
-    public boolean get_day_has_multiple_entries( Date date_impure ) {
-        long date = date_impure.get_pure();
-        return( m_entries.get( date + 2 ) != null );
-        // TODO:
-        // if( iter == null || iter == m_entries.begin() )
-        // return false;
-        //
-        // do
-        // {
-        // --iter;
-        // if( iter->second->get_date().get_pure() == date )
-        // {
-        // if( iter->second->get_filtered_out() == false )
-        // return true;
-        // }
-        // else
-        // break;
-        // }
-        // while( iter != m_entries.begin() );
-        //
-        // return false;
-    }
+    void
+    shift_dated_entry_orders_after( long begin, int shift ) {
+        if( shift == 0 )
+            return;
 
-    // TAGS ========================================================================================
-//    public java.util.Map< String, Tag > get_tags() {
-//        return m_tags;
-//    }
+        Vector< Entry > ev = new Vector<>();
 
-    public Untagged get_untagged()
-    {
-        return m_untagged;
-    }
+        if( shift < 0 ) {
+            Iterator< Map.Entry< Long, Entry > > iter =
+                    m_entries.descendingMap().entrySet().iterator();
+            while( iter.hasNext() ) {
+                Map.Entry< Long, Entry > kv_entry = iter.next();
 
-//    public Tag.Category create_tag_ctg() {
-//        String name = create_unique_chapter_ctg_name( "New category" );
-//        Tag.Category new_category = new Tag.Category( this, name );
-//        m_tag_categories.put( name, new_category );
-//
-//        return new_category;
-//    }
+                if( Date.is_ordinal( kv_entry.getKey() ) )
+                    break;
 
-    public Tag.Category create_tag_ctg( String name ) {
-        Tag.Category new_category = new Tag.Category( this, name );
-        m_tag_categories.put( name, new_category );
+                Entry entry = kv_entry.getValue();
 
-        return new_category;
-    }
-
-    // in C++ this method is in PoolTagCategories class which does not exist in Java
-    public boolean rename_tag_ctg( Tag.Category ctg, String new_name ) {
-        m_tag_categories.remove( ctg.m_name );
-        ctg.m_name = new_name;
-        return( m_tag_categories.put( new_name, ctg ) != null );
-    }
-
-    public void dismiss_tag_ctg( Tag.Category ctg, boolean flag_dismiss_contained ) {
-        // fix or dismiss contained tags
-        // we work on copies to prevent ConcurrentModificationException
-        if( flag_dismiss_contained ) {
-            for( Tag tag : ctg.mTags.toArray( new Tag[ 0 ] ) )
-                dismiss_tag( tag );
+                if( entry.get_date().get_pure() == Date.get_pure( begin ) &&
+                    entry.get_date().get_order_3rd() > Date.get_order_3rd( begin ) ) {
+                    entry.m_date.m_date--;
+                    iter.remove();
+                }
+            }
         }
         else {
-            for( Tag tag : ctg.mTags.toArray( new Tag[ 0 ] ) )
-                tag.set_category( null );
+            Iterator< Map.Entry< Long, Entry > > iter = m_entries.entrySet().iterator();
+            while( iter.hasNext() ) {
+                Map.Entry< Long, Entry > kv_entry = iter.next();
+
+                if( Date.is_ordinal( kv_entry.getKey() ) )
+                    break;
+
+                Entry entry = kv_entry.getValue();
+
+                if( entry.get_date().get_pure() == Date.get_pure( begin ) &&
+                    entry.get_date().get_order_3rd() >= Date.get_order_3rd( begin ) ) {
+                    entry.m_date.m_date++;
+                    iter.remove();
+                }
+            }
         }
 
-        // remove from the list
-        m_tag_categories.remove( ctg.m_name );
+        for( Entry e : ev )
+            m_entries.put( e.get_date_t(), e );
     }
 
-    public Tag create_tag( String name, Tag.Category ctg, int chart_type ) {
-        Tag tag = m_tags.get( name );
-        if( tag != null ) {
-            Log.e( Lifeograph.TAG, "Tag already exists: " + name );
-            return( tag );
+    long
+    get_available_order_1st( boolean flag_hidden ) {
+        long result = 0;
+
+        for( Entry entry : m_entries.values() ) {
+            if( entry.is_ordinal() && entry.is_ordinal_hidden() == flag_hidden )
+            {
+                result = entry.get_date_t();
+                break;
+            }
         }
-        tag = new Tag( this, name, ctg, chart_type );
-        m_tags.put( name, tag );
-        return tag;
+
+        if( result != 0 )
+            result = Date.make_ordinal( !flag_hidden, Date.get_order_1st( result ) + 1, 0, 0 );
+        else
+            result = Date.get_lowest_ordinal( flag_hidden );
+
+        return result;
     }
 
-    public Tag create_tag( String name, Tag.Category ctg ) {
-        return create_tag( name, ctg, DEFAULT_CHART_TYPE );
+    long
+    get_available_order_sub( @NonNull Date date ) {
+        final int level = ( date.get_level() + 1 );
+        if( level > 3 )
+            return Date.NOT_SET;
+
+        date.set_order( level, 1 );
+        while( m_entries.containsKey( date.m_date ) ) {
+            if( date.get_order( level ) >= Date.ORDER_MAX )
+                return Date.NOT_SET;
+
+            date.forward_order( level );
+        }
+
+        return date.m_date;
     }
 
-    public void dismiss_tag( Tag tag ) {
-        // remove from entries: (work on a copy to prevent ConcurrentModificationException)
-        for( Entry e : tag.mEntries.keySet().toArray( new Entry[ 0 ] ) )
-            e.remove_tag( tag );
+    long
+    get_available_order_next( @NonNull Date date ) {
+        while( m_entries.containsKey( date.m_date ) ) {
+            if( date.get_order( date.get_level() ) >= Date.ORDER_MAX )
+                return Date.NOT_SET;
 
-        // remove from category if any:
-        if( tag.get_category() != null )
-            tag.get_category().remove( tag );
+            date.forward_order( date.get_level() );
+        }
 
-        // clear filters if necessary:
-        if( tag == m_filter_active.get_tag() )
-            m_filter_active.set_tag( null );
-        if( tag == m_filter_default.get_tag() )
-            m_filter_default.set_tag( null );
-
-        m_tags.remove( tag.get_name() );
+        return date.m_date;
     }
 
-    public boolean rename_tag( Tag tag, String new_name ) {
-        m_tags.remove( tag.m_name );
-        tag.m_name = new_name;
-        return( m_tags.put( new_name, tag ) == null );
+    boolean
+    is_first( @NonNull Entry entry ) {
+        return( entry.is_equal_to( Objects.requireNonNull( m_entries.firstEntry() ).getValue() ) );
+    }
+
+    boolean
+    is_last( @NonNull Entry entry ) {
+        return( entry.is_equal_to( Objects.requireNonNull( m_entries.lastEntry() ).getValue() ) );
+    }
+
+    Entry
+    get_completion_tag() {
+        return get_entry_by_id( m_completion_tag_id );
+    }
+    void
+    set_completion_tag( int id ) {
+        m_completion_tag_id = id;
+    }
+
+    // SEARCHING ===================================================================================
+    int
+    set_search_text( @NonNull String text, boolean flag_only_unfiltered ) {
+        m_search_text = text;
+        clear_matches();
+
+        if( text.isEmpty() )
+            return 0;
+
+        int pos_para;
+        int pos_entry;
+        int length = m_search_text.length();
+        int count = 0;
+
+        for( Entry entry : m_entries.values() ) {
+            pos_entry = 0;
+            if( flag_only_unfiltered && entry.get_filtered_out() )
+                continue;
+
+            for( Paragraph para : entry.m_paragraphs ) {
+                final String entrytext = para.m_text.toLowerCase();
+                pos_para = 0;
+
+                while( ( pos_para = entrytext.indexOf( m_search_text, pos_para ) ) != -1 ) {
+                    m_matches.add( new Match( para, pos_entry + pos_para, pos_para ) );
+                    count++;
+                    pos_para += length;
+                }
+
+                pos_entry += ( entrytext.length() + 1 );
+            }
+        }
+
+        return count;
+    }
+
+    String
+    get_search_text() {
+        return m_search_text;
+    }
+
+    boolean
+    is_search_active() {
+        return( !m_search_text.isEmpty() );
+    }
+
+    void
+    replace_all_matches( String newtext ) {
+        int       length_s  = m_search_text.length();
+        int       delta     = ( newtext.length() - length_s );
+        int       delta_cum = 0;
+        Paragraph para_cur  = null;
+
+        for( Match m : m_matches ) {
+            if( !( m.valid ) ) continue;
+
+            if( m.para != para_cur ) {
+                delta_cum = 0;
+                para_cur = m.para;
+            }
+            else
+                m.pos_para += delta_cum;
+
+            m.para.erase_text( m.pos_para, length_s );
+            m.para.insert_text( m.pos_para, newtext );
+
+            delta_cum += delta;
+        }
+
+        m_matches.clear();
+    }
+
+    // this version does not disturb the active search and is case-sensitive
+    void
+    replace_all_matches( String oldtext, String newtext ) {
+        if( oldtext.isEmpty() )
+            return;
+
+        int       pos_para;
+        int       pos_entry;
+        int       length_old = oldtext.length();
+        int       delta      = ( newtext.length() - length_old );
+        int       delta_cum  = 0;
+        Paragraph para_cur   = null;
+        Vector< Match >
+                  matches    = new Vector<>();
+
+        // FIND
+        for( Entry entry : m_entries.values() ) {
+            pos_entry = 0;
+
+            for( Paragraph para : entry.m_paragraphs ) {
+                final String entrytext = para.m_text;
+                pos_para = 0;
+
+                while( ( pos_para = entrytext.indexOf( oldtext, pos_para ) ) != -1 ) {
+                    matches.add( new Match( para, pos_entry + pos_para, pos_para ) );
+                    pos_para += length_old;
+                }
+
+                pos_entry += ( entrytext.length() + 1 );
+            }
+        }
+
+        // REPLACE
+        for( Match m : matches ) {
+            if( m.para != para_cur ) {
+                delta_cum = 0;
+                para_cur = m.para;
+            }
+            else
+                m.pos_para += delta_cum;
+
+            m.para.erase_text( m.pos_para, length_old );
+            m.para.insert_text( m.pos_para, newtext );
+
+            delta_cum += delta;
+        }
+    }
+
+    void
+    clear_matches() {
+        m_matches.clear();
+    }
+
+    // FILTERS =====================================================================================
+    Filter
+    create_filter( String name0, String definition ) {
+        String name = create_unique_name_for_map( m_filters, name0 );
+        Filter filter = new Filter( this, name, definition );
+        m_filters.put( name, filter );
+
+        return filter;
+    }
+
+    Filter
+    get_filter( String name ) {
+        return m_filters.get( name );
+    }
+
+    boolean
+    set_filter_active( String name ) {
+        Filter filter = m_filters.get( name );
+        if( filter == null )
+            return false;
+
+        m_filter_active = filter;
+        return true;
+    }
+
+    String
+    get_filter_active_name() {
+        return m_filter_active.get_name();
+    }
+
+    boolean
+    rename_filter( String old_name, String new_name ) {
+        if( new_name.isEmpty() )
+            return false;
+        if( m_filters.containsKey( new_name ) )
+            return false;
+
+        Filter filter = m_filters.get( old_name );
+        if( filter == null )
+            return false;
+
+        filter.set_name( new_name );
+
+        m_filters.remove( old_name );
+        m_filters.put( new_name, filter );
+
+        return true;
+    }
+
+    boolean
+    dismiss_filter( String name ) {
+        if( m_filters.size() < 2 )
+            return false;
+
+        Filter filter_to_delete = m_filters.get( name );
+
+        if( filter_to_delete == null )
+            return false;
+
+        m_filters.remove( name );
+
+        if( name.equals( m_filter_active.get_name() ) )
+            m_filter_active = m_filters.firstEntry().getValue();
+
+        return true;
+    }
+
+    boolean
+    dismiss_filter_active() {
+        return dismiss_filter( m_filter_active.get_name() );
+    }
+
+    void
+    remove_entry_from_filters( Entry entry ) {
+        String rep_str = String.format( "Fr%d", DEID_UNSET );
+
+        for( Filter filter : m_filters.values() ) {
+            String definition = filter.get_definition();
+            String ref_str    = String.format( "Fr%d", entry.get_id() );
+
+            filter.set_definition( definition.replace( ref_str, rep_str ) );
+        }
+    }
+
+    // CHARTS ======================================================================================
+    ChartElem
+    create_chart( String name0, String definition ) {
+        String name = create_unique_name_for_map( m_charts, name0 );
+        ChartElem chart = new ChartElem( this, name, definition );
+        m_charts.put( name, chart );
+
+        return chart;
+    }
+
+    ChartElem
+    get_chart( String name ) {
+        return m_charts.get( name );
+    }
+
+    boolean
+    set_chart_active( String name ) {
+        ChartElem chart = m_charts.get( name );
+        if( chart == null )
+            return false;
+
+        m_chart_active = chart;
+        return true;
+    }
+
+    String
+    get_chart_active_name() {
+        return m_chart_active.get_name();
+    }
+
+    boolean
+    rename_chart( String old_name, String new_name ) {
+        if( new_name.isEmpty() )
+            return false;
+        if( m_charts.containsKey( new_name ) )
+            return false;
+
+        ChartElem chart = m_charts.get( old_name );
+        if( chart == null )
+            return false;
+
+        chart.set_name( new_name );
+
+        m_charts.remove( old_name );
+        m_charts.put( new_name, chart );
+
+        return true;
+    }
+
+    boolean
+    dismiss_chart( String name ) {
+        ChartElem chart_to_delete = m_charts.get( name );
+
+        if( chart_to_delete == null )
+            return false;
+
+        m_charts.remove( name );
+
+        if( m_chart_active != null && name.equals( m_chart_active.get_name() ) ) {
+            m_chart_active = m_charts.isEmpty() ? null : m_charts.firstEntry().getValue();
+        }
+
+        return true;
+    }
+
+    // TABLES ======================================================================================
+    TableElem
+    create_table( String name0, String definition ) {
+        String name = create_unique_name_for_map( m_tables, name0 );
+        TableElem table = new TableElem( this, name, definition );
+        m_tables.put( name, table );
+
+        return table;
+    }
+
+    TableElem
+    get_table( String name ) {
+        return m_tables.get( name );
+    }
+
+    boolean
+    set_table_active( String name ) {
+        TableElem table = m_tables.get( name );
+        if( table == null )
+            return false;
+
+        m_table_active = table;
+        return true;
+    }
+
+    String
+    get_table_active_name() {
+        return( m_table_active != null ? m_table_active.get_name() : "" );
+    }
+
+    boolean
+    rename_table( String old_name, String new_name ) {
+        if( new_name.isEmpty() )
+            return false;
+        if( m_tables.containsKey( new_name ) )
+            return false;
+
+        TableElem table = m_tables.get( old_name );
+        if( table == null )
+            return false;
+
+        table.set_name( new_name );
+
+        m_tables.remove( old_name );
+        m_tables.put( new_name, table );
+
+        return true;
+    }
+
+    boolean
+    dismiss_table( String name ) {
+        TableElem table_to_delete = m_tables.get( name );
+
+        if( table_to_delete == null )
+            return false;
+
+        m_tables.remove( name );
+
+        if( m_table_active != null && name.equals( m_table_active.get_name() ) ) {
+            m_table_active = m_tables.isEmpty() ? null : m_tables.firstEntry().getValue();
+        }
+
+        return true;
+    }
+
+    // THEMES ======================================================================================
+    Theme
+    create_theme( String name0 ) {
+        String name = create_unique_name_for_map( m_themes, name0 );
+        Theme theme = new Theme( this, name );
+        m_themes.put( name, theme );
+
+        return theme;
+    }
+    Theme
+    create_theme( String name0,
+                  String font,
+                  String base,  String text,
+                  String head,  String subh,
+                  String hlgt ) {
+        String name = create_unique_name_for_map( m_themes, name0 );
+        Theme theme = new Theme( this, name, font, base, text, head, subh, hlgt );
+        m_themes.put( name, theme );
+
+        return theme;
+    }
+
+    Theme
+    get_theme( String name ) {
+        return m_themes.get( name );
+    }
+
+    Theme
+    get_theme_default() {
+        return m_theme_default;
+    }
+
+    void
+    set_theme_default( Theme theme ) {
+        m_theme_default = theme;
+    }
+
+    void
+    clear_themes() {
+        m_themes.clear();
+        m_theme_default = null;
+    }
+
+    void
+    dismiss_theme( @NonNull Theme theme ) throws Exception {
+        if( theme.is_default() ) throw new Exception( "Trying to delete the default theme" );
+
+        for( Entry entry : m_entries.values() ) {
+            if( theme.is_equal_to( entry.get_theme() ) )
+                entry.set_theme( null );
+        }
+
+        // remove from associated filters
+        for( Filter filter : m_filters.values() ) {
+            String def = filter.get_definition().replace( "\nFh" + theme.get_name(),
+                                                          "" );
+            filter.set_definition( def );
+        }
+
+        m_themes.remove( theme.get_name() );
+    }
+
+    void
+    rename_theme( @NonNull Theme theme, String new_name ) {
+        m_themes.remove( theme.get_name() );
+        theme.set_name( create_unique_name_for_map( m_themes, new_name ) );
+        m_themes.put( theme.get_name(), theme );
     }
 
     // CHAPTERS ====================================================================================
-    //public Chapter.Category get_current_chapter_ctg() { return m_ptr2chapter_ctg_cur; }
-    public void set_current_chapter_ctg( Chapter.Category ctg ) {
-        m_ptr2chapter_ctg_cur = ctg;
+    void
+    set_chapter_ctg_cur( Chapter.Category ctg ) {
+        m_p2chapter_ctg_cur = ctg;
+        update_entries_in_chapters();
+    }
+    void
+    set_chapter_ctg_cur( String ctg_name ) {
+        m_p2chapter_ctg_cur = get_chapter_ctg( ctg_name );
         update_entries_in_chapters();
     }
 
-    //CategoryChapters create_chapter_ctg() {}
-    public Chapter.Category create_chapter_ctg( String name ) {
+    Chapter.Category
+    get_chapter_ctg( String name ) {
+        return m_chapter_categories.get( name );
+    }
+
+    Chapter.Category
+    create_chapter_ctg( String name0 ) {
+        String name = create_unique_name_for_map( m_chapter_categories, name0 );
         Chapter.Category category = new Chapter.Category( this, name );
         m_chapter_categories.put( name, category );
         return category;
     }
 
-    public void dismiss_chapter_ctg( Chapter.Category ctg ) {
+    boolean
+    dismiss_chapter_ctg( @NonNull Chapter.Category ctg ) {
         if( m_chapter_categories.size() < 2 )
-            return;
-
-        if( ctg == m_ptr2chapter_ctg_cur )
-            m_ptr2chapter_ctg_cur = m_chapter_categories.firstEntry().getValue();
-
-        m_chapter_categories.remove( ctg.m_name );
-    }
-
-    public boolean rename_chapter_ctg( Chapter.Category ctg, String new_name ) {
-        if( m_chapter_categories.containsKey( new_name ) )
             return false;
 
-        m_chapter_categories.remove( ctg.m_name );
-        ctg.m_name = new_name;
-        m_chapter_categories.put( new_name, ctg );
+        if( m_chapter_categories.remove( ctg.m_name ) != null ) {
 
-        return true;
+            if( m_p2chapter_ctg_cur.is_equal_to( ctg ) )
+                m_p2chapter_ctg_cur =
+                        Objects.requireNonNull( m_chapter_categories.firstEntry() ).getValue();
+            return true;
+        }
+        else
+            return false;
     }
 
-    public void dismiss_chapter( Chapter chapter ) {
+    void
+    rename_chapter_ctg( @NonNull Chapter.Category ctg, String new_name ) {
+        m_chapter_categories.remove( ctg.m_name );
+        ctg.m_name = create_unique_name_for_map( m_chapter_categories, new_name );
+        m_chapter_categories.put( ctg.m_name, ctg );
+    }
+
+    void
+    dismiss_chapter( @NonNull Chapter chapter, boolean flag_dismiss_contained ) {
+        if( !m_p2chapter_ctg_cur.mMap.containsKey( chapter.get_date_t() ) ) {
+            Log.e( Lifeograph.TAG, "Chapter could not be found in assumed category" );
+            return;
+        }
+
         // BEWARE: higher means the earlier and lower means the later here!
-        if( chapter.is_ordinal() ) // topic or group
-        {
-            Chapter.Category ptr2ctg = ( chapter.get_date().is_hidden() ? m_groups : m_topics );
+        Map.Entry< Long, Chapter > kv_chapter_earlier =
+                m_p2chapter_ctg_cur.mMap.higherEntry( chapter.get_date_t() );
 
-            if( !ptr2ctg.mMap.containsKey( chapter.m_date_begin.m_date ) )
-            {
-                Log.e( Lifeograph.TAG, "Chapter could not be found in assumed category" );
-                return;
-            }
-
-            Chapter chapter_next = ( ptr2ctg.mMap.lowerKey( chapter.m_date_begin.m_date ) != null ?
-                    ptr2ctg.mMap.lowerEntry( chapter.m_date_begin.m_date ).getValue() : null );
-
-            final boolean flag_erasing_oldest_cpt = (
-                    chapter_next == null &&
-                    ptr2ctg.mMap.higherKey( chapter.m_date_begin.m_date ) != null );
-
-            // CALCULATE THE LAST ENTRY DATE
-            long last_entry_date;
-            // last entry date is taken from previous chapter's last entry when
-            // the chapter to be deleted is the last chapter
-            if( flag_erasing_oldest_cpt )
-            {
-                Chapter chapter_p = ptr2ctg.mMap.higherEntry( chapter.m_date_begin.m_date )
-                                               .getValue();
-
-                // use the chapters date if it does not contain any entry
-                last_entry_date = chapter_p.mEntries.isEmpty() ? chapter_p.get_date_t()
-                        : chapter_p.mEntries.first().get_date_t();
-            }
+        if( kv_chapter_earlier != null ) { // fix time span
+            Chapter chapter_earlier = kv_chapter_earlier.getValue();
+            if( chapter.m_time_span > 0 )
+                chapter_earlier.m_time_span =
+                        chapter_earlier.m_time_span + chapter.m_time_span;
             else
-            {
-                last_entry_date = chapter.mEntries.isEmpty() ? chapter.get_date_t()
-                        : chapter.mEntries.first().get_date_t();
-            }
-
-            // SHIFT ENTRY DATES
-            boolean flag_first = true;
-            boolean flag_dismiss_contained = false; // TODO WILL BE ADDED IN 0.5+
-            for( Chapter chpt = chapter; chpt != null; )
-            {
-                boolean flag_neighbor = ( chpt.get_date_t() == chapter.get_date_t()
-                    + Date.ORDINAL_STEP  );
-
-                for( Entry entry : chpt.mEntries )
-                {
-                    if( flag_first && flag_dismiss_contained )
-                        dismiss_entry( entry );
-                    else if( !flag_first || flag_erasing_oldest_cpt )
-                    {
-                        m_entries.remove( entry.get_date_t() );
-                        if( !flag_dismiss_contained && ( flag_neighbor || flag_erasing_oldest_cpt ) )
-                            entry.set_date( entry.get_date().get_order() + last_entry_date );
-                        else
-                            entry.set_date( entry.get_date_t() - Date.ORDINAL_STEP );
-                        m_entries.put( entry.get_date_t(), entry );
-                    }
-                }
-                flag_first = false;
-
-                if( ptr2ctg.mMap.lowerKey( chpt.m_date_begin.m_date ) != null )
-                    chpt = ptr2ctg.mMap.lowerEntry( chpt.m_date_begin.m_date ).getValue();
-                else
-                    chpt = null;
-            }
-
-            // REMOVE THE ACTUAL CHAPTER
-            ptr2ctg.mMap.remove( chapter.get_date_t() );
-
-            // SHIFT OTHER CHAPTERS
-            for( Chapter chpt = chapter_next; chpt != null; ) {
-                ptr2ctg.mMap.remove( chpt.get_date_t() );
-                chpt.set_date( chpt.get_date_t() - Date.ORDINAL_STEP );
-                ptr2ctg.mMap.put( chpt.get_date_t(), chpt );
-
-                if( ptr2ctg.mMap.lowerKey( chpt.m_date_begin.m_date ) != null )
-                    chpt = ptr2ctg.mMap.lowerEntry( chpt.m_date_begin.m_date ).getValue();
-                else
-                    chpt = null;
-            }
+                chapter_earlier.m_time_span = 0;
         }
-        else // TEMPORAL CHAPTER
-        {
-            if( !m_ptr2chapter_ctg_cur.mMap.containsKey( chapter.m_date_begin.m_date ) )
-            {
-                Log.e( Lifeograph.TAG, "Chapter could not be found in assumed category" );
-                return;
-            }
-            // fix time span
-            else if( m_ptr2chapter_ctg_cur.mMap.higherKey( chapter.m_date_begin.m_date ) != null )
-            {
-                Chapter chapter_earlier =
-                        m_ptr2chapter_ctg_cur.mMap.higherEntry( chapter.m_date_begin.m_date )
-                                                  .getValue();
-                if( chapter.m_time_span > 0 )
-                    chapter_earlier.m_time_span += chapter.m_time_span;
-                else
-                    chapter_earlier.m_time_span = 0;
-            }
 
-//            if( flag_dismiss_contained )
-//            {
-//                for( Entry entry : chapter.mEntries )
-//                    dismiss_entry( entry );
-//            }
-
-            m_ptr2chapter_ctg_cur.mMap.remove( chapter.get_date_t() );
+        if( flag_dismiss_contained ) {
+            for( Entry entry : chapter.mEntries )
+                dismiss_entry( entry, false );
         }
+
+        m_p2chapter_ctg_cur.mMap.remove( chapter.get_date_t() );
 
         update_entries_in_chapters();
     }
 
-    // Date get_free_chapter_order_temporal();
+    void
+    update_entries_in_chapters() {
+        Log.d( Lifeograph.TAG, "Diary.update_entries_in_chapters()" );
 
-    // Date get_free_chapter_order_ordinal();
+        Entry entry = Objects.requireNonNull( m_entries.firstEntry() ).getValue();
 
-    // boolean make_free_entry_order( Date date );
-
-    // FUNCTIONS TO GET NEAREST CHAPTERS / TOPICS
-//    public Chapter getPrevChapter( Chapter chapter ) {
-//        if( chapter.is_ordinal() ) {
-//            long d_chapter_prev = chapter.m_date_begin.m_date - Date.ORDINAL_STEP;
-//            return m_topics.mMap.get( d_chapter_prev );
-//        }
-//        else
-//            return m_ptr2chapter_ctg_cur.getChapterEarlier( chapter );
-//    }
-
-//    public Chapter getNextChapter( Chapter chapter ) {
-//        if( chapter.is_ordinal() ) {
-//            long d_chapter_next = chapter.m_date_begin.m_date + Date.ORDINAL_STEP;
-//            return m_topics.mMap.get( d_chapter_next );
-//        }
-//        else
-//            return m_ptr2chapter_ctg_cur.getChapterLater( chapter );
-//    }
-
-    public void update_entries_in_chapters() {
-        Log.d( Lifeograph.TAG, "update_entries_in_chapters()" );
-
-        Chapter.Category[] chapters = new Chapter.Category[] { m_topics, m_groups,
-                                                               m_ptr2chapter_ctg_cur };
-        long date_last = m_entries.isEmpty() ? 0 : m_entries.firstEntry().getKey();
-        boolean entries_finished = false;
-
-        for( int i = 0; i < 3; i++ ) {
-            for( Chapter chapter : chapters[ i ].getMap().values() ) {
-                chapter.clear();
-
-                if( entries_finished )
-                    continue;
-
-                entries_finished = true;
-                for( Entry entry : m_entries.tailMap( date_last ).values() ) {
-                    date_last = entry.get_date_t();
-
-                    if( entry.get_date_t() > chapter.get_date_t() )
-                        chapter.insert( entry );
-                    else {
-                        entries_finished = false;
-                        break;
-                    }
-                }
-            }
+        while( entry != null && entry.is_ordinal() ) {
+            Map.Entry< Long, Entry > kv_entry = m_entries.higherEntry( entry.get_date_t() );
+            entry = ( kv_entry != null ? kv_entry.getValue() : null );
         }
 
-        m_orphans.clear();
+        for( Chapter chapter : m_p2chapter_ctg_cur.mMap.values() ) {
+            chapter.clear();
 
-        if( !entries_finished ) {
-            for( Entry entry : m_entries.tailMap( date_last ).values() ) {
-                m_orphans.insert( entry );
-                m_orphans.set_date( entry.get_date_t() );
+            while( entry != null && entry.get_date_t() > chapter.get_date_t() ) {
+                chapter.insert( entry );
+                Map.Entry< Long, Entry > kv_entry = m_entries.higherEntry( entry.get_date_t() );
+                entry = ( kv_entry != null ? kv_entry.getValue() : null );
             }
         }
-        else
-            m_orphans.set_date( Date.DATE_MAX );
     }
 
-    public void add_entry_to_related_chapter( Entry entry ) {
+    void
+    add_entry_to_related_chapter( @NonNull Entry entry ) {
         // NOTE: works as per the current listing options needs to be updated when something
         // changes the arrangement such as a change in the current chapter category
 
-        Chapter.Category ptr2ctg;
-
-        if( entry.m_date.is_ordinal() ) // in groups or topics
-            ptr2ctg = ( entry.m_date.is_hidden() ? m_groups : m_topics );
-        else // in chapters
-            ptr2ctg = m_ptr2chapter_ctg_cur;
-
-        for( Chapter chapter : ptr2ctg.getMap().values() )
+        if( !( entry.is_ordinal() ) )
         {
-            if( entry.get_date_t() > chapter.get_date_t() )
-            {
-                chapter.insert( entry );
-                return;
+            for( Chapter chapter : m_p2chapter_ctg_cur.mMap.values() ) {
+                if( entry.get_date_t() > chapter.get_date_t() ) {
+                    chapter.insert( entry );
+                    return;
+                }
             }
         }
-
-        // if does not belong to any of the defined chapters:
-        m_orphans.insert( entry );
-        if( entry.m_date.m_date < m_orphans.get_date().m_date )
-            m_orphans.set_date( entry.m_date.m_date );
     }
 
-    public void remove_entry_from_chapters( Entry entry ) {
-        Chapter.Category ptr2ctg;
-
-        if( entry.m_date.is_ordinal() ) // in groups or topics
-            ptr2ctg = ( entry.m_date.is_hidden() ? m_groups : m_topics );
-        else // in chapters
-            ptr2ctg = m_ptr2chapter_ctg_cur;
-
-        for( Chapter chapter : ptr2ctg.getMap().values() ) {
-            if( chapter.find( entry ) ) {
+    void
+    remove_entry_from_chapters( @NonNull Entry entry ) {
+        for( Chapter chapter : m_p2chapter_ctg_cur.mMap.values() ) {
+            if( chapter.mEntries.contains( entry ) ) {
                 chapter.erase( entry );
                 return;
             }
         }
-
-        // if does not belong to any of the defined chapters:
-        m_orphans.erase( entry );
     }
 
     // DB PARSING HELPER FUNCTIONS =================================================================
-    private long get_db_line_date( String line ) {
+    static long
+    get_db_line_date( String line ) {
         long date = 0;
 
         for( int i = 2; i < line.length() && i < 12 && line.charAt( i ) >= '0'
@@ -836,7 +1419,8 @@ public class Diary extends DiaryElementChart
         return date;
     }
 
-    private String get_db_line_name( String line ) {
+    static String
+    get_db_line_name( String line ) {
         int begin = line.indexOf( '\t' );
         if( begin == -1 )
             begin = 2;
@@ -846,36 +1430,8 @@ public class Diary extends DiaryElementChart
         return( line.substring( begin ) );
     }
 
-    private long fix_pre_1020_date( long d ) {
-        if( Date.is_ordinal( d ) ) {
-            if( ( d & Date.VISIBLE_FLAG ) != 0 )
-                d -= Date.VISIBLE_FLAG;
-            else
-                d |= Date.VISIBLE_FLAG;
-        }
-
-        return d;
-    }
-
-    private void do_standard_checks_after_parse() {
-        // every diary must at least have one chapter category:
-        if( m_chapter_categories.size() < 1 )
-            m_ptr2chapter_ctg_cur = create_chapter_ctg( "default" ); // TODO: i18n
-
-        if( m_startup_elem_id > DiaryElement.DEID_DIARY )
-            if( get_element( m_startup_elem_id ) == null )
-            {
-                Log.w( Lifeograph.TAG, "Startup element cannot be found in db" );
-                m_startup_elem_id = DiaryElement.DEID_DIARY;
-            }
-
-        if( m_entries.size() < 1 ) {
-            add_today();
-            Log.i( Lifeograph.TAG, "A dummy entry added to the diary" );
-        }
-    }
-
-    private void parse_todo_status( DiaryElement elem, char c ) {
+    protected void
+    parse_todo_status( DiaryElement elem, char c ) {
         switch( c ) {
             case 't':
                 elem.set_todo_status( ES_TODO );
@@ -904,288 +1460,309 @@ public class Diary extends DiaryElementChart
         }
     }
 
-    // DB PARSING MAIN FUNCTIONS ===================================================================
-    private Result parse_db_body_text() {
-        switch( m_read_version )
+    protected void
+    parse_theme( Theme ptr2theme, String line ) {
+        switch( line.charAt( 1 ) ) {
+            case 'f':   // font
+                ptr2theme.font = line.substring( 2 );
+                break;
+            case 'b':   // base color
+                ptr2theme.color_base= Theme.parse_color( line.substring( 2 ) );
+                break;
+            case 't':   // text color
+                ptr2theme.color_text = Theme.parse_color( line.substring( 2 ) );
+                break;
+            case 'h':   // heading color
+                ptr2theme.color_heading= Theme.parse_color( line.substring( 2 ) );
+                break;
+            case 's':   // subheading color
+                ptr2theme.color_subheading= Theme.parse_color( line.substring( 2 ) );
+                break;
+            case 'l':   // highlight color
+                ptr2theme.color_highlight= Theme.parse_color( line.substring( 2 ) );
+                break;
+            case 'i':   // background image
+                ptr2theme.image_bg = line.substring( 2 );
+                break;
+        }
+    }
+
+    protected long
+    tmp_upgrade_date_to_1020( long d ) {
+        if( Date.is_ordinal( d ) ) {
+            if( ( d & Date.FLAG_VISIBLE ) != 0 )
+                d -= Date.FLAG_VISIBLE;
+            else
+                d |= Date.FLAG_VISIBLE;
+        }
+
+        return d;
+    }
+
+    protected long
+    tmp_upgrade_ordinal_date_to_2000( long old_date ) {
+        if( !Date.is_ordinal( old_date ) )
+            return old_date;
+
+        return Date.make_ordinal( !Date.is_hidden( old_date ),
+                                  Date.get_order_2nd( old_date ),
+                                  Date.get_order_3rd( old_date ),
+                                  0 );
+    }
+
+    protected void
+    tmp_add_tags_as_paragraph( Entry entry_new,
+                               Map< Entry, Double > entry_tags,
+                               ParserPara parser_para ) {
+        if( entry_new != null ) {
+            for( Map.Entry< Entry, Double > kv_tag : entry_tags.entrySet() ) {
+                entry_new.add_tag( kv_tag.getKey(), kv_tag.getValue() );
+                parser_para.parse( entry_new.m_paragraphs.get( entry_new.m_paragraphs.size() - 1 ) );
+            }
+
+            entry_tags.clear();
+        }
+    }
+
+    protected void
+    tmp_create_chart_from_tag( Entry tag, long type, Diary diary ) {
+        String o2 = ( type & ChartData.UNDERLAY_MASK ) == ChartData.UNDERLAY_PREV_YEAR ? "Y" : "-";
+        String o3 = ( type & ChartData.PERIOD_MASK ) == ChartData.MONTHLY ?              "M" : "Y";
+        String o4 = ( type & ChartData.VALUE_TYPE_MASK ) == ChartData.AVERAGE ?          "A" : "P";
+        // create predefined charts for non-boolean tags
+        if( tag != null && ( type & ChartData.VALUE_TYPE_MASK ) != ChartData.BOOLEAN ) {
+            diary.create_chart( tag.get_name(),
+                                String.format( "Gyt%d\nGoT" + o2 + o3 + o4, tag.get_id() ) );
+        }
+    }
+
+    protected void
+    do_standard_checks_after_parse() {
+        if( m_theme_default == null ) {
+            m_theme_default = create_theme( Theme.System.get().m_name );
+            Theme.System.get().copy_to( m_theme_default );
+        }
+
+        // DEFAULT CHART AND TABLE
+        if( m_chart_active == null )
+            m_chart_active = create_chart( Lifeograph.getStr( R.string.default_ ),
+            ChartElem.DEFINITION_DEFAULT );
+        if( m_table_active == null )
+            m_table_active = create_table( Lifeograph.getStr( R.string.default_ ),
+                                           TableElem.DEFINITION_DEFAULT );
+
+        // initialize derived theme colors
+        for( Theme theme : m_themes.values() )
+            theme.calculate_derived_colors();
+
+        // every diary must at least have one chapter category:
+        if( m_chapter_categories.isEmpty() )
+            m_p2chapter_ctg_cur = create_chapter_ctg( Lifeograph.getStr( R.string.default_ ) );
+
+        if( m_startup_entry_id > DEID_MIN )
         {
+            if( get_element( m_startup_entry_id ) == null )
+            {
+                Log.e( Lifeograph.TAG, "Startup element " + m_startup_entry_id
+                                                               + " cannot be found in db" );
+                m_startup_entry_id = HOME_CURRENT_ENTRY;
+            }
+        }
+        else if( m_startup_entry_id == DEID_MIN ) // this is used when upgrading from <2000
+            m_startup_entry_id = HOME_CURRENT_ENTRY;
+
+        if( m_entries.isEmpty() ) {
+            Log.i( Lifeograph.TAG, "A dummy entry added to the diary" );
+            add_today();
+        }
+    }
+
+    void
+    add_entries_to_name_map() {
+        for( Entry entry : m_entries.values() ) {
+            // add entries to name map
+            if( entry.has_name() )
+                m_entry_names.put( entry.m_name, entry );
+        }
+    }
+
+    // DB PARSING MAIN FUNCTIONS ===================================================================
+    protected Result
+    parse_db_body_text() {
+        switch( m_read_version ) {
+            case 2000:
+            case 1999:
+                return parse_db_body_text_2000();
             case 1050:
             case 1040:
             case 1030:
             case 1020:
+            case 1011:
+            case 1010:
                 return parse_db_body_text_1050();
-            default: // (1011 & 1010):
-                return parse_db_body_text_1010();
         }
+        return Result.FAILURE; // should never happen
     }
 
-    private Result parse_db_body_text_1050() {
-        String line;
-        Entry entry_new = null;
-        Chapter.Category ptr2chapter_ctg = null;
-        Chapter ptr2chapter = null;
-        Tag.Category ptr2tag_ctg = null;
-        Tag ptr2tag = null;
-        boolean flag_first_paragraph = false;
+    protected Result
+    parse_db_body_text_2000() {
+        String            line;
+        Theme             ptr2theme = null;
+        Filter            ptr2filter = null;
+        ChartElem         ptr2chart = null;
+        TableElem         ptr2table = null;
+        Chapter.Category  ptr2chapter_ctg = null;
+        Chapter           ptr2chapter = null;
+        Entry             ptr2entry = null;
+        Paragraph         ptr2para;
+        ParserPara        parser_para = new ParserPara();
 
-        try
-        {
-            // TAG DEFINITIONS & CHAPTERS
-            while( ( line = mBufferedReader.readLine() ) != null ) {
-                if( line.length() < 1 ) // end of section
-                    break;
-                else if( line.length() >= 3 ) {
-                    switch( line.charAt( 0 ) ) {
-                        case 'I':
-                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
-                            break;
-                        case 'T': // tag category
-                            ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
-                            ptr2tag_ctg.set_expanded( line.charAt( 1 ) == 'e' );
-                            break;
-                        case 't': // tag
-                            switch( line.charAt( 1 ) ) {
-                                case ' ':
-                                    ptr2tag = create_tag( line.substring( 2 ), ptr2tag_ctg );
-                                    break;
-                                case 'c':
-                                    if( ptr2tag != null )
-                                        ptr2tag.set_chart_type(
-                                                Integer.parseInt( line.substring( 2 ) ) );
-                                    break;
-                                case 'u':
-                                    if( ptr2tag != null )
-                                        ptr2tag.set_unit( line.substring( 2 ) );
-                                    break;
-                            }
-                            break;
-                        case 'u': // untagged
-                            ptr2tag = m_untagged;
-                            if( line.charAt( 1 ) == 'c' ) {
-                                ptr2tag.set_chart_type( Integer.parseInt( line.substring( 2 ) ) );
-                                break;
-                            }
-                            // no break
-                        case 'm':
-                            if( ptr2tag == null ) {
-                                Log.e( Lifeograph.TAG, "No tag declared for theme" );
-                                break;
-                            }
-                            switch( line.charAt( 1 ) ) {
-                                case 'f': // font
-                                    ptr2tag.get_own_theme().font = line.substring( 2 );
-                                    break;
-                                case 'b': // base color
-                                    if( line.charAt( 2 ) != 'n' )
-                                        ptr2tag.get_own_theme().color_base =
-                                                Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 't': // text color
-                                    if( line.charAt( 2 ) != 'n' )
-                                        ptr2tag.get_own_theme().color_text =
-                                                Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 'h': // heading color
-                                    if( line.charAt( 2 ) != 'n' )
-                                        ptr2tag.get_own_theme().color_heading =
-                                                Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 's': // subheading color
-                                    if( line.charAt( 2 ) != 'n' )
-                                        ptr2tag.get_own_theme().color_subheading =
-                                                Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 'l': // highlight color
-                                    // a work-around against a bug in 0.3
-                                    if( line.charAt( 2 ) == 'n' )
-                                        ptr2tag.create_own_theme_duplicating( Theme.System.get() );
-                                    else
-                                        ptr2tag.get_own_theme().color_highlight =
-                                                Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                            }
-                            break;
-                        case 'f':
-                            switch( line.charAt( 1 ) ) {
-                                case 's':   // status
-                                    if( line.length() < 11 ) {
-                                        Log.e( Lifeograph.TAG, "Status filter length error" );
-                                        continue;
-                                    }
-                                    m_filter_default.set_trash( line.charAt( 2 ) == 'T',
-                                            line.charAt( 3 ) == 't' );
-                                    m_filter_default.set_favorites( line.charAt( 4 ) == 'F',
-                                            line.charAt( 5 ) == 'f' );
-                                    m_filter_default.set_todo( line.charAt( 6 )  == 'N',
-                                                               line.charAt( 7 )  == 'T',
-                                                               line.charAt( 8 )  == 'P',
-                                                               line.charAt( 9 )  == 'D',
-                                                               line.charAt( 10 ) == 'C' );
-                                    break;
-                                case 't':   // tag
-                                {
-                                    Tag tag = m_tags.get( line.substring( 2 ) );
-                                    if( tag != null )
-                                        m_filter_default.set_tag( tag );
-                                    else
-                                        Log.e( Lifeograph.TAG, "Reference to undefined tag: "
-                                                + line.substring( 2 ) );
-                                    break;
-                                }
-                                case 'b':   // begin date
-                                    m_filter_default.set_date_begin(
-                                            Long.parseLong( line.substring( 2 ) ) );
-                                    break;
-                                case 'e':   // end date
-                                    m_filter_default.set_date_end(
-                                            Long.parseLong( line.substring( 2 ) ) );
-                                    break;
-                            }
-                            break;
-                        case 'C': // chapters...
-                            switch( line.charAt( 1 ) ) {
-                                case 'C':   // chapter category
-                                    ptr2chapter_ctg = create_chapter_ctg( line.substring( 3 ) );
-                                    if( line.charAt( 2 ) == 'c' )
-                                        m_ptr2chapter_ctg_cur = ptr2chapter_ctg;
-                                    break;
-                                case 'c':   // chapter color
-                                    if( ptr2chapter == null ) {
-                                        Log.e( Lifeograph.TAG, "No chapter defined" );
-                                        break;
-                                    }
-                                    ptr2chapter.set_color( Theme.parse_color( line.substring( 2 ) ) );
-                                    break;
-                                case 'T':   // temporal chapter
-                                    if( ptr2chapter_ctg == null ) {
-                                        Log.e( Lifeograph.TAG, "No chapter category defined" );
-                                        break;
-                                    }
-                                    ptr2chapter =
-                                            ptr2chapter_ctg.create_chapter( get_db_line_name( line ),
-                                                    get_db_line_date( line ) );
-                                    break;
-                                case 'O':   // ordinal chapter (used to be called topic)
-                                    ptr2chapter =
-                                            m_topics.create_chapter( get_db_line_name( line ),
-                                                    get_db_line_date( line ) );
-                                    break;
-                                case 'G':   // free chapter
-                                    ptr2chapter = m_groups.create_chapter(
-                                            get_db_line_name( line ), get_db_line_date( line ) );
-                                    break;
-                                case 'p':   // chapter preferences
-                                    ptr2chapter.set_expanded( line.charAt( 2 ) == 'e' );
-                                    parse_todo_status( ptr2chapter, line.charAt( 3 ) );
-                                    break;
-                            }
-                            break;
-                        case 'O': // options
-                            m_option_sorting_criteria = line.charAt( 2 );
-                            if( m_read_version >= 1050 ) {
-                                m_option_sorting_dir = line.charAt( 3 );
-                                if( line.length() > 4 && line.charAt( 4 ) == 'Y' )
-                                    set_chart_type( ChartPoints.YEARLY );
-                            }
-                            else {
-                                if( line.length() > 3 && line.charAt( 3 ) == 'Y' )
-                                    set_chart_type( ChartPoints.YEARLY );
-                            }
-                            break;
-                        case 'l': // language
-                            m_language = line.substring( 2 );
-                            break;
-                        case 'S': // startup action
-                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
-                            break;
-                        case 'L':
-                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
-                            break;
-                        default:
-                            Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
-                            clear();
-                            return Result.CORRUPT_FILE;
-                    }
-                }
-            }
-
-            // ENTRIES
+        // TAG DEFINITIONS & CHAPTERS
+        try {
             while( ( line = mBufferedReader.readLine() ) != null ) {
                 if( line.length() < 2 )
                     continue;
-                else if( line.charAt( 0 ) != 'I' && line.charAt( 0 ) != 'E' &&
-                         line.charAt( 0 ) != 'e' && entry_new == null ) {
-                    Log.e( Lifeograph.TAG, "No entry declared for the attribute" );
-                    continue;
-                }
 
                 switch( line.charAt( 0 ) ) {
-                    case 'I':
+                    // DIARY OPTION
+                    case 'D':
+                        switch( line.charAt( 1 ) ) {
+                            case 'o':   // options
+                                m_opt_show_all_entry_locations = ( line.charAt( 2 ) == 'A' );
+                                m_sorting_criteria = Integer.parseInt( line.substring( 3, 3 ) );
+                                m_opt_ext_panel_cur = Integer.parseInt( line.substring( 6, 1 ) );
+                                break;
+                            case 's':   // spell checking language
+                                m_language = line.substring( 2 );
+                                break;
+                            case 'f':   // first entry to show
+                                m_startup_entry_id = Integer.parseInt( line.substring( 2 ) );
+                                break;
+                            case 'l':   // last entry shown in the previous session
+                                m_last_entry_id = Integer.parseInt( line.substring( 2 ) );
+                                break;
+                            case 'c':   // completion tag
+                                m_completion_tag_id = Integer.parseInt( line.substring( 2 ) );
+                                break;
+                        }
+                        break;
+                    // ID (START OF A NEW ELEMENT)
+                    case 'I':   // id
                         set_force_id( Integer.parseInt( line.substring( 2 ) ) );
                         break;
-                    case 'E':   // new entry
-                    case 'e':   // trashed
-                        if( line.length() < 5 )
-                            continue;
-
-                        long date = Long.parseLong( line.substring( 4 ) );
-                        entry_new = new Entry( this, date, line.charAt( 1 ) == 'f' );
-                        m_entries.put( date, entry_new );
-                        add_entry_to_related_chapter( entry_new );
-                        m_untagged.add_entry( entry_new );
-
-                        if( line.charAt( 0 ) == 'e' )
-                            entry_new.set_trashed( true );
-                        if( line.charAt( 2 ) == 'h' )
-                            m_filter_default.add_entry( entry_new );
-
-                        parse_todo_status( entry_new, line.charAt( 3 ) );
-
-                        flag_first_paragraph = true;
-                        break;
-                    case 'D':   // creation & change dates (optional)
-                        switch( line.charAt( 1 ) ) {
-                            case 'r':
-                                entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
-                                break;
-                            case 'h':
-                                entry_new.m_date_edited = Long.parseLong( line.substring( 2 ) );
-                                break;
-                            case 's':
-                                entry_new.m_date_status = Long.parseLong( line.substring( 2 ) );
-                                break;
-                        }
-                        break;
-                    case 'T':   // tag
-                        NameAndValue nav = NameAndValue.parse( line.substring( 2 ) );
-                        Tag tag = m_tags.get( nav.name );
-                        if( tag != null ) {
-                            entry_new.add_tag( tag, nav.value );
-                            if( line.charAt( 1 ) == 'T' )
-                                entry_new.set_theme_tag( tag );
+                    // THEME
+                    case 'T':
+                        if( line.charAt( 1 ) == ' ' ) { // declaration
+                            ptr2theme = create_theme( line.substring( 3 ) );
+                            if( line.charAt( 2 ) == 'D' )
+                                m_theme_default = ptr2theme;
                         }
                         else
-                            Log.e( Lifeograph.TAG, "Reference to undefined tag: " + nav.name );
+                            parse_theme( ptr2theme, line );
                         break;
-                    case 'L':   // location
-                        entry_new.m_location = line.substring( 2 );
+                    // FILTER
+                    case 'F':
+                        if( line.charAt( 1 ) == ' ' ) { // declaration
+                            ptr2filter = create_filter( line.substring( 3 ), "" );
+                            if( line.charAt( 2 ) == 'A' )
+                                m_filter_active = ptr2filter;
+                        }
+                        else
+                            ptr2filter.add_definition_line( line );
                         break;
-                    case 'l':   // language
-                        entry_new.set_lang( line.substring( 2 ) );
-                        break;
-                    case 'P':    // paragraph
-                        if( flag_first_paragraph ) {
-                            if( line.length() > 2 )
-                                entry_new.m_text = line.substring( 2 );
-                            entry_new.m_name = entry_new.m_text;
-                            flag_first_paragraph = false;
+                    // CHART
+                    case 'G':
+                        if( line.charAt( 1 ) == ' ' ) { // declaration
+                            ptr2chart = create_chart( line.substring( 3 ), "" );
+                            if( line.charAt( 2 ) == 'A' )
+                                m_chart_active = ptr2chart;
                         }
                         else {
-                            entry_new.m_text += "\n";
-                            entry_new.m_text += line.substring( 2 );
+                            ptr2chart.add_definition_line( line );
+                        }
+                        break;
+                    // TABLE (MATRIX)
+                    case 'M':
+                        if( line.charAt( 1 ) == ' ' ) { // declaration
+                            ptr2table = create_table( line.substring( 3 ), "" );
+                            if( line.charAt( 2 ) == 'A' )
+                                m_table_active = ptr2table;
+                        }
+                        else
+                            ptr2table.add_definition_line( line );
+                        break;
+                    // CHAPTER CATEGORY
+                    case 'C':
+                        ptr2chapter_ctg = create_chapter_ctg( line.substring( 3 ) );
+                        if( line.charAt( 2 ) == 'A' )
+                            m_p2chapter_ctg_cur = ptr2chapter_ctg;
+                        break;
+                    // ENTRY / CHAPTER
+                    case 'E':
+                        switch( line.charAt( 1 ) ) {
+                            case ' ':   // declaration
+                                ptr2entry = create_entry( Integer.parseInt( line.substring( 6 ) ),
+                                                          line.charAt( 2 ) == 'F',
+                                                          line.charAt( 3 ) == 'T',
+                                                          line.charAt( 5 ) == 'E' );
+
+                                parse_todo_status( ptr2entry, line.charAt( 4 ) );
+                                break;
+                            case '+':   // chapter declaration
+                                ptr2entry = ptr2chapter = ptr2chapter_ctg.create_chapter(
+                                        Integer.parseInt( line.substring( 6 ) ),
+                                        line.charAt( 2 ) == 'F',
+                                        line.charAt( 3 ) == 'T',
+                                        line.charAt( 5 ) == 'E' );
+
+                                parse_todo_status( ptr2chapter, line.charAt( 4 ) );
+                                break;
+                            case 'c':
+                                ptr2entry.m_date_created = Integer.parseInt( line.substring( 2 ) );
+                                break;
+                            case 'e':
+                                ptr2entry.m_date_edited = Integer.parseInt( line.substring( 2 ) );
+                                break;
+                            case 't':   // to do status change date
+                                ptr2entry.m_date_status = Integer.parseInt( line.substring( 2 ) );
+                                break;
+                            case 'm':
+                                ptr2entry.set_theme( m_themes.get( line.substring( 2 ) ) );
+                                break;
+                            case 's':   // spell checking language
+                                ptr2entry.set_lang( line.substring( 2 ) );
+                                break;
+                            case 'u':   // spell checking language
+                                ptr2entry.m_unit = line.substring( 2 );
+                                break;
+                            case 'l':   // location
+                                if( line.charAt( 2 ) == 'a' )
+                                    ptr2entry.m_location.latitude =
+                                            parseDouble( line.substring( 3 ) );
+                                else if( line.charAt( 2 ) == 'o' )
+                                    ptr2entry.m_location.longitude =
+                                            parseDouble( line.substring( 3 ) );
+                                break;
+                            case 'r':   // path (route)
+                                if( line.charAt( 2 ) == 'a' )
+                                    ptr2entry.add_map_path_point(
+                                            parseDouble( line.substring( 3 ) ), 0.0 );
+                        else if( line.charAt( 2 ) == 'o' )
+                                ptr2entry.get_map_path_end().longitude =
+                                        parseDouble( line.substring( 3 ) );
+                                break;
+                            case 'p':   // paragraph
+                                ptr2para = ptr2entry.add_paragraph( line.substring( 3 ) );
+                                parser_para.parse( ptr2para );
+                                ptr2para.m_justification = line.charAt( 2 );
+                                break;
+                            case 'b':   // chapter bg color
+                                ptr2chapter.set_color( Color.parseColor( line.substring( 2 ) ) );
+                                break;
                         }
                         break;
                     default:
-                        Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
+                        Log.e( Lifeograph.TAG, "Unrecognized line: [" + line + "]" );
                         clear();
                         return Result.CORRUPT_FILE;
                 }
@@ -1197,8 +1774,358 @@ public class Diary extends DiaryElementChart
         }
 
         do_standard_checks_after_parse();
+        add_entries_to_name_map();
 
-        m_filter_active.set( m_filter_default );
+        return Result.SUCCESS;
+    }
+
+    protected Result
+    parse_db_body_text_1050() {
+        StringBuilder    read_buffer       = new StringBuilder();
+        Lifeograph.MutableString  line     = new Lifeograph.MutableString();
+        Lifeograph.MutableInt     line_offset  = new Lifeograph.MutableInt();
+        Entry            entry_new;
+        int              tag_o1            = 0;
+        int              tag_o2            = 0;
+        int              tag_o3            = 0;
+        Chapter.Category p2chapter_ctg     = null;
+        Chapter          p2chapter         = null;
+        Theme            p2theme           = null;
+        boolean          flag_in_tag_ctg   = false;
+        StringBuilder    filter_def        = new StringBuilder( "F&" );
+        Map< Entry, Double > entry_tags    = new TreeMap<>( DiaryElement.compare_elems_by_date );
+        ParserPara       parser_para       = new ParserPara();
+        String           chart_def_default = ChartElem.DEFINITION_DEFAULT;
+
+        try {
+            // PREPROCESSING TO DETERMINE FIRST AVAILABLE ORDER
+            while( ( line.v = mBufferedReader.readLine() ) != null ) {
+                read_buffer.append( line.v ).append( '\n' );
+
+                if( line.v.charAt( 0 ) == 'C' && line.v.charAt( 1 ) == 'G' )
+                    tag_o1++;
+            }
+
+            // TAGS TOP LEVEL
+            entry_new = new Entry( this, Date.make_ordinal( false, ++tag_o1, 0 ) );
+            m_entries.put( entry_new.m_date.m_date, entry_new );
+            entry_new.add_paragraph( "[###>" );
+            entry_new.set_expanded( true );
+
+            // TAG DEFINITIONS & CHAPTERS
+            String read_buffer_str = read_buffer.toString();
+            while( Lifeograph.get_line( read_buffer_str, line_offset, line ) ) {
+                if( line.v.isEmpty() )    // end of section
+                    break;
+                else if( line.v.length() >= 3 ) {
+                    switch( line.v.charAt( 0 ) ) {
+                        case 'I':   // id
+                            set_force_id( Integer.parseInt( line.v.substring( 2 ) ) );
+                            break;
+                        // TAGS
+                        case 'T':   // tag category
+                            entry_new = new Entry( this,
+                                                   Date.make_ordinal( false, tag_o1, ++tag_o2 ) );
+                            m_entries.put( entry_new.m_date.m_date, entry_new );
+                            entry_new.add_paragraph( line.v.substring( 2 ) );
+                            entry_new.set_expanded( line.v.charAt( 1 ) == 'e' );
+                            m_entry_names.put( entry_new.m_name, entry_new );
+                            flag_in_tag_ctg = true;
+                            tag_o3 = 0;
+                            break;
+                        case 't':   // tag
+                            switch( line.v.charAt( 1 ) ) {
+                                case ' ':
+                                    entry_new = new Entry(
+                                            this,
+                                            flag_in_tag_ctg ?
+                                            Date.make_ordinal( false, tag_o1, tag_o2, ++tag_o3 ) :
+                                    Date.make_ordinal( false, tag_o1, ++tag_o2 ) );
+                                    m_entries.put( entry_new.m_date.m_date, entry_new );
+                                    entry_new.add_paragraph( line.v.substring( 2 ) );
+                                    m_entry_names.put( entry_new.m_name, entry_new );
+                                    p2theme = null;
+                                    break;
+                                case 'c': // not used in 1010
+                                    tmp_create_chart_from_tag(
+                                            entry_new, Long.parseLong( line.v.substring( 2 ) ), this );
+                                    break;
+                                case 'u': // not used in 1010
+                                    if( entry_new != null )
+                                        entry_new.m_unit = line.v.substring( 2 );
+                                    break;
+                            }
+                            break;
+                        case 'u':
+                            if( m_theme_default == null && line.v.charAt( 1 ) != 'c' )
+                                // chart is ignored
+                                m_theme_default = create_theme( Theme.System.get().get_name() );
+                            parse_theme( m_theme_default, line.v );
+                            break;
+                        case 'm':
+                            if( p2theme == null )
+                                p2theme = create_theme( entry_new.get_name() );
+                            parse_theme( p2theme, line.v );
+                            break;
+                        // DEFAULT FILTER
+                        case 'f':
+                            switch( line.v.charAt( 1 ) ) {
+                                case 's':   // status
+                                    if( m_read_version < 1020 ) {
+                                        filter_def.append( "\nFsN" );
+                                        filter_def.append( ( line.v.charAt( 6 ) == 'T' ) ? 'O' :
+                                                                                         'o' );
+                                        // made in-progress entries depend on the preference for open ones:
+                                        filter_def.append( ( line.v.charAt( 6 ) == 'T' ) ? 'P' :
+                                                                                         'p' );
+                                        filter_def.append( ( line.v.charAt( 7 ) == 'D' ) ? 'D' :
+                                                                                         'd' );
+                                        filter_def.append( ( line.v.charAt( 8 ) == 'C' ) ? 'C' :
+                                                                                         'c' );
+                                    }
+                                    else {
+                                        filter_def.append( "\nFs" );
+                                        filter_def.append( ( line.v.charAt( 6 ) == 'N' ) ? 'N' :
+                                                                                         'n' );
+                                        filter_def.append( ( line.v.charAt( 7 ) == 'T' ) ? 'O' :
+                                                                                         'o' );
+                                        filter_def.append( ( line.v.charAt( 8 ) == 'P' ) ? 'P' :
+                                                                                         'p' );
+                                        filter_def.append( ( line.v.charAt( 9 ) == 'D' ) ? 'D' :
+                                                                                         'd' );
+                                        filter_def.append( ( line.v.charAt( 10 ) == 'C' ) ? 'C' :
+                                                                                          'c' );
+                                    }
+                                    if( line.v.charAt( 2 ) == 'T' && line.v.charAt( 3 ) != 't' )
+                                        filter_def.append( "\nFty" );
+                                    else if( line.v.charAt( 2 ) != 'T' && line.v.charAt( 3 ) == 't' )
+                                        filter_def.append( "\nFtn" );
+                                    if( line.v.charAt( 4 ) == 'F' && line.v.charAt( 5 ) != 'f' )
+                                        filter_def.append( "\nFfy" );
+                                    else if( line.v.charAt( 4 ) != 'F' && line.v.charAt( 5 ) == 'f' )
+                                        filter_def.append( "\nFfn" );
+                                    break;
+                                case 't':   // tag
+                                {
+                                    Entry tag = m_entry_names.get( line.v.substring( 2 ) ).get( 0 );
+                                    if( tag != null )
+                                        filter_def.append( "\nFt" ).append( tag.get_id() );
+                                    else
+                                        Log.e( Lifeograph.TAG,
+                                               "Reference to undefined tag: " +
+                                               line.v.substring( 2 ) );
+                                    break;
+                                }
+                                case 'b':   // begin date: in the new system this is an after filter
+                                    filter_def.append( "\nFa" ).append( line.v.substring( 2 ) );
+                                    break;
+                                case 'e':   // end date: in the new system this is a before filter
+                                    filter_def.append( "\nFb" ).append( line.v.substring( 2 ) );
+                                    break;
+                            }
+                            break;
+                        // CHAPTERS
+                        case 'o':   // ordinal chapter (topic) (<1020)
+                            entry_new = new Entry( this, get_db_line_date( line.v ) );
+                            tmp_upgrade_date_to_1020( entry_new.m_date.m_date );
+                            tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                            m_entries.put( entry_new.m_date.m_date, entry_new );
+                            entry_new.set_text( get_db_line_name( line.v ) );
+                            entry_new.set_expanded( line.v.charAt( 1 ) == 'e' );
+                            break;
+                        case 'd':   // to-do group (<1020)
+                            if( line.v.charAt( 1 ) == ':' ) { // declaration
+                                entry_new = new Entry( this, get_db_line_date( line.v ) );
+                                tmp_upgrade_date_to_1020( entry_new.m_date.m_date );
+                                tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                                m_entries.put( entry_new.m_date.m_date, entry_new );
+                                entry_new.set_text( get_db_line_name( line.v ) );
+                            }
+                            else { // options
+                                entry_new.set_expanded( line.v.charAt( 2 ) == 'e' );
+                                if( line.v.charAt( 3 ) == 'd' )
+                                    entry_new.set_todo_status( ES_DONE );
+                                else if( line.v.charAt( 3 ) == 'c' )
+                                    entry_new.set_todo_status( ES_CANCELED );
+                                else
+                                    entry_new.set_todo_status( ES_TODO );
+                            }
+                            break;
+                        case 'c':   // temporal chapter (<1020)
+                            if( p2chapter_ctg != null ) {
+                                long d_c = get_db_line_date( line.v );
+                                tmp_upgrade_date_to_1020( d_c );
+
+                                entry_new = p2chapter =
+                                        p2chapter_ctg.create_chapter( d_c, false, false, true );
+                                p2chapter.set_text( get_db_line_name( line.v ) );
+                            }
+                            else
+                                Log.e( Lifeograph.TAG, "No chapter category defined" );
+                            break;
+                        case 'C':
+                            if( m_read_version < 1020 ) { // chapter category
+                                p2chapter_ctg = create_chapter_ctg( line.v.substring( 2 ) );
+                                if( line.v.charAt( 1 ) == 'c' )
+                                    m_p2chapter_ctg_cur = p2chapter_ctg;
+                                break;
+                            }
+                            switch( line.v.charAt( 1 ) ) {
+                                // any chapter item based on line[1] (>=1020)
+                                case 'C':   // chapter category
+                                    p2chapter_ctg = create_chapter_ctg( line.v.substring( 3 ) );
+                                    if( line.v.charAt( 2 ) == 'c' )
+                                        m_p2chapter_ctg_cur = p2chapter_ctg;
+                                    break;
+                                case 'c':   // chapter color
+                                    p2chapter.set_color( Color.parseColor( line.v.substring( 2 ) ) );
+                                    break;
+                                case 'T':   // temporal chapter
+                                    entry_new = p2chapter =
+                                            p2chapter_ctg.create_chapter(
+                                                    get_db_line_date( line.v ),
+                                                    false, false, true );
+                                    p2chapter.set_text( get_db_line_name( line.v ) );
+                                    break;
+                                case 'O':   // ordinal chapter (used to be called topic)
+                                case 'G':   // free chapter (replaced todo_group in v1020)
+                                    entry_new = new Entry( this, get_db_line_date( line.v ) );
+                                    tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                                    m_entries.put( entry_new.m_date.m_date, entry_new );
+                                    entry_new.set_text( get_db_line_name( line.v ) );
+                                    break;
+                                case 'p':   // chapter preferences
+                                    entry_new.set_expanded( line.v.charAt( 2 ) == 'e' );
+                                    parse_todo_status( entry_new, line.v.charAt( 3 ) );
+                                    //line.v.charAt( 4 ] (Y) is ignored as we no longer create charts for chapters
+                                    break;
+                            }
+                            break;
+                        case 'O':   // options
+                            switch( line.v.charAt( 2 ) ) {
+                                case 'd': m_sorting_criteria = SoCr_DATE; break;
+                                case 's': m_sorting_criteria = SoCr_SIZE_C; break;
+                                case 'c': m_sorting_criteria = SoCr_CHANGE; break;
+                            }
+                            if( m_read_version == 1050 ) {
+                                m_sorting_criteria |= ( line.v.charAt( 3 ) == 'd' ?
+                                                        SoCr_DESCENDING : SoCr_ASCENDING );
+
+                                if( line.v.length() > 4 && line.v.charAt( 4 ) == 'Y' )
+                                    chart_def_default = ChartElem.DEFINITION_DEFAULT_Y;
+                            }
+                            else if( m_read_version == 1040 ) {
+                                if( line.v.length() > 3 && line.v.charAt( 3 ) == 'Y' )
+                                    chart_def_default = ChartElem.DEFINITION_DEFAULT_Y;
+                            }
+                            break;
+                        case 'l':   // language
+                            m_language = line.v.substring( 2 );
+                            break;
+                        case 'S':   // startup action
+                            m_startup_entry_id = Integer.parseInt( line.v.substring( 2 ) );
+                            break;
+                        case 'L':
+                            m_last_entry_id = Integer.parseInt( line.v.substring( 2 ) );
+                            break;
+                        default:
+                            Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line.v );
+                            clear();
+                            return Result.CORRUPT_FILE;
+                    }
+                }
+            }
+
+            // ENTRIES
+            entry_new = null;
+            while( Lifeograph.get_line( read_buffer_str, line_offset, line ) ) {
+                if( line.v.length() < 2 )
+                    continue;
+                else if( line.v.charAt( 0 ) != 'I' && line.v.charAt( 0 ) != 'E' && line.v.charAt( 0 ) != 'e' && entry_new == null ) {
+                    Log.e( Lifeograph.TAG, "No entry declared for the attribute" );
+                    continue;
+                }
+
+                switch( line.v.charAt( 0 ) ) {
+                    case 'I':
+                        set_force_id( Integer.parseInt( line.v.substring( 2 ) ) );
+                        break;
+                    case 'E':   // new entry
+                    case 'e':   // trashed
+                        if( line.v.length() < 5 )
+                            continue;
+
+                        // add tags as inline tags
+                        tmp_add_tags_as_paragraph( entry_new, entry_tags, parser_para );
+
+                        entry_new = new Entry( this, Long.parseLong( line.v.substring( 4 ) ),
+                                               line.v.charAt( 1 ) == 'f' ?
+                                                       ES_ENTRY_DEFAULT_FAV : ES_ENTRY_DEFAULT );
+                        if( m_read_version < 1020 )
+                            tmp_upgrade_date_to_1020( entry_new.m_date.m_date );
+                        tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                        m_entries.put( entry_new.m_date.m_date, entry_new );
+
+                        if( line.v.charAt( 0 ) == 'e' )
+                            entry_new.set_trashed( true );
+                        if( line.v.charAt( 2 ) == 'h' )
+                            filter_def.append( "\nFn" ).append( entry_new.get_id() );
+
+                        parse_todo_status( entry_new, line.v.charAt( 3 ) );
+
+                        // all hidden entries were to-do items once:
+                        if( m_read_version < 1020 && entry_new.get_date().is_hidden() )
+                            entry_new.set_todo_status( ES_TODO );
+
+                        break;
+                    case 'D':   // creation & change dates (optional)
+                        switch( line.v.charAt( 1 ) ) {
+                            case 'r':
+                                entry_new.m_date_created = Long.parseLong( line.v.substring( 2 ) );
+                                break;
+                            case 'h':
+                                entry_new.m_date_edited = Long.parseLong( line.v.substring( 2 ) );
+                                break;
+                            case 's':
+                                entry_new.m_date_status = Long.parseLong( line.v.substring( 2 ) );
+                                break;
+                        }
+                        break;
+                    case 'T':    // tag
+                    {
+                        NameAndValue nav = NameAndValue.parse( line.v.substring( 2 ) );
+                        Entry        tag = m_entry_names.get( nav.name ).get( 0 );
+                        if( tag != null ) {
+                            entry_tags.put( tag, nav.value );
+                            if( line.v.charAt( 1 ) == 'T' )
+                                entry_new.set_theme( m_themes.get( nav.name ) );
+                        }
+                        else
+                            Log.e( Lifeograph.TAG, "Reference to undefined tag: " + nav.name );
+                        break;
+                    }
+                    case 'l':   // language
+                        entry_new.set_lang( line.v.substring( 2 ) );
+                        break;
+                    case 'P':    // paragraph
+                        parser_para.parse( entry_new.add_paragraph( line.v.substring( 2 ) ) );
+                        break;
+                    default:
+                        Log.e( Lifeograph.TAG,"Unrecognized line:\n" + line );
+                        clear();
+                        return Result.CORRUPT_FILE;
+                }
+            }
+        }
+        catch( IOException e )
+        {
+            return Result.CORRUPT_FILE;
+        }
+
+        // add tags to the last entry as inline tags
+        tmp_add_tags_as_paragraph( entry_new, entry_tags, parser_para );
+
+        update_entries_in_chapters();
 
         if( m_read_version == 1020 )
             upgrade_entries_to_1030();
@@ -1206,327 +2133,41 @@ public class Diary extends DiaryElementChart
         if( m_read_version < 1050 )
             upgrade_entries_to_1050();
 
-        return Result.SUCCESS;
-    }
-
-    private Result parse_db_body_text_1010() {
-        String line;
-        Entry entry_new = null;
-        Chapter.Category ptr2chapter_ctg = null;
-        Chapter ptr2chapter = null;
-        Tag.Category ptr2tag_ctg = null;
-        Tag ptr2tag = null;
-        boolean flag_first_paragraph = false;
-
-        try {
-            // TAG DEFINITIONS & CHAPTERS
-            while( ( line = mBufferedReader.readLine() ) != null ) {
-                if( line.length() < 1 ) // end of section
-                    break;
-                else if( line.length() >= 3 ) {
-                    switch( line.charAt( 0 ) ) {
-                        case 'I':
-                            set_force_id( Integer.parseInt( line.substring( 2 ) ) );
-                            break;
-                        case 'T': // tag category
-                            ptr2tag_ctg = create_tag_ctg( line.substring( 2 ) );
-                            ptr2tag_ctg.set_expanded( line.charAt( 1 ) == 'e' );
-                            break;
-                        case 't': // tag
-                            ptr2tag = create_tag( line.substring( 2 ), ptr2tag_ctg );
-                            break;
-                        case 'u': // untagged
-                            ptr2tag = m_untagged;
-                            // no break
-                        case 'm':
-                            if( ptr2tag == null ) {
-                                Log.e( Lifeograph.TAG, "No tag declared for theme" );
-                                break;
-                            }
-                            switch( line.charAt( 1 ) ) {
-                                case 'f': // font
-                                    ptr2tag.get_own_theme().font = line.substring( 2 );
-                                    break;
-                                case 'b': // base color
-                                    ptr2tag.get_own_theme().color_base =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 't': // text color
-                                    ptr2tag.get_own_theme().color_text =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 'h': // heading color
-                                    ptr2tag.get_own_theme().color_heading =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 's': // subheading color
-                                    ptr2tag.get_own_theme().color_subheading =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                                case 'l': // highlight color
-                                    ptr2tag.get_own_theme().color_highlight =
-                                            Theme.parse_color( line.substring( 2 ) );
-                                    break;
-                            }
-                            break;
-                        case 'f':
-                            switch( line.charAt( 1 ) ) {
-                                case 's':   // status
-                                    if( line.length() < 9 ) {
-                                        Log.e( Lifeograph.TAG, "Status filter length error" );
-                                        continue;
-                                    }
-                                    m_filter_default.set_trash( line.charAt( 2 ) == 'T',
-                                                                line.charAt( 3 ) == 't' );
-                                    m_filter_default.set_favorites( line.charAt( 4 ) == 'F',
-                                                                    line.charAt( 5 ) == 'f' );
-                                    // made in-progress entries depend on the preference for open ones
-                                    m_filter_default.set_todo( true,
-                                                               line.charAt( 6 ) == 'T',
-                                                               line.charAt( 6 ) == 'T',
-                                                               line.charAt( 7 ) == 'D',
-                                                               line.charAt( 8 ) == 'C' );
-                                    break;
-                                case 't':   // tag
-                                {
-                                    Tag tag = m_tags.get( line.substring( 2 ) );
-                                    if( tag != null )
-                                        m_filter_default.set_tag( tag );
-                                    else
-                                        Log.e( Lifeograph.TAG, "Reference to undefined tag: "
-                                                +line.substring( 2 ) );
-                                    break;
-                                }
-                                case 'b':   // begin date
-                                    m_filter_default.set_date_begin(
-                                            Long.parseLong( line.substring( 2 ) ) );
-                                    break;
-                                case 'e':   // end date
-                                    m_filter_default.set_date_end(
-                                            Long.parseLong( line.substring( 2 ) ) );
-                                    break;
-                            }
-                            break;
-                        case 'o':   // ordinal chapter (topic)
-                            ptr2chapter =
-                                    m_topics.create_chapter( get_db_line_name( line ),
-                                                             fix_pre_1020_date( get_db_line_date( line ) ) );
-                            ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
-                            break;
-                        case 'd':   // to-do group
-                            if( line.charAt( 1 ) == ':' ) // declaration
-                            {
-                                ptr2chapter = m_groups.create_chapter(
-                                        get_db_line_name( line ),
-                                        fix_pre_1020_date( get_db_line_date( line ) ) );
-                            }
-                            else // options
-                            {
-                                ptr2chapter.set_expanded( line.charAt( 2 ) == 'e' );
-                                if( line.charAt( 3 ) == 'd' )
-                                    ptr2chapter.set_todo_status( ES_DONE );
-                                else if( line.charAt( 3 ) == 'c' )
-                                    ptr2chapter.set_todo_status( ES_CANCELED );
-                                else
-                                    ptr2chapter.set_todo_status( ES_TODO );
-                            }
-                            break;
-                        case 'C':   // chapter category
-                            ptr2chapter_ctg = create_chapter_ctg( line.substring( 2 ) );
-                            if( line.charAt( 1 ) == 'c' )
-                                m_ptr2chapter_ctg_cur = ptr2chapter_ctg;
-                            break;
-                        case 'c':   // chapter
-                            if( ptr2chapter_ctg == null ) {
-                                Log.e( Lifeograph.TAG, "No chapter category defined" );
-                                break;
-                            }
-                            ptr2chapter = ptr2chapter_ctg.create_chapter(
-                                    get_db_line_name( line ),
-                                    fix_pre_1020_date( get_db_line_date( line ) ) );
-                            ptr2chapter.set_expanded( line.charAt( 1 ) == 'e' );
-                            break;
-                        case 'O':   // options
-                            m_option_sorting_criteria = line.charAt( 2 );
-                            break;
-                        case 'l':   // language
-                            m_language = line.substring( 2 );
-                            break;
-                        case 'S':   // startup action
-                            m_startup_elem_id = Integer.parseInt( line.substring( 2 ) );
-                            break;
-                        case 'L':
-                            m_last_elem_id = Integer.parseInt( line.substring( 2 ) );
-                            break;
-                        default:
-                            Log.e( Lifeograph.TAG, "Unrecognized line:\n"+line );
-                            clear();
-                            return Result.CORRUPT_FILE;
-                    }
-                }
-            }
-
-            // ENTRIES
-            while( ( line = mBufferedReader.readLine() ) != null ) {
-                if( line.length() < 2 )
-                    continue;
-
-                switch( line.charAt( 0 ) ) {
-                    case 'I':
-                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
-                        break;
-                    case 'E':   // new entry
-                    case 'e':   // trashed
-                        if( line.length() < 5 )
-                            continue;
-
-                        long date = fix_pre_1020_date( Long.parseLong( line.substring( 4 ) ) );
-                        entry_new = new Entry( this,  date, line.charAt( 1 ) == 'f' );
-                        m_entries.put( date, entry_new );
-                        add_entry_to_related_chapter( entry_new );
-                        m_untagged.add_entry( entry_new );
-
-                        if( line.charAt( 0 ) == 'e' )
-                            entry_new.set_trashed( true );
-                        if( line.charAt( 2 ) == 'h' )
-                            m_filter_default.add_entry( entry_new );
-                        if( line.charAt( 3 ) == 'd' )
-                            entry_new.set_todo_status( ES_DONE );
-                        else if( line.charAt( 3 ) == 'c' )
-                            entry_new.set_todo_status( ES_CANCELED );
-                            // hidden flag used to denote to do items:
-                        else if( entry_new.get_date().is_hidden() )
-                            entry_new.set_todo_status( ES_TODO );
-
-                        flag_first_paragraph = true;
-                        break;
-
-                    case 'D':   // creation & change dates (optional)
-                        if( entry_new == null ) {
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                            break;
-                        }
-                        if( line.charAt( 1 ) == 'r' )
-                            entry_new.m_date_created = Long.parseLong( line.substring( 2 ) );
-                        else    // it should be 'h'
-                            entry_new.m_date_edited = Long.parseLong( line.substring( 2 ) );
-                        break;
-                    case 'T':   // tag
-                        if( entry_new == null )
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                        else {
-                            Tag tag = m_tags.get( line.substring( 2 ) );
-                            if( tag != null ) {
-                                entry_new.add_tag( tag );
-                                if( line.charAt( 1 ) == 'T' )
-                                    entry_new.set_theme_tag( tag );
-                            }
-                            else
-                                Log.e( Lifeograph.TAG, "Reference to undefined tag: "+
-                                        line.substring( 2 ) );
-                        }
-                        break;
-                    case 'l':   // language
-                        if( entry_new == null )
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                        else
-                            entry_new.set_lang( line.substring( 2 ) );
-                        break;
-                    case 'P':    // paragraph
-                        if( entry_new == null ) {
-                            Log.e( Lifeograph.TAG, "No entry declared" );
-                            break;
-                        }
-                        if( flag_first_paragraph ) {
-                            if( line.length() > 2 )
-                                entry_new.m_text = line.substring( 2 );
-                            entry_new.m_name = entry_new.m_text;
-                            flag_first_paragraph = false;
-                        }
-                        else {
-                            entry_new.m_text += "\n";
-                            entry_new.m_text += line.substring( 2 );
-                        }
-                        break;
-                    default:
-                        Log.e( Lifeograph.TAG, "Unrecognized line:\n" + line );
-                        clear();
-                        return Result.CORRUPT_FILE;
-                }
-            }
-        }
-        catch( IOException e )
-        {
-            return Result.CORRUPT_FILE;
-        }
+        // DEFAULT FILTER AND CHART
+        m_filter_active = create_filter( Lifeograph.getStr( R.string.default_ ),
+                                         filter_def.toString() );
+        m_chart_active = create_chart( Lifeograph.getStr( R.string.default_ ), chart_def_default );
 
         do_standard_checks_after_parse();
-
-        m_filter_active.set( m_filter_default );   // employ the default filter
-
-        upgrade_entries_to_1030();
-        upgrade_entries_to_1050();
+        add_entries_to_name_map();
 
         return Result.SUCCESS;
     }
 
-    private void upgrade_entries_to_1030() {
-        for( Entry entry : m_entries.values() ) {
-            entry.m_date_status = entry.m_date_created; // initialize the status date
 
-            char c;
-            char lf = 'n';
-            String check = "";
-            StringBuilder new_content  = new StringBuilder();
+    // =============================================================================================
+    // =============================================================================================
+    // CONTUNUE FROM HERE ==========================================================================
+    // =============================================================================================
+    // =============================================================================================
 
-            for( int i = 0; i < entry.m_text.length(); i++ ) {
-                switch( c = entry.m_text.charAt( i ) ) {
-                    case '\n':
-                    case '\r':
-                        new_content.append( '\n' );
-                    case 0:     // should never be the case
-                        lf = 't'; // tab
-                        break;
-                    case '\t':
-                        new_content.append( c );
-                        lf = ( lf == 't' || lf == 'c' ) ? 'c' : 'n';
-                        break;
-                    case '☐':
-                        check = "[ ] ";
-                        new_content.append( c );
-                        lf = lf == 'c' ? 's' : 'n';
-                        break;
-                    case '☑':
-                        check = "[+] ";
-                        new_content.append( c );
-                        lf = lf == 'c' ? 's' : 'n';
-                        break;
-                    case '☒':
-                        check = "[x] ";
-                        new_content.append( c );
-                        lf = lf == 'c' ? 's' : 'n';
-                        break;
-                    case ' ':
-                        if( lf == 's' ) {
-                            new_content.deleteCharAt( new_content.length() - 1 );
-                            new_content.append( check );
-                        }
-                        else
-                            new_content.append( c );
-                        lf = 'n';
-                        break;
-                    default:
-                        new_content.append( c );
-                        lf = 'n';
-                        break;
-                }
-            }
 
-            entry.m_text = new_content.toString();
-        }
+
+
+    private void
+    upgrade_entries_to_1030() {
+        // initialize the status dates:
+        for( Entry entry : m_entries.values() )
+            entry.m_date_status = entry.m_date_created;
+
+        // replace old to-do boxes:
+        replace_all_matches( "☐", "[ ]" );
+        replace_all_matches( "☑", "[+]" );
+        replace_all_matches( "☒", "[x]" );
     }
 
-    private void upgrade_entries_to_1050() {
+    protected void
+    upgrade_entries_to_1050() {
         for( Entry entry : m_entries.values() ) {
             if( entry.get_todo_status() == ES_NOT_TODO )
                 entry.set_todo_status( entry.calculate_todo_status_internal() );
@@ -1610,7 +2251,7 @@ public class Diary extends DiaryElementChart
                            .append( '\t' ).append( chapter.get_name() )
                            .append( "\nCp" ).append( chapter.get_expanded() ? 'e' : '_' );
             create_db_todo_status_text( chapter );
-            if( ( chapter.get_chart_type() & ChartPoints.YEARLY ) != 0 )
+            if( ( chapter.get_chart_type() & ChartData.YEARLY ) != 0 )
                 mBufferedWriter.append( "Y\n" );
             else
                 mBufferedWriter.append( '\n' );
@@ -1633,15 +2274,15 @@ public class Diary extends DiaryElementChart
     private void create_db_body_text() throws IOException {
         // OPTIONS
         mBufferedWriter.append( "O " )
-                       .append( m_option_sorting_criteria )
+                       .append( m_sorting_criteria )
                        .append( m_option_sorting_dir )
-                       .append( ( m_chart_type & ChartPoints.YEARLY ) != 0 ? "Y\n" : "M\n" );
+                       .append( ( m_chart_type & ChartData.YEARLY ) != 0 ? "Y\n" : "M\n" );
         if( ! m_language.isEmpty() )
             mBufferedWriter.append( "l " ).append( m_language ).append( '\n' );
 
         // STARTUP ACTION (HOME ITEM)
-        mBufferedWriter.append( "S " ).append( Integer.toString( m_startup_elem_id ) ).append( '\n' );
-        mBufferedWriter.append( "L " ).append( Integer.toString( m_last_elem_id ) ).append( '\n' );
+        mBufferedWriter.append( "S " ).append( Integer.toString( m_startup_entry_id ) ).append( '\n' );
+        mBufferedWriter.append( "L " ).append( Integer.toString( m_last_entry_id ) ).append( '\n' );
 
         // ROOT TAGS
         for( Tag tag : m_tags.values() ) {
@@ -1672,7 +2313,7 @@ public class Diary extends DiaryElementChart
         {
             // chapter category:
             mBufferedWriter.append( "ID" ).append( Integer.toString( ctg.get_id() ) )
-                           .append( ctg == m_ptr2chapter_ctg_cur ? "\nCCc" : "\nCC_" )
+                           .append( ctg == m_p2chapter_ctg_cur ? "\nCCc" : "\nCC_" )
                            .append( ctg.get_name() ).append( '\n' );
             // chapters in it:
             create_db_chapterctg_text( 'T', ctg );
@@ -2135,11 +2776,11 @@ public class Diary extends DiaryElementChart
             Chapter.Category dummy_ctg_orphans = new Chapter.Category( null, "" );
             dummy_ctg_orphans.mMap.put( 0L, m_orphans );
             Chapter.Category[] chapters = new Chapter.Category[]
-                    { dummy_ctg_orphans, m_ptr2chapter_ctg_cur, m_topics, m_groups };
+                    { dummy_ctg_orphans, m_p2chapter_ctg_cur, m_topics, m_groups };
             final String separator         = "---------------------------------------------\n";
             final String separator_favored = "+++++++++++++++++++++++++++++++++++++++++++++\n";
             final String separator_thick   = "=============================================\n";
-            final String separator_chapter = ":::::::::::::::::::::::::::::::::::::::::::::\n";
+            final String separator_chapter = "......................:\n";
 
             // DIARY TITLE
             fileWriter.write( separator_thick );
@@ -2183,21 +2824,6 @@ public class Diary extends DiaryElementChart
 
                         // CONTENT
                         fileWriter.append( entry.get_text() );
-
-                        // TAGS
-                        boolean first_tag = true;
-                        for( Tag tag : entry.m_tags ) {
-                            if( first_tag ) {
-                                fileWriter.append( "\n\n" )
-                                          .append( "TAGS" )
-                                          .append( ": " );
-                                first_tag = false;
-                            }
-                            else
-                                fileWriter.append( ", " );
-
-                            fileWriter.append( tag.get_name() );
-                        }
 
                         fileWriter.append( "\n\n" );
                     }
@@ -2247,50 +2873,133 @@ public class Diary extends DiaryElementChart
                                          byte[] buffer, int size, byte[] iv );
     private native byte[] encryptBuffer( String passphrase, byte[] buffer, int size );
 
+
+    // HELPER FUNCTIONS ============================================================================
+    public void
+    make_free_entry_order( Date date ) {
+        date.reset_order_1();
+        while( m_entries.get( date.m_date ) != null )
+            date.m_date += 1;
+    }
+
+    public String create_unique_name_for_map( TreeMap map, String name0 ) {
+        String name = name0;
+        for( int i = 1; map.containsKey( name ); i++ ) {
+            name = name0 + " " + i;
+        }
+
+        return name;
+    }
+
+    double
+    parseDouble( String text ) {
+        //NOTE: this implementation may be a little bit more forgiving than good for health
+        double  value = 0.0;
+        int     divider = 0;
+        boolean negative = false;
+        char    c;
+
+        for( int i = 0; i < text.length(); i++ ) {
+            c = text.charAt( i );
+            switch( c ) {
+                case ',':
+                case '.':
+                    if( divider == 0 ) // note that if divider
+                        divider = 1;
+                    break;
+                case '-':
+                    negative = true;
+                    break;
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    value *= 10;
+                    value += ( c - '0' );
+                    if( divider != 0 )
+                        divider *= 10;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if( divider > 1 )
+            value /= divider;
+        if( negative )
+            value *= -1;
+
+        return value;
+    }
+
+// NOT USED NOW
+//    public DiaryElement get_startup_elem() {
+//        return null;
+//    }
+//
+//    public DiaryElement get_most_current_elem() {
+//        return null;
+//    }
+//
+//    public DiaryElement get_prev_session_elem() {
+//        return null;
+//    }
+
     // VARIABLES ===================================================================================
+    static Diary diary = null;
+
     private String m_path;
     private String m_passphrase;
 
     //ids (DEID)
-    private int m_startup_elem_id;
-    private int m_last_elem_id;
-    private int m_current_id;
-    private int m_force_id;
-    private java.util.TreeMap< Integer, DiaryElement > m_ids = new TreeMap<>();
+    private TreeMap< Integer, DiaryElement > m_ids = new TreeMap<>();
+    private int m_force_id          = DEID_UNSET;
+    private int m_startup_entry_id  = HOME_CURRENT_ENTRY;
+    private int m_last_entry_id     = DEID_UNSET;
+    private int m_completion_tag_id = DEID_UNSET;
 
-    java.util.TreeMap< Long, Entry > m_entries = new TreeMap<>( DiaryElement.compare_dates );
-    Untagged m_untagged = new Untagged();
-    java.util.TreeMap< String, Tag > m_tags = new TreeMap<>( DiaryElement.compare_names );
-    java.util.TreeMap< String, Tag.Category > m_tag_categories =
-            new TreeMap<>( DiaryElement.compare_names );
-    java.util.TreeMap< String, Chapter.Category > m_chapter_categories =
-            new TreeMap<>( DiaryElement.compare_names );
-    Chapter.Category m_ptr2chapter_ctg_cur = null;
-    Chapter.Category m_topics = new Chapter.Category( this, Date.TOPIC_MIN );
-    Chapter.Category m_groups = new Chapter.Category( this, Date.GROUP_MIN );
-    Chapter m_orphans = new Chapter( null, "<Other Entries>", Date.DATE_MAX );
+    // CONTENT
+    TreeMap< Long, Entry >    m_entries = new TreeMap<>( DiaryElement.compare_dates );
+    ListMultimap< String, Entry >
+                              m_entry_names = ArrayListMultimap.create();
 
-    private String m_language;
+    TreeMap< String, Theme >  m_themes = new TreeMap<>();
+    Theme                     m_theme_default = null;
 
-    private int m_read_version;
+    TreeMap< String, Chapter.Category >
+                              m_chapter_categories = new TreeMap<>( DiaryElement.compare_names );
+    Chapter.Category          m_p2chapter_ctg_cur = null;
+
+    TreeMap< String, Filter > m_filters = new TreeMap<>();
+    Filter                    m_filter_active = null;
+
+    TreeMap< String, ChartElem >
+                              m_charts;
+    ChartElem                 m_chart_active = null;
+
+    TreeMap< String, TableElem >
+                              m_tables;
+    TableElem                 m_table_active = null;
+
+    // OPTIONS
+    protected String  m_language;
+
+    protected int     m_read_version;
 
     // options & flags
-    private char m_option_sorting_criteria;
-    private char m_option_sorting_dir;
-    private boolean m_flag_read_only;
-    private boolean m_flag_ignore_locks = false;
-    private boolean m_flag_skip_old_check = false;
-    private boolean m_flag_save_enabled = true;
+    protected int     m_sorting_criteria = SoCr_DEFAULT;
+    protected boolean m_opt_show_all_entry_locations = false;
+    protected int     m_opt_ext_panel_cur = 1;
+    protected boolean m_flag_read_only = false;
+    protected boolean m_flag_ignore_locks = false;
+    protected boolean m_flag_skip_old_check = false;
+    protected boolean m_flag_save_enabled = true;
     //private boolean m_flag_only_save_filtered;
-    //private boolean m_flag_changed;
 
     enum LoginStatus{ LOGGED_OUT, LOGGED_TIME_OUT, LOGGED_IN_RO, LOGGED_IN_EDIT }
     private LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
 
-    // filtering
-    private String m_search_text;
-    Filter m_filter_active = new Filter( null, "Active Filter" );
-    Filter m_filter_default = new Filter( null, "Default Filter" );
+    // searching
+    protected String  m_search_text;
+    List< Match >     m_matches = new ArrayList<>();
 
     // i/o
     // protected int m_body_offset;

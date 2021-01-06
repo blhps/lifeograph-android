@@ -141,14 +141,14 @@ public class FragmentElemList extends ListFragment
                     }
                     // DATED CHAPTERS
                     if( Diary.diary.m_chapter_categories.size() == 1 &&
-                        !Diary.diary.m_ptr2chapter_ctg_cur.mMap.isEmpty() )
+                        !Diary.diary.m_p2chapter_ctg_cur.mMap.isEmpty() )
                         mElems.add( new HeaderElem( R.string.dated_chapters ) );
 
                     for( Chapter.Category cc : Diary.diary.m_chapter_categories.values() ) {
                         if( Diary.diary.m_chapter_categories.size() > 1 )
                             mElems.add( cc );
 
-                        if( cc == Diary.diary.m_ptr2chapter_ctg_cur ) {
+                        if( cc == Diary.diary.m_p2chapter_ctg_cur ) {
                             mElems.addAll( cc.mMap.values() );
                         }
                     }
@@ -334,7 +334,7 @@ public class FragmentElemList extends ListFragment
                     break;
                 case HEADER_CHAPTER_CTG:
                     Chapter.Category cc = ( Chapter.Category ) elem;
-                    Diary.diary.set_current_chapter_ctg( cc );
+                    Diary.diary.set_chapter_ctg_cur( cc );
                     break;
             }
 
@@ -383,7 +383,7 @@ public class FragmentElemList extends ListFragment
                 case HEADER_CHAPTER_CTG: {
                     Chapter.Category cc = ( Chapter.Category ) elem;
                     ImageButton iconCollapse = holder.getIconCollapse();
-                    iconCollapse.setImageResource( cc == Diary.diary.m_ptr2chapter_ctg_cur ?
+                    iconCollapse.setImageResource( cc == Diary.diary.m_p2chapter_ctg_cur ?
                                                            R.drawable.ic_radio_sel : R.drawable.ic_radio_empty );
                     iconCollapse.setOnClickListener( v -> handleCollapse( elem ) );
                     if( Diary.diary.is_in_edit_mode() )

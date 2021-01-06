@@ -26,7 +26,7 @@
     </PreferenceCategory>
 
     <PreferenceCategory
-        android:title="@string/pref_DATE_FORMAT_header" >
+        android:title="@string/pref_LOCALE_header" >
 
         <ListPreference
             android:key="@string/pref_DATE_FORMAT_ORDER_key"
@@ -43,6 +43,15 @@
             android:defaultValue="@string/pref_DATE_FORMAT_SEPARATOR_default"
             android:entries="@array/pref_DATE_FORMAT_SEPARATOR_titles"
             android:entryValues="@array/pref_DATE_FORMAT_SEPARATOR_values"
+            android:negativeButtonText="@null"
+            android:positiveButtonText="@null" />
+
+        <ListPreference
+            android:key="@string/pref_UNIT_TYPE_key"
+            android:title="@string/pref_UNIT_TYPE_title"
+            android:defaultValue="@string/pref_UNIT_TYPE_default"
+            android:entries="@array/pref_UNIT_TYPE_titles"
+            android:entryValues="@array/pref_UNIT_TYPE_values"
             android:negativeButtonText="@null"
             android:positiveButtonText="@null" />
 

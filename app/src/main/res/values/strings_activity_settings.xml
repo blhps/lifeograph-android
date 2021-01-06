@@ -14,7 +14,7 @@
     <string name="pref_DIARY_PATH_key" translatable="false">diary_path</string>
     <string name="pref_DIARY_PATH_default" translatable="false">Diaries</string>
 
-    <string name="pref_DATE_FORMAT_header">Date Format</string>
+    <string name="pref_LOCALE_header">Locale</string>
 
     <string name="pref_DATE_FORMAT_ORDER_title">Field Order</string>
     <string name="pref_DATE_FORMAT_ORDER_key" translatable="false">date_format_order</string>
@@ -23,6 +23,10 @@
     <string name="pref_DATE_FORMAT_SEPARATOR_title">Field Separator</string>
     <string name="pref_DATE_FORMAT_SEPARATOR_key" translatable="false">date_format_separator</string>
     <string name="pref_DATE_FORMAT_SEPARATOR_default" translatable="false">.</string>
+
+    <string name="pref_UNIT_TYPE_title">Preferred Units</string>
+    <string name="pref_UNIT_TYPE_key" translatable="false">unit_type</string>
+    <string name="pref_UNIT_TYPE_default" translatable="false">Metric</string>
 
     <string-array name="pref_DIARY_STORAGE_titles">
         <item>External Storage/SD Card</item>
@@ -55,6 +59,15 @@
         <item>.</item>
         <item>/</item>
         <item>-</item>
+    </string-array>
+
+    <string-array name="pref_UNIT_TYPE_titles">
+        <item>Metric</item>
+        <item>Imperial</item>
+    </string-array>
+    <string-array name="pref_UNIT_TYPE_values" translatable="false">
+        <item>M</item>
+        <item>I</item>
     </string-array>
 
 </resources>

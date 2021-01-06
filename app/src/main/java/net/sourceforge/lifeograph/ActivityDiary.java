@@ -472,8 +472,8 @@ public class ActivityDiary extends AppCompatActivity
     public void onInquireAction( int id, String text ) {
         switch( id ) {
             case R.string.create_chapter: {
-                Chapter chapter = Diary.diary.m_ptr2chapter_ctg_cur.create_chapter( text,
-                                                                                    mDateLast );
+                Chapter chapter = Diary.diary.m_p2chapter_ctg_cur.create_chapter( text,
+                                                                                  mDateLast );
                 Diary.diary.update_entries_in_chapters();
                 Lifeograph.showElem( chapter );
                 break;
@@ -552,7 +552,7 @@ public class ActivityDiary extends AppCompatActivity
                         mCalPagerAdapter.getSelectedDate().m_date + 1 ) );
 
         menu.findItem( R.id.create_chapter ).setVisible(
-                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey(
+                !Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey(
                         mCalPagerAdapter.getSelectedDate().m_date ) );
 
         return true;

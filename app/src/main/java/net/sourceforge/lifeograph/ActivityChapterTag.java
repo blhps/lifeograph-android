@@ -101,12 +101,12 @@ public class ActivityChapterTag extends AppCompatActivity
                     mViewChart.setVisibility( View.VISIBLE );
                     mViewChart.set_points( mElement.create_chart_data(), 1f );
                     layoutTagProperties.setVisibility( View.VISIBLE );
-                    switch( mElement.get_chart_type() & ChartPoints.VALUE_TYPE_MASK ) {
-                        case ChartPoints.BOOLEAN:
+                    switch( mElement.get_chart_type() & ChartData.VALUE_TYPE_MASK ) {
+                        case ChartData.BOOLEAN:
                             spinnerTagType.setSelection( 0 );
                             mAtvTagUnit.setVisibility( View.GONE );
                             break;
-                        case ChartPoints.CUMULATIVE:
+                        case ChartData.CUMULATIVE:
                             spinnerTagType.setSelection( 1 );
                             mAtvTagUnit.setVisibility( View.VISIBLE );
                             mAtvTagUnit.setText( ( ( Tag ) mElement ).get_unit() );
@@ -386,8 +386,8 @@ public class ActivityChapterTag extends AppCompatActivity
                         break;
 
                     date.reset_order_0();
-                    Diary.diary.m_ptr2chapter_ctg_cur.set_chapter_date( ( Chapter ) mElement,
-                                                                        date.m_date );
+                    Diary.diary.m_p2chapter_ctg_cur.set_chapter_date( ( Chapter ) mElement,
+                                                                      date.m_date );
                     Diary.diary.update_entries_in_chapters();
                     setTitle( mElement.get_title_str() );
                     mActionBar.setSubtitle( mElement.get_info_str() );
@@ -408,7 +408,7 @@ public class ActivityChapterTag extends AppCompatActivity
                     return false;
                 else if( date.is_ordinal() )
                     return false;
-                return !Diary.diary.m_ptr2chapter_ctg_cur.getMap().containsKey( date.m_date );
+                return !Diary.diary.m_p2chapter_ctg_cur.getMap().containsKey( date.m_date );
             default:
                 return true;
         }
@@ -487,15 +487,15 @@ public class ActivityChapterTag extends AppCompatActivity
     public void onItemSelected( AdapterView<?> parent, View view, int pos, long id ) {
         switch( pos ) {
             case 0:
-                mElement.set_chart_type( ChartPoints.BOOLEAN );
+                mElement.set_chart_type( ChartData.BOOLEAN );
                 mAtvTagUnit.setVisibility( View.GONE );
                 break;
             case 1:
-                mElement.set_chart_type( ChartPoints.CUMULATIVE );
+                mElement.set_chart_type( ChartData.CUMULATIVE );
                 mAtvTagUnit.setVisibility( View.VISIBLE );
                 break;
             case 2:
-                mElement.set_chart_type( ChartPoints.AVERAGE );
+                mElement.set_chart_type( ChartData.AVERAGE );
                 mAtvTagUnit.setVisibility( View.VISIBLE );
                 break;
         }

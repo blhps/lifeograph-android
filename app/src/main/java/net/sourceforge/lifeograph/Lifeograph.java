@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -46,6 +46,8 @@ public class Lifeograph
 
     static final String LANG_INHERIT_DIARY = "d";
 
+    static final double MI_TO_KM_RATIO = 1.609344;
+
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
     private enum PurchaseStatus { PS_UNKNOWN, PURCHASED, NOT_PURCHASED }
     private static PurchaseStatus mAdFreePurchased = PurchaseStatus.PS_UNKNOWN;
@@ -72,11 +74,7 @@ public class Lifeograph
                     sContext.startActivity( i );
                     break;
                 }
-                case TAG:
-                case UNTAGGED:
-                case CHAPTER:
-                case TOPIC:
-                case GROUP: {
+                case CHAPTER: {
                     Intent i = new Intent( sContext, ActivityChapterTag.class );
                     i.putExtra( "elem", elem.get_id() );
                     i.putExtra( "type", elem.get_type().i );
@@ -108,15 +106,18 @@ public class Lifeograph
 
         editor.enableEditing();
     }
+
+    static boolean sOptImperialUnits = false;
+
     // ANDROID & JAVA HELPERS ======================================================================
     public static final String TAG = "LFO";
 
     static Context sContext = null;
     private static float sScreenWidth;
     private static float sScreenHeight;
-    static float sDPIX;
-    static float sDPIY;
-    static final float MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0f;
+    static float         sDPIX;
+    static float         sDPIY;
+    static final float   MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0f;
 
     public static String getStr( int i ) {
         if( sContext == null )
@@ -156,6 +157,25 @@ public class Lifeograph
     }
     static void showToast( int message ) {
         Toast.makeText( sContext, message, Toast.LENGTH_LONG ).show();
+    }
+
+    static class MutableBool
+    {
+        public MutableBool()             { v = false; }
+        public MutableBool( boolean v0 ) { v = v0; }
+        public boolean v;
+    }
+    static class MutableInt
+    {
+        public MutableInt()         { v = 0; }
+        public MutableInt( int v0 ) { v = v0; }
+        public int v;
+    }
+    static class MutableString
+    {
+        public MutableString()            { v = ""; }
+        public MutableString( String v0 ) { v = v0; }
+        public String v;
     }
 
     static String joinPath( String p1, String p2) {
@@ -215,4 +235,22 @@ public class Lifeograph
 //        return Environment.MEDIA_MOUNTED.equals( state );
 //    }
 
+    static boolean
+    get_line( String source, MutableInt o, MutableString line ) {
+        if( source.isEmpty() || o.v >= source.length() )
+            return false;
+
+        int o_end = source.indexOf( '\n', o.v );
+
+        if( o_end == -1 ) {
+            line.v = source.substring( o.v );
+            o.v = source.length();
+        }
+        else {
+            line.v = source.substring( o.v, o_end );
+            o.v = ( o_end + 1 );
+        }
+
+        return true;
+    }
 }

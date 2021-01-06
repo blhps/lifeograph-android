@@ -68,7 +68,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         mListener = listener;
     }
 
-    public void set_points( ChartPoints points, float zoom_level ) {
+    public void set_points( ChartData points, float zoom_level ) {
         m_points = points;
         m_zoom_level = zoom_level;
         m_span = points != null ? points.get_span() : 0;
@@ -91,7 +91,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
             m_ov_height = m_step_count < m_span ?
                     ( float ) Math.log10( m_height ) * OVERVIEW_COEFFICIENT : 0f;
 
-            int mltp = ( m_points.type & ChartPoints.PERIOD_MASK ) == ChartPoints.YEARLY ? 1 : 2;
+            int mltp = ( m_points.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY ? 1 : 2;
             m_y_max = m_height - mltp * BAR_HEIGHT - m_ov_height;
             m_y_mid = ( m_y_max + s_y_min ) / 2;
             m_amplitude = m_y_max - s_y_min;
@@ -187,9 +187,9 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         // YEAR & MONTH BAR
         mPaint.setColor( getResources().getColor( R.color.t_dark ) );
         mPaint.setStyle( Paint.Style.FILL );
-        int period = m_points.type & ChartPoints.PERIOD_MASK;
+        int period = m_points.type & ChartData.PERIOD_MASK;
         canvas.drawRect( 0f, m_y_max, m_width,
-                         m_y_max + ( period == ChartPoints.YEARLY ?
+                         m_y_max + ( period == ChartData.YEARLY ?
                                      BAR_HEIGHT : BAR_HEIGHT * 2 ),
                          mPaint );
 
@@ -245,7 +245,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         mPaint.setStyle( Paint.Style.FILL );
 
         mLabelDate.m_date = m_points.start_date;
-        if( period == ChartPoints.MONTHLY )
+        if( period == ChartData.MONTHLY )
             mLabelDate.forward_months( m_step_start );
         else
             mLabelDate.set_year( mLabelDate.get_year() + m_step_start );
@@ -259,7 +259,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
             if( cumulative_width >= COLUMN_WIDTH_MIN )
                 cumulative_width = 0; // reset for the next round
 
-            if( period == ChartPoints.MONTHLY ) {
+            if( period == ChartData.MONTHLY ) {
                 if( flag_print_label ) {
                     canvas.drawText( mLabelDate.format_string( "M" ),
                                      s_x_min + m_step_x * i + offset_label,
@@ -314,10 +314,10 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
     public void onLongPress( MotionEvent event ) {
         if( m_points != null && mListener != null ) {
-            if( ( m_points.type & ChartPoints.PERIOD_MASK ) == ChartPoints.YEARLY )
-                mListener.onTypeChanged( ChartPoints.MONTHLY );
+            if( ( m_points.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY )
+                mListener.onTypeChanged( ChartData.MONTHLY );
             else
-                mListener.onTypeChanged( ChartPoints.YEARLY );
+                mListener.onTypeChanged( ChartData.YEARLY );
         }
     }
 
@@ -343,7 +343,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     private Paint mPaint;
     private Path mPath;
 
-    private ChartPoints m_points = null;
+    private ChartData m_points = null;
     private Date mLabelDate = new Date(); // this is local in C++
 
     // GEOMETRICAL VARIABLES

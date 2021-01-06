@@ -24,9 +24,10 @@ package net.sourceforge.lifeograph;
 import android.graphics.Color;
 
 import java.util.Map;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
-public class Chapter extends DiaryElementChart {
+public class Chapter extends Entry {
     public static class Category extends DiaryElement {
 
         public Category( Diary diary, String name ) {
@@ -51,12 +52,6 @@ public class Chapter extends DiaryElementChart {
             return mMap.size();
         }
 
-        @Override
-        public int get_icon() {
-            return R.mipmap.ic_diary;
-        }
-
-        @Override
         public String get_info_str() {
             return( mMap.size() + " entries" );
         }
@@ -65,14 +60,19 @@ public class Chapter extends DiaryElementChart {
             return mMap.isEmpty();
         }
 
-        public Chapter create_chapter( String name, long date ) {
-            Chapter chapter = new Chapter( m_ptr2diary, name, date );
-            add( chapter );
-            return chapter;
-        }
+        Chapter
+        create_chapter( long date, boolean F_favorite, boolean F_trashed, boolean F_expanded ) {
+            int status = ( ES_NOT_TODO |
+                           ( F_favorite ? ES_FAVORED : ES_NOT_FAVORED ) |
+                           ( F_trashed ? ES_TRASHED : ES_NOT_TRASHED ) );
+            if( F_expanded )
+                status |= ES_EXPANDED;
 
-        public Chapter create_chapter_ordinal( String name ) {
-            return create_chapter( name, get_free_order_ordinal() );
+            Chapter chapter = new Chapter( m_p2diary, Date.get_pure( date ), status );
+
+            add( chapter );
+
+            return chapter;
         }
 
         public boolean set_chapter_date( Chapter chapter, long date ) {
@@ -144,7 +144,7 @@ public class Chapter extends DiaryElementChart {
             return null;
         }
 
-        public java.util.TreeMap< Long, Chapter > getMap() {    // Java only
+        public TreeMap< Long, Chapter > getMap() {    // Java only
             return mMap;
         }
 
@@ -179,10 +179,8 @@ public class Chapter extends DiaryElementChart {
         final long m_date_min;
     }
 
-    public Chapter( Diary diary, String name, long date ) {
-        super( diary, name, ES_CHAPTER_DEFAULT );
-        m_date_begin = new Date( date );
-        update_type();
+    Chapter( Diary d, long date, int status ) {
+        super( d, date, status );
     }
 
     @Override
@@ -239,10 +237,6 @@ public class Chapter extends DiaryElementChart {
     @Override
     public String getListStrSecondary() {
         return( get_type_name() + " with " + get_size() + " entries" );
-    }
-
-    public boolean is_ordinal() {
-        return m_date_begin.is_ordinal();
     }
 
     public void update_type() {
@@ -308,27 +302,11 @@ public class Chapter extends DiaryElementChart {
         m_color = color;
     }
 
-    @Override
-    ChartPoints create_chart_data() {
-        if( mEntries.isEmpty() )
-            return null;
-
-        ChartPoints cp = new ChartPoints( m_chart_type );
-        Date d_last = new Date( Date.NOT_SET );
-
-        for( Entry entry : mEntries.descendingSet() )
-            cp.add_plain( d_last, entry.get_date() );
-
-        //Diary.diary.fill_up_chart_points( cp );
-
-        return cp;
-    }
-
     // DATA
     Date m_date_begin;
-    int m_time_span = 0;
+    int  m_time_span = 0;
     Type m_type;
-    java.util.TreeSet< Entry > mEntries =
-            new TreeSet< Entry >( DiaryElement.compare_elems_by_date );
-    int m_color = Color.WHITE;
+    java.util.TreeSet< Entry >
+         mEntries = new TreeSet< Entry >( DiaryElement.compare_elems_by_date );
+    int  m_color = Color.WHITE;
 }

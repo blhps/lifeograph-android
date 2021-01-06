@@ -25,11 +25,10 @@ import java.util.Comparator;
 
 public abstract class DiaryElement {
     // DEID
-    final static int DEID_DIARY = 10000; // reserved for Diary
-    final static int DEID_FIRST = 10001; // first sub item in the diary
-    final static int DEID_UNSET = 404; // :)
-    final static int HOME_CURRENT_ELEM = 1; // element shown at startup
-    final static int HOME_LAST_ELEM = 2; // element shown at startup
+    final static int DEID_MIN           = 10000; // ids have to be greater than this
+    final static int DEID_UNSET         = 404;   // :)
+    final static int HOME_CURRENT_ENTRY = 1;     // entry shown at startup
+    final static int HOME_LAST_ENTRY    = 2;     // entry shown at startup
     // NOTE: when HOME is fixed element, elements ID is used
 
     final static CharSequence STR_SEPARATOR = " - ";
@@ -42,19 +41,16 @@ public abstract class DiaryElement {
     public enum Type {
         // CAUTION: order is significant and shouldn't be changed!
         NONE( 0, LayoutType.ELEMENT, "" ),
-        TAG( 1, LayoutType.ELEMENT, Lifeograph.getStr( R.string.tag ) ),
-        UNTAGGED( 2, LayoutType.ELEMENT, Lifeograph.getStr( R.string.untagged ) ),
-        TAG_CTG( 3, LayoutType.HEADER_TAG_CTG, Lifeograph.getStr( R.string.tag_ctg ) ),
-        CHAPTER_CTG( 4, LayoutType.HEADER_CHAPTER_CTG, Lifeograph.getStr( R.string.chapter_ctg ) ),
-        FILTER( 5, LayoutType.ELEMENT, Lifeograph.getStr( R.string.filter ) ),
+        CHAPTER_CTG( 1, LayoutType.HEADER_CHAPTER_CTG, Lifeograph.getStr( R.string.chapter_ctg ) ),
+        THEME( 2, LayoutType.ELEMENT, Lifeograph.getStr( R.string.theme ) ),
+        FILTER( 3, LayoutType.ELEMENT, Lifeograph.getStr( R.string.filter ) ),
+        CHART( 4, LayoutType.ELEMENT, Lifeograph.getStr( R.string.chart ) ),
+        TABLE( 5, LayoutType.ELEMENT, Lifeograph.getStr( R.string.table ) ),
         // entry list elements:
         DIARY( 6, LayoutType.ELEMENT, Lifeograph.getStr( R.string.diary ) ),
-        CHAPTER( 7, LayoutType.ELEMENT, Lifeograph.getStr( R.string.chapter ) ),
-        TOPIC( 8, LayoutType.ELEMENT, Lifeograph.getStr( R.string.topic ) ),
-        GROUP( 9, LayoutType.ELEMENT, Lifeograph.getStr( R.string.group ) ),
-        ENTRY( 10, LayoutType.ELEMENT, Lifeograph.getStr( R.string.entry ) ),
-        DATE( 11, LayoutType.ELEMENT, "" ),
-        HEADER( 12, LayoutType.HEADER_SIMPLE, "" );
+        ENTRY( 8, LayoutType.ELEMENT, Lifeograph.getStr( R.string.entry ) ),
+        CHAPTER( 9, LayoutType.ELEMENT, Lifeograph.getStr( R.string.chapter ) ),
+        DATE( 11, LayoutType.ELEMENT, "" );
 
         public final String str;
         public final LayoutType layout_type;
@@ -110,20 +106,40 @@ public abstract class DiaryElement {
     final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
 
     public DiaryElement( Diary diary, String name, int status ) {
-        m_ptr2diary = diary;
+        m_p2diary = diary;
         m_status = status;
         m_name = name;
         m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
     }
 
     public DiaryElement( Diary diary, int id, int status ) {
-        m_ptr2diary = diary;
+        m_p2diary = diary;
         m_status = status;
         m_id = id;
     }
 
-    public int get_id() {
+    int
+    get_id() {
         return m_id;
+    }
+    protected void
+    set_id( int id ) {
+        m_id = id;
+    }
+
+    boolean
+    is_equal_to( DiaryElement other ) {
+        return( other.m_id == this.m_id );
+    }
+
+    boolean
+    get_filtered_out() { return( ( m_status & ES_FILTERED_OUT ) != 0 ); }
+    void
+    set_filtered_out( boolean filteredout ) {
+        if( filteredout )
+            m_status |= ES_FILTERED_OUT;
+        else if( ( m_status & ES_FILTERED_OUT ) != 0 )
+            m_status -= ES_FILTERED_OUT;
     }
 
     abstract public Type get_type();
@@ -134,7 +150,15 @@ public abstract class DiaryElement {
 
     abstract public int get_size();
 
-    abstract public int get_icon();
+    public int get_icon() {
+        try {
+            throw new Exception( "This function should never called" );
+        }
+        catch( Exception e ) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 
     public Date get_date() {
         return new Date( Date.NOT_APPLICABLE );
@@ -144,20 +168,21 @@ public abstract class DiaryElement {
     }
 
     // STRING METHODS
-    public String get_name() {
+    String
+    get_name() {
         return m_name;
+    }
+
+    void
+    set_name( String name ) {
+        m_name = name;
     }
 
     public String get_title_str() {
         return get_name();
     }
-    abstract public String get_info_str();
-
     public String get_list_str() {
         return get_title_str();
-    }
-    public String getListStrSecondary() {
-        return get_info_str();
     }
 
     public int get_status() {
@@ -181,18 +206,25 @@ public abstract class DiaryElement {
         final int s = ( m_status & ES_FILTER_TODO_PURE );
         return( s != 0 ? s : ES_NOT_TODO );
     }
-    public void set_todo_status( int s ) {
+    void
+    set_todo_status( int s ) {
         m_status -= ( m_status & ES_FILTER_TODO );
         m_status |= s;
     }
 
-    public boolean is_favored()
-    { return false; }
+    boolean
+    get_expanded(){
+        return( ( m_status & ES_EXPANDED ) != 0 );
+    }
+    void
+    set_expanded( boolean flag_expanded ) {
+        set_status_flag( ES_EXPANDED, flag_expanded );
+    }
 
-    String m_name;
-    Diary m_ptr2diary;
-    int m_id = 0;
-    int m_status;
+    String  m_name;
+    Diary   m_p2diary;
+    int     m_id;
+    int     m_status;
 
     static class CompareElemsByName implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {

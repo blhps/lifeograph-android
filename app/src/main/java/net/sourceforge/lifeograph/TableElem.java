@@ -21,39 +21,16 @@
 
 package net.sourceforge.lifeograph;
 
-public class Filter extends StringDefElem
+public class TableElem extends StringDefElem
 {
-    Filter( Diary d, String name, String definition ) {
-        super( d, name, definition );
+    public static final String DEFINITION_DEFAULT = "T";
+
+    TableElem( Diary diary, String name, String definition ) {
+        super( diary, name, definition );
     }
 
-    @Override
-    public Type get_type() {
-        return Type.FILTER;
+    @Override public
+    Type get_type(){
+        return Type.CHART;
     }
-
-    @Override
-    public int get_size() {
-        return 0;
-    }
-
-    @Override
-    public int get_icon() {
-        return 0;
-    }
-
-
-    FiltererContainer
-    get_filterer_stack() {
-        if( m_definition.isEmpty() )
-            return null;
-
-        FiltererContainer fc = new FiltererContainer( m_p2diary, null );
-
-        fc.set_from_string( m_definition );
-
-        return fc;
-    }
-
-    public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
 }

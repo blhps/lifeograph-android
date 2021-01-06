@@ -88,7 +88,7 @@ class DialogCalendar extends Dialog
 
         mButtonCreateChapter.setOnClickListener( v -> createChapter() );
         mButtonCreateChapter.setEnabled(
-                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
+                !Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
         mButtonCreateChapter.setVisibility( mAllowChapterCreation ? View.VISIBLE : View.INVISIBLE );
 
         getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
@@ -108,7 +108,7 @@ class DialogCalendar extends Dialog
     private void handleDayChanged() {
         mAdapter.showMonth( mDate );
         mButtonCreateChapter.setEnabled(
-                !Diary.diary.m_ptr2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
+                !Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
     }
 
     private void handleDayClicked( int pos ) {

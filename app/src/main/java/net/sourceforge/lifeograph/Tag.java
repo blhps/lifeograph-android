@@ -219,14 +219,14 @@ public class Tag extends DiaryElementChart {
         for( double value : mEntries.values() )
             grand += value;
 
-        return( ( m_chart_type & ChartPoints.AVERAGE ) != 0 ? grand/mEntries.size() : grand );
+        return( ( m_chart_type & ChartData.AVERAGE ) != 0 ? grand / mEntries.size() : grand );
     }
     String get_combined_value_str() {
         return( get_combined_value() + " " + m_unit );
     }
 
     boolean is_boolean() {
-        return ( ( m_chart_type & ChartPoints.VALUE_TYPE_MASK ) == ChartPoints.BOOLEAN );
+        return ( ( m_chart_type & ChartData.VALUE_TYPE_MASK ) == ChartData.BOOLEAN );
     }
 
     String get_unit() {
@@ -238,11 +238,11 @@ public class Tag extends DiaryElementChart {
     }
 
     @Override
-    ChartPoints create_chart_data() {
+    ChartData create_chart_data() {
         if( mEntries.isEmpty() )
             return null;
 
-        ChartPoints cp = new ChartPoints( m_chart_type );
+        ChartData cp = new ChartData( m_chart_type );
         if( ! is_boolean() )
             cp.unit = m_unit;
 
@@ -271,8 +271,8 @@ public class Tag extends DiaryElementChart {
             if( cp.calculate_distance( d, d_last ) > 0 )
             // add_value() = due to lack of lambdas:
             {
-                boolean flag_sustain = ( m_chart_type & ChartPoints.VALUE_TYPE_MASK ) ==
-                                       ChartPoints.AVERAGE;
+                boolean flag_sustain = ( m_chart_type & ChartData.VALUE_TYPE_MASK ) ==
+                                       ChartData.AVERAGE;
                 if( flag_sustain && no_of_entries > 1 )
                     v_last /= no_of_entries;
 
@@ -296,8 +296,8 @@ public class Tag extends DiaryElementChart {
 
         //add_value() = due to lack of lambdas:
         {
-            boolean flag_sustain = ( m_chart_type & ChartPoints.VALUE_TYPE_MASK ) ==
-                                   ChartPoints.AVERAGE;
+            boolean flag_sustain = ( m_chart_type & ChartData.VALUE_TYPE_MASK ) ==
+                                   ChartData.AVERAGE;
             if( flag_sustain && no_of_entries > 1 )
                 v_last /= no_of_entries;
 

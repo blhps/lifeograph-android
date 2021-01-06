@@ -96,10 +96,14 @@ public class ActivityLogin extends AppCompatActivity
                 Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ), "N/A" );
         sDiaryPath = prefs.getString(
                 Lifeograph.getStr( R.string.pref_DIARY_PATH_key ), "N/A" );
+
         Date.s_format_order = prefs.getString(
                 Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ), "N/A" );
         Date.s_format_separator = prefs.getString(
                 Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ), "." ).charAt( 0 );
+
+        Lifeograph.sOptImperialUnits = prefs.getString(
+                Lifeograph.getStr( R.string.pref_UNIT_TYPE_key ), "M" ).equals( "I" );
 
         setContentView( R.layout.login );
 
