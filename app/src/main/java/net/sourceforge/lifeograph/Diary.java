@@ -87,6 +87,8 @@ public class Diary extends DiaryElementChart
 
     Result init_new( String path ) {
         clear();
+
+        m_read_version = DB_FILE_VERSION_INT;
         Result result = set_path( path, SetPathType.NEW );
 
         if( result != Result.SUCCESS ) {
@@ -125,7 +127,7 @@ public class Diary extends DiaryElementChart
 
         m_login_status = LoginStatus.LOGGED_IN_RO;
 
-        return Result.SUCCESS;
+        return write();
     }
 
     public void clear() {
@@ -1916,8 +1918,6 @@ public class Diary extends DiaryElementChart
 
     // DISK I/O ====================================================================================
     public Result set_path( String path, SetPathType type ) {
-        clear();
-
         // ANDROID ONLY:
         if( path.equals( sExampleDiaryPath ) ) {
             m_path = path;
