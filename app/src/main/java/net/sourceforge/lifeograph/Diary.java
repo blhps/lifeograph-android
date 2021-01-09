@@ -2998,7 +2998,7 @@ public class Diary extends DiaryElement
     private LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
 
     // searching
-    protected String  m_search_text;
+    protected String  m_search_text = "";
     List< Match >     m_matches = new ArrayList<>();
 
     // i/o
