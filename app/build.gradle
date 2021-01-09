@@ -40,7 +40,8 @@ android {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt')
             zipAlignEnabled true
-        }
+
+            }
         debug {
             jniDebuggable true
         }
@@ -59,10 +60,12 @@ android {
     return void // just to avoid warning
 }
 
+android.buildTypes.release.ndk.debugSymbolLevel = 'SYMBOL_TABLE'
+
 dependencies {
     implementation 'androidx.legacy:legacy-support-v4:1.0.0'
-    implementation 'androidx.browser:browser:1.2.0'
-    implementation 'com.google.android.gms:play-services-ads:19.5.0'
+    implementation 'androidx.browser:browser:1.3.0'
+    implementation 'com.google.android.gms:play-services-ads:19.6.0'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.preference:preference:1.1.1'

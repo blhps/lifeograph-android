@@ -2288,7 +2288,7 @@ public class Diary extends DiaryElementChart
     private LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
 
     // filtering
-    private String m_search_text;
+    private String m_search_text = "";
     Filter m_filter_active = new Filter( null, "Active Filter" );
     Filter m_filter_default = new Filter( null, "Default Filter" );
 
