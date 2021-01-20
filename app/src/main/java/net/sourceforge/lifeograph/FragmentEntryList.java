@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -21,15 +21,18 @@
 
 package net.sourceforge.lifeograph;
 
-
-import android.app.Activity;
-
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.ListFragment;
+
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
@@ -38,16 +41,26 @@ import android.widget.ImageView;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import net.sourceforge.lifeograph.helpers.Result;
+
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
+import java.util.Objects;
 
-public class FragmentElemList extends ListFragment
+public class FragmentEntryList extends ListFragment
 {
     @Override
-    public View onCreateView( @NonNull LayoutInflater inflater,
-                              ViewGroup container,
-                              Bundle savedInstanceState ) {
+    public void onCreate( Bundle savedInstanceState ) {
+        super.onCreate( savedInstanceState );
+        setHasOptionsMenu( true );
+    }
+
+    @Override
+    public View
+    onCreateView( @NonNull LayoutInflater inflater,
+                  ViewGroup container,
+                  Bundle savedInstanceState ) {
         Log.d( Lifeograph.TAG, "FragmentElemList.onCreateView()" );
 
         if( getArguments() != null )
@@ -64,34 +77,113 @@ public class FragmentElemList extends ListFragment
     }
 
     @Override
-    public void onResume() {
+    public void
+    onResume() {
         Log.d( Lifeograph.TAG, "FragmentElemList.onResume()" );
         super.onResume();
 
+        ActionBar actionbar = ( ( AppCompatActivity ) requireActivity() ).getSupportActionBar();
+        if( actionbar != null ) {
+            actionbar.setTitle( Diary.diary.get_title_str() );
+            actionbar.setSubtitle( Diary.diary.get_info_str() );
+        }
+
         updateList();
     }
-
+    
     @Override
-    public void onAttach( @NonNull Context context ) {
-        super.onAttach( context );
+    public void
+    onCreateOptionsMenu( @NonNull Menu menu, MenuInflater inflater ) {
+        inflater.inflate( R.menu.menu_diary, menu );
 
-        Log.d( Lifeograph.TAG, "FragmentElemList.onAttach() - " + context.toString() );
+        super.onCreateOptionsMenu( menu, inflater );
 
-        if( context instanceof DiaryManager && context instanceof Activity )
-            mDiaryManager = ( DiaryManager ) context;
-        else
-            throw new ClassCastException( context.toString() + " must be a DiaryManager" );
+//        MenuItem item = menu.findItem( R.id.add_elem );
+//        AddElemAction addElemAction = ( AddElemAction ) MenuItemCompat.getActionProvider( item );
+//        addElemAction.mParent = this;
 
-        mDiaryManager.addFragment( this );
+        mMenu = menu;
     }
 
     @Override
-    public void onDetach() {
-        super.onDetach();
+    public void
+    onPrepareOptionsMenu( @NonNull Menu menu ) {
+        super.onPrepareOptionsMenu( menu );
 
-        Log.d( Lifeograph.TAG, "FragmentElemList.onDetach() - " + this.toString() );
+        updateMenuVisibilities();
+    }
 
-        mDiaryManager.removeFragment( this );
+    @Override
+    public boolean
+    onOptionsItemSelected( MenuItem item ) {
+        int id = item.getItemId();
+
+        if( id == R.id.enable_edit ) {
+            //Lifeograph.enableEditing( this );
+            return true;
+        }
+        else
+        if( id == R.id.home ) {
+            //finish();
+            return true;
+        }
+        else
+        if( id == R.id.add_password ) {
+//            new DialogPassword( getContext(),
+//                                Diary.diary,
+//                                DialogPassword.DPAction.DPA_ADD,
+//                                this ).show();
+            return true;
+        }
+        else
+        if( id == R.id.change_password ) {
+//            new DialogPassword( getContext(),
+//                                Diary.diary,
+//                                DialogPassword.DPAction.DPA_AUTHENTICATE,
+//                                this ).show();
+            return true;
+        }
+        else
+        if( id == R.id.export_plain_text ) {
+            if( Diary.diary.write_txt() == Result.SUCCESS )
+                Lifeograph.showToast( R.string.text_export_success );
+            else
+                Lifeograph.showToast( R.string.text_export_fail );
+            return true;
+        }
+        else
+        if( id == R.id.logout_wo_save ) {
+            Lifeograph.showConfirmationPrompt( getContext(),
+                                               R.string.logoutwosaving_confirm,
+                                               R.string.logoutwosaving,
+                                               ( dialog, id_ ) -> {
+                                                   // unlike desktop version Android version
+                                                   // does not back up changes
+                                                   Diary.diary.setSavingEnabled( false );
+                                                   //TODO finish();
+                                               } );
+            return true;
+        }
+
+        return super.onOptionsItemSelected( item );
+    }
+
+    private void
+    updateMenuVisibilities() {
+        boolean flagWritable = Diary.diary.is_in_edit_mode();
+        boolean flagEncrypted = Diary.diary.is_encrypted();
+
+        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable &&
+                                                       Diary.diary.can_enter_edit_mode() );
+
+        mMenu.findItem( R.id.add_elem ).setVisible( flagWritable );
+
+        mMenu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
+
+        mMenu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
+        mMenu.findItem( R.id.change_password ).setVisible( flagWritable && flagEncrypted );
+
+        mMenu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
     }
 
     @Override
@@ -99,11 +191,7 @@ public class FragmentElemList extends ListFragment
         super.onListItemClick( l, v, pos, id );
         switch( mElems.get( pos ).get_type() ) {
             case ENTRY:
-            case TAG:
-            case UNTAGGED:
             case CHAPTER:
-            case TOPIC:
-            case GROUP:
                 Lifeograph.showElem( mElems.get( pos ) );
                 break;
         }
@@ -113,8 +201,8 @@ public class FragmentElemList extends ListFragment
         mAdapterEntries.clear();
         mElems.clear();
 
-        switch( mDiaryManager.getElement().get_type() ) {
-            case DIARY:
+//        switch( mDiaryManager.getElement().get_type() ) {
+//            case DIARY:
                 // ALL ENTRIES
                 if( mCurTabIndex == 0 ) {
                     Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES" );
@@ -129,100 +217,42 @@ public class FragmentElemList extends ListFragment
                 // CHAPTERS
                 else if( mCurTabIndex == 1 ) {
                     Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::CHAPTERS" );
-                    // FREE CHAPTERS
-                    if( !Diary.diary.m_groups.mMap.isEmpty() ) {
-                        mElems.add( new HeaderElem( R.string.free_chapters ) );
-                        mElems.addAll( Diary.diary.m_groups.mMap.descendingMap().values() );
-                    }
-                    // NUMBERED CHAPTERS
-                    if( !Diary.diary.m_topics.mMap.isEmpty() ) {
-                        mElems.add( new HeaderElem( R.string.numbered_chapters ) );
-                        mElems.addAll( Diary.diary.m_topics.mMap.descendingMap().values() );
-                    }
-                    // DATED CHAPTERS
-                    if( Diary.diary.m_chapter_categories.size() == 1 &&
-                        !Diary.diary.m_p2chapter_ctg_cur.mMap.isEmpty() )
-                        mElems.add( new HeaderElem( R.string.dated_chapters ) );
-
-                    for( Chapter.Category cc : Diary.diary.m_chapter_categories.values() ) {
-                        if( Diary.diary.m_chapter_categories.size() > 1 )
-                            mElems.add( cc );
-
-                        if( cc == Diary.diary.m_p2chapter_ctg_cur ) {
-                            mElems.addAll( cc.mMap.values() );
-                        }
-                    }
-                    // ORPHANED ENTRIES VIRTUAL CHAPTER
-                    if( Diary.diary.m_orphans.get_size() > 0 ) {
-                        if( !mElems.isEmpty() ) // separator is not needed if this is the only one
-                            mElems.add( new HeaderElem( R.string._empty_ ) );
-                        mElems.add( Diary.diary.m_orphans );
-                    }
                 }
 
                 // TAGS
                 else if( mCurTabIndex == 2 ) {
                     Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::TAGS" );
-                    // ROOT TAGS
-                    for( Tag t : Diary.diary.m_tags.values() ) {
-                        if( t.get_category() == null )
-                            mElems.add( t );
-                    }
-                    // CATEGORIES
-                    for( Tag.Category c : Diary.diary.m_tag_categories.values() ) {
-                        mElems.add( c );
-                        if( c.get_expanded() ) {
-                            mElems.addAll( c.mTags );
-                        }
-                    }
-                    // UNTAGGED META TAG
-                    if( Diary.diary.m_untagged.get_size() > 0 ) {
-                        if( !mElems.isEmpty() ) // separator is not needed if this is the only one
-                            mElems.add( new HeaderElem( R.string._empty_ ) );
-                        mElems.add( Diary.diary.m_untagged );
-                    }
                 }
-                break;
-            case TAG:
-            case UNTAGGED: {
-                Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::TAG ENTRIES" );
-                Tag t = ( Tag ) mDiaryManager.getElement();
-                for( Entry e : t.mEntries.keySet() ) {
-                    if( !e.get_filtered_out() )
-                        mElems.add( e );
-                }
-
-                Collections.sort( mElems, compareElems );
-                break;
-            }
-            case CHAPTER:
-            case TOPIC:
-            case GROUP: {
-                Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::CHAPTER ENTRIES" );
-                Chapter c = ( Chapter ) mDiaryManager.getElement();
-                for( Entry e : c.mEntries ) {
-                    if( !e.get_filtered_out() )
-                        mElems.add( e );
-                }
-
-                Collections.sort( mElems, compareElems );
-                break;
-            }
-        }
-    }
-
-    public interface DiaryManager
-    {
-        void addFragment( FragmentElemList fragment );
-        void removeFragment( FragmentElemList fragment );
-
-        DiaryElement getElement();
+//                break;
+//            case CHAPTER:
+//            {
+//                Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::CHAPTER ENTRIES" );
+//                Chapter c = ( Chapter ) mDiaryManager.getElement();
+//                for( Entry e : c.mEntries ) {
+//                    if( !e.get_filtered_out() )
+//                        mElems.add( e );
+//                }
+//
+//                Collections.sort( mElems, compareElems );
+//                break;
+//            }
+//        }
     }
 
     private java.util.List< DiaryElement > mElems = new ArrayList<>();
     private DiaryElemAdapter mAdapterEntries = null;
     DiaryManager mDiaryManager;
-    private int mCurTabIndex = 0;
+    private int  mCurTabIndex = 0;
+    private Menu mMenu = null;
+
+    // INTERFACE
+    public interface DiaryManager
+    {
+//        void addFragment( FragmentElemList fragment );
+//        void removeFragment( FragmentElemList fragment );
+
+        DiaryElement getElement();
+    }
 
     // ELEMENT LIST INTERFACE ======================================================================
     public interface ListOperations
@@ -259,32 +289,31 @@ public class FragmentElemList extends ListFragment
     static final CompareListElems compareElems = new CompareListElems();
 
     // HEADER PSEUDO ELEMENT CLASS =================================================================
-    static class HeaderElem extends DiaryElement
-    {
-        public HeaderElem( int nameRsc ) {
-            super( null, Lifeograph.getStr( nameRsc ), ES_VOID );
-        }
-
-        @Override
-        public String get_info_str() {
-            return "";
-        }
-
-        @Override
-        public int get_icon() {
-            return R.mipmap.ic_diary;
-        }
-
-        @Override
-        public Type get_type() {
-            return Type.HEADER;
-        }
-
-        @Override
-        public int get_size() {
-            return 0;
-        }
-    }
+//    static class HeaderElem extends DiaryElement
+//    {
+//        public HeaderElem( int nameRsc ) {
+//            super( null, Lifeograph.getStr( nameRsc ), ES_VOID );
+//        }
+//
+//        public String get_info_str() {
+//            return "";
+//        }
+//
+//        @Override
+//        public int get_icon() {
+//            return R.mipmap.ic_diary;
+//        }
+//
+//        @Override
+//        public Type get_type() {
+//            return Type.HEADER;
+//        }
+//
+//        @Override
+//        public int get_size() {
+//            return 0;
+//        }
+//    }
 
     // DIARY ELEMENT ADAPTER CLASS =================================================================
     class DiaryElemAdapter extends ArrayAdapter< DiaryElement >
@@ -303,18 +332,18 @@ public class FragmentElemList extends ListFragment
             ViewHolder holder;
 
             switch( elem.get_type() ) {
-                case TAG_CTG:
-                    view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
-                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_TAG_CTG );
-                    break;
+//                case TAG_CTG:
+//                    view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
+//                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_TAG_CTG );
+//                    break;
                 case CHAPTER_CTG:
                     view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
                     holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_CHAPTER_CTG );
                     break;
-                case HEADER:
-                    view = mInflater.inflate( R.layout.list_section_simple, par, false );
-                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_SIMPLE );
-                    break;
+//                case HEADER:
+//                    view = mInflater.inflate( R.layout.list_section_simple, par, false );
+//                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_SIMPLE );
+//                    break;
                 default:
                     view = mInflater.inflate( R.layout.list_item_element, par, false );
                     holder = new ViewHolder( view, DiaryElement.LayoutType.ELEMENT );
@@ -327,16 +356,8 @@ public class FragmentElemList extends ListFragment
 
         public void handleCollapse( DiaryElement elem ) {
             Log.d( Lifeograph.TAG, "handle collapse " + elem.get_name() );
-            switch( elem.get_type().layout_type ) {
-                case HEADER_TAG_CTG:
-                    Tag.Category tc = ( Tag.Category ) elem;
-                    tc.set_expanded( !tc.get_expanded() );
-                    break;
-                case HEADER_CHAPTER_CTG:
-                    Chapter.Category cc = ( Chapter.Category ) elem;
-                    Diary.diary.set_chapter_ctg_cur( cc );
-                    break;
-            }
+            Chapter.Category cc = ( Chapter.Category ) elem;
+            Diary.diary.set_chapter_ctg_cur( cc );
 
             updateList();
         }
@@ -368,18 +389,6 @@ public class FragmentElemList extends ListFragment
             switch( holder.getLayoutType() ) {
 //                case HEADER_SIMPLE:
 //                    break;
-                case HEADER_TAG_CTG: {
-                    Tag.Category tc = ( Tag.Category ) elem;
-                    ImageButton iconCollapse = holder.getIconCollapse();
-                    iconCollapse.setImageResource(
-                            tc.get_expanded() ? R.drawable.ic_expanded : R.drawable.ic_collapsed );
-                    iconCollapse.setOnClickListener( v -> handleCollapse( elem ) );
-                    if( Diary.diary.is_in_edit_mode() )
-                        holder.getIconOptions().setTag( tc );
-                    else
-                        holder.getIconOptions().setVisibility( View.INVISIBLE );
-                    break;
-                }
                 case HEADER_CHAPTER_CTG: {
                     Chapter.Category cc = ( Chapter.Category ) elem;
                     ImageButton iconCollapse = holder.getIconCollapse();
@@ -394,14 +403,14 @@ public class FragmentElemList extends ListFragment
                 }
                 case ELEMENT: {
                     TextView detail = holder.getDetail();
-                    detail.setText( elem.getListStrSecondary() );
+                    // detail.setText( elem.getListStrSecondary() );
 
                     ImageView icon = holder.getIcon();
                     icon.setImageResource( elem.get_icon() );
 
                     ImageView icon2 = holder.getIcon2();
                     icon2.setImageResource( R.mipmap.ic_favorite );
-                    icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
+                    //icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
                     break;
                 }
                 default:

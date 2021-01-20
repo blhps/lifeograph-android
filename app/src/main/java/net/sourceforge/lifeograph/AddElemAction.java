@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -48,19 +48,6 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
         menu.add( 0, R.id.add_today, 0, R.string.add_today )
             .setIcon( R.mipmap.ic_entry )
             .setOnMenuItemClickListener( this );
-
-        menu.add( 0, R.id.add_topic, 1, R.string.topic )
-            .setIcon( R.mipmap.ic_chapter_o )
-            .setOnMenuItemClickListener( this );
-
-        menu.add( 0, R.id.add_group, 1, R.string.group )
-            .setIcon( R.mipmap.ic_chapter_f )
-            .setOnMenuItemClickListener( this );
-
-        if( mParent.mPager.getCurrentItem() == 2 )
-            menu.add( 0, R.id.add_tag_ctg, 1, R.string.tag_ctg )
-                .setIcon( R.mipmap.ic_tag_ctg )
-                .setOnMenuItemClickListener( this );
     }
 
     //@Override
@@ -71,15 +58,6 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
             case R.id.add_today:
                 mParent.goToToday();
                 return true;
-            case R.id.add_topic:
-                mParent.createTopic();
-                return true;
-            case R.id.add_group:
-                mParent.createGroup();
-                return true;
-            case R.id.add_tag_ctg:
-                mParent.createTagCtg();
-                return true;
         }
         return true;
     }
@@ -89,5 +67,5 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
         return null;
     }
 
-    ActivityDiary mParent;
+    FragmentEditDiary mParent;
 }

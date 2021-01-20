@@ -33,21 +33,21 @@
           android:orderInCategory="90"
           compat:actionProviderClass="net.sourceforge.lifeograph.AddElemAction"
           compat:showAsAction="always|withText" />
-    <item android:id="@+id/calendar"
+    <!--item android:id="@+id/calendar"
           android:title="@string/calendar"
           android:icon="@drawable/ic_action_calendar"
           android:orderInCategory="90"
-          compat:showAsAction="ifRoom" />
+          compat:showAsAction="ifRoom" /-->
     <!-- TODO WILL BE IMPLEMENTED IN 0.5+
     item android:id="@+id/change_sort_type"
           android:title="@string/change_sorting"
           android:orderInCategory="90"
           android:showAsAction="ifRoom" /-->
-    <item android:id="@+id/filter"
+    <!--item android:id="@+id/filter"
           android:title="@string/search_and_filter"
           android:icon="@drawable/ic_action_search"
           android:orderInCategory="100"
-          compat:showAsAction="ifRoom" />
+          compat:showAsAction="ifRoom" /-->
     <!-- TODO WILL BE IMPLEMENTED IN 0.6
     item android:id="@+id/import_sms"
           android:title="@string/import_sms"

@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -29,35 +29,45 @@ import java.util.TreeSet;
 
 public class Chapter extends Entry {
     public static class Category extends DiaryElement {
-
-        public Category( Diary diary, String name ) {
+        Category( Diary diary, String name ) {
             super( diary, name, ES_VOID );
-            mMap = new java.util.TreeMap<>( DiaryElement.compare_dates );
-            m_date_min = 0;
-        }
-        // for topics and groups which do not have names:
-        public Category( Diary diary, long date_min ) {
-            super( diary, DEID_UNSET, ES_VOID );
-            mMap = new java.util.TreeMap<>( DiaryElement.compare_dates );
-            m_date_min = date_min;
         }
 
         @Override
-        public Type get_type() {
+        public Type
+        get_type() {
             return Type.CHAPTER_CTG;
         }
 
         @Override
-        public int get_size() {
+        public int
+        get_size() {
             return mMap.size();
         }
 
-        public String get_info_str() {
+        String
+        get_info_str() {
             return( mMap.size() + " entries" );
         }
 
-        public boolean empty() {
+        boolean
+        isEmpty() {
             return mMap.isEmpty();
+        }
+
+        Chapter
+        get_chapter_at( long date ) {
+            return mMap.get( date );
+        }
+
+        Chapter
+        get_chapter_around( long date ) {
+            for( Chapter chapter : mMap.values() ) {
+                if( chapter.m_date.m_date <= date )
+                    return chapter;
+            }
+
+            return null;
         }
 
         Chapter
@@ -75,13 +85,16 @@ public class Chapter extends Entry {
             return chapter;
         }
 
-        public boolean set_chapter_date( Chapter chapter, long date ) {
+        boolean
+        set_chapter_date( Chapter chapter, long date ) {
             if( BuildConfig.DEBUG ) {
                 if( chapter.is_ordinal() ) { throw new AssertionError(); }
-                if( mMap.containsKey( date ) ) { throw new AssertionError(); }
             }
 
-            if( chapter.m_date_begin.m_date != Date.NOT_SET ) {
+            if( mMap.containsKey( date ) )
+                return false;
+
+            if( chapter.m_date.m_date != Date.NOT_SET ) {
                 // fix time span
                 boolean flagChapterFound = false;
                 for( Chapter c : mMap.values() ) {
@@ -93,13 +106,14 @@ public class Chapter extends Entry {
                         break;
                     }
 
-                    if( c.m_date_begin.m_date == chapter.m_date_begin.m_date )
+                    if( c.m_date.m_date == chapter.m_date.m_date )
                         flagChapterFound = true;
                 }
                 if( !flagChapterFound )
                     return false; // chapter is not a member of the set
 
-                mMap.remove( chapter.m_date_begin.m_date );
+                mMap.remove( chapter.m_date.m_date );
+                chapter.set_ctg( null );
             }
 
             chapter.set_date( date );
@@ -109,19 +123,11 @@ public class Chapter extends Entry {
             return true;
         }
 
-        public long get_free_order_ordinal() {
-            if( mMap.isEmpty() )
-                return( m_date_min );
-
-            Date d = new Date( ( Long ) mMap.keySet().toArray()[ 0 ] );
-            d.forward_ordinal_order();
-            return d.m_date;
-        }
-
-        public Chapter getChapterEarlier( Chapter chapter ) {
+        Chapter
+        getChapterEarlier( Chapter chapter ) {
             boolean found = false;
             for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
-                if( e.getKey() == chapter.m_date_begin.m_date ) {
+                if( e.getKey() == chapter.m_date.m_date ) {
                     found = true;
                 }
                 else if( found ) {
@@ -131,12 +137,13 @@ public class Chapter extends Entry {
             return null;
         }
 
-        public Chapter getChapterLater( Chapter chapter ) {
+        Chapter
+        getChapterLater( Chapter chapter ) {
             Chapter chapter_later = null;
             for( Map.Entry< Long, Chapter > e : mMap.entrySet() ) {
-                if( e.getKey() == chapter.m_date_begin.m_date )
+                if( e.getKey() == chapter.m_date.m_date )
                     return chapter_later;
-                else if( e.getKey() < chapter.m_date_begin.m_date )
+                else if( e.getKey() < chapter.m_date.m_date )
                     break;
 
                 chapter_later = e.getValue();
@@ -144,19 +151,16 @@ public class Chapter extends Entry {
             return null;
         }
 
-        public TreeMap< Long, Chapter > getMap() {    // Java only
-            return mMap;
-        }
-
-        private boolean add( Chapter chapter ) {
-            mMap.put( chapter.m_date_begin.m_date, chapter );
+        protected boolean
+        add( Chapter chapter ) {
+            mMap.put( chapter.m_date.m_date, chapter );
 
             Chapter chapter_prev = null;
             int i = 0;
             boolean flagFound = false;
 
-            for( Map.Entry< Long, Chapter > entry : mMap.entrySet() ) {
-                if( entry.getValue().m_date_begin.m_date == chapter.m_date_begin.m_date ) {
+            for( Map.Entry< Long, Chapter > kv_chapter : mMap.entrySet() ) {
+                if( kv_chapter.getValue().m_date.m_date == chapter.m_date.m_date ) {
                     if( i == 0 ) // latest
                         chapter.recalculate_span( null );
                     else
@@ -164,19 +168,21 @@ public class Chapter extends Entry {
                     flagFound = true;
                 }
                 else if( flagFound ) { // fix earlier entry
-                    entry.getValue().recalculate_span( chapter );
+                    kv_chapter.getValue().recalculate_span( chapter );
                     break;
                 }
 
-                chapter_prev = entry.getValue();
+                chapter_prev = kv_chapter.getValue();
                 i++;
             }
+
+            chapter.set_ctg( this );
 
             return true; // reserved
         }
 
-        java.util.TreeMap< Long, Chapter > mMap;
-        final long m_date_min;
+        java.util.TreeMap< Long, Chapter > mMap =
+                new java.util.TreeMap<>( DiaryElement.compare_dates );
     }
 
     Chapter( Diary d, long date, int status ) {
@@ -184,49 +190,26 @@ public class Chapter extends Entry {
     }
 
     @Override
-    public Type get_type() {
-        return m_type;
+    public Type
+    get_type() {
+        return Type.CHAPTER;
     }
 
     @Override
-    public int get_size() {
-        return mEntries.size();
-    }
-
-    @Override
-    public int get_icon() {
-        switch( m_status & ES_FILTER_TODO )
-        {
-            case ES_TODO:
-                return R.mipmap.ic_todo_open;
-            case ES_PROGRESSED:
-                return R.mipmap.ic_todo_progressed;
-            case ES_DONE:
-                return R.mipmap.ic_todo_done;
-            case ES_CANCELED:
-                return R.mipmap.ic_todo_canceled;
-            default:
-                return( get_date_icon() );
-        }
-    }
-
-    private int get_date_icon() {
-        return( m_date_begin.is_ordinal() ?
-                    ( m_date_begin.is_hidden() ? R.mipmap.ic_chapter_f : R.mipmap.ic_chapter_o ) :
-                    R.mipmap.ic_chapter_t );
-    }
-
-    @Override
-    public Date get_date() {
-        return m_date_begin;
+    public int
+    get_icon() {
+        if( ( m_status & ES_FILTER_TODO_PURE ) != 0 )
+            return Lifeograph.get_todo_icon( m_status & ES_FILTER_TODO_PURE );
+        else
+            return R.mipmap.ic_chapter_t;
     }
 
     @Override
     public String get_title_str() {
-        if( m_date_begin.is_hidden() )
+        if( m_date.is_hidden() )
             return m_name;
         else
-            return( m_date_begin.format_string() + STR_SEPARATOR + m_name );
+            return( m_date.format_string() + STR_SEPARATOR + m_name );
     }
 
     @Override
@@ -239,13 +222,10 @@ public class Chapter extends Entry {
         return( get_type_name() + " with " + get_size() + " entries" );
     }
 
-    public void update_type() {
-        if( m_date_begin.is_hidden() )
-            m_type = Type.GROUP;
-        else if( m_date_begin.is_ordinal() )
-            m_type = Type.TOPIC;
-        else
-            m_type = Type.CHAPTER;
+    @Override
+    void
+    set_date( long date ) {
+        if( ! Date.is_ordinal( date ) ) m_date.m_date = date;
     }
 
     // REFERRER RELATED METHODS ====================================================================
@@ -266,47 +246,35 @@ public class Chapter extends Entry {
     }
 
     // CHAPTER FUNCTIONS ===========================================================================
-    public boolean get_expanded() {
-        return( ( m_status & ES_EXPANDED ) != 0 );
+    void
+    set_ctg( Chapter.Category ctg ) {
+        m_p2ctg = ctg;
     }
 
-    public void set_expanded( boolean expanded ) {
-        set_status_flag( ES_EXPANDED, expanded );
+    long
+    get_free_order() {
+        return m_p2diary.get_available_order_sub( m_date );
     }
 
-    public void set_date( long date ) {
-        m_date_begin.m_date = date;
-        update_type();
-    }
-
-    public Date get_free_order() {
-        Date date = new Date( m_date_begin.m_date );
-        Diary.diary.make_free_entry_order( date );
-        return date;
-    }
-
-    private void recalculate_span( Chapter next ) {
+    protected void
+    recalculate_span( Chapter next ) {
         if( next == null )
             m_time_span = 0; // unlimited
-        else if( next.m_date_begin.is_ordinal() )
+        else if( next.m_date.is_ordinal() )
             m_time_span = 0; // last temporal chapter: unlimited
         else
-            m_time_span = m_date_begin.calculate_days_between( next.m_date_begin );
+            m_time_span = m_date.calculate_days_between( next.m_date );
     }
 
-    int get_color() {
-        return m_color;
-    }
-
-    void set_color( int color ) {
-        m_color = color;
+    int
+    get_entry_count() {
+        return mEntries.size();
     }
 
     // DATA
-    Date m_date_begin;
-    int  m_time_span = 0;
-    Type m_type;
+    int      m_time_span = 0;
     java.util.TreeSet< Entry >
-         mEntries = new TreeSet< Entry >( DiaryElement.compare_elems_by_date );
-    int  m_color = Color.WHITE;
+             mEntries = new TreeSet< Entry >( DiaryElement.compare_elems_by_date );
+    int      m_color = Color.WHITE;
+    Category m_p2ctg = null;
 }

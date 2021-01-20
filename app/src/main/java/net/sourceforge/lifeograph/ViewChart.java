@@ -1,5 +1,5 @@
 /* *********************************************************************************
- * Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ * Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
  * <p/>
  * This file is part of Lifeograph.
  * <p/>
@@ -95,8 +95,8 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
             m_y_max = m_height - mltp * BAR_HEIGHT - m_ov_height;
             m_y_mid = ( m_y_max + s_y_min ) / 2;
             m_amplitude = m_y_max - s_y_min;
-            m_coefficient = m_points.value_max.equals( m_points.value_min ) ? 0f :
-                    m_amplitude / ( float ) ( m_points.value_max - m_points.value_min );
+            m_coefficient = ( m_points.v_max == m_points.v_min ) ? 0f :
+                    m_amplitude / ( float ) ( m_points.v_max - m_points.v_min );
 
             final int col_start_max = m_span - m_step_count;
             if( flag_new || m_step_start > col_start_max )
@@ -104,8 +104,8 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
             // OVERVIEW PARAMETERS
             m_ampli_ov = m_ov_height - 2 * offset_label;
-            m_coeff_ov = m_points.value_max.equals( m_points.value_min ) ? 0.5f :
-                    m_ampli_ov / ( float ) ( m_points.value_max - m_points.value_min );
+            m_coeff_ov = ( m_points.v_max == m_points.v_min ) ? 0.5f :
+                    m_ampli_ov / ( float ) ( m_points.v_max - m_points.v_min );
             m_step_x_ov = m_width - 2 * offset_label;
             if( m_span > 1 )
                 m_step_x_ov /= m_span - 1;
@@ -228,14 +228,14 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         mPath.moveTo( s_x_min - m_step_x * pre_steps,
                       m_y_max - m_coefficient *
                                 ( float ) ( m_points.values.get( m_step_start - pre_steps ) -
-                                            m_points.value_min ) );
+                                            m_points.v_min ) );
 
         for( int i = 1; i < m_step_count + pre_steps + post_steps; i++ ) {
             mPath.lineTo( s_x_min + m_step_x * ( i - pre_steps ),
                           m_y_max - m_coefficient *
                                     ( float )
                                             ( m_points.values.get( i + m_step_start - pre_steps ) -
-                                              m_points.value_min ) );
+                                              m_points.v_min ) );
         }
         canvas.drawPath( mPath, mPaint );
 
@@ -244,7 +244,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         mPaint.setTextSize( LABEL_HEIGHT );
         mPaint.setStyle( Paint.Style.FILL );
 
-        mLabelDate.m_date = m_points.start_date;
+        //mLabelDate.m_date = m_points.start_date;
         if( period == ChartData.MONTHLY )
             mLabelDate.forward_months( m_step_start );
         else
@@ -289,9 +289,9 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         // y LABELS
         mPaint.setColor( Color.BLACK );
-        canvas.drawText( m_points.value_max.toString() + " " + m_points.unit, border_label,
+        canvas.drawText( m_points.v_max + " " + m_points.unit, border_label,
                          s_y_min - offset_label, mPaint );
-        canvas.drawText( m_points.value_min.toString() + " " + m_points.unit, border_label,
+        canvas.drawText( m_points.v_min + " " + m_points.unit, border_label,
                          m_y_max - offset_label, mPaint );
     }
 

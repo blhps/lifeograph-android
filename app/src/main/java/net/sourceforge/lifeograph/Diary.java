@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -43,21 +43,15 @@ import java.util.Random;
 import java.util.TreeMap;
 import java.util.Vector;
 
+import android.annotation.SuppressLint;
 import android.content.res.AssetManager;
 import android.graphics.Color;
 import android.util.Log;
 
-import com.google.common.collect.ArrayListMultimap;
-import com.google.common.collect.ListMultimap;
-
 import androidx.annotation.NonNull;
 
-enum Result {
-    OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, /*COULD_NOT_FINISH,*/ WRONG_PASSWORD,
-    /*APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE,*/
-    INCOMPATIBLE_FILE_OLD, INCOMPATIBLE_FILE_NEW, CORRUPT_FILE,
-    FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_LOCKED
-}
+import net.sourceforge.lifeograph.helpers.*;
+
 
 public class Diary extends DiaryElement
 {
@@ -238,6 +232,11 @@ public class Diary extends DiaryElement
         return R.mipmap.ic_diary;
     }
 
+    public String
+    get_info_str() {
+        return( get_size() + " entries" );
+    }
+
     // PASSPHRASE ==================================================================================
     @SuppressWarnings( "UnusedReturnValue" )
     boolean
@@ -326,8 +325,7 @@ public class Diary extends DiaryElement
         Entry   most_curr = null;
         boolean descending = false;
 
-        for( Entry entry : m_entries.values() )
-        {
+        for( Entry entry : m_entries.values() ) {
             if( ! entry.get_filtered_out() && ! entry.get_date().is_ordinal() ) {
                 diff2 = entry.get_date_t() - date;
                 if( diff2 < 0 )
@@ -439,8 +437,8 @@ public class Diary extends DiaryElement
         Entry              entry_after = null;
         Entry              entry_before = null;
         int                i = 0;
-        ArrayList< Long >  keys = new ArrayList< Long >( m_entries.keySet() );
-        ArrayList< Entry > entries = new ArrayList< Entry >( m_entries.values() );
+        ArrayList< Long >  keys = new ArrayList<>( m_entries.keySet() );
+        ArrayList< Entry > entries = new ArrayList<>( m_entries.values() );
 
 
         for( ; i < keys.size(); i++ ) {
@@ -580,26 +578,49 @@ public class Diary extends DiaryElement
         update_entries_in_chapters(); // date changes require full update
     }
 
+    protected void
+    addEntryNameToMap( Entry e ) {
+        List< Entry > list = m_entry_names.get( e.m_name );
+        if( list != null ) {
+            list.add( e );
+        }
+        else {
+            list = new ArrayList<>();
+            list.add( e );
+            m_entry_names.put( e.m_name, list );
+        }
+    }
+    protected void
+    removeEntryNameFromMap( Entry e ) {
+        List< Entry > list = m_entry_names.get( e.m_name );
+        if( list != null ) {
+            if( list.contains( e ) ) {
+                if( list.size() == 1 )
+                    m_entry_names.remove( e.m_name );
+                else
+                    list.remove( e );
+            }
+        }
+    }
+
     void
     update_entry_name( Entry entry ) {
         String  old_name = "";
         boolean flag_name_changed = true;
 
-        for( Entry e : m_entry_names.values() ) {
+        for( Entry e : m_entries.values() ) {
             if( e.get_id() == entry.get_id() ) {
-                old_name = e.get_name();
-
-                if( old_name.equals( entry.get_name() ) )
+                if( e.m_name.equals( entry.m_name ) )
                     flag_name_changed = false;
                 else
-                    m_entry_names.remove( e.get_name(), e );
+                    removeEntryNameFromMap( e );
 
                 break;
             }
         }
 
         if( flag_name_changed && entry.has_name() ) {
-            m_entry_names.put( entry.get_name(), entry );
+            addEntryNameToMap( entry );
 
             // update references in other entries
             if( !old_name.isEmpty() )
@@ -627,7 +648,7 @@ public class Diary extends DiaryElement
         m_entries.put( date, entry );
         add_entry_to_related_chapter( entry );
         if( entry.has_name() )
-            m_entry_names.put( entry.get_name(), entry );
+            addEntryNameToMap( entry );
 
         return( entry );
     }
@@ -666,7 +687,7 @@ public class Diary extends DiaryElement
         m_entries.remove( entry.get_date_t() );
 
         // remove from name map:
-        m_entry_names.remove( entry.get_name(), entry );
+        removeEntryNameFromMap( entry );
 
         // fix entry order:
         Vector< Entry > ev = new Vector<>();
@@ -1537,6 +1558,26 @@ public class Diary extends DiaryElement
     }
 
     protected void
+    upgrade_to_1030() {
+        // initialize the status dates:
+        for( Entry entry : m_entries.values() )
+            entry.m_date_status = entry.m_date_created;
+
+        // replace old to-do boxes:
+        replace_all_matches( "☐", "[ ]" );
+        replace_all_matches( "☑", "[+]" );
+        replace_all_matches( "☒", "[x]" );
+    }
+
+    protected void
+    upgrade_to_1050() {
+        for( Entry entry : m_entries.values() ) {
+            if( entry.get_todo_status() == ES_NOT_TODO )
+                entry.update_todo_status();
+        }
+    }
+
+    protected void
     do_standard_checks_after_parse() {
         if( m_theme_default == null ) {
             m_theme_default = create_theme( Theme.System.get().m_name );
@@ -1582,7 +1623,7 @@ public class Diary extends DiaryElement
         for( Entry entry : m_entries.values() ) {
             // add entries to name map
             if( entry.has_name() )
-                m_entry_names.put( entry.m_name, entry );
+                addEntryNameToMap( entry );
         }
     }
 
@@ -1730,7 +1771,7 @@ public class Diary extends DiaryElement
                                 ptr2entry.set_theme( m_themes.get( line.substring( 2 ) ) );
                                 break;
                             case 's':   // spell checking language
-                                ptr2entry.set_lang( line.substring( 2 ) );
+                                ptr2entry.m_option_lang = line.substring( 2 );
                                 break;
                             case 'u':   // spell checking language
                                 ptr2entry.m_unit = line.substring( 2 );
@@ -1757,7 +1798,7 @@ public class Diary extends DiaryElement
                                 ptr2para.m_justification = line.charAt( 2 );
                                 break;
                             case 'b':   // chapter bg color
-                                ptr2chapter.set_color( Color.parseColor( line.substring( 2 ) ) );
+                                ptr2chapter.m_color = Color.parseColor( line.substring( 2 ) );
                                 break;
                         }
                         break;
@@ -1802,7 +1843,7 @@ public class Diary extends DiaryElement
             while( ( line.v = mBufferedReader.readLine() ) != null ) {
                 read_buffer.append( line.v ).append( '\n' );
 
-                if( line.v.charAt( 0 ) == 'C' && line.v.charAt( 1 ) == 'G' )
+                if( !line.v.isEmpty() && line.v.charAt( 0 ) == 'C' && line.v.charAt( 1 ) == 'G' )
                     tag_o1++;
             }
 
@@ -1829,7 +1870,7 @@ public class Diary extends DiaryElement
                             m_entries.put( entry_new.m_date.m_date, entry_new );
                             entry_new.add_paragraph( line.v.substring( 2 ) );
                             entry_new.set_expanded( line.v.charAt( 1 ) == 'e' );
-                            m_entry_names.put( entry_new.m_name, entry_new );
+                            addEntryNameToMap( entry_new );
                             flag_in_tag_ctg = true;
                             tag_o3 = 0;
                             break;
@@ -1843,7 +1884,7 @@ public class Diary extends DiaryElement
                                     Date.make_ordinal( false, tag_o1, ++tag_o2 ) );
                                     m_entries.put( entry_new.m_date.m_date, entry_new );
                                     entry_new.add_paragraph( line.v.substring( 2 ) );
-                                    m_entry_names.put( entry_new.m_name, entry_new );
+                                    addEntryNameToMap( entry_new );
                                     p2theme = null;
                                     break;
                                 case 'c': // not used in 1010
@@ -1978,7 +2019,7 @@ public class Diary extends DiaryElement
                                         m_p2chapter_ctg_cur = p2chapter_ctg;
                                     break;
                                 case 'c':   // chapter color
-                                    p2chapter.set_color( Color.parseColor( line.v.substring( 2 ) ) );
+                                    p2chapter.m_color = Color.parseColor( line.v.substring( 2 ) );
                                     break;
                                 case 'T':   // temporal chapter
                                     entry_new = p2chapter =
@@ -2105,7 +2146,7 @@ public class Diary extends DiaryElement
                         break;
                     }
                     case 'l':   // language
-                        entry_new.set_lang( line.v.substring( 2 ) );
+                        entry_new.m_option_lang = line.v.substring( 2 );
                         break;
                     case 'P':    // paragraph
                         parser_para.parse( entry_new.add_paragraph( line.v.substring( 2 ) ) );
@@ -2128,10 +2169,10 @@ public class Diary extends DiaryElement
         update_entries_in_chapters();
 
         if( m_read_version == 1020 )
-            upgrade_entries_to_1030();
+            upgrade_to_1030();
 
         if( m_read_version < 1050 )
-            upgrade_entries_to_1050();
+            upgrade_to_1050();
 
         // DEFAULT FILTER AND CHART
         m_filter_active = create_filter( Lifeograph.getStr( R.string.default_ ),
@@ -2144,419 +2185,166 @@ public class Diary extends DiaryElement
         return Result.SUCCESS;
     }
 
+    // DB CREATING FUNCTIONS =======================================================================
+    protected char
+    get_elem_todo_status_char( @NonNull DiaryElement elem ) {
+        switch( elem.get_todo_status() ) {
+            case ES_TODO:                         return 't';
+            case ( ES_NOT_TODO | ES_TODO ):       return 'T';
+            case ES_PROGRESSED:                   return 'p';
+            case ( ES_NOT_TODO | ES_PROGRESSED ): return 'P';
+            case ES_DONE:                         return 'd';
+            case ( ES_NOT_TODO | ES_DONE ):       return 'D';
+            case ES_CANCELED:                     return 'c';
+            case ( ES_NOT_TODO | ES_CANCELED ):   return 'C';
+            case ES_NOT_TODO:
+            default:    /* should never occur */  return 'n';
+        }
+    }
 
-    // =============================================================================================
-    // =============================================================================================
-    // CONTUNUE FROM HERE ==========================================================================
-    // =============================================================================================
-    // =============================================================================================
+    void
+    create_db_entry_text( @NonNull Entry entry ) throws IOException {
+        // ENTRY DATE
+        mBufferedWriter.append( "\n\nID" ).append( Integer.toString( entry.get_id() ) )
+                       .append( "\nE" ).append( ( entry.get_type() == Type.CHAPTER ) ? '+' : ' ' )
+                       .append( entry.is_favored() ? 'F' : '_' )
+                       .append( entry.is_trashed() ? 'T' : '_' )
+                       .append( get_elem_todo_status_char( entry ) )
+                       .append( entry.get_expanded() ? 'E' : '_' )
+                       .append( Long.toString( entry.m_date.m_date ) );
 
+        mBufferedWriter.append( "\nEc" ).append( Long.toString( entry.m_date_created ) );
+        mBufferedWriter.append( "\nEe" ).append( Long.toString( entry.m_date_edited ) );
+        mBufferedWriter.append( "\nEt" ).append( Long.toString( entry.m_date_status ) );
 
+        // THEME
+        if( entry.is_theme_set() )
+            mBufferedWriter.append( "\nEm" ).append( entry.get_theme().get_name() );
 
+        // SPELLCHECKING LANGUAGE
+        if( !entry.m_option_lang.equals( Lifeograph.LANG_INHERIT_DIARY ) )
+            mBufferedWriter.append( "\nEs" ).append( entry.m_option_lang );
 
-    private void
-    upgrade_entries_to_1030() {
-        // initialize the status dates:
-        for( Entry entry : m_entries.values() )
-            entry.m_date_status = entry.m_date_created;
+        // UNIT
+        if( !entry.m_unit.isEmpty() )
+            mBufferedWriter.append( "\nEu" ).append( entry.m_unit );
 
-        // replace old to-do boxes:
-        replace_all_matches( "☐", "[ ]" );
-        replace_all_matches( "☑", "[+]" );
-        replace_all_matches( "☒", "[x]" );
+        // LOCATION
+        if( entry.is_location_set() )
+            mBufferedWriter.append( "\nEla" ).append( Double.toString( entry.m_location.latitude ) )
+                           .append( "\nElo" )
+                           .append( Double.toString( entry.m_location.longitude ) );
+        // PATH (ROUTE)
+        if( entry.is_map_path_set() )
+            for( Entry.Coords point : entry.m_map_path )
+        mBufferedWriter.append( "\nEra" ).append( Double.toString( point.latitude ) )
+                       .append( "\nEro" ).append( Double.toString( point.longitude ) );
+
+        // PARAGRAPHS
+        for( Paragraph para : entry.m_paragraphs )
+            mBufferedWriter.append( "\nEp" ).append( para.m_justification )
+                           .append( para.m_text );
     }
 
     protected void
-    upgrade_entries_to_1050() {
-        for( Entry entry : m_entries.values() ) {
-            if( entry.get_todo_status() == ES_NOT_TODO )
-                entry.set_todo_status( entry.calculate_todo_status_internal() );
-        }
-    }
-
-    // DB CREATING HELPER FUNCTIONS ================================================================
-    private void create_db_todo_status_text( DiaryElement elem ) throws IOException {
-        switch( elem.get_todo_status() ) {
-            case ES_TODO:
-                mBufferedWriter.append( 't' );
-                break;
-            case ES_NOT_TODO | ES_TODO:
-                mBufferedWriter.append( 'T' );
-                break;
-            case ES_PROGRESSED:
-                mBufferedWriter.append( 'p' );
-                break;
-            case ES_NOT_TODO | ES_PROGRESSED:
-                mBufferedWriter.append( 'P' );
-                break;
-            case ES_DONE:
-                mBufferedWriter.append( 'd' );
-                break;
-            case ES_NOT_TODO | ES_DONE:
-                mBufferedWriter.append( 'D' );
-                break;
-            case ES_CANCELED:
-                mBufferedWriter.append( 'c' );
-                break;
-            case ES_NOT_TODO | ES_CANCELED:
-                mBufferedWriter.append( 'C' );
-                break;
-            case ES_NOT_TODO:
-            default:
-                mBufferedWriter.append( 'n' );
-                break;
-        }
-    }
-
-    private void create_db_tag_text( Tag tag ) throws IOException {
-        char type = 'm';
-        if( tag.get_type() == Type.UNTAGGED ) {
-            mBufferedWriter.append( "uc" );
-            type = 'u';
-        }
-        else
-            mBufferedWriter.append( "ID" )
-                           .append( Integer.toString( tag.get_id() ) )
-                           .append( "\nt " )
-                           .append( tag.get_name() )
-                           .append( "\ntc" );
-        mBufferedWriter.append( Integer.toString( tag.get_chart_type() ) ).append( '\n' );
-
-        if( ! tag.is_boolean() && ! tag.get_unit().isEmpty() )
-            mBufferedWriter.append( "tu" ).append( tag.get_unit() ).append( '\n' );
-
-        if( tag.get_has_own_theme() )
-        {
-            Theme theme = tag.get_theme();
-
-            mBufferedWriter.append( type ).append( "f" ).append( theme.font ).append( '\n' );
-            mBufferedWriter.append( type ).append( "b" )
-                           .append( Theme.color2string( theme.color_base ) ).append( '\n' )
-                           .append( type ).append( "t" )
-                           .append( Theme.color2string( theme.color_text ) ).append( '\n' )
-                           .append( type ).append( "h" )
-                           .append( Theme.color2string( theme.color_heading ) ).append( '\n' )
-                           .append( type ).append( "s" )
-                           .append( Theme.color2string( theme.color_subheading ) ).append( '\n' )
-                           .append( type ).append( "l" )
-                           .append( Theme.color2string( theme.color_highlight ) ).append( '\n' );
-        }
-    }
-
-    private void create_db_chapterctg_text( char type, Chapter.Category ctg ) throws IOException {
-        for( Chapter chapter : ctg.mMap.values() ) {
-            mBufferedWriter.append( "ID" ).append( Integer.toString( chapter.get_id() ) )
-                           .append( "\nC" ).append( type )
-                           .append( Long.toString( chapter.m_date_begin.m_date ) )
-                           .append( '\t' ).append( chapter.get_name() )
-                           .append( "\nCp" ).append( chapter.get_expanded() ? 'e' : '_' );
-            create_db_todo_status_text( chapter );
-            if( ( chapter.get_chart_type() & ChartData.YEARLY ) != 0 )
-                mBufferedWriter.append( "Y\n" );
-            else
-                mBufferedWriter.append( '\n' );
-
-            if( chapter.get_color() != Color.WHITE )
-                mBufferedWriter.append( "Cc" )
-                               .append( Theme.color2string( chapter.get_color() ) )
-                               .append( '\n' );
-        }
-    }
-
-    // DB CREATING MAIN FUNCTIONS ==================================================================
-    private void create_db_header_text( boolean encrypted ) throws IOException {
+    create_db_header_text( boolean encrypted ) throws IOException {
         mBufferedWriter.write( DB_FILE_HEADER );
-        mBufferedWriter.append( "\nV "+DB_FILE_VERSION_INT )
-                       .append( encrypted ? "\nE yes" : "\nE no" )
+        mBufferedWriter.append( "\nV " + DB_FILE_VERSION_INT )
+                       .append( "\nE " ).append( encrypted ? "y" : "n" )
+                       .append( "\nId" ).append( Integer.toString( get_id() ) ) // diary id
                        .append( "\n\n" ); // end of header
     }
 
-    private void create_db_body_text() throws IOException {
-        // OPTIONS
-        mBufferedWriter.append( "O " )
-                       .append( m_sorting_criteria )
-                       .append( m_option_sorting_dir )
-                       .append( ( m_chart_type & ChartData.YEARLY ) != 0 ? "Y\n" : "M\n" );
-        if( ! m_language.isEmpty() )
-            mBufferedWriter.append( "l " ).append( m_language ).append( '\n' );
+    @SuppressLint( "DefaultLocale" )
+    protected boolean
+    create_db_body_text() throws IOException {
+        // DIARY OPTIONS
+        mBufferedWriter.append( "Do" ).append( m_opt_show_all_entry_locations ? 'A' : '_' )
+                       .append( String.format( "%03d", m_sorting_criteria ) )
+                       .append( Integer.toString( m_opt_ext_panel_cur ) );
 
-        // STARTUP ACTION (HOME ITEM)
-        mBufferedWriter.append( "S " ).append( Integer.toString( m_startup_entry_id ) ).append( '\n' );
-        mBufferedWriter.append( "L " ).append( Integer.toString( m_last_entry_id ) ).append( '\n' );
+        // DEFAULT SPELLCHECKING LANGUAGE
+        if( !m_language.isEmpty() )
+            mBufferedWriter.append( "\nDs" ).append( m_language );
 
-        // ROOT TAGS
-        for( Tag tag : m_tags.values() ) {
-            if( tag.get_category() == null )
-                create_db_tag_text( tag );
+        // FIRST ENTRY TO SHOW AT STARTUP (HOME ITEM) & LAST ENTRY SHOWN IN PREVIOUS SESSION
+        mBufferedWriter.append( "\nDf" ).append( Integer.toString( m_startup_entry_id ) );
+        mBufferedWriter.append( "\nDl" ).append( Integer.toString( m_last_entry_id ) );
+
+        // COMPLETION TAG
+        if( m_completion_tag_id != DEID_UNSET )
+            mBufferedWriter.append( "\nDc" ).append( Integer.toString( m_completion_tag_id ) );
+
+        // THEMES
+        for( Theme theme : m_themes.values() ) {
+            mBufferedWriter.append( "\n\nID" ).append( Integer.toString( theme.get_id() ) );
+            mBufferedWriter.append( "\nT " ).append( ( theme == m_theme_default ? 'D' : '_' ) )
+                           .append( theme.m_name );
+            mBufferedWriter.append( "\nTf" ).append( theme.font );
+            mBufferedWriter.append( "\nTb" ).append( Theme.color2string( theme.color_base  ) );
+            mBufferedWriter.append( "\nTt" ).append( Theme.color2string( theme.color_text ) );
+            mBufferedWriter.append( "\nTh" ).append( Theme.color2string( theme.color_heading ) );
+            mBufferedWriter.append( "\nTs" ).append( Theme.color2string( theme.color_subheading ) );
+            mBufferedWriter.append( "\nTl" ).append( Theme.color2string( theme.color_highlight ) );
+            if( !theme.image_bg.isEmpty() )
+                mBufferedWriter.append( "\nTi" ).append( theme.image_bg );
         }
-        // CATEGORIZED TAGS
-        for( Tag.Category ctg : m_tag_categories.values() ) {
-            // tag category:
-            mBufferedWriter.append( "ID" ).append( Integer.toString( ctg.get_id() ) )
-                           .append( "\nT" ).append( ctg.get_expanded() ? 'e' : '_' )
-                           .append( ctg.get_name() ).append( '\n' );
-            // tags in it:
-            for( Tag tag : ctg.mTags )
-                create_db_tag_text( tag );
+
+        // FILTERS
+        for( Filter filter : m_filters.values() ) {
+            mBufferedWriter.append( "\n\nID" ).append( Integer.toString( filter.get_id() ) );
+            mBufferedWriter.append( "\nF " )
+                           .append( filter == m_filter_active ? 'A' : '_' )
+                           .append( filter.m_name );
+            mBufferedWriter.append( '\n' ).append( filter.get_definition() );
         }
-        // UNTAGGED THEME
-        create_db_tag_text( m_untagged );
 
-        // TOPICS
-        create_db_chapterctg_text( 'O', m_topics );
+        // CHARTS
+        for( ChartElem chart : m_charts.values() ) {
+            mBufferedWriter.append( "\n\nID" ).append( Integer.toString( chart.get_id() ) );
+            mBufferedWriter.append( "\nG " ).append( chart == m_chart_active ? 'A' : '_' )
+                           .append( chart.m_name );
+            mBufferedWriter.append( '\n' ).append( chart.get_definition() );
+        }
 
-        // FREE CHAPTERS
-        create_db_chapterctg_text( 'G', m_groups );
+        // TABLES
+        for( TableElem table : m_tables.values() ) {
+            mBufferedWriter.append( "\n\nID" ).append( Integer.toString( table.get_id() ) );
+            mBufferedWriter.append( "\nM " ).append( table == m_table_active ? 'A' : '_' )
+                           .append( table.m_name );
+            mBufferedWriter.append( '\n' ).append( table.get_definition() );
+        }
 
         // CHAPTERS
-        for( Chapter.Category ctg : m_chapter_categories.values() )
-        {
-            // chapter category:
-            mBufferedWriter.append( "ID" ).append( Integer.toString( ctg.get_id() ) )
-                           .append( ctg == m_p2chapter_ctg_cur ? "\nCCc" : "\nCC_" )
-                           .append( ctg.get_name() ).append( '\n' );
+        for( Chapter.Category ctg : m_chapter_categories.values() ) {
+            mBufferedWriter.append( "\n\nID" ).append( Integer.toString( ctg.get_id() ) )
+                           .append( "\nC " ).append( ctg == m_p2chapter_ctg_cur ? 'A' : '_' )
+                           .append( ctg.m_name );
             // chapters in it:
-            create_db_chapterctg_text( 'T', ctg );
+            for( Chapter chapter : ctg.mMap.values() ) {
+                create_db_entry_text( chapter );
+                if( chapter.m_color != Color.WHITE )
+                    mBufferedWriter.append( "\nEb" )
+                                   .append( Theme.color2string( chapter.m_color ) );
+            }
         }
-
-        // FILTER
-        final int fs = m_filter_default.get_status();
-        mBufferedWriter.append( "fs" )
-                       .append( ( fs & DiaryElement.ES_SHOW_TRASHED ) != 0 ? 'T' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_NOT_TRASHED ) != 0 ? 't' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_FAVORED ) != 0 ? 'F' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_NOT_FAVORED ) != 0 ? 'f' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_NOT_TODO ) != 0 ? 'N' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_TODO ) != 0 ? 'T' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_PROGRESSED ) != 0 ? 'P' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_DONE ) != 0 ? 'D' : '_' )
-                       .append( ( fs & DiaryElement.ES_SHOW_CANCELED ) != 0 ? 'C' : '_' )
-                       .append( '\n' );
-        if( ( fs & DiaryElement.ES_FILTER_TAG ) != 0 )
-            mBufferedWriter.append( "ft" ).append( m_filter_default.get_tag().get_name() )
-                           .append( '\n' );
-        if( ( fs & DiaryElement.ES_FILTER_DATE_BEGIN ) != 0 )
-            mBufferedWriter.append( "fb" ).append( Long.toString( m_filter_default.get_date_begin() ) )
-                           .append( '\n' );
-        if( ( fs & DiaryElement.ES_FILTER_DATE_END ) != 0 )
-            mBufferedWriter.append( "fe" ).append( Long.toString( m_filter_default.get_date_end() ) )
-                           .append( '\n' );
-
-        // END OF SECTION
-        mBufferedWriter.append( '\n' );
 
         // ENTRIES
         for( Entry entry : m_entries.values() ) {
             // purge empty entries:
-            if( entry.m_text.length() < 1 && entry.m_tags.isEmpty() )
-                continue;
-            // optionally only save filtered entries: (may not come to Android too soon)
-            // else if( entry.get_filtered_out() && m_flag_only_save_filtered )
-            // continue;
+            if( entry.is_empty() ) continue;
+                // optionally only save filtered entries:
+            //else if( entry.get_filtered_out() && m_flag_only_save_filtered ) continue;
 
-            // ENTRY DATE
-            mBufferedWriter.append( "ID" ).append( Integer.toString( entry.get_id() ) )
-                           .append( "\n" );
-            mBufferedWriter.append( entry.is_trashed() ? "e" : "E" )
-                           .append( entry.is_favored() ? 'f' : '_' )
-                           .append( m_filter_default.is_entry_filtered( entry ) ? 'h' : '_' );
-            create_db_todo_status_text( entry );
-            mBufferedWriter.append( Long.toString( entry.get_date_t() ) ).append( "\n" );
-
-            mBufferedWriter.append( "Dr" ).append( Long.toString( entry.m_date_created ) )
-                           .append( '\n' );
-            mBufferedWriter.append( "Dh" ).append( Long.toString( entry.m_date_edited ) )
-                           .append( '\n' );
-            mBufferedWriter.append( "Ds" ).append( Long.toString( entry.m_date_status ) )
-                           .append( '\n' );
-
-            // TAGS
-            for( Tag tag : entry.m_tags )
-                mBufferedWriter.append( "T" ).append( tag == entry.get_theme_tag() ? 'T' : '_' )
-                               .append( tag.get_name_and_value( entry, true, false ) )
-                               .append( '\n' );
-
-            // LOCATION
-            if( ! entry.m_location.isEmpty() )
-                mBufferedWriter.append( "L " ).append( entry.m_location ).append( '\n' );
-
-            // LANGUAGE
-            if( entry.get_lang().compareTo( Lifeograph.LANG_INHERIT_DIARY ) != 0 )
-                mBufferedWriter.append( "l " ).append( entry.get_lang() ).append( '\n' );
-
-            // CONTENT
-            if( entry.m_text.isEmpty() )
-                mBufferedWriter.append( '\n' );
-            else {
-                int pt_start = 0, pt_end;
-                boolean flag_terminate_loop = false;
-
-                while( true ) {
-                    pt_end = entry.m_text.indexOf( '\n', pt_start );
-                    if( pt_end == -1 ) {
-                        pt_end = entry.m_text.length();
-                        flag_terminate_loop = true;
-                    }
-                    else
-                        pt_end++;
-
-                    mBufferedWriter.append( "P " )
-                                   .append( entry.m_text.substring( pt_start, pt_end ) );
-                    if( flag_terminate_loop )
-                        break; // end of while( true )
-
-                    pt_start = pt_end;
-                }
-
-                mBufferedWriter.append( "\n\n" );
-            }
-        }
-    }
-
-    // DB READ/WRITE ===============================================================================
-    private void close_file() {
-        try {
-            if( mBufferedReader != null ) {
-                mBufferedReader.close();
-                mBufferedReader = null;
-            }
-        }
-        catch( IOException e ) {
-            Log.e( Lifeograph.TAG, Objects.requireNonNull( e.getMessage() ) );
-        }
-    }
-
-    private Result read_plain() {
-        return parse_db_body_text();
-    }
-
-    private Result read_encrypted() {
-        close_file();
-
-        try {
-            RandomAccessFile file = new RandomAccessFile( m_path, "r" );
-            file.readLine(); // LIFEOGRAPHDB
-            file.readLine(); // V
-            file.readLine(); // E
-            file.readLine(); // 0
-
-            // allocate memory for salt and iv
-            byte[] salt = new byte[ cSALT_SIZE ];
-            byte[] iv = new byte[ cIV_SIZE ];
-
-            // read salt and iv
-            file.read( salt );
-            file.read( iv );
-
-            // calculate bytes of data in file
-            int size = ( int ) ( file.length() - file.getFilePointer() );
-            if( size <= 3 ) {
-                clear();
-                return Result.CORRUPT_FILE;
-            }
-            byte[] buffer = new byte[ size ];
-            file.readFully( buffer );
-            file.close();
-
-            String output = decryptBuffer( m_passphrase, salt, buffer, size, iv );
-
-            // passphrase check
-            if( output.charAt( 0 ) != m_passphrase.charAt( 0 ) || output.charAt( 1 ) != '\n' ) {
-                clear();
-                return Result.WRONG_PASSWORD;
-            }
-
-            mBufferedReader = new BufferedReader( new StringReader( output ) );
-        }
-        catch( FileNotFoundException ex ) {
-            return Result.FILE_NOT_FOUND;
-        }
-        catch( IOException ex ) {
-            return Result.CORRUPT_FILE;
+            create_db_entry_text( entry );
         }
 
-        return parse_db_body_text();
-    }
-
-    private Result write_plain( String path, boolean flag_header_only ) {
-        try {
-            mBufferedWriter = new BufferedWriter( new FileWriter( path ) );
-            create_db_header_text( flag_header_only );
-            // header only mode is for encrypted diaries
-            if( !flag_header_only ) {
-                create_db_body_text();
-            }
-
-            mBufferedWriter.close();
-            mBufferedWriter = null;
-
-            return Result.SUCCESS;
-        }
-        catch( IOException ex ) {
-            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
-
-            mBufferedWriter = null;
-
-            return Result.COULD_NOT_START;
-        }
-    }
-
-    private Result write_encrypted( String path ) {
-        // writing header
-        write_plain( path, true );
-
-        try {
-            ByteArrayOutputStream baos = new ByteArrayOutputStream();
-            mBufferedWriter = new BufferedWriter( new OutputStreamWriter( baos ) );
-
-            // first char of passphrase for validity checking
-            mBufferedWriter.append( m_passphrase.charAt( 0 ) ).append( '\n' );
-            create_db_body_text();
-            mBufferedWriter.close();
-
-            byte[] buffer = baos.toByteArray();
-
-            byte[] output = encryptBuffer( m_passphrase, buffer, buffer.length );
-
-            FileOutputStream file = new FileOutputStream( path, true );
-
-            file.write( output );
-
-            file.close();
-            mBufferedWriter = null;
-        }
-        catch( IOException ex ) {
-            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
-
-            mBufferedWriter = null;
-
-            return Result.COULD_NOT_START;
-        }
-
-        return Result.SUCCESS;
-    }
-
-    boolean remove_lock_if_necessary() {
-        if( m_login_status != LoginStatus.LOGGED_IN_EDIT || m_path.isEmpty() )
-            return false;
-
-        File fp = new File( m_path + LOCK_SUFFIX );
-        if( fp.exists() )
-            return fp.delete();
         return true;
     }
 
-    public boolean is_locked() {
-        File lockFile = new File( m_path + LOCK_SUFFIX );
-        return( lockFile.exists() );
-    }
-
-    void set_saving_enabled( boolean flag ) {
-        m_flag_save_enabled = flag;
-    }
-
-    // DISK I/O ====================================================================================
-    public Result set_path( String path, SetPathType type ) {
+    // READING =====================================================================================
+    Result
+    set_path( String path, SetPathType type ) {
         clear();
 
         // ANDROID ONLY:
@@ -2597,61 +2385,16 @@ public class Diary extends DiaryElement
 
         m_flag_read_only = ( type == SetPathType.READ_ONLY );
 
-        if( !m_flag_read_only && is_locked() )
+        if( !m_flag_read_only && isLocked() )
             return Result.FILE_LOCKED;
         else
             return Result.SUCCESS;
     }
 
-    // ANDROID ONLY:
-    public void enable_working_on_lockfile( boolean enable ) {
-        if( enable )
-            m_path += LOCK_SUFFIX;
-        else if( m_path.endsWith( LOCK_SUFFIX ) )
-            m_path = m_path.substring( 0, m_path.length() - LOCK_SUFFIX.length() );
-    }
-
-    public Result enable_editing()
-    {
-        if( m_flag_read_only )
-        {
-            Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
-            return Result.FILE_LOCKED;
-        }
-
-        File fp = new File( m_path );
-        if( !fp.canWrite() ) // check write access
-        {
-            Log.e( Lifeograph.TAG, "File is not writable" );
-            return Result.FILE_NOT_WRITABLE;
-        }
-
-        // CREATE THE LOCK FILE
-        File lockFile = new File( m_path + LOCK_SUFFIX );
-        try {
-            Lifeograph.copyFile( fp, lockFile );
-        }
-        catch( IOException ex ) {
-            Log.e( Lifeograph.TAG, "Could not create lock file" );
-            return Result.FILE_NOT_WRITABLE;
-        }
-
-        m_login_status = LoginStatus.LOGGED_IN_EDIT;
-
-        return Result.SUCCESS;
-    }
-
-//    public String get_path() {
-//        return m_path;
-//    }
-
-//  NOT NEEDED NOW
-//    public boolean is_path_set() {
-//        return false;
-//    }
-
-    public Result read_header( AssetManager assetMan ) {
+    protected Result
+    read_header( AssetManager assetMan ) {
         String line;
+        mHeaderLineCount = 0;
 
         try {
             if( m_path.equals( sExampleDiaryPath ) ) {
@@ -2671,10 +2414,13 @@ public class Diary extends DiaryElement
                 clear();
                 return Result.CORRUPT_FILE;
             }
+            mHeaderLineCount++;
 
             while( ( line = mBufferedReader.readLine() ) != null ) {
                 if( line.length() < 1 ) { // end of header
-                    return Result.SUCCESS;
+                    set_id( create_new_id( this ) );
+                    mHeaderLineCount++;
+                    return( m_read_version != 0 ? Result.SUCCESS : Result.CORRUPT_FILE );
                 }
 
                 switch( line.charAt( 0 ) ) {
@@ -2688,14 +2434,17 @@ public class Diary extends DiaryElement
                             clear();
                             return Result.INCOMPATIBLE_FILE_NEW;
                         }
+                        mHeaderLineCount++;
                         break;
                     case 'E':
-                        if( line.charAt( 2 ) == 'y' )
-                            // passphrase is set to a dummy value to indicate that diary
-                            // is an encrypted one until user enters the real passphrase
-                            m_passphrase = " ";
-                        else
-                            m_passphrase = "";
+                        // passphrase is set to a dummy value to indicate that diary
+                        // is an encrypted one until user enters the real passphrase
+                        m_passphrase = ( line.charAt( 2 ) == 'y' ? " " : "" );
+                        mHeaderLineCount++;
+                        break;
+                    case 'I':
+                        set_force_id( Integer.parseInt( line.substring( 2 ) ) );
+                        mHeaderLineCount++;
                         break;
                     // case 0: // end of header
                     // m_body_position = br.position(); // not easy in java
@@ -2716,12 +2465,13 @@ public class Diary extends DiaryElement
         return Result.CORRUPT_FILE;
     }
 
-    public Result read_body() {
-        Result res = m_passphrase.isEmpty() ? read_plain() : read_encrypted();
+    protected Result
+    read_body() {
+        Result res = ( m_passphrase.isEmpty() ? read_plain() : read_encrypted() );
 
         close_file();
 
-        enable_working_on_lockfile( false );
+        enableWorkingOnLockfile( false );
 
         if( res == Result.SUCCESS )
             m_login_status = LoginStatus.LOGGED_IN_RO;
@@ -2729,7 +2479,89 @@ public class Diary extends DiaryElement
         return res;
     }
 
-    public Result write() {
+    protected Result
+    read_plain() {
+        return parse_db_body_text();
+    }
+
+    protected Result
+    read_encrypted() {
+        close_file();
+
+        try {
+            RandomAccessFile file = new RandomAccessFile( m_path, "r" );
+            for( int i= 0; i < mHeaderLineCount; i++ )
+                file.readLine();
+
+            // allocate memory for salt and iv
+            byte[] salt = new byte[ cSALT_SIZE ];
+            byte[] iv = new byte[ cIV_SIZE ];
+
+            // read salt and iv
+            file.read( salt );
+            file.read( iv );
+
+            // calculate bytes of data in file
+            int size = ( int ) ( file.length() - file.getFilePointer() );
+            if( size <= 3 ) {
+                clear();
+                return Result.CORRUPT_FILE;
+            }
+            byte[] buffer = new byte[ size ];
+            file.readFully( buffer );
+            file.close();
+
+            String mBufferedWriter = decryptBuffer( m_passphrase, salt, buffer, size, iv );
+
+            // passphrase check
+            if( mBufferedWriter.charAt( 0 ) != m_passphrase.charAt( 0 ) || mBufferedWriter.charAt( 1 ) != '\n' ) {
+                clear();
+                return Result.WRONG_PASSWORD;
+            }
+
+            mBufferedReader = new BufferedReader( new StringReader( mBufferedWriter ) );
+        }
+        catch( FileNotFoundException ex ) {
+            return Result.FILE_NOT_FOUND;
+        }
+        catch( IOException ex ) {
+            return Result.CORRUPT_FILE;
+        }
+
+        return parse_db_body_text();
+    }
+
+    Result
+    enable_editing() {
+        if( m_flag_read_only ) {
+            Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
+            return Result.FILE_LOCKED;
+        }
+
+        File fp = new File( m_path );
+        if( !fp.canWrite() ) { // check write access
+            Log.e( Lifeograph.TAG, "File is not writable" );
+            return Result.FILE_NOT_WRITABLE;
+        }
+
+        // CREATE THE LOCK FILE
+        File lockFile = new File( m_path + LOCK_SUFFIX );
+        try {
+            Lifeograph.copyFile( fp, lockFile );
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not create lock file" );
+            return Result.FILE_NOT_WRITABLE;
+        }
+
+        m_login_status = LoginStatus.LOGGED_IN_EDIT;
+
+        return Result.SUCCESS;
+    }
+
+    // WRITING =====================================================================================
+    Result
+    write() {
         // BACKUP THE PREVIOUS VERSION
         File file = new File( m_path );
         if( file.exists() ) {
@@ -2741,7 +2573,7 @@ public class Diary extends DiaryElement
                     file_backup.renameTo( file_backup1 );
                 }
                 if( file.renameTo( file_backup ) )
-                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup.toString() );
+                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup );
             }
         }
 
@@ -2749,7 +2581,8 @@ public class Diary extends DiaryElement
         return write( m_path );
     }
 
-    public Result write( String path ) {
+    Result
+    write( String path ) {
         // m_flag_only_save_filtered = false;
 
         if( m_passphrase.isEmpty() )
@@ -2758,9 +2591,9 @@ public class Diary extends DiaryElement
             return write_encrypted( path );
     }
 
-    public Result write_txt() {
+    Result
+    write_txt() {
         // contrary to c++ version this version always limits the operation to the filtered
-
         try {
             File file = new File( m_path );
             File dir_backups = new File( file.getParent() + "/backups" );
@@ -2773,14 +2606,13 @@ public class Diary extends DiaryElement
                 return Result.FILE_NOT_WRITABLE;
 
             // HELPERS
-            Chapter.Category dummy_ctg_orphans = new Chapter.Category( null, "" );
-            dummy_ctg_orphans.mMap.put( 0L, m_orphans );
-            Chapter.Category[] chapters = new Chapter.Category[]
-                    { dummy_ctg_orphans, m_p2chapter_ctg_cur, m_topics, m_groups };
             final String separator         = "---------------------------------------------\n";
             final String separator_favored = "+++++++++++++++++++++++++++++++++++++++++++++\n";
             final String separator_thick   = "=============================================\n";
-            final String separator_chapter = "......................:\n";
+            final String separator_chapter = ":::::::::::::::::::::::::::::::::::::::::::::\n";
+
+            Chapter chapter = ( m_p2chapter_ctg_cur.mMap.isEmpty() ? null :
+                    Objects.requireNonNull( m_p2chapter_ctg_cur.mMap.firstEntry() ).getValue() );
 
             // DIARY TITLE
             fileWriter.write( separator_thick );
@@ -2789,45 +2621,71 @@ public class Diary extends DiaryElement
                       .append( separator_thick );
 
             // ENTRIES
-            for( int i = 0; i < 4; i++ ) {
-                // CHAPTERS
-                for( Chapter chapter : chapters[ i ].getMap().descendingMap().values() ) {
-                    if( !chapter.mEntries.isEmpty() ) {
-                        fileWriter.append( "\n\n" )
-                                  .append( separator_chapter )
-                                  .append( chapter.get_date().format_string() )
-                                  .append( " - " )
-                                  .append( chapter.get_name() )
-                                  .append( '\n' )
-                                  .append( separator_chapter )
-                                  .append( "\n\n" );
-                    }
+            for( Entry entry : m_entries.descendingMap().values() ) {
+                // CHAPTER
+                while( chapter != null && entry.m_date.m_date < chapter.m_date.m_date ) {
+                        fileWriter.append( "\n\n" ).append( separator_chapter )
+                                  .append( chapter.m_date.format_string() )
+                                  .append( " - " ).append( chapter.get_name() ).append( '\n' )
+                                  .append( separator_chapter ).append( "\n\n" );
 
-                    // ENTRIES
-                    for( Entry entry : chapter.mEntries.descendingSet() ) {
-                        // PURGE EMPTY ENTRIES
-                        if( ( entry.m_text.isEmpty() && entry.m_tags.isEmpty() ) ||
-                                entry.get_filtered_out() )
-                            continue;
+                        Map.Entry< Long, Chapter > kv_chapter =
+                                m_p2chapter_ctg_cur.mMap.higherEntry( chapter.m_date.m_date );
+                        chapter = ( kv_chapter != null ? kv_chapter.getValue() : null );
+                }
 
-                        if( entry.is_favored() )
-                            fileWriter.append( separator_favored );
-                        else
-                            fileWriter.append( separator );
+                // PURGE EMPTY OR FILTERED OUT ENTRIES
+                if( entry.is_empty() || entry.get_filtered_out() )
+                    continue;
 
-                        // DATE AND FAVOREDNESS
-                        fileWriter.append( entry.get_date().format_string() );
-                        if( entry.is_favored() )
-                            fileWriter.append( '\n' ).append( separator_favored );
-                        else
-                            fileWriter.append( '\n' ).append( separator );
+                // FAVOREDNESS AND DATE
+                if( entry.is_favored() )
+                    fileWriter.append( '\n' ).append( separator_favored );
+                else
+                    fileWriter.append( '\n' ).append( separator );
+                if( !entry.m_date.is_hidden() )
+                    fileWriter.append( entry.m_date.format_string() ).append( '\n' );
 
-                        // CONTENT
-                        fileWriter.append( entry.get_text() );
+                // TO-DO STATUS
+                switch( entry.get_status() & ES_FILTER_TODO ) {
+                    case ES_TODO:
+                        fileWriter.append( "[ ] " );
+                        break;
+                    case ES_PROGRESSED:
+                        fileWriter.append( "[~] " );
+                        break;
+                    case ES_DONE:
+                        fileWriter.append( "[+] " );
+                        break;
+                    case ES_CANCELED:
+                        fileWriter.append( "[X] " );
+                        break;
+                }
 
-                        fileWriter.append( "\n\n" );
+                boolean flag_first = true;
+
+                for( Paragraph para : entry.m_paragraphs ) {
+                    fileWriter.append( para.m_text ).append( '\n' );
+                    if( flag_first ) {
+                        fileWriter.append( entry.is_favored() ? separator_favored : separator );
+                        flag_first = false;
                     }
                 }
+
+
+                fileWriter.append( "\n\n" );
+            }
+
+            // EMPTY CHAPTERS
+            while( chapter != null ) {
+                fileWriter.append( "\n\n" ).append( separator_chapter )
+                          .append( chapter.m_date.format_string() )
+                          .append( " - " ).append( chapter.m_name ).append( '\n' )
+                          .append( separator_chapter ).append( "\n\n" );
+
+                Map.Entry< Long, Chapter > kv_chapter =
+                        m_p2chapter_ctg_cur.mMap.higherEntry( chapter.m_date.m_date );
+                chapter = ( kv_chapter != null ? kv_chapter.getValue() : null );
             }
 
             fileWriter.append( '\n' );
@@ -2843,8 +2701,112 @@ public class Diary extends DiaryElement
         }
     }
 
-    // Java only
-    public void write_at_logout() {
+    protected Result
+    write_plain( String path, boolean flag_header_only ) {
+        try {
+            mBufferedWriter = new BufferedWriter( new FileWriter( path ) );
+            create_db_header_text( flag_header_only ); // header only mode = encrypted diary
+            // header only mode is for encrypted diaries
+            if( !flag_header_only ) {
+                create_db_body_text();
+            }
+
+            mBufferedWriter.close();
+            mBufferedWriter = null;
+
+            return Result.SUCCESS;
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
+
+            mBufferedWriter = null;
+
+            return Result.COULD_NOT_START;
+        }
+    }
+
+    protected Result
+    write_encrypted( String path ) {
+        // writing header
+        write_plain( path, true );
+
+        try {
+            ByteArrayOutputStream baos = new ByteArrayOutputStream();
+            mBufferedWriter = new BufferedWriter( new OutputStreamWriter( baos ) );
+
+            // first char of passphrase for validity checking
+            mBufferedWriter.append( m_passphrase.charAt( 0 ) ).append( '\n' );
+            create_db_body_text();
+            mBufferedWriter.close();
+
+            byte[] buffer = baos.toByteArray();
+
+            byte[] output = encryptBuffer( m_passphrase, buffer, buffer.length );
+
+            FileOutputStream file = new FileOutputStream( path, true );
+
+            file.write( output );
+
+            file.close();
+            mBufferedWriter = null;
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
+
+            mBufferedWriter = null;
+
+            return Result.COULD_NOT_START;
+        }
+
+        return Result.SUCCESS;
+    }
+
+    protected void
+    close_file() {
+        try {
+            if( mBufferedReader != null ) {
+                mBufferedReader.close();
+                mBufferedReader = null;
+            }
+        }
+        catch( IOException e ) {
+            Log.e( Lifeograph.TAG, Objects.requireNonNull( e.getMessage() ) );
+        }
+    }
+
+    boolean
+    remove_lock_if_necessary() {
+        if( m_login_status != LoginStatus.LOGGED_IN_EDIT || m_path.isEmpty() )
+            return false;
+
+        File fp = new File( m_path + LOCK_SUFFIX );
+        if( fp.exists() )
+            return fp.delete();
+        return true;
+    }
+
+    // JAVA ONLY ===================================================================================
+    boolean
+    isLocked() {
+        File lockFile = new File( m_path + LOCK_SUFFIX );
+        return( lockFile.exists() );
+    }
+
+    void
+    setSavingEnabled( boolean flag ) {
+        m_flag_save_enabled = flag;
+    }
+
+    void
+    enableWorkingOnLockfile( boolean enable ) {
+        if( enable )
+            m_path += LOCK_SUFFIX;
+        else if( m_path.endsWith( LOCK_SUFFIX ) )
+            m_path = m_path.substring( 0, m_path.length() - LOCK_SUFFIX.length() );
+    }
+
+    void
+    writeAtLogout() {
         if( m_flag_save_enabled && is_in_edit_mode() ) {
             if( write() == Result.SUCCESS )
                 Log.d( Lifeograph.TAG, "File saved successfully" );
@@ -2855,8 +2817,8 @@ public class Diary extends DiaryElement
             Log.d( Lifeograph.TAG, "Diary is not saved" );
     }
 
-    // Java only
-    public void write_lock() {
+    void
+    writeLock() {
         if( m_flag_save_enabled && is_in_edit_mode() ) {
             if( write( m_path + LOCK_SUFFIX ) == Result.SUCCESS )
                 Log.d( Lifeograph.TAG, "LOCK file saved successfully" );
@@ -2873,16 +2835,9 @@ public class Diary extends DiaryElement
                                          byte[] buffer, int size, byte[] iv );
     private native byte[] encryptBuffer( String passphrase, byte[] buffer, int size );
 
-
     // HELPER FUNCTIONS ============================================================================
-    public void
-    make_free_entry_order( Date date ) {
-        date.reset_order_1();
-        while( m_entries.get( date.m_date ) != null )
-            date.m_date += 1;
-    }
-
-    public String create_unique_name_for_map( TreeMap map, String name0 ) {
+    public String
+    create_unique_name_for_map( TreeMap map, String name0 ) {
         String name = name0;
         for( int i = 1; map.containsKey( name ); i++ ) {
             name = name0 + " " + i;
@@ -2930,19 +2885,6 @@ public class Diary extends DiaryElement
         return value;
     }
 
-// NOT USED NOW
-//    public DiaryElement get_startup_elem() {
-//        return null;
-//    }
-//
-//    public DiaryElement get_most_current_elem() {
-//        return null;
-//    }
-//
-//    public DiaryElement get_prev_session_elem() {
-//        return null;
-//    }
-
     // VARIABLES ===================================================================================
     static Diary diary = null;
 
@@ -2950,7 +2892,7 @@ public class Diary extends DiaryElement
     private String m_passphrase;
 
     //ids (DEID)
-    private TreeMap< Integer, DiaryElement > m_ids = new TreeMap<>();
+    private final TreeMap< Integer, DiaryElement > m_ids = new TreeMap<>();
     private int m_force_id          = DEID_UNSET;
     private int m_startup_entry_id  = HOME_CURRENT_ENTRY;
     private int m_last_entry_id     = DEID_UNSET;
@@ -2958,8 +2900,8 @@ public class Diary extends DiaryElement
 
     // CONTENT
     TreeMap< Long, Entry >    m_entries = new TreeMap<>( DiaryElement.compare_dates );
-    ListMultimap< String, Entry >
-                              m_entry_names = ArrayListMultimap.create();
+    Map< String, List< Entry > >
+                              m_entry_names = new TreeMap<>();
 
     TreeMap< String, Theme >  m_themes = new TreeMap<>();
     Theme                     m_theme_default = null;
@@ -2972,11 +2914,11 @@ public class Diary extends DiaryElement
     Filter                    m_filter_active = null;
 
     TreeMap< String, ChartElem >
-                              m_charts;
+                              m_charts = new TreeMap<>();
     ChartElem                 m_chart_active = null;
 
     TreeMap< String, TableElem >
-                              m_tables;
+                              m_tables = new TreeMap<>();
     TableElem                 m_table_active = null;
 
     // OPTIONS
@@ -2995,17 +2937,17 @@ public class Diary extends DiaryElement
     //private boolean m_flag_only_save_filtered;
 
     enum LoginStatus{ LOGGED_OUT, LOGGED_TIME_OUT, LOGGED_IN_RO, LOGGED_IN_EDIT }
-    private LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
+    protected LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
 
     // searching
     protected String  m_search_text = "";
-    List< Match >     m_matches = new ArrayList<>();
+    List< Match >     m_matches     = new ArrayList<>();
 
     // i/o
-    // protected int m_body_offset;
-    private BufferedReader mBufferedReader = null;
-    private BufferedWriter mBufferedWriter = null;
+    protected BufferedReader mBufferedReader  = null;
+    protected BufferedWriter mBufferedWriter  = null;
+    protected int            mHeaderLineCount = 0;
 
-    private static final int cIV_SIZE = 16; // = 128 bits
-    private static final int cSALT_SIZE = 16; // = 128 bits
+    protected static final int cIV_SIZE   = 16; // = 128 bits
+    protected static final int cSALT_SIZE = 16; // = 128 bits
 }

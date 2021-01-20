@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -24,39 +24,55 @@ package net.sourceforge.lifeograph;
 
 
 import android.app.Activity;
-import android.app.Dialog;
 import android.os.Bundle;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.GridView;
 import android.widget.NumberPicker;
 
+import java.util.Objects;
 
-class DialogCalendar extends Dialog
+import androidx.annotation.NonNull;
+import androidx.fragment.app.DialogFragment;
+
+
+public class DialogCalendar extends DialogFragment
 {
-    DialogCalendar( Listener listener, boolean allowCreation ) {
-        super( listener.getActivity(), R.style.FullHeightDialog );
-        mListener = listener;
-        mAllowEntryCreation = allowCreation;
-        mAllowChapterCreation = allowCreation;
+    public DialogCalendar() {
+        mAllowEntryCreation = mAllowChapterCreation = Diary.diary.is_in_edit_mode();
+    }
+
+//    DialogCalendar( Listener listener, boolean allowCreation ) {
+//        mListener = listener;
+//        mAllowEntryCreation = allowCreation;
+//        mAllowChapterCreation = allowCreation;
+//    }
+
+    @Override
+    public View
+    onCreateView( @NonNull LayoutInflater inflater, ViewGroup container,
+                  Bundle savedInstanceState ) {
+        return inflater.inflate( R.layout.calendar, container );
     }
 
     @Override
-    protected void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
-        setContentView( R.layout.calendar );
+    public void
+    onViewCreated( @NonNull View view, Bundle savedInstanceState) {
+        super.onViewCreated( view, savedInstanceState );
 
-        setTitle( R.string.calendar );
+        Objects.requireNonNull( getDialog() ).setTitle( R.string.calendar );
 
         mDate = new Date( Date.get_today( 0 ) );
 
-        GridView gridCalendar = this.findViewById( R.id.gridViewCalendar );
+        GridView gridCalendar = view.findViewById( R.id.gridViewCalendar );
         mAdapter = new GridCalAdapter( Lifeograph.sContext, mDate );
-        mNumberPickerMonth = findViewById( R.id.numberPickerMonth );
-        mNumberPickerYear = findViewById( R.id.numberPickerYear );
-        Button buttonCreateEntry = findViewById( R.id.buttonCreateEntry );
-        mButtonCreateChapter = findViewById( R.id.buttonCreateChapter );
+        mNumberPickerMonth = view.findViewById( R.id.numberPickerMonth );
+        mNumberPickerYear = view.findViewById( R.id.numberPickerYear );
+        Button buttonCreateEntry = view.findViewById( R.id.buttonCreateEntry );
+        mButtonCreateChapter = view.findViewById( R.id.buttonCreateChapter );
 
         mAdapter.notifyDataSetChanged();
         gridCalendar.setAdapter( mAdapter );
@@ -88,14 +104,16 @@ class DialogCalendar extends Dialog
 
         mButtonCreateChapter.setOnClickListener( v -> createChapter() );
         mButtonCreateChapter.setEnabled(
+                mAllowChapterCreation &&
                 !Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
         mButtonCreateChapter.setVisibility( mAllowChapterCreation ? View.VISIBLE : View.INVISIBLE );
 
-        getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
+        Objects.requireNonNull( getDialog() ).getWindow().setSoftInputMode(
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
     }
 
     private void createEntry() {
-        Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent, "", false );
+        Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent.m_date, "", false );
         dismiss();
         Lifeograph.showElem( e );
     }
@@ -141,6 +159,6 @@ class DialogCalendar extends Dialog
     public interface Listener
     {
         void createChapter( long date );
-        Activity getActivity();
+        Activity getRelatedActivity();
     }
 }

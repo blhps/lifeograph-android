@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -33,7 +33,7 @@ import android.widget.Button;
 
 public class DialogEntryTag extends Dialog
 {
-    DialogEntryTag( Context context, Tag tag, Entry entry, Listener listener ) {
+    DialogEntryTag( Context context, Entry tag, Entry entry, Listener listener ) {
         super( context );
 
         mListener = listener;
@@ -54,20 +54,18 @@ public class DialogEntryTag extends Dialog
 
         mButtonTheme = findViewById( R.id.entry_set_theme );
         mButtonTheme.setOnClickListener( v -> {
-            if( mTag.get_has_own_theme() )
-                mEntry.set_theme_tag( mTag );
             mListener.onTagsChanged();
             dismiss();
         } );
 
         mInput1 = findViewById( R.id.entry_tag_edit );
-        if( mTag != null ) // add new tag case
-            mInput1.setText( mTag.get_name_and_value( mEntry, true, true ) );
+//        if( mTag != null ) // add new tag case
+//            mInput1.setText( mTag.get_name_and_value( mEntry, true, true ) );
 
-        String[] tags = new String[ Diary.diary.m_tags.size() ];
+        String[] tags = new String[ Diary.diary.m_entries.size() ];
         int i = 0;
-        for( String tag : Diary.diary.m_tags.keySet() ) {
-            tags[ i++ ] = Tag.escape_name( tag );
+        for( Entry tag : Diary.diary.m_entries.values() ) {
+            tags[ i++ ] = tag.m_name;
         }
         ArrayAdapter< String > adapter_tags = new ArrayAdapter<>
                 ( getContext(), android.R.layout.simple_dropdown_item_1line, tags );
@@ -100,7 +98,7 @@ public class DialogEntryTag extends Dialog
     }
 
     private void handleNameEdited( CharSequence text, int direction ) {
-        Tag tag = null;
+        Entry tag = null;
 
         mNAV = NameAndValue.parse( text.toString() );
 
@@ -109,30 +107,26 @@ public class DialogEntryTag extends Dialog
             mAction = TagOperation.TO_NONE;
         }
         else {
-            tag = Diary.diary.m_tags.get( mNAV.name );
+            tag = Diary.diary.get_entry_by_name( mNAV.name );
             if( tag == null ) {
                 if( mNAV.value == 1 )
                     mAction = TagOperation.TO_CREATE_BOOLEAN;
                 else
                     mAction = TagOperation.TO_CREATE_CUMULATIVE;
             }
-            else if( tag.is_boolean() && mNAV.value != 1 ) {
-                    tag = null;
-                    mAction = TagOperation.TO_INVALID;
-            }
             else
             {
-                if( ! tag.is_boolean() && ( mNAV.status & NameAndValue.HAS_EQUAL ) == 0 &&
+                if( ( mNAV.status & NameAndValue.HAS_EQUAL ) == 0 &&
                     direction > 0 ) { // we don't want this to engage on erase
-                    String txt = Tag.escape_name( tag.get_name() ) + " = ";
+                    String txt = tag.m_name + " = ";
 
                     mInput1.setText( txt );
                     mInput1.setSelection( txt.length() );
                 }
                 if( mEntry.get_tags().contains( tag ) ) {
-                    if( tag.get_value( mEntry ) != mNAV.value )
-                        mAction = TagOperation.TO_CHANGE_VALUE;
-                    else
+//                    if( tag.get_value( mEntry ) != mNAV.value )
+//                        mAction = TagOperation.TO_CHANGE_VALUE;
+//                    else
                         mAction = TagOperation.TO_REMOVE;
                 }
                 else {
@@ -164,9 +158,6 @@ public class DialogEntryTag extends Dialog
                 break;
             case TO_REMOVE:
                 mButtonAction.setText( Lifeograph.getStr( R.string.remove_tag ) );
-
-                if( mTag.get_has_own_theme() && mEntry.get_theme_tag() != mTag )
-                    mButtonTheme.setVisibility( View.VISIBLE );
                 break;
             case TO_ADD:
                 mButtonAction.setText( Lifeograph.getStr( R.string.add_tag ) );
@@ -180,37 +171,35 @@ public class DialogEntryTag extends Dialog
     }
 
     private void go() {
-        Tag tag;
+        Entry tag;
 
         switch( mAction ) {
             case TO_NONE:
             case TO_INVALID:
                 break; // don't even clear
             case TO_REMOVE:
-                tag = Diary.diary.m_tags.get( mNAV.name );
-                mEntry.remove_tag( tag );
                 break;
             case TO_CREATE_BOOLEAN:
             case TO_CREATE_CUMULATIVE:
-                if( mAction == TagOperation.TO_CREATE_CUMULATIVE )
-                    tag = Diary.diary.create_tag( mNAV.name, null,
-                                                  ChartData.MONTHLY | ChartData.CUMULATIVE );
-                else
-                    tag = Diary.diary.create_tag( mNAV.name, null );
+//                if( mAction == TagOperation.TO_CREATE_CUMULATIVE )
+//                    tag = Diary.diary.create_entry( mNAV.name, null,
+//                                                  ChartData.MONTHLY | ChartData.CUMULATIVE );
+//                else
+//                    tag = Diary.diary.create_entry( mNAV.name, false );
 
-                mEntry.add_tag( tag, mNAV.value );
+//                mEntry.add_tag( tag, mNAV.value );
                 break;
-            case TO_ADD:
-                tag = Diary.diary.m_tags.get( mNAV.name );
-                assert tag != null;
-                mEntry.add_tag( tag, mNAV.value );
-                break;
-            case TO_CHANGE_VALUE:
-                tag = Diary.diary.m_tags.get( mNAV.name );
-                mEntry.remove_tag( tag );
-                assert tag != null;
-                mEntry.add_tag( tag, mNAV.value );
-                break;
+//            case TO_ADD:
+//                tag = Diary.diary.m_tags.get( mNAV.name );
+//                assert tag != null;
+//                mEntry.add_tag( tag, mNAV.value );
+//                break;
+//            case TO_CHANGE_VALUE:
+//                tag = Diary.diary.m_tags.get( mNAV.name );
+//                mEntry.remove_tag( tag );
+//                assert tag != null;
+//                mEntry.add_tag( tag, mNAV.value );
+//                break;
         }
 
         mInput1.setText( "" ); // why bother?
@@ -232,7 +221,7 @@ public class DialogEntryTag extends Dialog
     private Button mButtonAction;
     private Button mButtonTheme;
     private Listener mListener;
-    private Tag mTag;
+    private Entry mTag;
     private Entry mEntry;
     private NameAndValue mNAV;
     private TagOperation mAction;

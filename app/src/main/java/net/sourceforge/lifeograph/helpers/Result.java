@@ -19,33 +19,11 @@
 
  ***********************************************************************************/
 
-package net.sourceforge.lifeograph;
+package net.sourceforge.lifeograph.helpers;
 
-public abstract class StringDefElem extends DiaryElement
-{
-    public StringDefElem( Diary diary, String name, String definition ) {
-        super( diary, name, ES_VOID );
-        m_definition = definition;
-    }
-
-    @Override
-    public int get_size(){
-        return 0;
-    }
-
-    public String get_definition(){
-        return m_definition;
-    }
-    public void set_definition( String definition ){
-        m_definition = definition;
-    }
-
-    public void add_definition_line( String line )
-    {
-        if( !m_definition.isEmpty() )
-            m_definition += '\n';
-        m_definition += line;
-    }
-
-    protected String m_definition;
+public enum Result {
+    OK, ABORTED, SUCCESS, FAILURE, COULD_NOT_START, /*COULD_NOT_FINISH,*/ WRONG_PASSWORD,
+    /*APPARENTLY_ENCRYTED_FILE, APPARENTLY_PLAIN_FILE,*/
+    INCOMPATIBLE_FILE_OLD, INCOMPATIBLE_FILE_NEW, CORRUPT_FILE,
+    FILE_NOT_FOUND, FILE_NOT_READABLE, FILE_NOT_WRITABLE, FILE_LOCKED
 }

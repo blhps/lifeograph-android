@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -178,10 +178,12 @@ public abstract class DiaryElement {
         m_name = name;
     }
 
-    public String get_title_str() {
+    public String
+    get_title_str() {
         return get_name();
     }
-    public String get_list_str() {
+    public String
+    get_list_str() {
         return get_title_str();
     }
 

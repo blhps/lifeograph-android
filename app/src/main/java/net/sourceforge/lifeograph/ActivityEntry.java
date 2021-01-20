@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -67,7 +67,7 @@ import static net.sourceforge.lifeograph.DiaryElement.ES_NOT_TODO;
 
 public class ActivityEntry extends AppCompatActivity
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        PopupMenu.OnMenuItemClickListener, ViewEntryTags.Listener, DialogEntryTag.Listener,
+        PopupMenu.OnMenuItemClickListener, // DialogEntryTag.Listener,
         Lifeograph.DiaryEditor
 {
     // CHAR FLAGS
@@ -143,7 +143,6 @@ public class ActivityEntry extends AppCompatActivity
     private Menu mMenu = null;
     private EditText mEditText = null;
     private KeyListener mKeyListener;
-    private ViewEntryTags mViewTags = null;
     private Entry m_ptr2entry = null;
     Button mButtonHighlight;
 
@@ -386,9 +385,6 @@ public class ActivityEntry extends AppCompatActivity
         Button mButtonComment = findViewById( R.id.button_comment );
         mButtonComment.setOnClickListener( v -> addComment() );
 
-        mViewTags = findViewById( R.id.view_entry_tags );
-        mViewTags.setListener( this );
-
         Entry entry = Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) );
         assert entry != null;
 
@@ -418,11 +414,11 @@ public class ActivityEntry extends AppCompatActivity
         Log.d( Lifeograph.TAG, "ActivityEntry.onStop()" );
 
         if( mFlagDismissOnExit )
-            Diary.diary.dismiss_entry( m_ptr2entry );
+            Diary.diary.dismiss_entry( m_ptr2entry, false );
         else
             sync();
 
-        Diary.diary.write_lock();
+        Diary.diary.writeLock();
     }
 
     @Override
@@ -474,7 +470,7 @@ public class ActivityEntry extends AppCompatActivity
 
             public boolean onQueryTextChange( String s ) {
                 if( mFlagSearchIsOpen ) {
-                    Diary.diary.set_search_text( s.toLowerCase() );
+                    Diary.diary.set_search_text( s.toLowerCase(), false );
                     parse( 0, mEditText.getText().length() );
                 }
                 return true;
@@ -650,7 +646,7 @@ public class ActivityEntry extends AppCompatActivity
         mColorMid = Theme.midtone( theme.color_base, theme.color_text, 0.4f );
 
         //mColorRegionBG = Theme.midtone( theme.color_base, theme.color_text, 0.9f ); LATER
-        mColorMatchBG = Theme.contrast(
+        mColorMatchBG = Theme.contrast2(
                 theme.color_base, Theme.s_color_match1, Theme.s_color_match2 );
 
         //mColorLink = Theme.contrast(
@@ -667,7 +663,7 @@ public class ActivityEntry extends AppCompatActivity
     void sync() {
         if( mFlagEntryChanged ) {
             m_ptr2entry.m_date_edited = ( int ) ( System.currentTimeMillis() / 1000L );
-            m_ptr2entry.m_text = mEditText.getText().toString();
+            m_ptr2entry.set_text( mEditText.getText().toString() );
             mFlagEntryChanged = false;
         }
     }
@@ -701,8 +697,6 @@ public class ActivityEntry extends AppCompatActivity
         mActionBar.setSubtitle( entry.get_info_str() );
         updateIcon();
         invalidateOptionsMenu(); // may be redundant here
-
-        mViewTags.set_entry( entry );
     }
 
     private void toggleFavorite() {
@@ -742,8 +736,13 @@ public class ActivityEntry extends AppCompatActivity
                 Date date = new Date( text );
                 if( date.m_date != Date.NOT_SET ) {
                     if( !date.is_ordinal() )
-                        date.reset_order_1();
-                    Diary.diary.set_entry_date( m_ptr2entry, date );
+                        date.set_order_3rd( 1 );
+                    try {
+                        Diary.diary.set_entry_date( m_ptr2entry, date );
+                    }
+                    catch( Exception e ) {
+                        e.printStackTrace();
+                    }
                     setTitle( m_ptr2entry.get_title_str() );
                     mActionBar.setSubtitle( m_ptr2entry.get_info_str() );
                 }
@@ -810,19 +809,6 @@ public class ActivityEntry extends AppCompatActivity
             }
         }
         return -1;
-    }
-
-    // VIEW ENTRY TAGS INTERFACE METHODS ===========================================================
-    public void onTagSelected( Tag tag ) {
-        new DialogEntryTag( this, tag, m_ptr2entry, this ).show();
-    }
-
-    public void onTagsChanged() {
-        mViewTags.set_entry( m_ptr2entry ); // forces full update
-
-        // update theme
-        updateTheme();
-        parse( 0, mEditText.getText().length() );
     }
 
     // FORMATTING BUTTONS ==========================================================================
@@ -1297,7 +1283,7 @@ public class ActivityEntry extends AppCompatActivity
             Entry entry = Diary.diary.get_entry_by_date( mDate );
 
             if( entry == null )
-                entry = Diary.diary.create_entry( new Date( mDate ), "", false );
+                entry = Diary.diary.create_entry( mDate, "", false );
 
             Lifeograph.showElem( entry );
         }
@@ -1385,7 +1371,7 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     void parse( int start, int end ) {
-        m_ptr2entry.m_text = mEditText.getText().toString();
+        m_ptr2entry.set_text( mEditText.getText().toString() );
 
         update_todo_status();
 
@@ -2107,8 +2093,8 @@ public class ActivityEntry extends AppCompatActivity
             status = LinkStatus.LS_ENTRY_UNAVAILABLE;
         }
         else if( date_last.get_pure() == m_ptr2entry.m_date.get_pure() )
-            status = Diary.diary.get_day_has_multiple_entries( date_last ) ?
-                    LinkStatus.LS_OK : LinkStatus.LS_CYCLIC;
+            status = ( Diary.diary.get_entry_count_on_day( date_last ) > 1 ) ?
+                     LinkStatus.LS_OK : LinkStatus.LS_CYCLIC;
 
         if( status == LinkStatus.LS_OK || status == LinkStatus.LS_ENTRY_UNAVAILABLE ) {
             int end = m_pos_current + 1;
@@ -2163,8 +2149,8 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     private void update_todo_status() {
-        if( ( m_ptr2entry.get_status() & ES_NOT_TODO ) != 0 &&
-            m_ptr2entry.calculate_todo_status() ) {
+        if( ( m_ptr2entry.get_status() & ES_NOT_TODO ) != 0 ) {
+            Entry.calculate_todo_status( m_ptr2entry.get_text() );
             updateIcon();
             // Not relevant now: panel_diary->handle_elem_changed( m_ptr2entry );
         }

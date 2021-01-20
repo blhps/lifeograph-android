@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -70,11 +70,11 @@ public class FragmentSettings extends PreferenceFragmentCompat
                 }
                 else if( pref.getKey().equals(
                         Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ) ) ) {
-                    ActivityLogin.sExternalStorage = stringValue;
+                    FragmentDiaryList.sExternalStorage = stringValue;
                 }
                 else if( pref.getKey().equals(
                         Lifeograph.getStr( R.string.pref_DIARY_PATH_key ) ) ) {
-                    ActivityLogin.sDiaryPath = stringValue;
+                    FragmentDiaryList.sDiaryPath = stringValue;
                 }
 
                 if( pref instanceof ListPreference ) {

@@ -1,13 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LifeoTheme" parent="@style/Theme.AppCompat.Light.DarkActionBar">
-        <item name="actionBarStyle">@style/LifeoTheme.ActionBarStyle</item>
-        <item name="android:actionBarItemBackground">@drawable/themed_selector_dark</item>
-        <item name="android:actionBarTabStyle">@style/LifeoTheme.TabStyle</item>
-        <item name="android:actionBarWidgetTheme">@style/LifeoTheme.Widget</item>
-
+    <style name="LifeoTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+        <item name="colorPrimary">@color/t_darkest</item>
         <item name="colorAccent">@color/t_lighter</item>
-        <item name="colorPrimary">@color/t_light</item>
         <item name="colorPrimaryDark">@color/t_darkest</item>
     </style>
 
@@ -17,12 +12,9 @@
     </style>
 
     <!-- ACTIONBAR STYLES -->
-    <style name="LifeoTheme.ActionBarStyle"
-           parent="@style/Widget.AppCompat.Light.ActionBar.Solid.Inverse">
-        <item name="background">@color/t_dark</item>
-        <item name="backgroundStacked">@color/t_dark</item>
-        <item name="backgroundSplit">@color/t_dark</item>
-        <item name="subtitleTextStyle">@style/LifeoTheme.SubtitleTextStyle</item>
+    <style name="LifeoTheme.NoActionBar" >
+        <item name="windowActionBar">false</item>
+        <item name="windowNoTitle">true</item>
     </style>
 
     <style name="LifeoTheme.TabStyle" parent="@style/Widget.AppCompat.ActionBar.TabView">

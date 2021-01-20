@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -90,7 +90,7 @@ class DialogTags extends Dialog
                 mFilterText = s.toString();
                 update_list();
                 if( s.length() > 0 )
-                    buttonAdd.setEnabled( Diary.diary.m_tags.get( mFilterText ) == null );
+                    buttonAdd.setEnabled( Diary.diary.m_entry_names.get( mFilterText ) == null );
                 else
                     buttonAdd.setEnabled( false );
             }
@@ -113,14 +113,14 @@ class DialogTags extends Dialog
     }
 
     private void create_tag() {
-        Tag tag = Diary.diary.create_tag( editText.getText().toString(), null );
-        mHost.addTag( tag );
-        editText.setText( "" );
+//        Entry tag = Diary.diary.create_entry( editText.getText().toString(), null );
+//        mHost.addTag( tag );
+//        editText.setText( "" );
     }
 
     private void update_list() {
         mAdapterTags.clear();
-        for( Tag t : Diary.diary.m_tags.values() ) {
+        for( Entry t : Diary.diary.m_entries.values() ) {
             if( ! mFilterText.isEmpty() )
                 if( !t.get_name().contains( mFilterText ) )
                     continue;
@@ -132,16 +132,16 @@ class DialogTags extends Dialog
     private EditText editText;
     private String mFilterText = "";
     private Button buttonAdd;
-    private java.util.List< Tag > mTags = new ArrayList<>();
+    private java.util.List< Entry > mTags = new ArrayList<>();
     private TagListAdapter mAdapterTags;
 
     // TAG LIST ADAPTER CLASS ======================================================================
-    class TagListAdapter extends ArrayAdapter< Tag > implements View.OnClickListener
+    class TagListAdapter extends ArrayAdapter< Entry > implements View.OnClickListener
     {
         TagListAdapter( Context context,
                         int resource,
                         int textViewResourceId,
-                        java.util.List< Tag > objects,
+                        java.util.List< Entry > objects,
                         LayoutInflater inflater ) {
             super( context, resource, textViewResourceId, objects );
             mInflater = inflater;
@@ -150,11 +150,11 @@ class DialogTags extends Dialog
         @Override
         public @NonNull View getView( int position, View convertView, @NonNull ViewGroup parent ) {
             ViewHolder holder;
-            final Tag tag = getItem( position );
+            final Entry tag = getItem( position );
 
             if( convertView == null ) {
                 View view = mInflater.inflate( R.layout.list_item_check, parent, false );
-                holder = new ViewHolder( view, DiaryElement.Type.TAG );
+                holder = new ViewHolder( view, DiaryElement.Type.ENTRY );
                 view.setTag( holder );
                 convertView = view;
             }
@@ -173,14 +173,8 @@ class DialogTags extends Dialog
             checkBox.setTag( R.id.tag, tag );
             checkBox.setOnClickListener( this );
 
-            if( tag.get_has_own_theme() ) {
-                title.setTextColor( tag.get_theme().color_text );
-                title.setBackgroundColor( tag.get_theme().color_base );
-            }
-            else {
-                title.setTextColor( Color.BLACK );
-                title.setBackgroundColor( Color.argb( 0, 0, 0, 0 ) );
-            }
+            title.setTextColor( Color.BLACK );
+            title.setBackgroundColor( Color.argb( 0, 0, 0, 0 ) );
 
             return convertView;
         }
@@ -189,7 +183,7 @@ class DialogTags extends Dialog
             switch( view.getId() ) {
                 case R.id.checkBox: {
                     CheckBox cb = ( CheckBox ) view;
-                    Tag tag = ( Tag ) cb.getTag( R.id.tag );
+                    Entry tag = ( Entry ) cb.getTag( R.id.tag );
 
                     if( cb.isChecked() ) {
                         mHost.addTag( tag );
@@ -204,7 +198,7 @@ class DialogTags extends Dialog
             }
         }
 
-        private LayoutInflater mInflater;
+        private final LayoutInflater mInflater;
 
         // VIEW HOLDER =========================================================================
         private class ViewHolder
@@ -252,9 +246,9 @@ class DialogTags extends Dialog
     interface DialogTagsHost
     {
         void onDialogTagsClose();
-        List< Tag > getTags();
-        void addTag( Tag t );
-        void removeTag( Tag t );
+        List< Entry > getTags();
+        void addTag( Entry t );
+        void removeTag( Entry t );
     }
 
     private DialogTagsHost mHost;

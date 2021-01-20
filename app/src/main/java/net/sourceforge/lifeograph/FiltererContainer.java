@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,10 +21,48 @@
 
 package net.sourceforge.lifeograph;
 
+import android.util.Log;
+
 import java.util.Vector;
 
 public class FiltererContainer extends Filterer
 {
+    // FILTERERSTATUS ==============================================================================
+    public static class FiltererStatus extends Filterer
+    {
+        FiltererStatus( Diary diary, FiltererContainer ctr, int status ) {
+            super( diary, ctr );
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            return true;
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+
+        }
+    }
+
+    // FILTERERFAVORITE ============================================================================
+    public static class FiltererFavorite extends Filterer
+    {
+        FiltererFavorite( Diary diary, FiltererContainer ctr, boolean f_favorite ) {
+            super( diary, ctr );
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            return true;
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+
+        }
+    }
+
     FiltererContainer( Diary diary, FiltererContainer ctr ) {
         super( diary, ctr );
         m_flag_or = false;
@@ -46,7 +84,7 @@ public class FiltererContainer extends Filterer
 
     @Override boolean
     filter( Entry entry ) {
-
+        return true;
     }
 
     @Override boolean
@@ -75,89 +113,89 @@ public class FiltererContainer extends Filterer
         if( m_p2container != null ) // only top level can do this
             return;
 
-        String            line;
-        int               line_offset = 0;
-        FiltererContainer container = this;
+        Lifeograph.MutableString line        = new Lifeograph.MutableString();
+        Lifeograph.MutableInt    line_offset = new Lifeograph.MutableInt();
+        FiltererContainer        container   = this;
 
         clear();
 
-        while( STR.get_line( string, line_offset, line ) )
+        while( Lifeograph.get_line( string, line_offset, line ) )
         {
-            if( line.length() < 2 )   // should never occur
+            if( line.v.length() < 2 )   // should never occur
                 continue;
 
-            switch( line.charAt( 1 ) )
+            switch( line.v.charAt( 1 ) )
             {
                 case 't':   // trashed (y/n)
-                    container.add_filterer_trashed( line.charAt( 2 ) == 'y' );
+                    container.add_filterer_trashed( line.v.charAt( 2 ) == 'y' );
                     break;
                 case 'f':   // favorite (y/n)
-                    container.add_filterer_favorite( line.charAt( 2 )  == 'y' );
+                    container.add_filterer_favorite( line.v.charAt( 2 )  == 'y' );
                     break;
                 case 's':   // status (ElemStatus)
                 {
                     int status = 0;
-                    if( line.length() > 6 ) {
-                        if( line.charAt( 2 ) == 'N' ) status |= DiaryElement.ES_SHOW_NOT_TODO;
-                        if( line.charAt( 3 ) == 'O' ) status |= DiaryElement.ES_SHOW_TODO;
-                        if( line.charAt( 4 ) == 'P' ) status |= DiaryElement.ES_SHOW_PROGRESSED;
-                        if( line.charAt( 5 ) == 'D' ) status |= DiaryElement.ES_SHOW_DONE;
-                        if( line.charAt( 6 ) == 'C' ) status |= DiaryElement.ES_SHOW_CANCELED;
+                    if( line.v.length() > 6 ) {
+                        if( line.v.charAt( 2 ) == 'N' ) status |= DiaryElement.ES_SHOW_NOT_TODO;
+                        if( line.v.charAt( 3 ) == 'O' ) status |= DiaryElement.ES_SHOW_TODO;
+                        if( line.v.charAt( 4 ) == 'P' ) status |= DiaryElement.ES_SHOW_PROGRESSED;
+                        if( line.v.charAt( 5 ) == 'D' ) status |= DiaryElement.ES_SHOW_DONE;
+                        if( line.v.charAt( 6 ) == 'C' ) status |= DiaryElement.ES_SHOW_CANCELED;
                     }
                     container.add_filterer_status( status );
                     break;
                 }
                 case 'i':   // is not (DEID)
                 {
-                    int id = Integer.parseInt( line.substring( 3 ) );
-                    container.add_filterer_is( id, line.charAt( 2 ) == 'T' );
+                    int id = Integer.parseInt( line.v.substring( 3 ) );
+                    container.add_filterer_is( id, line.v.charAt( 2 ) == 'T' );
                     break;
                 }
                 case 'r':   // tagged/referenced by (DEID)
                 {
-                    int id = Integer.parseInt( line.substring( 3 ) );
+                    int id = Integer.parseInt( line.v.substring( 3 ) );
                     container.add_filterer_tagged_by( m_p2diary.get_entry_by_id( id ),
-                                                      line.charAt( 2 ) == 'T' );
+                                                      line.v.charAt( 2 ) == 'T' );
                     break;
                 }
                 case 'h':   // theme (Ustring)
                 {
-                    String name = line.substring( 3 );
+                    String name = line.v.substring( 3 );
                     container.add_filterer_theme( m_p2diary.get_theme( name ),
-                                                  line.charAt( 2 ) == 'T' );
+                                                  line.v.charAt( 2 ) == 'T' );
                     break;
                 }
                 case 'd':   // between dates
                 {
-                    int  i_date = 3;
-                    long date_b = STR.get_ul( line, i_date );
-                    int  i_f_icl_e = i_date;
-                    i_date++;
-                    long date_e = STR.get_ul( line, i_date );
+                    Lifeograph.MutableInt i_date = new Lifeograph.MutableInt( 3 );
+                    long                  date_b = Lifeograph.get_long( line.v, i_date );
+                    int                   i_f_icl_e = i_date.v;
+                    i_date.v++;
+                    long                  date_e = Lifeograph.get_long( line.v, i_date );
                     container.add_filterer_between_dates(
-                            date_b, line.charAt( 2 ) == '[',
-                            date_e, line.charAt( i_f_icl_e ) == '[' );
+                            date_b, line.v.charAt( 2 ) == '[',
+                            date_e, line.v.charAt( i_f_icl_e ) == '[' );
                     break;
                 }
                 case 'e':   // between entries
                 {
-                    int  i_date = 3;
-                    long id_b = STR.get_ul( line, i_date );
-                    int  i_f_icl_e = i_date;
-                    i_date++;
-                    long id_e = STR.get_ul( line, i_date );
+                    Lifeograph.MutableInt i_id = new Lifeograph.MutableInt( 3 );
+                    int                   id_b = Lifeograph.get_int( line.v, i_id );
+                    int                   i_f_icl_e = i_id.v;
+                    i_id.v++;
+                    int                   id_e = Lifeograph.get_int( line.v, i_id );
                     container.add_filterer_between_entries(
-                            m_p2diary.get_entry_by_id( id_b ), line.charAt( 2 ) == '[',
+                            m_p2diary.get_entry_by_id( id_b ), line.v.charAt( 2 ) == '[',
                             m_p2diary.get_entry_by_id( id_e ),
-                            line.charAt( i_f_icl_e ) == '[' );
+                            line.v.charAt( i_f_icl_e ) == '[' );
                     break;
                 }
                 case 'c':   // completion
                 {
-                    int    i_double = 2;
-                    double double_b = STR.get_d( line, i_double );
-                    i_double++;
-                    double double_e = STR.get_d( line, i_double );
+                    Lifeograph.MutableInt i_double = new Lifeograph.MutableInt( 2 );
+                    double                double_b = Lifeograph.get_double( line.v, i_double );
+                    i_double.v++;
+                    double                double_e = Lifeograph.get_double( line.v, i_double );
                     container.add_filterer_completion( double_b, double_e );
                     break;
                 }
@@ -174,7 +212,7 @@ public class FiltererContainer extends Filterer
                     m_flag_or = false;
                     break;
                 default:
-                    PRINT_DEBUG( "Unrecognized filter string: ", line );
+                    Log.d( Lifeograph.TAG, "Unrecognized filter string: " + line );
                     break;
             }
         }
@@ -204,39 +242,40 @@ public class FiltererContainer extends Filterer
 
     void
     add_filterer_trashed( boolean f_trashed ) {
-        m_pipeline.add( new FiltererTrashed( m_p2diary, this, f_trashed ) );
+        //m_pipeline.add( new FiltererTrashed( m_p2diary, this, f_trashed ) );
     }
 
     void
     add_filterer_is( int id, boolean f_is ) {
-        m_pipeline.add( new FiltererIs( m_p2diary, this, id, f_is ) );
+        //m_pipeline.add( new FiltererIs( m_p2diary, this, id, f_is ) );
     }
 
     void
     add_filterer_tagged_by( Entry tag, boolean f_has ) {
-        m_pipeline.add( new FiltererHasTag( m_p2diary, this, tag, f_has ) );
+        //m_pipeline.add( new FiltererHasTag( m_p2diary, this, tag, f_has ) );
     }
 
     void
     add_filterer_theme( Theme theme, boolean f_has ) {
-        m_pipeline.add( new FiltererTheme( m_p2diary, this, theme, f_has ) );
+        //m_pipeline.add( new FiltererTheme( m_p2diary, this, theme, f_has ) );
     }
 
     void
     add_filterer_between_dates( long date_b, boolean f_incl_b, long date_e, boolean f_incl_e ) {
-        m_pipeline.add( new FiltererBetweenDates(
-                m_p2diary, this, date_b, f_incl_b, date_e, f_incl_e ) );
+        //m_pipeline.add( new FiltererBetweenDates(
+          //      m_p2diary, this, date_b, f_incl_b, date_e, f_incl_e ) );
     }
 
     void
     add_filterer_between_entries( Entry entry_b, boolean f_inc_b, Entry entry_e, boolean f_inc_e ) {
-        m_pipeline.add( new FiltererBetweenEntries(
-                m_p2diary, this, entry_b, f_inc_b, entry_e, f_inc_e ) );
+        //m_pipeline.add( new FiltererBetweenEntries(
+        //        m_p2diary, this, entry_b, f_inc_b, entry_e, f_inc_e ) );
     }
 
     void
     add_filterer_completion( double compl_b, double compl_e ) {
-        m_pipeline.add( new FiltererCompletion( m_p2diary, this, compl_b, compl_e ) ); }
+        //m_pipeline.add( new FiltererCompletion( m_p2diary, this, compl_b, compl_e ) );
+    }
 
     FiltererContainer
     add_filterer_subgroup() {

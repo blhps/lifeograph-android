@@ -21,46 +21,31 @@
 
 **************************************************************************** -->
 
-<androidx.drawerlayout.widget.DrawerLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@+id/drawer_layout"
+    android:id="@+id/main_container"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="match_parent"
+    android:gravity="center_horizontal"
+    android:orientation="vertical" >
 
-    <LinearLayout
-        android:id="@+id/main_container"
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/pager"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center_horizontal"
-        android:orientation="vertical" >
+        android:layout_height="0dp"
+        android:layout_weight="0.7" />
 
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/pager"
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.7" />
+    <net.sourceforge.lifeograph.ViewChart
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="0.25"
+        android:id="@+id/chart_view_diary"
+        android:layout_gravity="center_horizontal" />
 
-        <net.sourceforge.lifeograph.ViewChart
-            android:layout_width="match_parent"
-            android:layout_height="0dp"
-            android:layout_weight="0.25"
-            android:id="@+id/chart_view_diary"
-            android:layout_gravity="center_horizontal" />
-
-        <fragment
-            android:id="@+id/fragmentAd"
-            android:name="net.sourceforge.lifeograph.FragmentAd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-    </LinearLayout>
-
-    <!-- DRAWER -->
     <fragment
-        android:id="@+id/fragmentFilter"
-        android:name="net.sourceforge.lifeograph.FragmentFilter"
-        android:layout_width="wrap_content"
-        android:layout_height="match_parent"
-        android:layout_gravity="end" />
+        android:id="@+id/fragmentAd"
+        android:name="net.sourceforge.lifeograph.FragmentAd"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
 
-</androidx.drawerlayout.widget.DrawerLayout>
+</LinearLayout>

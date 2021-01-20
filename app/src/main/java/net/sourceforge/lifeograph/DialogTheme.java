@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -34,9 +34,9 @@ import yuku.ambilwarna.AmbilWarnaDialog;
 
 class DialogTheme extends Dialog
 {
-    DialogTheme( Context context, Tag tag, DialogThemeHost host ) {
+    DialogTheme( Context context, Theme theme, DialogThemeHost host ) {
         super( context );
-        mTag = tag;
+        mTheme = theme;
         mHost = host;
     }
 
@@ -45,7 +45,7 @@ class DialogTheme extends Dialog
         super.onCreate( savedInstanceState );
         setContentView( R.layout.dialog_theme );
 
-        setTitle( mTag.get_name() );
+        setTitle( mTheme.get_name() );
 
         mButtonTextColor = findViewById( R.id.button_text_color );
         mButtonBaseColor = findViewById( R.id.button_base_color );
@@ -59,27 +59,26 @@ class DialogTheme extends Dialog
 
         mButtonTextColor.setOnClickListener( v -> {
             sIndex = 0;
-            showColorDialog( mTag.get_theme().color_text + 0xff000000 );
+            showColorDialog( mTheme.color_text + 0xff000000 );
         } );
         mButtonBaseColor.setOnClickListener( v -> {
             sIndex = 1;
-            showColorDialog( mTag.get_theme().color_base + 0xff000000 );
+            showColorDialog( mTheme.color_base + 0xff000000 );
         } );
         mButtonHeadingColor.setOnClickListener( v -> {
             sIndex = 2;
-            showColorDialog( mTag.get_theme().color_heading + 0xff000000 );
+            showColorDialog( mTheme.color_heading + 0xff000000 );
         } );
         mButtonSubheadingColor.setOnClickListener( v -> {
             sIndex = 3;
-            showColorDialog( mTag.get_theme().color_subheading + 0xff000000 );
+            showColorDialog( mTheme.color_subheading + 0xff000000 );
         } );
         mButtonHighlightColor.setOnClickListener( v -> {
             sIndex = 4;
-            showColorDialog( mTag.get_theme().color_highlight + 0xff000000 );
+            showColorDialog( mTheme.color_highlight + 0xff000000 );
         } );
 
 
-        mButtonReset.setEnabled( mTag.get_has_own_theme() );
         mButtonReset.setOnClickListener( v -> resetTheme() );
     }
 
@@ -96,24 +95,22 @@ class DialogTheme extends Dialog
         {
             public void onOk( AmbilWarnaDialog dialog, int color ) {
                 mButtonReset.setEnabled( true );
-                if( !mTag.get_has_own_theme() )
-                    mTag.create_own_theme_duplicating( Theme.System.get() );
 
                 switch( sIndex ) {
                     case 0:
-                        mTag.get_theme().color_text = color;
+                        mTheme.color_text = color;
                         break;
                     case 1:
-                        mTag.get_theme().color_base = color;
+                        mTheme.color_base = color;
                         break;
                     case 2:
-                        mTag.get_theme().color_heading = color;
+                        mTheme.color_heading = color;
                         break;
                     case 3:
-                        mTag.get_theme().color_subheading = color;
+                        mTheme.color_subheading = color;
                         break;
                     case 4:
-                        mTag.get_theme().color_highlight = color;
+                        mTheme.color_highlight = color;
                         break;
                 }
 
@@ -129,13 +126,13 @@ class DialogTheme extends Dialog
     }
 
     private void resetTheme() {
-        mTag.reset_theme();
+        // TODO mTheme.reset();
         mButtonReset.setEnabled( false );
         updateButtonColors();
     }
 
     private void updateButtonColors() {
-        Theme theme =  mTag.get_theme();
+        Theme theme =  mTheme;
         mButtonTextColor.setBackgroundColor( theme.color_text );
         mButtonBaseColor.setBackgroundColor( theme.color_base );
         mButtonHeadingColor.setBackgroundColor( theme.color_heading );
@@ -156,7 +153,7 @@ class DialogTheme extends Dialog
         return y >= 128 ? Color.BLACK : Color.WHITE;
     }
 
-    private Tag mTag;
+    private Theme mTheme;
     private static int sIndex;
 
     private Button mButtonTextColor;

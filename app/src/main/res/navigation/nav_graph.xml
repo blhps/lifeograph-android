@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- ***************************************************************************
+
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+
+    This file is part of Lifeograph.
+
+    Lifeograph is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Lifeograph is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+
+**************************************************************************** -->
+
+<navigation xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/nav_graph"
+    app:startDestination="@id/nav_diaries" >
+
+    <fragment
+        android:id="@+id/nav_entries"
+        android:name="net.sourceforge.lifeograph.FragmentEntryList" />
+    <activity
+        android:id="@+id/activityEntry"
+        android:name="net.sourceforge.lifeograph.ActivityEntry"
+        android:label="ActivityEntry" />
+    <fragment
+        android:id="@+id/nav_diaries"
+        android:name="net.sourceforge.lifeograph.FragmentDiaryList"
+        android:label="Diaries"
+        tools:layout="@layout/fragment_list_diary" >
+        <action
+            android:id="@+id/action_itemFragment_to_fragmentSettings"
+            app:destination="@id/nav_settings" />
+        <action
+            android:id="@+id/action_diary_list_to_dialogAbout"
+            app:destination="@id/nav_about" />
+        <action
+            android:id="@+id/action_nav_diaries_to_dialogCalendar"
+            app:destination="@id/nav_calendar" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_settings"
+        android:name="net.sourceforge.lifeograph.FragmentSettings"
+        android:label="Settings"
+        tools:layout="@layout/settings" />
+    <dialog
+        android:id="@+id/nav_about"
+        android:name="net.sourceforge.lifeograph.DialogAbout"
+        android:label="About"
+        tools:layout="@layout/dialog_about" />
+    <dialog
+        android:id="@+id/nav_calendar"
+        android:name="net.sourceforge.lifeograph.DialogCalendar"
+        android:label="Calendar"
+        tools:layout="@layout/calendar" />
+</navigation>

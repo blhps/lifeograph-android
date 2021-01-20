@@ -61,7 +61,7 @@
 
         <fragment
             android:id="@+id/fragmentList"
-            android:name="net.sourceforge.lifeograph.FragmentElemList"
+            android:name="net.sourceforge.lifeograph.FragmentEntryList"
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:layout_weight="0.7" />

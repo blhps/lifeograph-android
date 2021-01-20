@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -81,7 +81,7 @@ class GridCalAdapter extends BaseAdapter
         final int numSlotBefore = date2.get_weekday();
 
         Date prevMonth = new Date( date2.m_date );
-        prevMonth.backward_month();
+        prevMonth.backward_months( 1 );
         int prevMonthLength = prevMonth.get_days_in_month();
         prevMonth.set_day( prevMonthLength - numSlotBefore );
 
@@ -112,7 +112,7 @@ class GridCalAdapter extends BaseAdapter
         return position;
     }
 
-    // @Override
+    @Override
     public View getView( int position, View convertView, ViewGroup parent ) {
         View row = convertView;
         if( row == null ) {
@@ -157,7 +157,8 @@ class GridCalAdapter extends BaseAdapter
             if( date.get_pure() == mDateCurrent.get_pure() )
                 tvDayNo.setBackgroundColor(
                         mContext.getResources().getColor( R.color.t_lighter ) );
-            else if( Diary.diary.m_p2chapter_ctg_cur.getMap().containsKey( date.get_pure() ) )
+            else if( Diary.diary.is_open() &&
+                     Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey( date.get_pure() ) )
                 tvDayNo.setBackgroundColor(
                         mContext.getResources().getColor( R.color.t_lightest ) );
             else

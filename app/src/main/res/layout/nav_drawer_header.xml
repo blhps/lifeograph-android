@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,10 +21,22 @@
 
 **************************************************************************** -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:compat="http://schemas.android.com/apk/res-auto" >
-    <item android:id="@+id/purchase"
-          android:title="@string/purchase"
-          android:orderInCategory="100"
-          compat:showAsAction="never" />
-</menu>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/t_darker"
+    android:gravity="bottom"
+    android:orientation="vertical"
+    android:paddingBottom="16dp"
+    android:paddingLeft="16dp"
+    android:paddingRight="16dp"
+    android:paddingTop="16dp"
+    android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingTop="8dp"
+        android:text="@string/Lifeograph"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+</LinearLayout>

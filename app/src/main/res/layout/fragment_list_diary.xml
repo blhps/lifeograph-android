@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,10 +21,16 @@
 
 **************************************************************************** -->
 
-<menu xmlns:android="http://schemas.android.com/apk/res/android"
-      xmlns:compat="http://schemas.android.com/apk/res-auto" >
-    <item android:id="@+id/purchase"
-          android:title="@string/purchase"
-          android:orderInCategory="100"
-          compat:showAsAction="never" />
-</menu>
+<androidx.recyclerview.widget.RecyclerView
+    android:id="@+id/list_diaries"
+    android:name="net.sourceforge.lifeograph.FragmentDiaryList"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_marginLeft="16dp"
+    android:layout_marginRight="16dp"
+    app:layoutManager="LinearLayoutManager"
+    tools:context=".FragmentDiaryList"
+    tools:listitem="@layout/list_item_diary" />

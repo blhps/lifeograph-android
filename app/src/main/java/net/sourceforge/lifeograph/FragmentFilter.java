@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+ Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
  This file is part of Lifeograph.
 
@@ -128,8 +128,8 @@ public class FragmentFilter extends Fragment
 
         Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + context.toString() );
 
-        if( context instanceof FragmentElemList.ListOperations )
-            mListOperations = ( FragmentElemList.ListOperations ) context;
+        if( context instanceof FragmentEntryList.ListOperations )
+            mListOperations = ( FragmentEntryList.ListOperations ) context;
         else
             throw new ClassCastException( context.toString() + " must implement ListOperations" );
     }
@@ -152,7 +152,7 @@ public class FragmentFilter extends Fragment
     }
 
     void handleSearchTextChanged( String text ) {
-        Diary.diary.set_search_text( text.toLowerCase() );
+        Diary.diary.set_search_text( text.toLowerCase(), false );
         mListOperations.updateList();
     }
 
@@ -177,14 +177,14 @@ public class FragmentFilter extends Fragment
     }
 
     void handleFilterTodoChanged() {
-        Diary.diary.m_filter_active.set_todo(
-                mButtonShowTodoNot.isChecked(),
-                mButtonShowTodoOpen.isChecked(),
-                mButtonShowTodoProgressed.isChecked(),
-                mButtonShowTodoDone.isChecked(),
-                mButtonShowTodoCanceled.isChecked() );
-
-        mListOperations.updateList();
+//        Diary.diary.m_filter_active.set_todo(
+//                mButtonShowTodoNot.isChecked(),
+//                mButtonShowTodoOpen.isChecked(),
+//                mButtonShowTodoProgressed.isChecked(),
+//                mButtonShowTodoDone.isChecked(),
+//                mButtonShowTodoCanceled.isChecked() );
+//
+//        mListOperations.updateList();
     }
 
     void handleFilterFavoriteChanged( int i ) {
@@ -206,20 +206,20 @@ public class FragmentFilter extends Fragment
                 break;
         }
 
-        Diary.diary.m_filter_active.set_favorites( showFav, showNotFav );
+//        Diary.diary.m_filter_active.set_favorites( showFav, showNotFav );
 
         mListOperations.updateList();
     }
 
     void resetFilter() {
-        updateFilterWidgets( Diary.diary.m_filter_default.get_status() );
-        Diary.diary.m_filter_active.set_status_outstanding();
+//        updateFilterWidgets( Diary.diary.m_filter_default.get_status() );
+//        Diary.diary.m_filter_active.set_status_outstanding();
         mListOperations.updateList();
     }
 
     void saveFilter() {
         Lifeograph.showToast( R.string.filter_saved );
-        Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
+//        Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
     }
 
     private EditText mEditSearch = null;
@@ -231,7 +231,7 @@ public class FragmentFilter extends Fragment
     private ToggleImageButton mButtonShowTodoCanceled = null;
     private Spinner mSpinnerShowFavorite = null;
 
-    private FragmentElemList.ListOperations mListOperations;
+    private FragmentEntryList.ListOperations mListOperations;
 
 
     protected boolean mTextInitialized = false;

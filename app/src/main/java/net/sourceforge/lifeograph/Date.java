@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -229,6 +229,15 @@ public class Date {
     }
 
     public static long
+    backward_to_week_start( long date ) {
+        int wd = get_weekday( date );
+        if( wd > 0 )
+            return backward_days( date, wd );
+        else
+            return date;
+    }
+
+    public static long
     forward_days( long date, int n_days ) {
         int day_new       = ( get_day( date ) + n_days );
         int days_in_month = get_days_in_month( date );
@@ -259,21 +268,26 @@ public class Date {
         return date;
     }
 
-    public int get_weekday() {
+    public static int
+    get_weekday( long date ) {
         // from wikipedia: http://en.wikipedia.org/wiki/Calculating_the_day_of_the_week
-        int year = get_year();
+        int year = get_year( date );
         int century = ( year - ( year % 100 ) ) / 100;
         int c = 2 * ( 3 - ( century % 4 ) );
         int y = year % 100;
         y = y + ( int ) java.lang.Math.floor( y / 4 );
 
-        int m = get_month() - 1;
-        int d = ( c + y + tm[ m ] + get_day() );
+        int m = get_month( date ) - 1;
+        int d = ( c + y + tm[ m ] + get_day( date ) );
 
-        if( m < 2 && is_leap_year() ) // leap year!
+        if( m < 2 && is_leap_year( date ) ) // leap year!
             d += 6;
 
         return( d % 7 );
+    }
+    public int
+    get_weekday() {
+        return get_weekday( m_date );
     }
 
     public static int

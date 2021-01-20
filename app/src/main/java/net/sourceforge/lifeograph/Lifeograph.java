@@ -37,6 +37,10 @@ import android.util.Log;
 import android.view.WindowManager;
 import android.widget.Toast;
 
+import net.sourceforge.lifeograph.helpers.Result;
+
+import androidx.annotation.NonNull;
+
 public class Lifeograph
 {
     // CONSTANTS ===================================================================================
@@ -60,31 +64,46 @@ public class Lifeograph
         return( mAdFreePurchased == PurchaseStatus.NOT_PURCHASED );
     }
 
+    static int
+    get_todo_icon( int es ) {
+        switch( es ) {
+            case DiaryElement.ES_PROGRESSED:
+                return R.mipmap.ic_todo_progressed;
+            case DiaryElement.ES_DONE:
+                return R.mipmap.ic_todo_done;
+            case DiaryElement.ES_CANCELED:
+                return R.mipmap.ic_todo_canceled;
+            case DiaryElement.ES_TODO:
+            default:
+                return R.mipmap.ic_todo_open;
+        }
+    }
+
     interface DiaryEditor{
         void enableEditing();
         Context getContext();
     }
 
-    static void showElem( DiaryElement elem ) {
-        if( elem != null ) {
-            switch( elem.get_type() ) {
-                case ENTRY: {
-                    Intent i = new Intent( sContext, ActivityEntry.class );
-                    i.putExtra( "entry", elem.get_date_t() );
-                    sContext.startActivity( i );
-                    break;
-                }
-                case CHAPTER: {
-                    Intent i = new Intent( sContext, ActivityChapterTag.class );
-                    i.putExtra( "elem", elem.get_id() );
-                    i.putExtra( "type", elem.get_type().i );
-                    sContext.startActivity( i );
-                    break;
-                }
+    static void
+    showElem( @NonNull DiaryElement elem ) {
+        switch( elem.get_type() ) {
+            case ENTRY:
+            case CHAPTER:
+            {
+                Intent i = new Intent( sContext, ActivityEntry.class );
+                i.putExtra( "entry", elem.get_date_t() );
+                sContext.startActivity( i );
+                break;
             }
+//                case THEME:
+//                {
+//                    Intent i = new Intent( sContext, ActivityChapterTag.class );
+//                    i.putExtra( "elem", elem.get_id() );
+//                    i.putExtra( "type", elem.get_type().i );
+//                    sContext.startActivity( i );
+//                    break;
+//                }
         }
-        else
-            Log.e( TAG, "null element passed to showElem" );
     }
 
     public static void enableEditing( DiaryEditor editor ) {
@@ -252,5 +271,108 @@ public class Lifeograph
         }
 
         return true;
+    }
+
+    static long
+    get_long( @NonNull String line, @NonNull MutableInt i ) {
+        long result = 0;
+
+        for( ; i.v < line.length() && line.charAt( i.v ) >= '0' && line.charAt( i.v ) <= '9';
+             i.v++ )
+        result = ( ( result * 10 ) + line.charAt( i.v ) - '0' );
+
+        return result;
+    }
+
+    static int
+    get_int( @NonNull String line, @NonNull MutableInt i ) {
+        int result = 0;
+
+        for( ; i.v < line.length() && line.charAt( i.v ) >= '0' && line.charAt( i.v ) <= '9';
+             i.v++ )
+        result = ( ( result * 10 ) + line.charAt( i.v ) - '0' );
+
+        return result;
+    }
+
+    static double
+    get_double( @NonNull String text ) {
+        //NOTE: this implementation may be a little bit more forgiving than good for health
+        double  value = 0.0;
+        //char lf{ '=' }; // =, \, #, $(unit)
+        int     divider = 0;
+        boolean negative = false;
+        char    c;
+
+        for( int i = 0; i < text.length(); i++ ) {
+            c = text.charAt( i );
+            switch( c ) {
+                case ',':
+                case '.':
+                    if( divider == 0 ) // note that if divider
+                        divider = 1;
+                    break;
+                case '-':
+                    negative = true;
+                    break;
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                    value *= 10;
+                    value += ( c - '0' );
+                    if( divider != 0 )
+                        divider *= 10;
+                    break;
+                default:
+                    break;
+            }
+        }
+
+        if( divider > 1 )
+            value /= divider;
+        if( negative )
+            value *= -1;
+
+        return value;
+    }
+    static double
+    get_double( @NonNull String line, @NonNull MutableInt i ) {
+        double  value      = 0.0;
+        int     divider    = 0;
+        boolean negative   = false;
+        boolean f_continue = true;
+        char    c;
+
+        for( ; i.v < line.length() && f_continue; i.v++ )
+        {
+            c = line.charAt( i.v );
+            switch( c ) {
+                case ',':
+                case '.':
+                    if( divider == 0 ) // note that if divider
+                        divider = 1;
+                    break;
+                case '-':
+                    negative = true;
+                    break;
+                case '0': case '1': case '2': case '3': case '4':
+                case '5': case '6': case '7': case '8': case '9':
+                value *= 10;
+                value += ( c - '0' );
+                if( divider != 0 )
+                    divider *= 10;
+                break;
+                default:
+                    i.v--;
+                    f_continue = false; // end loop
+                    break;
+            }
+        }
+
+        if( divider > 1 )
+            value /= divider;
+        if( negative )
+            value *= -1;
+
+        return value;
     }
 }

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
 import java.util.Vector;
 
@@ -58,7 +58,7 @@ public class Entry extends DiaryElement {
     }
 
     int
-    get_child_count(){
+    get_child_count() {
         int count = 0;
 
         if( m_date.get_level() < 3 ) {
@@ -75,7 +75,7 @@ public class Entry extends DiaryElement {
 
                 Entry entry = m_p2diary.m_entries.get( date );
 
-                if( entry.get_filtered_out() ) // this may be optional in the future
+                if( Objects.requireNonNull( entry ).get_filtered_out() ) // this may be optional in the future
                     continue;
 
                 if( Date.is_child_of( entry.m_date.m_date, m_date.m_date ) )
@@ -91,7 +91,7 @@ public class Entry extends DiaryElement {
     }
 
     Vector< Entry >
-    get_descendants(){
+    get_descendants() {
         // NOTE: also returns grand-children
         Vector< Entry > descendants = new Vector<>();
 
@@ -110,6 +110,7 @@ public class Entry extends DiaryElement {
 
                 Entry entry = m_p2diary.m_entries.get( date );
 
+                assert entry != null;
                 if( Date.is_descendant_of( entry.m_date.m_date, m_date.m_date ) )
                     descendants.add( entry );
                 else
@@ -121,8 +122,7 @@ public class Entry extends DiaryElement {
     }
 
     int
-    get_descendant_depth()
-    {
+    get_descendant_depth() {
         int level = m_date.get_level();
 
         if( level >= 3 ) // covers temporal entries, too
@@ -142,6 +142,7 @@ public class Entry extends DiaryElement {
 
             Entry entry = m_p2diary.m_entries.get( date );
 
+            assert entry != null;
             if( Date.is_descendant_of( entry.m_date.m_date, m_date.m_date ) )
             {
                 int diff = entry.m_date.get_level() - level;
@@ -240,15 +241,12 @@ public class Entry extends DiaryElement {
             title.append( m_date.format_string() );
 
             if( !m_date.is_ordinal() && Lifeograph.getScreenWidth() > 3.0 )
-                title.append( ", " ).append( get_date().get_weekday_str() );
+                title.append( ", " ).append( m_date.get_weekday_str() );
 
             return title.toString();
         }
         else {
-            if( m_p2diary.m_groups.getMap().containsKey( m_date.get_pure() ) )
-                return m_p2diary.m_groups.getMap().get( m_date.get_pure() ).get_name();
-            else
-                return "/"; // TODO find a better name
+            return "/"; // TODO find a better name
         }
     }
 
@@ -336,7 +334,7 @@ public class Entry extends DiaryElement {
     void
     insert_text( int pos, final String text ) throws Exception {
         Lifeograph.MutableInt para_offset = new Lifeograph.MutableInt( get_size() );
-        Paragraph             para        = null;
+        Paragraph             para;
 
         if( text.isEmpty() )
             return;
@@ -431,7 +429,7 @@ public class Entry extends DiaryElement {
             return;
 
         int i = 0;
-        int pt_bgn = 0, pt_end = 0;
+        int pt_bgn = 0, pt_end;
         boolean flag_terminate_loop = false;
 
         while( true )
@@ -536,14 +534,14 @@ public class Entry extends DiaryElement {
         return "";
     }
 
-
-
     // FAVORITE ENTRY
-    public boolean is_favored() {
+    boolean
+    is_favored() {
         return( ( m_status & ES_FAVORED ) != 0 );
     }
 
-    public void set_favored( boolean favored ) {
+    void
+    set_favored( boolean favored ) {
         if( favored )
         {
             m_status |= ES_FAVORED;
@@ -556,31 +554,28 @@ public class Entry extends DiaryElement {
         }
     }
 
-    public void toggle_favored() {
+    void
+    toggle_favored() {
         m_status ^= ES_FILTER_FAVORED;
     }
 
     // LANGUAGE
-    public String get_lang() {
-        return m_option_lang;
-    }
-
-    public String get_lang_final() {
+    String
+    get_lang_final() {
         return m_option_lang.compareTo( Lifeograph.LANG_INHERIT_DIARY ) == 0 ? m_p2diary.get_lang()
                                                                            : m_option_lang;
     }
 
-    public void set_lang( String lang ) {
-        m_option_lang = lang;
-    }
-
     // TRASH FUNCTIONALITY
-    public boolean is_trashed() {
+    boolean
+    is_trashed() {
         return( ( m_status & ES_TRASHED ) != 0 );
     }
 
-    public void set_trashed( boolean trashed ) {
-        set_status_flag( ES_TRASHED, trashed );
+    void
+    set_trashed( boolean trashed ) {
+        m_status -= ( m_status & ES_FILTER_TRASHED );
+        m_status |= ( trashed ? ES_TRASHED : ES_NOT_TRASHED );
     }
 
     // TAGS ========================================================================================
@@ -767,12 +762,12 @@ public class Entry extends DiaryElement {
         return( get_theme().m_name.equals( name ) ); }
 
     // TO-DO STATUS ================================================================================
-    protected boolean
+    protected static boolean
     is_status_ready( int s ) {
         return( ( s & ES_PROGRESSED ) != 0 || ( ( s & ES_TODO ) != 0 && ( s & ES_DONE ) != 0 ) );
     }
 
-    int
+    static int
     calculate_todo_status( String text ) {
         int pos_current = 0;
         int pos_end = text.length();
@@ -997,10 +992,9 @@ public class Entry extends DiaryElement {
     long m_date_edited;
     long m_date_status;
 
-    List< Paragraph > m_paragraphs;
-
-    Coords         m_location = new Coords();
-    List< Coords > m_map_path = new ArrayList<>();
+    List< Paragraph > m_paragraphs = new ArrayList<>();
+    Coords            m_location   = new Coords();
+    List< Coords >    m_map_path   = new ArrayList<>();
     Theme  m_p2theme = null;
     String m_unit = "";
     String m_option_lang = Lifeograph.LANG_INHERIT_DIARY; // empty means off

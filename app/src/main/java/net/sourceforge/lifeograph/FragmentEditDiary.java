@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2020 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -23,7 +23,6 @@ package net.sourceforge.lifeograph;
 
 
 import java.util.ArrayList;
-import java.util.List;
 
 import android.app.Activity;
 import android.content.Context;
@@ -31,6 +30,7 @@ import android.os.Bundle;
 import android.os.Parcelable;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -38,67 +38,74 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.GridView;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 
 import androidx.annotation.NonNull;
-import androidx.core.view.GravityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import androidx.core.view.MenuItemCompat;
 import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.ActionBar;
 
-
-public class ActivityDiary extends AppCompatActivity
-        implements DialogInquireText.InquireListener, FragmentElemList.DiaryManager,
-        DialogCalendar.Listener, FragmentElemList.ListOperations, PopupMenu.OnMenuItemClickListener,
-        DialogTags.DialogTagsHost, ActionMode.Callback, DialogPassword.Listener,
+public class FragmentEditDiary extends Fragment
+        implements DialogInquireText.InquireListener,
+        DialogCalendar.Listener, FragmentEntryList.ListOperations, PopupMenu.OnMenuItemClickListener,
+        ActionMode.Callback, DialogPassword.Listener,
         Lifeograph.DiaryEditor
 {
     @Override
-    protected void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
-
-        Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
-
-        Lifeograph.sContext = this;
-        Lifeograph.updateScreenSizes( this );
+    //protected void onCreate( Bundle savedInstanceState ) {
+    public View
+    onCreateView( @NonNull LayoutInflater inflater,
+                  ViewGroup container,
+                  Bundle savedInstanceState ) {
+        ViewGroup rootView;
 
         // PICKING UP THE APPROPRIATE LAYOUT
         if( Lifeograph.getScreenWidth() >= 4.0 ) {
-            setContentView( R.layout.diary_wide );
+            rootView = ( ViewGroup ) inflater.inflate( R.layout.diary_wide, container, false );
 
-            mButtonCalendar = findViewById( R.id.button_calendar );
-            mButtonCalendar.setOnClickListener( view -> new DialogCalendar( ActivityDiary.this, Diary.diary.is_in_edit_mode() ).show() );
+            mButtonCalendar = rootView.findViewById( R.id.button_calendar );
+            //mButtonCalendar.setOnClickListener( view -> new DialogCalendar( FragmentEditDiary
+            // .this, Diary.diary.is_in_edit_mode() ).show() );
 
-            ViewPager pagerCalendar = findViewById( R.id.pager_calendar );
+            ViewPager pagerCalendar = rootView.findViewById( R.id.pager_calendar );
             mCalPagerAdapter = new PagerAdapterCalendar( pagerCalendar );
         }
         else {
             mCalPagerAdapter = null;
-            setContentView( R.layout.diary );
+            rootView = ( ViewGroup ) inflater.inflate( R.layout.diary, container, false );
         }
 
+        return rootView;
+    }
+
+    @Override
+    public void
+    onViewCreated( @NonNull View view, Bundle savedInstanceState) {
+        Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
+
+        Lifeograph.sContext = getContext();
+        Lifeograph.updateScreenSizes( getContext() );
+
         // FILLING WIDGETS
-        mDrawerLayout = findViewById( R.id.drawer_layout );
+        mDrawerLayout = view.findViewById( R.id.drawer_layout );
         //mInflater = ( LayoutInflater ) getSystemService( Activity.LAYOUT_INFLATER_SERVICE );
 
         // LISTENERS
-        mDrawerLayout.addDrawerListener( new DrawerLayout.DrawerListener()
-        {
-            public void onDrawerSlide( @NonNull View view, float v ) { }
-
-            public void onDrawerOpened( @NonNull View view ) {
-
-                for( FragmentElemList fragment : mDiaryFragments ) {
-                    if( fragment.isVisible() )
-                        fragment.getListView().setEnabled( false );
-                }
+//        mDrawerLayout.addDrawerListener( new DrawerLayout.DrawerListener()
+//        {
+//            public void onDrawerSlide( @NonNull View view, float v ) { }
+//
+//            public void onDrawerOpened( @NonNull View view ) {
+//
+//                for( FragmentElemList fragment : mDiaryFragments ) {
+//                    if( fragment.isVisible() )
+//                        fragment.getListView().setEnabled( false );
+//                }
 
                 // alternative way:
 //                for( int i = 0; i < 3; i++ ) {
@@ -108,61 +115,61 @@ public class ActivityDiary extends AppCompatActivity
 //                        if( fragment.isVisible() )
 //                            fragment.getListView().setEnabled( false );
 //                }
-            }
-
-            public void onDrawerClosed( @NonNull View view ) {
-                for( FragmentElemList fragment : mDiaryFragments ) {
-                    if( fragment.isVisible() )
-                        fragment.getListView().setEnabled( true );
-                }
-            }
-
-            public void onDrawerStateChanged( int i ) { }
-        } );
+//            }
+//
+//            public void onDrawerClosed( @NonNull View view ) {
+//                for( FragmentElemList fragment : mDiaryFragments ) {
+//                    if( fragment.isVisible() )
+//                        fragment.getListView().setEnabled( true );
+//                }
+//            }
+//
+//            public void onDrawerStateChanged( int i ) { }
+//        } );
 
         // ACTIONBAR
-        ActionBar mActionBar = getSupportActionBar();
-        if( mActionBar != null ) {
-            mActionBar.setDisplayHomeAsUpEnabled( true );
-            mActionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
-            //mActionBar.setIcon( R.drawable.ic_diary );
-            setTitle( Diary.diary.get_title_str() );
-            mActionBar.setSubtitle( Diary.diary.get_info_str() );
-        }
+//        ActionBar mActionBar = getSupportActionBar();
+//        if( mActionBar != null ) {
+//            mActionBar.setDisplayHomeAsUpEnabled( true );
+//            mActionBar.setNavigationMode( ActionBar.NAVIGATION_MODE_TABS );
+//            //mActionBar.setIcon( R.drawable.ic_diary );
+//            setTitle( Diary.diary.get_title_str() );
+//            // TODO mActionBar.setSubtitle( Diary.diary.get_info_str() );
+//        }
 
-        mPager = findViewById( R.id.pager );
-        TabsAdapter mTabsAdapter = new TabsAdapter( this, mPager );
-
-        Bundle args = new Bundle();
-        args.putInt( "tab", 0 );
-        mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.all_entries ),
-                             args );
-        args = new Bundle();
-        args.putInt( "tab", 1 );
-        mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.chapters ),
-                             args );
-        args = new Bundle();
-        args.putInt( "tab", 2 );
-        mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.tags ),
-                             args );
+//        mPager = view.findViewById( R.id.pager );
+//        TabsAdapter mTabsAdapter = new TabsAdapter( this, mPager );
+//
+//        Bundle args = new Bundle();
+//        args.putInt( "tab", 0 );
+//        mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.all_entries ),
+//                             args );
+//        args = new Bundle();
+//        args.putInt( "tab", 1 );
+//        mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.chapters ),
+//                             args );
+//        args = new Bundle();
+//        args.putInt( "tab", 2 );
+//        mTabsAdapter.addTab( mActionBar.newTab().setText( R.string.tags ),
+//                             args );
 
         // CHART
-        mViewChart = findViewById( R.id.chart_view_diary );
-        mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
-        mViewChart.setListener( type -> {
-            Diary.diary.set_chart_type( type );
-            mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
-        } );
+//        mViewChart = findViewById( R.id.chart_view_diary );
+//        mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
+//        mViewChart.setListener( type -> {
+//            Diary.diary.set_chart_type( type );
+//            mViewChart.set_points( Diary.diary.create_chart_data(), 1f );
+//        } );
 
-        if( savedInstanceState != null ) {
-            mActionBar.setSelectedNavigationItem( savedInstanceState.getInt( "tab", 0 ) );
-        }
-
-        if( !Lifeograph.getAddFreeNotPurchased() ) {
-            LinearLayout container = findViewById( R.id.main_container );
-            View ad = findViewById( R.id.fragmentAd );
-            container.removeView( ad );
-        }
+//        if( savedInstanceState != null ) {
+//            mActionBar.setSelectedNavigationItem( savedInstanceState.getInt( "tab", 0 ) );
+//        }
+//
+//        if( !Lifeograph.getAddFreeNotPurchased() ) {
+//            LinearLayout container = view.findViewById( R.id.main_container );
+//            View ad = view.findViewById( R.id.fragmentAd );
+//            container.removeView( ad );
+//        }
     }
 
     /*@Override
@@ -173,130 +180,47 @@ public class ActivityDiary extends AppCompatActivity
     }*/
 
     @Override
-    protected void onStop() {
+    public void onStop() {
         super.onStop();
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onStop()" );
 
-        Diary.diary.write_lock();
+        Diary.diary.writeLock();
     }
 
     @Override
-    protected void onResume() {
+    public void onResume() {
         super.onResume();
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
 
-        Lifeograph.sContext = this;
-        Diary.diary.set_saving_enabled( true );
+        Lifeograph.sContext = getContext();
+        Diary.diary.setSavingEnabled( true );
 
         if( mMenu != null )
             updateMenuVisibilities();
     }
 
-    @Override
-    protected void onSaveInstanceState( @NonNull Bundle outState ) {
-        super.onSaveInstanceState( outState );
-        outState.putInt( "tab", getSupportActionBar().getSelectedNavigationIndex() );
-
-        Log.d( Lifeograph.TAG, "ActivityDiary.onSaveInstanceState()" );
-    }
+//    @Override
+//    protected void onSaveInstanceState( @NonNull Bundle outState ) {
+//        super.onSaveInstanceState( outState );
+//        //outState.putInt( "tab", getSupportActionBar().getSelectedNavigationIndex() );
+//
+//        Log.d( Lifeograph.TAG, "ActivityDiary.onSaveInstanceState()" );
+//    }
 
 //    @Override
 //    public void onBackPressed() {
 //        super.onBackPressed();
 //    }
 
-    @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        super.onCreateOptionsMenu( menu );
 
-        getMenuInflater().inflate( R.menu.menu_diary, menu );
+//
 
-        MenuItem item = menu.findItem( R.id.add_elem );
-        AddElemAction addElemAction = ( AddElemAction ) MenuItemCompat.getActionProvider( item );
-        addElemAction.mParent = this;
-
-        mMenu = menu;
-
-        return true;
-    }
-
-    @Override
-    public boolean onPrepareOptionsMenu( Menu menu ) {
-        super.onPrepareOptionsMenu( menu );
-
-        updateMenuVisibilities();
-
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected( MenuItem item ) {
-        switch( item.getItemId() ) {
-            case R.id.enable_edit:
-                Lifeograph.enableEditing( this );
-                return true;
-            case android.R.id.home:
-                finish();
-                return true;
-            case R.id.calendar:
-                new DialogCalendar( this, Diary.diary.is_in_edit_mode() ).show();
-                return true;
-            case R.id.filter:
-                if( mDrawerLayout.isDrawerOpen( GravityCompat.END ) )
-                    mDrawerLayout.closeDrawer( GravityCompat.END );
-                else
-                    mDrawerLayout.openDrawer( GravityCompat.END );
-                return true;
-            case R.id.add_password:
-                new DialogPassword( this,
-                                    Diary.diary,
-                                    DialogPassword.DPAction.DPA_ADD,
-                                    this ).show();
-                return true;
-            case R.id.change_password:
-                new DialogPassword( this,
-                                    Diary.diary,
-                                    DialogPassword.DPAction.DPA_AUTHENTICATE,
-                                    this ).show();
-                return true;
-            case R.id.export_plain_text:
-                if( Diary.diary.write_txt() == Result.SUCCESS )
-                    Lifeograph.showToast( R.string.text_export_success );
-                else
-                    Lifeograph.showToast( R.string.text_export_fail );
-                return true;
-            case R.id.logout_wo_save:
-                Lifeograph.showConfirmationPrompt( this,
-                                                   R.string.logoutwosaving_confirm,
-                                                   R.string.logoutwosaving,
-                                                   ( dialog, id ) -> {
-                                                       // unlike desktop version Android version
-                                                       // does not back up changes
-                                                       Diary.diary.set_saving_enabled( false );
-                                                       finish();
-                                                   } );
-                return true;
-        }
-        return super.onOptionsItemSelected( item );
-    }
 
     // POPUP MENU LISTENER
     public boolean onMenuItemClick( MenuItem item ) {
         switch( item.getItemId() ) {
-            case R.id.edit_tag_ctg:
-                ( new DialogTags( this, this ) ).show();
-                return true;
-            case R.id.rename_tag_ctg:
-                renameCtg( R.string.rename_tag_ctg );
-                return true;
-            case R.id.dismiss_tag_ctg:
-                dismissTagCtg( false );
-                return true;
-            case R.id.dismiss_tag_ctg_and_tags:
-                dismissTagCtg( true );
-                return true;
             case R.id.rename_chapter_ctg:
                 renameCtg( R.string.rename_chapter_ctg );
                 return true;
@@ -314,10 +238,7 @@ public class ActivityDiary extends AppCompatActivity
         PopupMenu popup = new PopupMenu( getActivity(), v );
         popup.setOnMenuItemClickListener( this );
 
-        if( mElemMenu.get_type() == DiaryElement.Type.TAG_CTG )
-            popup.inflate( R.menu.menu_tag_ctg );
-        else
-            popup.inflate( R.menu.menu_chapter_ctg );
+        popup.inflate( R.menu.menu_chapter_ctg );
 
         popup.show();
     }
@@ -331,8 +252,6 @@ public class ActivityDiary extends AppCompatActivity
 
         mMenu.findItem( R.id.add_elem ).setVisible( flagWritable );
 
-        mMenu.findItem( R.id.calendar ).setVisible( mCalPagerAdapter == null );
-
         mMenu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
 
         mMenu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
@@ -341,10 +260,6 @@ public class ActivityDiary extends AppCompatActivity
         mMenu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
     }
 
-    @Override
-    public Context getContext(){
-        return this;
-    }
     @Override
     public void enableEditing(){
         boolean flagEncrypted = Diary.diary.is_encrypted();
@@ -371,43 +286,16 @@ public class ActivityDiary extends AppCompatActivity
     public void createChapter( long date ) {
         mDateLast = date;
 
-        DialogInquireText dlg = new DialogInquireText( this,
+        DialogInquireText dlg = new DialogInquireText( getContext(),
                                                        R.string.create_chapter,
                                                        Lifeograph.getStr( R.string.new_chapter ),
                                                        R.string.create,
                                                        this );
         dlg.show();
     }
-    void createTopic() {
-        DialogInquireText dlg = new DialogInquireText( this,
-                                                       R.string.create_topic,
-                                                       Lifeograph.getStr( R.string.new_chapter ),
-                                                       R.string.create,
-                                                       this );
-        dlg.show();
-    }
-    void createGroup() {
-        DialogInquireText dlg = new DialogInquireText( this,
-                                                       R.string.create_group,
-                                                       Lifeograph.getStr( R.string.new_chapter ),
-                                                       R.string.create,
-                                                       this );
-        dlg.show();
-    }
-    void createTagCtg() {
-        DialogInquireText dlg = new DialogInquireText(
-                this,
-                R.string.create_tag_ctg,
-                Diary.diary.create_unique_name_for_map(
-                        Diary.diary.m_tag_categories,
-                        Lifeograph.getStr( R.string.new_tag_ctg ) ),
-                R.string.create,
-                this );
-        dlg.show();
-    }
 
     void renameCtg( int id ) {
-        DialogInquireText dlg = new DialogInquireText( this,
+        DialogInquireText dlg = new DialogInquireText( getContext(),
                                                        id,
                                                        mElemMenu.m_name,
                                                        R.string.rename,
@@ -415,21 +303,8 @@ public class ActivityDiary extends AppCompatActivity
         dlg.show();
     }
 
-    void dismissTagCtg( final boolean tags_too ) {
-        Lifeograph.showConfirmationPrompt( this,
-                                           tags_too ?
-                                                   R.string.tag_ctg_dismiss_with_entries_confirm :
-                                                   R.string.tag_ctg_dismiss_confirm,
-                                           R.string.dismiss,
-                                           ( dialog, id ) -> {
-                                               Diary.diary.dismiss_tag_ctg(
-                                                       ( Tag.Category ) mElemMenu, tags_too );
-                                               updateList();
-                                           }
-        );
-    }
     void dismissChapterCtg() {
-        Lifeograph.showConfirmationPrompt( this,
+        Lifeograph.showConfirmationPrompt( getContext(),
                                            R.string.chapter_ctg_dismiss_confirm,
                                            R.string.dismiss,
                                            ( dialog, id ) -> {
@@ -472,32 +347,13 @@ public class ActivityDiary extends AppCompatActivity
     public void onInquireAction( int id, String text ) {
         switch( id ) {
             case R.string.create_chapter: {
-                Chapter chapter = Diary.diary.m_p2chapter_ctg_cur.create_chapter( text,
-                                                                                  mDateLast );
+                Chapter chapter = Diary.diary.m_p2chapter_ctg_cur.create_chapter( mDateLast,
+                                                                                  false,
+                                                                                  false,
+                                                                                  true );
+                chapter.set_text( text );
                 Diary.diary.update_entries_in_chapters();
                 Lifeograph.showElem( chapter );
-                break;
-            }
-            case R.string.create_topic: {
-                Chapter chapter = Diary.diary.m_topics.create_chapter_ordinal( text );
-                Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( chapter );
-                break;
-            }
-            case R.string.create_group: {
-                Chapter chapter = Diary.diary.m_groups.create_chapter_ordinal( text );
-                Diary.diary.update_entries_in_chapters();
-                Lifeograph.showElem( chapter );
-                break;
-            }
-            case R.string.create_tag_ctg: {
-                Diary.diary.create_tag_ctg( text );
-                updateList();
-                break;
-            }
-            case R.string.rename_tag_ctg: {
-                Diary.diary.rename_tag_ctg( ( Tag.Category ) mElemMenu, text );
-                updateList();
                 break;
             }
             case R.string.rename_chapter_ctg: {
@@ -509,9 +365,6 @@ public class ActivityDiary extends AppCompatActivity
     }
     public boolean onInquireTextChanged( int id, String s ) {
         switch( id ) {
-            case R.string.create_tag_ctg:
-            case R.string.rename_tag_ctg:
-                return !Diary.diary.m_tag_categories.containsKey( s );
             case R.string.rename_chapter_ctg:
                 return !Diary.diary.m_chapter_categories.containsKey( s );
             default:
@@ -520,25 +373,26 @@ public class ActivityDiary extends AppCompatActivity
     }
 
     // DiaryManager INTERFACE METHODS
-    public void addFragment( FragmentElemList fragment ) {
-        mDiaryFragments.add( fragment );
-    }
-    public void removeFragment( FragmentElemList fragment ) {
-        mDiaryFragments.remove( fragment );
-    }
+//    public void addFragment( FragmentElemList fragment ) {
+//        mDiaryFragments.add( fragment );
+//    }
+//    public void removeFragment( FragmentElemList fragment ) {
+//        mDiaryFragments.remove( fragment );
+//    }
     public DiaryElement getElement() {
         return Diary.diary;
     }
 
     // DialogCalendar.Listener INTERFACE METHODS
-    public Activity getActivity() {
-        return this;
+    public Activity
+    getRelatedActivity() {
+        return getActivity();
     }
 
     // FragmentElemList.ListOperations INTERFACE METHODS
     public void updateList() {
-        for( FragmentElemList fragment : mDiaryFragments )
-            fragment.updateList();
+//        for( FragmentElemList fragment : mDiaryFragments )
+//            fragment.updateList();
     }
 
     // ActionMode.Callback INTERFACE METHODS
@@ -570,7 +424,7 @@ public class ActivityDiary extends AppCompatActivity
                 Log.d( Lifeograph.TAG, "create entry" );
                 mode.finish(); // Action picked, so close the CAB
                 Entry e = Diary.diary.create_entry(
-                        mCalPagerAdapter.getSelectedDate(), "", false );
+                        mCalPagerAdapter.getSelectedDate().m_date, "", false );
                 Lifeograph.showElem( e );
                 return true;
             }
@@ -595,7 +449,7 @@ public class ActivityDiary extends AppCompatActivity
     public void onDPAction( DialogPassword.DPAction action ) {
         switch( action ) {
             case DPA_AUTHENTICATE:
-                new DialogPassword( this, Diary.diary,
+                new DialogPassword( getContext(), Diary.diary,
                                     DialogPassword.DPAction.DPA_ADD,
                                     this ).show();
                 break;
@@ -606,24 +460,24 @@ public class ActivityDiary extends AppCompatActivity
     }
 
     // TAG DIALOG HOST METHODS =====================================================================
-    public void onDialogTagsClose() {
-        updateList();
-    }
-    public List< Tag > getTags() {
-        return( ( Tag.Category ) mElemMenu ).mTags;
-    }
-    public void addTag( Tag t ) {
-        t.set_category( ( Tag.Category ) mElemMenu );
-    }
-    public void removeTag( Tag t ) {
-        t.set_category( null );
-    }
+//    public void onDialogTagsClose() {
+//        updateList();
+//    }
+//    public List< Entry > getTags() {
+//        return( ( Tag.Category ) mElemMenu ).mTags;
+//    }
+//    public void addTag( Entry t ) {
+//        t.set_category( ( Tag.Category ) mElemMenu );
+//    }
+//    public void removeTag( Tag t ) {
+//        t.set_category( null );
+//    }
 
     // VARIABLES ===================================================================================
     //private LayoutInflater mInflater;
     protected ViewPager mPager;
     private PagerAdapterCalendar mCalPagerAdapter = null;
-    private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList<>();
+    //private List< FragmentElemList > mDiaryFragments = new java.util.ArrayList<>();
 
     private Menu mMenu = null;
 
@@ -757,7 +611,7 @@ public class ActivityDiary extends AppCompatActivity
         }
 
         void addTab( ActionBar.Tab tab, Bundle args ) {
-            TabInfo info = new TabInfo( FragmentElemList.class, args );
+            TabInfo info = new TabInfo( FragmentEntryList.class, args );
             tab.setTag( info );
             tab.setTabListener( this );
             mTabs.add( info );
@@ -813,8 +667,8 @@ public class ActivityDiary extends AppCompatActivity
 
         private void initGVs() {
             for( int i = 0; i < 3; i++ ) {
-                mGVs[ i ] = new GridView( ActivityDiary.this );
-                mGridAdapters[ i ] = new GridCalAdapter( ActivityDiary.this );
+                mGVs[ i ] = new GridView( FragmentEditDiary.this.getContext() );
+                mGridAdapters[ i ] = new GridCalAdapter( FragmentEditDiary.this.getContext() );
                 mGVs[ i ].setAdapter( mGridAdapters[ i ] );
                 mGVs[ i ].setNumColumns( 7 );
                 mGVs[ i ].setVerticalSpacing( 5 );
@@ -830,7 +684,9 @@ public class ActivityDiary extends AppCompatActivity
                 if( mActionMode != null )
                     mActionMode.finish();
 
-                mActionMode = ActivityDiary.this.startActionMode( ActivityDiary.this );
+                //mActionMode =
+                  //      FragmentEntryList.this.startActionMode( FragmentEntryList.this
+                //      .getContext() );
 
                 return false;
             } );
@@ -838,7 +694,7 @@ public class ActivityDiary extends AppCompatActivity
 
         private void updateGVs() {
             Date datePrev = new Date( mDateCur.m_date );
-            datePrev.backward_month();
+            datePrev.backward_months( 1 );
             Date dateNext = new Date( mDateCur.m_date );
             dateNext.forward_months( 1 );
 
@@ -889,7 +745,7 @@ public class ActivityDiary extends AppCompatActivity
 
                 // go back:
                 if( mPosCur == 0 )
-                    mDateCur.backward_month();
+                    mDateCur.backward_months( 1 );
                 // go forward:
                 else if( mPosCur == 2 )
                     mDateCur.forward_months( 1 );
