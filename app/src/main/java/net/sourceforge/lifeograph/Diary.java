@@ -1970,8 +1970,7 @@ public class Diary extends DiaryElementChart
             m_path = m_path.substring( 0, m_path.length() - LOCK_SUFFIX.length() );
     }
 
-    public Result enable_editing()
-    {
+    public Result enable_editing() {
         if( m_flag_read_only )
         {
             Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
@@ -2248,8 +2247,8 @@ public class Diary extends DiaryElementChart
     private native byte[] encryptBuffer( String passphrase, byte[] buffer, int size );
 
     // VARIABLES ===================================================================================
-    private String m_path;
-    private String m_passphrase;
+    private String m_path = "";
+    private String m_passphrase = "";
 
     //ids (DEID)
     private int m_startup_elem_id;
@@ -2270,7 +2269,7 @@ public class Diary extends DiaryElementChart
     Chapter.Category m_groups = new Chapter.Category( this, Date.GROUP_MIN );
     Chapter m_orphans = new Chapter( null, "<Other Entries>", Date.DATE_MAX );
 
-    private String m_language;
+    private String m_language = "";
 
     private int m_read_version;
 
