@@ -29,6 +29,8 @@ android {
         versionCode 9003
     }
 
+    ndkVersion '22.0.7026061'
+
     // disable automatic handling of jni folder by gradle
     sourceSets.main {
         jni.srcDirs = []
