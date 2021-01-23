@@ -1670,8 +1670,8 @@ public class Diary extends DiaryElement
                         switch( line.charAt( 1 ) ) {
                             case 'o':   // options
                                 m_opt_show_all_entry_locations = ( line.charAt( 2 ) == 'A' );
-                                m_sorting_criteria = Integer.parseInt( line.substring( 3, 3 ) );
-                                m_opt_ext_panel_cur = Integer.parseInt( line.substring( 6, 1 ) );
+                                m_sorting_criteria = Integer.parseInt( line.substring( 3, 6 ) );
+                                m_opt_ext_panel_cur = Integer.parseInt( line.substring( 6, 7 ) );
                                 break;
                             case 's':   // spell checking language
                                 m_language = line.substring( 2 );
@@ -1798,7 +1798,7 @@ public class Diary extends DiaryElement
                                 ptr2para.m_justification = line.charAt( 2 );
                                 break;
                             case 'b':   // chapter bg color
-                                ptr2chapter.m_color = Color.parseColor( line.substring( 2 ) );
+                                ptr2chapter.m_color = Theme.parse_color( line.substring( 2 ) );
                                 break;
                         }
                         break;
@@ -2019,7 +2019,7 @@ public class Diary extends DiaryElement
                                         m_p2chapter_ctg_cur = p2chapter_ctg;
                                     break;
                                 case 'c':   // chapter color
-                                    p2chapter.m_color = Color.parseColor( line.v.substring( 2 ) );
+                                    p2chapter.m_color = Theme.parse_color( line.v.substring( 2 ) );
                                     break;
                                 case 'T':   // temporal chapter
                                     entry_new = p2chapter =

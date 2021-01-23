@@ -98,7 +98,7 @@ public class Paragraph
 
     String
     get_substr_after( int i ) {
-        return m_text.substring( i, m_text.length() - i );
+        return m_text.substring( i );
     }
 
     public int get_size(){

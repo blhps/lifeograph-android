@@ -326,7 +326,7 @@ public class Entry extends DiaryElement {
             ret_value = false;
         }
 
-        para_text.v = text.substring( pos_bgn, pos_end.v - pos_bgn );
+        para_text.v = text.substring( pos_bgn, pos_end.v );
 
         return ret_value;
     }
@@ -432,8 +432,7 @@ public class Entry extends DiaryElement {
         int pt_bgn = 0, pt_end;
         boolean flag_terminate_loop = false;
 
-        while( true )
-        {
+        while( true ) {
             pt_end = text.indexOf( '\n', pt_bgn );
             if( pt_end == -1 ) {
                 pt_end = text.length();
@@ -441,7 +440,7 @@ public class Entry extends DiaryElement {
             }
 
             m_paragraphs.add(
-                    new Paragraph( text.substring( pt_bgn, pt_end - pt_bgn), this, i++ ) );
+                    new Paragraph( text.substring( pt_bgn, pt_end ), this, i++ ) );
 
             if( flag_terminate_loop )
                 break; // end of while( true )
