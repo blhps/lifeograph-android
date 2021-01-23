@@ -24,7 +24,7 @@ else ifeq ($(NDK_ABI),x86_64)
  API             := 21
  TRIPLE          := x86_64-linux-android
  HOST            := x86_64-linux-android
- HOST_GPG_ERROR  := x86_64-linux-gnu
+ HOST_GPG_ERROR  := x86_64-linux-android
  NDK_TOOLCHAIN   := x86_64-4.9
  CONFIG_FLAGS    := --disable-asm
  AR              := $(PLATFORM_PREFIX)/bin/x86_64-linux-android-ar
@@ -34,7 +34,7 @@ else ifeq ($(NDK_ABI),arm64)
  API             := 21
  TRIPLE          := aarch64-linux-android
  HOST            := aarch64-linux-android
- HOST_GPG_ERROR  := aarch64-linux-gnu
+ HOST_GPG_ERROR  := aarch64-linux-android
  NDK_TOOLCHAIN   := aarch64-linux-androideabi-4.9
  AR              := $(PLATFORM_PREFIX)/bin/aarch64-linux-android-ar
  LD              := $(PLATFORM_PREFIX)/bin/aarch64-linux-android-ld
@@ -84,10 +84,11 @@ libgpg-error-configure:
 			CC="$(CC)" AR=$(AR) RANLIB=$(RANLIB) \
 			CFLAGS="$(CFLAGS)" \
 			LDFLAGS="$(LDFLAGS)" \
-			--disable-languages \
-			--enable-static \
 			--host=$(HOST_GPG_ERROR) \
+			--with-sysroot=$(PLATFORM_PREFIX)/sysroot\
 			--prefix=$(PLATFORM_PREFIX)/sysroot
+			#--disable-languages \
+			#--enable-static 
 	# brute force and ignorance to make libtool comply with android style
 	# ls -l libgpg-error-$(NDK_ABI)/libtool
 	# sed -i 's,^fast_install=.*,fast_install=needless,' libgpg-error-$(NDK_ABI)/libtool
@@ -114,12 +115,13 @@ libgcrypt-configure:
 	cd libgcrypt-$(NDK_ABI) && \
 		CC="$(CC)" AR="$(AR)" RANLIB=$(RANLIB) \
 			./configure \
-				--enable-maintainer-mode \
-				--enable-static \
 				--host=$(HOST) \
 				--with-gpg-error-prefix=$(PLATFORM_PREFIX)/sysroot \
+				--with-sysroot=$(PLATFORM_PREFIX)/sysroot\
 				--prefix=$(PLATFORM_PREFIX)/sysroot \
                 $(CONFIG_FLAGS)
+				#--enable-maintainer-mode \
+				#--enable-static \
 
 libgcrypt-make:
 	$(MAKE) -C libgcrypt-$(NDK_ABI)
