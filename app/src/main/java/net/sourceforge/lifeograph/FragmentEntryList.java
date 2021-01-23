@@ -51,7 +51,8 @@ import java.util.Objects;
 public class FragmentEntryList extends ListFragment
 {
     @Override
-    public void onCreate( Bundle savedInstanceState ) {
+    public void
+    onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setHasOptionsMenu( true );
     }
@@ -61,7 +62,7 @@ public class FragmentEntryList extends ListFragment
     onCreateView( @NonNull LayoutInflater inflater,
                   ViewGroup container,
                   Bundle savedInstanceState ) {
-        Log.d( Lifeograph.TAG, "FragmentElemList.onCreateView()" );
+        Log.d( Lifeograph.TAG, "FragmentEntryList.onCreateView()" );
 
         if( getArguments() != null )
             mCurTabIndex = getArguments().getInt( "tab" );
@@ -79,7 +80,7 @@ public class FragmentEntryList extends ListFragment
     @Override
     public void
     onResume() {
-        Log.d( Lifeograph.TAG, "FragmentElemList.onResume()" );
+        Log.d( Lifeograph.TAG, "FragmentEntryList.onResume()" );
         super.onResume();
 
         ActionBar actionbar = ( ( AppCompatActivity ) requireActivity() ).getSupportActionBar();
