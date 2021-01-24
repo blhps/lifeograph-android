@@ -46,7 +46,7 @@ import net.sourceforge.lifeograph.helpers.Result;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.Objects;
+import java.util.List;
 
 public class FragmentEntryList extends ListFragment
 {
@@ -59,9 +59,7 @@ public class FragmentEntryList extends ListFragment
 
     @Override
     public View
-    onCreateView( @NonNull LayoutInflater inflater,
-                  ViewGroup container,
-                  Bundle savedInstanceState ) {
+    onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstState ) {
         Log.d( Lifeograph.TAG, "FragmentEntryList.onCreateView()" );
 
         if( getArguments() != null )
@@ -88,6 +86,8 @@ public class FragmentEntryList extends ListFragment
             actionbar.setTitle( Diary.diary.get_title_str() );
             actionbar.setSubtitle( Diary.diary.get_info_str() );
         }
+
+        ( ( FragmentHost ) getActivity() ).updateDrawerMenu( R.id.nav_entries );
 
         updateList();
     }
@@ -194,6 +194,8 @@ public class FragmentEntryList extends ListFragment
             case ENTRY:
             case CHAPTER:
                 Lifeograph.showElem( mElems.get( pos ) );
+//                FragmentEntry.mEntry =  ( Entry ) mElems.get( pos );
+//                Navigation.findNavController( requireView() ).navigate( R.id.nav_entry_editor );
                 break;
         }
     }
@@ -240,9 +242,9 @@ public class FragmentEntryList extends ListFragment
 //        }
     }
 
-    private java.util.List< DiaryElement > mElems = new ArrayList<>();
+    private final List< DiaryElement > mElems = new ArrayList<>();
     private DiaryElemAdapter mAdapterEntries = null;
-    DiaryManager mDiaryManager;
+    //DiaryManager mDiaryManager;
     private int  mCurTabIndex = 0;
     private Menu mMenu = null;
 
@@ -421,12 +423,12 @@ public class FragmentEntryList extends ListFragment
             return convertView;
         }
 
-        private LayoutInflater mInflater;
+        private final LayoutInflater mInflater;
 
         // VIEW HOLDER =============================================================================
         private class ViewHolder
         {
-            private View mRow;
+            private final View mRow;
             private TextView mTitle = null;
             private TextView mDetail = null;
             private ImageView mIcon = null;
@@ -435,7 +437,7 @@ public class FragmentEntryList extends ListFragment
             private ImageButton mIconCollapse = null;
             private ImageButton mIconOptions = null;
 
-            private DiaryElement.LayoutType mLayoutType;
+            private final DiaryElement.LayoutType mLayoutType;
 
             public ViewHolder( View row, DiaryElement.LayoutType layoutType ) {
                 mRow = row;

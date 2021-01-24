@@ -59,7 +59,7 @@ public class FragmentDiaryList extends Fragment
 
     @Override
     public void
-    onViewCreated( @NonNull View view, Bundle savedInstanceState) {
+    onViewCreated( @NonNull View view, Bundle savedInstanceState ) {
         // Set the adapter
         if( view instanceof RecyclerView ) {
             Context context = view.getContext();
@@ -88,6 +88,8 @@ public class FragmentDiaryList extends Fragment
         if( actionbar != null ) {
             actionbar.setSubtitle( "" );
         }
+
+        ( ( FragmentHost ) getActivity() ).updateDrawerMenu( R.id.nav_diaries );
     }
 
     // DIARY OPERATIONS ============================================================================

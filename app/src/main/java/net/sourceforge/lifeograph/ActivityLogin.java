@@ -21,8 +21,6 @@
 
 package net.sourceforge.lifeograph;
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBarDrawerToggle;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
@@ -50,7 +48,7 @@ import net.sourceforge.lifeograph.inappbilling.util.Inventory;
 import net.sourceforge.lifeograph.inappbilling.util.Purchase;
 
 public class ActivityLogin extends AppCompatActivity
-        implements IabBroadcastReceiver.IabBroadcastListener
+        implements IabBroadcastReceiver.IabBroadcastListener, FragmentHost
 {
     private AppBarConfiguration mAppBarConfiguration;
 
@@ -58,7 +56,7 @@ public class ActivityLogin extends AppCompatActivity
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
-        Lifeograph.sContext = this;
+        Lifeograph.mActivityLogin = this;
         Lifeograph.updateScreenSizes( this );
 
         if( Diary.diary == null )
@@ -123,7 +121,7 @@ public class ActivityLogin extends AppCompatActivity
         NavHostFragment navHostFragment = ( NavHostFragment )
                 getSupportFragmentManager().findFragmentById( R.id.nav_host_fragment );
         assert navHostFragment != null;
-        NavController navController = navHostFragment.getNavController();
+        mNavController = navHostFragment.getNavController();
 
 //        AppBarConfiguration appBarConfiguration =
 //                new AppBarConfiguration.Builder( navController.getGraph() )
@@ -135,18 +133,16 @@ public class ActivityLogin extends AppCompatActivity
 //        setSupportActionBar(toolbar);
 
         // Show and Manage the Drawer and Back Icon
-        NavigationUI.setupActionBarWithNavController( this, navController, mAppBarConfiguration );
+        NavigationUI.setupActionBarWithNavController( this, mNavController, mAppBarConfiguration );
 
         // Handle Navigation item clicks
         // This works with no further action on your part if the menu and destination id’s match.
-        NavigationUI.setupWithNavController( navigationView, navController );
+        NavigationUI.setupWithNavController( navigationView, mNavController );
     }
 
     @Override
     protected void onResume() {
         super.onResume();
-
-        Lifeograph.sContext = this;
 
         if( Diary.diary.is_open() ) {
             Diary.diary.writeAtLogout();
@@ -230,6 +226,50 @@ public class ActivityLogin extends AppCompatActivity
         return super.onOptionsItemSelected( item );
     }*/
 
+    @Override
+    public void
+    updateDrawerMenu( int curFragId ) {
+        NavigationView navigationView = findViewById( R.id.nav_view );
+        MenuItem item_entries = navigationView.getMenu().findItem( R.id.nav_entries );
+        MenuItem item_charts = navigationView.getMenu().findItem( R.id.nav_charts );
+
+        if( curFragId == R.id.nav_diaries ) {
+            item_entries.setEnabled( false );
+            item_charts.setEnabled( false );
+        }
+        else {
+            item_entries.setEnabled( true );
+            item_charts.setEnabled( true );
+        }
+    }
+
+    public void
+    showElem( DiaryElement elem ) {
+        switch( elem.get_type() ) {
+            case ENTRY:
+            case CHAPTER:
+            {
+                FragmentEntry.mEntry = ( Entry ) elem;
+//                NavHostFragment navHostFrag = ( NavHostFragment )
+//                        getSupportFragmentManager().findFragmentById( R.id.nav_host_fragment );
+//                Navigation.findNavController( findViewById( R.id.drawer_layout ) )
+                mNavController.navigate( R.id.nav_entry_editor );
+                break;
+            }
+            case THEME:
+            {
+//                Intent i = new Intent( sContext, ActivityChapterTag.class );
+//                i.putExtra( "elem", elem.get_id() );
+//                i.putExtra( "type", elem.get_type().i );
+//                sContext.startActivity( i );
+                break;
+            }
+            case FILTER:
+            case CHART:
+                break;
+        }
+    }
+
     // IN APP BILLING
     public void start_purchase() {
         try {
@@ -257,6 +297,7 @@ public class ActivityLogin extends AppCompatActivity
 
     // VARIABLES ===================================================================================
     FragmentDiaryList mFragmentDiaryList;
+    NavController     mNavController;
     //private ArrayAdapter< String > mAdapterDiaries;
     //private DiaryAdapter mAdapterDiaries; MAYBE LATER
     private boolean m_flag_open_ready = false;

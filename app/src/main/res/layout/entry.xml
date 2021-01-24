@@ -110,26 +110,20 @@
 
         </HorizontalScrollView>
 
-    <EditText
-        android:id="@+id/editTextEntry"
-        android:layout_width="match_parent"
-        android:layout_height="0dp"
-        android:layout_weight=".99"
-        android:gravity="top"
-        android:hint="@string/empty_entry"
-        android:importantForAutofill="no"
-        android:inputType="textMultiLine|textCapSentences"
-        android:paddingBottom="0dp"
-        android:paddingTop="0dp">
-
-        <requestFocus />
-    </EditText>
-
-        <fragment
-            android:id="@+id/fragmentAd"
-            android:name="net.sourceforge.lifeograph.FragmentAd"
+        <EditText
+            android:id="@+id/editTextEntry"
             android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
+            android:layout_height="0dp"
+            android:layout_weight=".99"
+            android:gravity="top"
+            android:hint="@string/empty_entry"
+            android:importantForAutofill="no"
+            android:inputType="textMultiLine|textCapSentences"
+            android:paddingBottom="0dp"
+            android:paddingTop="0dp">
+
+            <requestFocus />
+        </EditText>
 
     </LinearLayout>
 

@@ -45,9 +45,12 @@ import android.text.style.TextAppearanceSpan;
 import android.text.style.TypefaceSpan;
 import android.util.Log;
 import android.view.ActionMode;
+import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.WindowManager;
 import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
@@ -58,17 +61,17 @@ import android.widget.PopupMenu;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SearchView;
 import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.app.ActionBar;
+import androidx.fragment.app.Fragment;
 
 import static net.sourceforge.lifeograph.DiaryElement.ES_NOT_TODO;
 
-public class ActivityEntry extends AppCompatActivity
+public class FragmentEntry extends Fragment
         implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        PopupMenu.OnMenuItemClickListener, // DialogEntryTag.Listener,
-        Lifeograph.DiaryEditor
+        PopupMenu.OnMenuItemClickListener, Lifeograph.DiaryEditor
 {
     // CHAR FLAGS
     public final int CF_NOT_SET = 0;
@@ -138,13 +141,12 @@ public class ActivityEntry extends AppCompatActivity
         LS_CYCLIC, LS_FILE_OK, LS_FILE_INVALID, LS_FILE_UNAVAILABLE, LS_FILE_UNKNOWN
     }
 
-    private ActionBar mActionBar = null;
-    //private DrawerLayout mDrawerLayout = null;
-    private Menu mMenu = null;
-    private EditText mEditText = null;
+    static Entry        mEntry            = null;
+    private ActionBar   mActionBar        = null;
+    private Menu        mMenu             = null;
+    private EditText    mEditText         = null;
     private KeyListener mKeyListener;
-    private Entry m_ptr2entry = null;
-    Button mButtonHighlight;
+    private Button      mButtonHighlight;
 
     boolean mFlagSetTextOperation = false;
     boolean mFlagEditorActionInProgress = false;
@@ -157,21 +159,30 @@ public class ActivityEntry extends AppCompatActivity
     private final float sMarkupScale = 0.7f;
 
     @Override
-    protected void onCreate( Bundle savedInstanceState ) {
+    public void
+    onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
+        setHasOptionsMenu( true );
+    }
 
-        setContentView( R.layout.entry );
+    @Override
+    public View
+    onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstState ) {
+        return inflater.inflate( R.layout.entry, container, false );
+    }
 
-        Lifeograph.sContext = this;
-        Lifeograph.updateScreenSizes( this );
+    @Override
+    public void
+    onViewCreated( @NonNull View view, Bundle savedInstanceState ) {
+        //Lifeograph.updateScreenSizes( this );
 
-        mActionBar = getSupportActionBar();
-        assert mActionBar != null;
-        mActionBar.setDisplayHomeAsUpEnabled( true );
+        mActionBar = ( ( AppCompatActivity ) requireActivity() ).getSupportActionBar();
+        //assert mActionBar != null;
+        //mActionBar.setDisplayHomeAsUpEnabled( true );
 
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
 
-        mEditText = findViewById( R.id.editTextEntry );
+        mEditText = view.findViewById( R.id.editTextEntry );
         //mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
         mKeyListener = mEditText.getKeyListener();
 
@@ -181,7 +192,7 @@ public class ActivityEntry extends AppCompatActivity
             mEditText.setTextIsSelectable( true );
             mEditText.setKeyListener( null );
 
-            findViewById( R.id.toolbar_text_edit ).setVisibility( View.GONE );
+            view.findViewById( R.id.toolbar_text_edit ).setVisibility( View.GONE );
         }
 
         if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
@@ -334,7 +345,6 @@ public class ActivityEntry extends AppCompatActivity
 
         mEditText.setCustomSelectionActionModeCallback( new ActionMode.Callback()
         {
-
             public boolean onPrepareActionMode( ActionMode mode, Menu menu ) {
                 return true;
             }
@@ -348,54 +358,53 @@ public class ActivityEntry extends AppCompatActivity
             }
 
             public boolean onActionItemClicked( ActionMode mode, MenuItem item ) {
-                switch( item.getItemId() ) {
-                    case R.id.visit_link:
-                        final Editable buffer = mEditText.getEditableText();
-                        final ClickableSpan[] link = buffer.getSpans( mEditText.getSelectionStart(),
-                                                                      mEditText.getSelectionEnd(),
-                                                                      ClickableSpan.class );
-                        if( link.length > 0 )
-                            link[ 0 ].onClick( mEditText );
-                        else
-                            Log.i( Lifeograph.TAG, "No link in the selection" );
-                        return true;
+                if( item.getItemId() == R.id.visit_link ) {
+                    final Editable buffer = mEditText.getEditableText();
+                    final ClickableSpan[] link = buffer.getSpans( mEditText.getSelectionStart(),
+                                                                  mEditText.getSelectionEnd(),
+                                                                  ClickableSpan.class );
+                    if( link.length > 0 )
+                        link[ 0 ].onClick( mEditText );
+                    else
+                        Log.i( Lifeograph.TAG, "No link in the selection" );
+                    return true;
                 }
                 return false;
             }
         } );
 
-        Button mButtonBold = findViewById( R.id.buttonBold );
+        Button mButtonBold = view.findViewById( R.id.buttonBold );
         mButtonBold.setOnClickListener( v -> toggleFormat( "*" ) );
 
-        Button mButtonItalic = findViewById( R.id.buttonItalic );
+        Button mButtonItalic = view.findViewById( R.id.buttonItalic );
         mButtonItalic.setOnClickListener( v -> toggleFormat( "_" ) );
 
-        Button mButtonStrikethrough = findViewById( R.id.buttonStrikethrough );
+        Button mButtonStrikethrough = view.findViewById( R.id.buttonStrikethrough );
         SpannableString spanStringS = new SpannableString( "S" );
         spanStringS.setSpan( new StrikethroughSpan(), 0, 1, 0 );
         mButtonStrikethrough.setText( spanStringS );
         mButtonStrikethrough.setOnClickListener( v -> toggleFormat( "=" ) );
 
-        mButtonHighlight = findViewById( R.id.buttonHighlight );
+        mButtonHighlight = view.findViewById( R.id.buttonHighlight );
         mButtonHighlight.setOnClickListener( v -> toggleFormat( "#" ) );
 
-        Button mButtonIgnore = findViewById( R.id.button_ignore );
+        Button mButtonIgnore = view.findViewById( R.id.button_ignore );
         mButtonIgnore.setOnClickListener( v -> toggleIgnoreParagraph() );
 
-        Button mButtonComment = findViewById( R.id.button_comment );
+        Button mButtonComment = view.findViewById( R.id.button_comment );
         mButtonComment.setOnClickListener( v -> addComment() );
 
-        Entry entry = Diary.diary.m_entries.get( getIntent().getLongExtra( "entry", 0 ) );
-        assert entry != null;
+        assert mEntry != null;
 
-        if( entry.get_size() > 0 ) {
-            getWindow().setSoftInputMode( WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
+        if( mEntry.get_size() > 0 ) {
+            requireActivity().getWindow().setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
         }
-        show( entry, savedInstanceState == null );
+        show( savedInstanceState == null );
 
         if( !Lifeograph.getAddFreeNotPurchased() ) {
-            LinearLayout container = findViewById( R.id.main_container );
-            View ad = findViewById( R.id.fragmentAd );
+            LinearLayout container = view.findViewById( R.id.main_container );
+            View ad = view.findViewById( R.id.fragmentAd );
             container.removeView( ad );
         }
     }
@@ -408,13 +417,25 @@ public class ActivityEntry extends AppCompatActivity
     }*/
 
     @Override
-    protected void onStop() {
+    public void
+    onResume() {
+        super.onResume();
+
+        Log.d( Lifeograph.TAG, "FragmentEntry.onResume()" );
+
+        if( mMenu != null )
+            updateMenuVisibilities();
+    }
+
+    @Override
+    public void
+    onStop() {
         super.onStop();
 
         Log.d( Lifeograph.TAG, "ActivityEntry.onStop()" );
 
         if( mFlagDismissOnExit )
-            Diary.diary.dismiss_entry( m_ptr2entry, false );
+            Diary.diary.dismiss_entry( mEntry, false );
         else
             sync();
 
@@ -422,27 +443,11 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     @Override
-    protected void onResume() {
-        super.onResume();
+    public void
+    onCreateOptionsMenu( @NonNull Menu menu, MenuInflater inflater ) {
+        inflater.inflate( R.menu.menu_entry, menu );
 
-        Log.d( Lifeograph.TAG, "ActivityEntry.onResume()" );
-
-        Lifeograph.sContext = this;
-
-        if( mMenu != null )
-            updateMenuVisibilities();
-    }
-
-//    @Override
-//    public void onBackPressed() {
-//        super.onBackPressed();
-//    }
-
-    @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        super.onCreateOptionsMenu( menu );
-
-        getMenuInflater().inflate( R.menu.menu_entry, menu );
+        super.onCreateOptionsMenu( menu, inflater );
 
         MenuItem item = menu.findItem( R.id.change_todo_status );
         ToDoAction ToDoAction = ( ToDoAction ) MenuItemCompat.getActionProvider( item );
@@ -462,6 +467,8 @@ public class ActivityEntry extends AppCompatActivity
             }
         } );
 
+        mMenu = menu;
+
         searchView.setOnQueryTextListener( new SearchView.OnQueryTextListener()
         {
             public boolean onQueryTextSubmit( String s ) {
@@ -477,79 +484,85 @@ public class ActivityEntry extends AppCompatActivity
             }
         } );
         searchView.setOnQueryTextFocusChangeListener( ( view, b ) -> mFlagSearchIsOpen = b );
-
-        mMenu = menu;
         updateIcon();
-
-        return true;
     }
 
     @Override
-    public boolean onPrepareOptionsMenu( Menu menu ) {
+    public void onPrepareOptionsMenu( @NonNull Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
         updateMenuVisibilities();
-
-        return true;
     }
 
     @Override
-    public boolean onOptionsItemSelected( MenuItem item ) {
-        switch( item.getItemId() ) {
-            case R.id.enable_edit:
-                Lifeograph.enableEditing( this );
-                return true;
-            case android.R.id.home:
-                //NavUtils.navigateUpFromSameTask( this );
-                finish();
-                return true;
-            case R.id.toggle_favorite:
-                toggleFavorite();
-                return true;
-            case R.id.change_todo_status:
-                return false;
-            case R.id.edit_date:
-                new DialogInquireText( this,
-                                       R.string.edit_date,
-                                       m_ptr2entry.get_date().format_string(),
-                                       R.string.apply,
-                                       this ).show();
-                return true;
-            case R.id.dismiss:
-                dismiss();
-                return true;
+    public boolean
+    onOptionsItemSelected( MenuItem item ) {
+        int itemId = item.getItemId();
+        if( itemId == R.id.enable_edit ) {
+            Lifeograph.enableEditing( this );
+            return true;
+        }
+        else if( itemId == R.id.home ) {
+            //NavUtils.navigateUpFromSameTask( this );
+            //finish();
+            return true;
+        }
+        else if( itemId == R.id.toggle_favorite ) {
+            toggleFavorite();
+            return true;
+        }
+        else if( itemId == R.id.change_todo_status ) {
+            return false;
+        }
+        else if( itemId == R.id.edit_date ) {
+            new DialogInquireText( getContext(),
+                                   R.string.edit_date,
+                                   mEntry.get_date().format_string(),
+                                   R.string.apply,
+                                   this ).show();
+            return true;
+        }
+        else if( itemId == R.id.dismiss ) {
+            dismiss();
+            return true;
         }
 
         return super.onOptionsItemSelected( item );
     }
 
     // POPUP MENU LISTENER
-    public boolean onMenuItemClick( MenuItem item ) {
-        switch( item.getItemId() ) {
-            case R.id.button_list_none:
-                set_list_item_mark( 'n' );
-                return true;
-            case R.id.button_list_bullet:
-                set_list_item_mark( '*' );
-                return true;
-            case R.id.button_list_to_do:
-                set_list_item_mark( ' ' );
-                return true;
-            case R.id.button_list_progressed:
-                set_list_item_mark( '~' );
-                return true;
-            case R.id.button_list_done:
-                set_list_item_mark( '+' );
-                return true;
-            case R.id.button_list_canceled:
-                set_list_item_mark( 'x' );
-                return true;
-            case R.id.button_list_numbered:
-                set_list_item_mark( '1' );
-                return true;
-            default:
-                return false;
+    public boolean
+    onMenuItemClick( MenuItem item ) {
+        int itemId = item.getItemId();
+        if( itemId == R.id.button_list_none ) {
+            set_list_item_mark( 'n' );
+            return true;
         }
+        else if( itemId == R.id.button_list_bullet ) {
+            set_list_item_mark( '*' );
+            return true;
+        }
+        else if( itemId == R.id.button_list_to_do ) {
+            set_list_item_mark( ' ' );
+            return true;
+        }
+        else if( itemId == R.id.button_list_progressed ) {
+            set_list_item_mark( '~' );
+            return true;
+        }
+        else if( itemId == R.id.button_list_done ) {
+            set_list_item_mark( '+' );
+            return true;
+        }
+        else if( itemId == R.id.button_list_canceled ) {
+            set_list_item_mark( 'x' );
+            return true;
+        }
+        else if( itemId == R.id.button_list_numbered ) {
+            set_list_item_mark( '1' );
+            return true;
+        }
+        return false;
     }
 
     private void updateMenuVisibilities(){
@@ -565,11 +578,8 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     @Override
-    public Context getContext(){
-        return this;
-    }
-    @Override
-    public void enableEditing(){
+    public void
+    enableEditing() {
         mMenu.findItem( R.id.enable_edit ).setVisible( false );
 
         mMenu.findItem( R.id.change_todo_status ).setVisible( true );
@@ -581,14 +591,15 @@ public class ActivityEntry extends AppCompatActivity
         // force soft keyboard to be shown:
         if( mEditText.requestFocus() ){
             InputMethodManager imm =
-                    (InputMethodManager) getSystemService( Context.INPUT_METHOD_SERVICE );
+                    ( InputMethodManager ) getContext().getSystemService( Context.INPUT_METHOD_SERVICE );
             imm.showSoftInput( mEditText, InputMethodManager.SHOW_IMPLICIT );
         }
 
-        findViewById( R.id.toolbar_text_edit ).setVisibility( View.VISIBLE );
+        requireActivity().findViewById( R.id.toolbar_text_edit ).setVisibility( View.VISIBLE );
     }
 
-    void updateIcon() {
+    void
+    updateIcon() {
         /*if( m_ptr2entry.is_favored() ) {
             Bitmap bmp = BitmapFactory.decodeResource(
                     getResources(), m_ptr2entry.get_icon() )
@@ -617,10 +628,10 @@ public class ActivityEntry extends AppCompatActivity
             int icon = R.drawable.ic_action_not_todo;
 
             mMenu.findItem( R.id.toggle_favorite ).setIcon(
-                    m_ptr2entry.is_favored() ? R.drawable.ic_action_favorite :
-                          R.drawable.ic_action_not_favorite );
+                    mEntry.is_favored() ? R.drawable.ic_action_favorite :
+                    R.drawable.ic_action_not_favorite );
 
-            switch( m_ptr2entry.get_todo_status_effective() ) {
+            switch( mEntry.get_todo_status_effective() ) {
                 case Entry.ES_TODO:
                     icon = R.drawable.ic_action_todo_open;
                     break;
@@ -639,7 +650,7 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     void updateTheme() {
-        Theme theme = m_ptr2entry.get_theme();
+        Theme theme = mEntry.get_theme();
         mEditText.setBackgroundColor( theme.color_base );
         mEditText.setTextColor( theme.color_text );
 
@@ -662,60 +673,59 @@ public class ActivityEntry extends AppCompatActivity
 
     void sync() {
         if( mFlagEntryChanged ) {
-            m_ptr2entry.m_date_edited = ( int ) ( System.currentTimeMillis() / 1000L );
-            m_ptr2entry.set_text( mEditText.getText().toString() );
+            mEntry.m_date_edited = ( int ) ( System.currentTimeMillis() / 1000L );
+            mEntry.set_text( mEditText.getText().toString() );
             mFlagEntryChanged = false;
         }
     }
 
-    void show( Entry entry, boolean flagParse ) {
-        if( entry == null ) {
+    void show( boolean flagParse ) {
+        if( mEntry == null ) {
             Log.e( Lifeograph.TAG, "Empty entry passed to show" );
             return;
         }
 
         mFlagDismissOnExit = false;
-        m_ptr2entry = entry;
 
         // THEME
         updateTheme();
 
         // PARSING
         m_pos_start = 0;
-        m_pos_end = entry.get_text().length();
+        m_pos_end = mEntry.get_text().length();
 
         // SETTING TEXT
         // mFlagSetTextOperation = true;
         if( flagParse )
-            mEditText.setText( entry.get_text() );
+            mEditText.setText( mEntry.get_text() );
         // mFlagSetTextOperation = false;
 
         // if( flagParse )
         // parse();
 
-        setTitle( entry.get_title_str() );
-        mActionBar.setSubtitle( entry.get_info_str() );
+        mActionBar.setTitle( mEntry.get_title_str() );
+        mActionBar.setSubtitle( mEntry.get_info_str() );
         updateIcon();
-        invalidateOptionsMenu(); // may be redundant here
+        //invalidateOptionsMenu(); // may be redundant here
     }
 
     private void toggleFavorite() {
-        m_ptr2entry.toggle_favored();
+        mEntry.toggle_favored();
         updateIcon();
     }
 
     private void dismiss() {
-        Lifeograph.showConfirmationPrompt( this,
+        Lifeograph.showConfirmationPrompt( getContext(),
                                            R.string.entry_dismiss_confirm,
                                            R.string.dismiss,
                                            ( dialog, id ) -> {
                                                mFlagDismissOnExit = true;
-                                               ActivityEntry.this.finish();
+                                               // TODO: FragmentEntry.this.finish();
                                            } );
     }
 
     public void createListLineMenu( View v ) {
-        PopupMenu popup = new PopupMenu( this, v );
+        PopupMenu popup = new PopupMenu( getContext(), v );
         popup.setOnMenuItemClickListener( this );
 
         popup.inflate( R.menu.menu_list_line );
@@ -724,39 +734,35 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     public void setTodoStatus( int s ) {
-        m_ptr2entry.set_todo_status( s );
-        m_ptr2entry.m_date_status = ( int ) ( System.currentTimeMillis() / 1000L );
+        mEntry.set_todo_status( s );
+        mEntry.m_date_status = ( int ) ( System.currentTimeMillis() / 1000L );
         updateIcon();
     }
 
     // InquireListener methods
     public void onInquireAction( int id, String text ) {
-        switch( id ) {
-            case R.string.edit_date:
-                Date date = new Date( text );
-                if( date.m_date != Date.NOT_SET ) {
-                    if( !date.is_ordinal() )
-                        date.set_order_3rd( 1 );
-                    try {
-                        Diary.diary.set_entry_date( m_ptr2entry, date );
-                    }
-                    catch( Exception e ) {
-                        e.printStackTrace();
-                    }
-                    setTitle( m_ptr2entry.get_title_str() );
-                    mActionBar.setSubtitle( m_ptr2entry.get_info_str() );
+        if( id == R.string.edit_date ) {
+            Date date = new Date( text );
+            if( date.m_date != Date.NOT_SET ) {
+                if( !date.is_ordinal() )
+                    date.set_order_3rd( 1 );
+                try {
+                    Diary.diary.set_entry_date( mEntry, date );
                 }
-                break;
+                catch( Exception e ) {
+                    e.printStackTrace();
+                }
+                mActionBar.setTitle( mEntry.get_title_str() );
+                mActionBar.setSubtitle( mEntry.get_info_str() );
+            }
         }
     }
     public boolean onInquireTextChanged( int id, String s ) {
-        switch( id ) {
-            case R.string.edit_date:
-                long date = Date.parse_string( s );
-                return( date > 0 && date != m_ptr2entry.m_date.m_date );
-            default:
-                return true;
+        if( id == R.string.edit_date ) {
+            long date = Date.parse_string( s );
+            return ( date > 0 && date != mEntry.m_date.m_date );
         }
+        return true;
     }
 
     private int increment_numbered_line( int iter, int expected_value, TextView v ) {
@@ -1177,17 +1183,17 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     // PARSING VARIABLES ===========================================================================
-    private int m_pos_start, m_pos_end, m_pos_current;
-    private int pos_word, /*pos_regular,*/ pos_search, pos_tab;
-    private char m_char_current;
-    private int m_cf_last, m_cf_req = CF_ANY;
-    private StringBuilder word_last = new StringBuilder();
-    private int int_last;
-    private int id_last;
-    private Date date_last = new Date();
-    protected boolean m_flag_hidden_link;
+    private int        m_pos_start, m_pos_end, m_pos_current;
+    private int        pos_word, /*pos_regular,*/ pos_search, pos_tab;
+    private char       m_char_current;
+    private int        m_cf_last, m_cf_req = CF_ANY;
+    private final StringBuilder word_last = new StringBuilder();
+    private int        int_last;
+    private int        id_last;
+    private final Date date_last = new Date();
+    protected boolean  m_flag_hidden_link;
 
-    private java.util.List< AbsChar > m_chars_looked_for = new ArrayList<>();
+    private final java.util.List< AbsChar > m_chars_looked_for = new ArrayList<>();
     private ParSel m_applier_nl;
 
     private static class AbsChar  // abstract char
@@ -1245,10 +1251,10 @@ public class ActivityEntry extends AppCompatActivity
         }
     }
     @SuppressLint( "ParcelCreator" )
-    private class SpanHighlight extends BackgroundColorSpan implements AdvancedSpan
+    private static class SpanHighlight extends BackgroundColorSpan implements AdvancedSpan
     {
         SpanHighlight() {
-            super( m_ptr2entry.get_theme().color_highlight );
+            super( mEntry.get_theme().color_highlight );
         }
         public char getType() {
             return '#';
@@ -1336,7 +1342,7 @@ public class ActivityEntry extends AppCompatActivity
         private final int mId;
     }
 
-    private java.util.Vector< Object > mSpans = new java.util.Vector<>();
+    private final java.util.Vector< Object > mSpans = new java.util.Vector<>();
 
     // PARSING =====================================================================================
     private void reset( int start, int end ) {
@@ -1371,7 +1377,7 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     void parse( int start, int end ) {
-        m_ptr2entry.set_text( mEditText.getText().toString() );
+        mEntry.set_text( mEditText.getText().toString() );
 
         update_todo_status();
 
@@ -1986,12 +1992,12 @@ public class ActivityEntry extends AppCompatActivity
         if( end == -1 )
             end = mEditText.getText().length();
 
-        addSpan( new TextAppearanceSpan( this, R.style.headingSpan ), 0, end,
+        addSpan( new TextAppearanceSpan( getContext(), R.style.headingSpan ), 0, end,
                  Spanned.SPAN_INTERMEDIATE );
-        addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_heading ), 0, end, 0 );
+        addSpan( new ForegroundColorSpan( mEntry.get_theme().color_heading ), 0, end, 0 );
 
         if( !mFlagSetTextOperation ) {
-            m_ptr2entry.m_name = mEditText.getText().toString().substring( 0, end );
+            mEntry.m_name = mEditText.getText().toString().substring( 0, end );
             // handle_entry_title_changed() will not be used here in Android
         }
     }
@@ -2001,9 +2007,9 @@ public class ActivityEntry extends AppCompatActivity
         if( end == -1 )
             end = mEditText.getText().length();
 
-        addSpan( new TextAppearanceSpan( this, R.style.subheadingSpan ), m_pos_start, end,
+        addSpan( new TextAppearanceSpan( getContext(), R.style.subheadingSpan ), m_pos_start, end,
                  Spanned.SPAN_INTERMEDIATE );
-        addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_subheading ),
+        addSpan( new ForegroundColorSpan( mEntry.get_theme().color_subheading ),
                  m_pos_start, end, 0 );
     }
 
@@ -2036,7 +2042,8 @@ public class ActivityEntry extends AppCompatActivity
     }
 
     private void apply_comment() {
-        addSpan( new TextAppearanceSpan( this, R.style.commentSpan ), m_pos_start, m_pos_current + 1,
+        addSpan( new TextAppearanceSpan( getContext(), R.style.commentSpan ), m_pos_start,
+                 m_pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
 
         addSpan( new ForegroundColorSpan( mColorMid ), m_pos_start, m_pos_current + 1,
@@ -2092,7 +2099,7 @@ public class ActivityEntry extends AppCompatActivity
                 return;
             status = LinkStatus.LS_ENTRY_UNAVAILABLE;
         }
-        else if( date_last.get_pure() == m_ptr2entry.m_date.get_pure() )
+        else if( date_last.get_pure() == mEntry.m_date.get_pure() )
             status = ( Diary.diary.get_entry_count_on_day( date_last ) > 1 ) ?
                      LinkStatus.LS_OK : LinkStatus.LS_CYCLIC;
 
@@ -2144,13 +2151,13 @@ public class ActivityEntry extends AppCompatActivity
     private void apply_match() {
         addSpan( new BackgroundColorSpan( mColorMatchBG ), pos_search, m_pos_current + 1,
                  Spanned.SPAN_INTERMEDIATE );
-        addSpan( new ForegroundColorSpan( m_ptr2entry.get_theme().color_base ),
+        addSpan( new ForegroundColorSpan( mEntry.get_theme().color_base ),
                  pos_search, m_pos_current + 1, 0 );
     }
 
     private void update_todo_status() {
-        if( ( m_ptr2entry.get_status() & ES_NOT_TODO ) != 0 ) {
-            Entry.calculate_todo_status( m_ptr2entry.get_text() );
+        if( ( mEntry.get_status() & ES_NOT_TODO ) != 0 ) {
+            Entry.calculate_todo_status( mEntry.get_text() );
             updateIcon();
             // Not relevant now: panel_diary->handle_elem_changed( m_ptr2entry );
         }

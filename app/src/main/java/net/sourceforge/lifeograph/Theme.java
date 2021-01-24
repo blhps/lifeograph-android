@@ -137,7 +137,7 @@ public class Theme extends DiaryElement {
     }
 
     protected String font;
-    protected String image_bg;
+    protected String image_bg = "";
 
     protected int color_base;
     protected int color_text;

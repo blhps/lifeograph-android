@@ -68,7 +68,7 @@ public class DialogCalendar extends DialogFragment
         mDate = new Date( Date.get_today( 0 ) );
 
         GridView gridCalendar = view.findViewById( R.id.gridViewCalendar );
-        mAdapter = new GridCalAdapter( Lifeograph.sContext, mDate );
+        mAdapter = new GridCalAdapter( Lifeograph.getContext(), mDate );
         mNumberPickerMonth = view.findViewById( R.id.numberPickerMonth );
         mNumberPickerYear = view.findViewById( R.id.numberPickerYear );
         Button buttonCreateEntry = view.findViewById( R.id.buttonCreateEntry );

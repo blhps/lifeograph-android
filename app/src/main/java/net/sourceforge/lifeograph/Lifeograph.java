@@ -29,9 +29,9 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 import android.app.AlertDialog;
+import android.app.Application;
 import android.content.Context;
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.WindowManager;
@@ -41,7 +41,7 @@ import net.sourceforge.lifeograph.helpers.Result;
 
 import androidx.annotation.NonNull;
 
-public class Lifeograph
+public class Lifeograph extends Application
 {
     // CONSTANTS ===================================================================================
     //public static final String PROGRAM_NAME = "Lifeograph";
@@ -51,6 +51,20 @@ public class Lifeograph
     static final String LANG_INHERIT_DIARY = "d";
 
     static final double MI_TO_KM_RATIO = 1.609344;
+
+    static ActivityLogin mActivityLogin = null;
+
+    @Override
+    public void
+    onCreate() {
+        mInstance = this;
+        super.onCreate();
+    }
+
+    public static Context
+    getContext() {
+        return mInstance;
+    }
 
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
     private enum PurchaseStatus { PS_UNKNOWN, PURCHASED, NOT_PURCHASED }
@@ -86,27 +100,15 @@ public class Lifeograph
 
     static void
     showElem( @NonNull DiaryElement elem ) {
-        switch( elem.get_type() ) {
-            case ENTRY:
-            case CHAPTER:
-            {
-                Intent i = new Intent( sContext, ActivityEntry.class );
-                i.putExtra( "entry", elem.get_date_t() );
-                sContext.startActivity( i );
-                break;
-            }
-//                case THEME:
-//                {
-//                    Intent i = new Intent( sContext, ActivityChapterTag.class );
-//                    i.putExtra( "elem", elem.get_id() );
-//                    i.putExtra( "type", elem.get_type().i );
-//                    sContext.startActivity( i );
-//                    break;
-//                }
+        if( BuildConfig.DEBUG && !( Diary.diary.is_open() ) ) {
+            throw new AssertionError( "Assertion failed" );
         }
+
+        mActivityLogin.showElem( elem );
     }
 
-    public static void enableEditing( DiaryEditor editor ) {
+    public static void
+    enableEditing( DiaryEditor editor ) {
         // HANDLE OLD DIARY
         if( Diary.diary.is_old() ) {
             Lifeograph.showConfirmationPrompt(
@@ -119,7 +121,8 @@ public class Lifeograph
 
         enableEditing2( editor );
     }
-    private static void enableEditing2( DiaryEditor editor ) {
+    private static void
+    enableEditing2( DiaryEditor editor ) {
         if( !Diary.diary.can_enter_edit_mode() ) return;
         if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
 
@@ -131,18 +134,17 @@ public class Lifeograph
     // ANDROID & JAVA HELPERS ======================================================================
     public static final String TAG = "LFO";
 
-    static Context sContext = null;
+    private static Lifeograph mInstance = null;
     private static float sScreenWidth;
     private static float sScreenHeight;
     static float         sDPIX;
     static float         sDPIY;
     static final float   MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0f;
 
-    public static String getStr( int i ) {
-        if( sContext == null )
-            return "CONTEXT IS NOT READY. SOMETHING IS WRONG!";
-        else
-            return sContext.getString( i );
+    public static String
+    getStr( int i ) {
+        assert( mInstance != null );
+        return mInstance.getString( i );
     }
 
     static void showConfirmationPrompt( Context context,
@@ -172,10 +174,10 @@ public class Lifeograph
     }
 
     static void showToast( String message ) {
-        Toast.makeText( sContext, message, Toast.LENGTH_LONG ).show();
+        Toast.makeText( mInstance, message, Toast.LENGTH_LONG ).show();
     }
     static void showToast( int message ) {
-        Toast.makeText( sContext, message, Toast.LENGTH_LONG ).show();
+        Toast.makeText( mInstance, message, Toast.LENGTH_LONG ).show();
     }
 
     static class MutableBool
@@ -342,8 +344,7 @@ public class Lifeograph
         boolean f_continue = true;
         char    c;
 
-        for( ; i.v < line.length() && f_continue; i.v++ )
-        {
+        for( ; i.v < line.length() && f_continue; i.v++ ) {
             c = line.charAt( i.v );
             switch( c ) {
                 case ',':

@@ -29,11 +29,13 @@
 
     <fragment
         android:id="@+id/nav_entries"
-        android:name="net.sourceforge.lifeograph.FragmentEntryList" />
-    <activity
-        android:id="@+id/activityEntry"
-        android:name="net.sourceforge.lifeograph.ActivityEntry"
-        android:label="ActivityEntry" />
+        android:name="net.sourceforge.lifeograph.FragmentEntryList" >
+        <action
+            android:id="@+id/action_nav_entries_to_fragmentEntry"
+            app:destination="@id/nav_entry_editor"
+            app:enterAnim="@android:anim/slide_in_left"
+            app:exitAnim="@android:anim/slide_out_right" />
+    </fragment>
     <fragment
         android:id="@+id/nav_diaries"
         android:name="net.sourceforge.lifeograph.FragmentDiaryList"
@@ -64,4 +66,9 @@
         android:name="net.sourceforge.lifeograph.DialogCalendar"
         android:label="Calendar"
         tools:layout="@layout/calendar" />
+    <fragment
+        android:id="@+id/nav_entry_editor"
+        android:name="net.sourceforge.lifeograph.FragmentEntry"
+        android:label="FragmentEntry"
+        tools:layout="@layout/entry" />
 </navigation>

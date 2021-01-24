@@ -88,7 +88,6 @@ public class FragmentEditDiary extends Fragment
     onViewCreated( @NonNull View view, Bundle savedInstanceState) {
         Log.d( Lifeograph.TAG, "ActivityDiary.onCreate()" );
 
-        Lifeograph.sContext = getContext();
         Lifeograph.updateScreenSizes( getContext() );
 
         // FILLING WIDGETS
@@ -194,7 +193,6 @@ public class FragmentEditDiary extends Fragment
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
 
-        Lifeograph.sContext = getContext();
         Diary.diary.setSavingEnabled( true );
 
         if( mMenu != null )
