@@ -26,7 +26,7 @@
     <item android:id="@+id/enable_edit"
           android:title="@string/edit"
           android:orderInCategory="80"
-          compat:showAsAction="always|withText" />
+          compat:showAsAction="ifRoom|withText" />
     <item android:id="@+id/add_elem"
           android:title="@string/add"
           android:icon="@drawable/ic_action_add"

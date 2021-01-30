@@ -21,7 +21,7 @@
 
 **************************************************************************** -->
 
-    <!-- Use DrawerLayout as root container for activity -->
+<!-- Use DrawerLayout as root container for activity -->
 <androidx.drawerlayout.widget.DrawerLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
@@ -48,16 +48,6 @@
                 android:background="?attr/colorPrimary" />
 
         </com.google.android.material.appbar.AppBarLayout>
-
-        <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom|end"
-            android:layout_margin="16dp"
-            android:contentDescription="@string/create_diary"
-            app:backgroundTint="@color/t_mid"
-            app:srcCompat="@drawable/ic_action_add" />
 
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"

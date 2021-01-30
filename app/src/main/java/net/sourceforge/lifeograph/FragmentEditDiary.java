@@ -53,8 +53,7 @@ import androidx.appcompat.app.ActionBar;
 public class FragmentEditDiary extends Fragment
         implements DialogInquireText.InquireListener,
         DialogCalendar.Listener, FragmentEntryList.ListOperations, PopupMenu.OnMenuItemClickListener,
-        ActionMode.Callback, DialogPassword.Listener,
-        Lifeograph.DiaryEditor
+        ActionMode.Callback, Lifeograph.DiaryEditor
 {
     @Override
     //protected void onCreate( Bundle savedInstanceState ) {
@@ -272,15 +271,6 @@ public class FragmentEditDiary extends Fragment
         mMenu.findItem( R.id.logout_wo_save ).setVisible( true );
     }
 
-    void goToToday() {
-        Entry entry = Diary.diary.get_entry_today();
-
-        if( entry == null ) // add new entry if no entry exists on selected date
-            entry = Diary.diary.add_today();
-
-        Lifeograph.showElem( entry );
-    }
-
     public void createChapter( long date ) {
         mDateLast = date;
 
@@ -441,20 +431,6 @@ public class FragmentEditDiary extends Fragment
 
     public void onDestroyActionMode( ActionMode mode ) {
         mActionMode = null;
-    }
-
-    // DialogPassword INTERFACE METHODS
-    public void onDPAction( DialogPassword.DPAction action ) {
-        switch( action ) {
-            case DPA_AUTHENTICATE:
-                new DialogPassword( getContext(), Diary.diary,
-                                    DialogPassword.DPAction.DPA_ADD,
-                                    this ).show();
-                break;
-            case DPAR_AUTH_FAILED:
-                Lifeograph.showToast( R.string.wrong_password );
-                break;
-        }
     }
 
     // TAG DIALOG HOST METHODS =====================================================================

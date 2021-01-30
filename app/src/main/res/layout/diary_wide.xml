@@ -80,13 +80,6 @@
 
         </LinearLayout>
 
-        <fragment
-            android:id="@+id/fragmentAd"
-            android:name="net.sourceforge.lifeograph.FragmentAd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            tools:layout="@layout/fragment_ad"/>
-
     </LinearLayout>
 
     <!-- DRAWER -->

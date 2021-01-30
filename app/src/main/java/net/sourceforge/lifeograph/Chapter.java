@@ -45,7 +45,8 @@ public class Chapter extends Entry {
             return mMap.size();
         }
 
-        String
+        @Override
+        public String
         get_info_str() {
             return( mMap.size() + " entries" );
         }
@@ -216,12 +217,7 @@ public class Chapter extends Entry {
     public String get_info_str() {
         return( get_size() + " entries" );
     }
-
-    @Override
-    public String getListStrSecondary() {
-        return( get_type_name() + " with " + get_size() + " entries" );
-    }
-
+    
     @Override
     void
     set_date( long date ) {

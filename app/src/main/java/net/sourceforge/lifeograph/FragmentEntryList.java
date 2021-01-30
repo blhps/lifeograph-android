@@ -48,7 +48,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class FragmentEntryList extends ListFragment
+public class FragmentEntryList extends ListFragment implements DialogPassword.Listener,
+        Lifeograph.DiaryEditor
 {
     @Override
     public void
@@ -72,7 +73,7 @@ public class FragmentEntryList extends ListFragment
                                                 inflater );
         this.setListAdapter( mAdapterEntries );
 
-        return inflater.inflate( R.layout.fragment_elem_list, container, false );
+        return inflater.inflate( R.layout.fragment_list_entry, container, false );
     }
 
     @Override
@@ -84,7 +85,7 @@ public class FragmentEntryList extends ListFragment
         ActionBar actionbar = ( ( AppCompatActivity ) requireActivity() ).getSupportActionBar();
         if( actionbar != null ) {
             actionbar.setTitle( Diary.diary.get_title_str() );
-            actionbar.setSubtitle( Diary.diary.get_info_str() );
+            actionbar.setSubtitle( "Entries (" + Diary.diary.get_size() + ")" );
         }
 
         ( ( FragmentHost ) getActivity() ).updateDrawerMenu( R.id.nav_entries );
@@ -120,28 +121,28 @@ public class FragmentEntryList extends ListFragment
         int id = item.getItemId();
 
         if( id == R.id.enable_edit ) {
-            //Lifeograph.enableEditing( this );
+            Lifeograph.enableEditing( this );
             return true;
         }
-        else
-        if( id == R.id.home ) {
-            //finish();
-            return true;
-        }
+//        else
+//        if( id == R.id.home ) {
+//            //finish();
+//            return true;
+//        }
         else
         if( id == R.id.add_password ) {
-//            new DialogPassword( getContext(),
-//                                Diary.diary,
-//                                DialogPassword.DPAction.DPA_ADD,
-//                                this ).show();
+            new DialogPassword( getContext(),
+                                Diary.diary,
+                                DialogPassword.DPAction.DPA_ADD,
+                                this ).show();
             return true;
         }
         else
         if( id == R.id.change_password ) {
-//            new DialogPassword( getContext(),
-//                                Diary.diary,
-//                                DialogPassword.DPAction.DPA_AUTHENTICATE,
-//                                this ).show();
+            new DialogPassword( getContext(),
+                                Diary.diary,
+                                DialogPassword.DPAction.DPA_AUTHENTICATE,
+                                this ).show();
             return true;
         }
         else
@@ -200,7 +201,8 @@ public class FragmentEntryList extends ListFragment
         }
     }
 
-    public void updateList() {
+    void
+    updateList() {
         mAdapterEntries.clear();
         mElems.clear();
 
@@ -242,6 +244,32 @@ public class FragmentEntryList extends ListFragment
 //        }
     }
 
+    // INTERFACE METHODS ===========================================================================
+    // DiaryEditor INTERFACE METHODS
+    @Override
+    public void
+    enableEditing() {
+        updateMenuVisibilities();
+    }
+
+    // DialogPassword INTERFACE METHODS
+    @Override
+    public void
+    onDPAction( DialogPassword.DPAction action ) {
+        switch( action ) {
+            case DPA_AUTHENTICATE:
+                new DialogPassword( getContext(), Diary.diary,
+                                    DialogPassword.DPAction.DPA_ADD,
+                                    this ).show();
+                break;
+            case DPAR_AUTH_FAILED:
+                Lifeograph.showToast( R.string.wrong_password );
+                break;
+        }
+    }
+
+
+    // VARIABLES ===================================================================================
     private final List< DiaryElement > mElems = new ArrayList<>();
     private DiaryElemAdapter mAdapterEntries = null;
     //DiaryManager mDiaryManager;
@@ -319,7 +347,7 @@ public class FragmentEntryList extends ListFragment
 //    }
 
     // DIARY ELEMENT ADAPTER CLASS =================================================================
-    class DiaryElemAdapter extends ArrayAdapter< DiaryElement >
+    static class DiaryElemAdapter extends ArrayAdapter< DiaryElement >
     {
         public DiaryElemAdapter( Context context,
                                  int resource,
@@ -362,7 +390,7 @@ public class FragmentEntryList extends ListFragment
             Chapter.Category cc = ( Chapter.Category ) elem;
             Diary.diary.set_chapter_ctg_cur( cc );
 
-            updateList();
+            //updateList();
         }
 
         @NonNull
@@ -406,14 +434,17 @@ public class FragmentEntryList extends ListFragment
                 }
                 case ELEMENT: {
                     TextView detail = holder.getDetail();
-                    // detail.setText( elem.getListStrSecondary() );
+                    detail.setText( elem.get_info_str() );
 
                     ImageView icon = holder.getIcon();
                     icon.setImageResource( elem.get_icon() );
 
-                    ImageView icon2 = holder.getIcon2();
-                    icon2.setImageResource( R.mipmap.ic_favorite );
-                    //icon2.setVisibility( elem.is_favored() ? View.VISIBLE : View.INVISIBLE );
+                    if( elem instanceof Entry ) {
+                        ImageView icon2 = holder.getIcon2();
+                        icon2.setImageResource( R.mipmap.ic_favorite );
+                        icon2.setVisibility( ( ( Entry ) elem ).is_favored() ? View.VISIBLE :
+                                                 View.INVISIBLE );
+                    }
                     break;
                 }
                 default:
@@ -426,7 +457,7 @@ public class FragmentEntryList extends ListFragment
         private final LayoutInflater mInflater;
 
         // VIEW HOLDER =============================================================================
-        private class ViewHolder
+        private static class ViewHolder
         {
             private final View mRow;
             private TextView mTitle = null;

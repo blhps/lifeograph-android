@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="add_today" type="id"/>
-    <item name="add_topic" type="id"/>
-    <item name="add_group" type="id"/>
+    <item name="add_entry_today" type="id"/>
+    <item name="add_entry_free" type="id"/>
+    <item name="add_entry_numbered" type="id"/>
     <item name="add_tag_ctg" type="id"/>
 
     <item name="visit_link" type="id"/>

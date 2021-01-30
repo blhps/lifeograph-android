@@ -30,6 +30,8 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import net.sourceforge.lifeograph.helpers.Result;
 
 import java.io.File;
@@ -61,28 +63,35 @@ public class FragmentDiaryList extends Fragment
     public void
     onViewCreated( @NonNull View view, Bundle savedInstanceState ) {
         // Set the adapter
-        if( view instanceof RecyclerView ) {
-            Context context = view.getContext();
-            RecyclerView recyclerView = ( RecyclerView ) view;
-            if( mColumnCount <= 1 ) {
-                recyclerView.setLayoutManager( new LinearLayoutManager( context ) );
-            }
-            else {
-                recyclerView.setLayoutManager( new GridLayoutManager( context, mColumnCount ) );
-            }
-            RecyclerViewAdapterDiaries adapter =
-                    new RecyclerViewAdapterDiaries( mDiaryItems, this );
-            recyclerView.setAdapter( adapter );
+        RecyclerView recyclerView = view.findViewById( R.id.list_diaries );
+        Context context = view.getContext();
 
-            populateDiaries();
+        if( mColumnCount <= 1 ) {
+            recyclerView.setLayoutManager( new LinearLayoutManager( context ) );
         }
+        else {
+            recyclerView.setLayoutManager( new GridLayoutManager( context, mColumnCount ) );
+        }
+        RecyclerViewAdapterDiaries adapter =
+                new RecyclerViewAdapterDiaries( mDiaryItems, this );
+        recyclerView.setAdapter( adapter );
 
+        FloatingActionButton fab = view.findViewById( R.id.fab_add_diary );
+        fab.setOnClickListener( v -> createNewDiary() );
     }
 
     @Override
     public void
     onResume() {
+        Log.d( Lifeograph.TAG, "FragmentDiaryList.onResume()" );
+
         super.onResume();
+
+        if( Diary.diary.is_open() ) {
+            Diary.diary.writeAtLogout();
+            Diary.diary.remove_lock_if_necessary();
+            Diary.diary.clear();
+        }
 
         ActionBar actionbar = ( ( AppCompatActivity ) requireActivity() ).getSupportActionBar();
         if( actionbar != null ) {
@@ -90,13 +99,14 @@ public class FragmentDiaryList extends Fragment
         }
 
         ( ( FragmentHost ) getActivity() ).updateDrawerMenu( R.id.nav_diaries );
+
+        populateDiaries();
     }
 
     // DIARY OPERATIONS ============================================================================
     void
     populateDiaries() {
         mDiaryItems.clear();
-        mPaths.clear();
 
         int index = 0;
         File dir = getDiariesDir();
@@ -111,7 +121,6 @@ public class FragmentDiaryList extends Fragment
                 for( File ff : dirs ) {
                     if( !ff.isDirectory() && !ff.getPath().endsWith( Diary.LOCK_SUFFIX ) ) {
                         mDiaryItems.add( new ListItemDiary( index, ff.getName(), ff.getPath() ) );
-                        mPaths.add( ff.getPath() );
                         index++;
                     }
                 }
@@ -121,7 +130,6 @@ public class FragmentDiaryList extends Fragment
         mDiaryItems.add( new ListItemDiary( index,
                                             Diary.sExampleDiaryName,
                                             Diary.sExampleDiaryPath ) );
-        mPaths.add( Diary.sExampleDiaryPath );
     }
 
     private void
@@ -269,8 +277,8 @@ public class FragmentDiaryList extends Fragment
     // RecyclerViewAdapterDiaries.DiaryItemListener INTERFACE METHODS
     @Override
     public void
-    onDiaryItemClick( int pos ) {
-        openDiary1( mPaths.get( pos ) );
+    onDiaryItemClick( String path ) {
+        openDiary1( path );
         Log.d( Lifeograph.TAG, "Diary clicked" );
     }
 
@@ -312,7 +320,7 @@ public class FragmentDiaryList extends Fragment
     public static String sDiaryPath;
     private boolean      m_flag_open_ready     = false;
     private int          m_password_attempt_no = 0;
-    private final List< String >        mPaths      = new ArrayList<>();
+    //private final List< String >        mPaths      = new ArrayList<>();
     private final List< ListItemDiary > mDiaryItems = new ArrayList<>();
 
     // SUB CLASSES =================================================================================

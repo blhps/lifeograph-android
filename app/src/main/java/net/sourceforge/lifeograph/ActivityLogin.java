@@ -144,13 +144,6 @@ public class ActivityLogin extends AppCompatActivity
     protected void onResume() {
         super.onResume();
 
-        if( Diary.diary.is_open() ) {
-            Diary.diary.writeAtLogout();
-            Diary.diary.remove_lock_if_necessary();
-            Diary.diary.clear();
-        }
-
-        //populateDiaries(); // this also helps with the changes in the diary path
         Log.d( Lifeograph.TAG, "ActivityLogin.onResume()" );
     }
 

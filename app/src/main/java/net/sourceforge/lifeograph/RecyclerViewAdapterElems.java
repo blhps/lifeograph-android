@@ -21,26 +21,26 @@
 
 package net.sourceforge.lifeograph;
 
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import java.util.ArrayList;
 import java.util.List;
 
-public class RecyclerViewAdapterDiaries
-        extends RecyclerView.Adapter< RecyclerViewAdapterDiaries.ViewHolder >
+import androidx.annotation.NonNull;
+import androidx.recyclerview.widget.RecyclerView;
+
+public class RecyclerViewAdapterElems
+        extends RecyclerView.Adapter< RecyclerViewAdapterElems.ViewHolder >
 {
+    private final List< DiaryElement > mItems;
+    private final List< Boolean >      mSelectionStatuses = new ArrayList<>();
 
-    private final List< FragmentDiaryList.ListItemDiary > mItems;
-    public ViewHolder mViewHolder;
-
-    public RecyclerViewAdapterDiaries( List< FragmentDiaryList.ListItemDiary > items,
-                                       DiaryItemListener listener ) {
+    public RecyclerViewAdapterElems( List< DiaryElement > items,
+                                     Listener listener ) {
         mItems = items;
         mListener = listener;
     }
@@ -50,18 +50,17 @@ public class RecyclerViewAdapterDiaries
     public ViewHolder
     onCreateViewHolder( ViewGroup parent, int viewType ) {
         View view = LayoutInflater.from( parent.getContext() )
-                                  .inflate( R.layout.list_item_diary, parent, false );
-        mViewHolder = new ViewHolder( view, mListener );
-
-        return mViewHolder;
+                                  .inflate( R.layout.list_item_element, parent, false );
+        return new ViewHolder( view, this );
     }
 
     @Override
     public void
     onBindViewHolder( final ViewHolder holder, int position ) {
         holder.mItem = mItems.get( position );
-        //holder.mImageView.setText( mValues.get( position ).id );
-        holder.mTextView.setText( mItems.get( position ).mName );
+        mSelectionStatuses.add( position, false );
+        holder.mImageView.setImageResource( mItems.get( position ).get_icon() );
+        holder.mTextView.setText( mItems.get( position ).get_list_str() );
     }
 
     @Override
@@ -70,27 +69,44 @@ public class RecyclerViewAdapterDiaries
         return mItems.size();
     }
 
-    interface DiaryItemListener
-    {
-        void onDiaryItemClick( String path );
+    void
+    setChecked( int position, boolean isChecked ) {
+        mSelectionStatuses.set( position, isChecked );
     }
 
-    DiaryItemListener mListener;
+    boolean
+    isChecked( int position ) {
+        return mSelectionStatuses.get( position );
+    }
+
+    interface Listener
+    {
+        void onElemClick( DiaryElement elem );
+    }
+
+    Listener mListener;
 
     public static class ViewHolder extends RecyclerView.ViewHolder
     {
-        public final View mView;
-        public final ImageView mImageView;
-        public final TextView mTextView;
-        public FragmentDiaryList.ListItemDiary mItem;
+        public final View                mView;
+        public final ImageView           mImageView;
+        public final TextView            mTextView;
+        public DiaryElement              mItem;
+        private final RecyclerViewAdapterElems mAdapter;
 
-        public ViewHolder( View view, DiaryItemListener listener ) {
+        public ViewHolder( View view, RecyclerViewAdapterElems adapter ) {
             super( view );
             mView      = view;
             mImageView = view.findViewById( R.id.icon );
             mTextView  = view.findViewById( R.id.title );
+            mAdapter   = adapter;
 
-            view.setOnClickListener( v -> listener.onDiaryItemClick( mItem.mPath ) );
+            view.setOnClickListener( v -> adapter.mListener.onElemClick( mItem ) );
+            view.setOnLongClickListener( v -> {
+                v.setActivated( !v.isActivated() );
+
+                mAdapter.setChecked( getAdapterPosition(), v.isActivated() );
+                return true; } );
         }
 
         @NonNull

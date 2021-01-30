@@ -25,23 +25,22 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:name="net.sourceforge.lifeograph.FragmentDiaryList"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FragmentDiaryList" >
+    tools:context=".FragmentChartList" >
 
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_diaries"
-        android:name="net.sourceforge.lifeograph.FragmentDiaryList"
+        android:id="@+id/list_charts"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
-        tools:context=".FragmentDiaryList"
-        tools:listitem="@layout/list_item_diary" />
+        tools:listitem="@layout/list_item_element" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_diary"
+        android:id="@+id/fab_add_chart"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"

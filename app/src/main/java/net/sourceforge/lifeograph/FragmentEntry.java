@@ -401,12 +401,6 @@ public class FragmentEntry extends Fragment
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
         }
         show( savedInstanceState == null );
-
-        if( !Lifeograph.getAddFreeNotPurchased() ) {
-            LinearLayout container = view.findViewById( R.id.main_container );
-            View ad = view.findViewById( R.id.fragmentAd );
-            container.removeView( ad );
-        }
     }
 
     /*@Override
@@ -577,6 +571,7 @@ public class FragmentEntry extends Fragment
         mMenu.findItem( R.id.dismiss ).setVisible( flagWritable );
     }
 
+    // DiaryEditor interface methods
     @Override
     public void
     enableEditing() {

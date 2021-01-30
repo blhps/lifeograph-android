@@ -47,8 +47,12 @@
             android:title="@string/entries" />
         <item
             android:id="@+id/nav_charts"
-            android:icon="@drawable/icon_entry"
-            android:title="@string/chart" />
+            android:icon="@drawable/ic_chart"
+            android:title="@string/charts" />
+        <item
+            android:id="@+id/nav_filters"
+            android:icon="@drawable/ic_filter"
+            android:title="@string/charts" />
     </group>
     <group
         android:id="@+id/group2"

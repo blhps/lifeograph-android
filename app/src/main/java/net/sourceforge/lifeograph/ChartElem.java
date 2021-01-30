@@ -32,7 +32,14 @@ public class ChartElem extends StringDefElem
     }
 
     @Override
-    public Type get_type(){
+    public Type
+    get_type(){
         return Type.CHART;
+    }
+
+    @Override
+    public int
+    get_icon() {
+        return R.drawable.ic_chart;
     }
 }

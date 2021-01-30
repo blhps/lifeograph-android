@@ -180,7 +180,11 @@ public abstract class DiaryElement {
 
     public String
     get_title_str() {
-        return get_name();
+        return m_name;
+    }
+    public String
+    get_info_str() {
+        return "";
     }
     public String
     get_list_str() {

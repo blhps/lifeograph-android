@@ -7,6 +7,8 @@
     <string name="about">About</string>
     <string name="add">Add</string>
     <string name="add_today">Entry to Today</string>
+    <string name="entry_free">Free Entry</string>
+    <string name="entry_numbered">Numbered Entry</string>
     <string name="apply">Apply</string>
     <string name="authenticate">Authenticate</string>
     <string name="calendar">Calendar</string>
@@ -45,17 +47,21 @@
     <string name="chapter">Dated Chapter</string>
     <string name="filter">Filter</string>
     <string name="chart">Chart</string>
+    <string name="charts">Charts</string>
+    <string name="filters">Filters</string>
     <string name="table">Table</string>
 
     <string name="new_diary">New Diary</string>
     <string name="upgrade_diary">Upgrade The Diary</string>
     <string name="new_chapter">New Chapter</string>
+    <string name="new_chart">New Chart</string>
     <string name="new_tag_ctg">New Tag Category</string>
 
     <string name="open_entry">Open entry</string>
 
     <string name="create_diary">Enter a name for the new diary</string>
     <string name="create_entry">Create entry</string>
+    <string name="create_chart">Create chart</string>
     <string name="add_entry">Add Entry</string>
     <string name="create_chapter">Create dated chapter</string>
     <string name="create_topic">Create numbered chapter</string>

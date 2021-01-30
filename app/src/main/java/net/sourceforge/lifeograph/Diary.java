@@ -78,7 +78,7 @@ public class Diary extends DiaryElement
     static final int SoCr_DEFAULT       = SoCr_DATE|SoCr_ASCENDING|SoCr_DESCENDING_T;
 
     static final String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    static final int    DB_FILE_VERSION_INT = 1050;
+    static final int    DB_FILE_VERSION_INT = 2000;
     static final int    DB_FILE_VERSION_INT_MIN = 1010;
     static final String LOCK_SUFFIX = ".~LOCK~";
 
@@ -1742,7 +1742,7 @@ public class Diary extends DiaryElement
                     case 'E':
                         switch( line.charAt( 1 ) ) {
                             case ' ':   // declaration
-                                ptr2entry = create_entry( Integer.parseInt( line.substring( 6 ) ),
+                                ptr2entry = create_entry( Long.parseLong( line.substring( 6 ) ),
                                                           line.charAt( 2 ) == 'F',
                                                           line.charAt( 3 ) == 'T',
                                                           line.charAt( 5 ) == 'E' );
@@ -1751,7 +1751,7 @@ public class Diary extends DiaryElement
                                 break;
                             case '+':   // chapter declaration
                                 ptr2entry = ptr2chapter = ptr2chapter_ctg.create_chapter(
-                                        Integer.parseInt( line.substring( 6 ) ),
+                                        Long.parseLong( line.substring( 6 ) ),
                                         line.charAt( 2 ) == 'F',
                                         line.charAt( 3 ) == 'T',
                                         line.charAt( 5 ) == 'E' );
@@ -1759,13 +1759,13 @@ public class Diary extends DiaryElement
                                 parse_todo_status( ptr2chapter, line.charAt( 4 ) );
                                 break;
                             case 'c':
-                                ptr2entry.m_date_created = Integer.parseInt( line.substring( 2 ) );
+                                ptr2entry.m_date_created = Long.parseLong( line.substring( 2 ) );
                                 break;
                             case 'e':
-                                ptr2entry.m_date_edited = Integer.parseInt( line.substring( 2 ) );
+                                ptr2entry.m_date_edited = Long.parseLong( line.substring( 2 ) );
                                 break;
                             case 't':   // to do status change date
-                                ptr2entry.m_date_status = Integer.parseInt( line.substring( 2 ) );
+                                ptr2entry.m_date_status = Long.parseLong( line.substring( 2 ) );
                                 break;
                             case 'm':
                                 ptr2entry.set_theme( m_themes.get( line.substring( 2 ) ) );

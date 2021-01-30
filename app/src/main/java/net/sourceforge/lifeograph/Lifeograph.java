@@ -34,8 +34,11 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.util.DisplayMetrics;
 import android.util.Log;
+import android.view.View;
 import android.view.WindowManager;
 import android.widget.Toast;
+
+import com.google.android.material.snackbar.Snackbar;
 
 import net.sourceforge.lifeograph.helpers.Result;
 
@@ -93,9 +96,38 @@ public class Lifeograph extends Application
         }
     }
 
-    interface DiaryEditor{
+    interface DiaryEditor {
         void enableEditing();
         Context getContext();
+    }
+
+    static void
+    goToToday() {
+        if( BuildConfig.DEBUG && !( Diary.diary.is_open() ) ) {
+            throw new AssertionError( "Assertion failed" );
+        }
+
+        Entry entry = Diary.diary.get_entry_today();
+
+        if( entry == null ) // add new entry if no entry exists on selected date
+            entry = Diary.diary.add_today();
+
+        showElem( entry );
+    }
+
+    static void
+    addEntry( long date, String text ) {
+        if( BuildConfig.DEBUG && !( Diary.diary.is_in_edit_mode() ) ) {
+            throw new AssertionError( "Assertion failed" );
+        }
+
+        if( !Date.is_ordinal( date ) && Date.get_order_3rd( date ) == 0 )
+            date++; // fix order
+
+        Entry entry = Diary.diary.create_entry( date, text, false );
+
+        if( entry != null )
+            showElem( entry );
     }
 
     static void
@@ -171,6 +203,11 @@ public class Lifeograph extends Application
                .setNegativeButton( negativeText, negListener );
 
         builder.show();
+    }
+
+    static void showSnack( View view, String message ) {
+        Snackbar.make( view, message, Snackbar.LENGTH_LONG )
+                .setAction( "Action", null ).show();
     }
 
     static void showToast( String message ) {

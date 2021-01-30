@@ -37,6 +37,10 @@
             app:exitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
+        android:id="@+id/nav_charts"
+        android:name="net.sourceforge.lifeograph.FragmentChartList"
+        tools:layout="@layout/fragment_list_chart" />
+    <fragment
         android:id="@+id/nav_diaries"
         android:name="net.sourceforge.lifeograph.FragmentDiaryList"
         android:label="Diaries"

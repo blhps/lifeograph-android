@@ -45,19 +45,40 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
 
         menu.clear();
 
-        menu.add( 0, R.id.add_today, 0, R.string.add_today )
+        menu.add( 0, R.id.add_entry_today, 0, R.string.add_today )
+            .setIcon( R.mipmap.ic_entry )
+            .setOnMenuItemClickListener( this );
+
+        menu.add( 0, R.id.add_entry_free, 0, R.string.entry_free )
+            .setIcon( R.mipmap.ic_entry )
+            .setOnMenuItemClickListener( this );
+
+        menu.add( 0, R.id.add_entry_numbered, 0, R.string.entry_numbered )
             .setIcon( R.mipmap.ic_entry )
             .setOnMenuItemClickListener( this );
     }
 
     //@Override
     public boolean onMenuItemClick( MenuItem item ) {
-        switch( item.getItemId() ) {
-            case android.R.id.home:
-                return true;
-            case R.id.add_today:
-                mParent.goToToday();
-                return true;
+        int itemId = item.getItemId();
+        if( itemId == android.R.id.home ) {
+            return true;
+        }
+        else
+        if( itemId == R.id.add_entry_today ) {
+            Lifeograph.goToToday();
+            return true;
+        }
+        else
+        if( itemId == R.id.add_entry_free ) {
+            Lifeograph.addEntry( Diary.diary.get_available_order_1st( true ), "" );
+            return true;
+        }
+        else {
+        if( itemId == R.id.add_entry_numbered ) {
+            Lifeograph.addEntry( Diary.diary.get_available_order_1st( false ), "" );
+            return true;
+        }
         }
         return true;
     }

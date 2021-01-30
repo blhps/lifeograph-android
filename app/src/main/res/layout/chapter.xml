@@ -73,12 +73,6 @@
             android:id="@+id/chart_view_tag"
             android:layout_gravity="center_horizontal" />
 
-        <fragment
-            android:id="@+id/fragmentAd"
-            android:name="net.sourceforge.lifeograph.FragmentAd"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
     </LinearLayout>
 
     <!-- DRAWER -->
