@@ -22,9 +22,9 @@
 package net.sourceforge.lifeograph;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.fragment.app.ListFragment;
+import androidx.fragment.app.Fragment;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
 
 import android.content.Context;
 import android.os.Bundle;
@@ -36,9 +36,9 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
+import android.widget.HorizontalScrollView;
 import android.widget.ImageButton;
 import android.widget.ImageView;
-import android.widget.ListView;
 import android.widget.TextView;
 
 import net.sourceforge.lifeograph.helpers.Result;
@@ -48,32 +48,60 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
-public class FragmentEntryList extends ListFragment implements DialogPassword.Listener,
-        Lifeograph.DiaryEditor
+public class FragmentEntryList extends Fragment implements DialogPassword.Listener,
+        Lifeograph.DiaryEditor, Lifeograph.DiaryView, RecyclerViewAdapterElems.Listener
 {
+    // VARIABLES ===================================================================================
+    private final List< DiaryElement > mEntries = new ArrayList<>();
+    private final List< Boolean >      mSelectionStatuses = new ArrayList<>();
+    private Menu                       mMenu = null;
+    private HorizontalScrollView       mToolbar;
+    private RecyclerView               mRecyclerView;
+    private RecyclerViewAdapterElems   mRecyclerViewAdapter;
+
+    // METHODS =====================================================================================
     @Override
     public void
     onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
         setHasOptionsMenu( true );
+
+        // This callback will only be called when MyFragment is at least Started.
+//        OnBackPressedCallback callback = new OnBackPressedCallback( true /* enabled by default */) {
+//            @Override
+//            public void handleOnBackPressed() {
+//                // Handle the back button event
+//                Log.d( Lifeograph.TAG, "CALLBACK PRESSED HANDLER!!" );
+//                handleBack();
+//            }
+//        };
+//        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
+
     }
 
     @Override
     public View
     onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstState ) {
         Log.d( Lifeograph.TAG, "FragmentEntryList.onCreateView()" );
-
-        if( getArguments() != null )
-            mCurTabIndex = getArguments().getInt( "tab" );
-
-        mAdapterEntries = new DiaryElemAdapter( getActivity(),
-                                                R.layout.list_item_element,
-                                                R.id.title,
-                                                mElems,
-                                                inflater );
-        this.setListAdapter( mAdapterEntries );
-
         return inflater.inflate( R.layout.fragment_list_entry, container, false );
+    }
+
+    @Override
+    public void
+    onViewCreated( @NonNull View view, Bundle savedInstanceState ) {
+        mRecyclerView = view.findViewById( R.id.list );
+        mRecyclerViewAdapter = new RecyclerViewAdapterElems( mEntries, mSelectionStatuses, this,
+                                                             true, true );
+        mRecyclerView.setAdapter( mRecyclerViewAdapter );
+        mRecyclerView.setLayoutManager( new LinearLayoutManager( getContext() ) );
+
+        mToolbar = view.findViewById( R.id.toolbar_entry_item );
+
+        ImageButton button = view.findViewById( R.id.btn_toggle_favorite );
+        button.setOnClickListener( v -> toggleSelFavoredness( ) );
+
+        button = view.findViewById( R.id.btn_todo_auto );
+        button.setOnClickListener( v -> setTodoDone( ) );
     }
 
     @Override
@@ -82,11 +110,12 @@ public class FragmentEntryList extends ListFragment implements DialogPassword.Li
         Log.d( Lifeograph.TAG, "FragmentEntryList.onResume()" );
         super.onResume();
 
-        ActionBar actionbar = ( ( AppCompatActivity ) requireActivity() ).getSupportActionBar();
-        if( actionbar != null ) {
-            actionbar.setTitle( Diary.diary.get_title_str() );
-            actionbar.setSubtitle( "Entries (" + Diary.diary.get_size() + ")" );
-        }
+        ActivityMain.mViewCurrent = this;
+
+        updateActionBarTitle();
+        updateActionBarSubtitle();
+
+        mToolbar.setVisibility( View.GONE );
 
         ( ( FragmentHost ) getActivity() ).updateDrawerMenu( R.id.nav_entries );
 
@@ -124,11 +153,11 @@ public class FragmentEntryList extends ListFragment implements DialogPassword.Li
             Lifeograph.enableEditing( this );
             return true;
         }
-//        else
-//        if( id == R.id.home ) {
-//            //finish();
-//            return true;
-//        }
+        else
+        if( id == R.id.home && handleBack() ) {
+            //finish();
+            return true;
+        }
         else
         if( id == R.id.add_password ) {
             new DialogPassword( getContext(),
@@ -155,19 +184,23 @@ public class FragmentEntryList extends ListFragment implements DialogPassword.Li
         }
         else
         if( id == R.id.logout_wo_save ) {
-            Lifeograph.showConfirmationPrompt( getContext(),
-                                               R.string.logoutwosaving_confirm,
-                                               R.string.logoutwosaving,
-                                               ( dialog, id_ ) -> {
-                                                   // unlike desktop version Android version
-                                                   // does not back up changes
-                                                   Diary.diary.setSavingEnabled( false );
-                                                   //TODO finish();
-                                               } );
+            Lifeograph.logoutWithoutSaving( requireView() );
             return true;
         }
 
         return super.onOptionsItemSelected( item );
+    }
+
+    @Override
+    public boolean
+    handleBack() {
+        if( mRecyclerViewAdapter.hasSelection() ) {
+            mRecyclerViewAdapter.clearSelection( mRecyclerView.getLayoutManager() );
+            updateActionBarSubtitle();
+            exitSelectionMode();
+            return true;
+        }
+        return false;
     }
 
     private void
@@ -188,60 +221,80 @@ public class FragmentEntryList extends ListFragment implements DialogPassword.Li
         mMenu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
     }
 
-    @Override
-    public void onListItemClick( @NonNull ListView l, @NonNull View v, int pos, long id ) {
-        super.onListItemClick( l, v, pos, id );
-        switch( mElems.get( pos ).get_type() ) {
-            case ENTRY:
-            case CHAPTER:
-                Lifeograph.showElem( mElems.get( pos ) );
-//                FragmentEntry.mEntry =  ( Entry ) mElems.get( pos );
-//                Navigation.findNavController( requireView() ).navigate( R.id.nav_entry_editor );
-                break;
+    void
+    updateList() {
+        mEntries.clear();
+
+        Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES" );
+        for( Entry e : Diary.diary.m_entries.values() ) {
+            if( !e.get_filtered_out() )
+                mEntries.add( e );
         }
+
+        Collections.sort( mEntries, compareElems );
     }
 
     void
-    updateList() {
-        mAdapterEntries.clear();
-        mElems.clear();
+    updateActionBarTitle() {
+        Lifeograph.getActionBar().setTitle( Diary.diary.get_title_str() );
+    }
 
-//        switch( mDiaryManager.getElement().get_type() ) {
-//            case DIARY:
-                // ALL ENTRIES
-                if( mCurTabIndex == 0 ) {
-                    Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES" );
-                    for( Entry e : Diary.diary.m_entries.values() ) {
-                        if( !e.get_filtered_out() )
-                            mElems.add( e );
-                    }
+    @Override
+    public void
+    updateActionBarSubtitle() {
+        int selCount = mRecyclerViewAdapter.getMSelCount();
+        if( selCount > 0 ) {
+            Lifeograph.getActionBar().setSubtitle( "Entries (" + selCount + " / "
+                                                   + Diary.diary.get_size() + ")" );
+        }
+        else {
+            Lifeograph.getActionBar().setSubtitle( "Entries (" + Diary.diary.get_size() + ")" );
+        }
+    }
 
-                    Collections.sort( mElems, compareElems );
-                }
+    @Override
+    public boolean
+    enterSelectionMode() {
+        if( Diary.diary.is_in_edit_mode() ) {
+            mToolbar.setVisibility( View.VISIBLE );
+            return true;
+        }
+        else
+            return false;
+    }
 
-                // CHAPTERS
-                else if( mCurTabIndex == 1 ) {
-                    Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::CHAPTERS" );
-                }
+    @Override
+    public void
+    exitSelectionMode() {
+        mToolbar.setVisibility( View.GONE );
+    }
 
-                // TAGS
-                else if( mCurTabIndex == 2 ) {
-                    Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::TAGS" );
-                }
-//                break;
-//            case CHAPTER:
-//            {
-//                Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::CHAPTER ENTRIES" );
-//                Chapter c = ( Chapter ) mDiaryManager.getElement();
-//                for( Entry e : c.mEntries ) {
-//                    if( !e.get_filtered_out() )
-//                        mElems.add( e );
-//                }
-//
-//                Collections.sort( mElems, compareElems );
-//                break;
-//            }
-//        }
+    void
+    toggleSelFavoredness() {
+        int i = 0;
+        for( Boolean selected : mSelectionStatuses ) {
+            if( selected ) {
+                Entry entry = ( Entry ) mEntries.get( i );
+                entry.toggle_favored();
+            }
+            i++;
+        }
+
+        mRecyclerViewAdapter.notifyDataSetChanged();
+    }
+
+    void
+    setTodoDone() {
+        int i = 0;
+        for( Boolean selected : mSelectionStatuses ) {
+            if( selected ) {
+                Entry entry = ( Entry ) mEntries.get( i );
+                entry.set_todo_status( DiaryElement.ES_DONE );
+            }
+            i++;
+        }
+
+        mRecyclerViewAdapter.notifyDataSetChanged();
     }
 
     // INTERFACE METHODS ===========================================================================
@@ -268,13 +321,18 @@ public class FragmentEntryList extends ListFragment implements DialogPassword.Li
         }
     }
 
+    // RecyclerViewAdapterElems.Listener INTERFACE METHODS
+    @Override
+    public void
+    onElemClick( DiaryElement elem ) {
+        Lifeograph.showElem( elem );
+    }
 
-    // VARIABLES ===================================================================================
-    private final List< DiaryElement > mElems = new ArrayList<>();
-    private DiaryElemAdapter mAdapterEntries = null;
-    //DiaryManager mDiaryManager;
-    private int  mCurTabIndex = 0;
-    private Menu mMenu = null;
+    // ELEMENT LIST INTERFACE ======================================================================
+    public interface ListOperations
+    {
+        void updateList();
+    }
 
     // INTERFACE
     public interface DiaryManager
@@ -283,12 +341,6 @@ public class FragmentEntryList extends ListFragment implements DialogPassword.Li
 //        void removeFragment( FragmentElemList fragment );
 
         DiaryElement getElement();
-    }
-
-    // ELEMENT LIST INTERFACE ======================================================================
-    public interface ListOperations
-    {
-        void updateList();
     }
 
     // COMPARATOR ==================================================================================

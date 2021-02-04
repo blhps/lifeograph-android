@@ -21,11 +21,11 @@
 
 package net.sourceforge.lifeograph;
 
+import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.navigation.NavController;
-import androidx.navigation.Navigation;
 import androidx.navigation.fragment.NavHostFragment;
 import androidx.navigation.ui.AppBarConfiguration;
 import androidx.navigation.ui.NavigationUI;
@@ -36,7 +36,6 @@ import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.util.Log;
-import android.view.Menu;
 import android.view.MenuItem;
 
 import com.google.android.material.navigation.NavigationView;
@@ -47,16 +46,23 @@ import net.sourceforge.lifeograph.inappbilling.util.IabResult;
 import net.sourceforge.lifeograph.inappbilling.util.Inventory;
 import net.sourceforge.lifeograph.inappbilling.util.Purchase;
 
-public class ActivityLogin extends AppCompatActivity
+public class ActivityMain extends AppCompatActivity
         implements IabBroadcastReceiver.IabBroadcastListener, FragmentHost
 {
-    private AppBarConfiguration mAppBarConfiguration;
+    private final boolean m_flag_open_ready = false;
+    private int           m_password_attempt_no = 0;
 
+    NavController               mNavController;
+    private AppBarConfiguration mAppBarConfiguration;
+    ActionBar                   mActionBar;
+    static Lifeograph.DiaryView mViewCurrent = null;
+
+    // METHODS =====================================================================================
     @Override
     protected void onCreate( Bundle savedInstanceState ) {
         super.onCreate( savedInstanceState );
 
-        Lifeograph.mActivityLogin = this;
+        Lifeograph.mActivityMain = this;
         Lifeograph.updateScreenSizes( this );
 
         if( Diary.diary == null )
@@ -73,7 +79,7 @@ public class ActivityLogin extends AppCompatActivity
             }
             if( mIabHelper == null )
                 return;
-            mIabBroadcastReceiver = new IabBroadcastReceiver( ActivityLogin.this );
+            mIabBroadcastReceiver = new IabBroadcastReceiver( ActivityMain.this );
             IntentFilter broadcastFilter = new IntentFilter( IabBroadcastReceiver.ACTION );
             registerReceiver( mIabBroadcastReceiver, broadcastFilter );
             Log.d( Lifeograph.TAG, "IAB setup successful" );
@@ -110,12 +116,13 @@ public class ActivityLogin extends AppCompatActivity
 
         Toolbar toolbar = findViewById( R.id.toolbar_main );
         setSupportActionBar( toolbar );
+        mActionBar = getSupportActionBar();
 
         DrawerLayout   drawerLayout   = findViewById( R.id.drawer_layout );
         NavigationView navigationView = findViewById( R.id.nav_view );
         mAppBarConfiguration = new AppBarConfiguration.Builder(
                 R.id.nav_diaries, R.id.nav_settings, R.id.nav_about )
-                .setDrawerLayout( drawerLayout )
+                .setOpenableLayout( drawerLayout )
                 .build();
 
         NavHostFragment navHostFragment = ( NavHostFragment )
@@ -175,49 +182,21 @@ public class ActivityLogin extends AppCompatActivity
         }
     }
 
-    @Override
-    public boolean onCreateOptionsMenu( Menu menu ) {
-        super.onCreateOptionsMenu( menu );
-        //getMenuInflater().inflate( R.menu.menu_login, menu );
-        return true;
-    }
-
 //    @Override
-//    public boolean onPrepareOptionsMenu( Menu menu ) {
-//        super.onPrepareOptionsMenu( menu );
-//
-//        menu.findItem( R.id.purchase ).setVisible( Lifeograph.getAddFreeNotPurchased() );
-//
-//        return true;
+//    public void onBackPressed() {
+//        Log.d( Lifeograph.TAG, "BACK PRESSED!!!!" );
+//        if( mViewCurrent == null || !mViewCurrent.handleBack() )
+//            super.onBackPressed();
 //    }
 
     @Override
     public boolean onSupportNavigateUp() {
-        NavController navController = Navigation.findNavController( this, R.id.nav_host_fragment );
-        return NavigationUI.navigateUp( navController, mAppBarConfiguration )
+        Log.d( Lifeograph.TAG, "NAVIGATE UP!!!!" );
+
+        return ( mViewCurrent != null && mViewCurrent.handleBack() )
+               || NavigationUI.navigateUp( mNavController, mAppBarConfiguration )
                || super.onSupportNavigateUp();
     }
-
-    /*@Override
-    public boolean onOptionsItemSelected( MenuItem item ) {
-        switch( item.getItemId() ) {
-//            case R.id.new_diary:
-//                mFragmentDiaryList.createNewDiary();
-//                return true;
-//            case R.id.settings:
-//                launchSettings();
-//                return true;
-//            case R.id.about:
-//                DialogAbout dialog = new DialogAbout( this );
-//                dialog.show();
-//                return true;
-            case R.id.purchase:
-                start_purchase();
-                return true;
-        }
-
-        return super.onOptionsItemSelected( item );
-    }*/
 
     @Override
     public void
@@ -258,22 +237,14 @@ public class ActivityLogin extends AppCompatActivity
                 break;
             }
             case FILTER:
+                break;
             case CHART:
+                mNavController.navigate( R.id.nav_charts );
                 break;
         }
     }
 
     // IN APP BILLING
-    public void start_purchase() {
-        try {
-            mIabHelper.launchPurchaseFlow( this, SKU_ADFREE, 10001,
-                                           mPurchaseFinishedListener, IDs.devPayload );
-        }
-        catch( IabHelper.IabAsyncInProgressException e ) {
-            Log.e( Lifeograph.TAG,
-                   "Error launching purchase flow. Another async operation in progress." );
-        }
-    }
 
     //@Override
     public void receivedBroadcast() {
@@ -287,14 +258,6 @@ public class ActivityLogin extends AppCompatActivity
                    "Error querying inventory. Another async operation in progress." );
         }
     }
-
-    // VARIABLES ===================================================================================
-    FragmentDiaryList mFragmentDiaryList;
-    NavController     mNavController;
-    //private ArrayAdapter< String > mAdapterDiaries;
-    //private DiaryAdapter mAdapterDiaries; MAYBE LATER
-    private boolean m_flag_open_ready = false;
-    private int m_password_attempt_no = 0;
 
     // DIARY ELEMENT ADAPTER CLASS =================================================================
 //    class DiaryAdapter extends ArrayAdapter< Diary >

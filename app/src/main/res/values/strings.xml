@@ -90,7 +90,7 @@
 
     <string name="search_and_filter">Search &amp; Filter</string>
     <string name="all_entries">All Entries</string>
-    <string name="entry_last_changed_on">Entry last changed on</string>
+    <string name="entry_last_changed_on">Changed on</string>
 
     <string name="add_password">Encrypt Diary</string>
     <string name="change_password">Change Password</string>

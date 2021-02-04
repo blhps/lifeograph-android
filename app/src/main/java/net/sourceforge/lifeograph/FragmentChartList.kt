@@ -20,11 +20,9 @@
  ***********************************************************************************/
 package net.sourceforge.lifeograph
 
-import android.content.DialogInterface
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -35,35 +33,42 @@ import java.util.*
 class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.Listener,
         DialogInquireText.InquireListener
 {
-    override fun onCreate( savedInstanceState: Bundle? ) {
-        super.onCreate( savedInstanceState )
-        setHasOptionsMenu( true )
+    // VARIABLES ===================================================================================
+    private val mChartElems: MutableList<DiaryElement> = ArrayList()
+    private val mSelectionStatuses: MutableList<Boolean> = ArrayList()
+    private var mMenu: Menu? = null
+    private var mAdapter: RecyclerViewAdapterElems? = null
+
+    // METHODS =====================================================================================
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstState:
-    Bundle?): View? {
-        Log.d( Lifeograph.TAG, "FragmentChartList.onCreateView()" )
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstState: Bundle?): View? {
+        Log.d(Lifeograph.TAG, "FragmentChartList.onCreateView()")
         return inflater.inflate(R.layout.fragment_list_chart, container, false)
     }
 
-    override fun onViewCreated( view: View, savedInstanceState: Bundle? ) {
-        val recyclerView: RecyclerView = view.findViewById( R.id.list_charts )
-        val adapter = RecyclerViewAdapterElems( mChartElems, this )
-        recyclerView.layoutManager = LinearLayoutManager( view.context )
-        recyclerView.adapter = adapter
-        val fab: FloatingActionButton = view.findViewById( R.id.fab_add_chart )
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        val recyclerView: RecyclerView = view.findViewById(R.id.list_charts)
+        mAdapter =  RecyclerViewAdapterElems( mChartElems, mSelectionStatuses, this )
+        recyclerView.adapter = mAdapter
+        recyclerView.layoutManager = LinearLayoutManager(view.context)
+        val fab: FloatingActionButton = view.findViewById(R.id.fab_add_chart)
         fab.setOnClickListener { createNewChart() }
     }
 
     override fun onResume() {
         Log.d(Lifeograph.TAG, "FragmentEntryList.onResume()")
         super.onResume()
-        val actionbar = (requireActivity() as AppCompatActivity).supportActionBar
-        if (actionbar != null) {
-            actionbar.title = Diary.diary._title_str
-            actionbar.subtitle = "Charts (" + Diary.diary.m_charts.size + ")"
-        }
-        (activity as FragmentHost?)!!.updateDrawerMenu(R.id.nav_charts)
+
+        updateActionBarTitle()
+        updateActionBarSubtitle()
+
+        ( activity as FragmentHost? )!!.updateDrawerMenu(R.id.nav_charts)
         updateList()
     }
 
@@ -78,21 +83,14 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
         updateMenuVisibilities()
     }
 
-    override fun onOptionsItemSelected( item: MenuItem ): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if( id == R.id.enable_edit ) {
-            Lifeograph.enableEditing(this )
+            Lifeograph.enableEditing(this)
             return true
         }
         else if( id == R.id.logout_wo_save ) {
-            Lifeograph.showConfirmationPrompt( context,
-                    R.string.logoutwosaving_confirm,
-                    R.string.logoutwosaving
-            ) { dialog: DialogInterface?, id_: Int ->
-                // unlike desktop version Android version
-                // does not back up changes
-                Diary.diary.setSavingEnabled( false )
-            }
+            Lifeograph.logoutWithoutSaving(requireView())
             return true
         }
         return super.onOptionsItemSelected(item)
@@ -107,17 +105,21 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
 
     private fun updateList() {
         mChartElems.clear()
-        Log.d( Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES" )
-        mChartElems.addAll( Diary.diary.m_charts.values )
-        Collections.sort( mChartElems, FragmentEntryList.compareElems )
+        Log.d(Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES")
+        mChartElems.addAll(Diary.diary.m_charts.values)
+        Collections.sort(mChartElems, FragmentEntryList.compareElems)
     }
 
     private fun createNewChart() {
         // ask for name
-        val dlg = DialogInquireText( context, R.string.create_chart,
-                                     Lifeograph.getStr( R.string.new_chart ),
-                                     R.string.create, this )
+        val dlg = DialogInquireText(context, R.string.create_chart,
+                Lifeograph.getStr(R.string.new_chart),
+                R.string.create, this)
         dlg.show()
+    }
+
+    fun updateActionBarTitle() {
+        Lifeograph.getActionBar().title = Diary.diary._title_str
     }
 
     // INTERFACE METHODS ===========================================================================
@@ -126,18 +128,30 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
         updateMenuVisibilities()
     }
 
-    //RecyclerViewAdapterDiaryElems.Listener INTERFACE METHODS
-    override fun onElemClick( elem: DiaryElement ) {}
+    // RecyclerViewAdapterDiaryElems.Listener INTERFACE METHODS
+    override fun onElemClick(elem: DiaryElement?) {}
 
-    override fun onInquireAction( id: Int, text: String? ) {
-        Lifeograph.showToast( "not implemented yet" )
+    override fun updateActionBarSubtitle() {
+        val selCount = mAdapter!!.mSelCount
+        if( selCount > 0 )
+            Lifeograph.getActionBar().subtitle = ( "Charts (" + selCount + " / "
+                                                              + Diary.diary._size + ")" )
+        else
+            Lifeograph.getActionBar().subtitle = "Charts (" + Diary.diary._size + ")"
+    }
+
+    override fun enterSelectionMode(): Boolean {
+        return Diary.diary.is_in_edit_mode
+    }
+    override fun exitSelectionMode() {
+
+    }
+
+    override fun onInquireAction(id: Int, text: String?) {
+        Lifeograph.showToast("not implemented yet")
     }
     override fun onInquireTextChanged(id: Int, text: String?): Boolean {
-        Lifeograph.showToast( "not implemented yet" )
+        Lifeograph.showToast("not implemented yet")
         return false
     }
-
-    // VARIABLES ===================================================================================
-    private val mChartElems: MutableList<DiaryElement> = ArrayList()
-    private var mMenu: Menu? = null
 }

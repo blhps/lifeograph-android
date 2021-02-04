@@ -43,6 +43,8 @@ import com.google.android.material.snackbar.Snackbar;
 import net.sourceforge.lifeograph.helpers.Result;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.ActionBar;
+import androidx.navigation.Navigation;
 
 public class Lifeograph extends Application
 {
@@ -55,7 +57,7 @@ public class Lifeograph extends Application
 
     static final double MI_TO_KM_RATIO = 1.609344;
 
-    static ActivityLogin mActivityLogin = null;
+    static ActivityMain mActivityMain = null;
 
     @Override
     public void
@@ -69,6 +71,10 @@ public class Lifeograph extends Application
         return mInstance;
     }
 
+    public static ActionBar
+    getActionBar() {
+        return mActivityMain.mActionBar;
+    }
     // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
     private enum PurchaseStatus { PS_UNKNOWN, PURCHASED, NOT_PURCHASED }
     private static PurchaseStatus mAdFreePurchased = PurchaseStatus.PS_UNKNOWN;
@@ -99,6 +105,10 @@ public class Lifeograph extends Application
     interface DiaryEditor {
         void enableEditing();
         Context getContext();
+    }
+
+    interface DiaryView {
+        boolean handleBack();
     }
 
     static void
@@ -136,7 +146,7 @@ public class Lifeograph extends Application
             throw new AssertionError( "Assertion failed" );
         }
 
-        mActivityLogin.showElem( elem );
+        mActivityMain.showElem( elem );
     }
 
     public static void
@@ -159,6 +169,23 @@ public class Lifeograph extends Application
         if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
 
         editor.enableEditing();
+    }
+
+    public static void
+    logoutWithoutSaving( View view ) {
+        if( Diary.diary.is_open() ) {
+            Lifeograph.showConfirmationPrompt( view.getContext(),
+                                               R.string.logoutwosaving_confirm,
+                                               R.string.logoutwosaving,
+                                               ( dialog, id_ ) -> {
+                                                   // unlike desktop version Android version
+                                                   // does not back up changes
+                                                   Diary.diary.setSavingEnabled( false );
+                                                   Navigation.findNavController( view )
+                                                             .navigate( R.id.nav_diaries );
+                                                   //TODO finish();
+                                               } );
+        }
     }
 
     static boolean sOptImperialUnits = false;

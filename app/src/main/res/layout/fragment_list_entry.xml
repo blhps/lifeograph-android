@@ -21,14 +21,92 @@
 
 **************************************************************************** -->
 
-<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-              android:orientation="vertical"
-              android:layout_width="match_parent"
-              android:layout_height="match_parent">
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:compat="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" >
 
-    <ListView
-        android:id="@android:id/list"
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/list"
         android:layout_width="match_parent"
-        android:layout_height="match_parent" />
+        android:layout_height="match_parent"
+        android:layout_above="@id/toolbar_entry_item"
+        android:layout_marginLeft="16dp"
+        android:layout_marginRight="16dp"
+        app:layoutManager="LinearLayoutManager"
+        tools:listitem="@layout/list_item_element" />
 
-</LinearLayout>
+    <HorizontalScrollView
+        android:id="@+id/toolbar_entry_item"
+        android:layout_width="match_parent"
+        android:layout_alignParentBottom="true"
+        android:layout_height="wrap_content"
+        android:background="@color/t_dark"
+        android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:baselineAligned="true"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <Button
+                android:id="@+id/add_child"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="ADD CHILD"
+                android:textColor="@android:color/white" />
+
+            <ImageButton
+                android:id="@+id/btn_toggle_favorite"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_action_favorite" />
+
+            <ImageButton
+                android:id="@+id/dismiss"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@drawable/ic_dismiss" />
+
+            <ImageButton
+                android:id="@+id/btn_todo_auto"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_todo_auto" />
+
+            <ImageButton
+                android:id="@+id/todo_progressed"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_todo_progressed_bw" />
+
+            <ImageButton
+                android:id="@+id/todo_done"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_todo_done_bw" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?android:attr/listDivider" />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+</RelativeLayout>

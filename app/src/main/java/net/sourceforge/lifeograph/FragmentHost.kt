@@ -1,7 +1,5 @@
-package net.sourceforge.lifeograph;
+package net.sourceforge.lifeograph
 
-public interface FragmentHost
-{
-    void
-    updateDrawerMenu( int id );
+interface FragmentHost {
+    fun updateDrawerMenu( id: Int )
 }

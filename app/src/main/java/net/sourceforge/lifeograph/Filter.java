@@ -39,7 +39,7 @@ public class Filter extends StringDefElem
 
     @Override
     public int get_icon() {
-        return 0;
+        return R.drawable.ic_filter;
     }
 
 

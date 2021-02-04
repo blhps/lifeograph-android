@@ -56,7 +56,6 @@ import android.view.inputmethod.EditorInfo;
 import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.LinearLayout;
 import android.widget.PopupMenu;
 import android.widget.TextView;
 
@@ -482,7 +481,8 @@ public class FragmentEntry extends Fragment
     }
 
     @Override
-    public void onPrepareOptionsMenu( @NonNull Menu menu ) {
+    public void
+    onPrepareOptionsMenu( @NonNull Menu menu ) {
         super.onPrepareOptionsMenu( menu );
 
         updateMenuVisibilities();

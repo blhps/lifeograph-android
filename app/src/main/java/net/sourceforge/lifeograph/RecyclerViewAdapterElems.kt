@@ -18,101 +18,125 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+package net.sourceforge.lifeograph
 
-package net.sourceforge.lifeograph;
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.ImageView
+import android.widget.TextView
+import androidx.recyclerview.widget.RecyclerView
+import java.util.*
 
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.ImageView;
-import android.widget.TextView;
 
-import java.util.ArrayList;
-import java.util.List;
-
-import androidx.annotation.NonNull;
-import androidx.recyclerview.widget.RecyclerView;
-
-public class RecyclerViewAdapterElems
-        extends RecyclerView.Adapter< RecyclerViewAdapterElems.ViewHolder >
+class RecyclerViewAdapterElems( private val mItems: List<DiaryElement>,
+                                private val mSelectionStatuses: MutableList<Boolean>,
+                                var mListener: Listener,
+                                private val mHasIcon2: Boolean = false,
+                                private val mHasDetailText: Boolean = false ) :
+        RecyclerView.Adapter< RecyclerViewAdapterElems.ViewHolder >()
 {
-    private final List< DiaryElement > mItems;
-    private final List< Boolean >      mSelectionStatuses = new ArrayList<>();
+    var mSelCount: Int = 0
 
-    public RecyclerViewAdapterElems( List< DiaryElement > items,
-                                     Listener listener ) {
-        mItems = items;
-        mListener = listener;
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
+        val view = LayoutInflater.from(parent.context)
+                                 .inflate(R.layout.list_item_element, parent, false)
+        return ViewHolder(view, this)
     }
 
-    @NonNull
-    @Override
-    public ViewHolder
-    onCreateViewHolder( ViewGroup parent, int viewType ) {
-        View view = LayoutInflater.from( parent.getContext() )
-                                  .inflate( R.layout.list_item_element, parent, false );
-        return new ViewHolder( view, this );
+    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+        if( mSelectionStatuses.isEmpty() )
+            mSelectionStatuses.addAll(Collections.nCopies(mItems.size, false))
+
+        holder.mItem = mItems[position]
+        holder.mIVIcon.setImageResource(mItems[position]._icon)
+        holder.mTVTitle.text = mItems[position]._list_str
+        if( mHasDetailText )
+            holder.mTVDetails.text = mItems[position]._info_str
+        else
+            holder.mTVDetails.visibility = View.INVISIBLE
+
+        if( mHasIcon2 && holder.mItem is Entry && ( holder.mItem as Entry ).is_favored )
+            holder.mIVIcon2.setImageResource(R.mipmap.ic_favorite)
+        else
+            holder.mIVIcon2.visibility = View.INVISIBLE
     }
 
-    @Override
-    public void
-    onBindViewHolder( final ViewHolder holder, int position ) {
-        holder.mItem = mItems.get( position );
-        mSelectionStatuses.add( position, false );
-        holder.mImageView.setImageResource( mItems.get( position ).get_icon() );
-        holder.mTextView.setText( mItems.get( position ).get_list_str() );
+    override fun onViewAttachedToWindow(holder: ViewHolder) {
+        super.onViewAttachedToWindow(holder)
+        holder.mView.isActivated = mSelectionStatuses[holder.adapterPosition]
     }
 
-    @Override
-    public int
-    getItemCount() {
-        return mItems.size();
+    override fun getItemCount(): Int {
+        return mItems.size
     }
 
-    void
-    setChecked( int position, boolean isChecked ) {
-        mSelectionStatuses.set( position, isChecked );
+    fun setChecked( position: Int, isChecked: Boolean ) {
+        if( isChecked != mSelectionStatuses[position] )
+            if( isChecked ) mSelCount++ else mSelCount--
+
+        mSelectionStatuses[position] = isChecked
     }
 
-    boolean
-    isChecked( int position ) {
-        return mSelectionStatuses.get( position );
+    fun isChecked(position: Int): Boolean {
+        return mSelectionStatuses[position]
     }
 
-    interface Listener
-    {
-        void onElemClick( DiaryElement elem );
+    fun hasSelection(): Boolean {
+        return mSelCount > 0
     }
 
-    Listener mListener;
-
-    public static class ViewHolder extends RecyclerView.ViewHolder
-    {
-        public final View                mView;
-        public final ImageView           mImageView;
-        public final TextView            mTextView;
-        public DiaryElement              mItem;
-        private final RecyclerViewAdapterElems mAdapter;
-
-        public ViewHolder( View view, RecyclerViewAdapterElems adapter ) {
-            super( view );
-            mView      = view;
-            mImageView = view.findViewById( R.id.icon );
-            mTextView  = view.findViewById( R.id.title );
-            mAdapter   = adapter;
-
-            view.setOnClickListener( v -> adapter.mListener.onElemClick( mItem ) );
-            view.setOnLongClickListener( v -> {
-                v.setActivated( !v.isActivated() );
-
-                mAdapter.setChecked( getAdapterPosition(), v.isActivated() );
-                return true; } );
+    fun clearSelection( layoutman: RecyclerView.LayoutManager ) {
+        for( ( i, selected ) in mSelectionStatuses.withIndex() ) {
+            if( selected ) {
+                val row = layoutman.findViewByPosition( i )
+                row?.isActivated = false
+                mSelectionStatuses[i] = false
+            }
         }
 
-        @NonNull
-        @Override
-        public String toString() {
-            return super.toString() + " '" + mTextView.getText() + "'";
+        mSelCount = 0
+
+        notifyDataSetChanged()
+    }
+
+    interface Listener {
+        fun onElemClick(elem: DiaryElement?)
+        fun updateActionBarSubtitle()
+        fun enterSelectionMode(): Boolean
+        fun exitSelectionMode()
+    }
+
+    class ViewHolder(val mView: View, private val mAdapter: RecyclerViewAdapterElems) :
+            RecyclerView.ViewHolder( mView )
+    {
+        val mIVIcon:    ImageView = mView.findViewById(R.id.icon)
+        val mIVIcon2:   ImageView = mView.findViewById(R.id.icon2)
+        val mTVTitle:   TextView = mView.findViewById(R.id.title)
+        val mTVDetails: TextView = mView.findViewById(R.id.detail)
+        var mItem:      DiaryElement? = null
+
+        init {
+            mView.setOnClickListener { v: View ->
+                if( mAdapter.mSelCount > 0 )
+                    handleLongCLick(v)
+                else
+                    mAdapter.mListener.onElemClick(mItem)
+            }
+            mView.setOnLongClickListener { v: View ->
+                handleLongCLick(v)
+                true
+            }
+        }
+
+        private fun handleLongCLick( v: View ) {
+            if( mAdapter.hasSelection() || mAdapter.mListener.enterSelectionMode() ) {
+                v.isActivated = !v.isActivated
+                mAdapter.setChecked( adapterPosition, v.isActivated )
+                mAdapter.mListener.updateActionBarSubtitle()
+            }
+            if( !mAdapter.hasSelection() )
+                mAdapter.mListener.exitSelectionMode()
         }
     }
 }
