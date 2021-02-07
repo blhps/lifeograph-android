@@ -9,6 +9,9 @@
     <string name="add_today">Entry to Today</string>
     <string name="entry_free">Free Entry</string>
     <string name="entry_numbered">Numbered Entry</string>
+    <string name="numbered_entries">NUMBERED ENTRIES</string>
+    <string name="free_entries">FREE ENTRIES</string>
+    <string name="dated_entries">DATED ENTRIES</string>
     <string name="apply">Apply</string>
     <string name="authenticate">Authenticate</string>
     <string name="calendar">Calendar</string>
@@ -170,7 +173,7 @@
     <string name="save">Save</string>
     <string name="unitless">Unitless</string>
     <string name="read_only">Read-Only</string>
-    <string name="Lifeograph">Lifeograph</string>
+    <string name="Lifeograph" translatable="false">Lifeograph</string>
 
     <string-array name="array_filter_trash">
         <item>All Entries</item>
@@ -188,6 +191,12 @@
         <item>Boolean (Classic)</item>
         <item>Cumulative</item>
         <item>Average</item>
+    </string-array>
+
+    <string-array name="array_new_entry_types">
+        <item>on Today</item>
+        <item>Free Entry</item>
+        <item>Numbered Entry</item>
     </string-array>
 
     <string-array name="array_tag_units" translatable="false">

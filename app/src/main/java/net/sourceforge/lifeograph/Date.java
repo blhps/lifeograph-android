@@ -31,8 +31,8 @@ public class Date {
     public static final long NOT_SET                = 0xFFFFFFFFL;
     public static final long DATE_MAX               = 0xFFFFFFFFL;
 
-    public static final long YEAR_MIN               = 1900L;
-    public static final long YEAR_MAX               = 2199L;
+    public static final int  YEAR_MIN               = 1900;
+    public static final int  YEAR_MAX               = 2199;
     public static final long ORDER_MAX              = 1023L;
     public static final long ORDER_1ST_MAX          = 0x3FF00000L; // bits 21..30
     public static final long ORDER_2ND_MAX          =    0xFFC00L; // bits 11..20

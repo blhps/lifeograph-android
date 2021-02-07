@@ -45,7 +45,7 @@
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
         android:layout_margin="16dp"
-        android:contentDescription="@string/create_diary"
+        android:contentDescription="@string/create_chart"
         app:backgroundTint="@color/t_dark"
         app:srcCompat="@drawable/ic_action_add" />
 

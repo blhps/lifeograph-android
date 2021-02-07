@@ -107,7 +107,7 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
         mChartElems.clear()
         Log.d(Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES")
         mChartElems.addAll(Diary.diary.m_charts.values)
-        Collections.sort(mChartElems, FragmentEntryList.compareElems)
+        Collections.sort(mChartElems, FragmentEntryList.compareElemsByDate)
     }
 
     private fun createNewChart() {
@@ -129,7 +129,7 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
     }
 
     // RecyclerViewAdapterDiaryElems.Listener INTERFACE METHODS
-    override fun onElemClick(elem: DiaryElement?) {}
+    override fun onElemClick( elem: DiaryElement? ) {}
 
     override fun updateActionBarSubtitle() {
         val selCount = mAdapter!!.mSelCount
@@ -140,6 +140,8 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
             Lifeograph.getActionBar().subtitle = "Charts (" + Diary.diary._size + ")"
     }
 
+    override fun toggleExpanded( elem: DiaryElement? ) { }
+
     override fun enterSelectionMode(): Boolean {
         return Diary.diary.is_in_edit_mode
     }
@@ -147,10 +149,10 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
 
     }
 
-    override fun onInquireAction(id: Int, text: String?) {
+    override fun onInquireAction( id: Int, text: String? ) {
         Lifeograph.showToast("not implemented yet")
     }
-    override fun onInquireTextChanged(id: Int, text: String?): Boolean {
+    override fun onInquireTextChanged( id: Int, text: String? ): Boolean {
         Lifeograph.showToast("not implemented yet")
         return false
     }

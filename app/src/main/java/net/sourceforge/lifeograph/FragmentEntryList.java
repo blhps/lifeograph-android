@@ -22,10 +22,14 @@
 package net.sourceforge.lifeograph;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
+import androidx.fragment.app.DialogFragment;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.annotation.SuppressLint;
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
 import android.util.Log;
@@ -41,23 +45,27 @@ import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
+
 import net.sourceforge.lifeograph.helpers.Result;
 
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 
 public class FragmentEntryList extends Fragment implements DialogPassword.Listener,
         Lifeograph.DiaryEditor, Lifeograph.DiaryView, RecyclerViewAdapterElems.Listener
 {
     // VARIABLES ===================================================================================
     private final List< DiaryElement > mEntries = new ArrayList<>();
-    private final List< Boolean >      mSelectionStatuses = new ArrayList<>();
-    private Menu                       mMenu = null;
-    private HorizontalScrollView       mToolbar;
-    private RecyclerView               mRecyclerView;
-    private RecyclerViewAdapterElems   mRecyclerViewAdapter;
+    private final List< Boolean > mSelectionStatuses = new ArrayList<>();
+    private Menu mMenu = null;
+    private HorizontalScrollView mToolbar;
+    private RecyclerView mRecyclerView;
+    private RecyclerViewAdapterElems mRecyclerViewAdapter;
+    private FloatingActionButton mFabAddEntry = null;
 
     // METHODS =====================================================================================
     @Override
@@ -95,15 +103,34 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
         mRecyclerView.setAdapter( mRecyclerViewAdapter );
         mRecyclerView.setLayoutManager( new LinearLayoutManager( getContext() ) );
 
+        mFabAddEntry = ( FloatingActionButton ) view.findViewById( R.id.fab_add_entry );
+        mFabAddEntry.setOnClickListener( view1 -> {
+//            PopupMenu popup = new PopupMenu( getContext(), view1 );
+//            MenuInflater inflater = popup.getMenuInflater();
+//            inflater.inflate(R.menu.menu_entry, popup.getMenu());
+//            popup.show();
+
+
+            NewEntryDialogFragment nedf = new NewEntryDialogFragment( this );
+            nedf.show( getActivity().getSupportFragmentManager(), "xxx" );
+        } );
+
         mToolbar = view.findViewById( R.id.toolbar_entry_item );
 
         ImageButton button = view.findViewById( R.id.btn_toggle_favorite );
-        button.setOnClickListener( v -> toggleSelFavoredness( ) );
+        button.setOnClickListener( v -> toggleSelFavoredness() );
 
         button = view.findViewById( R.id.btn_todo_auto );
-        button.setOnClickListener( v -> setTodoDone( ) );
+        button.setOnClickListener( v -> setSelTodoStatus( DiaryElement.ES_NOT_TODO ) );
+
+        button = view.findViewById( R.id.btn_todo_open );
+        button.setOnClickListener( v -> setSelTodoStatus( DiaryElement.ES_TODO ) );
+
+        button = view.findViewById( R.id.btn_todo_done );
+        button.setOnClickListener( v -> setSelTodoStatus( DiaryElement.ES_DONE ) );
     }
 
+    @SuppressLint( "RestrictedApi" )
     @Override
     public void
     onResume() {
@@ -116,12 +143,24 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
         updateActionBarSubtitle();
 
         mToolbar.setVisibility( View.GONE );
+        //mFabAddEntry.setTranslationX( Diary.diary.is_in_edit_mode() ? 0 : 150 );
+        mFabAddEntry.setVisibility( Diary.diary.is_in_edit_mode() ? View.VISIBLE : View.GONE );
 
-        ( ( FragmentHost ) getActivity() ).updateDrawerMenu( R.id.nav_entries );
+        ( ( FragmentHost ) requireActivity() ).updateDrawerMenu( R.id.nav_entries );
 
         updateList();
     }
-    
+
+    @Override
+    public void
+    onDestroyView() {
+        if( mRecyclerViewAdapter.hasSelection() )
+            mRecyclerViewAdapter.clearSelection(
+                    Objects.requireNonNull( mRecyclerView.getLayoutManager() ) );
+
+        super.onDestroyView();
+    }
+
     @Override
     public void
     onCreateOptionsMenu( @NonNull Menu menu, MenuInflater inflater ) {
@@ -153,37 +192,32 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
             Lifeograph.enableEditing( this );
             return true;
         }
-        else
-        if( id == R.id.home && handleBack() ) {
+        else if( id == R.id.home && handleBack() ) {
             //finish();
             return true;
         }
-        else
-        if( id == R.id.add_password ) {
+        else if( id == R.id.add_password ) {
             new DialogPassword( getContext(),
                                 Diary.diary,
                                 DialogPassword.DPAction.DPA_ADD,
                                 this ).show();
             return true;
         }
-        else
-        if( id == R.id.change_password ) {
+        else if( id == R.id.change_password ) {
             new DialogPassword( getContext(),
                                 Diary.diary,
                                 DialogPassword.DPAction.DPA_AUTHENTICATE,
                                 this ).show();
             return true;
         }
-        else
-        if( id == R.id.export_plain_text ) {
+        else if( id == R.id.export_plain_text ) {
             if( Diary.diary.write_txt() == Result.SUCCESS )
                 Lifeograph.showToast( R.string.text_export_success );
             else
                 Lifeograph.showToast( R.string.text_export_fail );
             return true;
         }
-        else
-        if( id == R.id.logout_wo_save ) {
+        else if( id == R.id.logout_wo_save ) {
             Lifeograph.logoutWithoutSaving( requireView() );
             return true;
         }
@@ -211,8 +245,6 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
         mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable &&
                                                        Diary.diary.can_enter_edit_mode() );
 
-        mMenu.findItem( R.id.add_elem ).setVisible( flagWritable );
-
         mMenu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
 
         mMenu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
@@ -222,16 +254,68 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
     }
 
     void
+    add_chapter_category_to_list( Chapter.Category ctg ) {
+        for( Chapter chapter : ctg.mMap.values() ) {
+            mEntries.add( chapter );
+
+            chapter.mHasChildren = !chapter.mEntries.isEmpty();
+
+            if( !chapter.get_expanded() )
+                continue;
+
+            for( Entry entry : chapter.mEntries ) {
+                if( !entry.get_filtered_out() ) {
+                    mEntries.add( entry );
+                }
+            }
+        }
+    }
+
+    void
     updateList() {
+        Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES" );
+        final long first_chapter_date = Diary.diary.m_p2chapter_ctg_cur.get_date_t();
+
         mEntries.clear();
 
-        Log.d( Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES" );
-        for( Entry e : Diary.diary.m_entries.values() ) {
-            if( !e.get_filtered_out() )
-                mEntries.add( e );
+        //if( ( Diary.diary.m_sorting_criteria & Diary.SoCr_FILTER_CRTR ) == Diary.SoCr_DATE ) {
+        add_chapter_category_to_list( Diary.diary.m_p2chapter_ctg_cur );
+
+        Entry entry_prev = null;
+        boolean entry_prev_updated = false;
+
+        for( Entry entry : Diary.diary.m_entries.descendingMap().values() ) {
+            final boolean is_descendant =
+                    ( entry_prev != null &&
+                      Date.is_descendant_of( entry.get_date_t(), entry_prev.get_date_t() ) );
+
+            if( entry_prev_updated )
+                entry_prev.mHasChildren = is_descendant;
+
+            entry_prev_updated = false;
+
+            if( is_descendant && !entry_prev.get_expanded() )
+                continue;
+
+            // ordinals & orphans
+            if( !entry.get_filtered_out() &&
+                ( entry.is_ordinal() || entry.get_date_t() < first_chapter_date ) ) {
+                mEntries.add( entry );
+            }
+            // other entries were taken care of in add_chapter_category_to_list()
+
+            entry_prev = entry;
+            entry_prev_updated = true;
         }
 
-        Collections.sort( mEntries, compareElems );
+//        mEntries.add( new HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) );
+        mEntries.add( new HeaderElem( R.string.free_entries, Date.NUMBERED_MIN ) );
+        mEntries.add( new HeaderElem( R.string.dated_entries,
+                                      Date.make( Date.YEAR_MAX + 1, 12, 31, 0 ) ) );
+        //}
+
+
+        Collections.sort( mEntries, compareElemsByDate );
     }
 
     void
@@ -250,6 +334,15 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
         else {
             Lifeograph.getActionBar().setSubtitle( "Entries (" + Diary.diary.get_size() + ")" );
         }
+    }
+
+    @Override
+    public void
+    toggleExpanded( DiaryElement elem ) {
+        assert elem != null;
+        elem.set_expanded( !elem.get_expanded() );
+        updateList();
+        mRecyclerViewAdapter.notifyDataSetChanged();
     }
 
     @Override
@@ -284,12 +377,12 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
     }
 
     void
-    setTodoDone() {
+    setSelTodoStatus( int status ) {
         int i = 0;
         for( Boolean selected : mSelectionStatuses ) {
             if( selected ) {
                 Entry entry = ( Entry ) mEntries.get( i );
-                entry.set_todo_status( DiaryElement.ES_DONE );
+                entry.set_todo_status( status );
             }
             i++;
         }
@@ -297,12 +390,23 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
         mRecyclerViewAdapter.notifyDataSetChanged();
     }
 
+    void
+    handleEntryNumberChanged() {
+        mSelectionStatuses.clear();
+        mSelectionStatuses.addAll( Collections.nCopies( Diary.diary.get_size(), false ) );
+    }
+
     // INTERFACE METHODS ===========================================================================
     // DiaryEditor INTERFACE METHODS
+    @SuppressLint( "RestrictedApi" ) // due to a bug
     @Override
     public void
     enableEditing() {
         updateMenuVisibilities();
+        //mFabAddEntry.setVisibility( View.VISIBLE );
+
+        //mFabAddEntry.animate().translationX( -getResources().getDimension( R.dimen.dim50dp ) );
+        mFabAddEntry.show();
     }
 
     // DialogPassword INTERFACE METHODS
@@ -343,21 +447,72 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
         DiaryElement getElement();
     }
 
-    // COMPARATOR ==================================================================================
-    static class CompareListElems implements Comparator< DiaryElement >
+    // DIALOGFRAGMENT
+    public static class NewEntryDialogFragment extends DialogFragment
     {
-        public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
-            // NOTE: this function assumes only similar elements are listed at a time
+        FragmentEntryList mFel;
 
+        public NewEntryDialogFragment( FragmentEntryList fel ) {
+            mFel = fel;
+        }
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog( Bundle savedInstanceState ) {
+            // Use the Builder class for convenient dialog construction
+            AlertDialog.Builder builder = new AlertDialog.Builder( getActivity() );
+            // Create the AlertDialog object and return it
+            builder.setTitle( "New Entry" )
+                   .setItems( R.array.array_new_entry_types,
+                              ( dialog, which ) -> {
+                                  // The 'which' argument contains the index position
+                                  // of the selected item
+                                  switch( which ) {
+                                      case 0:
+                                          Lifeograph.goToToday();
+                                          mFel.handleEntryNumberChanged();
+                                          break;
+                                      case 1:
+                                          Lifeograph.addEntry(
+                                                  Diary.diary.get_available_order_1st( true ), "" );
+                                          mFel.handleEntryNumberChanged();
+
+                                          break;
+                                      case 2:
+                                          Lifeograph.addEntry(
+                                                  Diary.diary.get_available_order_1st( false ),
+                                                  "" );
+                                          mFel.handleEntryNumberChanged();
+                                          break;
+                                  }
+                              } );
+
+            return builder.create();
+        }
+    }
+
+    // COMPARATOR ==================================================================================
+    static class CompareElemsByDate implements Comparator< DiaryElement >
+    {
+        public int
+        compare( DiaryElement elem_l, DiaryElement elem_r ) {
             // SORT BY NAME
             if( elem_l.get_date_t() == Date.NOT_APPLICABLE ) {
                 return 0;
             }
             // SORT BY DATE
             else {
-                int direction =
-                        ( elem_l.get_date().is_ordinal() && elem_r.get_date().is_ordinal() ) ?
-                                -1 : 1;
+                int sc = Diary.diary.m_sorting_criteria;
+                int direction = 1;
+
+                if( Date.is_same_kind( elem_l.get_date_t(), elem_r.get_date_t() ) ) {
+                    if( elem_l.get_date().is_ordinal() )
+                        direction = ( ( sc & Diary.SoCr_FILTER_DIR ) == Diary.SoCr_ASCENDING ?
+                                      -1 : 1 );
+                    else
+                        direction = ( ( sc & Diary.SoCr_FILTER_DIR_T ) == Diary.SoCr_ASCENDING_T ?
+                                      -1 : 1 );
+                }
 
                 if( elem_l.get_date_t() > elem_r.get_date_t() )
                     return -direction;
@@ -369,214 +524,26 @@ public class FragmentEntryList extends Fragment implements DialogPassword.Listen
         }
     }
 
-    static final CompareListElems compareElems = new CompareListElems();
+    static final CompareElemsByDate compareElemsByDate = new CompareElemsByDate();
 
     // HEADER PSEUDO ELEMENT CLASS =================================================================
-//    static class HeaderElem extends DiaryElement
-//    {
-//        public HeaderElem( int nameRsc ) {
-//            super( null, Lifeograph.getStr( nameRsc ), ES_VOID );
-//        }
-//
-//        public String get_info_str() {
-//            return "";
-//        }
-//
-//        @Override
-//        public int get_icon() {
-//            return R.mipmap.ic_diary;
-//        }
-//
-//        @Override
-//        public Type get_type() {
-//            return Type.HEADER;
-//        }
-//
-//        @Override
-//        public int get_size() {
-//            return 0;
-//        }
-//    }
-
-    // DIARY ELEMENT ADAPTER CLASS =================================================================
-    static class DiaryElemAdapter extends ArrayAdapter< DiaryElement >
+    static class HeaderElem extends DiaryElement
     {
-        public DiaryElemAdapter( Context context,
-                                 int resource,
-                                 int textViewResourceId,
-                                 java.util.List< DiaryElement > objects,
-                                 LayoutInflater inflater ) {
-            super( context, resource, textViewResourceId, objects );
-            mInflater = inflater;
+        private final long mDate;
+
+        public HeaderElem( int nameRsc, long date ) {
+            super( null, Lifeograph.getStr( nameRsc ), ES_VOID );
+            mDate = date;
         }
 
-        private ViewHolder setHolder( DiaryElement elem, ViewGroup par ) {
-            View view;
-            ViewHolder holder;
-
-            switch( elem.get_type() ) {
-//                case TAG_CTG:
-//                    view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
-//                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_TAG_CTG );
-//                    break;
-                case CHAPTER_CTG:
-                    view = mInflater.inflate( R.layout.list_section_tag_ctg, par, false );
-                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_CHAPTER_CTG );
-                    break;
-//                case HEADER:
-//                    view = mInflater.inflate( R.layout.list_section_simple, par, false );
-//                    holder = new ViewHolder( view, DiaryElement.LayoutType.HEADER_SIMPLE );
-//                    break;
-                default:
-                    view = mInflater.inflate( R.layout.list_item_element, par, false );
-                    holder = new ViewHolder( view, DiaryElement.LayoutType.ELEMENT );
-                    break;
-            }
-
-            view.setTag( holder );
-            return holder;
-        }
-
-        public void handleCollapse( DiaryElement elem ) {
-            Log.d( Lifeograph.TAG, "handle collapse " + elem.get_name() );
-            Chapter.Category cc = ( Chapter.Category ) elem;
-            Diary.diary.set_chapter_ctg_cur( cc );
-
-            //updateList();
-        }
-
-        @NonNull
         @Override
-        public View getView( int position, View convertView, @NonNull ViewGroup parent ) {
-            ViewHolder holder;
-            TextView title;
-            final DiaryElement elem = getItem( position );
-            assert elem != null;
-
-            if( convertView == null ) {
-                holder = setHolder( elem, parent );
-                convertView = holder.getView();
-            }
-            else {
-                holder = ( ViewHolder ) convertView.getTag();
-            }
-
-            if( holder.getLayoutType() != elem.get_type().layout_type ) {
-                holder = setHolder( elem, parent );
-                convertView = holder.getView();
-            }
-
-            title = holder.getName();
-            title.setText( elem.get_list_str() );
-
-            switch( holder.getLayoutType() ) {
-//                case HEADER_SIMPLE:
-//                    break;
-                case HEADER_CHAPTER_CTG: {
-                    Chapter.Category cc = ( Chapter.Category ) elem;
-                    ImageButton iconCollapse = holder.getIconCollapse();
-                    iconCollapse.setImageResource( cc == Diary.diary.m_p2chapter_ctg_cur ?
-                                                           R.drawable.ic_radio_sel : R.drawable.ic_radio_empty );
-                    iconCollapse.setOnClickListener( v -> handleCollapse( elem ) );
-                    if( Diary.diary.is_in_edit_mode() )
-                        holder.getIconOptions().setTag( cc );
-                    else
-                        holder.getIconOptions().setVisibility( View.INVISIBLE );
-                    break;
-                }
-                case ELEMENT: {
-                    TextView detail = holder.getDetail();
-                    detail.setText( elem.get_info_str() );
-
-                    ImageView icon = holder.getIcon();
-                    icon.setImageResource( elem.get_icon() );
-
-                    if( elem instanceof Entry ) {
-                        ImageView icon2 = holder.getIcon2();
-                        icon2.setImageResource( R.mipmap.ic_favorite );
-                        icon2.setVisibility( ( ( Entry ) elem ).is_favored() ? View.VISIBLE :
-                                                 View.INVISIBLE );
-                    }
-                    break;
-                }
-                default:
-                    break;
-            }
-
-            return convertView;
+        public Type get_type() {
+            return Type.NONE;
         }
 
-        private final LayoutInflater mInflater;
-
-        // VIEW HOLDER =============================================================================
-        private static class ViewHolder
-        {
-            private final View mRow;
-            private TextView mTitle = null;
-            private TextView mDetail = null;
-            private ImageView mIcon = null;
-            private ImageView mIcon2 = null;
-
-            private ImageButton mIconCollapse = null;
-            private ImageButton mIconOptions = null;
-
-            private final DiaryElement.LayoutType mLayoutType;
-
-            public ViewHolder( View row, DiaryElement.LayoutType layoutType ) {
-                mRow = row;
-                mLayoutType = layoutType;
-            }
-
-            public DiaryElement.LayoutType getLayoutType() {
-                return mLayoutType;
-            }
-
-            public View getView() {
-                return mRow;
-            }
-
-            public TextView getName() {
-                if( mTitle == null ) {
-                    mTitle = mRow.findViewById( R.id.title );
-                }
-                return mTitle;
-            }
-
-            public TextView getDetail() {
-                if( mDetail == null ) {
-                    mDetail = mRow.findViewById( R.id.detail );
-                }
-                return mDetail;
-            }
-
-            public ImageView getIcon() {
-                if( mIcon == null ) {
-                    mIcon = mRow.findViewById( R.id.icon );
-                }
-                return mIcon;
-            }
-
-            public ImageView getIcon2() {
-                if( mIcon2 == null ) {
-                    mIcon2 = mRow.findViewById( R.id.icon2 );
-                }
-                return mIcon2;
-            }
-
-            public ImageButton getIconCollapse() {
-                if( mIconCollapse == null ) {
-                    mIconCollapse = mRow.findViewById( R.id.icon_collapse );
-                }
-                return mIconCollapse;
-            }
-
-            public ImageButton getIconOptions() {
-                if( mIconOptions == null ) {
-                    mIconOptions = mRow.findViewById( R.id.icon_options );
-                }
-                return mIconOptions;
-            }
+        @Override
+        public long get_date_t() {
+            return mDate;
         }
     }
-
 }

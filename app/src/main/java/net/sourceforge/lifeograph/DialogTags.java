@@ -153,7 +153,7 @@ class DialogTags extends Dialog
             final Entry tag = getItem( position );
 
             if( convertView == null ) {
-                View view = mInflater.inflate( R.layout.list_item_check, parent, false );
+                View view = mInflater.inflate( R.layout.dialog_about, parent, false );
                 holder = new ViewHolder( view, DiaryElement.Type.ENTRY );
                 view.setTag( holder );
                 convertView = view;
@@ -180,21 +180,18 @@ class DialogTags extends Dialog
         }
 
         public void onClick( View view ) {
-            switch( view.getId() ) {
-                case R.id.checkBox: {
-                    CheckBox cb = ( CheckBox ) view;
-                    Entry tag = ( Entry ) cb.getTag( R.id.tag );
+            if( view.getId() == R.id.add_entry ) {
+                CheckBox cb = ( CheckBox ) view;
+                Entry tag = ( Entry ) cb.getTag( R.id.tag );
 
-                    if( cb.isChecked() ) {
-                        mHost.addTag( tag );
-                    }
-                    else {
-                        mHost.removeTag( tag );
-                    }
-
-                    DialogTags.this.update_list();
-                    break;
+                if( cb.isChecked() ) {
+                    mHost.addTag( tag );
                 }
+                else {
+                    mHost.removeTag( tag );
+                }
+
+                DialogTags.this.update_list();
             }
         }
 
@@ -234,9 +231,6 @@ class DialogTags extends Dialog
             }
 
             CheckBox getCheckBox() {
-                if( mCheckBox == null ) {
-                    mCheckBox = mRow.findViewById( R.id.checkBox );
-                }
                 return mCheckBox;
             }
         }

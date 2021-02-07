@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,37 +21,20 @@
 
 **************************************************************************** -->
 
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:background="@drawable/themed_selector" >
-
-    <ImageView
-        android:id="@+id/icon"
-        android:layout_width="24dp"
-        android:layout_height="24dp"
-        android:layout_marginStart="1dp"
-        android:layout_marginLeft="1dp"
-        android:layout_gravity="center_vertical"
-        android:scaleType="centerInside"
-        android:contentDescription="@string/icon" />
+    android:background="@color/t_lightest"
+    android:orientation="vertical">
 
     <TextView
         android:id="@+id/title"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:layout_weight=".99"
-        android:layout_gravity="center_vertical"
-        android:paddingLeft="2dp"
-        android:textSize="16sp" />
-
-    <CheckBox
-        android:id="@+id/checkBox"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:layout_marginLeft="10dp" />
+        android:layout_gravity="start|center"
+        android:layout_margin="10dp"
+        android:text="@string/placeholder"
+        android:textSize="20sp"
+        android:textStyle="bold" />
 
 </LinearLayout>

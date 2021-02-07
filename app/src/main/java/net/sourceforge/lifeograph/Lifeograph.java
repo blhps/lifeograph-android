@@ -302,6 +302,13 @@ public class Lifeograph extends Application
         Log.d( TAG, "Updated the sizes: " + sScreenWidth + "x" + sScreenHeight );
     }
 
+    // instead of below, use dimens.xml as much as possible:
+//    static int
+//    getPixelsAsDP( int pixels ) {
+//        final float scale = mActivityMain.getResources().getDisplayMetrics().density;
+//        return (int) ( pixels * scale + 0.5f );
+//    }
+
     static float getScreenShortEdge() {
         return( Math.min( sScreenHeight, sScreenWidth ) );
     }

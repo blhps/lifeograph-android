@@ -148,7 +148,7 @@ public abstract class DiaryElement {
         return get_type().str;
     }
 
-    abstract public int get_size();
+    public int get_size() { return 0; }
 
     public int get_icon() {
         try {
@@ -231,6 +231,7 @@ public abstract class DiaryElement {
     Diary   m_p2diary;
     int     m_id;
     int     m_status;
+    boolean mHasChildren = false; // Anroid only
 
     static class CompareElemsByName implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {

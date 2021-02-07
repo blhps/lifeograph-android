@@ -51,6 +51,15 @@ public class Chapter extends Entry {
             return( mMap.size() + " entries" );
         }
 
+        @Override
+        public long
+        get_date_t() {
+            if( !mMap.isEmpty() )
+                return mMap.lastKey();
+            else
+                return Date.NOT_SET;
+        }
+
         boolean
         isEmpty() {
             return mMap.isEmpty();

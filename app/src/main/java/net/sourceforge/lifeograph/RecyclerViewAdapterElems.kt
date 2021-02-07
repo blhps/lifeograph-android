@@ -23,55 +23,108 @@ package net.sourceforge.lifeograph
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
+private const val VIEWTYPE_HEADER = 0
+private const val VIEWTYPE_ITEM   = 1
 
-class RecyclerViewAdapterElems( private val mItems: List<DiaryElement>,
-                                private val mSelectionStatuses: MutableList<Boolean>,
-                                var mListener: Listener,
-                                private val mHasIcon2: Boolean = false,
-                                private val mHasDetailText: Boolean = false ) :
-        RecyclerView.Adapter< RecyclerViewAdapterElems.ViewHolder >()
+class RecyclerViewAdapterElems(private val mItems: List<DiaryElement>,
+                               private val mSelectionStatuses: MutableList<Boolean>,
+                               var mListener: Listener,
+                               private val mHasIcon2: Boolean = false,
+                               private val mHasDetailText: Boolean = false) :
+        RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
     var mSelCount: Int = 0
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ViewHolder {
-        val view = LayoutInflater.from(parent.context)
-                                 .inflate(R.layout.list_item_element, parent, false)
-        return ViewHolder(view, this)
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
+        val inflater = LayoutInflater.from(parent.context)
+
+        return if( viewType == VIEWTYPE_HEADER ) {
+            ViewHolderHeader(inflater.inflate(R.layout.list_item_header, parent, false), this)
+        }
+        else {
+            ViewHolder(inflater.inflate(R.layout.list_item_element, parent, false), this)
+        }
     }
 
-    override fun onBindViewHolder(holder: ViewHolder, position: Int) {
+    override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {
         if( mSelectionStatuses.isEmpty() )
             mSelectionStatuses.addAll(Collections.nCopies(mItems.size, false))
 
-        holder.mItem = mItems[position]
-        holder.mIVIcon.setImageResource(mItems[position]._icon)
-        holder.mTVTitle.text = mItems[position]._list_str
-        if( mHasDetailText )
-            holder.mTVDetails.text = mItems[position]._info_str
-        else
-            holder.mTVDetails.visibility = View.INVISIBLE
+        val elem: DiaryElement = mItems[position]
 
-        if( mHasIcon2 && holder.mItem is Entry && ( holder.mItem as Entry ).is_favored )
-            holder.mIVIcon2.setImageResource(R.mipmap.ic_favorite)
-        else
-            holder.mIVIcon2.visibility = View.INVISIBLE
+        if( holder is ViewHolder ) {
+            holder.mItem = elem
+            holder.mIVIcon.setImageResource(elem._icon)
+
+            when(elem._date._level) {
+                2 -> {
+                    holder.mSpacerL1.visibility = View.VISIBLE
+                    holder.mSpacerL2.visibility = View.GONE
+                }
+                3 -> {
+                    holder.mSpacerL1.visibility = View.VISIBLE
+                    holder.mSpacerL2.visibility = View.VISIBLE
+                }
+                4 -> { // case for temporal elements
+                    if(elem._date._order_3rd == 0) // chapters
+                        holder.mSpacerL1.visibility = View.GONE
+                    else
+                        holder.mSpacerL1.visibility = View.VISIBLE
+                    holder.mSpacerL2.visibility = View.GONE
+                }
+                else -> {
+                    holder.mSpacerL1.visibility = View.GONE
+                    holder.mSpacerL2.visibility = View.GONE
+                }
+            }
+
+            holder.mTVTitle.text = elem._list_str
+            if(mHasDetailText)
+                holder.mTVDetails.text = elem._info_str
+            else
+                holder.mTVDetails.visibility = View.INVISIBLE
+
+            if(mHasIcon2 && elem is Entry && elem.is_favored)
+                holder.mIVIcon2.visibility = View.VISIBLE
+            else
+                holder.mIVIcon2.visibility = View.INVISIBLE
+
+            if(elem.mHasChildren) {
+                holder.mExpander.visibility = View.VISIBLE
+                if(elem._expanded)
+                    holder.mExpander.setImageResource(R.drawable.ic_expanded)
+                else
+                    holder.mExpander.setImageResource(R.drawable.ic_collapsed)
+            }
+            else
+                holder.mExpander.visibility = View.GONE
+        }
+        else if(holder is ViewHolderHeader) {
+            holder.mTvTitle.text = elem._name
+        }
     }
 
-    override fun onViewAttachedToWindow(holder: ViewHolder) {
+    override fun getItemViewType(pos: Int): Int {
+        return if(mItems[pos]._type == DiaryElement.Type.NONE) VIEWTYPE_HEADER else VIEWTYPE_ITEM
+    }
+
+    override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
         super.onViewAttachedToWindow(holder)
-        holder.mView.isActivated = mSelectionStatuses[holder.adapterPosition]
+        if(holder is ViewHolder)
+            holder.mView.isActivated = mSelectionStatuses[holder.adapterPosition]
     }
 
     override fun getItemCount(): Int {
         return mItems.size
     }
 
-    fun setChecked( position: Int, isChecked: Boolean ) {
+    fun setChecked(position: Int, isChecked: Boolean) {
         if( isChecked != mSelectionStatuses[position] )
             if( isChecked ) mSelCount++ else mSelCount--
 
@@ -86,10 +139,10 @@ class RecyclerViewAdapterElems( private val mItems: List<DiaryElement>,
         return mSelCount > 0
     }
 
-    fun clearSelection( layoutman: RecyclerView.LayoutManager ) {
-        for( ( i, selected ) in mSelectionStatuses.withIndex() ) {
+    fun clearSelection(layoutman: RecyclerView.LayoutManager) {
+        for((i, selected) in mSelectionStatuses.withIndex() ) {
             if( selected ) {
-                val row = layoutman.findViewByPosition( i )
+                val row = layoutman.findViewByPosition(i)
                 row?.isActivated = false
                 mSelectionStatuses[i] = false
             }
@@ -102,18 +155,22 @@ class RecyclerViewAdapterElems( private val mItems: List<DiaryElement>,
 
     interface Listener {
         fun onElemClick(elem: DiaryElement?)
+        fun toggleExpanded(elem: DiaryElement?)
         fun updateActionBarSubtitle()
         fun enterSelectionMode(): Boolean
         fun exitSelectionMode()
     }
 
     class ViewHolder(val mView: View, private val mAdapter: RecyclerViewAdapterElems) :
-            RecyclerView.ViewHolder( mView )
+            RecyclerView.ViewHolder(mView)
     {
+        val mSpacerL1:  TextView = mView.findViewById(R.id.spacer_L1)
+        val mSpacerL2:  TextView = mView.findViewById(R.id.spacer_L2)
         val mIVIcon:    ImageView = mView.findViewById(R.id.icon)
         val mIVIcon2:   ImageView = mView.findViewById(R.id.icon2)
         val mTVTitle:   TextView = mView.findViewById(R.id.title)
         val mTVDetails: TextView = mView.findViewById(R.id.detail)
+        val mExpander:  ImageButton = mView.findViewById(R.id.icon_collapse)
         var mItem:      DiaryElement? = null
 
         init {
@@ -127,16 +184,24 @@ class RecyclerViewAdapterElems( private val mItems: List<DiaryElement>,
                 handleLongCLick(v)
                 true
             }
+            mExpander.setOnClickListener { v: View ->
+                mAdapter.mListener.toggleExpanded(mItem)
+            }
         }
 
-        private fun handleLongCLick( v: View ) {
+        private fun handleLongCLick(v: View) {
             if( mAdapter.hasSelection() || mAdapter.mListener.enterSelectionMode() ) {
                 v.isActivated = !v.isActivated
-                mAdapter.setChecked( adapterPosition, v.isActivated )
+                mAdapter.setChecked(adapterPosition, v.isActivated)
                 mAdapter.mListener.updateActionBarSubtitle()
             }
             if( !mAdapter.hasSelection() )
                 mAdapter.mListener.exitSelectionMode()
         }
+    }
+
+    class ViewHolderHeader(val mView: View, private val mAdapter: RecyclerViewAdapterElems) :
+            RecyclerView.ViewHolder(mView) {
+        val mTvTitle: TextView = mView.findViewById(R.id.title)
     }
 }

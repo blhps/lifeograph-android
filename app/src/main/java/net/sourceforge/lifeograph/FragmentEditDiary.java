@@ -247,8 +247,6 @@ public class FragmentEditDiary extends Fragment
         mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable &&
                                                        Diary.diary.can_enter_edit_mode() );
 
-        mMenu.findItem( R.id.add_elem ).setVisible( flagWritable );
-
         mMenu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
 
         mMenu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
@@ -262,8 +260,6 @@ public class FragmentEditDiary extends Fragment
         boolean flagEncrypted = Diary.diary.is_encrypted();
 
         mMenu.findItem( R.id.enable_edit ).setVisible( false );
-
-        mMenu.findItem( R.id.add_elem ).setVisible( true );
 
         mMenu.findItem( R.id.add_password ).setVisible( !flagEncrypted );
         mMenu.findItem( R.id.change_password ).setVisible( flagEncrypted );
