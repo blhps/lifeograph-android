@@ -23,6 +23,9 @@ package net.sourceforge.lifeograph;
 
 public class Filter extends StringDefElem
 {
+    public static final String DEFINITION_EMPTY = "F&";
+    public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
+
     Filter( Diary d, String name, String definition ) {
         super( d, name, definition );
     }
@@ -54,6 +57,4 @@ public class Filter extends StringDefElem
 
         return fc;
     }
-
-    public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
 }

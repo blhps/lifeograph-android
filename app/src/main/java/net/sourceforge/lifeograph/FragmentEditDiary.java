@@ -52,8 +52,7 @@ import androidx.appcompat.app.ActionBar;
 
 public class FragmentEditDiary extends Fragment
         implements DialogInquireText.InquireListener,
-        DialogCalendar.Listener, FragmentEntryList.ListOperations, PopupMenu.OnMenuItemClickListener,
-        ActionMode.Callback, Lifeograph.DiaryEditor
+        DialogCalendar.Listener, PopupMenu.OnMenuItemClickListener, ActionMode.Callback
 {
     @Override
     //protected void onCreate( Bundle savedInstanceState ) {
@@ -76,7 +75,7 @@ public class FragmentEditDiary extends Fragment
         }
         else {
             mCalPagerAdapter = null;
-            rootView = ( ViewGroup ) inflater.inflate( R.layout.diary, container, false );
+            rootView = ( ViewGroup ) inflater.inflate( R.layout.fragment_chart, container, false );
         }
 
         return rootView;
@@ -255,18 +254,6 @@ public class FragmentEditDiary extends Fragment
         mMenu.findItem( R.id.logout_wo_save ).setVisible( flagWritable );
     }
 
-    @Override
-    public void enableEditing(){
-        boolean flagEncrypted = Diary.diary.is_encrypted();
-
-        mMenu.findItem( R.id.enable_edit ).setVisible( false );
-
-        mMenu.findItem( R.id.add_password ).setVisible( !flagEncrypted );
-        mMenu.findItem( R.id.change_password ).setVisible( flagEncrypted );
-
-        mMenu.findItem( R.id.logout_wo_save ).setVisible( true );
-    }
-
     public void createChapter( long date ) {
         mDateLast = date;
 
@@ -328,7 +315,7 @@ public class FragmentEditDiary extends Fragment
 //    }
 
     // InquireListener INTERFACE METHODS
-    public void onInquireAction( int id, String text ) {
+    public void onInquireAction( int id, @NonNull String text ) {
         switch( id ) {
             case R.string.create_chapter: {
                 Chapter chapter = Diary.diary.m_p2chapter_ctg_cur.create_chapter( mDateLast,
@@ -347,7 +334,7 @@ public class FragmentEditDiary extends Fragment
             }
         }
     }
-    public boolean onInquireTextChanged( int id, String s ) {
+    public boolean onInquireTextChanged( int id, @NonNull String s ) {
         switch( id ) {
             case R.string.rename_chapter_ctg:
                 return !Diary.diary.m_chapter_categories.containsKey( s );
@@ -581,11 +568,10 @@ public class FragmentEditDiary extends Fragment
         }
 
         void addTab( ActionBar.Tab tab, Bundle args ) {
-            TabInfo info = new TabInfo( FragmentEntryList.class, args );
+            TabInfo info = new TabInfo( FragmentListEntries.class, args );
             tab.setTag( info );
             tab.setTabListener( this );
             mTabs.add( info );
-            mActionBar.addTab( tab );
             notifyDataSetChanged();
         }
 

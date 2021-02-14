@@ -30,6 +30,12 @@ import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+import java.util.Map;
+import java.util.TreeMap;
+
 
 public class ViewChart extends View implements GestureDetector.OnGestureListener
 {
@@ -69,7 +75,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     }
 
     public void set_points( ChartData points, float zoom_level ) {
-        m_points = points;
+        m_data = points;
         m_zoom_level = zoom_level;
         m_span = points != null ? points.get_span() : 0;
 
@@ -80,7 +86,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     }
 
     void update_col_geom( boolean flag_new ) {
-        if( m_points != null ) {
+        if( m_data != null ) {
             // 100% zoom:
             final int step_count_nominal = ( int ) ( m_length / COLUMN_WIDTH_MIN ) + 1;
             final int step_count_min = Math.min( m_span, step_count_nominal );
@@ -91,12 +97,12 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
             m_ov_height = m_step_count < m_span ?
                     ( float ) Math.log10( m_height ) * OVERVIEW_COEFFICIENT : 0f;
 
-            int mltp = ( m_points.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY ? 1 : 2;
+            int mltp = ( m_data.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY ? 1 : 2;
             m_y_max = m_height - mltp * BAR_HEIGHT - m_ov_height;
             m_y_mid = ( m_y_max + s_y_min ) / 2;
             m_amplitude = m_y_max - s_y_min;
-            m_coefficient = ( m_points.v_max == m_points.v_min ) ? 0f :
-                    m_amplitude / ( float ) ( m_points.v_max - m_points.v_min );
+            m_coefficient = ( m_data.v_max == m_data.v_min ) ? 0f :
+                    m_amplitude / ( float ) ( m_data.v_max - m_data.v_min );
 
             final int col_start_max = m_span - m_step_count;
             if( flag_new || m_step_start > col_start_max )
@@ -104,11 +110,136 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
             // OVERVIEW PARAMETERS
             m_ampli_ov = m_ov_height - 2 * offset_label;
-            m_coeff_ov = ( m_points.v_max == m_points.v_min ) ? 0.5f :
-                    m_ampli_ov / ( float ) ( m_points.v_max - m_points.v_min );
+            m_coeff_ov = ( m_data.v_max == m_data.v_min ) ? 0.5f :
+                    m_ampli_ov / ( float ) ( m_data.v_max - m_data.v_min );
             m_step_x_ov = m_width - 2 * offset_label;
             if( m_span > 1 )
                 m_step_x_ov /= m_span - 1;
+        }
+    }
+
+    FiltererContainer
+    get_filterer_stack() {
+        if( m_data.filter != null )
+            return m_data.filter.get_filterer_stack();
+
+        return null;
+    }
+
+    protected long
+    get_period_date( long date ) {
+        switch( m_data.type & ChartData.PERIOD_MASK ) {
+            case ChartData.WEEKLY:
+                Date.backward_to_week_start( date );
+                return Date.get_pure( date );
+            case ChartData.MONTHLY:
+                return( Date.get_yearmonth( date ) + Date.make_day( 1 ) );
+            case ChartData.YEARLY:
+                return( ( date & Date.FILTER_YEAR ) + Date.make_month( 1 ) + Date.make_day( 1 ) );
+        }
+
+        return 0;
+    }
+
+    void
+    calculate_points( double zoom_level ) {
+        m_data.clear_points();
+
+        FiltererContainer   fc = get_filterer_stack();
+        Collection< Entry > entries = Diary.diary.m_entries.descendingMap().values();
+        double      v = 1.0;
+        double      v_plan = 0.0;
+        final int   y_axis = m_data.get_y_axis();
+        class       Values{
+            final double v; final double p;
+            public Values( double v, double p ){ this.v = v; this.p = p; } }
+        Map< Long, List< Values > > map_values = new TreeMap<>(); // multimap
+
+        for( Entry entry : entries ) {
+            if( y_axis == ChartData.TAG_VALUE_PARA ) {
+                if( m_data.tag != null && !entry.has_tag( m_data.tag ) )
+                    continue;
+            }
+            else {
+                if( entry.is_ordinal() )
+                    continue;
+
+                if( m_data.tag != null && m_data.is_tagged_only() && !entry.has_tag( m_data.tag ) )
+                    continue;
+            }
+
+            if( fc != null && !fc.filter( entry ) )
+                continue;
+
+            switch( y_axis ) {
+                case ChartData.COUNT:
+                    break;
+                case ChartData.TEXT_LENGTH:
+                    v = entry.get_size();
+                    break;
+                case ChartData.MAP_PATH_LENGTH:
+                    v = entry.get_map_path_length();
+                    break;
+                case ChartData.TAG_VALUE_ENTRY:
+                    if( m_data.tag != null ) {
+                        v = entry.get_value_for_tag( m_data );
+                        v_plan = entry.get_value_planned_for_tag( m_data );
+                    }
+                    break;
+                case ChartData.TAG_VALUE_PARA:
+                    if( m_data.tag != null ) {
+                        // first sort the values by date:
+                        for( Paragraph para : entry.m_paragraphs ) {
+                            long date = para.get_date_broad();
+                            if( date == Date.NOT_SET || Date.is_ordinal( date ) )
+                                continue;
+                            if( !para.has_tag( m_data.tag ) )
+                                continue;
+
+                            Lifeograph.MutableInt c = new Lifeograph.MutableInt(); // dummy
+                            v = para.get_value_for_tag( m_data, c );
+                            v_plan = para.get_value_planned_for_tag( m_data, c );
+
+                            final long periodDate = get_period_date( date );
+
+                            List< Values > list = map_values.get( periodDate );
+                            if( list != null )
+                                list.add( new Values( v, v_plan ) );
+                            else {
+                                list = new ArrayList<>();
+                                list.add( new Values( v, v_plan ) );
+                                map_values.put( periodDate, list );
+                            }
+                        }
+                    }
+                    break;
+            }
+
+            if( y_axis != ChartData.TAG_VALUE_PARA ) // para values are added in their case
+                m_data.add_value( get_period_date( entry.get_date_t() ), v, v_plan );
+        }
+
+        if( y_axis == ChartData.TAG_VALUE_PARA ) {
+            // feed the values in order:
+            for( Map.Entry< Long, List< Values > > kv : map_values.entrySet() ) {
+                List< Values > list = kv.getValue();
+                for( Values values : list )
+                    m_data.add_value( kv.getKey(), values.v, values.p );
+            }
+        }
+
+        m_data.update_min_max();
+
+        Diary.diary.fill_up_chart_data( m_data );
+
+        if( zoom_level >= 0.0 )
+            m_zoom_level = zoom_level;
+
+        m_span = m_data.get_span();
+
+        if( m_width > 0 ) { // if on_size_allocate is executed before
+            update_col_geom( zoom_level >= 0.0 );
+            // TODO refresh();
         }
     }
 
@@ -139,7 +270,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         canvas.drawColor( getResources().getColor( R.color.t_lightest ) );
 
         // HANDLE THERE-IS-TOO-FEW-ENTRIES-CASE SPECIALLY
-        if( m_points == null || m_span < 2 ) {
+        if( m_data == null || m_span < 2 ) {
             this.setVisibility( View.GONE );
             return;
         }
@@ -187,7 +318,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         // YEAR & MONTH BAR
         mPaint.setColor( getResources().getColor( R.color.t_dark ) );
         mPaint.setStyle( Paint.Style.FILL );
-        int period = m_points.type & ChartData.PERIOD_MASK;
+        int period = m_data.type & ChartData.PERIOD_MASK;
         canvas.drawRect( 0f, m_y_max, m_width,
                          m_y_max + ( period == ChartData.YEARLY ?
                                      BAR_HEIGHT : BAR_HEIGHT * 2 ),
@@ -227,15 +358,15 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         mPath.moveTo( s_x_min - m_step_x * pre_steps,
                       m_y_max - m_coefficient *
-                                ( float ) ( m_points.values.get( m_step_start - pre_steps ) -
-                                            m_points.v_min ) );
+                                ( float ) ( m_data.values.get( m_step_start - pre_steps ) -
+                                            m_data.v_min ) );
 
         for( int i = 1; i < m_step_count + pre_steps + post_steps; i++ ) {
             mPath.lineTo( s_x_min + m_step_x * ( i - pre_steps ),
                           m_y_max - m_coefficient *
                                     ( float )
-                                            ( m_points.values.get( i + m_step_start - pre_steps ) -
-                                              m_points.v_min ) );
+                                            ( m_data.values.get( i + m_step_start - pre_steps ) -
+                                              m_data.v_min ) );
         }
         canvas.drawPath( mPath, mPaint );
 
@@ -289,9 +420,9 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         // y LABELS
         mPaint.setColor( Color.BLACK );
-        canvas.drawText( m_points.v_max + " " + m_points.unit, border_label,
+        canvas.drawText( m_data.v_max + " " + m_data.unit, border_label,
                          s_y_min - offset_label, mPaint );
-        canvas.drawText( m_points.v_min + " " + m_points.unit, border_label,
+        canvas.drawText( m_data.v_min + " " + m_data.unit, border_label,
                          m_y_max - offset_label, mPaint );
     }
 
@@ -313,8 +444,8 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     }
 
     public void onLongPress( MotionEvent event ) {
-        if( m_points != null && mListener != null ) {
-            if( ( m_points.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY )
+        if( m_data != null && mListener != null ) {
+            if( ( m_data.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY )
                 mListener.onTypeChanged( ChartData.MONTHLY );
             else
                 mListener.onTypeChanged( ChartData.YEARLY );
@@ -343,7 +474,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     private Paint mPaint;
     private Path mPath;
 
-    private ChartData m_points = null;
+    ChartData m_data = null;
     private Date mLabelDate = new Date(); // this is local in C++
 
     // GEOMETRICAL VARIABLES
@@ -352,7 +483,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     private int m_span = 0;
     private int m_step_count = 0;
     private int m_step_start = 0;
-    private float m_zoom_level = 1.0f;
+    private double m_zoom_level = 1.0;
     private float m_x_max = 0.0f, m_y_max = 0.0f, m_y_mid = 0.0f;
     private float m_amplitude = 0.0f, m_length = 0.0f;
     private float m_step_x = 0.0f, m_coefficient = 0.0f;

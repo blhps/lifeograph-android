@@ -153,6 +153,9 @@ public class Date {
     public long get_yearmonth() {
         return( m_date & FILTER_YEARMONTH );
     }
+    public static long get_yearmonth( long d ) {
+        return( d & FILTER_YEARMONTH );
+    }
 
     public void set_year( int y ) {
         if( y >= YEAR_MIN && y <= YEAR_MAX ) {
@@ -290,6 +293,29 @@ public class Date {
         return get_weekday( m_date );
     }
 
+    public int
+    get_yearday() {
+        return get_yearday( m_date );
+    }
+    public static int
+    get_yearday( long date ) {
+        int result= 0;
+        long d_m = make( get_year( date ), 1, 1, 0 );
+
+        for( int i = 1; i < 12; i++ ) {
+            if( i < get_month( date ) )
+                result += get_days_in_month( d_m );
+            else
+                break;
+
+            forward_months( d_m, 1 );
+        }
+
+        result += get_day( date );
+
+        return result;
+    }
+
     public static int
     get_days_in_month( long d ) {
         switch( get_month( d ) ) {
@@ -304,6 +330,15 @@ public class Date {
     public int
     get_days_in_month() {
         return get_days_in_month( m_date );
+    }
+
+    public static int
+    get_days_in_year( long d ) {
+        return( is_leap_year( d ) ? 366 : 365 );
+    }
+    public int
+    get_days_in_year() {
+        return get_days_in_year( m_date );
     }
 
     public static boolean

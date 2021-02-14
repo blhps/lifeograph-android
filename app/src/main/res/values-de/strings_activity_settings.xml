@@ -27,7 +27,6 @@
     </string-array>
 
     <string-array name="pref_DIARY_STORAGE_titles">
-        <item>External Storage/SD Card</item>
         <item>Internal Storage (Deleted on uninstall)</item>
         <item>Custom (Type full path as folder name)</item>
     </string-array>

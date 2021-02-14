@@ -18,173 +18,147 @@
  along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+package net.sourceforge.lifeograph
 
-package net.sourceforge.lifeograph;
+import android.app.Dialog
+import android.content.Context
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.util.Log
+import android.view.KeyEvent
+import android.view.View
+import android.view.inputmethod.EditorInfo
+import android.widget.Button
+import android.widget.EditText
+import android.widget.ImageView
+import android.widget.TextView
 
-import android.app.Dialog;
-import android.content.Context;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.View;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-
-
-class DialogPassword extends Dialog
-{
-    enum DPAction {
-        DPA_LOGIN, DPA_AUTHENTICATE, DPA_ADD,
-        DPAR_AUTH_FAILED // just returned as a result
+class DialogPassword(context: Context?, 
+                     private val mDiary: Diary,
+                     private val mAction: DPAction,
+                     private val mListener: Listener) : Dialog(context!!) {
+    enum class DPAction {
+        DPA_LOGIN, DPA_AUTHENTICATE, DPA_ADD, DPAR_AUTH_FAILED // just returned as a result
     }
 
-    DialogPassword( Context context, Diary diary, DPAction action, Listener listener ) {
-        super( context );
+    private var mInput1: EditText? = null
+    private var mInput2: EditText? = null
+    private var mImage1: ImageView? = null
+    private var mImage2: ImageView? = null
+    private var mButtonOk: Button? = null
 
-        mListener = listener;
-        mAction = action;
-        mDiary = diary;
-    }
-
-    @Override
-    protected void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
-
-        setContentView( R.layout.dialog_password );
-        setCancelable( true );
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.dialog_password)
+        setCancelable(true)
 
         // mButtonOk must come before mInput as it is referenced there
-        mButtonOk = findViewById( R.id.passwordButtonPositive );
-        mButtonOk.setOnClickListener( v -> go() );
-
-        mInput1 = findViewById( R.id.edit_password_1 );
-        mInput2 = findViewById( R.id.edit_password_2 );
-
-        mImage1 = findViewById( R.id.image_password_1 );
-        mImage2 = findViewById( R.id.image_password_2 );
-
-        switch( mAction ) {
-            case DPA_LOGIN:
-                setTitle( "Enter password for " + mDiary.get_name() );
-                mButtonOk.setText( Lifeograph.getStr( R.string.open ) );
-                mInput2.setVisibility( View.GONE );
-                mImage1.setVisibility( View.GONE );
-                mImage2.setVisibility( View.GONE );
-                break;
-            case DPA_AUTHENTICATE:
-                setTitle( "Enter the current password" );
-                mButtonOk.setText( Lifeograph.getStr( R.string.authenticate ));
-                mInput2.setVisibility( View.GONE );
-                mImage1.setVisibility( View.GONE );
-                mImage2.setVisibility( View.GONE );
-                break;
-            case DPA_ADD:
-                setTitle( "Enter the new password" );
-                mButtonOk.setText( Lifeograph.getStr( R.string.set_password ) );
-                break;
+        mButtonOk = findViewById(R.id.passwordButtonPositive)
+        mButtonOk!!.setOnClickListener { go() }
+        mInput1 = findViewById(R.id.edit_password_1)
+        mInput2 = findViewById(R.id.edit_password_2)
+        mImage1 = findViewById(R.id.image_password_1)
+        mImage2 = findViewById(R.id.image_password_2)
+        when(mAction) {
+            DPAction.DPA_LOGIN -> {
+                setTitle("Enter password for " + mDiary._name)
+                mButtonOk!!.text = Lifeograph.getStr(R.string.open)
+                mInput2!!.visibility = View.GONE
+                mImage1!!.visibility = View.GONE
+                mImage2!!.visibility = View.GONE
+            }
+            DPAction.DPA_AUTHENTICATE -> {
+                setTitle("Enter the current password")
+                mButtonOk!!.text = Lifeograph.getStr(R.string.authenticate)
+                mInput2!!.visibility = View.GONE
+                mImage1!!.visibility = View.GONE
+                mImage2!!.visibility = View.GONE
+            }
+            DPAction.DPA_ADD -> {
+                setTitle("Enter the new password")
+                mButtonOk!!.text = Lifeograph.getStr(R.string.set_password)
+            }
+            DPAction.DPAR_AUTH_FAILED -> Log.d(Lifeograph.TAG, "Auth Failed")
         }
-
-        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
-            mInput1.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
-
-        mInput1.addTextChangedListener( new TextWatcher()
-        {
-            public void afterTextChanged( Editable s ) {
+        if(Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
+            mInput1!!.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
+        mInput1!!.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                check()
             }
-
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
+        })
+        mInput1!!.setOnEditorActionListener { _: TextView?, _: Int,
+                                              _: KeyEvent? ->
+            if(mAction != DPAction.DPA_ADD &&
+                    mInput1!!.text.length >= Diary.PASSPHRASE_MIN_SIZE) {
+                go()
+                true
             }
-
-            public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                check();
+            else
+                false
+        }
+        mInput2!!.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                check()
             }
-        } );
-        mInput1.setOnEditorActionListener( ( v, actionId, event ) -> {
-            if( mAction != DPAction.DPA_ADD &&
-                mInput1.getText().length() >= Diary.PASSPHRASE_MIN_SIZE ) {
-                go();
-                return true;
-            }
-            return false;
-        } );
-        mInput2.addTextChangedListener( new TextWatcher()
-        {
-            public void afterTextChanged( Editable s ) {
-            }
-
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
-            }
-
-            public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                check();
-            }
-        } );
-
-        Button buttonNegative = findViewById( R.id.passwordButtonNegative );
-        buttonNegative.setOnClickListener( v -> dismiss() );
+        })
+        val buttonNegative = findViewById<Button>(R.id.passwordButtonNegative)
+        buttonNegative.setOnClickListener { dismiss() }
     }
 
-    private void check() {
-        String passphrase = mInput1.getText().toString();
-        String passphrase2 = mInput2.getText().toString();
-
-        if( passphrase.length() >= Diary.PASSPHRASE_MIN_SIZE ) {
-            mImage1.setImageResource( R.mipmap.ic_todo_done );
-            if( mAction != DPAction.DPA_ADD ) {
-                mButtonOk.setEnabled( true );
-            }
-            else if( passphrase.equals( passphrase2 ) ) {
-                mImage2.setImageResource( R.mipmap.ic_todo_done );
-                mButtonOk.setEnabled( true );
-            }
-            else {
-                mImage2.setImageResource( passphrase2.isEmpty() ?
-                                                  R.mipmap.ic_todo_open :
-                                                  R.mipmap.ic_todo_canceled );
-                mButtonOk.setEnabled( false );
+    private fun check() {
+        val passphrase = mInput1!!.text.toString()
+        val passphrase2 = mInput2!!.text.toString()
+        if(passphrase.length >= Diary.PASSPHRASE_MIN_SIZE) {
+            mImage1!!.setImageResource(R.mipmap.ic_todo_done)
+            when {
+                mAction != DPAction.DPA_ADD -> {
+                    mButtonOk!!.isEnabled = true
+                }
+                passphrase == passphrase2 -> {
+                    mImage2!!.setImageResource(R.drawable.ic_check)
+                    mButtonOk!!.isEnabled = true
+                }
+                else -> {
+                    mImage2!!.setImageResource(
+                            if(passphrase2.isEmpty()) R.mipmap.ic_todo_open
+                            else R.mipmap.ic_todo_canceled)
+                    mButtonOk!!.isEnabled = false
+                }
             }
         }
         else {
-            mImage1.setImageResource( passphrase.isEmpty() ?
-                                              R.mipmap.ic_todo_open :
-                                              R.mipmap.ic_todo_canceled );
-            mImage2.setImageResource( passphrase2.isEmpty() ?
-                                              R.mipmap.ic_todo_open :
-                                              R.mipmap.ic_todo_canceled );
-            mButtonOk.setEnabled( false );
+            mImage1!!.setImageResource(if(passphrase.isEmpty()) R.mipmap.ic_todo_open 
+                                       else R.mipmap.ic_todo_canceled)
+            mImage2!!.setImageResource(if(passphrase2.isEmpty()) R.mipmap.ic_todo_open 
+                                       else R.mipmap.ic_todo_canceled)
+            mButtonOk!!.isEnabled = false
         }
     }
 
-    private void go() {
-        switch( mAction ) {
-            case DPA_LOGIN:
-            case DPA_ADD:
-                mDiary.set_passphrase( mInput1.getText().toString() );
-                mListener.onDPAction( mAction );
-                break;
-            case DPA_AUTHENTICATE:
-                if( mDiary.compare_passphrase( mInput1.getText().toString() ) )
-                    mListener.onDPAction( mAction );
-                else
-                    mListener.onDPAction( DPAction.DPAR_AUTH_FAILED );
-                break;
+    private fun go() {
+        when(mAction) {
+            DPAction.DPA_LOGIN, DPAction.DPA_ADD -> {
+                mDiary.set_passphrase(mInput1!!.text.toString())
+                mListener.onDPAction(mAction)
+            }
+            DPAction.DPA_AUTHENTICATE -> 
+                if(mDiary.compare_passphrase(mInput1!!.text.toString())) 
+                    mListener.onDPAction(mAction) 
+                else 
+                    mListener.onDPAction(DPAction.DPAR_AUTH_FAILED)
+            else ->
+                Log.d( Lifeograph.TAG, "Unhandled return" )
         }
-        dismiss();
+        dismiss()
     }
 
-    public interface Listener
-    {
-        void onDPAction( DPAction action );
+    interface Listener {
+        fun onDPAction(action: DPAction)
     }
-
-    private EditText mInput1;
-    private EditText mInput2;
-    private ImageView mImage1;
-    private ImageView mImage2;
-    private Button mButtonOk;
-    private Listener mListener;
-    private DPAction mAction;
-    private Diary mDiary;
 }

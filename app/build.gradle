@@ -5,7 +5,7 @@ android {
     buildToolsVersion '29.0.2'
     defaultConfig {
         applicationId 'net.sourceforge.lifeograph'
-        minSdkVersion 16
+        minSdkVersion 19
         targetSdkVersion 29
         compileOptions {
             sourceCompatibility JavaVersion.VERSION_1_8
@@ -28,6 +28,8 @@ android {
         }
         versionName '0.10.0.beta'
         versionCode 9990
+
+        vectorDrawables.useSupportLibrary = true
     }
 
     ndkVersion '22.0.7026061'

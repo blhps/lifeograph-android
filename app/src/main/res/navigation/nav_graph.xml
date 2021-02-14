@@ -29,7 +29,7 @@
 
     <fragment
         android:id="@+id/nav_entries"
-        android:name="net.sourceforge.lifeograph.FragmentEntryList" >
+        android:name="net.sourceforge.lifeograph.FragmentListEntries" >
         <action
             android:id="@+id/action_nav_entries_to_fragmentEntry"
             app:destination="@id/nav_entry_editor"
@@ -37,12 +37,24 @@
             app:exitAnim="@android:anim/slide_out_right" />
     </fragment>
     <fragment
+        android:id="@+id/nav_filters"
+        android:name="net.sourceforge.lifeograph.FragmentListFilters"
+        tools:layout="@layout/fragment_list_filters" />
+    <fragment
         android:id="@+id/nav_charts"
-        android:name="net.sourceforge.lifeograph.FragmentChartList"
+        android:name="net.sourceforge.lifeograph.FragmentListCharts"
+        tools:layout="@layout/fragment_list_chart" >
+        <action
+            android:id="@+id/action_nav_charts_to_fragmentChart"
+            app:destination="@id/nav_chart_editor" />
+    </fragment>
+    <fragment
+        android:id="@+id/nav_themes"
+        android:name="net.sourceforge.lifeograph.FragmentListCharts"
         tools:layout="@layout/fragment_list_chart" />
     <fragment
         android:id="@+id/nav_diaries"
-        android:name="net.sourceforge.lifeograph.FragmentDiaryList"
+        android:name="net.sourceforge.lifeograph.FragmentListDiaries"
         android:label="Diaries"
         tools:layout="@layout/fragment_list_diary" >
         <action
@@ -75,4 +87,9 @@
         android:name="net.sourceforge.lifeograph.FragmentEntry"
         android:label="FragmentEntry"
         tools:layout="@layout/entry" />
+    <fragment
+        android:id="@+id/nav_chart_editor"
+        android:name="net.sourceforge.lifeograph.FragmentChart"
+        android:label="FragmentChart"
+        tools:layout="@layout/fragment_chart" />
 </navigation>

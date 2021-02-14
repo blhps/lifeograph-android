@@ -105,9 +105,6 @@ public class Lifeograph extends Application
     interface DiaryEditor {
         void enableEditing();
         Context getContext();
-    }
-
-    interface DiaryView {
         boolean handleBack();
     }
 

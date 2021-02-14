@@ -45,39 +45,38 @@
     <string name="tag_ctg">Tag Category</string>
     <string name="tag">Tag</string>
     <string name="theme">Theme</string>
+    <string name="themes">Themes</string>
     <string name="untagged">Untagged</string>
     <string name="chapter_ctg">Chapter Category</string>
     <string name="chapter">Dated Chapter</string>
     <string name="filter">Filter</string>
+    <string name="filters">Filters</string>
     <string name="chart">Chart</string>
     <string name="charts">Charts</string>
-    <string name="filters">Filters</string>
     <string name="table">Table</string>
 
     <string name="new_diary">New Diary</string>
     <string name="upgrade_diary">Upgrade The Diary</string>
     <string name="new_chapter">New Chapter</string>
     <string name="new_chart">New Chart</string>
+    <string name="new_filter">New Filter</string>
     <string name="new_tag_ctg">New Tag Category</string>
 
     <string name="open_entry">Open entry</string>
 
     <string name="create_diary">Enter a name for the new diary</string>
     <string name="create_entry">Create entry</string>
+    <string name="create_filter">Create filter</string>
     <string name="create_chart">Create chart</string>
-    <string name="add_entry">Add Entry</string>
-    <string name="create_chapter">Create dated chapter</string>
-    <string name="create_topic">Create numbered chapter</string>
-    <string name="create_group">Create free chapter</string>
-    <string name="create_tag_ctg">Create tag category</string>
+    <string name="create_chapter">Create chapter</string>
     <string name="create_tag">Create Tag</string>
     <string name="add_tag">Add Tag</string>
     <string name="edit_tags">Edit Tags</string>
 
+    <string name="duplicate_filter">Duplicate Filter</string>
+
     <string name="rename_chapter_ctg">Rename Chapter Category</string>
     <string name="rename_chapter">Rename Chapter</string>
-    <string name="rename_tag_ctg">Rename Tag Category</string>
-    <string name="rename_tag">Rename Tag</string>
 
     <string name="dismiss_ctg_and_tags">Dismiss with Tags</string>
     <string name="remove_tag">Remove Tags</string>

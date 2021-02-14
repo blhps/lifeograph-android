@@ -34,9 +34,7 @@ private const val VIEWTYPE_ITEM   = 1
 
 class RecyclerViewAdapterElems(private val mItems: List<DiaryElement>,
                                private val mSelectionStatuses: MutableList<Boolean>,
-                               var mListener: Listener,
-                               private val mHasIcon2: Boolean = false,
-                               private val mHasDetailText: Boolean = false) :
+                               var mListener: Listener) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>()
 {
     var mSelCount: Int = 0
@@ -85,13 +83,12 @@ class RecyclerViewAdapterElems(private val mItems: List<DiaryElement>,
             }
 
             holder.mTVTitle.text = elem._list_str
-            if(mHasDetailText)
-                holder.mTVDetails.text = elem._info_str
-            else
-                holder.mTVDetails.visibility = View.INVISIBLE
+            holder.mTVDetails.text = elem._info_str
 
-            if(mHasIcon2 && elem is Entry && elem.is_favored)
+            if(mListener.hasIcon2(elem)) {
+                holder.mIVIcon2.setImageResource(mListener.getIcon2(elem))
                 holder.mIVIcon2.visibility = View.VISIBLE
+            }
             else
                 holder.mIVIcon2.visibility = View.INVISIBLE
 
@@ -159,6 +156,9 @@ class RecyclerViewAdapterElems(private val mItems: List<DiaryElement>,
         fun updateActionBarSubtitle()
         fun enterSelectionMode(): Boolean
         fun exitSelectionMode()
+
+        fun hasIcon2(elem: DiaryElement): Boolean
+        fun getIcon2(elem: DiaryElement): Int
     }
 
     class ViewHolder(val mView: View, private val mAdapter: RecyclerViewAdapterElems) :
@@ -184,7 +184,7 @@ class RecyclerViewAdapterElems(private val mItems: List<DiaryElement>,
                 handleLongCLick(v)
                 true
             }
-            mExpander.setOnClickListener { v: View ->
+            mExpander.setOnClickListener {
                 mAdapter.mListener.toggleExpanded(mItem)
             }
         }
@@ -193,10 +193,12 @@ class RecyclerViewAdapterElems(private val mItems: List<DiaryElement>,
             if( mAdapter.hasSelection() || mAdapter.mListener.enterSelectionMode() ) {
                 v.isActivated = !v.isActivated
                 mAdapter.setChecked(adapterPosition, v.isActivated)
-                mAdapter.mListener.updateActionBarSubtitle()
+
+                if( !mAdapter.hasSelection() )
+                    mAdapter.mListener.exitSelectionMode()
+                else
+                    mAdapter.mListener.updateActionBarSubtitle()
             }
-            if( !mAdapter.hasSelection() )
-                mAdapter.mListener.exitSelectionMode()
         }
     }
 

@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -23,11 +23,11 @@
 
 <menu xmlns:android="http://schemas.android.com/apk/res/android"
       xmlns:compat="http://schemas.android.com/apk/res-auto">
-    <item android:id="@+id/add_entry"
-          android:title="@string/add_entry"
-          android:icon="@drawable/ic_action_add"
+    <item android:id="@+id/set_theme_default"
+          android:title="@string/default_"
+          android:icon="@drawable/ic_check"
           android:orderInCategory="90"
-          compat:showAsAction="ifRoom" />
+          compat:showAsAction="always|ifRoom" />
     <item android:id="@+id/change_todo_status"
           android:title="@string/change_todo_status"
           android:icon="@drawable/ic_action_todo_done"

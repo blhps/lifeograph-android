@@ -593,6 +593,12 @@ public class FragmentEntry extends Fragment
         requireActivity().findViewById( R.id.toolbar_text_edit ).setVisibility( View.VISIBLE );
     }
 
+    @Override
+    public boolean
+    handleBack() {
+        return false;
+    }
+
     void
     updateIcon() {
         /*if( m_ptr2entry.is_favored() ) {
@@ -735,7 +741,7 @@ public class FragmentEntry extends Fragment
     }
 
     // InquireListener methods
-    public void onInquireAction( int id, String text ) {
+    public void onInquireAction( int id, @NonNull String text ) {
         if( id == R.string.edit_date ) {
             Date date = new Date( text );
             if( date.m_date != Date.NOT_SET ) {
@@ -752,7 +758,7 @@ public class FragmentEntry extends Fragment
             }
         }
     }
-    public boolean onInquireTextChanged( int id, String s ) {
+    public boolean onInquireTextChanged( int id, @NonNull String s ) {
         if( id == R.string.edit_date ) {
             long date = Date.parse_string( s );
             return ( date > 0 && date != mEntry.m_date.m_date );

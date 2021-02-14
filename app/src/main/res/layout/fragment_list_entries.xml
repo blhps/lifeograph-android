@@ -27,8 +27,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".FragmentListCharts" >
+    android:layout_height="match_parent" >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
@@ -39,8 +38,6 @@
             android:id="@+id/list_elems"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:layout_marginLeft="16dp"
-            android:layout_marginRight="16dp"
             app:layoutManager="LinearLayoutManager"
             tools:listitem="@layout/list_item_element" />
 
@@ -50,7 +47,7 @@
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            android:contentDescription="@string/create_chart"
+            android:contentDescription="@string/create_entry"
             app:backgroundTint="@color/t_dark"
             app:srcCompat="@drawable/ic_add" />
 
@@ -62,7 +59,7 @@
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content"
         android:background="@color/t_dark"
-        android:scrollbars="none" >
+        android:scrollbars="none">
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -71,19 +68,20 @@
             android:orientation="horizontal"
             android:visibility="visible">
 
-            <ImageButton
-                android:id="@+id/set_active"
+            <Button
+                android:id="@+id/add_child"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_check" />
+                android:text="ADD CHILD"
+                android:textColor="@android:color/white" />
 
             <ImageButton
-                android:id="@+id/duplicate"
+                android:id="@+id/btn_toggle_favorite"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_copy" />
+                android:src="@drawable/ic_action_favorite" />
 
             <ImageButton
                 android:id="@+id/dismiss"
@@ -91,6 +89,34 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 app:srcCompat="@drawable/ic_dismiss" />
+
+            <ImageButton
+                android:id="@+id/btn_todo_auto"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_todo_auto" />
+
+            <ImageButton
+                android:id="@+id/btn_todo_open"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_todo_open_bw" />
+
+            <ImageButton
+                android:id="@+id/btn_todo_done"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:src="@mipmap/ic_todo_done_bw" />
+
+            <View
+                android:id="@+id/divider"
+                android:layout_width="1dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:background="?android:attr/listDivider" />
 
         </LinearLayout>
 

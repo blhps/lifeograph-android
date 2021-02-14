@@ -180,7 +180,7 @@ class DialogTags extends Dialog
         }
 
         public void onClick( View view ) {
-            if( view.getId() == R.id.add_entry ) {
+            if( view.getId() == R.id.add_child ) {
                 CheckBox cb = ( CheckBox ) view;
                 Entry tag = ( Entry ) cb.getTag( R.id.tag );
 

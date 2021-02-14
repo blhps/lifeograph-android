@@ -27,7 +27,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".FragmentDiaryList" >
+    tools:context=".FragmentListDiaries" >
 
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/list_diaries"
@@ -37,7 +37,6 @@
         android:layout_marginLeft="16dp"
         android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
-        tools:context=".FragmentDiaryList"
         tools:listitem="@layout/list_item_diary" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
@@ -48,6 +47,6 @@
         android:layout_margin="16dp"
         android:contentDescription="@string/create_diary"
         app:backgroundTint="@color/t_dark"
-        app:srcCompat="@drawable/ic_action_add" />
+        app:srcCompat="@drawable/ic_add" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>

@@ -19,94 +19,127 @@
 
  ***********************************************************************************/
 
-package net.sourceforge.lifeograph;
+package net.sourceforge.lifeograph
 
+import android.app.Activity
+import android.content.Intent
+import android.content.SharedPreferences
+import android.content.SharedPreferences.Editor
+import android.os.Build
+import android.os.Bundle
+import android.util.Log
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import androidx.annotation.RequiresApi
+import androidx.core.content.ContextCompat
+import androidx.preference.*
+import net.sourceforge.lifeograph.helpers.FileUtil.getFullPathFromTreeUri
 
-import android.os.Bundle;
+class FragmentSettings : PreferenceFragmentCompat() {
+    // VARIABLES ===================================================================================
+    private val sPickFolder = 2
 
-import androidx.preference.Preference;
-import androidx.preference.ListPreference;
-import androidx.preference.PreferenceManager;
-import androidx.preference.PreferenceFragmentCompat;
-
-import java.util.Objects;
-
-
-public class FragmentSettings extends PreferenceFragmentCompat
-{
-    @Override
-    public void onCreatePreferences( Bundle savedInstanceState, String rootKey ) {
+    // METHODS =====================================================================================
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    override fun onCreatePreferences(savedInstanceState: Bundle?, rootKey: String?) {
         //super.onCreatePreferenes( savedInstanceState, rootKey );
-
-        setPreferencesFromResource( R.xml.pref_general, rootKey );
+        setPreferencesFromResource(R.xml.pref_general, rootKey)
 
         // Bind the summaries of EditText/List/Dialog/Ringtone preferences to
         // their values. When their values change, their summaries are updated
-        // to reflect the new value, per the Android Design guidelines.
+        // to reflect the new value, per the Android Design guidelines
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DIARY_STORAGE_key))!!)
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DIARY_PATH_key))!!)
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DATE_FORMAT_ORDER_key))!!)
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DATE_FORMAT_SEPARATOR_key))!!)
+        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_UNIT_TYPE_key))!!)
 
-        bindPreferenceSummaryToValue(
-                Objects.requireNonNull( findPreference( getString( R.string.pref_DIARY_STORAGE_key ) ) ) );
-        bindPreferenceSummaryToValue(
-                Objects.requireNonNull( findPreference( getString( R.string.pref_DIARY_PATH_key ) ) ) );
-        bindPreferenceSummaryToValue(
-                Objects.requireNonNull( findPreference( getString( R.string.pref_DATE_FORMAT_ORDER_key ) ) ) );
-        bindPreferenceSummaryToValue(
-                Objects.requireNonNull( findPreference( getString( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) );
-        bindPreferenceSummaryToValue(
-                Objects.requireNonNull( findPreference( getString( R.string.pref_UNIT_TYPE_key ) ) ) );
+        val filePicker: Preference? = findPreference(getString(R.string.pref_DIARY_PATH_key))
+        filePicker!!.onPreferenceClickListener = Preference.OnPreferenceClickListener {
+            //preference: Preference ->
+                openFile()
+                true
+            }
     }
 
-    private static Preference.OnPreferenceChangeListener sBindPreferenceSummaryToValueListener =
-            ( pref, value ) -> {
-                String stringValue = value.toString();
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstanceState: Bundle?): View {
+        val view = super.onCreateView(inflater, container, savedInstanceState)
+        view!!.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.t_darker))
+        return view
+    }
 
-                if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DATE_FORMAT_ORDER_key ) ) ) {
-                    Date.s_format_order = stringValue;
-                }
-                else if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DATE_FORMAT_SEPARATOR_key ) ) ) {
-                    Date.s_format_separator = stringValue.charAt( 0 );
-                }
-                else if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ) ) ) {
-                    FragmentDiaryList.sExternalStorage = stringValue;
-                }
-                else if( pref.getKey().equals(
-                        Lifeograph.getStr( R.string.pref_DIARY_PATH_key ) ) ) {
-                    FragmentDiaryList.sDiaryPath = stringValue;
-                }
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        if(requestCode == sPickFolder && resultCode == Activity.RESULT_OK) {
+            // The result data contains a URI for the directory that the user selected
+            val path = getFullPathFromTreeUri(resultData?.data, requireContext())
+            Log.d(Lifeograph.TAG, "Path: $path")
 
-                if( pref instanceof ListPreference ) {
-                    // For list preferences, look up the correct display value in
-                    // the preference's 'entries' list.
-                    ListPreference listPreference = ( ListPreference ) pref;
-                    int index = listPreference.findIndexOfValue( stringValue );
+            val prefs: SharedPreferences =
+                    PreferenceManager.getDefaultSharedPreferences(requireContext())
+            val editor: Editor = prefs.edit()
+            editor.putString(getString(R.string.pref_DIARY_PATH_key), path)
+            editor.apply()
+            val pref : Preference = findPreference(getString(R.string.pref_DIARY_PATH_key))!!
+            sBindPreferenceChangeListener.onPreferenceChange(pref, path)
+        }
+    }
 
-                    // Set the summary to reflect the new value.
-                    pref.setSummary(
-                            index >= 0
-                            ? listPreference.getEntries()[ index ]
-                            : null );
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun openFile() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT_TREE)
+        startActivityForResult(intent, sPickFolder)
+    }
 
+
+    companion object {
+        private val sBindPreferenceChangeListener =
+                Preference.OnPreferenceChangeListener { pref: Preference, value: Any ->
+            val stringValue = value.toString()
+            when(pref.key) {
+                Lifeograph.getStr(R.string.pref_DATE_FORMAT_ORDER_key) -> {
+                    Date.s_format_order = stringValue
                 }
-                else {
-                    // For all other preferences, set the summary to the value's
-                    // simple string representation.
-                    pref.setSummary( stringValue );
+                Lifeograph.getStr(R.string.pref_DATE_FORMAT_SEPARATOR_key) -> {
+                    Date.s_format_separator = stringValue[0]
                 }
-                return true;
-            };
+                Lifeograph.getStr(R.string.pref_DIARY_STORAGE_key) -> {
+                    FragmentListDiaries.sStoragePref = stringValue
 
-    private static void bindPreferenceSummaryToValue( Preference preference ) {
-        // Set the listener to watch for value changes.
-        preference.setOnPreferenceChangeListener( sBindPreferenceSummaryToValueListener );
+                    val prefDiaryPath: Preference = pref.preferenceManager.findPreference(
+                            Lifeograph.getStr(R.string.pref_DIARY_PATH_key))!!
+                    prefDiaryPath.isVisible = stringValue != "I"
+                }
+                Lifeograph.getStr(R.string.pref_DIARY_PATH_key) -> {
+                    FragmentListDiaries.sDiaryPath = stringValue
+                }
+            }
+            if(pref is ListPreference) {
+                // For list preferences, look up the correct display value in
+                // the preference's 'entries' list.
+                val index = pref.findIndexOfValue(stringValue)
 
-        // Trigger the listener immediately with the preference's
-        // current value.
-        sBindPreferenceSummaryToValueListener.onPreferenceChange(
-                preference,
-                PreferenceManager.getDefaultSharedPreferences( preference.getContext() )
-                                 .getString( preference.getKey(), "" ) );
+                // Set the summary to reflect the new value.
+                pref.setSummary(if(index >= 0) pref.entries[index] else null)
+            }
+            else {
+                // For all other preferences, set the summary to the value's
+                // simple string representation.
+                pref.summary = stringValue
+            }
+            true
+        }
+
+        private fun bindPreferenceSummaryToValue(preference: Preference) {
+            // Set the listener to watch for value changes.
+            preference.onPreferenceChangeListener = sBindPreferenceChangeListener
+
+            // Trigger the listener immediately with the preference's current value
+            sBindPreferenceChangeListener.onPreferenceChange(
+                    preference,
+                    PreferenceManager.getDefaultSharedPreferences(preference.context)
+                            .getString(preference.key, ""))
+        }
     }
 }

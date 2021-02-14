@@ -49,6 +49,7 @@ import android.graphics.Color;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import kotlin.Pair;
 
 import net.sourceforge.lifeograph.helpers.*;
 
@@ -1165,6 +1166,43 @@ public class Diary extends DiaryElement
         }
 
         return true;
+    }
+
+    void
+    fill_up_chart_data( ChartData cd ) {
+        if( cd == null )
+            return;
+
+        if( cd.get_span() < 1 )
+            return;
+
+        for( Map.Entry< Long, Chapter > kv_chapter :
+                m_p2chapter_ctg_cur.mMap.descendingMap().entrySet() ) {
+            final Date d_chapter = kv_chapter.getValue().get_date();
+            double pos = ( double ) cd.calculate_distance( cd.get_start_date(),
+                                                           d_chapter.m_date );
+            if( cd.get_start_date() > d_chapter.m_date )
+                pos = -pos;
+            switch( cd.get_period() ) {
+                case ChartData.YEARLY:
+                    pos += ( double ) ( d_chapter.get_yearday() - 1.0 ) / d_chapter.get_days_in_year();
+                    break;
+                case ChartData.MONTHLY:
+                    pos += ( double ) ( d_chapter.get_day() - 1.0 ) / d_chapter.get_days_in_month();
+                    break;
+                case ChartData.WEEKLY:
+                    pos += ( double ) ( d_chapter.get_weekday() ) / 7.0;
+                    break;
+            }
+
+            cd.chapters.add(
+                    new Pair<>( pos, Theme.midtone( kv_chapter.getValue().m_color,
+                                                    Color.parseColor( "#FFFFFF" ),
+                                                    0.7 ) ) );
+        }
+
+        // dummy entry just to have the last chapter drawn:
+        cd.chapters.add( new Pair<>( Double.MAX_VALUE, Color.parseColor( "#000000" ) ) );
     }
 
     // TABLES ======================================================================================

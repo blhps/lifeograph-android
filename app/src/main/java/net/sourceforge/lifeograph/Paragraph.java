@@ -340,6 +340,22 @@ public class Paragraph
         return get_value_planned_for_tag( tag_comp, new Lifeograph.MutableInt() );
     }
 
+    boolean
+    has_date() {
+        return( m_date != Date.NOT_SET );
+    }
+
+    long
+    get_date_broad() {
+        if( m_date != Date.NOT_SET )
+            return m_date;
+        else
+        if( m_host != null )
+            return m_host.get_date_t();
+
+        return Date.NOT_SET;
+    }
+
     void
     clear_references() {
 //        for( Paragraph ref : m_references )

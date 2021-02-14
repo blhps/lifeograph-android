@@ -5,7 +5,8 @@
          dismiss it. -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
     <PreferenceCategory
-        android:title="@string/pref_DIARY_header" >
+        android:title="@string/pref_DIARY_header"
+        android:key="@string/pref_DIARY_CTG_key">
 
         <ListPreference
             android:key="@string/pref_DIARY_STORAGE_key"
@@ -16,12 +17,9 @@
             android:negativeButtonText="@null"
             android:positiveButtonText="@null" />
 
-        <EditTextPreference
+        <Preference
             android:key="@string/pref_DIARY_PATH_key"
-            android:title="@string/pref_DIARY_PATH_title"
-            android:defaultValue="@string/pref_DIARY_PATH_default"
-            android:singleLine="true"
-            android:negativeButtonText="@null" />
+            android:title="@string/pref_DIARY_PATH_title" />
 
     </PreferenceCategory>
 

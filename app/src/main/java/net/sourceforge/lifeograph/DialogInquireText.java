@@ -30,6 +30,8 @@ import android.view.inputmethod.EditorInfo;
 import android.widget.Button;
 import android.widget.EditText;
 
+import androidx.annotation.NonNull;
+
 public class DialogInquireText extends Dialog
 {
     DialogInquireText( Context context, int resTitle, String resDefName, int resActName,
@@ -97,8 +99,8 @@ public class DialogInquireText extends Dialog
 
     interface InquireListener
     {
-        void onInquireAction( int id, String text );
-        boolean onInquireTextChanged( int id, String text );
+        void onInquireAction( int id, @NonNull String text );
+        boolean onInquireTextChanged( int id, @NonNull String text );
     }
 
     //private Context mContext;

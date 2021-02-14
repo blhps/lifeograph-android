@@ -55,7 +55,7 @@ public class ActivityMain extends AppCompatActivity
     NavController               mNavController;
     private AppBarConfiguration mAppBarConfiguration;
     ActionBar                   mActionBar;
-    static Lifeograph.DiaryView mViewCurrent = null;
+    static Lifeograph.DiaryEditor mViewCurrent = null;
 
     // METHODS =====================================================================================
     @Override
@@ -98,9 +98,9 @@ public class ActivityMain extends AppCompatActivity
 
         SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(
                 getApplicationContext() );
-        FragmentDiaryList.sExternalStorage = prefs.getString(
+        FragmentListDiaries.sStoragePref = prefs.getString(
                 Lifeograph.getStr( R.string.pref_DIARY_STORAGE_key ), "N/A" );
-        FragmentDiaryList.sDiaryPath = prefs.getString(
+        FragmentListDiaries.sDiaryPath = prefs.getString(
                 Lifeograph.getStr( R.string.pref_DIARY_PATH_key ), "N/A" );
 
         Date.s_format_order = prefs.getString(
@@ -239,7 +239,8 @@ public class ActivityMain extends AppCompatActivity
             case FILTER:
                 break;
             case CHART:
-                mNavController.navigate( R.id.nav_charts );
+                FragmentChart.mChartElem = ( ChartElem ) elem;
+                mNavController.navigate( R.id.nav_chart_editor );
                 break;
         }
     }

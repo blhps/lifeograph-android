@@ -21,45 +21,49 @@
 
 **************************************************************************** -->
 
+
 <RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent" >
+    android:layout_height="match_parent"
+    tools:context=".FragmentListFilters" >
 
     <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_above="@id/toolbar_entry_item" >
+        android:layout_above="@id/toolbar_elem" >
 
         <androidx.recyclerview.widget.RecyclerView
-            android:id="@+id/list"
+            android:id="@+id/list_elems"
             android:layout_width="match_parent"
             android:layout_height="match_parent"
+            android:layout_marginLeft="16dp"
+            android:layout_marginRight="16dp"
             app:layoutManager="LinearLayoutManager"
             tools:listitem="@layout/list_item_element" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
-            android:id="@+id/fab_add_entry"
+            android:id="@+id/fab_add"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="bottom|end"
             android:layout_margin="16dp"
-            android:contentDescription="@string/create_entry"
+            android:contentDescription="@string/create_filter"
             app:backgroundTint="@color/t_dark"
-            app:srcCompat="@drawable/ic_action_add" />
+            app:srcCompat="@drawable/ic_add" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 
     <HorizontalScrollView
-        android:id="@+id/toolbar_entry_item"
+        android:id="@+id/toolbar_elem"
         android:layout_width="match_parent"
         android:layout_alignParentBottom="true"
         android:layout_height="wrap_content"
         android:background="@color/t_dark"
-        android:scrollbars="none">
+        android:scrollbars="none" >
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -68,55 +72,26 @@
             android:orientation="horizontal"
             android:visibility="visible">
 
-            <Button
-                android:id="@+id/add_child"
+            <ImageButton
+                android:id="@+id/set_active"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ADD CHILD"
-                android:textColor="@android:color/white" />
+                app:srcCompat="@drawable/ic_check" />
 
             <ImageButton
-                android:id="@+id/btn_toggle_favorite"
+                android:id="@+id/duplicate"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_action_favorite" />
+                app:srcCompat="@drawable/ic_copy" />
 
             <ImageButton
                 android:id="@+id/dismiss"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_dismiss" />
-
-            <ImageButton
-                android:id="@+id/btn_todo_auto"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_todo_auto" />
-
-            <ImageButton
-                android:id="@+id/btn_todo_open"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_todo_open_bw" />
-
-            <ImageButton
-                android:id="@+id/btn_todo_done"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_todo_done_bw" />
-
-            <View
-                android:id="@+id/divider"
-                android:layout_width="1dp"
-                android:layout_height="match_parent"
-                android:layout_weight="1"
-                android:background="?android:attr/listDivider" />
+                app:srcCompat="@drawable/ic_dismiss" />
 
         </LinearLayout>
 

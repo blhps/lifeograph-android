@@ -20,9 +20,11 @@
  ***********************************************************************************/
 package net.sourceforge.lifeograph
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.HorizontalScrollView
 import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -30,14 +32,21 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
 import java.util.*
 
-class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.Listener,
+abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterElems.Listener,
         DialogInquireText.InquireListener
 {
     // VARIABLES ===================================================================================
-    private val mChartElems: MutableList<DiaryElement> = ArrayList()
-    private val mSelectionStatuses: MutableList<Boolean> = ArrayList()
-    private var mMenu: Menu? = null
-    private var mAdapter: RecyclerViewAdapterElems? = null
+    protected abstract val mLayoutId: Int
+    protected abstract val mMenuId: Int
+    protected abstract val mName: String
+
+    protected val mElems: MutableList<DiaryElement> = ArrayList()
+    protected val mSelectionStatuses: MutableList<Boolean> = ArrayList()
+    protected lateinit var mMenu: Menu
+    protected lateinit var mAdapter: RecyclerViewAdapterElems
+    protected lateinit var mRecyclerView: RecyclerView
+    protected lateinit var mFabAdd: FloatingActionButton
+    protected lateinit var mToolbar: HorizontalScrollView
 
     // METHODS =====================================================================================
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -49,18 +58,20 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
                               container: ViewGroup?,
                               savedInstState: Bundle?): View? {
         Log.d(Lifeograph.TAG, "FragmentChartList.onCreateView()")
-        return inflater.inflate(R.layout.fragment_list_chart, container, false)
+        return inflater.inflate(mLayoutId, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        val recyclerView: RecyclerView = view.findViewById(R.id.list_charts)
-        mAdapter =  RecyclerViewAdapterElems( mChartElems, mSelectionStatuses, this )
-        recyclerView.adapter = mAdapter
-        recyclerView.layoutManager = LinearLayoutManager(view.context)
-        val fab: FloatingActionButton = view.findViewById(R.id.fab_add_chart)
-        fab.setOnClickListener { createNewChart() }
+        mRecyclerView = view.findViewById(R.id.list_elems)
+        mAdapter = RecyclerViewAdapterElems(mElems, mSelectionStatuses, this)
+        mRecyclerView.adapter = mAdapter
+        mRecyclerView.layoutManager = LinearLayoutManager(view.context)
+        mFabAdd = view.findViewById(R.id.fab_add)
+        mFabAdd.setOnClickListener { createNewElem() }
+        mToolbar = view.findViewById(R.id.toolbar_elem)
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onResume() {
         Log.d(Lifeograph.TAG, "FragmentEntryList.onResume()")
         super.onResume()
@@ -70,10 +81,20 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
 
         ( activity as FragmentHost? )!!.updateDrawerMenu(R.id.nav_charts)
         updateList()
+
+        mToolbar.visibility = View.GONE
+        //mFabAdd.setTranslationX( Diary.diary.is_in_edit_mode() ? 0 : 150 );
+        mFabAdd.visibility = if(Diary.diary.is_in_edit_mode) View.VISIBLE else View.GONE
+    }
+
+    override fun onDestroyView() {
+        if(mAdapter.hasSelection()) mAdapter.clearSelection(
+                Objects.requireNonNull(mRecyclerView.layoutManager)!!)
+        super.onDestroyView()
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_chart, menu)
+        inflater.inflate(mMenuId, menu)
         super.onCreateOptionsMenu(menu, inflater)
         mMenu = menu
     }
@@ -96,21 +117,17 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
         return super.onOptionsItemSelected(item)
     }
 
-    private fun updateMenuVisibilities() {
+    protected open fun updateMenuVisibilities() {
         val flagWritable = Diary.diary.is_in_edit_mode
-        mMenu!!.findItem(R.id.enable_edit).isVisible = !flagWritable &&
+        mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
                 Diary.diary.can_enter_edit_mode()
-        mMenu!!.findItem(R.id.logout_wo_save).isVisible = flagWritable
+        mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
     }
 
-    private fun updateList() {
-        mChartElems.clear()
-        Log.d(Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES")
-        mChartElems.addAll(Diary.diary.m_charts.values)
-        Collections.sort(mChartElems, FragmentEntryList.compareElemsByDate)
+    protected open fun updateList() {
     }
 
-    private fun createNewChart() {
+    protected open fun createNewElem() {
         // ask for name
         val dlg = DialogInquireText(context, R.string.create_chart,
                 Lifeograph.getStr(R.string.new_chart),
@@ -118,7 +135,7 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
         dlg.show()
     }
 
-    fun updateActionBarTitle() {
+    private fun updateActionBarTitle() {
         Lifeograph.getActionBar().title = Diary.diary._title_str
     }
 
@@ -126,34 +143,58 @@ class FragmentChartList : Fragment(), DiaryEditor, RecyclerViewAdapterElems.List
     // DiaryEditor INTERFACE METHODS
     override fun enableEditing() {
         updateMenuVisibilities()
+
+        mFabAdd.show()
+    }
+
+    override fun handleBack(): Boolean {
+        if(mAdapter.hasSelection()) {
+            mAdapter.clearSelection(mRecyclerView.layoutManager!!)
+            exitSelectionMode()
+            return true
+        }
+        return false
     }
 
     // RecyclerViewAdapterDiaryElems.Listener INTERFACE METHODS
-    override fun onElemClick( elem: DiaryElement? ) {}
+    override fun onElemClick(elem: DiaryElement?) {
+        Lifeograph.showElem(elem!!)
+    }
 
     override fun updateActionBarSubtitle() {
-        val selCount = mAdapter!!.mSelCount
+        val selCount = mAdapter.mSelCount
         if( selCount > 0 )
-            Lifeograph.getActionBar().subtitle = ( "Charts (" + selCount + " / "
-                                                              + Diary.diary._size + ")" )
+            Lifeograph.getActionBar().subtitle =
+                    ( mName + " (" + selCount + " / " + Diary.diary.m_filters.size + ")" )
         else
-            Lifeograph.getActionBar().subtitle = "Charts (" + Diary.diary._size + ")"
+            Lifeograph.getActionBar().subtitle = mName + " (" + Diary.diary.m_filters.size + ")"
     }
 
-    override fun toggleExpanded( elem: DiaryElement? ) { }
+    override fun toggleExpanded(elem: DiaryElement?) { }
 
     override fun enterSelectionMode(): Boolean {
-        return Diary.diary.is_in_edit_mode
+        return if(Diary.diary.is_in_edit_mode) {
+            mToolbar.visibility = View.VISIBLE
+            true
+        }
+        else false
     }
     override fun exitSelectionMode() {
-
+        updateActionBarSubtitle()
+        mToolbar.visibility = View.GONE
     }
 
-    override fun onInquireAction( id: Int, text: String? ) {
-        Lifeograph.showToast("not implemented yet")
-    }
-    override fun onInquireTextChanged( id: Int, text: String? ): Boolean {
-        Lifeograph.showToast("not implemented yet")
+    override fun hasIcon2(elem: DiaryElement): Boolean {
         return false
+    }
+    override fun getIcon2(elem: DiaryElement): Int {
+        return 0
+    }
+
+    override fun onInquireAction(id: Int, text: String) {
+        Lifeograph.showToast("not implemented yet")
+    }
+    override fun onInquireTextChanged(id: Int, text: String): Boolean {
+        return text.isNotEmpty()
     }
 }

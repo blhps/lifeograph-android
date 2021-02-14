@@ -36,10 +36,10 @@ public class RecyclerViewAdapterDiaries
         extends RecyclerView.Adapter< RecyclerViewAdapterDiaries.ViewHolder >
 {
 
-    private final List< FragmentDiaryList.ListItemDiary > mItems;
+    private final List< FragmentListDiaries.ListItemDiary > mItems;
     public ViewHolder mViewHolder;
 
-    public RecyclerViewAdapterDiaries( List< FragmentDiaryList.ListItemDiary > items,
+    public RecyclerViewAdapterDiaries( List< FragmentListDiaries.ListItemDiary > items,
                                        DiaryItemListener listener ) {
         mItems = items;
         mListener = listener;
@@ -61,7 +61,7 @@ public class RecyclerViewAdapterDiaries
     onBindViewHolder( final ViewHolder holder, int position ) {
         holder.mItem = mItems.get( position );
         //holder.mImageView.setText( mValues.get( position ).id );
-        holder.mTextView.setText( mItems.get( position ).mName );
+        holder.mTextView.setText( mItems.get( position ).getMName() );
     }
 
     @Override
@@ -82,7 +82,7 @@ public class RecyclerViewAdapterDiaries
         public final View mView;
         public final ImageView mImageView;
         public final TextView mTextView;
-        public FragmentDiaryList.ListItemDiary mItem;
+        public FragmentListDiaries.ListItemDiary mItem;
 
         public ViewHolder( View view, DiaryItemListener listener ) {
             super( view );
@@ -90,7 +90,7 @@ public class RecyclerViewAdapterDiaries
             mImageView = view.findViewById( R.id.icon );
             mTextView  = view.findViewById( R.id.title );
 
-            view.setOnClickListener( v -> listener.onDiaryItemClick( mItem.mPath ) );
+            view.setOnClickListener( v -> listener.onDiaryItemClick( mItem.getMPath() ) );
         }
 
         @NonNull

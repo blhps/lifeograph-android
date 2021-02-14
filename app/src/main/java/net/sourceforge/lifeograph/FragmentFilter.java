@@ -128,10 +128,10 @@ public class FragmentFilter extends Fragment
 
         Log.d( Lifeograph.TAG, "FragmentFilter.onAttach() - " + context.toString() );
 
-        if( context instanceof FragmentEntryList.ListOperations )
-            mListOperations = ( FragmentEntryList.ListOperations ) context;
-        else
-            throw new ClassCastException( context.toString() + " must implement ListOperations" );
+//        if( context instanceof FragmentListEntries.ListOperations )
+//            mListOperations = ( FragmentListEntries.ListOperations ) context;
+//        else
+//            throw new ClassCastException( context.toString() + " must implement ListOperations" );
     }
 
     @Override
@@ -148,12 +148,12 @@ public class FragmentFilter extends Fragment
 
         Log.d( Lifeograph.TAG, "FragmentFilter.onDetach() - " + this.toString() );
 
-        mListOperations = null;
+//        mListOperations = null;
     }
 
     void handleSearchTextChanged( String text ) {
         Diary.diary.set_search_text( text.toLowerCase(), false );
-        mListOperations.updateList();
+//        mListOperations.updateList();
     }
 
     void updateFilterWidgets( int fs ) {
@@ -208,13 +208,13 @@ public class FragmentFilter extends Fragment
 
 //        Diary.diary.m_filter_active.set_favorites( showFav, showNotFav );
 
-        mListOperations.updateList();
+//        mListOperations.updateList();
     }
 
     void resetFilter() {
 //        updateFilterWidgets( Diary.diary.m_filter_default.get_status() );
 //        Diary.diary.m_filter_active.set_status_outstanding();
-        mListOperations.updateList();
+        //mListOperations.updateList();
     }
 
     void saveFilter() {
@@ -230,9 +230,6 @@ public class FragmentFilter extends Fragment
     private ToggleImageButton mButtonShowTodoDone = null;
     private ToggleImageButton mButtonShowTodoCanceled = null;
     private Spinner mSpinnerShowFavorite = null;
-
-    private FragmentEntryList.ListOperations mListOperations;
-
 
     protected boolean mTextInitialized = false;
 }

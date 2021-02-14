@@ -25,9 +25,11 @@ package net.sourceforge.lifeograph;
 
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
+
+import kotlin.Pair;
 
 import static java.lang.Math.abs;
 
@@ -431,7 +433,7 @@ public class ChartData
     LinkedList< Double >  values_plan = new LinkedList<>();
     LinkedList< Integer > counts      = new LinkedList<>();
     LinkedList< Long >    dates       = new LinkedList<>();
-    List< Map.Entry< Double, Integer > > chapters;
+    List< Pair< Double, Integer > > chapters = new ArrayList<>();
 
     String          unit = "";
     int             type;
