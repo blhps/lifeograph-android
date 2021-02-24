@@ -90,7 +90,7 @@ class DialogTags extends Dialog
                 mFilterText = s.toString();
                 update_list();
                 if( s.length() > 0 )
-                    buttonAdd.setEnabled( Diary.diary.m_entry_names.get( mFilterText ) == null );
+                    buttonAdd.setEnabled( Diary.d.m_entry_names.get( mFilterText ) == null );
                 else
                     buttonAdd.setEnabled( false );
             }
@@ -120,7 +120,7 @@ class DialogTags extends Dialog
 
     private void update_list() {
         mAdapterTags.clear();
-        for( Entry t : Diary.diary.m_entries.values() ) {
+        for( Entry t : Diary.d.m_entries.values() ) {
             if( ! mFilterText.isEmpty() )
                 if( !t.get_name().contains( mFilterText ) )
                     continue;

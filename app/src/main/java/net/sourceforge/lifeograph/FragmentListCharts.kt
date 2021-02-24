@@ -45,16 +45,16 @@ class FragmentListCharts : FragmentListElems()
     }
 
     override fun updateMenuVisibilities() {
-        val flagWritable = Diary.diary.is_in_edit_mode
+        val flagWritable = Diary.d.is_in_edit_mode
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.diary.can_enter_edit_mode()
+                Diary.d.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
     }
 
     override fun updateList() {
         mElems.clear()
         Log.d(Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES")
-        mElems.addAll(Diary.diary.m_charts.values)
+        mElems.addAll(Diary.d.m_charts.values)
         //Collections.sort(mElems, FragmentEntryList.compareElemsByDate)
     }
 

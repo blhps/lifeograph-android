@@ -62,6 +62,8 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ActivityMain.mViewCurrent = this
+
         mRecyclerView = view.findViewById(R.id.list_elems)
         mAdapter = RecyclerViewAdapterElems(mElems, mSelectionStatuses, this)
         mRecyclerView.adapter = mAdapter
@@ -84,7 +86,7 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
 
         mToolbar.visibility = View.GONE
         //mFabAdd.setTranslationX( Diary.diary.is_in_edit_mode() ? 0 : 150 );
-        mFabAdd.visibility = if(Diary.diary.is_in_edit_mode) View.VISIBLE else View.GONE
+        mFabAdd.visibility = if(Diary.d.is_in_edit_mode) View.VISIBLE else View.GONE
     }
 
     override fun onDestroyView() {
@@ -118,9 +120,9 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
     }
 
     protected open fun updateMenuVisibilities() {
-        val flagWritable = Diary.diary.is_in_edit_mode
+        val flagWritable = Diary.d.is_in_edit_mode
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.diary.can_enter_edit_mode()
+                Diary.d.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
     }
 
@@ -136,7 +138,7 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
     }
 
     private fun updateActionBarTitle() {
-        Lifeograph.getActionBar().title = Diary.diary._title_str
+        Lifeograph.getActionBar().title = Diary.d._title_str
     }
 
     // INTERFACE METHODS ===========================================================================
@@ -165,15 +167,15 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
         val selCount = mAdapter.mSelCount
         if( selCount > 0 )
             Lifeograph.getActionBar().subtitle =
-                    ( mName + " (" + selCount + " / " + Diary.diary.m_filters.size + ")" )
+                    ( mName + " (" + selCount + " / " + Diary.d.m_filters.size + ")" )
         else
-            Lifeograph.getActionBar().subtitle = mName + " (" + Diary.diary.m_filters.size + ")"
+            Lifeograph.getActionBar().subtitle = mName + " (" + Diary.d.m_filters.size + ")"
     }
 
     override fun toggleExpanded(elem: DiaryElement?) { }
 
     override fun enterSelectionMode(): Boolean {
-        return if(Diary.diary.is_in_edit_mode) {
+        return if(Diary.d.is_in_edit_mode) {
             mToolbar.visibility = View.VISIBLE
             true
         }

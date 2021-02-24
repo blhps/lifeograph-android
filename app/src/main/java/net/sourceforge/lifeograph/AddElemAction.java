@@ -71,12 +71,12 @@ public class AddElemAction extends ActionProvider implements MenuItem.OnMenuItem
         }
         else
         if( itemId == R.id.add_entry_free ) {
-            Lifeograph.addEntry( Diary.diary.get_available_order_1st( true ), "" );
+            Lifeograph.addEntry( Diary.d.get_available_order_1st( true ), "" );
             return true;
         }
         else {
         if( itemId == R.id.add_entry_numbered ) {
-            Lifeograph.addEntry( Diary.diary.get_available_order_1st( false ), "" );
+            Lifeograph.addEntry( Diary.d.get_available_order_1st( false ), "" );
             return true;
         }
         }

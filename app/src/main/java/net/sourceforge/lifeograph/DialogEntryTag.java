@@ -62,9 +62,9 @@ public class DialogEntryTag extends Dialog
 //        if( mTag != null ) // add new tag case
 //            mInput1.setText( mTag.get_name_and_value( mEntry, true, true ) );
 
-        String[] tags = new String[ Diary.diary.m_entries.size() ];
+        String[] tags = new String[ Diary.d.m_entries.size() ];
         int i = 0;
-        for( Entry tag : Diary.diary.m_entries.values() ) {
+        for( Entry tag : Diary.d.m_entries.values() ) {
             tags[ i++ ] = tag.m_name;
         }
         ArrayAdapter< String > adapter_tags = new ArrayAdapter<>
@@ -107,7 +107,7 @@ public class DialogEntryTag extends Dialog
             mAction = TagOperation.TO_NONE;
         }
         else {
-            tag = Diary.diary.get_entry_by_name( mNAV.name );
+            tag = Diary.d.get_entry_by_name( mNAV.name );
             if( tag == null ) {
                 if( mNAV.value == 1 )
                     mAction = TagOperation.TO_CREATE_BOOLEAN;

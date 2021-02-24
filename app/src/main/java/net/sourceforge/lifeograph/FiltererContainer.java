@@ -25,44 +25,286 @@ import android.util.Log;
 
 import java.util.Vector;
 
+import static net.sourceforge.lifeograph.DiaryElement.*;
+
 public class FiltererContainer extends Filterer
 {
     // FILTERERSTATUS ==============================================================================
     public static class FiltererStatus extends Filterer
     {
-        FiltererStatus( Diary diary, FiltererContainer ctr, int status ) {
+        FiltererStatus( Diary diary, FiltererContainer ctr, int es ) {
             super( diary, ctr );
+            m_included_statuses = es;
         }
 
         @Override boolean
         filter( Entry entry ) {
-            return true;
+            return( m_included_statuses & entry.get_todo_status_effective() ) != 0;
         }
 
         @Override void
         get_as_string( StringBuilder string ) {
-
+            string.append( "\nFs" )
+                  .append( ( m_included_statuses & ES_SHOW_NOT_TODO ) != 0 ? 'N' : 'n' )
+                  .append( ( m_included_statuses & ES_SHOW_TODO ) != 0 ? 'O' : 'o' )
+                  .append( ( m_included_statuses & ES_SHOW_PROGRESSED ) != 0 ? 'P' : 'p' )
+                  .append( ( m_included_statuses & ES_SHOW_DONE ) != 0 ? 'D' : 'd' )
+                  .append( ( m_included_statuses & ES_SHOW_CANCELED ) != 0 ? 'C' : 'c' );
         }
+
+        int m_included_statuses;
     }
 
     // FILTERERFAVORITE ============================================================================
     public static class FiltererFavorite extends Filterer
     {
-        FiltererFavorite( Diary diary, FiltererContainer ctr, boolean f_favorite ) {
+        FiltererFavorite( Diary diary, FiltererContainer ctr, boolean include ) {
             super( diary, ctr );
+            m_include_favorite = include;
         }
 
         @Override boolean
         filter( Entry entry ) {
-            return true;
+            return( entry.is_favored() == m_include_favorite );
         }
 
         @Override void
         get_as_string( StringBuilder string ) {
-
+            string.append( "\nFf" ).append( m_include_favorite ? 'y' : 'n' );
         }
+
+        boolean m_include_favorite;
     }
 
+    // FILTERERTRASHED =============================================================================
+    public static class FiltererTrashed extends Filterer
+    {
+        FiltererTrashed( Diary diary, FiltererContainer ctr, boolean include ) {
+            super( diary, ctr );
+            m_include_trashed = include;
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            return( entry.is_trashed() == m_include_trashed );
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+            string.append( "\nFt" ).append( m_include_trashed ? 'y' : 'n' );
+        }
+
+        boolean m_include_trashed;
+    }
+
+    // FILTERERIS ==================================================================================
+    public static class FiltererIs extends Filterer
+    {
+        FiltererIs( Diary diary, FiltererContainer ctr, int id, boolean f_is ) {
+            super( diary, ctr );
+            m_id = id;
+            m_f_is = f_is;
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            return( ( entry.get_id() == m_id ) == m_f_is );
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+            string.append( "\nFi").append( m_f_is ? 'T' : 'F').append( m_id );
+        }
+
+        int     m_id;
+        boolean m_f_is;
+    }
+
+    // FILTERERHASTAG ==============================================================================
+    public static class FiltererHasTag extends Filterer
+    {
+        FiltererHasTag( Diary diary, FiltererContainer ctr, Entry tag, boolean f_has ) {
+            super( diary, ctr );
+            m_tag = tag;
+            m_f_has = f_has;
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            return( m_tag == null || ( entry.has_tag_broad( m_tag ) == m_f_has ) );
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+            string.append( "\nFr" ).append( m_f_has ? 'T' : 'F' )
+                  .append( m_tag != null ? m_tag.get_id() : DEID_UNSET );
+        }
+
+        Entry   m_tag;
+        boolean m_f_has;
+    }
+
+    // FILTERERTHEME ===============================================================================
+    public static class FiltererTheme extends Filterer
+    {
+        FiltererTheme( Diary diary, FiltererContainer ctr, Theme theme, boolean f_has ) {
+            super( diary, ctr );
+            m_theme = theme;
+            m_f_has = f_has;
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            return( m_theme == null || ( entry.has_theme( m_theme.get_name() ) == m_f_has ) );
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+            string.append( "\nFh" ).append( m_f_has ? 'T' : 'F' );
+            if( m_theme != null )
+                string.append( m_theme.get_name() );
+        }
+
+        Theme   m_theme;
+        boolean m_f_has;
+    }
+
+    // FILTERERBETWEENDATES ========================================================================
+    public static class FiltererBetweenDates extends Filterer
+    {
+        FiltererBetweenDates( Diary diary, FiltererContainer ctr,
+                              long date_b, boolean f_incl_b,
+                              long date_e, boolean f_incl_e ) {
+            super( diary, ctr );
+            m_date_b = date_b;
+            m_f_incl_b = f_incl_b;
+            m_date_e = date_e;
+            m_f_incl_e = f_incl_e;
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            final long date = entry.get_date_t();
+            boolean    res_b = true;
+            boolean    res_e = true;
+
+            if( m_date_b != Date.NOT_SET ) {
+                if( m_f_incl_b ) {
+                    if( date < m_date_b ) res_b = false;
+                }
+                else
+                if( date <= m_date_b ) res_b = false;
+            }
+
+            if( m_date_e != Date.NOT_SET ) {
+                if( m_f_incl_e ) {
+                    if( date > m_date_e ) res_e = false;
+                }
+                else
+                if( date >= m_date_e ) res_e = false;
+            }
+
+            if( m_date_b <= m_date_e )
+                return( res_b && res_e );
+            else
+                return( res_b || res_e );
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+            string.append( "\nFd" )
+                  .append( m_f_incl_b ? '[' : '(' ).append( m_date_b )
+                  .append( m_f_incl_e ? '[' : '(' ).append( m_date_e );
+        }
+
+        long    m_date_b;
+        boolean m_f_incl_b;
+        long    m_date_e;
+        boolean m_f_incl_e;
+    }
+
+    // FILTERERBETWEENENTRIES ======================================================================
+    public static class FiltererBetweenEntries extends Filterer
+    {
+        FiltererBetweenEntries( Diary diary, FiltererContainer ctr,
+                                Entry entry_b, boolean f_incl_b,
+                                Entry entry_e, boolean f_incl_e ) {
+            super( diary, ctr );
+            m_entry_b = entry_b;
+            m_f_incl_b = f_incl_b;
+            m_entry_e = entry_e;
+            m_f_incl_e = f_incl_e;
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            final long date = entry.get_date_t();
+            final long date_b = ( m_entry_b != null ? m_entry_b.get_date_t() : 0 );
+            final long date_e = ( m_entry_e != null ? m_entry_e.get_date_t() : Date.DATE_MAX );
+            boolean    res_b = true;
+            boolean    res_e = true;
+
+            if( m_f_incl_b ) {
+                if( date < date_b ) res_b = false;
+            }
+            else
+            if( date <= date_b ) res_b = false;
+
+            if( m_f_incl_e ) {
+                if( date > date_e ) res_e = false;
+            }
+            else
+            if( date >= date_e ) res_e = false;
+
+            if( date_b <= date_e )
+                return( res_b && res_e );
+            else
+                return( res_b || res_e );
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+            string.append( "\nFe" )
+                  .append( m_f_incl_b ? '[' : '(' ).append( m_entry_b != null ? m_entry_b.get_id() :
+                                                            DEID_UNSET )
+                  .append( m_f_incl_e ? '[' : '(' ).append( m_entry_e != null ? m_entry_e.get_id() :
+                                                            DEID_UNSET );
+        }
+
+        Entry   m_entry_b;
+        boolean m_f_incl_b;
+        Entry   m_entry_e;
+        boolean m_f_incl_e;
+    }
+
+    // FILTERERCOMPLETION ==========================================================================
+    public static class FiltererCompletion extends Filterer
+    {
+        FiltererCompletion( Diary diary, FiltererContainer ctr, double compl_b, double compl_e  ) {
+            super( diary, ctr );
+            m_compl_b = compl_b;
+            m_compl_e = compl_e;
+        }
+
+        @Override boolean
+        filter( Entry entry ) {
+            final double completion = entry.get_completion() * 100.0;
+            if( m_compl_b <= m_compl_e )
+                return( completion >= m_compl_b && completion <= m_compl_e );
+            else
+                return( completion >= m_compl_b || completion <= m_compl_e );
+        }
+
+        @Override void
+        get_as_string( StringBuilder string ) {
+            string.append( "\nFc" ).append( m_compl_b ).append( '&' ).append( m_compl_e );
+        }
+
+        double m_compl_b;
+        double m_compl_e;
+    }
+
+    // FILTERERCONTAINER ===========================================================================
     FiltererContainer( Diary diary, FiltererContainer ctr ) {
         super( diary, ctr );
         m_flag_or = false;
@@ -74,27 +316,33 @@ public class FiltererContainer extends Filterer
 
     void
     clear() {
-
+        m_pipeline.clear();
     }
 
     void
-    update_state() {
-
-    }
+    update_state() { }
 
     @Override boolean
     filter( Entry entry ) {
-        return true;
+        if( m_pipeline.isEmpty() )
+            return true;
+
+        for( Filterer filterer : m_pipeline ) {
+            if( filterer.filter( entry ) ) {
+                if( m_flag_or )
+                    return true;
+            }
+            else
+            if( ! m_flag_or )
+                return false;
+        }
+
+        return( ! m_flag_or );
     }
 
     @Override boolean
     is_container() {
         return true;
-    }
-
-    boolean
-    is_or() {
-        return m_flag_or;
     }
 
     @Override void
@@ -136,7 +384,7 @@ public class FiltererContainer extends Filterer
                 {
                     int status = 0;
                     if( line.v.length() > 6 ) {
-                        if( line.v.charAt( 2 ) == 'N' ) status |= DiaryElement.ES_SHOW_NOT_TODO;
+                        if( line.v.charAt( 2 ) == 'N' ) status |= ES_SHOW_NOT_TODO;
                         if( line.v.charAt( 3 ) == 'O' ) status |= DiaryElement.ES_SHOW_TODO;
                         if( line.v.charAt( 4 ) == 'P' ) status |= DiaryElement.ES_SHOW_PROGRESSED;
                         if( line.v.charAt( 5 ) == 'D' ) status |= DiaryElement.ES_SHOW_DONE;
@@ -221,14 +469,10 @@ public class FiltererContainer extends Filterer
     }
 
     void
-    toggle_logic() {
-
-    }
+    toggle_logic() { }
 
     void
-    update_logic_label() {
-
-    }
+    update_logic_label() { }
 
     void
     add_filterer_status( int es ) {
@@ -242,46 +486,46 @@ public class FiltererContainer extends Filterer
 
     void
     add_filterer_trashed( boolean f_trashed ) {
-        //m_pipeline.add( new FiltererTrashed( m_p2diary, this, f_trashed ) );
+        m_pipeline.add( new FiltererTrashed( m_p2diary, this, f_trashed ) );
     }
 
     void
     add_filterer_is( int id, boolean f_is ) {
-        //m_pipeline.add( new FiltererIs( m_p2diary, this, id, f_is ) );
+        m_pipeline.add( new FiltererIs( m_p2diary, this, id, f_is ) );
     }
 
     void
     add_filterer_tagged_by( Entry tag, boolean f_has ) {
-        //m_pipeline.add( new FiltererHasTag( m_p2diary, this, tag, f_has ) );
+        m_pipeline.add( new FiltererHasTag( m_p2diary, this, tag, f_has ) );
     }
 
     void
     add_filterer_theme( Theme theme, boolean f_has ) {
-        //m_pipeline.add( new FiltererTheme( m_p2diary, this, theme, f_has ) );
+        m_pipeline.add( new FiltererTheme( m_p2diary, this, theme, f_has ) );
     }
 
     void
     add_filterer_between_dates( long date_b, boolean f_incl_b, long date_e, boolean f_incl_e ) {
-        //m_pipeline.add( new FiltererBetweenDates(
-          //      m_p2diary, this, date_b, f_incl_b, date_e, f_incl_e ) );
+        m_pipeline.add(
+                new FiltererBetweenDates( m_p2diary, this, date_b, f_incl_b, date_e, f_incl_e ) );
     }
 
     void
     add_filterer_between_entries( Entry entry_b, boolean f_inc_b, Entry entry_e, boolean f_inc_e ) {
-        //m_pipeline.add( new FiltererBetweenEntries(
-        //        m_p2diary, this, entry_b, f_inc_b, entry_e, f_inc_e ) );
+        m_pipeline.add(
+                new FiltererBetweenEntries( m_p2diary, this, entry_b, f_inc_b, entry_e, f_inc_e ) );
     }
 
     void
     add_filterer_completion( double compl_b, double compl_e ) {
-        //m_pipeline.add( new FiltererCompletion( m_p2diary, this, compl_b, compl_e ) );
+        m_pipeline.add( new FiltererCompletion( m_p2diary, this, compl_b, compl_e ) );
     }
 
     FiltererContainer
     add_filterer_subgroup() {
         FiltererContainer container =
         new FiltererContainer( m_p2diary, this,
-                               m_p2container != null && !( m_p2container.is_or() ) );
+                               m_p2container != null && !( m_p2container.m_flag_or ) );
         m_pipeline.add( container );
         return container;
     }
@@ -292,6 +536,6 @@ public class FiltererContainer extends Filterer
             update_state();
     }
 
-    protected Vector< Filterer > m_pipeline;
+    protected Vector< Filterer > m_pipeline = new Vector<>();
     protected boolean            m_flag_or;
 }

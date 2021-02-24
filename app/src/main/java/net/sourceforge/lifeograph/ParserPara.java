@@ -21,11 +21,15 @@
 
 package net.sourceforge.lifeograph;
 
-public class ParserPara
+public class ParserPara extends ParserText
 {
     public void parse( Paragraph para ) {
 
     }
 
 
+    @Override
+    protected char get_char_at( int i ) {
+        return m_p2para_cur.m_text.charAt( i );
+    }
 }

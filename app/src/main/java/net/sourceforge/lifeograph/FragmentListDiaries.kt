@@ -76,10 +76,10 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
     override fun onResume() {
         Log.d(Lifeograph.TAG, "FragmentDiaryList.onResume()")
         super.onResume()
-        if(Diary.diary.is_open) {
-            Diary.diary.writeAtLogout()
-            Diary.diary.remove_lock_if_necessary()
-            Diary.diary.clear()
+        if(Diary.d.is_open) {
+            Diary.d.writeAtLogout()
+            Diary.d.remove_lock_if_necessary()
+            Diary.d.clear()
         }
         val actionbar = (requireActivity() as AppCompatActivity).supportActionBar
         if(actionbar != null) {
@@ -112,7 +112,7 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
 
     private fun openDiary1(path: String) {
         mFlagOpenReady = false
-        when(Diary.diary.set_path(path, Diary.SetPathType.NORMAL)) {
+        when(Diary.d.set_path(path, Diary.SetPathType.NORMAL)) {
             Result.SUCCESS -> mFlagOpenReady = true
             Result.FILE_NOT_FOUND -> Lifeograph.showToast("File is not found")
             Result.FILE_NOT_READABLE -> Lifeograph.showToast("File is not readable")
@@ -129,13 +129,13 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
     }
 
     private fun openDiary2() {
-        Diary.diary.enableWorkingOnLockfile(true)
+        Diary.d.enableWorkingOnLockfile(true)
         openDiary3()
     }
 
     private fun openDiary3() {
         mFlagOpenReady = false
-        when(Diary.diary.read_header(requireContext().assets)) {
+        when(Diary.d.read_header(requireContext().assets)) {
             Result.SUCCESS -> mFlagOpenReady = true
             Result.INCOMPATIBLE_FILE_OLD -> Lifeograph.showToast("Incompatible diary version (TOO OLD)")
             Result.INCOMPATIBLE_FILE_NEW -> Lifeograph.showToast("Incompatible diary version (TOO NEW)")
@@ -143,7 +143,7 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
             else -> Log.e(Lifeograph.TAG, "Unprocessed return value from read_header")
         }
         if(!mFlagOpenReady) return
-        if(Diary.diary.is_encrypted) askPassword() else readBody()
+        if(Diary.d.is_encrypted) askPassword() else readBody()
     }
 
     private val diariesDir: File
@@ -184,7 +184,7 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
 
     private fun askPassword() {
         val dlg = DialogPassword(context,
-                Diary.diary,
+                Diary.d,
                 DPAction.DPA_LOGIN,
                 this)
         dlg.show()
@@ -192,7 +192,7 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
     }
 
     private fun readBody() {
-        when(Diary.diary.read_body()) {
+        when(Diary.d.read_body()) {
             Result.SUCCESS ->
 //                Intent i = new Intent( getContext(), FragmentEntryList.class );
 //                startActivity( i );
@@ -226,7 +226,7 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
     // InquireListener INTERFACE METHODS
     override fun onInquireAction(id: Int, text: String) {
         if(id == R.string.create_diary) {
-            if(Diary.diary.init_new(Lifeograph.joinPath(diariesDir.path, text),
+            if(Diary.d.init_new(Lifeograph.joinPath(diariesDir.path, text),
                             "")
                     == Result.SUCCESS) {
                 val i = Intent(context, FragmentEditDiary::class.java)

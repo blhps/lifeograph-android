@@ -87,20 +87,20 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
         }
         else if(id == R.id.add_password) {
             DialogPassword(context,
-                    Diary.diary,
+                    Diary.d,
                     DPAction.DPA_ADD,
                     this).show()
             return true
         }
         else if(id == R.id.change_password) {
             DialogPassword(context,
-                    Diary.diary,
+                    Diary.d,
                     DPAction.DPA_AUTHENTICATE,
                     this).show()
             return true
         }
         else if(id == R.id.export_plain_text) {
-            if(Diary.diary.write_txt() == Result.SUCCESS)
+            if(Diary.d.write_txt() == Result.SUCCESS)
                 Lifeograph.showToast(R.string.text_export_success)
             else
                 Lifeograph.showToast(R.string.text_export_fail)
@@ -114,11 +114,11 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
     }
 
     override fun updateMenuVisibilities() {
-        val flagWritable = Diary.diary.is_in_edit_mode
-        val flagEncrypted = Diary.diary.is_encrypted
+        val flagWritable = Diary.d.is_in_edit_mode
+        val flagEncrypted = Diary.d.is_encrypted
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.diary.can_enter_edit_mode()
-        mMenu.findItem(R.id.export_plain_text).isVisible = !Diary.diary.is_virtual
+                Diary.d.can_enter_edit_mode()
+        mMenu.findItem(R.id.export_plain_text).isVisible = !Diary.d.is_virtual
         mMenu.findItem(R.id.add_password).isVisible = flagWritable && !flagEncrypted
         mMenu.findItem(R.id.change_password).isVisible = flagWritable && flagEncrypted
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
@@ -139,14 +139,14 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
         }
 
         Log.d(Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES")
-        val firstChapterDate = Diary.diary.m_p2chapter_ctg_cur._date_t
+        val firstChapterDate = Diary.d.m_p2chapter_ctg_cur._date_t
         mElems.clear()
 
         //if( ( Diary.diary.m_sorting_criteria & Diary.SoCr_FILTER_CRTR ) == Diary.SoCr_DATE ) {
-        addChapterCategoryToList(Diary.diary.m_p2chapter_ctg_cur)
+        addChapterCategoryToList(Diary.d.m_p2chapter_ctg_cur)
         var entryPrev: Entry? = null
         var entryPrevUpdated = false
-        for(entry in Diary.diary.m_entries.descendingMap().values) {
+        for(entry in Diary.d.m_entries.descendingMap().values) {
             val isDescendant = entryPrev != null &&
                     Date.is_descendant_of(entry._date_t, entryPrev._date_t)
             if(entryPrevUpdated) entryPrev!!.mHasChildren = isDescendant
@@ -209,13 +209,13 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
 
     fun handleElemNumberChanged() {
         mSelectionStatuses.clear()
-        mSelectionStatuses.addAll(Collections.nCopies(Diary.diary._size, false))
+        mSelectionStatuses.addAll(Collections.nCopies(Diary.d._size, false))
     }
 
     // DialogPassword INTERFACE METHODS ============================================================
     override fun onDPAction(action: DPAction) {
         when(action) {
-            DPAction.DPA_AUTHENTICATE -> DialogPassword(context, Diary.diary,
+            DPAction.DPA_AUTHENTICATE -> DialogPassword(context, Diary.d,
                     DPAction.DPA_ADD,
                     this).show()
             DPAction.DPAR_AUTH_FAILED -> Lifeograph.showToast(R.string.wrong_password)
@@ -241,12 +241,12 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
                             }
                             1 -> {
                                 Lifeograph.addEntry(
-                                        Diary.diary.get_available_order_1st(true), "")
+                                        Diary.d.get_available_order_1st(true), "")
                                 mFel.handleElemNumberChanged()
                             }
                             2 -> {
                                 Lifeograph.addEntry(
-                                        Diary.diary.get_available_order_1st(false),
+                                        Diary.d.get_available_order_1st(false),
                                         "")
                                 mFel.handleElemNumberChanged()
                             }
@@ -264,7 +264,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
                 0
             }
             else {
-                val sc = Diary.diary.m_sorting_criteria
+                val sc = Diary.d.m_sorting_criteria
                 var direction = 1
                 if(Date.is_same_kind(elem_l._date_t, elem_r._date_t)) {
                     direction =

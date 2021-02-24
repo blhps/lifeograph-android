@@ -53,7 +53,7 @@ class FragmentChart : Fragment()
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         mChartWidget = view.findViewById(R.id.chart_widget)
 
-        mChartWidget!!.m_data = ChartData(Diary.diary)
+        mChartWidget!!.m_data = ChartData(Diary.d)
         mChartWidget!!.m_data.set_from_string(mChartElem._definition)
 
         mChartWidget?.calculate_points( 1.0 )

@@ -138,7 +138,7 @@ class GridCalAdapter extends BaseAdapter
             boolean flagWithinMonth = ( date.get_month() == mDateCurrent.get_month() );
             boolean flagWeekDay = ( date.get_weekday() > 0 );
 
-            if( Diary.diary.m_entries.containsKey( date.m_date ) ) {
+            if( Diary.d.m_entries.containsKey( date.m_date ) ) {
                 tvDayNo.setTextAppearance( mContext, R.style.boldText );
 
                 tvDayNo.setTextColor( flagWithinMonth ?
@@ -157,8 +157,8 @@ class GridCalAdapter extends BaseAdapter
             if( date.get_pure() == mDateCurrent.get_pure() )
                 tvDayNo.setBackgroundColor(
                         mContext.getResources().getColor( R.color.t_lighter ) );
-            else if( Diary.diary.is_open() &&
-                     Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey( date.get_pure() ) )
+            else if( Diary.d.is_open() &&
+                     Diary.d.m_p2chapter_ctg_cur.mMap.containsKey( date.get_pure() ) )
                 tvDayNo.setBackgroundColor(
                         mContext.getResources().getColor( R.color.t_lightest ) );
             else

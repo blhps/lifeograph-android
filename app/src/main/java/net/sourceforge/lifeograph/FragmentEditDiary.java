@@ -182,7 +182,7 @@ public class FragmentEditDiary extends Fragment
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onStop()" );
 
-        Diary.diary.writeLock();
+        Diary.d.writeLock();
     }
 
     @Override
@@ -191,7 +191,7 @@ public class FragmentEditDiary extends Fragment
 
         Log.d( Lifeograph.TAG, "ActivityDiary.onResume()" );
 
-        Diary.diary.setSavingEnabled( true );
+        Diary.d.setSavingEnabled( true );
 
         if( mMenu != null )
             updateMenuVisibilities();
@@ -240,13 +240,13 @@ public class FragmentEditDiary extends Fragment
     }
 
     private void updateMenuVisibilities(){
-        boolean flagWritable = Diary.diary.is_in_edit_mode();
-        boolean flagEncrypted = Diary.diary.is_encrypted();
+        boolean flagWritable = Diary.d.is_in_edit_mode();
+        boolean flagEncrypted = Diary.d.is_encrypted();
 
         mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable &&
-                                                       Diary.diary.can_enter_edit_mode() );
+                                                       Diary.d.can_enter_edit_mode() );
 
-        mMenu.findItem( R.id.export_plain_text ).setVisible( !Diary.diary.is_virtual() );
+        mMenu.findItem( R.id.export_plain_text ).setVisible( !Diary.d.is_virtual() );
 
         mMenu.findItem( R.id.add_password ).setVisible( flagWritable && !flagEncrypted );
         mMenu.findItem( R.id.change_password ).setVisible( flagWritable && flagEncrypted );
@@ -279,7 +279,7 @@ public class FragmentEditDiary extends Fragment
                                            R.string.chapter_ctg_dismiss_confirm,
                                            R.string.dismiss,
                                            ( dialog, id ) -> {
-                                               Diary.diary.dismiss_chapter_ctg(
+                                               Diary.d.dismiss_chapter_ctg(
                                                        ( Chapter.Category ) mElemMenu );
                                                updateList();
                                            }
@@ -318,17 +318,17 @@ public class FragmentEditDiary extends Fragment
     public void onInquireAction( int id, @NonNull String text ) {
         switch( id ) {
             case R.string.create_chapter: {
-                Chapter chapter = Diary.diary.m_p2chapter_ctg_cur.create_chapter( mDateLast,
-                                                                                  false,
-                                                                                  false,
-                                                                                  true );
+                Chapter chapter = Diary.d.m_p2chapter_ctg_cur.create_chapter( mDateLast,
+                                                                              false,
+                                                                              false,
+                                                                              true );
                 chapter.set_text( text );
-                Diary.diary.update_entries_in_chapters();
+                Diary.d.update_entries_in_chapters();
                 Lifeograph.showElem( chapter );
                 break;
             }
             case R.string.rename_chapter_ctg: {
-                Diary.diary.rename_chapter_ctg( ( Chapter.Category ) mElemMenu, text );
+                Diary.d.rename_chapter_ctg( ( Chapter.Category ) mElemMenu, text );
                 updateList();
                 break;
             }
@@ -337,7 +337,7 @@ public class FragmentEditDiary extends Fragment
     public boolean onInquireTextChanged( int id, @NonNull String s ) {
         switch( id ) {
             case R.string.rename_chapter_ctg:
-                return !Diary.diary.m_chapter_categories.containsKey( s );
+                return !Diary.d.m_chapter_categories.containsKey( s );
             default:
                 return true;
         }
@@ -351,7 +351,7 @@ public class FragmentEditDiary extends Fragment
 //        mDiaryFragments.remove( fragment );
 //    }
     public DiaryElement getElement() {
-        return Diary.diary;
+        return Diary.d;
     }
 
     // DialogCalendar.Listener INTERFACE METHODS
@@ -373,11 +373,11 @@ public class FragmentEditDiary extends Fragment
         inflater.inflate( R.menu.menu_calendar_contextual, menu );
 
         menu.findItem( R.id.open_entry ).setVisible(
-                Diary.diary.m_entries.containsKey(
+                Diary.d.m_entries.containsKey(
                         mCalPagerAdapter.getSelectedDate().m_date + 1 ) );
 
         menu.findItem( R.id.create_chapter ).setVisible(
-                !Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey(
+                !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(
                         mCalPagerAdapter.getSelectedDate().m_date ) );
 
         return true;
@@ -386,7 +386,7 @@ public class FragmentEditDiary extends Fragment
     public boolean onActionItemClicked( ActionMode mode, MenuItem item ) {
         switch( item.getItemId() ) {
             case R.id.open_entry: {
-                Entry e = Diary.diary.m_entries.get(
+                Entry e = Diary.d.m_entries.get(
                         mCalPagerAdapter.getSelectedDate().m_date + 1 );
                 Lifeograph.showElem( e );
                 return true;
@@ -394,7 +394,7 @@ public class FragmentEditDiary extends Fragment
             case R.id.create_entry: {
                 Log.d( Lifeograph.TAG, "create entry" );
                 mode.finish(); // Action picked, so close the CAB
-                Entry e = Diary.diary.create_entry(
+                Entry e = Diary.d.create_entry(
                         mCalPagerAdapter.getSelectedDate().m_date, "", false );
                 Lifeograph.showElem( e );
                 return true;

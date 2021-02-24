@@ -66,9 +66,9 @@ public class FragmentFilter extends Fragment
             mEditSearch.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
 
         // UI UPDATES (must come before listeners)
-        updateFilterWidgets( Diary.diary.m_filter_active.get_status() );
-        if( Diary.diary.is_search_active() ) {
-            mEditSearch.setText( Diary.diary.get_search_text() );
+        updateFilterWidgets( Diary.d.m_filter_active.get_status() );
+        if( Diary.d.is_search_active() ) {
+            mEditSearch.setText( Diary.d.get_search_text() );
             mButtonSearchTextClear.setVisibility( View.VISIBLE );
         }
 
@@ -139,7 +139,7 @@ public class FragmentFilter extends Fragment
         super.onResume();
 
         mTextInitialized = false;
-        mEditSearch.setText( Diary.diary.get_search_text() );
+        mEditSearch.setText( Diary.d.get_search_text() );
     }
 
     @Override
@@ -152,7 +152,7 @@ public class FragmentFilter extends Fragment
     }
 
     void handleSearchTextChanged( String text ) {
-        Diary.diary.set_search_text( text.toLowerCase(), false );
+        Diary.d.set_search_text( text.toLowerCase(), false );
 //        mListOperations.updateList();
     }
 

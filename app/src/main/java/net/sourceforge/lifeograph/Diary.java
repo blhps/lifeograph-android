@@ -1103,6 +1103,19 @@ public class Diary extends DiaryElement
         }
     }
 
+    void // Android only
+    updateAllEntriesFilterStatus() {
+        if( m_filter_active == null ) return;
+
+        //int count = 0;
+        FiltererContainer fc = m_filter_active.get_filterer_stack();
+        for( Entry entry : m_entries.values() ) {
+            final boolean flag_filtered_in = fc.filter( entry );
+            entry.set_filtered_out( ! flag_filtered_in );
+            //if( flag_filtered_in ) count++;
+        }
+    }
+
     // CHARTS ======================================================================================
     ChartElem
     create_chart( String name0, String definition ) {
@@ -1854,6 +1867,7 @@ public class Diary extends DiaryElement
 
         do_standard_checks_after_parse();
         add_entries_to_name_map();
+        updateAllEntriesFilterStatus(); // Android addition
 
         return Result.SUCCESS;
     }
@@ -2219,6 +2233,7 @@ public class Diary extends DiaryElement
 
         do_standard_checks_after_parse();
         add_entries_to_name_map();
+        updateAllEntriesFilterStatus(); // Android addition
 
         return Result.SUCCESS;
     }
@@ -2924,7 +2939,7 @@ public class Diary extends DiaryElement
     }
 
     // VARIABLES ===================================================================================
-    static Diary diary = null;
+    static Diary d = null;
 
     private String m_path;
     private String m_passphrase;

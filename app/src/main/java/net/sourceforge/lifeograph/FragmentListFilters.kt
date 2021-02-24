@@ -26,7 +26,6 @@ import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
 import net.sourceforge.lifeograph.DialogInquireText.InquireListener
-import java.io.File
 import java.util.*
 
 class FragmentListFilters : FragmentListElems(), InquireListener
@@ -73,20 +72,20 @@ class FragmentListFilters : FragmentListElems(), InquireListener
     }
 
     override fun updateMenuVisibilities() {
-        val flagWritable = Diary.diary.is_in_edit_mode
+        val flagWritable = Diary.d.is_in_edit_mode
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.diary.can_enter_edit_mode()
+                Diary.d.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
     }
 
     override fun updateList() {
         mElems.clear()
-        mElems.addAll(Diary.diary.m_filters.values)
+        mElems.addAll(Diary.d.m_filters.values)
         //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
     }
 
     private fun addFilter(name: String, definition: String) {
-        Diary.diary.create_filter(name, definition)
+        Diary.d.create_filter(name, definition)
         handleElemNumberChanged()
         updateList()
         mAdapter.notifyDataSetChanged()
@@ -96,8 +95,9 @@ class FragmentListFilters : FragmentListElems(), InquireListener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                if(Diary.diary.set_filter_active(filter._name)) {
+                if(Diary.d.set_filter_active(filter._name)) {
                     mAdapter.notifyDataSetChanged()
+                    Diary.d.updateAllEntriesFilterStatus()
                     break
                 }
             }
@@ -123,7 +123,7 @@ class FragmentListFilters : FragmentListElems(), InquireListener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                if(Diary.diary.dismiss_filter(filter._name))
+                if(Diary.d.dismiss_filter(filter._name))
                     flagDeleted = true
             }
         }
@@ -136,14 +136,14 @@ class FragmentListFilters : FragmentListElems(), InquireListener
         }
     }
 
-    fun handleElemNumberChanged() {
+    private fun handleElemNumberChanged() {
         mSelectionStatuses.clear()
-        mSelectionStatuses.addAll(Collections.nCopies(Diary.diary.m_filters.size, false))
+        mSelectionStatuses.addAll(Collections.nCopies(Diary.d.m_filters.size, false))
     }
 
     // INTERFACE METHODS ===========================================================================
     override fun hasIcon2(elem: DiaryElement): Boolean {
-        return Diary.diary._filter_active_name.equals(elem._name)
+        return Diary.d._filter_active_name.equals(elem._name)
     }
     override fun getIcon2(elem: DiaryElement): Int {
         return R.drawable.ic_check

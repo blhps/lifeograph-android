@@ -18,199 +18,106 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+package net.sourceforge.lifeograph
 
-package net.sourceforge.lifeograph;
+import android.annotation.SuppressLint
+import android.content.Context
+import android.content.DialogInterface
+import android.content.Intent
+import android.graphics.Color
+import android.graphics.Typeface
+import android.net.Uri
+import android.os.Bundle
+import android.text.*
+import android.text.method.KeyListener
+import android.text.method.LinkMovementMethod
+import android.text.style.*
+import android.util.Log
+import android.view.*
+import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
+import android.widget.Button
+import android.widget.EditText
+import android.widget.PopupMenu
+import android.widget.TextView
+import androidx.appcompat.app.ActionBar
+import androidx.appcompat.app.AppCompatActivity
+import androidx.appcompat.widget.SearchView
+import androidx.core.view.MenuItemCompat
+import androidx.fragment.app.Fragment
+import net.sourceforge.lifeograph.DialogInquireText.InquireListener
+import net.sourceforge.lifeograph.FragmentEntry.ParserEditText.SpanNull
+import net.sourceforge.lifeograph.FragmentEntry.ParserEditText.SpanOther
+import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
+import net.sourceforge.lifeograph.ToDoAction.ToDoObject
+import java.util.*
+import kotlin.collections.ArrayList
 
-import java.util.ArrayList;
+class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuItemClickListener,
+        DiaryEditor {
+//    private enum class LinkStatus {
+//        LS_OK, LS_ENTRY_UNAVAILABLE, LS_INVALID,  // separator: to check a valid entry link:
+//
+//        // linkstatus < LS_INVALID
+//        LS_CYCLIC, LS_FILE_OK, LS_FILE_INVALID, LS_FILE_UNAVAILABLE, LS_FILE_UNKNOWN
+//    }
 
-import android.annotation.SuppressLint;
-import android.content.Context;
-import android.content.Intent;
-import android.graphics.Typeface;
-import android.net.Uri;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.SpannableString;
-import android.text.Spanned;
-import android.text.TextWatcher;
-import android.text.method.KeyListener;
-import android.text.style.BackgroundColorSpan;
-import android.text.style.ClickableSpan;
-import android.text.style.ForegroundColorSpan;
-import android.text.style.RelativeSizeSpan;
-import android.text.style.StrikethroughSpan;
-import android.text.style.StyleSpan;
-import android.text.style.SuperscriptSpan;
-import android.text.style.TextAppearanceSpan;
-import android.text.style.TypefaceSpan;
-import android.util.Log;
-import android.view.ActionMode;
-import android.view.LayoutInflater;
-import android.view.Menu;
-import android.view.MenuInflater;
-import android.view.MenuItem;
-import android.view.View;
-import android.view.ViewGroup;
-import android.view.WindowManager;
-import android.view.inputmethod.EditorInfo;
-import android.view.inputmethod.InputMethodManager;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.PopupMenu;
-import android.widget.TextView;
+    private var mActionBar: ActionBar? = null
+    private var mMenu: Menu? = null
+    private lateinit var mEditText: EditText
+    private lateinit var mKeyListener: KeyListener
+    private lateinit var mButtonHighlight: Button
+    private val mParser = ParserEditText(this)
+    var mFlagSetTextOperation = false
+    private var mFlagEditorActionInProgress = false
+    var mFlagEntryChanged = false
+    private var mFlagDismissOnExit = false
+    var mFlagSearchIsOpen = false
+    private val mBrowsingHistory = ArrayList<Int>()
 
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
-import androidx.appcompat.widget.SearchView;
-import androidx.core.view.MenuItemCompat;
-import androidx.appcompat.app.ActionBar;
-import androidx.fragment.app.Fragment;
-
-import static net.sourceforge.lifeograph.DiaryElement.ES_NOT_TODO;
-
-public class FragmentEntry extends Fragment
-        implements ToDoAction.ToDoObject, DialogInquireText.InquireListener,
-        PopupMenu.OnMenuItemClickListener, Lifeograph.DiaryEditor
-{
-    // CHAR FLAGS
-    public final int CF_NOT_SET = 0;
-    public final int CF_NOTHING = 0x1;
-    public final int CF_NEWLINE = 0x2;
-    public final int CF_PUNCTUATION_RAW = 0x4;
-    public final int CF_SPACE = 0x8; // space that will come eventually
-    public final int CF_TAB = 0x10;
-    public final int CF_IMMEDIATE = 0x20; // indicates contiguity of chars
-
-    public final int CF_ASTERISK = 0x40; // bold
-    public final int CF_UNDERSCORE = 0x80; // italic
-    public final int CF_EQUALS = 0x100; // strikethrough
-    public final int CF_HASH = 0x400; // highlight
-    public final int CF_MARKUP = CF_ASTERISK | CF_UNDERSCORE | CF_EQUALS | CF_HASH;
-
-    public final int CF_SLASH = 0x800;
-    public final int CF_ALPHA = 0x1000;
-    public final int CF_NUMBER = 0x2000;
-    public final int CF_ALHANUM = CF_ALPHA | CF_NUMBER;
-    public final int CF_AT = 0x4000; // email
-    public final int CF_SPELLCHECK = 0x8000;
-
-    public final int CF_DOTYM = 0x10000;
-    public final int CF_DOTMD = 0x20000;
-    public final int CF_DOTDATE = CF_DOTMD | CF_DOTYM;
-
-    public final int CF_LESS = 0x80000; // tagging
-    public final int CF_MORE = 0x100000;
-    public final int CF_SBB = 0x200000; // square bracket begin: comments
-    public final int CF_SBE = 0x400000; // square bracket end: comments
-
-    public final int CF_TODO = 0x1000000; // ~,+,x
-
-    public final int CF_IGNORE = 0x40000000;
-    public final int CF_EOT = 0x80000000; // End of Text
-
-    public final int CF_ANY = 0xFFFFFFFF;
-
-    public final int CF_PUNCTUATION = CF_PUNCTUATION_RAW | CF_SLASH | CF_DOTDATE | CF_LESS
-                                      | CF_MORE | CF_SBB | CF_SBE;
-    public final int CF_FORMATCHAR = CF_ASTERISK | CF_UNDERSCORE | CF_EQUALS | CF_HASH | CF_SBB
-                                     | CF_SBE;
-    public final int CF_NUM_SLSH = CF_NUMBER | CF_SLASH;
-    public final int CF_NUM_CKBX = CF_NUMBER | CF_TODO;
-    public final int CF_NONSPACE = CF_PUNCTUATION | CF_MARKUP | CF_ALPHA | CF_NUMBER | CF_AT
-                                   | CF_TODO;
-    public final int CF_NONTAB = CF_NONSPACE | CF_SPACE;
-
-    public final int CF_SEPARATOR = CF_SPACE|CF_TAB | CF_NEWLINE;
-    public final int CF_NOT_SEPARATOR = CF_ANY ^ CF_SEPARATOR;
-
-    //public final int CF_ALPHASPELL = CF_ALPHA | CF_SPELLCHECK;
-
-    // PARSER SELECTOR (NEEDED DUE TO LACK OF FUNCTION POINTERS IN JAVA)
-    private enum ParSel {
-        NULL, TR_SUBH, TR_BOLD, TR_ITLC, TR_STRK, TR_HILT, TR_CMNT, TR_LINK, TR_LNAT,
-        TR_LNKD, TR_LIST, TR_IGNR,
-        JK_DDMD, JK_DDYM, JK_IGNR, JK_LNHT, JK_LNDT, JK_LIST, JK_LST2,
-        AP_BOLD, AP_CMNT, AP_HEND, AP_HILT, AP_ITLC, AP_LINK, AP_LNDT, AP_LNID, AP_STRK, AP_SUBH,
-        AP_CUNF, AP_CPRG, AP_CFIN, AP_CCCL
+    companion object {
+        lateinit var mEntry: Entry
     }
 
-    private enum LinkStatus {
-        LS_OK, LS_ENTRY_UNAVAILABLE, LS_INVALID, // separator: to check a valid entry link:
-                                                 // linkstatus < LS_INVALID
-        LS_CYCLIC, LS_FILE_OK, LS_FILE_INVALID, LS_FILE_UNAVAILABLE, LS_FILE_UNKNOWN
+    // METHODS =====================================================================================
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setHasOptionsMenu(true)
     }
 
-    static Entry        mEntry            = null;
-    private ActionBar   mActionBar        = null;
-    private Menu        mMenu             = null;
-    private EditText    mEditText         = null;
-    private KeyListener mKeyListener;
-    private Button      mButtonHighlight;
-
-    boolean mFlagSetTextOperation = false;
-    boolean mFlagEditorActionInProgress = false;
-    boolean mFlagEntryChanged = false;
-    boolean mFlagDismissOnExit = false;
-    boolean mFlagSearchIsOpen = false;
-
-    private int mColorMid;
-    private int mColorMatchBG;
-    private final float sMarkupScale = 0.7f;
-
-    @Override
-    public void
-    onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
-        setHasOptionsMenu( true );
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstState: Bundle?): View? {
+        return inflater.inflate(R.layout.entry, container, false)
     }
 
-    @Override
-    public View
-    onCreateView( @NonNull LayoutInflater inflater, ViewGroup container, Bundle savedInstState ) {
-        return inflater.inflate( R.layout.entry, container, false );
-    }
-
-    @Override
-    public void
-    onViewCreated( @NonNull View view, Bundle savedInstanceState ) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ActivityMain.mViewCurrent = this
         //Lifeograph.updateScreenSizes( this );
-
-        mActionBar = ( ( AppCompatActivity ) requireActivity() ).getSupportActionBar();
+        mActionBar = (requireActivity() as AppCompatActivity).supportActionBar
         //assert mActionBar != null;
         //mActionBar.setDisplayHomeAsUpEnabled( true );
 
         //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
+        mEditText = view.findViewById(R.id.editTextEntry)
+        mEditText.movementMethod = LinkMovementMethod.getInstance()
+        //mKeyListener = mEditText.keyListener
+        if(!Diary.d.is_in_edit_mode) {
+            mEditText.setRawInputType( InputType.TYPE_NULL )
+            mEditText.isFocusable = false
+            //mEditText.setTextIsSelectable(true) --above seems to work better
+            //mEditText.keyListener = null
 
-        mEditText = view.findViewById( R.id.editTextEntry );
-        //mEditText.setMovementMethod( LinkMovementMethod.getInstance() );
-        mKeyListener = mEditText.getKeyListener();
-
-        if( ! Diary.diary.is_in_edit_mode() ) {
-            //mEditText.setInputType( InputType.TYPE_NULL ); does not seem necessary, besides
-            // disables text wrap
-            mEditText.setTextIsSelectable( true );
-            mEditText.setKeyListener( null );
-
-            view.findViewById( R.id.toolbar_text_edit ).setVisibility( View.GONE );
+            view.findViewById<View>(R.id.toolbar_text_edit).visibility = View.GONE
         }
-
-        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
-            mEditText.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
+        if(Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
+            mEditText.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
 
         // set custom font as the default font may lack the necessary chars such as check marks:
         /*Typeface font = Typeface.createFromAsset( getAssets(), "OpenSans-Regular.ttf" );
-        mEditText.setTypeface( font );*/
-
-        mEditText.addTextChangedListener( new TextWatcher() {
-            public void afterTextChanged( Editable s ) {
-            }
-
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
-            }
-
-            public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                // if( mFlagSetTextOperation == false )
-                {
+        mEditText.setTypeface( font );*/mEditText.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                if(!mFlagSetTextOperation) {
                     // if( start > 0 ) {
                     // m_pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
                     // if( m_pos_start == -1 )
@@ -222,184 +129,158 @@ public class FragmentEntry extends Fragment
                     // if( m_pos_end == -1 )
                     // m_pos_end = mEditText.getText().length();
                     // }
-                    mFlagEntryChanged = true;
+                    mFlagEntryChanged = true
+                    mEntry._text = mEditText.text.toString()
                 }
-                parse( 0, mEditText.getText().length() );
+                mParser.parse(0, mEditText.text.length)
             }
-        } );
+        })
 
-        mEditText.setOnEditorActionListener( ( v, actionId, event ) -> {
-            if( mFlagEditorActionInProgress ) {
-                mFlagEditorActionInProgress = false;
-                return false;
+        mEditText.setOnEditorActionListener { v: TextView, _: Int, _: KeyEvent? ->
+            if(mFlagEditorActionInProgress) {
+                mFlagEditorActionInProgress = false
+                return@setOnEditorActionListener false
             }
-
-            int iter_end = v.getSelectionStart();
-            int iter_start = v.getText().toString().lastIndexOf( '\n', iter_end - 1 );
-            if( iter_start < 0 || iter_start == v.getText().length() - 1 )
-                return false;
-
-            iter_start++;   // get rid of the new line char
-            int offset_start = iter_start;   // save for future
-
-            if( v.getText().charAt( iter_start ) == '\t' ) {
-                StringBuilder text = new StringBuilder( "\n\t" );
-                int value = 0;
-                char char_lf = '*';
-                iter_start++;   // first tab is already handled, so skip it
-
-                for( ; iter_start != iter_end; ++iter_start ) {
-                    switch( v.getText().charAt( iter_start ) ) {
-                        // BULLET LIST
-                        case '•':
-                            if( char_lf != '*' )
-                                return false;
-                            char_lf = ' ';
-                            text.append( "• " );
-                            break;
-                        // CHECK LIST
-                        case '[':
-                            if( char_lf != '*' )
-                                return false;
-                            char_lf = 'c';
-                            break;
-                        case '~':
-                        case '+':
-                        case 'x':
-                        case 'X':
-                            if( char_lf != 'c' )
-                                return false;
-                            char_lf = ']';
-                            break;
-                        case ']':
-                            if( char_lf != ']' )
-                                return false;
-                            char_lf = ' ';
-                            text.append( "[ ] " );
-                            break;
-                        // NUMBERED LIST
-                        case '0': case '1': case '2': case '3': case '4':
-                        case '5': case '6': case '7': case '8': case '9':
-                            if( char_lf != '*' && char_lf != '1' )
-                                return false;
-                            char_lf = '1';
-                            value *= 10;
-                            value += v.getText().charAt( iter_start ) - '0';
-                            break;
-                        case '-':
-                            if( char_lf == '*' ) {
-                                char_lf = ' ';
-                                text.append(  "- " );
-                                break;
+            val iterEnd = v.selectionStart
+            var iterStart = v.text.toString().lastIndexOf('\n', iterEnd - 1)
+            if(iterStart < 0 || iterStart == v.text.length - 1)
+                return@setOnEditorActionListener false
+            iterStart++ // get rid of the new line char
+            val offsetStart = iterStart // save for future
+            if(v.text[iterStart] == '\t') {
+                val text = StringBuilder("\n\t")
+                var value = 0
+                var charLf = '*'
+                iterStart++ // first tab is already handled, so skip it
+                while(iterStart != iterEnd) {
+                    when(v.text[iterStart]) {
+                        '•' -> {
+                            if(charLf != '*') return@setOnEditorActionListener false
+                            charLf = ' '
+                            text.append("• ")
+                        }
+                        '[' -> {
+                            if(charLf != '*') return@setOnEditorActionListener false
+                            charLf = 'c'
+                        }
+                        '~', '+', 'x', 'X' -> {
+                            if(charLf != 'c') return@setOnEditorActionListener false
+                            charLf = ']'
+                        }
+                        ']' -> {
+                            if(charLf != ']') return@setOnEditorActionListener false
+                            charLf = ' '
+                            text.append("[ ] ")
+                        }
+                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                            if(charLf != '*' && charLf != '1')
+                                return@setOnEditorActionListener false
+                            charLf = '1'
+                            value *= 10
+                            value += v.text[iterStart] - '0'
+                        }
+                        '-' -> {
+                            if(charLf == '*') {
+                                text.append("- ")
+                                break
                             }
-                            // no break
-                        case '.':
-                        case ')':
-                            if( char_lf != '1' )
-                                return false;
-                            char_lf = ' ';
-                            text.append( ++value )
-                                .append( v.getText().charAt( iter_start ) )
-                                .append( ' ' );
-                            break;
-                        case '\t':
-                            if( char_lf != '*' )
-                                return false;
-                            text.append( '\t' );
-                            break;
-                        case ' ':
-                            if( char_lf == 'c' ) {
-                                char_lf = ']';
-                                break;
+                            if(charLf != '1') return@setOnEditorActionListener false
+                            charLf = ' '
+                            text.append(++value)
+                                    .append(v.text[iterStart])
+                                    .append(' ')
+                        }
+                        '.', ')' -> {
+                            if(charLf != '1') return@setOnEditorActionListener false
+                            charLf = ' '
+                            text.append(++value)
+                                    .append(v.text[iterStart])
+                                    .append(' ')
+                        }
+                        '\t' -> {
+                            if(charLf != '*') return@setOnEditorActionListener false
+                            text.append('\t')
+                        }
+                        ' ' -> {
+                            if(charLf == 'c') {
+                                break
                             }
-                            else if( char_lf != ' ' )
-                                return false;
+                            else if(charLf != ' ') return@setOnEditorActionListener false
                             // remove the last bullet if no text follows it:
-                            if( iter_start == iter_end - 1 ) {
-                                iter_start = offset_start;
-                                mFlagEditorActionInProgress = true;
-                                mEditText.getText().delete( iter_start, iter_end );
-                                mEditText.getText().insert( iter_start, "\n" );
+                            if(iterStart == iterEnd - 1) {
+                                iterStart = offsetStart
+                                mFlagEditorActionInProgress = true
+                                mEditText.text.delete(iterStart, iterEnd)
+                                mEditText.text.insert(iterStart, "\n")
                             }
                             else {
-                                mFlagEditorActionInProgress = true;
-                                mEditText.getText().insert( iter_end, text );
-                                iter_start = iter_end + text.length();
-                                if( value > 0 ) {
-                                    iter_start++;
-                                    while( ( iter_start = increment_numbered_line(
-                                                iter_start, value++, v ) ) > 0 ) {
-                                        iter_start++;
+                                mFlagEditorActionInProgress = true
+                                mEditText.text.insert(iterEnd, text)
+                                iterStart = iterEnd + text.length
+                                if(value > 0) {
+                                    iterStart++
+                                    while(incrementNumberedLine(
+                                                    iterStart, value++, v).also { iterStart = it } > 0) {
+                                        iterStart++
                                     }
                                 }
                             }
-                            return true;
-                        default:
-                            return false;
+                            return@setOnEditorActionListener true
+                        }
+                        else -> return@setOnEditorActionListener false
                     }
+                    ++iterStart
                 }
             }
-            return false;
-        } );
-
-        mEditText.setCustomSelectionActionModeCallback( new ActionMode.Callback()
-        {
-            public boolean onPrepareActionMode( ActionMode mode, Menu menu ) {
-                return true;
-            }
-
-            public void onDestroyActionMode( ActionMode mode ) {
-            }
-
-            public boolean onCreateActionMode( ActionMode mode, Menu menu ) {
-                menu.add( Menu.NONE, R.id.visit_link, Menu.FIRST, R.string.go );
-                return true;
-            }
-
-            public boolean onActionItemClicked( ActionMode mode, MenuItem item ) {
-                if( item.getItemId() == R.id.visit_link ) {
-                    final Editable buffer = mEditText.getEditableText();
-                    final ClickableSpan[] link = buffer.getSpans( mEditText.getSelectionStart(),
-                                                                  mEditText.getSelectionEnd(),
-                                                                  ClickableSpan.class );
-                    if( link.length > 0 )
-                        link[ 0 ].onClick( mEditText );
-                    else
-                        Log.i( Lifeograph.TAG, "No link in the selection" );
-                    return true;
-                }
-                return false;
-            }
-        } );
-
-        Button mButtonBold = view.findViewById( R.id.buttonBold );
-        mButtonBold.setOnClickListener( v -> toggleFormat( "*" ) );
-
-        Button mButtonItalic = view.findViewById( R.id.buttonItalic );
-        mButtonItalic.setOnClickListener( v -> toggleFormat( "_" ) );
-
-        Button mButtonStrikethrough = view.findViewById( R.id.buttonStrikethrough );
-        SpannableString spanStringS = new SpannableString( "S" );
-        spanStringS.setSpan( new StrikethroughSpan(), 0, 1, 0 );
-        mButtonStrikethrough.setText( spanStringS );
-        mButtonStrikethrough.setOnClickListener( v -> toggleFormat( "=" ) );
-
-        mButtonHighlight = view.findViewById( R.id.buttonHighlight );
-        mButtonHighlight.setOnClickListener( v -> toggleFormat( "#" ) );
-
-        Button mButtonIgnore = view.findViewById( R.id.button_ignore );
-        mButtonIgnore.setOnClickListener( v -> toggleIgnoreParagraph() );
-
-        Button mButtonComment = view.findViewById( R.id.button_comment );
-        mButtonComment.setOnClickListener( v -> addComment() );
-
-        assert mEntry != null;
-
-        if( mEntry.get_size() > 0 ) {
-            requireActivity().getWindow().setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN );
+            false
         }
-        show( savedInstanceState == null );
+
+//        mEditText.customSelectionActionModeCallback = object : ActionMode.Callback {
+//            override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+//                return true
+//            }
+//
+//            override fun onDestroyActionMode(mode: ActionMode) {}
+//            override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+//                menu.add(Menu.NONE, R.id.visit_link, Menu.FIRST, R.string.go)
+//                return true
+//            }
+//
+//            override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+//                if(item.itemId == R.id.visit_link) {
+//                    val buffer = mEditText.editableText
+//                    val link = buffer.getSpans(mEditText.selectionStart,
+//                            mEditText.selectionEnd,
+//                            ClickableSpan::class.java)
+//                    if(link.isNotEmpty())
+//                        link[0].onClick(mEditText)
+//                    else
+//                        Log.i(Lifeograph.TAG, "No link in the selection")
+//                    return true
+//                }
+//                return false
+//            }
+//        }
+        val mButtonBold = view.findViewById<Button>(R.id.buttonBold)
+        mButtonBold.setOnClickListener { toggleFormat("*") }
+        val mButtonItalic = view.findViewById<Button>(R.id.buttonItalic)
+        mButtonItalic.setOnClickListener { toggleFormat("_") }
+        val mButtonStrikethrough = view.findViewById<Button>(R.id.buttonStrikethrough)
+        val spanStringS = SpannableString("S")
+        spanStringS.setSpan(StrikethroughSpan(), 0, 1, 0)
+        mButtonStrikethrough.text = spanStringS
+        mButtonStrikethrough.setOnClickListener { toggleFormat("=") }
+        mButtonHighlight = view.findViewById(R.id.buttonHighlight)
+        mButtonHighlight.setOnClickListener { toggleFormat("#") }
+        val mButtonIgnore = view.findViewById<Button>(R.id.button_ignore)
+        mButtonIgnore.setOnClickListener { toggleIgnoreParagraph() }
+        val mButtonComment = view.findViewById<Button>(R.id.button_comment)
+        mButtonComment.setOnClickListener { addComment() }
+        if(mEntry._size > 0) {
+            requireActivity().window.setSoftInputMode(
+                    WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+        }
+        show(savedInstanceState == null)
     }
 
     /*@Override
@@ -408,199 +289,174 @@ public class FragmentEntry extends Fragment
 
         Log.d( Lifeograph.TAG, "ActivityEntry.onPause()" );
     }*/
-
-    @Override
-    public void
-    onResume() {
-        super.onResume();
-
-        Log.d( Lifeograph.TAG, "FragmentEntry.onResume()" );
-
-        if( mMenu != null )
-            updateMenuVisibilities();
+    override fun onResume() {
+        super.onResume()
+        Log.d(Lifeograph.TAG, "FragmentEntry.onResume()")
+        if(mMenu != null) updateMenuVisibilities()
     }
 
-    @Override
-    public void
-    onStop() {
-        super.onStop();
-
-        Log.d( Lifeograph.TAG, "ActivityEntry.onStop()" );
-
-        if( mFlagDismissOnExit )
-            Diary.diary.dismiss_entry( mEntry, false );
-        else
-            sync();
-
-        Diary.diary.writeLock();
+    override fun onStop() {
+        super.onStop()
+        Log.d(Lifeograph.TAG, "ActivityEntry.onStop()")
+        if(mFlagDismissOnExit) Diary.d.dismiss_entry(mEntry, false) else sync()
+        Diary.d.writeLock()
     }
 
-    @Override
-    public void
-    onCreateOptionsMenu( @NonNull Menu menu, MenuInflater inflater ) {
-        inflater.inflate( R.menu.menu_entry, menu );
-
-        super.onCreateOptionsMenu( menu, inflater );
-
-        MenuItem item = menu.findItem( R.id.change_todo_status );
-        ToDoAction ToDoAction = ( ToDoAction ) MenuItemCompat.getActionProvider( item );
-        ToDoAction.mObject = this;
-
-        item = menu.findItem( R.id.search_text );
-        final SearchView searchView = ( SearchView ) item.getActionView();
-        item.setOnActionExpandListener( new MenuItem.OnActionExpandListener()
-        {
-            public boolean onMenuItemActionExpand( MenuItem menuItem ) {
-                searchView.setQuery( Diary.diary.get_search_text(), false );
-                return true;
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        inflater.inflate(R.menu.menu_entry, menu)
+        super.onCreateOptionsMenu(menu, inflater)
+        var item = menu.findItem(R.id.change_todo_status)
+        val toDoAction = MenuItemCompat.getActionProvider(item) as ToDoAction
+        toDoAction.mObject = this
+        item = menu.findItem(R.id.search_text)
+        val searchView = item.actionView as SearchView
+        item.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
+            override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
+                searchView.setQuery(Diary.d._search_text, false)
+                return true
             }
 
-            public boolean onMenuItemActionCollapse( MenuItem menuItem ) {
-                return true;
+            override fun onMenuItemActionCollapse(menuItem: MenuItem): Boolean {
+                return true
             }
-        } );
-
-        mMenu = menu;
-
-        searchView.setOnQueryTextListener( new SearchView.OnQueryTextListener()
-        {
-            public boolean onQueryTextSubmit( String s ) {
-                return true;
+        })
+        mMenu = menu
+        searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
+            override fun onQueryTextSubmit(s: String): Boolean {
+                return true
             }
 
-            public boolean onQueryTextChange( String s ) {
-                if( mFlagSearchIsOpen ) {
-                    Diary.diary.set_search_text( s.toLowerCase(), false );
-                    parse( 0, mEditText.getText().length() );
+            override fun onQueryTextChange(s: String): Boolean {
+                if(mFlagSearchIsOpen) {
+                    Diary.d.set_search_text(s.toLowerCase(Locale.ROOT), false)
+                    mParser.parse(0, mEditText.text.length)
                 }
-                return true;
+                return true
             }
-        } );
-        searchView.setOnQueryTextFocusChangeListener( ( view, b ) -> mFlagSearchIsOpen = b );
-        updateIcon();
+        })
+        searchView.setOnQueryTextFocusChangeListener { _: View?, b: Boolean -> mFlagSearchIsOpen = b }
+        updateIcon()
     }
 
-    @Override
-    public void
-    onPrepareOptionsMenu( @NonNull Menu menu ) {
-        super.onPrepareOptionsMenu( menu );
-
-        updateMenuVisibilities();
+    override fun onPrepareOptionsMenu(menu: Menu) {
+        super.onPrepareOptionsMenu(menu)
+        updateMenuVisibilities()
     }
 
-    @Override
-    public boolean
-    onOptionsItemSelected( MenuItem item ) {
-        int itemId = item.getItemId();
-        if( itemId == R.id.enable_edit ) {
-            Lifeograph.enableEditing( this );
-            return true;
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.enable_edit -> {
+                Lifeograph.enableEditing(this)
+                return true
+            }
+            R.id.home -> {
+                //NavUtils.navigateUpFromSameTask( this );
+                //finish();
+                return true
+            }
+            R.id.toggle_favorite -> {
+                toggleFavorite()
+                return true
+            }
+            R.id.change_todo_status -> {
+                return false
+            }
+            R.id.edit_date -> {
+                DialogInquireText(context,
+                        R.string.edit_date,
+                        mEntry._date.format_string(),
+                        R.string.apply,
+                        this).show()
+                return true
+            }
+            R.id.dismiss -> {
+                dismiss()
+                return true
+            }
         }
-        else if( itemId == R.id.home ) {
-            //NavUtils.navigateUpFromSameTask( this );
-            //finish();
-            return true;
-        }
-        else if( itemId == R.id.toggle_favorite ) {
-            toggleFavorite();
-            return true;
-        }
-        else if( itemId == R.id.change_todo_status ) {
-            return false;
-        }
-        else if( itemId == R.id.edit_date ) {
-            new DialogInquireText( getContext(),
-                                   R.string.edit_date,
-                                   mEntry.get_date().format_string(),
-                                   R.string.apply,
-                                   this ).show();
-            return true;
-        }
-        else if( itemId == R.id.dismiss ) {
-            dismiss();
-            return true;
-        }
-
-        return super.onOptionsItemSelected( item );
+        return super.onOptionsItemSelected(item)
     }
 
     // POPUP MENU LISTENER
-    public boolean
-    onMenuItemClick( MenuItem item ) {
-        int itemId = item.getItemId();
-        if( itemId == R.id.button_list_none ) {
-            set_list_item_mark( 'n' );
-            return true;
+    override fun onMenuItemClick(item: MenuItem): Boolean {
+        when(item.itemId) {
+            R.id.button_list_none -> {
+                setListItemMark('n')
+                return true
+            }
+            R.id.button_list_bullet -> {
+                setListItemMark('*')
+                return true
+            }
+            R.id.button_list_to_do -> {
+                setListItemMark(' ')
+                return true
+            }
+            R.id.button_list_progressed -> {
+                setListItemMark('~')
+                return true
+            }
+            R.id.button_list_done -> {
+                setListItemMark('+')
+                return true
+            }
+            R.id.button_list_canceled -> {
+                setListItemMark('x')
+                return true
+            }
+            R.id.button_list_numbered -> {
+                setListItemMark('1')
+                return true
+            }
         }
-        else if( itemId == R.id.button_list_bullet ) {
-            set_list_item_mark( '*' );
-            return true;
-        }
-        else if( itemId == R.id.button_list_to_do ) {
-            set_list_item_mark( ' ' );
-            return true;
-        }
-        else if( itemId == R.id.button_list_progressed ) {
-            set_list_item_mark( '~' );
-            return true;
-        }
-        else if( itemId == R.id.button_list_done ) {
-            set_list_item_mark( '+' );
-            return true;
-        }
-        else if( itemId == R.id.button_list_canceled ) {
-            set_list_item_mark( 'x' );
-            return true;
-        }
-        else if( itemId == R.id.button_list_numbered ) {
-            set_list_item_mark( '1' );
-            return true;
-        }
-        return false;
+        return false
     }
 
-    private void updateMenuVisibilities(){
-        boolean flagWritable = Diary.diary.is_in_edit_mode();
-
-        mMenu.findItem( R.id.enable_edit ).setVisible( !flagWritable &&
-                                                       Diary.diary.can_enter_edit_mode() );
-
-        mMenu.findItem( R.id.change_todo_status ).setVisible( flagWritable );
-        mMenu.findItem( R.id.toggle_favorite ).setVisible( flagWritable );
-        mMenu.findItem( R.id.edit_date ).setVisible( flagWritable );
-        mMenu.findItem( R.id.dismiss ).setVisible( flagWritable );
+    private fun updateMenuVisibilities() {
+        val flagWritable = Diary.d.is_in_edit_mode
+        mMenu!!.findItem(R.id.enable_edit).isVisible = !flagWritable &&
+                Diary.d.can_enter_edit_mode()
+        mMenu!!.findItem(R.id.change_todo_status).isVisible = flagWritable
+        mMenu!!.findItem(R.id.toggle_favorite).isVisible = flagWritable
+        mMenu!!.findItem(R.id.edit_date).isVisible = flagWritable
+        mMenu!!.findItem(R.id.dismiss).isVisible = flagWritable
     }
 
     // DiaryEditor interface methods
-    @Override
-    public void
-    enableEditing() {
-        mMenu.findItem( R.id.enable_edit ).setVisible( false );
+    override fun enableEditing() {
+        mMenu!!.findItem(R.id.enable_edit).isVisible = false
+        mMenu!!.findItem(R.id.change_todo_status).isVisible = true
+        mMenu!!.findItem(R.id.toggle_favorite).isVisible = true
+        mMenu!!.findItem(R.id.edit_date).isVisible = true
+        mMenu!!.findItem(R.id.dismiss).isVisible = true
 
-        mMenu.findItem( R.id.change_todo_status ).setVisible( true );
-        mMenu.findItem( R.id.toggle_favorite ).setVisible( true );
-        mMenu.findItem( R.id.edit_date ).setVisible( true );
-        mMenu.findItem( R.id.dismiss ).setVisible( true );
-
-        mEditText.setKeyListener( mKeyListener );
+        mEditText.setRawInputType(InputType.TYPE_CLASS_TEXT)
+        mEditText.isFocusable = true
         // force soft keyboard to be shown:
-        if( mEditText.requestFocus() ){
-            InputMethodManager imm =
-                    ( InputMethodManager ) getContext().getSystemService( Context.INPUT_METHOD_SERVICE );
-            imm.showSoftInput( mEditText, InputMethodManager.SHOW_IMPLICIT );
+//        if(mEditText.requestFocus()) {
+//            val imm = requireContext().getSystemService(
+//                    Context.INPUT_METHOD_SERVICE) as InputMethodManager
+//            imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT)
+//        }
+        requireActivity().findViewById<View>(R.id.toolbar_text_edit).visibility = View.VISIBLE
+    }
+
+    override fun handleBack(): Boolean {
+        mBrowsingHistory.removeLast()
+        if(mBrowsingHistory.isEmpty()) {
+            return false
         }
-
-        requireActivity().findViewById( R.id.toolbar_text_edit ).setVisibility( View.VISIBLE );
+        else {
+            val entry = Diary.d.get_entry_by_id(mBrowsingHistory.last())
+            if(entry != null) {
+                mEntry = entry
+                show(true)
+            }
+        }
+        return true
     }
 
-    @Override
-    public boolean
-    handleBack() {
-        return false;
-    }
-
-    void
-    updateIcon() {
+    private fun updateIcon() {
         /*if( m_ptr2entry.is_favored() ) {
             Bitmap bmp = BitmapFactory.decodeResource(
                     getResources(), m_ptr2entry.get_icon() )
@@ -623,1543 +479,896 @@ public class FragmentEntry extends Fragment
         }
         else
             mActionBar.setIcon( m_ptr2entry.get_icon() );*/
-
-
-        if( mMenu != null ) {
-            int icon = R.drawable.ic_action_not_todo;
-
-            mMenu.findItem( R.id.toggle_favorite ).setIcon(
-                    mEntry.is_favored() ? R.drawable.ic_action_favorite :
-                    R.drawable.ic_action_not_favorite );
-
-            switch( mEntry.get_todo_status_effective() ) {
-                case Entry.ES_TODO:
-                    icon = R.drawable.ic_action_todo_open;
-                    break;
-                case Entry.ES_PROGRESSED:
-                    icon = R.drawable.ic_action_todo_progressed;
-                    break;
-                case Entry.ES_DONE:
-                    icon = R.drawable.ic_action_todo_done;
-                    break;
-                case Entry.ES_CANCELED:
-                    icon = R.drawable.ic_action_todo_canceled;
-                    break;
+        if(mMenu != null) {
+            var icon = R.drawable.ic_action_not_todo
+            mMenu!!.findItem(R.id.toggle_favorite).setIcon(
+                    if(mEntry.is_favored) R.drawable.ic_action_favorite else R.drawable.ic_action_not_favorite)
+            when(mEntry._todo_status_effective) {
+                Entry.ES_TODO -> icon = R.drawable.ic_action_todo_open
+                Entry.ES_PROGRESSED -> icon = R.drawable.ic_action_todo_progressed
+                Entry.ES_DONE -> icon = R.drawable.ic_action_todo_done
+                Entry.ES_CANCELED -> icon = R.drawable.ic_action_todo_canceled
             }
-            mMenu.findItem( R.id.change_todo_status ).setIcon( icon );
+            mMenu!!.findItem(R.id.change_todo_status).setIcon(icon)
         }
     }
 
-    void updateTheme() {
-        Theme theme = mEntry.get_theme();
-        mEditText.setBackgroundColor( theme.color_base );
-        mEditText.setTextColor( theme.color_text );
-
-        mColorMid = Theme.midtone( theme.color_base, theme.color_text, 0.4f );
-
-        //mColorRegionBG = Theme.midtone( theme.color_base, theme.color_text, 0.9f ); LATER
-        mColorMatchBG = Theme.contrast2(
-                theme.color_base, Theme.s_color_match1, Theme.s_color_match2 );
-
-        //mColorLink = Theme.contrast(
-        //theme.color_base, Theme.s_color_link1, Theme.s_color_link2 ); LATER
-        //mColorLinkBroken = Theme.contrast(
-        //theme.color_base, Theme.s_color_broken1, Theme.s_color_broken2 ); LATER
-
-        mButtonHighlight.setTextColor( theme.color_text );
-        SpannableString spanStringH = new SpannableString( "H" );
-        spanStringH.setSpan( new BackgroundColorSpan( theme.color_highlight ), 0, 1, 0 );
-        mButtonHighlight.setText( spanStringH );
+    private fun updateTheme() {
+        mParser.mP2Theme = mEntry._theme
+        mEditText.setBackgroundColor(mParser.mP2Theme.color_base)
+        mEditText.setTextColor(mParser.mP2Theme.color_text)
+        mButtonHighlight.setTextColor(mParser.mP2Theme.color_text)
+        val spanStringH = SpannableString("H")
+        spanStringH.setSpan(BackgroundColorSpan(mParser.mP2Theme.color_highlight), 0, 1, 0)
+        mButtonHighlight.text = spanStringH
     }
 
-    void sync() {
-        if( mFlagEntryChanged ) {
-            mEntry.m_date_edited = ( int ) ( System.currentTimeMillis() / 1000L );
-            mEntry.set_text( mEditText.getText().toString() );
-            mFlagEntryChanged = false;
+    private fun sync() {
+        if(mFlagEntryChanged) {
+            mEntry.m_date_edited = (System.currentTimeMillis() / 1000L)
+            mEntry._text = mEditText.text.toString()
+            mFlagEntryChanged = false
         }
     }
 
-    void show( boolean flagParse ) {
-        if( mEntry == null ) {
-            Log.e( Lifeograph.TAG, "Empty entry passed to show" );
-            return;
-        }
-
-        mFlagDismissOnExit = false;
+    fun show(flagParse: Boolean) {
+        mFlagDismissOnExit = false
 
         // THEME
-        updateTheme();
-
-        // PARSING
-        m_pos_start = 0;
-        m_pos_end = mEntry.get_text().length();
+        updateTheme()
 
         // SETTING TEXT
         // mFlagSetTextOperation = true;
-        if( flagParse )
-            mEditText.setText( mEntry.get_text() );
+        if(flagParse)
+            mEditText.setText(mEntry._text)
         // mFlagSetTextOperation = false;
 
         // if( flagParse )
         // parse();
-
-        mActionBar.setTitle( mEntry.get_title_str() );
-        mActionBar.setSubtitle( mEntry.get_info_str() );
-        updateIcon();
+        mActionBar!!.title = mEntry._title_str
+        mActionBar!!.subtitle = mEntry._info_str
+        updateIcon()
         //invalidateOptionsMenu(); // may be redundant here
+
+        // BROWSING HISTORY
+        if(mBrowsingHistory.isEmpty() || mEntry.m_id != mBrowsingHistory.last()) // not going back
+            mBrowsingHistory.add(mEntry.m_id)
     }
 
-    private void toggleFavorite() {
-        mEntry.toggle_favored();
-        updateIcon();
+    private fun toggleFavorite() {
+        mEntry.toggle_favored()
+        updateIcon()
     }
 
-    private void dismiss() {
-        Lifeograph.showConfirmationPrompt( getContext(),
-                                           R.string.entry_dismiss_confirm,
-                                           R.string.dismiss,
-                                           ( dialog, id ) -> {
-                                               mFlagDismissOnExit = true;
-                                               // TODO: FragmentEntry.this.finish();
-                                           } );
+    private fun dismiss() {
+        Lifeograph.showConfirmationPrompt(context,
+                R.string.entry_dismiss_confirm,
+                R.string.dismiss
+        ) { _: DialogInterface?, _: Int -> mFlagDismissOnExit = true }
     }
 
-    public void createListLineMenu( View v ) {
-        PopupMenu popup = new PopupMenu( getContext(), v );
-        popup.setOnMenuItemClickListener( this );
-
-        popup.inflate( R.menu.menu_list_line );
-
-        popup.show();
+    fun createListLineMenu(v: View?) {
+        val popup = PopupMenu(context, v)
+        popup.setOnMenuItemClickListener(this)
+        popup.inflate(R.menu.menu_list_line)
+        popup.show()
     }
 
-    public void setTodoStatus( int s ) {
-        mEntry.set_todo_status( s );
-        mEntry.m_date_status = ( int ) ( System.currentTimeMillis() / 1000L );
-        updateIcon();
+    override fun setTodoStatus(s: Int) {
+        mEntry._todo_status = s
+        mEntry.m_date_status = (System.currentTimeMillis() / 1000L)
+        updateIcon()
     }
 
     // InquireListener methods
-    public void onInquireAction( int id, @NonNull String text ) {
-        if( id == R.string.edit_date ) {
-            Date date = new Date( text );
-            if( date.m_date != Date.NOT_SET ) {
-                if( !date.is_ordinal() )
-                    date.set_order_3rd( 1 );
+    override fun onInquireAction(id: Int, text: String) {
+        if(id == R.string.edit_date) {
+            val date = Date(text)
+            if(date.m_date != Date.NOT_SET) {
+                if(!date.is_ordinal) date._order_3rd = 1
                 try {
-                    Diary.diary.set_entry_date( mEntry, date );
+                    Diary.d.set_entry_date(mEntry, date)
                 }
-                catch( Exception e ) {
-                    e.printStackTrace();
+                catch(e: Exception) {
+                    e.printStackTrace()
                 }
-                mActionBar.setTitle( mEntry.get_title_str() );
-                mActionBar.setSubtitle( mEntry.get_info_str() );
+                mActionBar!!.title = mEntry._title_str
+                mActionBar!!.subtitle = mEntry._info_str
             }
         }
     }
-    public boolean onInquireTextChanged( int id, @NonNull String s ) {
-        if( id == R.string.edit_date ) {
-            long date = Date.parse_string( s );
-            return ( date > 0 && date != mEntry.m_date.m_date );
+
+    override fun onInquireTextChanged(id: Int, s: String): Boolean {
+        if(id == R.string.edit_date) {
+            val date = Date.parse_string(s)
+            return date > 0 && date != mEntry.m_date.m_date
         }
-        return true;
+        return true
     }
 
-    private int increment_numbered_line( int iter, int expected_value, TextView v ) {
-        if( iter >= v.getText().length() )
-            return -1;
-
-        int iter_start = iter;
-        int iter_end = v.getText().toString().indexOf( '\n', iter );
-        if( iter_end == -1 )
-            iter_end = v.getText().length() - 1;
-
-        StringBuilder text = new StringBuilder();
-        int value = 0;
-        char char_lf = 't';
-
-        for( ; iter != iter_end; ++iter ) {
-            switch( v.getText().charAt( iter ) ) {
-                case '\t':
-                    if( char_lf != 't' && char_lf != '1' )
-                        return -1;
-                    char_lf = '1';
-                    text.append( '\t' );
-                    break;
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
-                    if( char_lf != '1' && char_lf != '-' )
-                        return -1;
-                    char_lf = '-';
-                    value *= 10;
-                    value += v.getText().charAt( iter ) - '0';
-                    break;
-                case '-':
-                case '.':
-                case ')':
-                    if( char_lf != '-' || value != expected_value )
-                        return -1;
-                    char_lf = ' ';
-                    value++;
-                    text.append( value ).append( v.getText().charAt( iter ) ).append( ' ' );
-                    break;
-                case ' ':
-                    if( char_lf != ' ' )
-                        return -1;
-                    mFlagEditorActionInProgress = true;
-                    mEditText.getText().delete( iter_start, iter + 1 );
-                    mEditText.getText().insert( iter_start, text );
-                    return( iter_end + text.length() - ( iter - iter_start + 1 ) );
-                default:
-                    return -1;
+    private fun incrementNumberedLine(pos_bgn: Int, expected_value: Int, v: TextView): Int {
+        var pos = pos_bgn
+        if(pos >= v.text.length) return -1
+        var iterEnd = v.text.toString().indexOf('\n', pos)
+        if(iterEnd == -1) iterEnd = v.text.length - 1
+        val text = StringBuilder()
+        var value = 0
+        var charLf = 't'
+        while(pos != iterEnd) {
+            when(v.text[pos]) {
+                '\t' -> {
+                    if(charLf != 't' && charLf != '1') return -1
+                    charLf = '1'
+                    text.append('\t')
+                }
+                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                    if(charLf != '1' && charLf != '-') return -1
+                    charLf = '-'
+                    value *= 10
+                    value += v.text[pos] - '0'
+                }
+                '-', '.', ')' -> {
+                    if(charLf != '-' || value != expected_value) return -1
+                    charLf = ' '
+                    value++
+                    text.append(value).append(v.text[pos]).append(' ')
+                }
+                ' ' -> {
+                    if(charLf != ' ') return -1
+                    mFlagEditorActionInProgress = true
+                    mEditText.text.delete(pos_bgn, pos + 1)
+                    mEditText.text.insert(pos_bgn, text)
+                    return iterEnd + text.length - (pos - pos_bgn + 1)
+                }
+                else -> return -1
             }
+            ++pos
         }
-        return -1;
+        return -1
     }
 
     // FORMATTING BUTTONS ==========================================================================
-    private boolean calculate_multi_para_bounds( int[] bounds ) {
-        String str = mEditText.getText().toString();
-
-        if( mEditText.hasSelection() ) {
-            bounds[ 0 ] = mEditText.getSelectionStart();
-            bounds[ 1 ] = mEditText.getSelectionEnd();
+    private fun calculateMultiParaBounds(bounds: IntArray): Boolean {
+        val str = mEditText.text.toString()
+        if(mEditText.hasSelection()) {
+            bounds[0] = mEditText.selectionStart
+            bounds[1] = mEditText.selectionEnd
         }
         else {
-            bounds[ 0 ] = bounds[ 1 ] = mEditText.getSelectionStart();
-            if( bounds[ 0 ] == 0 )
-                return true;
-            if( str.charAt( bounds[ 0 ] - 1 ) == '\n' ) {
-                if( bounds[ 0 ] == str.length() )
-                    return false;
-                if( str.charAt( bounds[ 0 ] ) == '\n' )
-                    return false;
+            bounds[1] = mEditText.selectionStart
+            bounds[0] = bounds[1]
+            if(bounds[0] == 0) return true
+            if(str[bounds[0] - 1] == '\n') {
+                if(bounds[0] == str.length) return false
+                if(str[bounds[0]] == '\n') return false
             }
         }
-
-        bounds[ 0 ]--;
-
-        if( str.lastIndexOf( '\n', bounds[ 0 ] ) == -1 ) {
-            if( str.indexOf( '\n', bounds[ 0 ] ) == -1 )
-                return true;
+        bounds[0]--
+        if(str.lastIndexOf('\n', bounds[0]) == -1) {
+            if(str.indexOf('\n', bounds[0]) == -1)
+                return true
             else
-                bounds[ 0 ] = str.indexOf( '\n', bounds[ 0 ] ) + 1;
+                bounds[0] = str.indexOf('\n', bounds[0]) + 1
         }
         else
-            bounds[ 0 ] = str.lastIndexOf( '\n', bounds[ 0 ] ) + 1;
-
-        if( str.indexOf( '\n', bounds[ 1 ] ) == -1 )
-            bounds[ 1 ] = str.length() - 1;
+            bounds[0] = str.lastIndexOf('\n', bounds[0]) + 1
+        if(str.indexOf('\n', bounds[1]) == -1)
+            bounds[1] = str.length - 1
         else
-            bounds[ 1 ] = str.indexOf( '\n', bounds[ 1 ] ) - 1;
-
-        return ( bounds[ 0 ] > bounds[ 1 ] );
+            bounds[1] = str.indexOf('\n', bounds[1]) - 1
+        return bounds[0] > bounds[1]
     }
 
-    private void toggleFormat( String markup ) {
-        int p_start, p_end;
-        if( mEditText.hasSelection() ) {
-            int start = -2, end = -1;
-            boolean properly_separated = false;
-
-            p_start = mEditText.getSelectionStart();
-            p_end = mEditText.getSelectionEnd() - 1;
-
-            int p_firt_nl = mEditText.getText().toString().indexOf( '\n' );
-            if( p_firt_nl == -1 ) // there is only heading
-                return;
-            else if( p_end <= p_firt_nl )
-                return;
-            else if( p_start > p_firt_nl )
-                p_start--; // also evaluate the previous character
-            else { // p_start <= p_first_nl
-                p_start = p_firt_nl + 1;
-                properly_separated = true;
-                start = -1;
+    private fun toggleFormat(markup: String) {
+        var pStart: Int
+        var pEnd: Int
+        if(mEditText.hasSelection()) {
+            var start = -2
+            var end = -1
+            var properlySeparated = false
+            pStart = mEditText.selectionStart
+            pEnd = mEditText.selectionEnd - 1
+            val pFirstNl = mEditText.text.toString().indexOf('\n')
+            when {
+                pFirstNl == -1 -> // there is only heading
+                    return
+                pEnd <= pFirstNl ->
+                    return
+                pStart > pFirstNl ->
+                    pStart-- // also evaluate the previous character
+                else -> { // p_start <= p_first_nl
+                    pStart = pFirstNl + 1
+                    properlySeparated = true
+                    start = -1
+                }
             }
-
-            for( ;; p_start++ ) {
-                AdvancedSpan theSpan = hasSpan( p_start, markup.charAt( 0 ) );
-                if( theSpan.getType() == '*' || theSpan.getType() == '_' ||
-                    theSpan.getType() == '#' || theSpan.getType() == '=' )
-                    return;
-                switch( mEditText.getText().charAt( p_start ) ) {
-                    case '\n': // selection spreads over more than one
-                        if( start >= 0 ) {
-                            if( properly_separated ) {
-                                mEditText.getText().insert( start, markup );
-                                end += 2;
-                                p_start += 2;
-                                p_end += 2;
+            while(true) {
+                val theSpan = hasSpan(pStart, markup[0])
+                if(theSpan.type == '*' || theSpan.type == '_' || theSpan.type == '#' || theSpan.type == '=') 
+                    return
+                when(mEditText.text[pStart]) {
+                    '\n' -> {
+                        if(start >= 0) {
+                            if(properlySeparated) {
+                                mEditText.text.insert(start, markup)
+                                end += 2
+                                pStart += 2
+                                pEnd += 2
                             }
                             else {
-                                mEditText.getText().insert( start, " " + markup );
-                                end += 3;
-                                p_start += 3;
-                                p_end += 3;
+                                mEditText.text.insert(start, " $markup")
+                                end += 3
+                                pStart += 3
+                                pEnd += 3
                             }
-
-                            mEditText.getText().insert( end, markup );
-
-                            properly_separated = true;
-                            start = -1;
-                            break;
+                            mEditText.text.insert(end, markup)
+                            properlySeparated = true
+                            start = -1
+                            break
                         }
-                        /* else no break */
-                    case ' ':
-                    case '\t':
-                        if( start == -2 ) {
-                            properly_separated = true;
-                            start = -1;
+                        if(start == -2) {
+                            properlySeparated = true
+                            start = -1
                         }
-                        break;
-                        /* else no break */
-                    default:
-                        if( start == -2 )
-                            start = -1;
-                        else if( start == -1 )
-                            start = p_start;
-                        end = p_start;
-                        break;
+                    }
+                    ' ', '\t' -> if(start == -2) {
+                        properlySeparated = true
+                        start = -1
+                    }
+                    else -> {
+                        if(start == -2) start = -1 else if(start == -1) start = pStart
+                        end = pStart
+                    }
                 }
-                if( p_start == p_end )
-                    break;
+                if(pStart == pEnd) break
+                pStart++
             }
             // add markup chars to the beginning and end:
-            if( start >= 0 ) {
-                if( properly_separated ) {
-                    mEditText.getText().insert( start, markup );
-                    end += 2;
+            if(start >= 0) {
+                end += if(properlySeparated) {
+                    mEditText.text.insert(start, markup)
+                    2
                 }
                 else {
-                    mEditText.getText().insert( start, " " + markup );
-                    end += 3;
+                    mEditText.text.insert(start, " $markup")
+                    3
                 }
-
-                mEditText.getText().insert( end, markup );
+                mEditText.text.insert(end, markup)
                 // TODO place_cursor( get_iter_at_offset( end ) );
             }
         }
         else { // no selection case
-            p_start = p_end = mEditText.getSelectionStart();
-            if( isSpace( p_start ) || p_start == mEditText.length() - 1 ) {
-                if( startsLine( p_start ) )
-                    return;
-                p_start--;
-                if( hasSpan( p_start, 'm' ).getType() == 'm' )
-                    p_start--;
+            pEnd = mEditText.selectionStart
+            pStart = pEnd
+            if(isSpace(pStart) || pStart == mEditText.length() - 1) {
+                if(startsLine(pStart)) return
+                pStart--
+                if(hasSpan(pStart, 'm').type == 'm') pStart--
             }
-            else if( hasSpan( p_start, 'm' ).getType() == 'm' ) {
-                if( startsLine( p_start ) )
-                    return;
-                p_start--;
-                if( isSpace( p_start ) )
-                    p_start += 2;
+            else if(hasSpan(pStart, 'm').type == 'm') {
+                if(startsLine(pStart)) return
+                pStart--
+                if(isSpace(pStart)) pStart += 2
             }
-
-            AdvancedSpan theSpan = hasSpan( p_start, markup.charAt( 0 ) );
+            val theSpan = hasSpan(pStart, markup[0])
 
             // if already has the markup remove it
-            if( theSpan.getType() == markup.charAt( 0 ) ) {
-                p_start = mEditText.getText().getSpanStart( theSpan );
-                p_end = mEditText.getText().getSpanEnd( theSpan );
-                mEditText.getText().delete( p_start - 1, p_start );
-                mEditText.getText().delete( p_end - 1, p_end );
+            if(theSpan.type == markup[0]) {
+                pStart = mEditText.text.getSpanStart(theSpan)
+                pEnd = mEditText.text.getSpanEnd(theSpan)
+                mEditText.text.delete(pStart - 1, pStart)
+                mEditText.text.delete(pEnd - 1, pEnd)
             }
-            else if( theSpan.getType() == ' ' ) {
+            else if(theSpan.type == ' ') {
                 // find word boundaries:
-                while( p_start > 0 ) {
-                    char c = mEditText.getText().charAt( p_start );
-                    if( c == '\n' || c == ' ' || c == '\t' ) {
-                        p_start++;
-                        break;
+                while(pStart > 0) {
+                    val c = mEditText.text[pStart]
+                    if(c == '\n' || c == ' ' || c == '\t') {
+                        pStart++
+                        break
                     }
-
-                    p_start--;
+                    pStart--
                 }
-                mEditText.getText().insert( p_start, markup );
-
-                while( p_end < mEditText.getText().length() ) {
-                    char c = mEditText.getText().charAt( p_end );
-                    if( c == '\n' || c == ' ' || c == '\t' )
-                        break;
-                    p_end++;
+                mEditText.text.insert(pStart, markup)
+                while(pEnd < mEditText.text.length) {
+                    val c = mEditText.text[pEnd]
+                    if(c == '\n' || c == ' ' || c == '\t') break
+                    pEnd++
                 }
-                mEditText.getText().insert( p_end, markup );
+                mEditText.text.insert(pEnd, markup)
                 // TODO (if necessary) place_cursor( offset );
             }
         }
     }
 
-    public void set_list_item_mark( char target_item_type ) {
-        int[] bounds = { 0, 0 };
-        if( calculate_multi_para_bounds( bounds ) )
-            return;
-
-        int pos = bounds[ 0 ];
-
-        if ( bounds[ 0 ] == bounds[ 1 ] ) { // empty line
-            switch( target_item_type ) {
-                case '*':
-                    mEditText.getText().insert( pos, "\t• " );
-                    break;
-                case ' ':
-                    mEditText.getText().insert( pos, "\t[ ] " );
-                    break;
-                case '~':
-                    mEditText.getText().insert( pos, "\t[~] " );
-                    break;
-                case '+':
-                    mEditText.getText().insert( pos, "\t[+] " );
-                    break;
-                case 'x':
-                    mEditText.getText().insert( pos, "\t[x] " );
-                    break;
-                case '1':
-                    mEditText.getText().insert( pos, "\t1- " );
-                    break;
+    private fun setListItemMark(target_item_type: Char) {
+        val bounds = intArrayOf(0, 0)
+        if(calculateMultiParaBounds(bounds)) return
+        var pos = bounds[0]
+        if(bounds[0] == bounds[1]) { // empty line
+            when(target_item_type) {
+                '*' -> mEditText.text.insert(pos, "\t• ")
+                ' ' -> mEditText.text.insert(pos, "\t[ ] ")
+                '~' -> mEditText.text.insert(pos, "\t[~] ")
+                '+' -> mEditText.text.insert(pos, "\t[+] ")
+                'x' -> mEditText.text.insert(pos, "\t[x] ")
+                '1' -> mEditText.text.insert(pos, "\t1- ")
             }
-            return;
+            return
         }
-
-        int pos_end = bounds[ 1 ];
-        int pos_erase_begin = pos;
-        char item_type = 0;    // none
-        char char_lf = 't';    // tab
-        int value = 1; // for numeric lists
-
-        while( pos <= pos_end ) {
-            switch( mEditText.getText().toString().charAt( pos ) ) {
-                case '\t':
-                    if( char_lf == 't'  || char_lf == '[' ) {
-                        char_lf = '[';  // opening bracket
-                        pos_erase_begin = pos;
-                    }
-                    else
-                        char_lf = 'n';
-                    break;
-                case '•':
-                case '-':
-                    char_lf = ( char_lf == '[' ? 's' : 'n' );
-                    item_type = ( char_lf == 's' ? '*' : 0 );
-                    break;
-                case '[':
-                    char_lf = ( char_lf == '[' ? 'c' : 'n' );
-                    break;
-                case ' ':
-                    if( char_lf == 's' ) { // separator space
-                        if( item_type != target_item_type ) {
-                            mEditText.getText().delete( pos_erase_begin, pos + 1 );
-                            int diff = ( pos + 1 - pos_erase_begin );
-                            pos -= diff;
-                            pos_end -= diff;
-                            char_lf = 'a';
+        var posEnd = bounds[1]
+        var posEraseBegin = pos
+        var itemType = 0.toChar() // none
+        var charLf = 't' // tab
+        var value = 1 // for numeric lists
+        while(pos <= posEnd) {
+            when(mEditText.text.toString()[pos]) {
+                '\t' -> if(charLf == 't' || charLf == '[') {
+                    charLf = '[' // opening bracket
+                    posEraseBegin = pos
+                }
+                else charLf = 'n'
+                '•', '-' -> {
+                    charLf = if(charLf == '[') 's' else 'n'
+                    itemType = if(charLf == 's') '*' else 0.toChar()
+                }
+                '[' -> charLf = (if(charLf == '[') 'c' else 'n')
+                ' ' -> {
+                    if(charLf == 's') { // separator space
+                        if(itemType != target_item_type) {
+                            mEditText.text.delete(posEraseBegin, pos + 1)
+                            val diff = pos + 1 - posEraseBegin
+                            pos -= diff
+                            posEnd -= diff
                         }
-                        else {
-                            char_lf = 'n';
-                        }
-                        break;
+                        break
                     }
-                    // no break: process like other check box chars:
-                case '~':
-                case '+':
-                case 'x':
-                case 'X':
-                    char_lf = ( char_lf == 'c' ? ']' : 'n' );
-                    item_type = mEditText.getText().toString().charAt( pos );
-                    break;
-                case ']':
-                    char_lf = ( char_lf == ']' ? 's' : 'n' );
-                    break;
-                case '\n':
-                    item_type = 0;
-                    char_lf = 't';  // tab
-                    break;
-                case 0: // end
-                default:
-                    if( char_lf == 'a' || char_lf == 't' || char_lf == '[' ) {
-                        switch( target_item_type ) {
-                            case '*':
-                                mEditText.getText().insert( pos, "\t• " );
-                                pos += 3;
-                                pos_end += 3;
-                                break;
-                            case ' ':
-                                mEditText.getText().insert( pos, "\t[ ] " );
-                                pos += 5;
-                                pos_end += 5;
-                                break;
-                            case '~':
-                                mEditText.getText().insert( pos, "\t[~] " );
-                                pos += 5;
-                                pos_end += 5;
-                                break;
-                            case '+':
-                                mEditText.getText().insert( pos, "\t[+] " );
-                                pos += 5;
-                                pos_end += 5;
-                                break;
-                            case 'x':
-                                mEditText.getText().insert( pos, "\t[x] " );
-                                pos += 5;
-                                pos_end += 5;
-                                break;
-                            case '1':
-                                mEditText.getText().insert( pos, "\t" + value + "- " );
-                                value++;
-                                break;
+                    charLf = if(charLf == 'c') ']' else 'n'
+                    itemType = mEditText.text.toString()[pos]
+                }
+                '~', '+', 'x', 'X' -> {
+                    charLf = if(charLf == 'c') ']' else 'n'
+                    itemType = mEditText.text.toString()[pos]
+                }
+                ']' -> charLf = (if(charLf == ']') 's' else 'n')
+                '\n' -> {
+                    itemType = 0.toChar()
+                    charLf = 't' // tab
+                }
+                0.toChar() -> {
+                    if(charLf == 'a' || charLf == 't' || charLf == '[') {
+                        when(target_item_type) {
+                            '*' -> {
+                                mEditText.text.insert(pos, "\t• ")
+                                pos += 3
+                                posEnd += 3
+                            }
+                            ' ' -> {
+                                mEditText.text.insert(pos, "\t[ ] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            '~' -> {
+                                mEditText.text.insert(pos, "\t[~] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            '+' -> {
+                                mEditText.text.insert(pos, "\t[+] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            'x' -> {
+                                mEditText.text.insert(pos, "\t[x] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            '1' -> {
+                                mEditText.text.insert(pos, "\t$value- ")
+                                value++
+                            }
                         }
                     }
-                    char_lf = 'n';
-                    break;
+                    charLf = 'n'
+                }
+                else -> {
+                    if(charLf == 'a' || charLf == 't' || charLf == '[') {
+                        when(target_item_type) {
+                            '*' -> {
+                                mEditText.text.insert(pos, "\t• ")
+                                pos += 3
+                                posEnd += 3
+                            }
+                            ' ' -> {
+                                mEditText.text.insert(pos, "\t[ ] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            '~' -> {
+                                mEditText.text.insert(pos, "\t[~] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            '+' -> {
+                                mEditText.text.insert(pos, "\t[+] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            'x' -> {
+                                mEditText.text.insert(pos, "\t[x] ")
+                                pos += 5
+                                posEnd += 5
+                            }
+                            '1' -> {
+                                mEditText.text.insert(pos, "\t$value- ")
+                                value++
+                            }
+                        }
+                    }
+                    charLf = 'n'
+                }
             }
-            pos++;
+            pos++
         }
     }
 
-    private void addComment() {
-        if( mEditText.hasSelection() ) {
-            int p_start, p_end;
-            p_start = mEditText.getSelectionStart();
-            p_end = mEditText.getSelectionEnd() - 1;
+    private fun addComment() {
+        val pStart: Int = mEditText.selectionStart
 
-            mEditText.getText().insert( p_start, "[[" );
-            mEditText.getText().insert( p_end + 2, "]]" );
+        if(mEditText.hasSelection()) {
+            val pEnd: Int = mEditText.selectionEnd - 1
+            mEditText.text.insert(pStart, "[[")
+            mEditText.text.insert(pEnd + 2, "]]")
         }
         else { // no selection case
-            int p_start = mEditText.getSelectionStart();
-            mEditText.getText().insert( p_start, "[[]]" );
-            mEditText.setSelection( p_start + 2 );
+            mEditText.text.insert(pStart, "[[]]")
+            mEditText.setSelection(pStart + 2)
         }
     }
 
-    private void toggleIgnoreParagraph() {
-        int[] bounds = { 0, 0 };
-        if( calculate_multi_para_bounds( bounds ) )
-            return;
-
-        if ( bounds[ 0 ] == bounds[ 1 ] ) { // empty line
-            mEditText.getText().insert( bounds[ 0 ], ".\t" );
-            return;
+    private fun toggleIgnoreParagraph() {
+        val bounds = intArrayOf(0, 0)
+        if(calculateMultiParaBounds(bounds)) return
+        if(bounds[0] == bounds[1]) { // empty line
+            mEditText.text.insert(bounds[0], ".\t")
+            return
         }
-
-        int pos = bounds[ 0 ];
-        int pos_end = bounds[ 1 ];
-        int pos_erase_begin = pos;
-        char char_lf = '.';
-
-        while( pos <= pos_end ) {
-            switch( mEditText.getText().toString().charAt( pos ) ) {
-                case '.':
-                    if( char_lf == '.' ) {
-                        pos_erase_begin = pos;
-                        char_lf = 't'; // tab
+        var pos = bounds[0]
+        var posEnd = bounds[1]
+        var posEraseBegin = pos
+        var charLf = '.'
+        while(pos <= posEnd) {
+            when(mEditText.text.toString()[pos]) {
+                '.' -> if(charLf == '.') {
+                    posEraseBegin = pos
+                    charLf = 't' // tab
+                }
+                else charLf = 'n'
+                '\n' -> charLf = '.'
+                '\t' -> {
+                    if(charLf == 't') {
+                        mEditText.text.delete(posEraseBegin, pos + 1)
+                        val diff = pos + 1 - posEraseBegin
+                        pos -= diff
+                        posEnd -= diff
                     }
-                    else
-                        char_lf = 'n';
-                    break;
-                case '\n':
-                    char_lf = '.';
-                    break;
-                case '\t':
-                    if( char_lf == 't' ) {
-                        mEditText.getText().delete( pos_erase_begin, pos + 1 );
-                        int diff = ( pos + 1 - pos_erase_begin );
-                        pos -= diff;
-                        pos_end -= diff;
+                    if(charLf == '.') {
+                        mEditText.text.insert(pos, ".\t")
+                        pos += 2
+                        posEnd += 2
                     }
-                case 0: // end
-                default:
-                    if( char_lf == '.' ) {
-                        mEditText.getText().insert( pos, ".\t" );
-                        pos += 2;
-                        pos_end += 2;
+                    charLf = 'n'
+                }
+                0.toChar() -> {
+                    if(charLf == '.') {
+                        mEditText.text.insert(pos, ".\t")
+                        pos += 2
+                        posEnd += 2
                     }
-                    char_lf = 'n';
-                    break;
+                    charLf = 'n'
+                }
+                else -> {
+                    if(charLf == '.') {
+                        mEditText.text.insert(pos, ".\t")
+                        pos += 2
+                        posEnd += 2
+                    }
+                    charLf = 'n'
+                }
             }
-            pos++;
+            pos++
         }
     }
-
-    // PARSING VARIABLES ===========================================================================
-    private int        m_pos_start, m_pos_end, m_pos_current;
-    private int        pos_word, /*pos_regular,*/ pos_search, pos_tab;
-    private char       m_char_current;
-    private int        m_cf_last, m_cf_req = CF_ANY;
-    private final StringBuilder word_last = new StringBuilder();
-    private int        int_last;
-    private int        id_last;
-    private final Date date_last = new Date();
-    protected boolean  m_flag_hidden_link;
-
-    private final java.util.List< AbsChar > m_chars_looked_for = new ArrayList<>();
-    private ParSel m_applier_nl;
-
-    private static class AbsChar  // abstract char
-    {
-        AbsChar( int f, ParSel a, boolean j ) {
-            flags = f;
-            applier = a;
-            junction = j;
-        }
-        AbsChar( int f, ParSel a ) {
-            flags = f;
-            applier = a;
-            junction = false;
-        }
-        int             flags;
-        ParSel          applier;
-        boolean         junction;
-    }
-
-    // SPANS =======================================================================================
-    private interface AdvancedSpan
-    {
-        char getType();
-    }
-    private static class SpanOther implements  AdvancedSpan
-    {
-        public char getType() {
-            return 'O';
-        }
-    }
-    private static class SpanNull implements  AdvancedSpan
-    {
-        public char getType() {
-            return ' ';
-        }
-    }
-    @SuppressLint( "ParcelCreator" )
-    private static class SpanBold extends StyleSpan implements AdvancedSpan
-    {
-        SpanBold() {
-            super( Typeface.BOLD );
-        }
-        public char getType() {
-            return '*';
-        }
-    }
-    @SuppressLint( "ParcelCreator" )
-    private static class SpanItalic extends StyleSpan implements AdvancedSpan
-    {
-        SpanItalic() {
-            super( Typeface.ITALIC );
-        }
-        public char getType() {
-            return '_';
-        }
-    }
-    @SuppressLint( "ParcelCreator" )
-    private static class SpanHighlight extends BackgroundColorSpan implements AdvancedSpan
-    {
-        SpanHighlight() {
-            super( mEntry.get_theme().color_highlight );
-        }
-        public char getType() {
-            return '#';
-        }
-    }
-    @SuppressLint( "ParcelCreator" )
-    private static class SpanStrikethrough extends StrikethroughSpan implements AdvancedSpan
-    {
-        public char getType() {
-            return '=';
-        }
-    }
-    @SuppressLint( "ParcelCreator" )
-    private class SpanMarkup extends ForegroundColorSpan implements AdvancedSpan
-    {
-        SpanMarkup() {
-            super( mColorMid );
-        }
-        public char getType() {
-            return 'm';
-        }
-    }
-
-    private static class LinkDate extends ClickableSpan implements AdvancedSpan
-    {
-        LinkDate( long date ) {
-            mDate = date;
-        }
-
-        @Override
-        public void onClick( @NonNull View widget ) {
-            Entry entry = Diary.diary.get_entry_by_date( mDate );
-
-            if( entry == null )
-                entry = Diary.diary.create_entry( mDate, "", false );
-
-            Lifeograph.showElem( entry );
-        }
-
-        public char getType() {
-            return 'd';
-        }
-
-        private final long mDate;
-    }
-    private class LinkUri extends ClickableSpan implements AdvancedSpan
-    {
-        LinkUri( String uri ) {
-            mUri = uri;
-        }
-
-        @Override
-        public void onClick( @NonNull View widget ) {
-            Intent browserIntent = new Intent( Intent.ACTION_VIEW, Uri.parse( mUri ) );
-            startActivity( browserIntent );
-        }
-
-        public char getType() {
-            return 'u';
-        }
-
-        private final String mUri;
-    }
-    private static class LinkID extends ClickableSpan implements AdvancedSpan
-    {
-        LinkID( int id ) {
-            mId = id;
-        }
-
-        @Override
-        public void onClick( @NonNull View widget ) {
-            DiaryElement elem = Diary.diary.get_element( mId );
-            if( elem != null ) {
-                if( elem.get_type() != DiaryElement.Type.ENTRY )
-                    Log.d( Lifeograph.TAG, "Target is not entry" );
-                else
-                    Lifeograph.showElem( elem );
-            }
-        }
-
-        public char getType() {
-            return 'i';
-        }
-
-        private final int mId;
-    }
-
-    private final java.util.Vector< Object > mSpans = new java.util.Vector<>();
 
     // PARSING =====================================================================================
-    private void reset( int start, int end ) {
-        m_pos_start = start;
-        m_pos_end = end;
-        m_pos_current = pos_word = /*pos_regular =*/ start;
-
-        // TODO: only remove spans within the parsing boundaries...
-        // mEditText.getText().clearSpans(); <-- problematic!!
-        for( Object span : mSpans )
-            mEditText.getText().removeSpan( span );
-        mSpans.clear();
-
-        m_cf_last = CF_NOT_SET;
-        m_cf_req = CF_ANY;
-        word_last.setLength( 0 );
-        int_last = 0;
-        date_last.set( 0 );
-        id_last = 0;
-        m_chars_looked_for.clear();
-
-        if( start == 0 && end > 0 ) {
-            // to prevent formatting within title:
-            m_chars_looked_for.add( new AbsChar( CF_IGNORE, ParSel.NULL ) );
-            m_applier_nl = ParSel.AP_HEND;
-            apply_heading();
-        }
-        else {
-            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-            m_applier_nl = ParSel.NULL;
-        }
+    private interface AdvancedSpan {
+        val type: Char
     }
 
-    void parse( int start, int end ) {
-        mEntry.set_text( mEditText.getText().toString() );
+    internal class ParserEditText(private val mHost: FragmentEntry) : ParserText() {
+        lateinit var mP2Theme: Theme
+        private val sMarkupScale = 0.7f
+        private val mSpans = Vector<Any?>()
 
-        update_todo_status();
+        override fun get_char_at(i: Int): Char {
+            return mHost.mEditText.text[i]
+        }
 
-        // NOTE: everything below should go to Parser when there is one
-        reset( start, end );
+        private fun getSlice(bgn: Int, end: Int): String {
+            return mHost.mEditText.text.subSequence(bgn, end).toString()
+        }
 
-        // this part is different than in c++
-        String search_text = Diary.diary.get_search_text();
-        boolean flag_search_active = !search_text.isEmpty();
-        int i_search = 0;
-        int i_search_end = Diary.diary.get_search_text().length() - 1;
+        private fun addSpan(span: Any?, start: Int, end: Int, styles: Int) {
+            mSpans.add(span)
+            mHost.mEditText.text.setSpan(span, start, end, styles)
+        }
 
-        for( ; m_pos_current < m_pos_end; ++m_pos_current ) {
-            m_char_current = mEditText.getText().charAt( m_pos_current );
+        override fun reset(bgn: Int, end: Int){
+            super.reset(bgn, end)
 
-            if( flag_search_active ) {
-                if( search_text.charAt( i_search ) == Character.toLowerCase( m_char_current ) ) {
-                    if( i_search == 0 )
-                        pos_search = m_pos_current;
-                    if( i_search == i_search_end ) {
-                        apply_match();
-                        i_search = 0;
-                    }
-                    else
-                        i_search++;
-                }
-                else
-                    i_search = 0;
+            // COMPLETELY CLEAR THE PARSING REGION
+            // TODO: only remove spans within the parsing boundaries...
+            // mEditText.getText().clearSpans(); <-- problematic!!
+            for(span in mSpans)
+                mHost.mEditText.text.removeSpan(span)
+            mSpans.clear()
+
+            // Following must come after reset as m_pos_para_bgn is reset there
+            // when bgn != 0, 1 added to the m_pos_para_bgn to skip the \n at the beginning
+            m_p2para_cur = mEntry.get_paragraph(
+                    if( m_pos_para_bgn > 0 ) m_pos_para_bgn + 1 else 0 )
+            mEntry.clear_paragraph_data( m_pos_para_bgn, end )
+        }
+
+        public override fun parse(bgn: Int, end: Int) {
+            mHost.updateTodoStatus()
+            super.parse(bgn, end)
+        }
+
+        public override fun process_paragraph() {
+            if(m_p2para_cur == null) return
+            when(m_p2para_cur.m_justification) {
+                Paragraph.JT_LEFT -> addSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL),
+                                             m_pos_para_bgn, m_pos_cur, 0)
+                Paragraph.JT_CENTER -> addSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER),
+                                               m_pos_para_bgn, m_pos_cur, 0)
+                Paragraph.JT_RIGHT -> addSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
+                                              m_pos_para_bgn, m_pos_cur, 0)
+            }
+            m_p2para_cur = m_p2para_cur._next
+        }
+
+        // SPANS ===================================================================================
+        class SpanOther : AdvancedSpan {
+            override val type: Char
+                get() = 'O'
+        }
+
+        class SpanNull : AdvancedSpan {
+            override val type: Char
+                get() = ' '
+        }
+
+        @SuppressLint("ParcelCreator")
+        private class SpanBold : StyleSpan(Typeface.BOLD), AdvancedSpan {
+            override val type: Char
+                get() = '*'
+        }
+
+        @SuppressLint("ParcelCreator")
+        private class SpanItalic : StyleSpan(Typeface.ITALIC), AdvancedSpan {
+            override val type: Char
+                get() = '_'
+        }
+
+        @SuppressLint("ParcelCreator")
+        private inner class SpanHighlight : BackgroundColorSpan(mP2Theme.color_highlight),
+                AdvancedSpan {
+            override val type: Char
+                get() = '#'
+        }
+
+        @SuppressLint("ParcelCreator")
+        private class SpanStrikethrough : StrikethroughSpan(), AdvancedSpan {
+            override val type: Char
+                get() = '='
+        }
+
+        @SuppressLint("ParcelCreator")
+        private inner class SpanMarkup : ForegroundColorSpan(mP2Theme.m_color_mid), AdvancedSpan {
+            override val type: Char
+                get() = 'm'
+        }
+
+        private class LinkDate(private val mDate: Long) : ClickableSpan(), AdvancedSpan {
+            override fun onClick(widget: View) {
+                Log.d( Lifeograph.TAG, "Clicked on Date link")
+                var entry = Diary.d.get_entry_by_date(mDate)
+                if(entry == null)
+                    entry = Diary.d.create_entry(mDate, "", false)
+                Lifeograph.showElem(entry!!)
             }
 
-            // MARKUP PARSING
-            switch( m_char_current ) {
-                case '\n':
-                case '\r':
-                    process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH
-                                              | CF_DOTDATE | CF_MORE | CF_TAB | CF_IGNORE, 0,
-                                  ParSel.NULL );
-                    break;
-                case ' ':
-                    process_char( CF_SPACE, CF_ALPHA | CF_NUMBER | CF_SLASH | CF_DOTDATE
-                                            | CF_TODO, CF_NOTHING, ParSel.TR_SUBH );
-                    break;
-                case '*':
-                    process_char( CF_ASTERISK, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_BOLD );
-                    break;
-                case '_':
-                    process_char( CF_UNDERSCORE, CF_NUM_CKBX | CF_SLASH | CF_DOTDATE, CF_NOTHING,
-                                  ParSel.TR_ITLC );
-                    break;
-                case '=':
-                    process_char( CF_EQUALS, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_STRK );
-                    break;
-                case '#':
-                    process_char( CF_HASH, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_HILT );
-                    break;
-                case '[':
-                    process_char( CF_SBB, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_CMNT );
-                    break;
-                case ']':
-                    process_char( CF_SBE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE, 0,
-                                  ParSel.NULL );
-                    break;
-                case '0':
-                case '1':
-                case '2':
-                case '3':
-                case '4':
-                case '5':
-                case '6':
-                case '7':
-                case '8':
-                case '9':
-                    handle_number(); // calculates numeric value
-                    process_char( CF_NUMBER, CF_SLASH | CF_ALPHA | CF_DOTDATE | CF_TODO,
-                                  CF_NOTHING, ParSel.TR_LNKD );
-                    break;
-                case '.':
-                    process_char( CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH, CF_NOTHING,
-                                  ParSel.TR_IGNR );
-                    break;
+            override val type: Char
+                get() = 'd'
+        }
 
-                case '-':
-                    process_char( CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH, 0, ParSel.NULL );
-                    break;
-                case '/':
-                    process_char( CF_SLASH | CF_DOTDATE, CF_NUM_CKBX | CF_ALPHA, 0, ParSel.NULL );
-                    break;
-                case ':':
-                    process_char( CF_PUNCTUATION_RAW, CF_NUM_CKBX | CF_ALPHA | CF_SLASH
-                                                      | CF_DOTDATE, CF_NOTHING, ParSel.TR_LINK );
-                    break;
-                case '@':
-                    process_char( CF_AT, CF_NUM_CKBX | CF_ALPHA | CF_SLASH | CF_DOTDATE,
-                                  CF_NOTHING, ParSel.TR_LNAT );
-                    break;
-                case '>':
-                    // marks deferred when used in to do context
-                    process_char( CF_TODO|CF_MORE, CF_NUM_CKBX | CF_ALPHA | CF_SLASH |
-                                                   CF_DOTDATE, 0,
-                                  ParSel.NULL );
-                    break;
-                case '\t':
-                    process_char( CF_TAB, CF_NUM_SLSH | CF_ALPHA | CF_DOTDATE, CF_NOTHING,
-                                  ParSel.TR_LIST );
-                    break;
-                // LIST CHARS
-                case '~':
-                case '+':
-                    process_char( CF_TODO|CF_PUNCTUATION_RAW,
-                                  CF_ALPHA|CF_NUM_CKBX|CF_DOTDATE|CF_SLASH,
-                                  0, ParSel.NULL );
-                    break;
-                case 'x':
-                case 'X':
-                    process_char( CF_TODO|CF_ALPHA,
-                                  CF_NUM_CKBX|CF_DOTDATE|CF_SLASH,
-                                  0, ParSel.NULL );
-                    break;
-                default: // most probably alpha
-                    process_char( CF_ALPHA, CF_NUM_CKBX | CF_DOTDATE | CF_SLASH, 0, ParSel.NULL ) ;
-                    break;
+        private class LinkUri(private val mUri: String) : ClickableSpan(), AdvancedSpan {
+            override fun onClick(widget: View) {
+                Log.d( Lifeograph.TAG, "Clicked on Uri link")
+                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(mUri))
+                Lifeograph.mActivityMain.startActivity(browserIntent)
+            }
+
+            override val type: Char
+                get() = 'u'
+        }
+
+        private class LinkID(private val mId: Int) : ClickableSpan(), AdvancedSpan {
+            override fun onClick(widget: View) {
+                Log.d( Lifeograph.TAG, "Clicked on ID link")
+                val elem = Diary.d.get_element(mId)
+                if(elem != null) {
+                    if(elem._type != DiaryElement.Type.ENTRY)
+                        Log.d(Lifeograph.TAG, "Target is not entry")
+                    else
+                        Lifeograph.showElem(elem)
+                }
+            }
+
+            override val type: Char
+                get() = 'i'
+        }
+
+        private class LinkCheck(private val mPara: Paragraph) : ClickableSpan(), AdvancedSpan {
+            override fun onClick(widget: View) {
+                // Dialog Todostatus
+
+                //mPara.set
+                Log.d(Lifeograph.TAG, "Span Clicked Status: " + mPara.m_status)
+            }
+
+            override val type: Char
+                get() = 'c'
+        }
+
+        // APPLIERS ====================================================================================
+        public override fun apply_heading() {
+            var end = 0
+            if(mHost.mEditText.text[0] != '\n') end = mHost.mEditText.text.toString().indexOf('\n')
+            if(end == -1) end = mHost.mEditText.text.length
+            addSpan(TextAppearanceSpan(mHost.context, R.style.headingSpan), 0, end,
+                    Spanned.SPAN_INTERMEDIATE)
+            addSpan(ForegroundColorSpan(mEntry._theme.color_heading), 0, end, 0)
+            if(!mHost.mFlagSetTextOperation) {
+                mEntry.m_name = mHost.mEditText.text.toString().substring(0, end)
+                // handle_entry_title_changed() will not be used here in Android
             }
         }
-        // end of the text -treated like new line
-        process_char( CF_NEWLINE, CF_NUM_CKBX | CF_ALPHA | CF_FORMATCHAR | CF_SLASH | CF_DOTDATE
-                | CF_MORE | CF_TAB, CF_EOT, ParSel.NULL );
+
+        public override fun apply_subheading() {
+            val bgn = m_recipe_cur.m_pos_bgn
+            val end = mHost.mEditText.text.toString().indexOf('\n', bgn)
+            addSpan(TextAppearanceSpan(mHost.context, R.style.subheadingSpan),
+                    bgn, end, Spanned.SPAN_INTERMEDIATE)
+            addSpan(ForegroundColorSpan(mEntry._theme.color_subheading),
+                    bgn, end, 0)
+            if(m_p2para_cur != null)
+                m_p2para_cur.m_heading_level = 2
+        }
+
+        public override fun apply_bold() {
+            applyMarkup(SpanBold())
+        }
+
+        public override fun apply_italic() {
+            applyMarkup(SpanItalic())
+        }
+
+        public override fun apply_strikethrough() {
+            applyMarkup(SpanStrikethrough())
+        }
+
+        public override fun apply_highlight() {
+            applyMarkup(SpanHighlight())
+        }
+
+        private fun applyMarkup(span: Any) {
+            val bgn = m_recipe_cur.m_pos_bgn
+            val mid = bgn + 1
+            val cur = m_pos_cur
+            addSpan(RelativeSizeSpan(sMarkupScale), bgn, mid,
+                    Spanned.SPAN_INTERMEDIATE)
+            addSpan(SpanMarkup(), bgn, mid, 0)
+            addSpan(span, mid, cur, 0)
+            addSpan(RelativeSizeSpan(sMarkupScale), cur, cur + 1,
+                    Spanned.SPAN_INTERMEDIATE)
+            addSpan(SpanMarkup(), cur, cur + 1, 0)
+        }
+
+        public override fun apply_comment() {
+            addSpan(TextAppearanceSpan(mHost.context, R.style.commentSpan),
+                    m_recipe_cur.m_pos_bgn, m_pos_cur + 1,
+                    Spanned.SPAN_INTERMEDIATE)
+            addSpan(ForegroundColorSpan(mP2Theme.m_color_mid),
+                    m_recipe_cur.m_pos_bgn, m_pos_cur + 1, Spanned.SPAN_INTERMEDIATE)
+            addSpan(SuperscriptSpan(),
+                    m_recipe_cur.m_pos_bgn, m_pos_cur + 1, 0)
+        }
+
+        public override fun apply_ignore() {
+            var end = mHost.mEditText.text.toString().indexOf('\n', m_recipe_cur.m_pos_bgn)
+            if(end < 0) end = mHost.mEditText.text.length
+            addSpan(ForegroundColorSpan(mP2Theme.m_color_mid),
+                    m_recipe_cur.m_pos_bgn, end, 0)
+        }
+
+        private fun applyHiddenLinkTags(end: Int, spanLink: Any?) {
+            addSpan(RelativeSizeSpan(sMarkupScale),
+                    m_recipe_cur.m_pos_bgn, m_recipe_cur.m_pos_mid,
+                    Spanned.SPAN_INTERMEDIATE)
+            addSpan(SpanMarkup(), m_recipe_cur.m_pos_bgn, m_recipe_cur.m_pos_mid, 0)
+            addSpan(RelativeSizeSpan(sMarkupScale), m_pos_cur, end,
+                    Spanned.SPAN_INTERMEDIATE)
+            addSpan(SpanMarkup(), m_pos_cur, end, 0)
+            addSpan(spanLink, m_recipe_cur.m_pos_mid + 1, m_pos_cur, 0)
+        }
+
+        public override fun apply_link_hidden() {
+            //remove_tag( m_tag_misspelled, it_uri_bgn, it_tab );
+            var span: Any? = null
+            when(m_recipe_cur.m_id) {
+                RID_URI -> span = LinkUri(getSlice(m_recipe_cur.m_pos_bgn + 1,
+                        m_recipe_cur.m_pos_mid))
+                RID_ID -> {
+                    val element = Diary.d.get_element(m_recipe_cur.m_int_value)
+                    span = if(element != null && element._type == DiaryElement.Type.ENTRY) LinkID(m_recipe_cur.m_int_value)
+                    else  // indicate dead links
+                        ForegroundColorSpan(Color.RED)
+                }
+            }
+            applyHiddenLinkTags(m_pos_cur + 1, span)
+        }
+
+        public override fun apply_link() {
+            //remove_tag( m_tag_misspelled, it_bgn, it_cur );
+            when(m_recipe_cur.m_id) {
+                RID_DATE -> applyDate()
+                RID_LINK_AT -> {
+                    val uri = "mailto:" + getSlice(m_recipe_cur.m_pos_bgn, m_pos_cur)
+                    addSpan(LinkUri(uri), m_recipe_cur.m_pos_bgn, m_pos_cur, 0)
+                }
+                RID_URI -> {
+                    val uri = getSlice(m_recipe_cur.m_pos_bgn, m_pos_cur)
+                    addSpan(LinkUri(uri), m_recipe_cur.m_pos_bgn, m_pos_cur, 0)
+                }
+                RID_ID -> {
+                    Log.d(Lifeograph.TAG, "********** m_int_value: " + m_recipe_cur.m_int_value)
+                    val element = Diary.d.get_element(m_recipe_cur.m_int_value)
+                    val span: Any
+                    span =
+                            if(element != null && element._type == DiaryElement.Type.ENTRY)
+                                LinkID(element.m_id)
+                            else  // indicate dead links
+                                ForegroundColorSpan(Color.RED)
+                    addSpan(span, m_recipe_cur.m_pos_bgn, m_pos_cur, 0)
+                }
+            }
+        }
+
+        private fun applyDate() {
+            // DO NOT FORGET TO COPY UPDATES HERE TO TextbufferDiarySearch::apply_date()
+            addSpan(LinkDate(m_date_last.m_date), m_recipe_cur.m_pos_bgn, m_pos_cur + 1, 0)
+            if(m_p2para_cur != null)
+                m_p2para_cur.m_date = m_date_last.m_date
+        }
+
+        private fun applyCheck(tag_box: Any, tag: Any?, c: Char) {
+            val posBgn = m_pos_cur - 3
+            val posBox = m_pos_cur
+            var posEnd = mHost.mEditText.text.toString().indexOf('\n', m_pos_cur)
+            if(posEnd == -1)
+                posEnd = mHost.mEditText.text.length
+            if(Diary.d.is_in_edit_mode)
+                addSpan(LinkCheck(m_p2para_cur), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
+            addSpan(tag_box, posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
+            addSpan(TypefaceSpan("monospace"), posBgn, posBox, 0)
+            if(tag != null)
+                addSpan(tag, posBox + 1, posEnd, 0) // ++ to skip separating space char
+        }
+
+        public override fun apply_check_unf() {
+            applyCheck(ForegroundColorSpan(Theme.s_color_todo), SpanBold(), ' ')
+        }
+
+        public override fun apply_check_prg() {
+            applyCheck(ForegroundColorSpan(Theme.s_color_progressed), null, '~')
+        }
+
+        public override fun apply_check_fin() {
+            applyCheck(ForegroundColorSpan(Theme.s_color_done),
+                    BackgroundColorSpan(Theme.s_color_done), '+')
+        }
+
+        public override fun apply_check_ccl() {
+            applyCheck(ForegroundColorSpan(Theme.s_color_canceled),
+                    SpanStrikethrough(), 'x')
+        }
+
+        public override fun apply_match() {
+            addSpan(BackgroundColorSpan(mP2Theme.m_color_match_bg),
+                    m_pos_search, m_pos_cur + 1, Spanned.SPAN_INTERMEDIATE)
+            addSpan(ForegroundColorSpan(mP2Theme.color_base),
+                    m_pos_search, m_pos_cur + 1, 0)
+        }
+
+        public override fun apply_inline_tag() {
+            // m_pos_mid is used to determine if a value is assigned to the tag
+            var pEnd = if(m_recipe_cur.m_pos_mid > 0) m_recipe_cur.m_pos_mid else m_pos_cur
+            val pNameBgn = m_recipe_cur.m_pos_bgn + 1
+            val pNameEnd = pEnd - 1
+            val tagName = getSlice(pNameBgn, pNameEnd)
+            val entries = Diary.d.get_entries_by_name(tagName)
+            if(entries == null || entries.isEmpty())
+                addSpan(ForegroundColorSpan(Color.RED), m_recipe_cur.m_pos_bgn, pEnd, 0)
+            else {
+                if(m_recipe_cur.m_pos_mid == 0) {
+                    addSpan(SpanMarkup(), m_recipe_cur.m_pos_bgn, pNameBgn, 0)
+                    addSpan(BackgroundColorSpan(mP2Theme.m_color_inline_tag),
+                            m_recipe_cur.m_pos_bgn, pEnd, 0)
+                    addSpan(LinkID(entries[0]._id),
+                            pNameBgn, pNameEnd, 0)
+                    addSpan(SpanMarkup(), pNameEnd, pEnd, 0)
+                    if(m_p2para_cur != null)
+                        m_p2para_cur.set_tag(tagName, 1.0)
+                }
+                else {
+                    val pBgn = m_recipe_cur.m_pos_mid + 1
+                    pEnd = m_pos_extra_2 + 1
+                    addSpan(BackgroundColorSpan(mP2Theme.m_color_inline_tag), pBgn, pEnd, 0)
+                    if(m_p2para_cur == null) return
+                    if(m_pos_extra_1 > m_recipe_cur.m_pos_bgn) { // has planned value
+                        val vReal = Lifeograph.get_double(getSlice(pBgn, m_pos_extra_1))
+                        val vPlan = Lifeograph.get_double(getSlice(m_pos_extra_1 + 1, pEnd))
+                        m_p2para_cur.set_tag(tagName, vReal, vPlan)
+                    }
+                    else
+                        m_p2para_cur.set_tag(tagName, Lifeograph.get_double(getSlice(pBgn, pEnd)))
+                }
+            }
+        }
     }
 
     // PARSING HELPER FUNCTIONS ====================================================================
-    private void selectParsingFunc( ParSel ps ) {
-        switch( ps ) {
-            case TR_SUBH:
-                trigger_subheading();
-                break;
-            case TR_BOLD:
-                trigger_bold();
-                break;
-            case TR_ITLC:
-                trigger_italic();
-                break;
-            case TR_STRK:
-                trigger_strikethrough();
-                break;
-            case TR_HILT:
-                trigger_highlight();
-                break;
-            case TR_CMNT:
-                trigger_comment();
-                break;
-            case TR_IGNR:
-                trigger_ignore();
-                break;
-            case TR_LINK:
-                trigger_link();
-                break;
-            case TR_LNKD:
-                trigger_link_date();
-                break;
-            case TR_LNAT:
-                trigger_link_at();
-                break;
-            case TR_LIST:
-                trigger_list();
-                break;
-
-            case AP_BOLD:
-                apply_bold();
-                break;
-            case AP_CMNT:
-                apply_comment();
-                break;
-            case AP_HILT:
-                apply_highlight();
-                break;
-            case AP_ITLC:
-                apply_italic();
-                break;
-            case AP_LINK:
-                apply_link();
-                break;
-            case AP_LNDT:
-                apply_link_date();
-                break;
-            case AP_LNID:
-                apply_link_id();
-                break;
-            case AP_STRK:
-                apply_strikethrough();
-                break;
-            case AP_SUBH:
-                apply_subheading();
-                break;
-            case AP_CUNF:
-                apply_check_unf();
-                break;
-            case AP_CPRG:
-                apply_check_prg();
-                break;
-            case AP_CFIN:
-                apply_check_fin();
-                break;
-            case AP_CCCL:
-                apply_check_ccl();
-                break;
-
-            case JK_DDMD:
-                junction_date_dotmd();
-                break;
-            case JK_DDYM:
-                junction_date_dotym();
-                break;
-            case JK_IGNR:
-                junction_ignore();
-                break;
-            case JK_LNHT:
-                junction_link_hidden_tab();
-                break;
-            case JK_LNDT:
-                junction_link_date();
-                break;
-            case JK_LIST:
-                junction_list();
-                break;
-            case JK_LST2:
-                junction_list2();
-                break;
-            default:
-                break;
+    private fun isSpace(offset: Int): Boolean {
+        return when(mEditText.text[offset]) {
+            '\n', '\t', ' ' -> true
+            else -> false
         }
     }
 
-    private void addSpan( Object span, int start, int end, int styles ) {
-        mSpans.add( span );
-        mEditText.getText().setSpan( span, start, end, styles );
+    private fun startsLine(offset: Int): Boolean {
+        return offset == 0 || mEditText.text[offset - 1] == '\n'
     }
 
-    private boolean isSpace( int offset ) {
-        switch( mEditText.getText().charAt( offset ) ) {
-            case '\n':
-            case '\t':
-            case ' ':
-                return true;
-            default:
-                return false;
-        }
-    }
-    private boolean startsLine( int offset ) {
-        return offset == 0 || ( mEditText.getText().charAt( offset - 1 ) == '\n' );
-    }
-    private AdvancedSpan hasSpan( int offset, char type ) {
-        Object[] spans = mEditText.getText().getSpans( offset, offset, Object.class );
-        boolean hasNoOtherSpan = true;
-        for( Object span : spans ) {
-            if( span instanceof AdvancedSpan ) {
-                if( ( ( AdvancedSpan ) span ).getType() == type ) {
-                    return ( AdvancedSpan ) span;
+    private fun hasSpan(offset: Int, type: Char): AdvancedSpan {
+        val spans = mEditText.text.getSpans(offset, offset, Any::class.java)
+        var hasNoOtherSpan = true
+        for(span in spans) {
+            if(span is AdvancedSpan) {
+                hasNoOtherSpan = if(span.type == type) {
+                    return span
                 }
-                else
-                    hasNoOtherSpan = false;
+                else false
             }
         }
-        return( hasNoOtherSpan ? new SpanNull() : new SpanOther() );
+        return if(hasNoOtherSpan) SpanNull() else SpanOther()
     }
 
-    // PROCESS CHAR ================================================================================
-    private void process_char( int char_flags, int breaks, int triggers_on, ParSel triggerer ) {
-        int         cf = m_chars_looked_for.get( 0 ).flags;
-        ParSel      applier = m_chars_looked_for.get( 0 ).applier;
-        boolean     flag_clear_chars = false;
-        boolean     flag_trigger = false;
-        boolean     flag_apply = false;
-
-        if( ( char_flags & cf ) != 0 ) {
-            if( applier != ParSel.NULL ) {
-                if( m_chars_looked_for.get( 0 ).junction )
-                    flag_apply = true;
-                else if( ( m_cf_last & m_cf_req ) != 0 ) { // not junction = final applier
-                    flag_clear_chars = true;
-                    flag_apply = true;
-                }
-            }
-            else {
-                m_chars_looked_for.remove( 0 );
-                if( ( triggers_on & cf ) != 0 )
-                    flag_trigger = true;
-            }
-        }
-        else if( ( breaks & cf ) == cf || ( cf & CF_IMMEDIATE ) != 0 ) {
-            flag_clear_chars = true;
-            if( ( triggers_on & CF_NOTHING ) != 0 )
-                flag_trigger = true;
-        }
-        else if( ( triggers_on & cf ) != 0 ) {
-            flag_trigger = true;
-        }
-
-        if( ( char_flags & CF_NEWLINE ) != 0 ) {
-            flag_clear_chars = true;
-
-            if( m_applier_nl != ParSel.NULL ) {
-                selectParsingFunc( m_applier_nl );
-                m_applier_nl = ParSel.NULL;
-            }
-            else if( ( char_flags & CF_EOT ) != 0 && !flag_apply ) {
-                m_pos_start = m_pos_current + 1;
-                //apply_regular();
-            }
-        }
-
-        // DO AS COLLECTED INFORMATION REQUIRES
-        if( flag_clear_chars ) {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-        }
-        if( flag_trigger )
-            selectParsingFunc( triggerer );
-        if( flag_apply )
-            selectParsingFunc( applier );
-
-        // UPDATE WORD LAST
-        if( ( char_flags & CF_SEPARATOR ) != 0 )
-            word_last.setLength( 0 );
-        else {
-            if( word_last.length() == 0 )
-                pos_word = m_pos_current;
-            word_last.append( m_char_current );
-        }
-
-        // UPDATE CHAR CLASS
-        m_cf_last = char_flags;
-    }
-
-    // HANDLE NUMBER ===============================================================================
-    private void handle_number() {
-        if( m_cf_last == CF_NUMBER ) {
-            int_last *= 10;
-            int_last += ( m_char_current - '0' );
-        }
-        else
-            int_last = ( m_char_current - '0' );
-    }
-
-    // PARSING TRIGGERERS ==========================================================================
-    private void trigger_subheading() {
-        if( m_cf_last == CF_NEWLINE ) {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.AP_SUBH ) );
-            m_cf_req = CF_ANY;
-            m_pos_start = m_pos_current;
-        }
-    }
-
-    private void trigger_markup( int lf, ParSel ps ) {
-        if( ( m_cf_last & CF_NOT_SEPARATOR ) != 0 )
-            return;
-
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_NONSPACE - lf, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( lf, ps ) );
-        m_cf_req = CF_NOT_SEPARATOR;
-        m_pos_start = m_pos_current;
-    }
-
-    private void trigger_bold() {
-        trigger_markup( CF_ASTERISK, ParSel.AP_BOLD );
-    }
-
-    private void trigger_italic() {
-        trigger_markup( CF_UNDERSCORE, ParSel.AP_ITLC );
-    }
-
-    private void trigger_strikethrough() {
-        trigger_markup( CF_EQUALS, ParSel.AP_STRK );
-    }
-
-    private void trigger_highlight() {
-        trigger_markup( CF_HASH, ParSel.AP_HILT );
-    }
-
-    private void trigger_comment() {
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_SBB | CF_IMMEDIATE, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_SBE, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_SBE | CF_IMMEDIATE, ParSel.AP_CMNT ) );
-        m_cf_req = CF_ANY;
-        m_pos_start = m_pos_current;
-    }
-
-    private void trigger_link() {
-        if( word_last.toString().isEmpty() ) {
-            Log.e( Lifeograph.TAG, "trigger_link() called for an empty word_last" );
-            return;
-            // this is a precaution against some error reports
-        }
-        m_flag_hidden_link = ( word_last.charAt( 0 ) == '<' );
-        if( m_flag_hidden_link )
-            word_last.deleteCharAt( 0 );
-
-        m_cf_req = CF_ANY;
-
-        String wl_str = word_last.toString();
-
-        if( wl_str.equals( "http" ) || wl_str.equals( "https" ) || wl_str.equals( "ftp" )
-            /*|| wl_str.equals( "file" )*/ ) {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_SLASH, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( CF_SLASH, ParSel.NULL ) );
-//            if( word_last.equals( "file" ) ) {
-//                m_chars_looked_for.add( new AbsChar( CF_SLASH, ParSel.NULL ) );
-//                m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.NULL ) );
-//            }
-//            else
-                m_chars_looked_for.add( new AbsChar( CF_ALPHA | CF_NUMBER,
-                                                     ParSel.NULL ) ); // TODO: add dash
-        }
-        else if( wl_str.equals( "mailto" ) ) {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_UNDERSCORE | CF_ALPHA | CF_NUMBER,
-                                                 ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( CF_AT, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( CF_ALPHA | CF_NUMBER, ParSel.NULL ) ); // TODO: add dash
-        }
-        else if( wl_str.equals( "deid" ) && m_flag_hidden_link ) {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( CF_TAB, ParSel.JK_LNHT, true ) );
-            m_chars_looked_for.add( new AbsChar( CF_NONSPACE - CF_MORE, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LNID ) );
-            m_pos_start = pos_word;
-            return;
-        }
-        else
-            return;
-
-        if( m_flag_hidden_link ) {
-            m_chars_looked_for.add( new AbsChar( CF_TAB, ParSel.JK_LNHT, true ) );
-            m_chars_looked_for.add( new AbsChar( CF_NONSPACE - CF_MORE, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LINK ) );
-        }
-        else {
-            m_chars_looked_for.add( new AbsChar( CF_TAB | CF_NEWLINE | CF_SPACE, ParSel.AP_LINK ) );
-        }
-        m_pos_start = pos_word;
-    }
-
-    private void trigger_link_at() {
-        if( ( m_cf_last & CF_SEPARATOR ) != 0 )
-            return;
-
-        m_flag_hidden_link = false;
-        word_last.insert( 0, "mailto:" );
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_ALPHA | CF_NUMBER, ParSel.NULL ) ); // TODO: add dash
-        m_chars_looked_for.add( new AbsChar( CF_TAB | CF_NEWLINE | CF_SPACE, ParSel.AP_LINK ) );
-        m_cf_req = CF_ANY;
-        m_pos_start = pos_word;
-    }
-
-    private void trigger_link_date() {
-        m_cf_req = CF_ANY;
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_DOTYM, ParSel.JK_DDYM, true ) );
-        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_DOTMD, ParSel.JK_DDMD, true ) );
-        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.NULL ) );
-        m_chars_looked_for.add( new AbsChar( CF_NUMBER, ParSel.JK_LNDT, true ) );
-
-        m_flag_hidden_link = ( word_last.toString().equals( "<" ) );
-        if( m_flag_hidden_link ) {
-            m_chars_looked_for.add( new AbsChar( CF_TAB, ParSel.JK_LNHT, true ) );
-            m_chars_looked_for.add( new AbsChar( CF_NONSPACE, ParSel.NULL ) );
-            m_chars_looked_for.add( new AbsChar( CF_MORE, ParSel.AP_LNDT ) );
-            m_pos_start = m_pos_current - 1;
-        }
-        else {
-            m_pos_start = m_pos_current;
-            // applier is called by junction_link_date() in this case
-        }
-    }
-
-    private void trigger_list() {
-        if( m_cf_last != CF_NEWLINE )
-            return;
-
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_NONTAB, ParSel.JK_LIST, true ) );
-        m_cf_req = CF_ANY;
-        m_pos_start = m_pos_current;
-    }
-
-    private void trigger_ignore() {
-        if( m_cf_last == CF_NEWLINE ) {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_TAB | CF_IMMEDIATE, ParSel.JK_IGNR, true ) );
-            m_cf_req = CF_ANY;
-            m_pos_start = m_pos_current;
-        }
-    }
-
-    private void junction_link_date() {
-        date_last.set_day( int_last );
-
-        if( date_last.is_valid() ) {
-            if( m_flag_hidden_link ) {
-                m_chars_looked_for.remove( 0 );
-                return;
-            }
-            else
-                apply_link_date();
-        }
-
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-    }
-
-    private void junction_link_hidden_tab() {
-        m_chars_looked_for.remove( 0 );
-        pos_tab = m_pos_current + 1;
-        id_last = int_last;     // if not id link assignment is in vain
-    }
-
-    private void junction_list() {
-        //apply_indent();
-        m_cf_req = CF_ANY;
-
-        if( m_char_current == '[' ) {
-            m_chars_looked_for.remove( 0 );
-            m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_TODO | CF_IMMEDIATE,
-                                                 ParSel.JK_LST2, true ) );
-
-            m_chars_looked_for.add( new AbsChar( CF_SBE | CF_IMMEDIATE, ParSel.NULL ) );
-        }
-        else {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-        }
-    }
-
-    private void junction_list2() {
-        m_cf_req = CF_ANY;
-
-        switch( m_char_current )
-        {
-            case ' ':
-                m_chars_looked_for.remove( 0 );
-                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CUNF ) );
-                break;
-            case '~':
-                m_chars_looked_for.remove( 0 );
-                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CPRG ) );
-                break;
-            case '+':
-                m_chars_looked_for.remove( 0 );
-                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CFIN ) );
-                break;
-            case 'x':
-            case 'X':
-            case '>':
-                m_chars_looked_for.remove( 0 );
-                m_chars_looked_for.add( new AbsChar( CF_SPACE | CF_IMMEDIATE, ParSel.AP_CCCL ) );
-                break;
-            default:
-                m_chars_looked_for.clear();
-                m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-                break;
-        }
-    }
-
-    private void junction_date_dotym() { // dot between year and month
-        if( int_last >= Date.YEAR_MIN && int_last <= Date.YEAR_MAX ) {
-            date_last.set_year( int_last );
-            m_chars_looked_for.remove( 0 );
-        }
-        else {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-        }
-    }
-
-    private void junction_date_dotmd() { // dot between month and day
-        if( int_last >= 1 && int_last <= 12
-            // two separators must be the same:
-            && m_char_current == word_last.charAt( word_last.length() - 3 ) ) {
-            date_last.set_month( int_last );
-            m_chars_looked_for.remove( 0 );
-        }
-        else {
-            m_chars_looked_for.clear();
-            m_chars_looked_for.add( new AbsChar( CF_NOTHING, ParSel.NULL ) );
-        }
-    }
-
-    private void junction_ignore() {
-        m_chars_looked_for.clear();
-        m_chars_looked_for.add( new AbsChar( CF_IGNORE, ParSel.NULL ) );
-        apply_ignore();
-    }
-
-    // APPLIERS ====================================================================================
-    private void apply_heading() {
-        int end = 0;
-        if( mEditText.getText().charAt( 0 ) != '\n' )
-            end = mEditText.getText().toString().indexOf( '\n' );
-        if( end == -1 )
-            end = mEditText.getText().length();
-
-        addSpan( new TextAppearanceSpan( getContext(), R.style.headingSpan ), 0, end,
-                 Spanned.SPAN_INTERMEDIATE );
-        addSpan( new ForegroundColorSpan( mEntry.get_theme().color_heading ), 0, end, 0 );
-
-        if( !mFlagSetTextOperation ) {
-            mEntry.m_name = mEditText.getText().toString().substring( 0, end );
-            // handle_entry_title_changed() will not be used here in Android
-        }
-    }
-
-    private void apply_subheading() {
-        int end = mEditText.getText().toString().indexOf( '\n', m_pos_start );
-        if( end == -1 )
-            end = mEditText.getText().length();
-
-        addSpan( new TextAppearanceSpan( getContext(), R.style.subheadingSpan ), m_pos_start, end,
-                 Spanned.SPAN_INTERMEDIATE );
-        addSpan( new ForegroundColorSpan( mEntry.get_theme().color_subheading ),
-                 m_pos_start, end, 0 );
-    }
-
-    private void apply_bold() {
-        apply_markup( new SpanBold() );
-    }
-
-    private void apply_italic() {
-        apply_markup( new SpanItalic() );
-    }
-
-    private void apply_strikethrough() {
-        apply_markup( new SpanStrikethrough() );
-    }
-
-    private void apply_highlight() {
-        apply_markup( new SpanHighlight() );
-    }
-
-    private void apply_markup( Object span ) {
-        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_start, m_pos_start + 1,
-                 Spanned.SPAN_INTERMEDIATE );
-        addSpan( new SpanMarkup(), m_pos_start, m_pos_start + 1, 0 );
-
-        addSpan( span, m_pos_start + 1, m_pos_current, 0 );
-
-        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_current, m_pos_current + 1,
-                 Spanned.SPAN_INTERMEDIATE );
-        addSpan( new SpanMarkup(), m_pos_current, m_pos_current + 1, 0 );
-    }
-
-    private void apply_comment() {
-        addSpan( new TextAppearanceSpan( getContext(), R.style.commentSpan ), m_pos_start,
-                 m_pos_current + 1,
-                 Spanned.SPAN_INTERMEDIATE );
-
-        addSpan( new ForegroundColorSpan( mColorMid ), m_pos_start, m_pos_current + 1,
-                 Spanned.SPAN_INTERMEDIATE );
-
-        addSpan( new SuperscriptSpan(), m_pos_start, m_pos_current + 1, 0 );
-    }
-
-    private void apply_ignore() {
-        int end = m_pos_current;
-        if( mEditText.getText().charAt( end ) != '\n' )
-            end = mEditText.getText().toString().indexOf( '\n', end );
-        if( end < 0 )
-            end = mEditText.getText().length();
-        addSpan( new ForegroundColorSpan( mColorMid ), m_pos_start, end, 0 );
-    }
-
-    private void apply_hidden_link_tags( int end, Object spanLink ) {
-        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_start, pos_tab,
-                 Spanned.SPAN_INTERMEDIATE );
-        addSpan( new SpanMarkup(), m_pos_start, pos_tab, 0 );
-        addSpan( new RelativeSizeSpan( sMarkupScale ), m_pos_current, end,
-                 Spanned.SPAN_INTERMEDIATE );
-        addSpan( new SpanMarkup(), m_pos_current, end, 0 );
-
-        addSpan( spanLink, pos_tab, m_pos_current, 0 );
-    }
-
-    private void apply_link() {
-        if( m_flag_hidden_link )
-            apply_hidden_link_tags( m_pos_current + 1, new LinkUri( word_last.toString() ) );
-        else
-            addSpan( new LinkUri( word_last.toString() ), m_pos_start, m_pos_current, 0 );
-    }
-
-    private void apply_link_id() {
-        DiaryElement element = Diary.diary.get_element( id_last );
-
-        if( element != null ) {
-            if( element.get_type() == DiaryElement.Type.ENTRY ) {
-                apply_hidden_link_tags( m_pos_current + 1, new LinkID( id_last ) );
-                //return;
-            }
-        }
-        // TODO: indicate dead links
-    }
-
-    private void apply_link_date() {
-        LinkStatus status = LinkStatus.LS_OK;
-        Entry ptr2entry = Diary.diary.get_entry_by_date( date_last.m_date + 1 ); // + 1 fixes order
-        if( ptr2entry == null ) {
-            if( ! Diary.diary.can_enter_edit_mode() )
-                return;
-            status = LinkStatus.LS_ENTRY_UNAVAILABLE;
-        }
-        else if( date_last.get_pure() == mEntry.m_date.get_pure() )
-            status = ( Diary.diary.get_entry_count_on_day( date_last ) > 1 ) ?
-                     LinkStatus.LS_OK : LinkStatus.LS_CYCLIC;
-
-        if( status == LinkStatus.LS_OK || status == LinkStatus.LS_ENTRY_UNAVAILABLE ) {
-            int end = m_pos_current + 1;
-
-            if( m_flag_hidden_link )
-                apply_hidden_link_tags( end, new LinkDate( date_last.m_date ) );
-            else
-                addSpan( new LinkDate( date_last.m_date ), m_pos_start, end, 0 );
-        }
-    }
-
-    private void apply_check( Object tag_box, Object tag/*, int c*/ ) {
-        int pos_start = m_pos_current - 3;
-        int pos_box = m_pos_current;
-        int pos_end = mEditText.getText().toString().indexOf( '\n', m_pos_current );
-        if( pos_end == -1 )
-            pos_end = mEditText.getText().length();
-        /*if( ! Diary.diary.is_read_only() )
-            m_list_links.push_back( new LinkCheck( create_mark( iter_start ),
-                                                   create_mark( iter_box ),
-                                                   c ) );*/
-
-        addSpan( tag_box, pos_start, pos_box, 0 );
-        addSpan( new TypefaceSpan( "monospace" ), pos_start, pos_box, 0 );
-        if( tag != null )
-            addSpan( tag, pos_box + 1, pos_end, 0 ); // ++ to skip separating space char
-    }
-
-    private void apply_check_unf() {
-        apply_check( new ForegroundColorSpan( Theme.s_color_todo ), new SpanBold() );
-    }
-
-    private void apply_check_prg() {
-        apply_check( new ForegroundColorSpan( Theme.s_color_progressed ), null );
-    }
-
-    private void apply_check_fin() {
-        apply_check( new ForegroundColorSpan( Theme.s_color_done ),
-                     new BackgroundColorSpan( Theme.s_color_done ) );
-    }
-
-    private void apply_check_ccl() {
-        apply_check( new ForegroundColorSpan( Theme.s_color_canceled ),
-                     new SpanStrikethrough() );
-    }
-
-    private void apply_match() {
-        addSpan( new BackgroundColorSpan( mColorMatchBG ), pos_search, m_pos_current + 1,
-                 Spanned.SPAN_INTERMEDIATE );
-        addSpan( new ForegroundColorSpan( mEntry.get_theme().color_base ),
-                 pos_search, m_pos_current + 1, 0 );
-    }
-
-    private void update_todo_status() {
-        if( ( mEntry.get_status() & ES_NOT_TODO ) != 0 ) {
-            Entry.calculate_todo_status( mEntry.get_text() );
-            updateIcon();
+    private fun updateTodoStatus() {
+        if(mEntry._status and DiaryElement.ES_NOT_TODO != 0) {
+            Entry.calculate_todo_status(mEntry._text)
+            updateIcon()
             // Not relevant now: panel_diary->handle_elem_changed( m_ptr2entry );
         }
     }

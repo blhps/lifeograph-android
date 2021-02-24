@@ -21,10 +21,12 @@
 
 package net.sourceforge.lifeograph;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.Vector;
+import java.util.TreeMap;
 
 import androidx.annotation.NonNull;
 
@@ -139,12 +141,13 @@ public class Paragraph
         m_tags_in_order.clear();
     }
 
-    public void set_tag( String tag, double value ) {
+    public void
+    set_tag( String tag, double value ) {
         m_tags.put( tag, value );
         m_tags_in_order.add( tag );
     }
-    public void set_tag( String tag, double v_real, double v_planned )
-    {
+    public void
+    set_tag( String tag, double v_real, double v_planned ) {
         m_tags.put( tag, v_real );
         m_tags_planned.put( tag, v_planned );
         m_tags_in_order.add( tag );
@@ -386,9 +389,9 @@ public class Paragraph
     public char  m_justification = JT_LEFT;
 
     protected String                m_text;
-    protected Map< String, Double > m_tags;
-    protected Map< String, Double > m_tags_planned;
-    protected Vector< String >      m_tags_in_order;
+    protected Map< String, Double > m_tags = new TreeMap<>();
+    protected Map< String, Double > m_tags_planned = new TreeMap<>();
+    protected List< String >        m_tags_in_order = new ArrayList<>();
     protected long                  m_date = Date.NOT_SET;
     protected Set< Paragraph >      m_references = new HashSet<>();
 }

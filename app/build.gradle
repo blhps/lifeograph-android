@@ -67,7 +67,6 @@ android {
 android.buildTypes.release.ndk.debugSymbolLevel = 'SYMBOL_TABLE'
 
 dependencies {
-    //implementation 'com.google.android.gms:play-services-ads:19.7.0'
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.2.0'
     implementation 'androidx.preference:preference-ktx:1.1.1'

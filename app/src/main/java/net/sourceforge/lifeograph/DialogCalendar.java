@@ -42,7 +42,7 @@ import androidx.fragment.app.DialogFragment;
 public class DialogCalendar extends DialogFragment
 {
     public DialogCalendar() {
-        mAllowEntryCreation = mAllowChapterCreation = Diary.diary.is_in_edit_mode();
+        mAllowEntryCreation = mAllowChapterCreation = Diary.d.is_in_edit_mode();
     }
 
 //    DialogCalendar( Listener listener, boolean allowCreation ) {
@@ -105,7 +105,7 @@ public class DialogCalendar extends DialogFragment
         mButtonCreateChapter.setOnClickListener( v -> createChapter() );
         mButtonCreateChapter.setEnabled(
                 mAllowChapterCreation &&
-                !Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
+                !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
         mButtonCreateChapter.setVisibility( mAllowChapterCreation ? View.VISIBLE : View.INVISIBLE );
 
         Objects.requireNonNull( getDialog() ).getWindow().setSoftInputMode(
@@ -113,7 +113,7 @@ public class DialogCalendar extends DialogFragment
     }
 
     private void createEntry() {
-        Entry e = Diary.diary.create_entry( mAdapter.mDateCurrent.m_date, "", false );
+        Entry e = Diary.d.create_entry( mAdapter.mDateCurrent.m_date, "", false );
         dismiss();
         Lifeograph.showElem( e );
     }
@@ -126,13 +126,13 @@ public class DialogCalendar extends DialogFragment
     private void handleDayChanged() {
         mAdapter.showMonth( mDate );
         mButtonCreateChapter.setEnabled(
-                !Diary.diary.m_p2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
+                !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey( mDate.m_date ) );
     }
 
     private void handleDayClicked( int pos ) {
         if( pos < 7 )
             return;
-        Entry e = Diary.diary.m_entries.get( mAdapter.mListDays.get( pos ) + 1 );
+        Entry e = Diary.d.m_entries.get( mAdapter.mListDays.get( pos ) + 1 );
         if( e != null ) {
             dismiss();
             Lifeograph.showElem( e );

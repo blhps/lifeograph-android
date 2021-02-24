@@ -532,7 +532,7 @@ public class Entry extends DiaryElement {
         return "";
     }
 
-    // FAVORITE ENTRY
+    // FAVOREDNESS =================================================================================
     boolean
     is_favored() {
         return( ( m_status & ES_FAVORED ) != 0 );
@@ -557,7 +557,7 @@ public class Entry extends DiaryElement {
         m_status ^= ES_FILTER_FAVORED;
     }
 
-    // LANGUAGE
+    // LANGUAGE ====================================================================================
     String
     get_lang_final() {
         return m_option_lang.compareTo( Lifeograph.LANG_INHERIT_DIARY ) == 0 ? m_p2diary.get_lang()
@@ -864,6 +864,36 @@ public class Entry extends DiaryElement {
         }
 
         return false;
+    }
+
+    double
+    get_completion() {
+        final double wl = get_workload();
+
+        if( wl == 0.0 )
+            return 0.0;
+
+        return( get_completed() / wl );
+    }
+
+    double
+    get_completed() {
+        Entry tag_comp = m_p2diary.get_completion_tag();
+
+        if( tag_comp == null )
+            return 0.0;
+
+        return get_value_for_tag( tag_comp, false );
+    }
+
+    double
+    get_workload() {
+        Entry tag_comp = m_p2diary.get_completion_tag();
+
+        if( tag_comp == null )
+            return 0.0;
+
+        return get_value_planned_for_tag( tag_comp, false );
     }
 
     // LOCATION ====================================================================================

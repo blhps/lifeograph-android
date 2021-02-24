@@ -146,7 +146,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
         m_data.clear_points();
 
         FiltererContainer   fc = get_filterer_stack();
-        Collection< Entry > entries = Diary.diary.m_entries.descendingMap().values();
+        Collection< Entry > entries = Diary.d.m_entries.descendingMap().values();
         double      v = 1.0;
         double      v_plan = 0.0;
         final int   y_axis = m_data.get_y_axis();
@@ -230,7 +230,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
 
         m_data.update_min_max();
 
-        Diary.diary.fill_up_chart_data( m_data );
+        Diary.d.fill_up_chart_data( m_data );
 
         if( zoom_level >= 0.0 )
             m_zoom_level = zoom_level;

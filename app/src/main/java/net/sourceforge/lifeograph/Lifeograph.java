@@ -102,7 +102,7 @@ public class Lifeograph extends Application
         }
     }
 
-    interface DiaryEditor {
+    public interface DiaryEditor {
         void enableEditing();
         Context getContext();
         boolean handleBack();
@@ -110,28 +110,28 @@ public class Lifeograph extends Application
 
     static void
     goToToday() {
-        if( BuildConfig.DEBUG && !( Diary.diary.is_open() ) ) {
+        if( BuildConfig.DEBUG && !( Diary.d.is_open() ) ) {
             throw new AssertionError( "Assertion failed" );
         }
 
-        Entry entry = Diary.diary.get_entry_today();
+        Entry entry = Diary.d.get_entry_today();
 
         if( entry == null ) // add new entry if no entry exists on selected date
-            entry = Diary.diary.add_today();
+            entry = Diary.d.add_today();
 
         showElem( entry );
     }
 
     static void
     addEntry( long date, String text ) {
-        if( BuildConfig.DEBUG && !( Diary.diary.is_in_edit_mode() ) ) {
+        if( BuildConfig.DEBUG && !( Diary.d.is_in_edit_mode() ) ) {
             throw new AssertionError( "Assertion failed" );
         }
 
         if( !Date.is_ordinal( date ) && Date.get_order_3rd( date ) == 0 )
             date++; // fix order
 
-        Entry entry = Diary.diary.create_entry( date, text, false );
+        Entry entry = Diary.d.create_entry( date, text, false );
 
         if( entry != null )
             showElem( entry );
@@ -139,7 +139,7 @@ public class Lifeograph extends Application
 
     static void
     showElem( @NonNull DiaryElement elem ) {
-        if( BuildConfig.DEBUG && !( Diary.diary.is_open() ) ) {
+        if( BuildConfig.DEBUG && !( Diary.d.is_open() ) ) {
             throw new AssertionError( "Assertion failed" );
         }
 
@@ -149,7 +149,7 @@ public class Lifeograph extends Application
     public static void
     enableEditing( DiaryEditor editor ) {
         // HANDLE OLD DIARY
-        if( Diary.diary.is_old() ) {
+        if( Diary.d.is_old() ) {
             Lifeograph.showConfirmationPrompt(
                     editor.getContext(),
                     R.string.diary_upgrade_confirm,
@@ -162,22 +162,22 @@ public class Lifeograph extends Application
     }
     private static void
     enableEditing2( DiaryEditor editor ) {
-        if( !Diary.diary.can_enter_edit_mode() ) return;
-        if( Diary.diary.enable_editing() != Result.SUCCESS ) return;
+        if( !Diary.d.can_enter_edit_mode() ) return;
+        if( Diary.d.enable_editing() != Result.SUCCESS ) return;
 
         editor.enableEditing();
     }
 
     public static void
     logoutWithoutSaving( View view ) {
-        if( Diary.diary.is_open() ) {
+        if( Diary.d.is_open() ) {
             Lifeograph.showConfirmationPrompt( view.getContext(),
                                                R.string.logoutwosaving_confirm,
                                                R.string.logoutwosaving,
                                                ( dialog, id_ ) -> {
                                                    // unlike desktop version Android version
                                                    // does not back up changes
-                                                   Diary.diary.setSavingEnabled( false );
+                                                   Diary.d.setSavingEnabled( false );
                                                    Navigation.findNavController( view )
                                                              .navigate( R.id.nav_diaries );
                                                    //TODO finish();
