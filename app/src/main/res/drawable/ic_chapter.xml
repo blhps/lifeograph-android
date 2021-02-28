@@ -1,0 +1,88 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+
+      This file is part of Lifeograph.
+
+      Lifeograph is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      Lifeograph is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="32"
+    android:viewportHeight="32">
+  <path
+      android:pathData="M3,23 L21,5 27,11 9,29 2,30ZM22,5 L25,2 30,7 27,10"
+      android:strokeLineJoin="miter"
+      android:strokeWidth="1"
+      android:fillColor="#00000000"
+      android:strokeColor="#a53737"
+      android:strokeLineCap="butt"/>
+  <path
+      android:pathData="M3,23 L21,5 27,11 9,29 2,30ZM22,5 L25,2 30,7 27,10"
+      android:strokeLineJoin="round"
+      android:strokeWidth="0.707896"
+      android:fillColor="#a53737"
+      android:strokeColor="#00000000"
+      android:strokeLineCap="butt"/>
+  <path
+      android:pathData="M2,2h8v8h-8z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.00157"
+      android:fillColor="#d88888"
+      android:strokeColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="m2,12h8v2L4,20H2Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.00157"
+      android:fillColor="#d88888"
+      android:strokeColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M22,22h8v8h-8z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.00157"
+      android:fillColor="#d88888"
+      android:strokeColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="m12,2h8v2l-6,6h-2z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.00157"
+      android:fillColor="#d88888"
+      android:strokeColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="m12,28 l6,-6h2v8h-8z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.00157"
+      android:fillColor="#d88888"
+      android:strokeColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="m22,18 l6,-6h2v8h-8z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1.00157"
+      android:fillColor="#d88888"
+      android:strokeColor="#00000000"
+      android:fillType="nonZero"
+      android:strokeLineCap="round"/>
+</vector>

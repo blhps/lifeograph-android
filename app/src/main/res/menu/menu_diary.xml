@@ -27,13 +27,7 @@
           android:title="@string/edit"
           android:orderInCategory="80"
           compat:showAsAction="ifRoom|withText" />
-    <!--item android:id="@+id/add_elem"
-          android:title="@string/add"
-          android:icon="@drawable/ic_action_add"
-          android:orderInCategory="90"
-          compat:actionProviderClass="net.sourceforge.lifeograph.AddElemAction"
-          compat:showAsAction="always|withText" />
-    <item android:id="@+id/calendar"
+    <!--item android:id="@+id/calendar"
           android:title="@string/calendar"
           android:icon="@drawable/ic_action_calendar"
           android:orderInCategory="90"

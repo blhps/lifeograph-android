@@ -34,10 +34,8 @@
         android:name="net.sourceforge.lifeograph.FragmentDiaryList"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
         app:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/list_item_diary" />
+        tools:listitem="@layout/list_item_basic" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
         android:id="@+id/fab_add_diary"

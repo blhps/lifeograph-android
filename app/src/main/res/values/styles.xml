@@ -1,33 +1,42 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LifeoTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="LifeoTheme" parent="Theme.AppCompat.Light.DarkActionBar">
         <item name="colorPrimary">@color/t_darker</item>
         <item name="colorAccent">@color/t_lighter</item>
         <item name="android:textColorPrimary">@android:color/white</item> <!--ActionBar text-->
         <item name="android:itemBackground">@color/t_darkest</item> <!--Options menu bg-->
         <item name="android:textColorSecondary">@color/t_lighter</item>
         <item name="colorPrimaryDark">@color/t_darker</item> <!--system tray bg-->
+        <item name="buttonStyle">@style/LifeoButtonTheme</item>
     </style>
 
-    <style name="LifeoButtonStyle"
-           parent="@style/Widget.AppCompat.Button.ButtonBar.AlertDialog">
-        <item name="android:textColor">@color/t_darker</item>
-    </style>
-
-    <!-- ACTIONBAR STYLES -->
-    <style name="LifeoTheme.NoActionBar" >
+    <!-- FOR THE MAIN WINDOW -->
+    <style name="LifeoTheme.NoActionBar" parent="LifeoTheme">
         <item name="windowActionBar">false</item>
         <item name="windowNoTitle">true</item>
     </style>
 
-    <style name="LifeoTheme.TabStyle" parent="@style/Widget.AppCompat.ActionBar.TabView">
-        <item name="background">@drawable/action_bar_tabs</item>
+    <style name="LifeoButtonTheme" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/t_darkest</item>
     </style>
 
-    <style name="LifeoTheme.SubtitleTextStyle"
+    <style name="LifeoAlertDlgTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+        <!-- Used for the buttons -->
+        <item name="colorAccent">@android:color/white</item>
+        <!-- Used for the title and text -->
+        <item name="android:textColorPrimary">@color/t_lightest</item>
+        <!-- Used for the background -->
+        <item name="android:background">@color/t_dark</item>
+    </style>
+
+    <!--style name="LifeoTheme.TabStyle" parent="@style/Widget.AppCompat.ActionBar.TabView">
+        <item name="background">@drawable/action_bar_tabs</item>
+    </style-->
+
+    <!--style name="LifeoTheme.SubtitleTextStyle"
            parent="@style/TextAppearance.AppCompat.Widget.ActionBar.Subtitle">
         <item name="android:textColor">@color/t_light</item>
-    </style>
+    </style-->
 
     <style name="LifeoTheme.Widget" parent="@style/Theme.AppCompat.Light">
         <!--item name="android:popupMenuStyle">@style/PopupMenu.Lifeo</item-->
@@ -40,9 +49,9 @@
     </style>
 
     <!-- DIALOG STYLES -->
-    <style name="FullHeightDialog" parent="LifeoTheme">
+    <!--style name="FullHeightDialog" parent="LifeoTheme">
         <item name="android:windowNoTitle">true</item>
-    </style>
+    </style-->
 
     <!-- TEXT STYLES -->
     <style name="boldText" parent="@android:style/TextAppearance.Medium">

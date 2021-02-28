@@ -79,7 +79,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
-                style="@style/LifeoButtonStyle"
+                style="@style/LifeoButtonTheme"
                 android:text="@string/create_entry" />
 
             <Button
@@ -87,7 +87,7 @@
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
                 android:layout_weight=".5"
-                style="@style/LifeoButtonStyle"
+                style="@style/LifeoButtonTheme"
                 android:text="@string/create_chapter" />
         </LinearLayout>
 

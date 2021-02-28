@@ -95,7 +95,7 @@
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@mipmap/ic_todo_auto" />
+                app:srcCompat="@drawable/ic_todo_auto" />
 
             <ImageButton
                 android:id="@+id/btn_todo_open"

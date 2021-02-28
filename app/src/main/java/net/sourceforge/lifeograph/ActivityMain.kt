@@ -18,6 +18,7 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+
 package net.sourceforge.lifeograph
 
 import android.os.Bundle
@@ -35,10 +36,15 @@ import com.google.android.material.navigation.NavigationView
 import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
 
 class ActivityMain : AppCompatActivity(), FragmentHost {
+    // VARIABLES ===================================================================================
     private var mNavController: NavController? = null
     private var mAppBarConfiguration: AppBarConfiguration? = null
-    @JvmField
+
     var mActionBar: ActionBar? = null
+
+    companion object {
+        var mViewCurrent: DiaryEditor? = null
+    }
 
     // METHODS =====================================================================================
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -125,13 +131,19 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         val itemEntries = navigationView.menu.findItem(R.id.nav_entries)
         val itemCharts = navigationView.menu.findItem(R.id.nav_charts)
+        val itemFilters = navigationView.menu.findItem(R.id.nav_filters)
+        val itemThemes = navigationView.menu.findItem(R.id.nav_themes)
         if(id == R.id.nav_diaries) {
             itemEntries.isVisible = false
             itemCharts.isVisible = false
+            itemFilters.isVisible = false
+            itemThemes.isVisible = false
         }
         else {
             itemEntries.isVisible = true
             itemCharts.isVisible = true
+            itemFilters.isVisible = true
+            itemThemes.isVisible = true
         }
     }
 
@@ -145,8 +157,12 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
                     mNavController!!.navigate(R.id.nav_entry_editor)
             }
             DiaryElement.Type.THEME -> {
+                FragmentTheme.mTheme = elem as Theme
+                mNavController!!.navigate(R.id.nav_theme_editor)
             }
             DiaryElement.Type.FILTER -> {
+                FragmentFilter.mFilter = elem as Filter
+                mNavController!!.navigate(R.id.nav_filter_editor)
             }
             DiaryElement.Type.CHART -> {
                 FragmentChart.mChartElem = (elem as ChartElem)
@@ -156,9 +172,5 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
 
             }
         }
-    }
-
-    companion object {
-        var mViewCurrent: DiaryEditor? = null
     }
 }

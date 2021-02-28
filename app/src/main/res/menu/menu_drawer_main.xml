@@ -30,7 +30,7 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_diaries"
-            android:icon="@mipmap/ic_diary"
+            android:icon="@drawable/ic_diary"
             android:title="@string/diaries" />
         <item
             android:id="@+id/nav_calendar"
@@ -67,7 +67,7 @@
             android:title="@string/settings" />
         <item
             android:id="@+id/nav_about"
-            android:icon="@drawable/ic_launcher"
+            android:icon="@drawable/ic_diary"
             android:title="@string/about" />
     </group>
 </menu>

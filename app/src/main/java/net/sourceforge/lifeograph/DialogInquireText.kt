@@ -19,95 +19,72 @@
 
  ***********************************************************************************/
 
-package net.sourceforge.lifeograph;
+package net.sourceforge.lifeograph
 
-import android.app.Dialog;
-import android.content.Context;
-import android.os.Bundle;
-import android.text.Editable;
-import android.text.TextWatcher;
-import android.view.inputmethod.EditorInfo;
-import android.widget.Button;
-import android.widget.EditText;
+import android.app.Dialog
+import android.content.Context
+import android.os.Bundle
+import android.text.Editable
+import android.text.TextWatcher
+import android.view.KeyEvent
+import android.view.inputmethod.EditorInfo
+import android.widget.Button
+import android.widget.EditText
+import android.widget.TextView
 
-import androidx.annotation.NonNull;
+class DialogInquireText(context: Context,
+                        private val mTitle: Int,
+                        private val mDefName: String,
+                        private val mActName: Int,
+                        private val mListener: InquireListener) : Dialog(context) {
 
-public class DialogInquireText extends Dialog
-{
-    DialogInquireText( Context context, int resTitle, String resDefName, int resActName,
-                              InquireListener listener ) {
-        super( context );
+    // VARIABLES ===================================================================================
+    private lateinit var mInput: EditText
+    private lateinit var mButtonOk: Button
 
-        //mContext = context;
-        mListener = listener;
-        mTitle = resTitle;
-        mDefName = resDefName;
-        mActName = resActName;
-    }
-
-    @Override
-    protected void onCreate( Bundle savedInstanceState ) {
-        super.onCreate( savedInstanceState );
-
-        setContentView( R.layout.dialog_inquire_text );
-        setCancelable( true );
-
-        setTitle( mTitle );
+    // METHODS =====================================================================================
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.dialog_inquire_text)
+        setCancelable(true)
+        setTitle(mTitle)
         // setMessage( mMessage );
 
         // mButtonOk must come before mInput as it is referenced there
-        mButtonOk = findViewById( R.id.inquireTextButtonPositive );
-        mButtonOk.setText( mActName );
-        mButtonOk.setOnClickListener( v -> go() );
-
-        mInput = findViewById( R.id.inquireTextEdit );
-
-        if( Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI )
-            mInput.setImeOptions( EditorInfo.IME_FLAG_NO_EXTRACT_UI );
-
-        mInput.addTextChangedListener( new TextWatcher()
-        {
-            public void afterTextChanged( Editable s ) {
+        mButtonOk = findViewById(R.id.inquireTextButtonPositive)
+        mButtonOk.setText(mActName)
+        mButtonOk.setOnClickListener { go() }
+        mInput = findViewById(R.id.inquireTextEdit)
+        if(Lifeograph.screenHeight >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
+            mInput.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
+        mInput.addTextChangedListener(object : TextWatcher {
+            override fun afterTextChanged(s: Editable) {}
+            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
+            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
+                mButtonOk.isEnabled = s.isNotEmpty() &&
+                        mListener.onInquireTextChanged(mTitle, mInput.text.toString())
             }
-
-            public void beforeTextChanged( CharSequence s, int start, int count, int after ) {
+        })
+        mInput.setOnEditorActionListener { v: TextView, _: Int, _: KeyEvent? ->
+            if(v.text.isNotEmpty()) {
+                go()
+                return@setOnEditorActionListener true
             }
-
-            public void onTextChanged( CharSequence s, int start, int before, int count ) {
-                mButtonOk.setEnabled( s.length() > 0 &&
-                        mListener.onInquireTextChanged( mTitle, mInput.getText().toString() ) );
-            }
-        } );
-        mInput.setOnEditorActionListener( ( v, actionId, event ) -> {
-            if( v.getText().length() > 0 ) {
-                go();
-                return true;
-            }
-            return false;
-        } );
-        mInput.setText( mDefName );
-        mInput.selectAll();
-
-        Button buttonNegative = findViewById( R.id.inquireTextButtonNegative );
-        buttonNegative.setOnClickListener( v -> dismiss() );
+            false
+        }
+        mInput.setText(mDefName)
+        mInput.selectAll()
+        val buttonNegative = findViewById<Button>(R.id.inquireTextButtonNegative)
+        buttonNegative.setOnClickListener { dismiss() }
     }
 
-    private void go() {
-        mListener.onInquireAction( mTitle, mInput.getText().toString() );
-        dismiss();
+    private fun go() {
+        mListener.onInquireAction(mTitle, mInput.text.toString())
+        dismiss()
     }
 
-    interface InquireListener
-    {
-        void onInquireAction( int id, @NonNull String text );
-        boolean onInquireTextChanged( int id, @NonNull String text );
+    interface InquireListener {
+        fun onInquireAction(id: Int, text: String)
+        fun onInquireTextChanged(id: Int, text: String): Boolean
     }
-
-    //private Context mContext;
-    private EditText mInput;
-    private Button mButtonOk;
-    private InquireListener mListener;
-    private int mTitle;
-    private String mDefName;
-    private int mActName;
 }

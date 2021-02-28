@@ -4,7 +4,7 @@
 
     <item
         android:state_selected="true"
-        android:drawable="@mipmap/ic_todo_open" />
+        android:drawable="@drawable/ic_todo_open" />
     <item
         android:drawable="@mipmap/ic_todo_open_bw" />
 

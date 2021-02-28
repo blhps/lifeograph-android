@@ -140,7 +140,7 @@ public class ChartData
 
         clear();
 
-        while( Lifeograph.get_line ( chart_def, line_offset, line ) ) {
+        while( Lifeograph.getLine( chart_def, line_offset, line ) ) {
             if( line.v.length() < 2 )   // should never occur
                 continue;
 

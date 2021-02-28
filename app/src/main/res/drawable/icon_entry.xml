@@ -4,7 +4,7 @@
 
     <item
         android:state_selected="true"
-        android:drawable="@mipmap/ic_entry" />
+        android:drawable="@drawable/ic_entry" />
     <item
         android:drawable="@mipmap/ic_entry_bw" />
 

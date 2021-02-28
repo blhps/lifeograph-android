@@ -24,7 +24,6 @@ package net.sourceforge.lifeograph;
 import android.graphics.Color;
 
 import java.util.Map;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Chapter extends Entry {
@@ -209,9 +208,9 @@ public class Chapter extends Entry {
     public int
     get_icon() {
         if( ( m_status & ES_FILTER_TODO_PURE ) != 0 )
-            return Lifeograph.get_todo_icon( m_status & ES_FILTER_TODO_PURE );
+            return Lifeograph.getTodoIcon( m_status & ES_FILTER_TODO_PURE );
         else
-            return R.mipmap.ic_chapter_t;
+            return R.drawable.ic_chapter;
     }
 
     @Override

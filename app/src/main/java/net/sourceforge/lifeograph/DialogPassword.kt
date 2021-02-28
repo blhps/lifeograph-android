@@ -34,10 +34,10 @@ import android.widget.EditText
 import android.widget.ImageView
 import android.widget.TextView
 
-class DialogPassword(context: Context?, 
+class DialogPassword(context: Context,
                      private val mDiary: Diary,
                      private val mAction: DPAction,
-                     private val mListener: Listener) : Dialog(context!!) {
+                     private val mListener: Listener) : Dialog(context) {
     enum class DPAction {
         DPA_LOGIN, DPA_AUTHENTICATE, DPA_ADD, DPAR_AUTH_FAILED // just returned as a result
     }
@@ -81,7 +81,7 @@ class DialogPassword(context: Context?,
             }
             DPAction.DPAR_AUTH_FAILED -> Log.d(Lifeograph.TAG, "Auth Failed")
         }
-        if(Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
+        if(Lifeograph.screenHeight >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
             mInput1!!.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
         mInput1!!.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
@@ -115,7 +115,7 @@ class DialogPassword(context: Context?,
         val passphrase = mInput1!!.text.toString()
         val passphrase2 = mInput2!!.text.toString()
         if(passphrase.length >= Diary.PASSPHRASE_MIN_SIZE) {
-            mImage1!!.setImageResource(R.mipmap.ic_todo_done)
+            mImage1!!.setImageResource(R.drawable.ic_todo_done)
             when {
                 mAction != DPAction.DPA_ADD -> {
                     mButtonOk!!.isEnabled = true
@@ -126,17 +126,17 @@ class DialogPassword(context: Context?,
                 }
                 else -> {
                     mImage2!!.setImageResource(
-                            if(passphrase2.isEmpty()) R.mipmap.ic_todo_open
-                            else R.mipmap.ic_todo_canceled)
+                            if(passphrase2.isEmpty()) R.drawable.ic_todo_open
+                            else R.drawable.ic_todo_canceled)
                     mButtonOk!!.isEnabled = false
                 }
             }
         }
         else {
-            mImage1!!.setImageResource(if(passphrase.isEmpty()) R.mipmap.ic_todo_open 
-                                       else R.mipmap.ic_todo_canceled)
-            mImage2!!.setImageResource(if(passphrase2.isEmpty()) R.mipmap.ic_todo_open 
-                                       else R.mipmap.ic_todo_canceled)
+            mImage1!!.setImageResource(if(passphrase.isEmpty()) R.drawable.ic_todo_open
+                                       else R.drawable.ic_todo_canceled)
+            mImage2!!.setImageResource(if(passphrase2.isEmpty()) R.drawable.ic_todo_open
+                                       else R.drawable.ic_todo_canceled)
             mButtonOk!!.isEnabled = false
         }
     }

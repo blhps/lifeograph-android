@@ -18,10 +18,10 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+
 package net.sourceforge.lifeograph
 
 import android.annotation.SuppressLint
-import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
@@ -29,13 +29,11 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.text.*
-import android.text.method.KeyListener
 import android.text.method.LinkMovementMethod
 import android.text.style.*
 import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
-import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.PopupMenu
@@ -53,8 +51,7 @@ import net.sourceforge.lifeograph.ToDoAction.ToDoObject
 import java.util.*
 import kotlin.collections.ArrayList
 
-class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuItemClickListener,
-        DiaryEditor {
+class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
 //    private enum class LinkStatus {
 //        LS_OK, LS_ENTRY_UNAVAILABLE, LS_INVALID,  // separator: to check a valid entry link:
 //
@@ -62,10 +59,10 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
 //        LS_CYCLIC, LS_FILE_OK, LS_FILE_INVALID, LS_FILE_UNAVAILABLE, LS_FILE_UNKNOWN
 //    }
 
+    // VARIABLES ===================================================================================
     private var mActionBar: ActionBar? = null
     private var mMenu: Menu? = null
     private lateinit var mEditText: EditText
-    private lateinit var mKeyListener: KeyListener
     private lateinit var mButtonHighlight: Button
     private val mParser = ParserEditText(this)
     var mFlagSetTextOperation = false
@@ -85,8 +82,10 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
         setHasOptionsMenu(true)
     }
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstState: Bundle?): View? {
-        return inflater.inflate(R.layout.entry, container, false)
+    override fun onCreateView(inflater: LayoutInflater,
+                              container: ViewGroup?,
+                              savedInstState: Bundle?): View? {
+        return inflater.inflate(R.layout.fragment_entry, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -108,12 +107,13 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
 
             view.findViewById<View>(R.id.toolbar_text_edit).visibility = View.GONE
         }
-        if(Lifeograph.getScreenHeight() >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
+        if(Lifeograph.screenHeight >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
             mEditText.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
 
         // set custom font as the default font may lack the necessary chars such as check marks:
         /*Typeface font = Typeface.createFromAsset( getAssets(), "OpenSans-Regular.ttf" );
-        mEditText.setTypeface( font );*/mEditText.addTextChangedListener(object : TextWatcher {
+        mEditText.setTypeface( font );*/
+        mEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {}
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
@@ -132,7 +132,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
                     mFlagEntryChanged = true
                     mEntry._text = mEditText.text.toString()
                 }
-                mParser.parse(0, mEditText.text.length)
+                reparse()
             }
         })
 
@@ -276,6 +276,9 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
         mButtonIgnore.setOnClickListener { toggleIgnoreParagraph() }
         val mButtonComment = view.findViewById<Button>(R.id.button_comment)
         mButtonComment.setOnClickListener { addComment() }
+        val mButtonList = view.findViewById<Button>(R.id.button_list)
+        mButtonList.setOnClickListener { showStatusPickerDlg() }
+
         if(mEntry._size > 0) {
             requireActivity().window.setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
@@ -361,12 +364,16 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
             R.id.change_todo_status -> {
                 return false
             }
+            R.id.set_theme -> {
+                showThemePickerDlg()
+                return true
+            }
             R.id.edit_date -> {
-                DialogInquireText(context,
-                        R.string.edit_date,
-                        mEntry._date.format_string(),
-                        R.string.apply,
-                        this).show()
+                DialogInquireText(requireContext(),
+                                  R.string.edit_date,
+                                  mEntry._date.format_string(),
+                                  R.string.apply,
+                                  this).show()
                 return true
             }
             R.id.dismiss -> {
@@ -378,39 +385,39 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
     }
 
     // POPUP MENU LISTENER
-    override fun onMenuItemClick(item: MenuItem): Boolean {
-        when(item.itemId) {
-            R.id.button_list_none -> {
-                setListItemMark('n')
-                return true
-            }
-            R.id.button_list_bullet -> {
-                setListItemMark('*')
-                return true
-            }
-            R.id.button_list_to_do -> {
-                setListItemMark(' ')
-                return true
-            }
-            R.id.button_list_progressed -> {
-                setListItemMark('~')
-                return true
-            }
-            R.id.button_list_done -> {
-                setListItemMark('+')
-                return true
-            }
-            R.id.button_list_canceled -> {
-                setListItemMark('x')
-                return true
-            }
-            R.id.button_list_numbered -> {
-                setListItemMark('1')
-                return true
-            }
-        }
-        return false
-    }
+//    override fun onMenuItemClick(item: MenuItem): Boolean {
+//        when(item.itemId) {
+//            R.id.button_list_none -> {
+//                setListItemMark('n')
+//                return true
+//            }
+//            R.id.button_list_bullet -> {
+//                setListItemMark('*')
+//                return true
+//            }
+//            R.id.button_list_to_do -> {
+//                setListItemMark(' ')
+//                return true
+//            }
+//            R.id.button_list_progressed -> {
+//                setListItemMark('~')
+//                return true
+//            }
+//            R.id.button_list_done -> {
+//                setListItemMark('+')
+//                return true
+//            }
+//            R.id.button_list_canceled -> {
+//                setListItemMark('x')
+//                return true
+//            }
+//            R.id.button_list_numbered -> {
+//                setListItemMark('1')
+//                return true
+//            }
+//        }
+//        return false
+//    }
 
     private fun updateMenuVisibilities() {
         val flagWritable = Diary.d.is_in_edit_mode
@@ -439,6 +446,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
 //            imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT)
 //        }
         requireActivity().findViewById<View>(R.id.toolbar_text_edit).visibility = View.VISIBLE
+        reparse()
     }
 
     override fun handleBack(): Boolean {
@@ -541,17 +549,63 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
     }
 
     private fun dismiss() {
-        Lifeograph.showConfirmationPrompt(context,
+        Lifeograph.showConfirmationPrompt(
+                requireContext(),
                 R.string.entry_dismiss_confirm,
                 R.string.dismiss
         ) { _: DialogInterface?, _: Int -> mFlagDismissOnExit = true }
     }
 
-    fun createListLineMenu(v: View?) {
-        val popup = PopupMenu(context, v)
-        popup.setOnMenuItemClickListener(this)
-        popup.inflate(R.menu.menu_list_line)
-        popup.show()
+    fun showStatusPickerDlg() {
+        DialogPicker(requireContext(),
+                     object: DialogPicker.Listener{
+                               override fun onItemClick(item: RViewAdapterBasic.Item) {
+                                   Log.d(Lifeograph.TAG, "TOFO item Clicked: " + item.mName)
+                                   setListItemMark( item.mId[0])
+                               }
+
+                               override fun populateItems(list: RVBasicList) {
+                                   list.clear()
+
+                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.bullet),
+                                                                   "*",
+                                                                   R.drawable.ic_bullet))
+
+                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_open),
+                                                                   " ",
+                                                                   R.drawable.ic_todo_open))
+                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_progressed),
+                                                                   "~",
+                                                                   R.drawable.ic_todo_progressed))
+                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_done),
+                                                                   "+",
+                                                                   R.drawable.ic_todo_done))
+                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_canceled),
+                                                                   "x",
+                                                                   R.drawable.ic_todo_canceled))
+                               }
+                           }).show()
+    }
+
+    private fun showThemePickerDlg() {
+        DialogPicker(requireContext(),
+                     object: DialogPicker.Listener{
+                         override fun onItemClick(item: RViewAdapterBasic.Item) {
+                             val theme = Diary.d.get_theme(item.mId)
+                             mEntry._theme = theme
+                             updateTheme()
+                             reparse()
+                         }
+
+                         override fun populateItems(list: RVBasicList) {
+                             list.clear()
+
+                             for(theme in Diary.d.m_themes.values)
+                                 list.add(RViewAdapterBasic.Item(theme.m_name,
+                                                                 theme.m_name,
+                                                                 R.drawable.ic_theme))
+                         }
+                     }).show()
     }
 
     override fun setTodoStatus(s: Int) {
@@ -578,9 +632,9 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
         }
     }
 
-    override fun onInquireTextChanged(id: Int, s: String): Boolean {
+    override fun onInquireTextChanged(id: Int, text: String): Boolean {
         if(id == R.string.edit_date) {
-            val date = Date.parse_string(s)
+            val date = Date.parse_string(text)
             return date > 0 && date != mEntry.m_date.m_date
         }
         return true
@@ -637,7 +691,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
         else {
             bounds[1] = mEditText.selectionStart
             bounds[0] = bounds[1]
-            if(bounds[0] == 0) return true
+            if(bounds[0] <= 0) return true
             if(str[bounds[0] - 1] == '\n') {
                 if(bounds[0] == str.length) return false
                 if(str[bounds[0]] == '\n') return false
@@ -801,7 +855,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
         var itemType = 0.toChar() // none
         var charLf = 't' // tab
         var value = 1 // for numeric lists
-        while(pos <= posEnd) {
+        mainloop@ while(pos <= posEnd) {
             when(mEditText.text.toString()[pos]) {
                 '\t' -> if(charLf == 't' || charLf == '[') {
                     charLf = '[' // opening bracket
@@ -820,11 +874,18 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
                             val diff = pos + 1 - posEraseBegin
                             pos -= diff
                             posEnd -= diff
+                            charLf = 'a'
+                            continue@mainloop
                         }
-                        break
+                        else {
+                            charLf ='n'
+                        }
                     }
-                    charLf = if(charLf == 'c') ']' else 'n'
-                    itemType = mEditText.text.toString()[pos]
+                    else {
+                        charLf = if(charLf == 'c') ']' else 'n'
+                        itemType = mEditText.text.toString()[pos]
+                        // same as below. unfortunatwly no fallthrough in Kotlin
+                    }
                 }
                 '~', '+', 'x', 'X' -> {
                     charLf = if(charLf == 'c') ']' else 'n'
@@ -981,6 +1042,10 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
     }
 
     // PARSING =====================================================================================
+    fun reparse() {
+        mParser.parse(0, mEditText.text.length)
+    }
+
     private interface AdvancedSpan {
         val type: Char
     }
@@ -1120,12 +1185,10 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
                 get() = 'i'
         }
 
-        private class LinkCheck(private val mPara: Paragraph) : ClickableSpan(), AdvancedSpan {
+        private class LinkCheck(val mHost: FragmentEntry, private val mPara: Paragraph) :
+                ClickableSpan(), AdvancedSpan {
             override fun onClick(widget: View) {
-                // Dialog Todostatus
-
-                //mPara.set
-                Log.d(Lifeograph.TAG, "Span Clicked Status: " + mPara.m_status)
+                mHost.showStatusPickerDlg()
             }
 
             override val type: Char
@@ -1137,7 +1200,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
             var end = 0
             if(mHost.mEditText.text[0] != '\n') end = mHost.mEditText.text.toString().indexOf('\n')
             if(end == -1) end = mHost.mEditText.text.length
-            addSpan(TextAppearanceSpan(mHost.context, R.style.headingSpan), 0, end,
+            addSpan(TextAppearanceSpan(mHost.requireContext(), R.style.headingSpan), 0, end,
                     Spanned.SPAN_INTERMEDIATE)
             addSpan(ForegroundColorSpan(mEntry._theme.color_heading), 0, end, 0)
             if(!mHost.mFlagSetTextOperation) {
@@ -1149,7 +1212,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
         public override fun apply_subheading() {
             val bgn = m_recipe_cur.m_pos_bgn
             val end = mHost.mEditText.text.toString().indexOf('\n', bgn)
-            addSpan(TextAppearanceSpan(mHost.context, R.style.subheadingSpan),
+            addSpan(TextAppearanceSpan(mHost.requireContext(), R.style.subheadingSpan),
                     bgn, end, Spanned.SPAN_INTERMEDIATE)
             addSpan(ForegroundColorSpan(mEntry._theme.color_subheading),
                     bgn, end, 0)
@@ -1187,7 +1250,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
         }
 
         public override fun apply_comment() {
-            addSpan(TextAppearanceSpan(mHost.context, R.style.commentSpan),
+            addSpan(TextAppearanceSpan(mHost.requireContext(), R.style.commentSpan),
                     m_recipe_cur.m_pos_bgn, m_pos_cur + 1,
                     Spanned.SPAN_INTERMEDIATE)
             addSpan(ForegroundColorSpan(mP2Theme.m_color_mid),
@@ -1270,7 +1333,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
             if(posEnd == -1)
                 posEnd = mHost.mEditText.text.length
             if(Diary.d.is_in_edit_mode)
-                addSpan(LinkCheck(m_p2para_cur), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
+                addSpan(LinkCheck(mHost, m_p2para_cur), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
             addSpan(tag_box, posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
             addSpan(TypefaceSpan("monospace"), posBgn, posBox, 0)
             if(tag != null)
@@ -1328,12 +1391,12 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
                     addSpan(BackgroundColorSpan(mP2Theme.m_color_inline_tag), pBgn, pEnd, 0)
                     if(m_p2para_cur == null) return
                     if(m_pos_extra_1 > m_recipe_cur.m_pos_bgn) { // has planned value
-                        val vReal = Lifeograph.get_double(getSlice(pBgn, m_pos_extra_1))
-                        val vPlan = Lifeograph.get_double(getSlice(m_pos_extra_1 + 1, pEnd))
+                        val vReal = Lifeograph.getDouble(getSlice(pBgn, m_pos_extra_1))
+                        val vPlan = Lifeograph.getDouble(getSlice(m_pos_extra_1 + 1, pEnd))
                         m_p2para_cur.set_tag(tagName, vReal, vPlan)
                     }
                     else
-                        m_p2para_cur.set_tag(tagName, Lifeograph.get_double(getSlice(pBgn, pEnd)))
+                        m_p2para_cur.set_tag(tagName, Lifeograph.getDouble(getSlice(pBgn, pEnd)))
                 }
             }
         }
@@ -1341,6 +1404,8 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
 
     // PARSING HELPER FUNCTIONS ====================================================================
     private fun isSpace(offset: Int): Boolean {
+        if(offset < 0 || offset >= mEditText.text.length)
+            return false
         return when(mEditText.text[offset]) {
             '\n', '\t', ' ' -> true
             else -> false
@@ -1348,6 +1413,8 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, PopupMenu.OnMenuI
     }
 
     private fun startsLine(offset: Int): Boolean {
+        if(offset < 0 || offset >= mEditText.text.length)
+            return false
         return offset == 0 || mEditText.text[offset - 1] == '\n'
     }
 

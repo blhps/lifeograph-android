@@ -367,7 +367,7 @@ public class FiltererContainer extends Filterer
 
         clear();
 
-        while( Lifeograph.get_line( string, line_offset, line ) )
+        while( Lifeograph.getLine( string, line_offset, line ) )
         {
             if( line.v.length() < 2 )   // should never occur
                 continue;
@@ -416,10 +416,10 @@ public class FiltererContainer extends Filterer
                 case 'd':   // between dates
                 {
                     Lifeograph.MutableInt i_date = new Lifeograph.MutableInt( 3 );
-                    long                  date_b = Lifeograph.get_long( line.v, i_date );
+                    long                  date_b = Lifeograph.getLong( line.v, i_date );
                     int                   i_f_icl_e = i_date.v;
                     i_date.v++;
-                    long                  date_e = Lifeograph.get_long( line.v, i_date );
+                    long                  date_e = Lifeograph.getLong( line.v, i_date );
                     container.add_filterer_between_dates(
                             date_b, line.v.charAt( 2 ) == '[',
                             date_e, line.v.charAt( i_f_icl_e ) == '[' );
@@ -428,10 +428,10 @@ public class FiltererContainer extends Filterer
                 case 'e':   // between entries
                 {
                     Lifeograph.MutableInt i_id = new Lifeograph.MutableInt( 3 );
-                    int                   id_b = Lifeograph.get_int( line.v, i_id );
+                    int                   id_b = Lifeograph.getInt( line.v, i_id );
                     int                   i_f_icl_e = i_id.v;
                     i_id.v++;
-                    int                   id_e = Lifeograph.get_int( line.v, i_id );
+                    int                   id_e = Lifeograph.getInt( line.v, i_id );
                     container.add_filterer_between_entries(
                             m_p2diary.get_entry_by_id( id_b ), line.v.charAt( 2 ) == '[',
                             m_p2diary.get_entry_by_id( id_e ),
@@ -441,9 +441,9 @@ public class FiltererContainer extends Filterer
                 case 'c':   // completion
                 {
                     Lifeograph.MutableInt i_double = new Lifeograph.MutableInt( 2 );
-                    double                double_b = Lifeograph.get_double( line.v, i_double );
+                    double                double_b = Lifeograph.getDouble( line.v, i_double );
                     i_double.v++;
-                    double                double_e = Lifeograph.get_double( line.v, i_double );
+                    double                double_e = Lifeograph.getDouble( line.v, i_double );
                     container.add_filterer_completion( double_b, double_e );
                     break;
                 }

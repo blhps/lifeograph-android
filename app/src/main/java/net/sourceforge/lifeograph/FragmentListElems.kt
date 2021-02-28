@@ -32,8 +32,8 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton
 import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
 import java.util.*
 
-abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterElems.Listener,
-        DialogInquireText.InquireListener
+abstract class FragmentListElems : Fragment(), DiaryEditor, RVAdapterElems.Listener,
+                                   DialogInquireText.InquireListener
 {
     // VARIABLES ===================================================================================
     protected abstract val mLayoutId: Int
@@ -43,7 +43,7 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
     protected val mElems: MutableList<DiaryElement> = ArrayList()
     protected val mSelectionStatuses: MutableList<Boolean> = ArrayList()
     protected lateinit var mMenu: Menu
-    protected lateinit var mAdapter: RecyclerViewAdapterElems
+    protected lateinit var mAdapter: RVAdapterElems
     protected lateinit var mRecyclerView: RecyclerView
     protected lateinit var mFabAdd: FloatingActionButton
     protected lateinit var mToolbar: HorizontalScrollView
@@ -65,7 +65,7 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
         ActivityMain.mViewCurrent = this
 
         mRecyclerView = view.findViewById(R.id.list_elems)
-        mAdapter = RecyclerViewAdapterElems(mElems, mSelectionStatuses, this)
+        mAdapter = RVAdapterElems(mElems, mSelectionStatuses, this)
         mRecyclerView.adapter = mAdapter
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
         mFabAdd = view.findViewById(R.id.fab_add)
@@ -78,11 +78,11 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
         Log.d(Lifeograph.TAG, "FragmentEntryList.onResume()")
         super.onResume()
 
-        updateActionBarTitle()
-        updateActionBarSubtitle()
-
         ( activity as FragmentHost? )!!.updateDrawerMenu(R.id.nav_charts)
         updateList()
+
+        updateActionBarTitle()
+        updateActionBarSubtitle()
 
         mToolbar.visibility = View.GONE
         //mFabAdd.setTranslationX( Diary.diary.is_in_edit_mode() ? 0 : 150 );
@@ -131,10 +131,11 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
 
     protected open fun createNewElem() {
         // ask for name
-        val dlg = DialogInquireText(context, R.string.create_chart,
-                Lifeograph.getStr(R.string.new_chart),
-                R.string.create, this)
-        dlg.show()
+        DialogInquireText(requireContext(),
+                          R.string.create_chart,
+                          Lifeograph.getStr(R.string.new_chart),
+                          R.string.create,
+                          this).show()
     }
 
     private fun updateActionBarTitle() {
@@ -167,9 +168,9 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RecyclerViewAdapterE
         val selCount = mAdapter.mSelCount
         if( selCount > 0 )
             Lifeograph.getActionBar().subtitle =
-                    ( mName + " (" + selCount + " / " + Diary.d.m_filters.size + ")" )
+                    ( mName + " (" + selCount + " / " + mAdapter.itemCount + ")" )
         else
-            Lifeograph.getActionBar().subtitle = mName + " (" + Diary.d.m_filters.size + ")"
+            Lifeograph.getActionBar().subtitle = mName + " (" + mAdapter.itemCount + ")"
     }
 
     override fun toggleExpanded(elem: DiaryElement?) { }

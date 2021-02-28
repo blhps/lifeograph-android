@@ -230,7 +230,7 @@ public class Diary extends DiaryElement
 
     @Override public int
     get_icon() {
-        return R.mipmap.ic_diary;
+        return R.drawable.ic_diary;
     }
 
     public String
@@ -1559,27 +1559,22 @@ public class Diary extends DiaryElement
         }
     }
 
-    protected long
-    tmp_upgrade_date_to_1020( long d ) {
-        if( Date.is_ordinal( d ) ) {
-            if( ( d & Date.FLAG_VISIBLE ) != 0 )
-                d -= Date.FLAG_VISIBLE;
+    protected void
+    tmp_upgrade_ordinal_date_to_2000( Date date ) {
+        if( !date.is_ordinal() )
+            return;
+
+        if( m_read_version < 1020 ) {
+            if( ( date.m_date & Date.FLAG_VISIBLE ) != 0 )
+                date.m_date -= Date.FLAG_VISIBLE;
             else
-                d |= Date.FLAG_VISIBLE;
+                date.m_date |= Date.FLAG_VISIBLE;
         }
 
-        return d;
-    }
-
-    protected long
-    tmp_upgrade_ordinal_date_to_2000( long old_date ) {
-        if( !Date.is_ordinal( old_date ) )
-            return old_date;
-
-        return Date.make_ordinal( !Date.is_hidden( old_date ),
-                                  Date.get_order_2nd( old_date ),
-                                  Date.get_order_3rd( old_date ),
-                                  0 );
+        date.m_date = Date.make_ordinal( !date.is_hidden(),
+                                         date.get_order_2nd(),
+                                         date.get_order_3rd(),
+                                         0 );
     }
 
     protected void
@@ -1907,7 +1902,7 @@ public class Diary extends DiaryElement
 
             // TAG DEFINITIONS & CHAPTERS
             String read_buffer_str = read_buffer.toString();
-            while( Lifeograph.get_line( read_buffer_str, line_offset, line ) ) {
+            while( Lifeograph.getLine( read_buffer_str, line_offset, line ) ) {
                 if( line.v.isEmpty() )    // end of section
                     break;
                 else if( line.v.length() >= 3 ) {
@@ -2020,8 +2015,7 @@ public class Diary extends DiaryElement
                         // CHAPTERS
                         case 'o':   // ordinal chapter (topic) (<1020)
                             entry_new = new Entry( this, get_db_line_date( line.v ) );
-                            tmp_upgrade_date_to_1020( entry_new.m_date.m_date );
-                            tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                            tmp_upgrade_ordinal_date_to_2000( entry_new.m_date );
                             m_entries.put( entry_new.m_date.m_date, entry_new );
                             entry_new.set_text( get_db_line_name( line.v ) );
                             entry_new.set_expanded( line.v.charAt( 1 ) == 'e' );
@@ -2029,8 +2023,7 @@ public class Diary extends DiaryElement
                         case 'd':   // to-do group (<1020)
                             if( line.v.charAt( 1 ) == ':' ) { // declaration
                                 entry_new = new Entry( this, get_db_line_date( line.v ) );
-                                tmp_upgrade_date_to_1020( entry_new.m_date.m_date );
-                                tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                                tmp_upgrade_ordinal_date_to_2000( entry_new.m_date );
                                 m_entries.put( entry_new.m_date.m_date, entry_new );
                                 entry_new.set_text( get_db_line_name( line.v ) );
                             }
@@ -2047,7 +2040,6 @@ public class Diary extends DiaryElement
                         case 'c':   // temporal chapter (<1020)
                             if( p2chapter_ctg != null ) {
                                 long d_c = get_db_line_date( line.v );
-                                tmp_upgrade_date_to_1020( d_c );
 
                                 entry_new = p2chapter =
                                         p2chapter_ctg.create_chapter( d_c, false, false, true );
@@ -2083,7 +2075,7 @@ public class Diary extends DiaryElement
                                 case 'O':   // ordinal chapter (used to be called topic)
                                 case 'G':   // free chapter (replaced todo_group in v1020)
                                     entry_new = new Entry( this, get_db_line_date( line.v ) );
-                                    tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                                    tmp_upgrade_ordinal_date_to_2000( entry_new.m_date );
                                     m_entries.put( entry_new.m_date.m_date, entry_new );
                                     entry_new.set_text( get_db_line_name( line.v ) );
                                     break;
@@ -2131,7 +2123,7 @@ public class Diary extends DiaryElement
 
             // ENTRIES
             entry_new = null;
-            while( Lifeograph.get_line( read_buffer_str, line_offset, line ) ) {
+            while( Lifeograph.getLine( read_buffer_str, line_offset, line ) ) {
                 if( line.v.length() < 2 )
                     continue;
                 else if( line.v.charAt( 0 ) != 'I' && line.v.charAt( 0 ) != 'E' && line.v.charAt( 0 ) != 'e' && entry_new == null ) {
@@ -2154,9 +2146,7 @@ public class Diary extends DiaryElement
                         entry_new = new Entry( this, Long.parseLong( line.v.substring( 4 ) ),
                                                line.v.charAt( 1 ) == 'f' ?
                                                        ES_ENTRY_DEFAULT_FAV : ES_ENTRY_DEFAULT );
-                        if( m_read_version < 1020 )
-                            tmp_upgrade_date_to_1020( entry_new.m_date.m_date );
-                        tmp_upgrade_ordinal_date_to_2000( entry_new.m_date.m_date );
+                        tmp_upgrade_ordinal_date_to_2000( entry_new.m_date );
                         m_entries.put( entry_new.m_date.m_date, entry_new );
 
                         if( line.v.charAt( 0 ) == 'e' )

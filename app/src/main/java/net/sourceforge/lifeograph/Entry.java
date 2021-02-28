@@ -180,15 +180,15 @@ public class Entry extends DiaryElement {
     get_icon() {
         switch( get_todo_status_effective() ) {
             case ES_TODO:
-                return R.mipmap.ic_todo_open;
+                return R.drawable.ic_todo_open;
             case ES_PROGRESSED:
-                return R.mipmap.ic_todo_progressed;
+                return R.drawable.ic_todo_progressed;
             case ES_DONE:
-                return R.mipmap.ic_todo_done;
+                return R.drawable.ic_todo_done;
             case ES_CANCELED:
-                return R.mipmap.ic_todo_canceled;
+                return R.drawable.ic_todo_canceled;
             default:
-                return R.mipmap.ic_entry;
+                return R.drawable.ic_entry;
         }
     }
 
@@ -241,7 +241,7 @@ public class Entry extends DiaryElement {
             StringBuilder title = new StringBuilder();
             title.append( m_date.format_string() );
 
-            if( !m_date.is_ordinal() && Lifeograph.getScreenWidth() > 3.0 )
+            if( !m_date.is_ordinal() && Lifeograph.screenWidth > 3.0 )
                 title.append( ", " ).append( m_date.get_weekday_str() );
 
             return title.toString();

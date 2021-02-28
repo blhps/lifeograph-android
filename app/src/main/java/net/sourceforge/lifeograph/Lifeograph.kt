@@ -19,429 +19,406 @@
 
  ***********************************************************************************/
 
-package net.sourceforge.lifeograph;
+package net.sourceforge.lifeograph
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.OutputStream;
+import android.app.AlertDialog
+import android.app.Application
+import android.content.Context
+import android.content.DialogInterface
+import android.util.DisplayMetrics
+import android.util.Log
+import android.view.View
+import android.view.WindowManager
+import android.widget.Toast
+import androidx.appcompat.app.ActionBar
+import androidx.navigation.Navigation
+import com.google.android.material.snackbar.Snackbar
+import net.sourceforge.lifeograph.helpers.Result
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
+import java.io.IOException
 
-import android.app.AlertDialog;
-import android.app.Application;
-import android.content.Context;
-import android.content.DialogInterface;
-import android.util.DisplayMetrics;
-import android.util.Log;
-import android.view.View;
-import android.view.WindowManager;
-import android.widget.Toast;
-
-import com.google.android.material.snackbar.Snackbar;
-
-import net.sourceforge.lifeograph.helpers.Result;
-
-import androidx.annotation.NonNull;
-import androidx.appcompat.app.ActionBar;
-import androidx.navigation.Navigation;
-
-public class Lifeograph extends Application
-{
-    // CONSTANTS ===================================================================================
-    //public static final String PROGRAM_NAME = "Lifeograph";
-    public static final String LIFEOGRAPH_RELEASE_CODENAME =
-            "one can enter the same data stream twice";
-
-    static final String LANG_INHERIT_DIARY = "d";
-
-    static final double MI_TO_KM_RATIO = 1.609344;
-
-    static ActivityMain mActivityMain = null;
-
-    @Override
-    public void
-    onCreate() {
-        mInstance = this;
-        super.onCreate();
+class Lifeograph : Application() {
+    override fun onCreate() {
+        mInstance = this
+        super.onCreate()
     }
 
-    public static Context
-    getContext() {
-        return mInstance;
+    interface DiaryEditor {
+        fun enableEditing()
+        fun handleBack(): Boolean
+        fun getContext(): Context?
     }
 
-    public static ActionBar
-    getActionBar() {
-        return mActivityMain.mActionBar;
-    }
-    // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===================================================
-    private enum PurchaseStatus { PS_UNKNOWN, PURCHASED, NOT_PURCHASED }
-    private static PurchaseStatus mAdFreePurchased = PurchaseStatus.PS_UNKNOWN;
-
-    static void setAdFreePurchased( boolean purchased ) {
-        mAdFreePurchased = purchased ? PurchaseStatus.PURCHASED : PurchaseStatus.NOT_PURCHASED;
-    }
-
-    static boolean getAddFreeNotPurchased() {
-        return( mAdFreePurchased == PurchaseStatus.NOT_PURCHASED );
-    }
-
-    static int
-    get_todo_icon( int es ) {
-        switch( es ) {
-            case DiaryElement.ES_PROGRESSED:
-                return R.mipmap.ic_todo_progressed;
-            case DiaryElement.ES_DONE:
-                return R.mipmap.ic_todo_done;
-            case DiaryElement.ES_CANCELED:
-                return R.mipmap.ic_todo_canceled;
-            case DiaryElement.ES_TODO:
-            default:
-                return R.mipmap.ic_todo_open;
-        }
-    }
-
-    public interface DiaryEditor {
-        void enableEditing();
-        Context getContext();
-        boolean handleBack();
-    }
-
-    static void
-    goToToday() {
-        if( BuildConfig.DEBUG && !( Diary.d.is_open() ) ) {
-            throw new AssertionError( "Assertion failed" );
+    class MutableBool {
+        constructor() {
+            v = false
         }
 
-        Entry entry = Diary.d.get_entry_today();
-
-        if( entry == null ) // add new entry if no entry exists on selected date
-            entry = Diary.d.add_today();
-
-        showElem( entry );
-    }
-
-    static void
-    addEntry( long date, String text ) {
-        if( BuildConfig.DEBUG && !( Diary.d.is_in_edit_mode() ) ) {
-            throw new AssertionError( "Assertion failed" );
+        constructor(v0: Boolean) {
+            v = v0
         }
 
-        if( !Date.is_ordinal( date ) && Date.get_order_3rd( date ) == 0 )
-            date++; // fix order
-
-        Entry entry = Diary.d.create_entry( date, text, false );
-
-        if( entry != null )
-            showElem( entry );
+        var v: Boolean
     }
 
-    static void
-    showElem( @NonNull DiaryElement elem ) {
-        if( BuildConfig.DEBUG && !( Diary.d.is_open() ) ) {
-            throw new AssertionError( "Assertion failed" );
+    class MutableInt {
+        constructor() {
+            v = 0
         }
 
-        mActivityMain.showElem( elem );
-    }
-
-    public static void
-    enableEditing( DiaryEditor editor ) {
-        // HANDLE OLD DIARY
-        if( Diary.d.is_old() ) {
-            Lifeograph.showConfirmationPrompt(
-                    editor.getContext(),
-                    R.string.diary_upgrade_confirm,
-                    R.string.upgrade_diary,
-                    ( a, b ) -> enableEditing2( editor ) );
-            return;
+        constructor(v0: Int) {
+            v = v0
         }
 
-        enableEditing2( editor );
-    }
-    private static void
-    enableEditing2( DiaryEditor editor ) {
-        if( !Diary.d.can_enter_edit_mode() ) return;
-        if( Diary.d.enable_editing() != Result.SUCCESS ) return;
-
-        editor.enableEditing();
+        @JvmField
+        var v: Int
     }
 
-    public static void
-    logoutWithoutSaving( View view ) {
-        if( Diary.d.is_open() ) {
-            Lifeograph.showConfirmationPrompt( view.getContext(),
-                                               R.string.logoutwosaving_confirm,
-                                               R.string.logoutwosaving,
-                                               ( dialog, id_ ) -> {
-                                                   // unlike desktop version Android version
-                                                   // does not back up changes
-                                                   Diary.d.setSavingEnabled( false );
-                                                   Navigation.findNavController( view )
-                                                             .navigate( R.id.nav_diaries );
-                                                   //TODO finish();
-                                               } );
+    class MutableString {
+        constructor() {
+            v = ""
         }
+
+        constructor(v0: String) {
+            v = v0
+        }
+
+        @JvmField
+        var v: String
     }
 
-    static boolean sOptImperialUnits = false;
+    companion object {
+        // CONSTANTS ===============================================================================
+        //public static final String PROGRAM_NAME = "Lifeograph";
+        const val LIFEOGRAPH_RELEASE_CODENAME = "one can enter the same data stream twice"
+        const val LANG_INHERIT_DIARY = "d"
+        const val MI_TO_KM_RATIO = 1.609344
+        lateinit var mActivityMain: ActivityMain
+        @JvmStatic
+        val context: Context
+            get() = mInstance!!
 
-    // ANDROID & JAVA HELPERS ======================================================================
-    public static final String TAG = "LFO";
+        fun getActionBar(): ActionBar {
+            return mActivityMain.mActionBar!!
+        }
 
-    private static Lifeograph mInstance = null;
-    private static float sScreenWidth;
-    private static float sScreenHeight;
-    static float         sDPIX;
-    static float         sDPIY;
-    static final float   MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0f;
+        // VARIABLES ===============================================================================
+        @JvmField
+        var sOptImperialUnits = false
 
-    public static String
-    getStr( int i ) {
-        assert( mInstance != null );
-        return mInstance.getString( i );
-    }
+        // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===============================================
+        @JvmStatic
+        fun getTodoIcon(es: Int): Int {
+            return when(es) {
+                DiaryElement.ES_PROGRESSED -> R.drawable.ic_todo_progressed
+                DiaryElement.ES_DONE -> R.drawable.ic_todo_done
+                DiaryElement.ES_CANCELED -> R.drawable.ic_todo_canceled
+                DiaryElement.ES_TODO -> R.drawable.ic_todo_open
+                else -> R.drawable.ic_todo_open
+            }
+        }
 
-    static void showConfirmationPrompt( Context context,
-                                        int message,
-                                        int positiveText,
-                                        DialogInterface.OnClickListener posListener ) {
-        AlertDialog.Builder builder = new AlertDialog.Builder( context );
-        builder.setMessage( message )
-               .setPositiveButton( positiveText, posListener )
-               .setNegativeButton( R.string.cancel, null );
+        @JvmStatic
+        fun goToToday() {
+            if(BuildConfig.DEBUG && !Diary.d.is_open) {
+                throw AssertionError("Assertion failed")
+            }
+            var entry = Diary.d._entry_today
+            if(entry == null) // add new entry if no entry exists on selected date
+                entry = Diary.d.add_today()
+            showElem(entry)
+        }
 
-        //AlertDialog alert = builder.create();
-        builder.show();
-    }
-    static void showConfirmationPrompt( Context context,
-                                        int message,
-                                        int positiveText,
-                                        DialogInterface.OnClickListener posListener,
-                                        int negativeText,
-                                        DialogInterface.OnClickListener negListener ) {
-        AlertDialog.Builder builder = new AlertDialog.Builder( context );
-        builder.setMessage( message )
-               .setPositiveButton( positiveText, posListener )
-               .setNegativeButton( negativeText, negListener );
+        @JvmStatic
+        fun addEntry(date0: Long, text: String?) {
+            var date = date0
+            if(BuildConfig.DEBUG && !Diary.d.is_in_edit_mode) {
+                throw AssertionError("Assertion failed")
+            }
+            if(!Date.is_ordinal(date) && Date.get_order_3rd(date) == 0) date++ // fix order
+            val entry = Diary.d.create_entry(date, text, false)
+            if(entry != null) showElem(entry)
+        }
 
-        builder.show();
-    }
+        @JvmStatic
+        fun showElem(elem: DiaryElement) {
+            if(BuildConfig.DEBUG && !Diary.d.is_open) {
+                throw AssertionError("Assertion failed")
+            }
+            mActivityMain.showElem(elem)
+        }
 
-    static void showSnack( View view, String message ) {
-        Snackbar.make( view, message, Snackbar.LENGTH_LONG )
-                .setAction( "Action", null ).show();
-    }
+        fun enableEditing(editor: DiaryEditor) {
+            // HANDLE OLD DIARY
+            if(Diary.d.is_old) {
+                showConfirmationPrompt(
+                        editor.getContext(),
+                        R.string.diary_upgrade_confirm,
+                        R.string.upgrade_diary
+                                      ) { _: DialogInterface?, _: Int -> enableEditing2(editor) }
+                return
+            }
+            enableEditing2(editor)
+        }
 
-    static void showToast( String message ) {
-        Toast.makeText( mInstance, message, Toast.LENGTH_LONG ).show();
-    }
-    static void showToast( int message ) {
-        Toast.makeText( mInstance, message, Toast.LENGTH_LONG ).show();
-    }
+        private fun enableEditing2(editor: DiaryEditor) {
+            if(!Diary.d.can_enter_edit_mode()) return
+            if(Diary.d.enable_editing() != Result.SUCCESS) return
+            editor.enableEditing()
+        }
 
-    static class MutableBool
-    {
-        public MutableBool()             { v = false; }
-        public MutableBool( boolean v0 ) { v = v0; }
-        public boolean v;
-    }
-    static class MutableInt
-    {
-        public MutableInt()         { v = 0; }
-        public MutableInt( int v0 ) { v = v0; }
-        public int v;
-    }
-    static class MutableString
-    {
-        public MutableString()            { v = ""; }
-        public MutableString( String v0 ) { v = v0; }
-        public String v;
-    }
-
-    static String joinPath( String p1, String p2) {
-        File file1 = new File( p1 );
-        return new File( file1, p2 ).getPath();
-    }
-
-    public static void copyFile( File src, File dst ) throws IOException {
-        try( InputStream in = new FileInputStream( src ) ) {
-            try( OutputStream out = new FileOutputStream( dst ) ) {
-                // Transfer bytes from in to out
-                byte[] buf = new byte[ 1024 ];
-                int len;
-                while( ( len = in.read( buf ) ) > 0 ) {
-                    out.write( buf, 0, len );
+        fun logoutWithoutSaving(view: View) {
+            if(Diary.d.is_open) {
+                showConfirmationPrompt(view.context,
+                                       R.string.logoutwosaving_confirm,
+                                       R.string.logoutwosaving
+                                      ) { _: DialogInterface?, _: Int ->
+                    // unlike desktop version Android version
+                    // does not back up changes
+                    Diary.d.setSavingEnabled(false)
+                    Navigation.findNavController(view)
+                            .navigate(R.id.nav_diaries)
                 }
             }
         }
-    }
 
-//    public static String getEnvLang() {
-//        return Locale.getDefault().getLanguage();
-//    }
+        // ANDROID & JAVA HELPERS ======================================================================
+        const val TAG = "LFO"
+        private var mInstance: Lifeograph? = null
+        @JvmField
+        var screenWidth = 0f
+        @JvmField
+        var screenHeight = 0f
+        @JvmField
+        var sDPIX = 0f
+        private var sDPIY = 0f
+        const val MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0f
 
-//    public static void initializeConstants( Context ctx ) {
-//        sContext = ctx;
-//        sIsLargeScreen = ( ctx.getResources().getConfiguration().screenLayout
-//                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
-//    }
-
-    static void updateScreenSizes( Context context ) {
-        WindowManager wm = ( WindowManager ) context.getSystemService( Context.WINDOW_SERVICE );
-        DisplayMetrics metrics = new DisplayMetrics();
-        wm.getDefaultDisplay().getMetrics( metrics );
-        sScreenWidth = metrics.widthPixels / metrics.xdpi;
-        sScreenHeight = metrics.heightPixels / metrics.ydpi;
-        sDPIX = metrics.xdpi;
-        sDPIY = metrics.ydpi;
-        Log.d( TAG, "Updated the sizes: " + sScreenWidth + "x" + sScreenHeight );
-    }
-
-    // instead of below, use dimens.xml as much as possible:
-//    static int
-//    getPixelsAsDP( int pixels ) {
-//        final float scale = mActivityMain.getResources().getDisplayMetrics().density;
-//        return (int) ( pixels * scale + 0.5f );
-//    }
-
-    static float getScreenShortEdge() {
-        return( Math.min( sScreenHeight, sScreenWidth ) );
-    }
-    static float getScreenWidth() {
-        return sScreenWidth;
-    }
-    static float getScreenHeight() {
-        return sScreenHeight;
-    }
-//    public static boolean isLargeScreen() {
-//        return sIsLargeScreen;
-//    }
-
-//    static boolean isExternalStorageWritable() {
-//        String state = Environment.getExternalStorageState();
-//        return Environment.MEDIA_MOUNTED.equals( state );
-//    }
-
-    static boolean
-    get_line( String source, MutableInt o, MutableString line ) {
-        if( source.isEmpty() || o.v >= source.length() )
-            return false;
-
-        int o_end = source.indexOf( '\n', o.v );
-
-        if( o_end == -1 ) {
-            line.v = source.substring( o.v );
-            o.v = source.length();
-        }
-        else {
-            line.v = source.substring( o.v, o_end );
-            o.v = ( o_end + 1 );
+        @JvmStatic
+        fun getStr(i: Int): String {
+            if(BuildConfig.DEBUG && mInstance == null) {
+                error("Assertion failed")
+            }
+            return mInstance!!.getString(i)
         }
 
-        return true;
-    }
+        @JvmStatic
+        fun showConfirmationPrompt(context: Context?,
+                                   message: Int,
+                                   positiveText: Int,
+                                   posListener: DialogInterface.OnClickListener?) {
+            val builder = AlertDialog.Builder(context, R.style.LifeoAlertDlgTheme)
+            builder.setMessage(message)
+                    .setPositiveButton(positiveText, posListener)
+                    .setNegativeButton(R.string.cancel, null)
+                    .show()
+        }
 
-    static long
-    get_long( @NonNull String line, @NonNull MutableInt i ) {
-        long result = 0;
+        @JvmStatic
+        fun showConfirmationPrompt(context: Context?,
+                                   message: Int,
+                                   positiveText: Int,
+                                   posListener: DialogInterface.OnClickListener?,
+                                   negativeText: Int,
+                                   negListener: DialogInterface.OnClickListener?) {
+            val builder = AlertDialog.Builder(context, R.style.LifeoAlertDlgTheme)
+            builder.setMessage(message)
+                    .setPositiveButton(positiveText, posListener)
+                    .setNegativeButton(negativeText, negListener)
+                    .show()
+        }
 
-        for( ; i.v < line.length() && line.charAt( i.v ) >= '0' && line.charAt( i.v ) <= '9';
-             i.v++ )
-        result = ( ( result * 10 ) + line.charAt( i.v ) - '0' );
+        fun showSnack(view: View?, message: String?) {
+            Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
+                    .setAction("Action", null).show()
+        }
 
-        return result;
-    }
+        @JvmStatic
+        fun showToast(message: String?) {
+            Toast.makeText(mInstance, message, Toast.LENGTH_LONG).show()
+        }
 
-    static int
-    get_int( @NonNull String line, @NonNull MutableInt i ) {
-        int result = 0;
+        @JvmStatic
+        fun showToast(message: Int) {
+            Toast.makeText(mInstance, message, Toast.LENGTH_LONG).show()
+        }
 
-        for( ; i.v < line.length() && line.charAt( i.v ) >= '0' && line.charAt( i.v ) <= '9';
-             i.v++ )
-        result = ( ( result * 10 ) + line.charAt( i.v ) - '0' );
+        @JvmStatic
+        fun joinPath(p1: String, p2: String): String {
+            val file1 = File(p1)
+            return File(file1, p2).path
+        }
 
-        return result;
-    }
-
-    static double
-    get_double( @NonNull String text ) {
-        //NOTE: this implementation may be a little bit more forgiving than good for health
-        double  value = 0.0;
-        //char lf{ '=' }; // =, \, #, $(unit)
-        int     divider = 0;
-        boolean negative = false;
-        char    c;
-
-        for( int i = 0; i < text.length(); i++ ) {
-            c = text.charAt( i );
-            switch( c ) {
-                case ',':
-                case '.':
-                    if( divider == 0 ) // note that if divider
-                        divider = 1;
-                    break;
-                case '-':
-                    negative = true;
-                    break;
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
-                    value *= 10;
-                    value += ( c - '0' );
-                    if( divider != 0 )
-                        divider *= 10;
-                    break;
-                default:
-                    break;
+        @JvmStatic
+        @Throws(IOException::class)
+        fun copyFile(src: File?, dst: File?) {
+            FileInputStream(src).use { `in` ->
+                FileOutputStream(dst).use { out ->
+                    // Transfer bytes from in to out
+                    val buf = ByteArray(1024)
+                    var len: Int
+                    while(`in`.read(buf).also { len = it } > 0) {
+                        out.write(buf, 0, len)
+                    }
+                }
             }
         }
 
-        if( divider > 1 )
-            value /= divider;
-        if( negative )
-            value *= -1;
-
-        return value;
-    }
-    static double
-    get_double( @NonNull String line, @NonNull MutableInt i ) {
-        double  value      = 0.0;
-        int     divider    = 0;
-        boolean negative   = false;
-        boolean f_continue = true;
-        char    c;
-
-        for( ; i.v < line.length() && f_continue; i.v++ ) {
-            c = line.charAt( i.v );
-            switch( c ) {
-                case ',':
-                case '.':
-                    if( divider == 0 ) // note that if divider
-                        divider = 1;
-                    break;
-                case '-':
-                    negative = true;
-                    break;
-                case '0': case '1': case '2': case '3': case '4':
-                case '5': case '6': case '7': case '8': case '9':
-                value *= 10;
-                value += ( c - '0' );
-                if( divider != 0 )
-                    divider *= 10;
-                break;
-                default:
-                    i.v--;
-                    f_continue = false; // end loop
-                    break;
-            }
+        //    public static String getEnvLang() {
+        //        return Locale.getDefault().getLanguage();
+        //    }
+        //    public static void initializeConstants( Context ctx ) {
+        //        sContext = ctx;
+        //        sIsLargeScreen = ( ctx.getResources().getConfiguration().screenLayout
+        //                & Configuration.SCREENLAYOUT_SIZE_MASK ) >= Configuration.SCREENLAYOUT_SIZE_LARGE;
+        //    }
+        fun updateScreenSizes(context: Context) {
+            val wm = context.getSystemService(WINDOW_SERVICE) as WindowManager
+            val metrics = DisplayMetrics()
+            wm.defaultDisplay.getMetrics(metrics)
+            screenWidth = metrics.widthPixels / metrics.xdpi
+            screenHeight = metrics.heightPixels / metrics.ydpi
+            sDPIX = metrics.xdpi
+            sDPIY = metrics.ydpi
+            Log.d(TAG, "Updated the sizes: " + screenWidth + "x" + screenHeight)
         }
 
-        if( divider > 1 )
-            value /= divider;
-        if( negative )
-            value *= -1;
+        // instead of below, use dimens.xml as much as possible:
+        //    static int
+        //    getPixelsAsDP( int pixels ) {
+        //        final float scale = mActivityMain.getResources().getDisplayMetrics().density;
+        //        return (int) ( pixels * scale + 0.5f );
+        //    }
+        @JvmStatic
+        val screenShortEdge: Float
+            get() = screenHeight.coerceAtMost(screenWidth)
 
-        return value;
+        //    public static boolean isLargeScreen() {
+        //        return sIsLargeScreen;
+        //    }
+        //    static boolean isExternalStorageWritable() {
+        //        String state = Environment.getExternalStorageState();
+        //        return Environment.MEDIA_MOUNTED.equals( state );
+        //    }
+        @JvmStatic
+        fun getLine(source: String, o: MutableInt, line: MutableString): Boolean {
+            if(source.isEmpty() || o.v >= source.length) return false
+            val oEnd = source.indexOf('\n', o.v)
+            if(oEnd == -1) {
+                line.v = source.substring(o.v)
+                o.v = source.length
+            }
+            else {
+                line.v = source.substring(o.v, oEnd)
+                o.v = oEnd + 1
+            }
+            return true
+        }
+
+        @JvmStatic
+        fun getLong(line: String, i: MutableInt): Long {
+            var result: Long = 0
+            while(i.v < line.length && line[i.v] >= '0' && line[i.v] <= '9') {
+                result = result * 10 + line[i.v].toLong() - '0'.toLong()
+                i.v++
+            }
+            return result
+        }
+
+        @JvmStatic
+        fun getInt(line: String, i: MutableInt): Int {
+            var result = 0
+            while(i.v < line.length && line[i.v] >= '0' && line[i.v] <= '9') {
+                result = result * 10 + line[i.v].toInt() - '0'.toInt()
+                i.v++
+            }
+            return result
+        }
+
+        @JvmStatic
+        fun getDouble(text: String): Double {
+            //NOTE: this implementation may be a little bit more forgiving than good for health
+            var value = 0.0
+            //char lf{ '=' }; // =, \, #, $(unit)
+            var divider = 0
+            var negative = false
+            var c: Char
+            for(element in text) {
+                c = element
+                when(c) {
+                    ',', '.' -> if(divider == 0) // note that if divider
+                        divider = 1
+                    '-' -> negative = true
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                        value *= 10.0
+                        value += (c - '0').toDouble()
+                        if(divider != 0) divider *= 10
+                    }
+                    else -> {
+                    }
+                }
+            }
+            if(divider > 1) value /= divider.toDouble()
+            if(negative) value *= -1.0
+            return value
+        }
+
+        @JvmStatic
+        fun getDouble(line: String, i: MutableInt): Double {
+            var value = 0.0
+            var divider = 0
+            var negative = false
+            var fContinue = true
+            var c: Char
+            while(i.v < line.length && fContinue) {
+                c = line[i.v]
+                when(c) {
+                    ',', '.' -> if(divider == 0) // note that if divider
+                        divider = 1
+                    '-' -> negative = true
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                        value *= 10.0
+                        value += (c - '0').toDouble()
+                        if(divider != 0) divider *= 10
+                    }
+                    else -> {
+                        i.v--
+                        fContinue = false // end loop
+                    }
+                }
+                i.v++
+            }
+            if(divider > 1) value /= divider.toDouble()
+            if(negative) value *= -1.0
+            return value
+        } //  TODO WILL BE IMPLEMENTED LATER
+        //    protected void import_messages() {
+        //        Cursor cursor =
+        //                getContentResolver().query( Uri.parse( "content://sms/inbox" ), null, null, null,
+        //                                            null );
+        //        cursor.moveToFirst();
+        //
+        //        do {
+        //            String body = new String();
+        //            Calendar cal = Calendar.getInstance();
+        //
+        //            for( int idx = 0; idx < cursor.getColumnCount(); idx++ ) {
+        //                String msgData = cursor.getColumnName( idx );
+        //
+        //                if( msgData.compareTo( "body" ) == 0 )
+        //                    body = cursor.getString( idx );
+        //                else if( msgData.compareTo( "date" ) == 0 )
+        //                    cal.setTimeInMillis( cursor.getLong( idx ) );
+        //            }
+        //
+        //            Diary.diary.create_entry( new Date( cal.get( Calendar.YEAR ),
+        //                                                cal.get( Calendar.MONTH ) + 1,
+        //                                                cal.get( Calendar.DAY_OF_MONTH ) ), body, false );
+        //        }
+        //        while( cursor.moveToNext() );
+        //
+        //    }
     }
 }

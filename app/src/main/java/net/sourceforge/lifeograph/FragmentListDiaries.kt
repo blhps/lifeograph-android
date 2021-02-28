@@ -18,10 +18,10 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+
 package net.sourceforge.lifeograph
 
 import android.content.DialogInterface
-import android.content.Intent
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -36,19 +36,19 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import net.sourceforge.lifeograph.DialogInquireText.InquireListener
 import net.sourceforge.lifeograph.DialogPassword.DPAction
-import net.sourceforge.lifeograph.RecyclerViewAdapterDiaries.DiaryItemListener
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
 import java.util.*
 
-class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, DialogPassword.Listener {
+class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, InquireListener,
+                            DialogPassword.Listener {
     // VARIABLES ===================================================================================
     private val mColumnCount = 1
     private var mFlagOpenReady = false
     private var mPasswordAttemptNo = 0
 
     //private final List< String >        mPaths      = new ArrayList<>();
-    private val mDiaryItems: MutableList<ListItemDiary> = ArrayList()
+    private val mDiaryItems: MutableList<RViewAdapterBasic.Item> = ArrayList()
 
     // METHODS =====================================================================================
     override fun onCreateView(inflater: LayoutInflater,
@@ -67,7 +67,8 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
         else {
             recyclerView.layoutManager = GridLayoutManager(context, mColumnCount)
         }
-        val adapter = RecyclerViewAdapterDiaries(mDiaryItems, this)
+        val adapter = RViewAdapterBasic(
+                mDiaryItems, this)
         recyclerView.adapter = adapter
         val fab: FloatingActionButton = view.findViewById(R.id.fab_add_diary)
         fab.setOnClickListener { createNewDiary() }
@@ -102,12 +103,15 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
             if(dirs != null) {
                 for(ff in dirs) {
                     if(!ff.isDirectory && !ff.path.endsWith(Diary.LOCK_SUFFIX)) {
-                        mDiaryItems.add(ListItemDiary(ff.name, ff.path))
+                        mDiaryItems.add(RViewAdapterBasic.Item(ff.name, ff.path,
+                                                               R.drawable.ic_diary))
                     }
                 }
             }
         }
-        mDiaryItems.add(ListItemDiary(Diary.sExampleDiaryName, Diary.sExampleDiaryPath))
+        mDiaryItems.add(
+                RViewAdapterBasic.Item(Diary.sExampleDiaryName, Diary.sExampleDiaryPath,
+                                       R.drawable.ic_diary))
     }
 
     private fun openDiary1(path: String) {
@@ -117,7 +121,7 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
             Result.FILE_NOT_FOUND -> Lifeograph.showToast("File is not found")
             Result.FILE_NOT_READABLE -> Lifeograph.showToast("File is not readable")
             Result.FILE_LOCKED -> Lifeograph.showConfirmationPrompt(
-                    context,
+                    requireContext(),
                     R.string.continue_from_lock_prompt,
                     R.string.continue_from_lock,
                     { _: DialogInterface?, _: Int -> openDiary2() },
@@ -176,27 +180,21 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
 
     private fun createNewDiary() {
         // ask for name
-        val dlg = DialogInquireText(context, R.string.create_diary,
-                Lifeograph.getStr(R.string.new_diary),
-                R.string.create, this)
-        dlg.show()
+        DialogInquireText(requireContext(),
+                          R.string.create_diary,
+                          Lifeograph.getStr(R.string.new_diary),
+                          R.string.create,
+                          this).show()
     }
 
     private fun askPassword() {
-        val dlg = DialogPassword(context,
-                Diary.d,
-                DPAction.DPA_LOGIN,
-                this)
-        dlg.show()
+        DialogPassword(requireContext(), Diary.d, DPAction.DPA_LOGIN, this).show()
         mPasswordAttemptNo++
     }
 
     private fun readBody() {
         when(Diary.d.read_body()) {
-            Result.SUCCESS ->
-//                Intent i = new Intent( getContext(), FragmentEntryList.class );
-//                startActivity( i );
-                navigateToDiary()
+            Result.SUCCESS -> navigateToDiary()
             Result.WRONG_PASSWORD -> Lifeograph.showToast(R.string.wrong_password)
             Result.CORRUPT_FILE -> Lifeograph.showToast("Corrupt file")
             else -> {
@@ -206,15 +204,13 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
     }
 
     private fun navigateToDiary() {
-//        ProductListDirections.NavigateToProductDetail directions =
-//                ProductListDirections.navigateToProductDetail( productId );
         Navigation.findNavController(requireView()).navigate(R.id.nav_entries)
     }
 
     // INTERFACE METHODS ===========================================================================
     // RecyclerViewAdapterDiaries.DiaryItemListener INTERFACE METHODS
-    override fun onDiaryItemClick(path: String) {
-        openDiary1(path)
+    override fun onItemClick(item: RViewAdapterBasic.Item) {
+        openDiary1(item.mId)
         Log.d(Lifeograph.TAG, "Diary clicked")
     }
 
@@ -226,29 +222,20 @@ class FragmentListDiaries : Fragment(), DiaryItemListener, InquireListener, Dial
     // InquireListener INTERFACE METHODS
     override fun onInquireAction(id: Int, text: String) {
         if(id == R.string.create_diary) {
-            if(Diary.d.init_new(Lifeograph.joinPath(diariesDir.path, text),
-                            "")
+            if(Diary.d.init_new(Lifeograph.joinPath(diariesDir.path, text), "")
                     == Result.SUCCESS) {
-                val i = Intent(context, FragmentEditDiary::class.java)
-                startActivity(i)
+                navigateToDiary()
             }
             // TODO else inform the user about the problem
         }
     }
 
-    override fun onInquireTextChanged(id: Int, s: String): Boolean {
+    override fun onInquireTextChanged(id: Int, text: String): Boolean {
         if(id == R.string.create_diary) {
-            val fp = File(diariesDir.path, s)
+            val fp = File(diariesDir.path, text)
             return !fp.exists()
         }
         return true
-    }
-
-    // SUB CLASSES =================================================================================
-    class ListItemDiary(val mName: String, val mPath: String) {
-        override fun toString(): String {
-            return mName
-        }
     }
 
     companion object {

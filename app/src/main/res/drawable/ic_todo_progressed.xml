@@ -1,0 +1,35 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+
+      This file is part of Lifeograph.
+
+      Lifeograph is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      Lifeograph is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<vector android:height="32dp" android:viewportHeight="16"
+    android:viewportWidth="16" android:width="32dp"
+    xmlns:android="http://schemas.android.com/apk/res/android">
+    <path android:fillAlpha="0.992126" android:fillColor="#ff8811"
+        android:pathData="M2.4727,1C1.6882,1 1,1.604 1,2.3906v11.2188C1,14.396 1.6882,15 2.4727,15H13.5273C14.3118,15 15,14.396 15,13.6094V2.3906C15,1.604 14.3118,1 13.5273,1ZM5.9863,5.5117C7.0763,5.5313 8.225,6.2083 9,7.5c0.6203,1.0338 1.0016,1.08 1.4063,1.0156 0.4046,-0.0644 1.0047,-0.4945 1.4199,-1.0801 0.7708,-1.089 2.4036,0.0672 1.6328,1.1563C12.8299,9.4788 11.93,10.2978 10.7207,10.4902 9.5114,10.6827 8.1649,9.9936 7.2852,8.5273 6.6709,7.5036 6.2628,7.45 5.8379,7.5176 5.413,7.5852 4.8299,8.017 4.4844,8.5547 3.763,9.6771 2.0794,8.5951 2.8008,7.4727 3.3905,6.5549 4.3072,5.7365 5.5234,5.543 5.6755,5.5188 5.8306,5.5089 5.9863,5.5117Z"
+        android:strokeColor="#00000000" android:strokeLineCap="round"
+        android:strokeLineJoin="round" android:strokeWidth="1"/>
+    <path android:fillAlpha="0.392157" android:fillColor="#ff8811"
+        android:pathData="M19.98,1.5033L31.0355,1.5033A0.9723,0.8906 0,0 1,32.0077 2.3939L32.0077,13.6127A0.9723,0.8906 0,0 1,31.0355 14.5033L19.98,14.5033A0.9723,0.8906 0,0 1,19.0077 13.6127L19.0077,2.3939A0.9723,0.8906 0,0 1,19.98 1.5033z"
+        android:strokeColor="#ff8811" android:strokeLineCap="round"
+        android:strokeLineJoin="round" android:strokeWidth="1"/>
+    <path android:fillColor="#00000000"
+        android:pathData="m21.0077,8.0033c0.9353,-1.4554 3,-2.5 4.5,0 1.5,2.5 3.4557,1.4726 4.5,0"
+        android:strokeColor="#ff8811" android:strokeLineCap="round"
+        android:strokeLineJoin="miter" android:strokeWidth="2"/>
+</vector>

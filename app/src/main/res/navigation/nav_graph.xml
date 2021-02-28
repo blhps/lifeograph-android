@@ -29,7 +29,8 @@
 
     <fragment
         android:id="@+id/nav_entries"
-        android:name="net.sourceforge.lifeograph.FragmentListEntries" >
+        android:name="net.sourceforge.lifeograph.FragmentListEntries"
+        tools:layout="@layout/fragment_list_entries" >
         <action
             android:id="@+id/action_nav_entries_to_fragmentEntry"
             app:destination="@id/nav_entry_editor"
@@ -39,7 +40,11 @@
     <fragment
         android:id="@+id/nav_filters"
         android:name="net.sourceforge.lifeograph.FragmentListFilters"
-        tools:layout="@layout/fragment_list_filters" />
+        tools:layout="@layout/fragment_list_filters" >
+        <action
+            android:id="@+id/action_nav_filters_to_fragmentFilter2"
+            app:destination="@id/nav_filter_editor" />
+    </fragment>
     <fragment
         android:id="@+id/nav_charts"
         android:name="net.sourceforge.lifeograph.FragmentListCharts"
@@ -51,7 +56,11 @@
     <fragment
         android:id="@+id/nav_themes"
         android:name="net.sourceforge.lifeograph.FragmentListCharts"
-        tools:layout="@layout/fragment_list_chart" />
+        tools:layout="@layout/fragment_list_chart" >
+        <action
+            android:id="@+id/action_nav_themes_to_fragmentTheme"
+            app:destination="@id/nav_theme_editor" />
+    </fragment>
     <fragment
         android:id="@+id/nav_diaries"
         android:name="net.sourceforge.lifeograph.FragmentListDiaries"
@@ -86,10 +95,20 @@
         android:id="@+id/nav_entry_editor"
         android:name="net.sourceforge.lifeograph.FragmentEntry"
         android:label="FragmentEntry"
-        tools:layout="@layout/entry" />
+        tools:layout="@layout/fragment_entry" />
     <fragment
         android:id="@+id/nav_chart_editor"
         android:name="net.sourceforge.lifeograph.FragmentChart"
         android:label="FragmentChart"
         tools:layout="@layout/fragment_chart" />
+    <fragment
+        android:id="@+id/nav_theme_editor"
+        android:name="net.sourceforge.lifeograph.FragmentTheme"
+        android:label="FragmentTheme"
+        tools:layout="@layout/fragment_theme" />
+    <fragment
+        android:id="@+id/nav_filter_editor"
+        android:name="net.sourceforge.lifeograph.FragmentFilter"
+        android:label="FragmentFilter"
+        tools:layout="@layout/fragment_filter" />
 </navigation>

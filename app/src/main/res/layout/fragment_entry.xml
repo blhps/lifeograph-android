@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- ***************************************************************************
+
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+
+    This file is part of Lifeograph.
+
+    Lifeograph is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Lifeograph is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+
+**************************************************************************** -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:id="@+id/main_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context=".FragmentEntry" >
+
+    <HorizontalScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:id="@+id/toolbar_text_edit"
+        android:background="@color/t_mid"
+        android:scrollbars="none" >
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal"
+            android:baselineAligned="true" >
+
+            <Button
+                android:id="@+id/buttonBold"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="@string/bold"
+                android:textStyle="bold"
+                style="@android:style/Widget.Holo.ActionButton"/>
+
+            <Button
+                android:id="@+id/buttonItalic"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="@string/italic"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:textStyle="italic"/>
+
+            <Button
+                android:id="@+id/buttonStrikethrough"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="@string/placeholder"
+                style="@android:style/Widget.Holo.ActionButton" />
+
+            <Button
+                android:id="@+id/buttonHighlight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/placeholder"
+                style="@android:style/Widget.Holo.ActionButton" />
+
+            <Button
+                android:id="@+id/button_list"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/bullet_icon"
+                android:textColor="@android:color/white"
+                style="@style/Widget.AppCompat.ActionButton" />
+
+            <Button
+                android:id="@+id/button_comment"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="[[]]"
+                style="LifeoButtonStyle"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/button_ignore"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:background="@android:color/transparent"
+                android:text="@string/ignore"
+                style="LifeoButtonStyle"/>
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+    <EditText
+        android:id="@+id/editTextEntry"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight=".99"
+        android:gravity="top"
+        android:hint="@string/empty_entry"
+        android:importantForAutofill="no"
+        android:inputType="textMultiLine|textCapSentences"
+        android:paddingBottom="0dp"
+        android:paddingTop="0dp">
+
+        <requestFocus />
+    </EditText>
+
+</LinearLayout>

@@ -40,11 +40,10 @@ class FragmentListFilters : FragmentListElems(), InquireListener
 
         mFabAdd.setOnClickListener {
             // ask for name
-            val dlg = DialogInquireText(
-                    context, R.string.create_filter,
-                    Lifeograph.getStr(R.string.new_filter),
-                    R.string.create, this)
-            dlg.show()
+            DialogInquireText(requireContext(),
+                              R.string.create_filter,
+                              Lifeograph.getStr(R.string.new_filter),
+                              R.string.create, this).show()
         }
 
         var button = view.findViewById<ImageButton>(R.id.set_active)
@@ -108,11 +107,10 @@ class FragmentListFilters : FragmentListElems(), InquireListener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                val dlg = DialogInquireText(
-                        context, R.string.duplicate_filter,
-                        filter._name,
-                        R.string.create, this)
-                dlg.show()
+                DialogInquireText( requireContext(),
+                                   R.string.duplicate_filter,
+                                   filter._name,
+                                   R.string.create, this).show()
                 break
             }
         }
