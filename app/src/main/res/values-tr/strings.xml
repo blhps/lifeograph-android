@@ -86,7 +86,7 @@
     <string name="rename_chapter_ctg">Fasıl Kategorisinin Adını Değiştir</string>
     <string name="resorting_to_read_only">Dosya yazma korumalı, sırf okunur olarak açılıyor&#8230;</string>
     <string name="save">Kaydet</string>
-    <string name="search_and_filter">Ara ve Süz</string>
+    <string name="search">Ara ve Süz</string>
     <string name="search_hint">Metni ara</string>
     <string name="settings">Ayarlar</string>
     <string name="sort_by_date">Tarih Sıralı</string>

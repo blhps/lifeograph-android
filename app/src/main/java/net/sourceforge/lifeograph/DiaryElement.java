@@ -186,10 +186,6 @@ public abstract class DiaryElement {
     get_info_str() {
         return "";
     }
-    public String
-    get_list_str() {
-        return get_title_str();
-    }
 
     public int get_status() {
         return m_status;

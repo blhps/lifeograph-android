@@ -49,7 +49,7 @@
                 android:textColor="@android:color/white"
                 android:text="@string/bold"
                 android:textStyle="bold"
-                style="@android:style/Widget.Holo.ActionButton"/>
+                style="@style/Widget.AppCompat.ActionButton"/>
 
             <Button
                 android:id="@+id/buttonItalic"
@@ -57,7 +57,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:text="@string/italic"
-                style="@android:style/Widget.Holo.ActionButton"
+                style="@style/Widget.AppCompat.ActionButton"
                 android:textStyle="italic"/>
 
             <Button
@@ -66,14 +66,14 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:text="@string/placeholder"
-                style="@android:style/Widget.Holo.ActionButton" />
+                style="@style/Widget.AppCompat.ActionButton" />
 
             <Button
                 android:id="@+id/buttonHighlight"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/placeholder"
-                style="@android:style/Widget.Holo.ActionButton" />
+                style="@style/Widget.AppCompat.ActionButton" />
 
             <Button
                 android:id="@+id/button_list"
@@ -89,7 +89,7 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:text="[[]]"
-                style="LifeoButtonStyle"
+                style="@style/Widget.AppCompat.ActionButton"
                 tools:ignore="HardcodedText" />
 
             <Button
@@ -99,7 +99,7 @@
                 android:textColor="@android:color/white"
                 android:background="@android:color/transparent"
                 android:text="@string/ignore"
-                style="LifeoButtonStyle"/>
+                style="@style/Widget.AppCompat.ActionButton"/>
 
         </LinearLayout>
 

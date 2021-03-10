@@ -19,7 +19,7 @@
 
 <vector android:height="32dp" android:viewportHeight="48"
     android:viewportWidth="48" android:width="32dp"
-    xmlns:aapt="http://schemas.android.com/aapt" xmlns:android="http://schemas.android.com/apk/res/android">
+    xmlns:android="http://schemas.android.com/apk/res/android">
     <path android:fillAlpha="0.85" android:fillColor="#f2d4d4"
         android:fillType="evenOdd"
         android:pathData="M24,15C21,9 18,6 12,6 6,6 0,12 3,21 6,30 15,36 24,45 33,36 42,30 45,21 48,12 42,6 36,6 30,6 27,9 24,15Z"

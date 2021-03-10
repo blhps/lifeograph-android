@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,65 +21,15 @@
 
 **************************************************************************** -->
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/t_lightest" >
-            <NumberPicker
-                android:layout_width="0dp"
-                android:layout_weight=".5"
-                android:layout_height="wrap_content"
-                android:id="@+id/numberPickerMonth"/>
-
-            <NumberPicker
-                android:layout_width="0dp"
-                android:layout_weight=".5"
-                android:layout_height="wrap_content"
-                android:id="@+id/numberPickerYear"/>
-        </LinearLayout>
-
-        <GridView
-            android:id="@+id/gridViewCalendar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_margin="15dp"
-            android:numColumns="7"
-            android:verticalSpacing="5dp"
-            android:stretchMode="columnWidth"
-            android:columnWidth="25dp"
-            android:listSelector="@drawable/themed_selector" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="15dp"
-            style="?android:attr/buttonBarStyle" >
-
-            <Button
-                android:id="@+id/buttonCreateEntry"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight=".5"
-                android:layout_gravity="center"
-                style="?android:attr/buttonBarButtonStyle"
-                android:text="@string/create_entry" />
-
-            <Button
-                android:id="@+id/buttonCreateChapter"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight=".5"
-                android:layout_gravity="center"
-                style="?android:attr/buttonBarButtonStyle"
-                android:text="@string/create_chapter" />
-        </LinearLayout>
-
-    </LinearLayout>
+<GridView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/gv_calendar"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="15dp"
+    android:numColumns="7"
+    android:verticalSpacing="5dp"
+    android:stretchMode="columnWidth"
+    android:columnWidth="25dp"
+    android:listSelector="@drawable/selector_theme_colors" />

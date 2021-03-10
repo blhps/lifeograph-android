@@ -36,22 +36,16 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
-import android.widget.PopupMenu
 import android.widget.TextView
-import androidx.appcompat.app.ActionBar
-import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuItemCompat
-import androidx.fragment.app.Fragment
-import net.sourceforge.lifeograph.DialogInquireText.InquireListener
 import net.sourceforge.lifeograph.FragmentEntry.ParserEditText.SpanNull
 import net.sourceforge.lifeograph.FragmentEntry.ParserEditText.SpanOther
-import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
 import net.sourceforge.lifeograph.ToDoAction.ToDoObject
 import java.util.*
 import kotlin.collections.ArrayList
 
-class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
+class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Listener  {
 //    private enum class LinkStatus {
 //        LS_OK, LS_ENTRY_UNAVAILABLE, LS_INVALID,  // separator: to check a valid entry link:
 //
@@ -60,42 +54,28 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
 //    }
 
     // VARIABLES ===================================================================================
-    private var mActionBar: ActionBar? = null
-    private var mMenu: Menu? = null
+    override val mLayoutId: Int = R.layout.fragment_entry
+    override val mMenuId: Int   = R.menu.menu_entry
+
     private lateinit var mEditText: EditText
     private lateinit var mButtonHighlight: Button
-    private val mParser = ParserEditText(this)
-    var mFlagSetTextOperation = false
-    private var mFlagEditorActionInProgress = false
-    var mFlagEntryChanged = false
-    private var mFlagDismissOnExit = false
-    var mFlagSearchIsOpen = false
-    private val mBrowsingHistory = ArrayList<Int>()
+    private val          mParser = ParserEditText(this)
+    var                  mFlagSetTextOperation = false
+    private var          mFlagEditorActionInProgress = false
+    var                  mFlagEntryChanged = false
+    private var          mFlagDismissOnExit = false
+    var                  mFlagSearchIsOpen = false
+    private val          mBrowsingHistory = ArrayList<Int>()
 
     companion object {
         lateinit var mEntry: Entry
     }
 
     // METHODS =====================================================================================
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_entry, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ActivityMain.mViewCurrent = this
         //Lifeograph.updateScreenSizes( this );
-        mActionBar = (requireActivity() as AppCompatActivity).supportActionBar
-        //assert mActionBar != null;
-        //mActionBar.setDisplayHomeAsUpEnabled( true );
 
-        //mDrawerLayout = ( DrawerLayout ) findViewById( R.id.drawer_layout );
         mEditText = view.findViewById(R.id.editTextEntry)
         mEditText.movementMethod = LinkMovementMethod.getInstance()
         //mKeyListener = mEditText.keyListener
@@ -292,11 +272,6 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
 
         Log.d( Lifeograph.TAG, "ActivityEntry.onPause()" );
     }*/
-    override fun onResume() {
-        super.onResume()
-        Log.d(Lifeograph.TAG, "FragmentEntry.onResume()")
-        if(mMenu != null) updateMenuVisibilities()
-    }
 
     override fun onStop() {
         super.onStop()
@@ -306,12 +281,8 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
     }
 
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(R.menu.menu_entry, menu)
         super.onCreateOptionsMenu(menu, inflater)
-        var item = menu.findItem(R.id.change_todo_status)
-        val toDoAction = MenuItemCompat.getActionProvider(item) as ToDoAction
-        toDoAction.mObject = this
-        item = menu.findItem(R.id.search_text)
+        var item = menu.findItem(R.id.search_text)
         val searchView = item.actionView as SearchView
         item.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
@@ -323,7 +294,6 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
                 return true
             }
         })
-        mMenu = menu
         searchView.setOnQueryTextListener(object : SearchView.OnQueryTextListener {
             override fun onQueryTextSubmit(s: String): Boolean {
                 return true
@@ -332,18 +302,16 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
             override fun onQueryTextChange(s: String): Boolean {
                 if(mFlagSearchIsOpen) {
                     Diary.d.set_search_text(s.toLowerCase(Locale.ROOT), false)
-                    mParser.parse(0, mEditText.text.length)
+                    reparse()
                 }
                 return true
             }
         })
         searchView.setOnQueryTextFocusChangeListener { _: View?, b: Boolean -> mFlagSearchIsOpen = b }
-        updateIcon()
-    }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        updateMenuVisibilities()
+        item = menu.findItem(R.id.change_todo_status)
+        val toDoAction = MenuItemCompat.getActionProvider(item) as ToDoAction
+        toDoAction.mObject = this
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -384,58 +352,22 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
         return super.onOptionsItemSelected(item)
     }
 
-    // POPUP MENU LISTENER
-//    override fun onMenuItemClick(item: MenuItem): Boolean {
-//        when(item.itemId) {
-//            R.id.button_list_none -> {
-//                setListItemMark('n')
-//                return true
-//            }
-//            R.id.button_list_bullet -> {
-//                setListItemMark('*')
-//                return true
-//            }
-//            R.id.button_list_to_do -> {
-//                setListItemMark(' ')
-//                return true
-//            }
-//            R.id.button_list_progressed -> {
-//                setListItemMark('~')
-//                return true
-//            }
-//            R.id.button_list_done -> {
-//                setListItemMark('+')
-//                return true
-//            }
-//            R.id.button_list_canceled -> {
-//                setListItemMark('x')
-//                return true
-//            }
-//            R.id.button_list_numbered -> {
-//                setListItemMark('1')
-//                return true
-//            }
-//        }
-//        return false
-//    }
+    override fun updateMenuVisibilities() {
+        super.updateMenuVisibilities()
 
-    private fun updateMenuVisibilities() {
         val flagWritable = Diary.d.is_in_edit_mode
-        mMenu!!.findItem(R.id.enable_edit).isVisible = !flagWritable &&
+        mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
                 Diary.d.can_enter_edit_mode()
-        mMenu!!.findItem(R.id.change_todo_status).isVisible = flagWritable
-        mMenu!!.findItem(R.id.toggle_favorite).isVisible = flagWritable
-        mMenu!!.findItem(R.id.edit_date).isVisible = flagWritable
-        mMenu!!.findItem(R.id.dismiss).isVisible = flagWritable
+        mMenu.findItem(R.id.change_todo_status).isVisible = flagWritable
+        mMenu.findItem(R.id.toggle_favorite).isVisible = flagWritable
+        mMenu.findItem(R.id.edit_date).isVisible = flagWritable
+        mMenu.findItem(R.id.set_theme).isVisible = flagWritable
+        mMenu.findItem(R.id.dismiss).isVisible = flagWritable
     }
 
     // DiaryEditor interface methods
     override fun enableEditing() {
-        mMenu!!.findItem(R.id.enable_edit).isVisible = false
-        mMenu!!.findItem(R.id.change_todo_status).isVisible = true
-        mMenu!!.findItem(R.id.toggle_favorite).isVisible = true
-        mMenu!!.findItem(R.id.edit_date).isVisible = true
-        mMenu!!.findItem(R.id.dismiss).isVisible = true
+        super.enableEditing()
 
         mEditText.setRawInputType(InputType.TYPE_CLASS_TEXT)
         mEditText.isFocusable = true
@@ -487,17 +419,19 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
         }
         else
             mActionBar.setIcon( m_ptr2entry.get_icon() );*/
-        if(mMenu != null) {
-            var icon = R.drawable.ic_action_not_todo
-            mMenu!!.findItem(R.id.toggle_favorite).setIcon(
-                    if(mEntry.is_favored) R.drawable.ic_action_favorite else R.drawable.ic_action_not_favorite)
-            when(mEntry._todo_status_effective) {
-                Entry.ES_TODO -> icon = R.drawable.ic_action_todo_open
-                Entry.ES_PROGRESSED -> icon = R.drawable.ic_action_todo_progressed
-                Entry.ES_DONE -> icon = R.drawable.ic_action_todo_done
-                Entry.ES_CANCELED -> icon = R.drawable.ic_action_todo_canceled
-            }
-            mMenu!!.findItem(R.id.change_todo_status).setIcon(icon)
+        if(isMenuInitialized) {
+            mMenu.findItem(R.id.toggle_favorite).setIcon(
+                    if(mEntry.is_favored) R.drawable.ic_favorite_active
+                    else R.drawable.ic_favorite_inactive)
+
+            mMenu.findItem(R.id.change_todo_status).setIcon(
+                    when(mEntry._todo_status_effective) {
+                        Entry.ES_TODO ->       R.drawable.ic_todo_open_inactive
+                        Entry.ES_PROGRESSED -> R.drawable.ic_todo_progressed_inactive
+                        Entry.ES_DONE ->       R.drawable.ic_todo_done_inactive
+                        Entry.ES_CANCELED ->   R.drawable.ic_todo_canceled_inactive
+                        else ->                R.drawable.ic_todo_auto_inactive
+                    } )
         }
     }
 
@@ -533,8 +467,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
 
         // if( flagParse )
         // parse();
-        mActionBar!!.title = mEntry._title_str
-        mActionBar!!.subtitle = mEntry._info_str
+        Lifeograph.getActionBar().subtitle = mEntry._title_str
         updateIcon()
         //invalidateOptionsMenu(); // may be redundant here
 
@@ -560,7 +493,6 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
         DialogPicker(requireContext(),
                      object: DialogPicker.Listener{
                                override fun onItemClick(item: RViewAdapterBasic.Item) {
-                                   Log.d(Lifeograph.TAG, "TOFO item Clicked: " + item.mName)
                                    setListItemMark( item.mId[0])
                                }
 
@@ -626,8 +558,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
                 catch(e: Exception) {
                     e.printStackTrace()
                 }
-                mActionBar!!.title = mEntry._title_str
-                mActionBar!!.subtitle = mEntry._info_str
+                Lifeograph.getActionBar().subtitle = mEntry._info_str
             }
         }
     }
@@ -976,6 +907,8 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
     private fun addComment() {
         val pStart: Int = mEditText.selectionStart
 
+        if(pStart>=0)
+            return
         if(mEditText.hasSelection()) {
             val pEnd: Int = mEditText.selectionEnd - 1
             mEditText.text.insert(pStart, "[[")
@@ -1150,7 +1083,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
                 Log.d( Lifeograph.TAG, "Clicked on Date link")
                 var entry = Diary.d.get_entry_by_date(mDate)
                 if(entry == null)
-                    entry = Diary.d.create_entry(mDate, "", false)
+                    entry = Diary.d.create_entry(mDate, "")
                 Lifeograph.showElem(entry!!)
             }
 
@@ -1185,7 +1118,7 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
                 get() = 'i'
         }
 
-        private class LinkCheck(val mHost: FragmentEntry, private val mPara: Paragraph) :
+        private class LinkCheck(val mHost: FragmentEntry) :
                 ClickableSpan(), AdvancedSpan {
             override fun onClick(widget: View) {
                 mHost.showStatusPickerDlg()
@@ -1326,14 +1259,14 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
                 m_p2para_cur.m_date = m_date_last.m_date
         }
 
-        private fun applyCheck(tag_box: Any, tag: Any?, c: Char) {
+        private fun applyCheck(tag_box: Any, tag: Any?) {
             val posBgn = m_pos_cur - 3
             val posBox = m_pos_cur
             var posEnd = mHost.mEditText.text.toString().indexOf('\n', m_pos_cur)
             if(posEnd == -1)
                 posEnd = mHost.mEditText.text.length
             if(Diary.d.is_in_edit_mode)
-                addSpan(LinkCheck(mHost, m_p2para_cur), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
+                addSpan(LinkCheck(mHost), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
             addSpan(tag_box, posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
             addSpan(TypefaceSpan("monospace"), posBgn, posBox, 0)
             if(tag != null)
@@ -1341,21 +1274,20 @@ class FragmentEntry : Fragment(), ToDoObject, InquireListener, DiaryEditor {
         }
 
         public override fun apply_check_unf() {
-            applyCheck(ForegroundColorSpan(Theme.s_color_todo), SpanBold(), ' ')
+            applyCheck(ForegroundColorSpan(Theme.s_color_todo), SpanBold())
         }
 
         public override fun apply_check_prg() {
-            applyCheck(ForegroundColorSpan(Theme.s_color_progressed), null, '~')
+            applyCheck(ForegroundColorSpan(Theme.s_color_progressed), null)
         }
 
         public override fun apply_check_fin() {
             applyCheck(ForegroundColorSpan(Theme.s_color_done),
-                    BackgroundColorSpan(Theme.s_color_done), '+')
+                       BackgroundColorSpan(Theme.s_color_done))
         }
 
         public override fun apply_check_ccl() {
-            applyCheck(ForegroundColorSpan(Theme.s_color_canceled),
-                    SpanStrikethrough(), 'x')
+            applyCheck(ForegroundColorSpan(Theme.s_color_canceled), SpanStrikethrough())
         }
 
         public override fun apply_match() {

@@ -248,7 +248,7 @@ public class Date {
         if( day_new > days_in_month ) {
             date = forward_months( date, 1 );    // sets day to 1, hence -1 below
             if( day_new > days_in_month + 1 )
-                forward_days( date, day_new - days_in_month - 1 );
+                date = forward_days( date, day_new - days_in_month - 1 );
         }
         else
             date = set_day( date, day_new );
@@ -261,9 +261,9 @@ public class Date {
         int day_new = get_day( date ) - n_days;
 
         if( day_new <= 0 ) {
-            backward_months( date, 1 );    // sets day to the last day of previous month
+            date = backward_months( date, 1 );    // sets day to the last day of previous month
             if( day_new < 0 )
-                backward_days( date, -day_new );
+                date = backward_days( date, -day_new );
         }
         else
             date = set_day( date, day_new );
@@ -308,7 +308,7 @@ public class Date {
             else
                 break;
 
-            forward_months( d_m, 1 );
+            d_m = forward_months( d_m, 1 );
         }
 
         result += get_day( date );
@@ -604,11 +604,11 @@ public class Date {
         long date_former = get_pure( Math.min( date1, date2 ) );
         long date_latter = get_pure( Math.max( date1, date2 ) );
 
-        backward_to_week_start( date_former );
-        backward_to_week_start( date_latter );
+        date_former = backward_to_week_start( date_former );
+        date_latter = backward_to_week_start( date_latter );
 
         while( date_former < date_latter ) {
-            forward_days( date_former, 7 );
+            date_former = forward_days( date_former, 7 );
             dist++;
         }
 

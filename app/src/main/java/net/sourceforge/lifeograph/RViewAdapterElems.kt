@@ -43,7 +43,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         val inflater = LayoutInflater.from(parent.context)
 
         return if( viewType == VIEWTYPE_HEADER ) {
-            ViewHolderHeader(inflater.inflate(R.layout.list_item_header, parent, false), this)
+            ViewHolderHeader(inflater.inflate(R.layout.list_item_header, parent, false))
         }
         else {
             ViewHolder(inflater.inflate(R.layout.list_item_element, parent, false), this)
@@ -82,7 +82,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
                 }
             }
 
-            holder.mTVTitle.text = elem._list_str
+            holder.mTVTitle.text = elem._title_str
             holder.mTVDetails.text = elem._info_str
 
             if(mListener.hasIcon2(elem)) {
@@ -94,8 +94,14 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
 
             if(elem.mHasChildren) {
                 holder.mExpander.visibility = View.VISIBLE
-                if(elem._expanded)
-                    holder.mExpander.setImageResource(R.drawable.ic_expanded)
+                if(elem._expanded) {
+                    if(elem._type == DiaryElement.Type.CHAPTER &&
+                        Diary.d.m_sorting_criteria and Diary.SoCr_FILTER_DIR_T ==
+                        Diary.SoCr_DESCENDING_T)
+                        holder.mExpander.setImageResource(R.drawable.ic_expanded_up)
+                    else
+                        holder.mExpander.setImageResource(R.drawable.ic_expanded_dn)
+                }
                 else
                     holder.mExpander.setImageResource(R.drawable.ic_collapsed)
             }
@@ -128,9 +134,9 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         mSelectionStatuses[position] = isChecked
     }
 
-    fun isChecked(position: Int): Boolean {
-        return mSelectionStatuses[position]
-    }
+//    fun isChecked(position: Int): Boolean {
+//        return mSelectionStatuses[position]
+//    }
 
     fun hasSelection(): Boolean {
         return mSelCount > 0
@@ -202,7 +208,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         }
     }
 
-    class ViewHolderHeader(mView: View, private val mAdapter: RVAdapterElems) :
+    class ViewHolderHeader(mView: View) :
             RecyclerView.ViewHolder(mView) {
         val mTvTitle: TextView = mView.findViewById(R.id.title)
     }

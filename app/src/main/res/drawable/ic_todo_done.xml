@@ -1,16 +1,30 @@
-<vector android:height="32dp" android:viewportHeight="16"
-    android:viewportWidth="16" android:width="32dp"
-    xmlns:aapt="http://schemas.android.com/aapt" xmlns:android="http://schemas.android.com/apk/res/android">
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+
+      This file is part of Lifeograph.
+
+      Lifeograph is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      Lifeograph is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="32dp"
+    android:width="32dp"
+    android:viewportHeight="16"
+    android:viewportWidth="16">
     <path android:fillColor="#66bb00"
         android:pathData="M2.4727,1C1.6882,1 1,1.604 1,2.3906v11.2188C1,14.396 1.6882,15 2.4727,15H13.5273C14.3118,15 15,14.396 15,13.6094V2.3906C15,1.604 14.3118,1 13.5273,1ZM12.8281,2.2402A1.0001,1.0001 0,0 1,13.6406 3.875L5.7324,13.7617 2.3398,7.7227A1.0004,1.0004 0,1 1,4.084 6.7422L6.0234,10.1953 12.0801,2.625a1.0001,1.0001 0,0 1,0.748 -0.3848z"
         android:strokeColor="#00000000" android:strokeLineCap="round"
         android:strokeLineJoin="round" android:strokeWidth="1"/>
-    <path android:fillAlpha="0.392157" android:fillColor="#66bb00"
-        android:pathData="M19.6118,1.75L30.6672,1.75A0.9723,0.8906 0,0 1,31.6395 2.6406L31.6395,13.8594A0.9723,0.8906 0,0 1,30.6672 14.75L19.6118,14.75A0.9723,0.8906 0,0 1,18.6395 13.8594L18.6395,2.6406A0.9723,0.8906 0,0 1,19.6118 1.75z"
-        android:strokeColor="#66bb00" android:strokeLineCap="round"
-        android:strokeLineJoin="round" android:strokeWidth="1"/>
-    <path android:fillColor="#00000000"
-        android:pathData="M20.3518,7.4828 L23.0173,12.2283 30,3.5"
-        android:strokeColor="#66bb00" android:strokeLineCap="round"
-        android:strokeLineJoin="miter" android:strokeWidth="2"/>
 </vector>

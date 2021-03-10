@@ -45,7 +45,6 @@ public class Filter extends StringDefElem
         return R.drawable.ic_filter;
     }
 
-
     FiltererContainer
     get_filterer_stack() {
         if( m_definition.isEmpty() )

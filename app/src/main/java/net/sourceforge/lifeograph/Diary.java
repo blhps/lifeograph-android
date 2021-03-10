@@ -631,7 +631,7 @@ public class Diary extends DiaryElement
     }
 
     Entry
-    create_entry( long date, String content, boolean flag_favorite ) {
+    create_entry( long date, String content ) {
         // make it the last entry of its day:
         while( m_entries.containsKey( date ) && Date.get_order_3rd( date ) != 0 ) {
             if( Date.get_order_3rd( date ) == Date.ORDER_3RD_MAX ) {
@@ -641,8 +641,7 @@ public class Diary extends DiaryElement
             ++date;
         }
 
-        Entry entry = new Entry( this, date,
-                                 flag_favorite ? ES_ENTRY_DEFAULT_FAV : ES_ENTRY_DEFAULT );
+        Entry entry = new Entry( this, date, ES_ENTRY_DEFAULT );
 
         entry.set_text( content );
 
@@ -672,7 +671,7 @@ public class Diary extends DiaryElement
     // adds a new entry to today even if there is already one or more:
     Entry
     add_today() {
-        return create_entry( Date.get_today( 0 ), "", false );
+        return create_entry( Date.get_today( 0 ), "" );
     }
 
     boolean

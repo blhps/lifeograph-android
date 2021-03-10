@@ -70,11 +70,14 @@
     <string name="create_filter">Create filter</string>
     <string name="create_chart">Create chart</string>
     <string name="create_chapter">Create chapter</string>
-    <string name="create_tag">Create Tag</string>
+    <string name="create_theme">Create Theme</string>
     <string name="add_tag">Add Tag</string>
     <string name="edit_tags">Edit Tags</string>
 
+    <string name="duplicate_entry">Duplicate Entry</string>
     <string name="duplicate_filter">Duplicate Filter</string>
+    <string name="duplicate_chart">Duplicate Chart</string>
+    <string name="duplicate_theme">Duplicate Theme</string>
 
     <string name="rename_chapter_ctg">Rename Chapter Category</string>
     <string name="rename_chapter">Rename Chapter</string>
@@ -91,9 +94,11 @@
     <string name="dated_chapters">Dated Chapters</string>
     <string name="favorites">Favorites</string>
 
-    <string name="search_and_filter">Search &amp; Filter</string>
+    <string name="search">Search</string>
+    <string name="no_matches">No matches</string>
+    <string name="matches">Matches</string>
     <string name="all_entries">All Entries</string>
-    <string name="entry_last_changed_on">Changed on</string>
+    <string name="entry_last_changed_on">Changed:</string>
 
     <string name="add_password">Encrypt Diary</string>
     <string name="change_password">Change Password</string>
@@ -147,7 +152,7 @@
     <string name="bullet">Bullet</string>
     <string name="placeholder" translatable="false">.p.</string>
     <string name="icon">icon</string>
-    <string name="copyright" translatable="false">&#169; 2012&#8211;2020, Ahmet Öztürk</string>
+    <string name="copyright" translatable="false">&#169; 2012&#8211;2021, Ahmet Öztürk</string>
     <string name="bullet_icon">•</string>
     <string name="numbered_item_icon">#- Number</string>
 

@@ -69,8 +69,7 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
 
     //@Override
     public boolean onMenuItemClick( MenuItem item ) {
-        switch( item.getItemId() )
-        {
+        switch( item.getItemId() ) {
             case android.R.id.home:
                 return true;
             case R.id.todo_auto:
@@ -101,6 +100,5 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
         void setTodoStatus( int s );
     }
 
-    //private Context mContext; // not used now
     ToDoObject mObject;
 }

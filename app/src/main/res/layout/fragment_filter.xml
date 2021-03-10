@@ -43,32 +43,6 @@
             android:layout_margin="10dp"
             android:layout_gravity="center_horizontal"/>
 
-        <FrameLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" >
-
-            <EditText
-                android:id="@+id/editTextSearch"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="@string/search_hint"
-                android:inputType="text"
-                android:singleLine="true"
-                android:importantForAutofill="no" />
-
-            <Button
-                android:id="@+id/buttonClearText"
-                android:layout_width="24dp"
-                android:layout_height="24dp"
-                android:layout_marginEnd="8dp"
-                android:layout_gravity="end|center_vertical"
-                android:scaleType="centerInside"
-                android:background="@drawable/ic_clear"
-                android:visibility="invisible"
-                android:layout_marginRight="8dp" />
-
-        </FrameLayout>
-
         <!-- separator -->
         <TextView
             android:layout_width="match_parent"
@@ -92,7 +66,7 @@
                 android:layout_weight=".2"
                 android:id="@+id/show_todo_not"
                 style="?android:attr/borderlessButtonStyle"
-                android:src="@drawable/icon_entry" />
+                android:src="@drawable/selector_entry" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="0dp"
@@ -102,7 +76,7 @@
                 android:layout_weight=".2"
                 android:id="@+id/show_todo_open"
                 style="?android:attr/borderlessButtonStyle"
-                android:src="@drawable/icon_todo_open" />
+                android:src="@drawable/selector_todo_open" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="0dp"
@@ -112,7 +86,7 @@
                 android:layout_weight=".2"
                 android:id="@+id/show_todo_progressed"
                 style="?android:attr/borderlessButtonStyle"
-                android:src="@drawable/icon_todo_progressed" />
+                android:src="@drawable/selector_todo_progressed" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="0dp"
@@ -122,7 +96,7 @@
                 android:layout_weight=".2"
                 android:id="@+id/show_todo_done"
                 style="?android:attr/borderlessButtonStyle"
-                android:src="@drawable/icon_todo_done" />
+                android:src="@drawable/selector_todo_done" />
 
             <net.sourceforge.lifeograph.ToggleImageButton
                 android:layout_width="0dp"
@@ -132,7 +106,7 @@
                 android:layout_weight=".2"
                 android:id="@+id/show_todo_canceled"
                 style="?android:attr/borderlessButtonStyle"
-                android:src="@drawable/icon_todo_canceled" />
+                android:src="@drawable/selector_todo_canceled" />
 
         </LinearLayout>
 

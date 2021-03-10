@@ -237,18 +237,10 @@ public class Entry extends DiaryElement {
     @Override
     public String
     get_title_str() {
-        if( ! m_date.is_hidden() ) {
-            StringBuilder title = new StringBuilder();
-            title.append( m_date.format_string() );
-
-            if( !m_date.is_ordinal() && Lifeograph.screenWidth > 3.0 )
-                title.append( ", " ).append( m_date.get_weekday_str() );
-
-            return title.toString();
-        }
-        else {
-            return "/"; // TODO find a better name
-        }
+        if( m_date.is_hidden() )
+            return m_name;
+        else
+            return( m_date.format_string() + STR_SEPARATOR + m_name );
     }
 
     @Override
@@ -261,14 +253,6 @@ public class Entry extends DiaryElement {
         else {
             return m_date.get_weekday_str();
         }
-    }
-
-    @Override
-    public String get_list_str() {
-        if( m_date.is_hidden() )
-            return m_name;
-        else
-            return( m_date.format_string() + STR_SEPARATOR + m_name );
     }
 
     // TEXTUAL CONTENTS ============================================================================

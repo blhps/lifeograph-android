@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- ***************************************************************************
+
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+
+    This file is part of Lifeograph.
+
+    Lifeograph is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Lifeograph is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+
+**************************************************************************** -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:compat="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/enable_edit"
+          android:title="@string/edit"
+          android:orderInCategory="80"
+          compat:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/search_text"
+          android:title="@string/search_hint"
+          android:icon="@drawable/ic_search"
+          compat:showAsAction="collapseActionView|ifRoom"
+          android:orderInCategory="90"
+          compat:actionViewClass="androidx.appcompat.widget.SearchView" />
+    <item android:id="@+id/add_password"
+          android:title="@string/add_password"
+          android:orderInCategory="100"
+          compat:showAsAction="never" />
+    <item android:id="@+id/change_password"
+          android:title="@string/change_password"
+          android:orderInCategory="100"
+          compat:showAsAction="never" />
+    <item android:id="@+id/export_plain_text"
+          android:title="@string/export_plain_text"
+          android:orderInCategory="100"
+          compat:showAsAction="never" />
+    <!-- TODO WILL BE IMPLEMENTED IN 0.6
+    item android:id="@+id/import_sms"
+          android:title="@string/import_sms"
+          android:orderInCategory="100"
+          android:showAsAction="never" /-->
+    <item android:id="@+id/logout_wo_save"
+          android:title="@string/logoutwosaving"
+          android:orderInCategory="100"
+          compat:showAsAction="never" />
+</menu>

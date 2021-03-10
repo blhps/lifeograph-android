@@ -26,7 +26,7 @@ android {
 //            }
 
         }
-        versionName '0.10.0.beta'
+        versionName '1.0.0.beta-1'
         versionCode 9990
 
         vectorDrawables.useSupportLibrary = true

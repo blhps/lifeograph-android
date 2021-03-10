@@ -26,19 +26,64 @@ import android.util.Log
 import android.view.*
 import android.widget.ImageButton
 import net.sourceforge.lifeograph.DialogPassword.DPAction
-import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
 import net.sourceforge.lifeograph.helpers.Result
 import java.util.*
 
-class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryEditor,
+class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                             RVAdapterElems.Listener {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_entries
-    override val mMenuId: Int   = R.menu.menu_diary
+    override val mMenuId: Int   = R.menu.menu_list_entries
     override val mName: String  = Lifeograph.getStr( R.string.entries )
 
+    companion object {
+        val compareElemsByDate = CompareElemsByDate()
+    }
+
     // METHODS =====================================================================================
-        // This callback will only be called when MyFragment is at least Started.
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+
+        var button = view.findViewById<ImageButton>(R.id.btn_toggle_favorite)
+        button.setOnClickListener { toggleSelFavoredness() }
+        button = view.findViewById(R.id.btn_todo_status)
+        button.setOnClickListener { showStatusDlg() }
+        button = view.findViewById(R.id.duplicate)
+        button.setOnClickListener { duplicateSel() }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.search_text -> {
+                Lifeograph.mActivityMain.navigateTo(R.id.nav_search)
+                true
+            }
+            R.id.add_password -> {
+                DialogPassword(requireContext(),
+                        Diary.d,
+                        DPAction.DPA_ADD,
+                        this).show()
+                true
+            }
+            R.id.change_password -> {
+                DialogPassword(requireContext(),
+                        Diary.d,
+                        DPAction.DPA_AUTHENTICATE,
+                        this).show()
+                true
+            }
+            R.id.export_plain_text -> {
+                if(Diary.d.write_txt() == Result.SUCCESS)
+                    Lifeograph.showToast(R.string.text_export_success)
+                else
+                    Lifeograph.showToast(R.string.text_export_fail)
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    // This callback will only be called when MyFragment is at least Started.
 //        OnBackPressedCallback callback = new OnBackPressedCallback( true /* enabled by default */) {
 //            @Override
 //            public void handleOnBackPressed() {
@@ -49,103 +94,14 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
 //        };
 //        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-
-        mFabAdd.setOnClickListener {
-            DialogPicker(requireContext(), object: DialogPicker.Listener{
-                 override fun onItemClick(item: RViewAdapterBasic.Item) {
-                     when(item.mId) {
-                         "T" -> {
-                             Lifeograph.goToToday()
-                             handleElemNumberChanged()
-                         }
-                         "F" -> {
-                             Lifeograph.addEntry(
-                                     Diary.d.get_available_order_1st(true), "")
-                             handleElemNumberChanged()
-                         }
-                         else -> {
-                             Lifeograph.addEntry(
-                                     Diary.d.get_available_order_1st(false), "")
-                             handleElemNumberChanged()
-                         }
-                     }
-                 }
-
-                 override fun populateItems(list: RVBasicList) {
-                     list.clear()
-
-                     list.add(RViewAdapterBasic.Item(
-                             Lifeograph.getStr(R.string.add_today), "T",
-                             R.drawable.ic_entry))
-                     list.add(RViewAdapterBasic.Item(
-                             Lifeograph.getStr(R.string.add_free), "F",
-                             R.drawable.ic_entry))
-                     list.add(RViewAdapterBasic.Item(
-                             Lifeograph.getStr(R.string.add_numbered), "N",
-                             R.drawable.ic_entry))
-                 }
-             }).show()
-        }
-
-        var button = view.findViewById<ImageButton>(R.id.btn_toggle_favorite)
-        button.setOnClickListener { toggleSelFavoredness() }
-        button = view.findViewById(R.id.btn_todo_auto)
-        button.setOnClickListener { setSelTodoStatus(DiaryElement.ES_NOT_TODO) }
-        button = view.findViewById(R.id.btn_todo_open)
-        button.setOnClickListener { setSelTodoStatus(DiaryElement.ES_TODO) }
-        button = view.findViewById(R.id.btn_todo_done)
-        button.setOnClickListener { setSelTodoStatus(DiaryElement.ES_DONE) }
-    }
-
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if(id == R.id.enable_edit) {
-            Lifeograph.enableEditing(this)
-            return true
-        }
-        else if(id == R.id.home && handleBack()) {
-            //finish();
-            return true
-        }
-        else if(id == R.id.add_password) {
-            DialogPassword(requireContext(),
-                    Diary.d,
-                    DPAction.DPA_ADD,
-                    this).show()
-            return true
-        }
-        else if(id == R.id.change_password) {
-            DialogPassword(requireContext(),
-                    Diary.d,
-                    DPAction.DPA_AUTHENTICATE,
-                    this).show()
-            return true
-        }
-        else if(id == R.id.export_plain_text) {
-            if(Diary.d.write_txt() == Result.SUCCESS)
-                Lifeograph.showToast(R.string.text_export_success)
-            else
-                Lifeograph.showToast(R.string.text_export_fail)
-            return true
-        }
-        else if(id == R.id.logout_wo_save) {
-            Lifeograph.logoutWithoutSaving(requireView())
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
     override fun updateMenuVisibilities() {
+        super.updateMenuVisibilities()
+
         val flagWritable = Diary.d.is_in_edit_mode
         val flagEncrypted = Diary.d.is_encrypted
-        mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.d.can_enter_edit_mode()
         mMenu.findItem(R.id.export_plain_text).isVisible = !Diary.d.is_virtual
         mMenu.findItem(R.id.add_password).isVisible = flagWritable && !flagEncrypted
         mMenu.findItem(R.id.change_password).isVisible = flagWritable && flagEncrypted
-        mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
     }
 
     override fun updateList() {
@@ -179,7 +135,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
 
             // ordinals & orphans
             if(!entry._filtered_out &&
-                    (entry.is_ordinal || entry._date_t < firstChapterDate)) {
+                (entry.is_ordinal || entry._date_t < firstChapterDate)) {
                 mElems.add(entry)
             }
             // other entries were taken care of in add_chapter_category_to_list()
@@ -187,12 +143,51 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
             entryPrevUpdated = true
         }
 
-//        mElems.add( new HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) );
+        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) );
         mElems.add(HeaderElem(R.string.free_entries, Date.NUMBERED_MIN))
         mElems.add(HeaderElem(R.string.dated_entries,
-                Date.make(Date.YEAR_MAX + 1, 12, 31, 0)))
+                              Date.make(Date.YEAR_MAX + 1, 12, 31, 0)))
         //}
         Collections.sort(mElems, compareElemsByDate)
+
+        mItemCount = mElems.size - 3
+    }
+
+    override fun createNewElem() {
+        DialogPicker(requireContext(), object: DialogPicker.Listener{
+            override fun onItemClick(item: RViewAdapterBasic.Item) {
+                when(item.mId) {
+                    "T" -> {
+                        Lifeograph.goToToday()
+                        handleElemNumberChanged()
+                    }
+                    "F" -> {
+                        Lifeograph.addEntry(
+                                Diary.d.get_available_order_1st(true), "")
+                        handleElemNumberChanged()
+                    }
+                    else -> {
+                        Lifeograph.addEntry(
+                                Diary.d.get_available_order_1st(false), "")
+                        handleElemNumberChanged()
+                    }
+                }
+            }
+
+            override fun populateItems(list: RVBasicList) {
+                list.clear()
+
+                list.add(RViewAdapterBasic.Item(
+                        Lifeograph.getStr(R.string.add_today), "T",
+                        R.drawable.ic_entry))
+                list.add(RViewAdapterBasic.Item(
+                        Lifeograph.getStr(R.string.add_free), "F",
+                        R.drawable.ic_entry))
+                list.add(RViewAdapterBasic.Item(
+                        Lifeograph.getStr(R.string.add_numbered), "N",
+                        R.drawable.ic_entry))
+            }
+        }).show()
     }
 
     override fun toggleExpanded(elem: DiaryElement?) {
@@ -221,11 +216,61 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
         mAdapter.notifyDataSetChanged()
     }
 
-    private fun setSelTodoStatus(status: Int) {
+    private fun showStatusDlg() {
+        DialogPicker(requireContext(), object: DialogPicker.Listener{
+            override fun onItemClick(item: RViewAdapterBasic.Item) {
+                Log.d(Lifeograph.TAG, "TOFO item Clicked: " + item.mName)
+                setSelTodoStatus(item.mId)
+            }
+
+            override fun populateItems(list: RVBasicList) {
+                list.clear()
+
+                list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_auto),
+                                                "A",
+                                                R.drawable.ic_todo_auto))
+                list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_open),
+                                                " ",
+                                                R.drawable.ic_todo_open))
+                list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_progressed),
+                                                "~",
+                                                R.drawable.ic_todo_progressed))
+                list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_done),
+                                                "+",
+                                                R.drawable.ic_todo_done))
+                list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_canceled),
+                                                "x",
+                                                R.drawable.ic_todo_canceled))
+            }
+        }).show()
+    }
+
+    private fun setSelTodoStatus(status: String) {
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val entry = mElems[i] as Entry
-                entry._todo_status = status
+                entry._todo_status = when(status) {
+                    "A" -> DiaryElement.ES_NOT_TODO
+                    " " -> DiaryElement.ES_TODO
+                    "~" -> DiaryElement.ES_PROGRESSED
+                    "+" -> DiaryElement.ES_DONE
+                    else -> DiaryElement.ES_CANCELED
+                }
+            }
+        }
+        mAdapter.notifyDataSetChanged()
+    }
+
+    private fun duplicateSel() {
+        for((i, selected) in mSelectionStatuses.withIndex()) {
+            if(selected) {
+                val entry = mElems[i] as Entry
+                DialogInquireText(requireContext(),
+                                  R.string.duplicate_entry,
+                                  entry.m_name,
+                                  R.string.create,
+                                  this).show()
+                break
             }
         }
         mAdapter.notifyDataSetChanged()
@@ -234,6 +279,19 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
     fun handleElemNumberChanged() {
         mSelectionStatuses.clear()
         mSelectionStatuses.addAll(Collections.nCopies(Diary.d._size, false))
+    }
+
+    override fun onInquireAction(id: Int, text: String) {
+        if(id == R.string.duplicate_entry) {
+            for((i, selected) in mSelectionStatuses.withIndex()) {
+                if(selected) {
+                    val entry = mElems[i] as Entry
+                    Lifeograph.duplicateEntry(entry, text)
+                    break
+                }
+            }
+            mAdapter.notifyDataSetChanged()
+        }
     }
 
     // DialogPassword INTERFACE METHODS ============================================================
@@ -254,29 +312,38 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
     class CompareElemsByDate : Comparator<DiaryElement> {
         override fun compare(elem_l: DiaryElement, elem_r: DiaryElement): Int {
             // SORT BY NAME
-            return if(elem_l._date_t == Date.NOT_APPLICABLE) {
-                0
-            }
-            else {
-                val sc = Diary.d.m_sorting_criteria
-                var direction = 1
-                if(Date.is_same_kind(elem_l._date_t, elem_r._date_t)) {
-                    direction =
-                            if(elem_l._date.is_ordinal)
-                                if(sc and Diary.SoCr_FILTER_DIR == Diary.SoCr_ASCENDING) -1
-                                else 1
-                            else if(sc and Diary.SoCr_FILTER_DIR_T == Diary.SoCr_ASCENDING_T) -1
+//            return if(elem_l._date_t == Date.NOT_APPLICABLE) {
+//                0
+//            }
+//            else {
+            val sc = Diary.d.m_sorting_criteria
+            var direction = 1
+            if(Date.is_same_kind(elem_l._date_t, elem_r._date_t)) {
+                when {
+                    Date.is_descendant_of(elem_l._date_t, elem_r._date_t) -> return 1
+                    Date.is_descendant_of(elem_r._date_t, elem_l._date_t) -> return -1
+                    else -> direction = when {
+                        elem_l._date.is_ordinal -> {
+                            if(sc and Diary.SoCr_FILTER_DIR == Diary.SoCr_ASCENDING) -1
                             else 1
+                        }
+                        sc and Diary.SoCr_FILTER_DIR_T == Diary.SoCr_ASCENDING_T -> -1
+                        else -> 1
+                    }
                 }
-                if(elem_l._date_t > elem_r._date_t) -direction
-                else if(elem_l._date_t < elem_r._date_t) direction
-                else 0
             }
+            return when {
+                elem_l._date_t > elem_r._date_t -> -direction
+                elem_l._date_t < elem_r._date_t -> direction
+                else -> 0
+            }
+            //}
         }
     }
 
     // HEADER PSEUDO ELEMENT CLASS =================================================================
-    internal class HeaderElem(nameRsc: Int, private val mDate: Long) : DiaryElement(null, Lifeograph.getStr(nameRsc), ES_VOID) {
+    internal class HeaderElem(nameRsc: Int, private val mDate: Long) :
+            DiaryElement(null, Lifeograph.getStr(nameRsc), ES_VOID) {
         override fun get_type(): Type {
             return Type.NONE
         }
@@ -284,9 +351,5 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, DiaryE
         override fun get_date_t(): Long {
             return mDate
         }
-    }
-
-    companion object {
-        val compareElemsByDate = CompareElemsByDate()
     }
 }

@@ -8,6 +8,7 @@
         <item name="android:textColorSecondary">@color/t_lighter</item>
         <item name="colorPrimaryDark">@color/t_darker</item> <!--system tray bg-->
         <item name="buttonStyle">@style/LifeoButtonTheme</item>
+        <item name="editTextStyle">@style/LifeoEditTextTheme</item>
     </style>
 
     <!-- FOR THE MAIN WINDOW -->
@@ -17,6 +18,10 @@
     </style>
 
     <style name="LifeoButtonTheme" parent="@style/Widget.AppCompat.Button.Borderless.Colored">
+        <item name="android:textColor">@color/t_darkest</item>
+    </style>
+
+    <style name="LifeoEditTextTheme" parent="@style/Widget.AppCompat.EditText">
         <item name="android:textColor">@color/t_darkest</item>
     </style>
 
@@ -45,7 +50,7 @@
 
     <style name="LifeoTheme.DropDownListView"
            parent="@style/Widget.AppCompat.ListView.DropDown">
-        <item name="android:listSelector">@drawable/themed_selector_dark</item>
+        <item name="android:listSelector">@drawable/selector_theme_colors_dark</item>
     </style>
 
     <!-- DIALOG STYLES -->

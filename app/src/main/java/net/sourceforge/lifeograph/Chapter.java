@@ -24,6 +24,8 @@ package net.sourceforge.lifeograph;
 import android.graphics.Color;
 
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
 import java.util.TreeSet;
 
 public class Chapter extends Entry {
@@ -190,8 +192,7 @@ public class Chapter extends Entry {
             return true; // reserved
         }
 
-        java.util.TreeMap< Long, Chapter > mMap =
-                new java.util.TreeMap<>( DiaryElement.compare_dates );
+        TreeMap< Long, Chapter > mMap = new java.util.TreeMap<>( DiaryElement.compare_dates );
     }
 
     Chapter( Diary d, long date, int status ) {
@@ -277,8 +278,7 @@ public class Chapter extends Entry {
 
     // DATA
     int      m_time_span = 0;
-    java.util.TreeSet< Entry >
-             mEntries = new TreeSet< Entry >( DiaryElement.compare_elems_by_date );
+    Set< Entry > mEntries = new TreeSet<>( DiaryElement.compare_elems_by_date );
     int      m_color = Color.WHITE;
     Category m_p2ctg = null;
 }

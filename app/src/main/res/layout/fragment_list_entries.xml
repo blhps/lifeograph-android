@@ -81,7 +81,14 @@
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:src="@drawable/ic_action_favorite" />
+                app:srcCompat="@drawable/ic_favorite_active" />
+
+            <ImageButton
+                android:id="@+id/duplicate"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                app:srcCompat="@drawable/ic_copy" />
 
             <ImageButton
                 android:id="@+id/dismiss"
@@ -91,29 +98,15 @@
                 app:srcCompat="@drawable/ic_dismiss" />
 
             <ImageButton
-                android:id="@+id/btn_todo_auto"
+                android:id="@+id/btn_todo_status"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_todo_auto" />
-
-            <ImageButton
-                android:id="@+id/btn_todo_open"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_todo_open_bw" />
-
-            <ImageButton
-                android:id="@+id/btn_todo_done"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@mipmap/ic_todo_done_bw" />
+                app:srcCompat="@drawable/ic_todo_progressed_inactive" />
 
             <View
                 android:id="@+id/divider"
-                android:layout_width="1dp"
+                android:layout_width="0dp"
                 android:layout_height="match_parent"
                 android:layout_weight="1"
                 android:background="?android:attr/listDivider" />

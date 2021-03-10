@@ -17,10 +17,13 @@
       along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<vector android:height="32dp" android:viewportHeight="16"
-    android:viewportWidth="16" android:width="32dp"
-    xmlns:android="http://schemas.android.com/apk/res/android">
-    <path android:fillAlpha="0.39215687" android:fillColor="#00000000"
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:height="32dp"
+    android:width="32dp"
+    android:viewportHeight="16"
+    android:viewportWidth="16">
+    <path android:fillAlpha="0.39215687"
         android:pathData="M2.5,2L13.5,2A0.5,0.5 0,0 1,14 2.5L14,13.5A0.5,0.5 0,0 1,13.5 14L2.5,14A0.5,0.5 0,0 1,2 13.5L2,2.5A0.5,0.5 0,0 1,2.5 2z"
         android:strokeColor="#f20d0d" android:strokeLineCap="butt"
         android:strokeLineJoin="round" android:strokeWidth="2"/>

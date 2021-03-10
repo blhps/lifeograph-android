@@ -33,7 +33,7 @@ class RViewAdapterBasic(private val mItems: List<Item>, var mListener: Listener)
     // VARIABLES ===================================================================================
     var mViewHolder: ViewHolder? = null
 
-    class Item(val mName: String, val mId: String, val mIcon: Int) {
+    class Item(val mName: String, val mId: String, val mIcon: Int, val mIdNum: Int = 0) {
         override fun toString(): String {
             return mName
         }

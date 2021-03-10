@@ -21,81 +21,52 @@
 
 package net.sourceforge.lifeograph
 
-import android.content.Context
 import android.os.Bundle
-import android.text.Editable
-import android.text.TextWatcher
 import android.util.Log
-import android.view.LayoutInflater
+import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
 import android.view.inputmethod.EditorInfo
 import android.widget.AdapterView
 import android.widget.AdapterView.OnItemSelectedListener
 import android.widget.Button
 import android.widget.EditText
 import android.widget.Spinner
-import androidx.fragment.app.Fragment
-import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
-import java.util.*
 
-class FragmentFilter : Fragment(), DiaryEditor {
+class FragmentFilter : FragmentDiaryEditor(), DialogInquireText.Listener  {
     // VARIABLES ===================================================================================
+    override val mLayoutId: Int = R.layout.fragment_filter
+    override val mMenuId: Int   = R.menu.menu_chart // same for now
+
     private lateinit var mEditSearch: EditText
-    private lateinit var mButtonSearchTextClear: Button
     private lateinit var mButtonShowTodoNot: ToggleImageButton
     private lateinit var mButtonShowTodoOpen: ToggleImageButton
     private lateinit var mButtonShowTodoProgressed: ToggleImageButton
     private lateinit var mButtonShowTodoDone: ToggleImageButton
     private lateinit var mButtonShowTodoCanceled: ToggleImageButton
     private lateinit var mSpinnerShowFavorite: Spinner
-    private var mTextInitialized = false
 
     companion object {
         lateinit var mFilter: Filter
     }
 
     // METHODS =====================================================================================
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstanceState: Bundle?): View {
-        Log.d(Lifeograph.TAG, "FragmentFilter.onCreateView()")
-        val rootView = inflater.inflate(
-                R.layout.fragment_filter, container, false) as ViewGroup
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ActivityMain.mViewCurrent = this
 
         // FILLING WIDGETS
-        mEditSearch = rootView.findViewById(R.id.editTextSearch)
-        mButtonSearchTextClear = rootView.findViewById(R.id.buttonClearText)
-        mButtonShowTodoNot = rootView.findViewById(R.id.show_todo_not)
-        mButtonShowTodoOpen = rootView.findViewById(R.id.show_todo_open)
-        mButtonShowTodoProgressed = rootView.findViewById(R.id.show_todo_progressed)
-        mButtonShowTodoDone = rootView.findViewById(R.id.show_todo_done)
-        mButtonShowTodoCanceled = rootView.findViewById(R.id.show_todo_canceled)
-        mSpinnerShowFavorite = rootView.findViewById(R.id.spinnerFavorites)
+        mButtonShowTodoNot = view.findViewById(R.id.show_todo_not)
+        mButtonShowTodoOpen = view.findViewById(R.id.show_todo_open)
+        mButtonShowTodoProgressed = view.findViewById(R.id.show_todo_progressed)
+        mButtonShowTodoDone = view.findViewById(R.id.show_todo_done)
+        mButtonShowTodoCanceled = view.findViewById(R.id.show_todo_canceled)
+        mSpinnerShowFavorite = view.findViewById(R.id.spinnerFavorites)
         if(Lifeograph.screenHeight >= Lifeograph.MIN_HEIGHT_FOR_NO_EXTRACT_UI)
             mEditSearch.imeOptions = EditorInfo.IME_FLAG_NO_EXTRACT_UI
 
         // UI UPDATES (must come before listeners)
         updateFilterWidgets(Diary.d.m_filter_active._status)
-        if(Diary.d.is_search_active) {
-            mEditSearch.setText(Diary.d._search_text)
-            mButtonSearchTextClear.visibility = View.VISIBLE
-        }
 
         // LISTENERS
-        mEditSearch.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {}
-            override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
-            override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if(mTextInitialized) {
-                    handleSearchTextChanged(s.toString())
-                    mButtonSearchTextClear.visibility =
-                            if(s.isNotEmpty()) View.VISIBLE else View.INVISIBLE
-                }
-                else mTextInitialized = true
-            }
-        })
-        mButtonSearchTextClear.setOnClickListener { mEditSearch.setText("") }
         mButtonShowTodoNot.setOnClickListener { handleFilterTodoChanged() }
         mButtonShowTodoOpen.setOnClickListener { handleFilterTodoChanged() }
         mButtonShowTodoProgressed.setOnClickListener { handleFilterTodoChanged() }
@@ -113,39 +84,44 @@ class FragmentFilter : Fragment(), DiaryEditor {
 
             private var mInitialized = false
         }
-        val buttonFilterReset = rootView.findViewById<Button>(R.id.buttonFilterReset)
+        val buttonFilterReset = view.findViewById<Button>(R.id.buttonFilterReset)
         buttonFilterReset.setOnClickListener { resetFilter() }
-        val buttonFilterSave = rootView.findViewById<Button>(R.id.buttonFilterSave)
+        val buttonFilterSave = view.findViewById<Button>(R.id.buttonFilterSave)
         buttonFilterSave.setOnClickListener { saveFilter() }
-        return rootView
-    }
-
-    override fun onAttach(context: Context) {
-        super.onAttach(context)
-        Log.d(Lifeograph.TAG, "FragmentFilter.onAttach() - $context")
-
-//        if( context instanceof FragmentListEntries.ListOperations )
-//            mListOperations = ( FragmentListEntries.ListOperations ) context;
-//        else
-//            throw new ClassCastException( context.toString() + " must implement ListOperations" );
     }
 
     override fun onResume() {
         super.onResume()
-        mTextInitialized = false
-        mEditSearch.setText(Diary.d._search_text)
+
+        Lifeograph.getActionBar().subtitle = mFilter._title_str
     }
 
-    override fun onDetach() {
-        super.onDetach()
-        Log.d(Lifeograph.TAG, "FragmentFilter.onDetach() - $this")
-
-//        mListOperations = null;
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.rename -> {
+                DialogInquireText(requireContext(),
+                                  R.string.rename,
+                                  mFilter.m_name,
+                                  R.string.apply,
+                                  this).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
     }
 
-    fun handleSearchTextChanged(text: String) {
-        Diary.d.set_search_text(text.toLowerCase(Locale.ROOT), false)
-        //        mListOperations.updateList();
+    override fun updateMenuVisibilities() {
+        super.updateMenuVisibilities()
+
+        val flagWritable = Diary.d.is_in_edit_mode
+        mMenu.findItem(R.id.rename).isVisible = flagWritable
+    }
+
+    override fun onInquireAction(id: Int, text: String) {
+        if(id == R.string.rename) {
+            Diary.d.rename_filter(mFilter.m_name, text)
+            Lifeograph.getActionBar().subtitle = mFilter._title_str
+        }
     }
 
     private fun updateFilterWidgets(fs: Int) {
@@ -173,22 +149,23 @@ class FragmentFilter : Fragment(), DiaryEditor {
     }
 
     fun handleFilterFavoriteChanged(i: Int) {
-        var showFav = true
-        var showNotFav = true
-        when(i) {
-            0 -> {
-                showFav = true
-                showNotFav = true
-            }
-            1 -> {
-                showFav = false
-                showNotFav = true
-            }
-            2 -> {
-                showFav = true
-                showNotFav = false
-            }
-        }
+        Log.d(Lifeograph.TAG, i.toString() )
+//        var showFav = true
+//        var showNotFav = true
+//        when(i) {
+//            0 -> {
+//                showFav = true
+//                showNotFav = true
+//            }
+//            1 -> {
+//                showFav = false
+//                showNotFav = true
+//            }
+//            2 -> {
+//                showFav = true
+//                showNotFav = false
+//            }
+//        }
 
         //mFilter.set_favorites( showFav, showNotFav )
     }
@@ -202,13 +179,5 @@ class FragmentFilter : Fragment(), DiaryEditor {
     private fun saveFilter() {
         Lifeograph.showToast(R.string.filter_saved)
         //        Diary.diary.m_filter_default.set( Diary.diary.m_filter_active );
-    }
-
-    override fun enableEditing() {
-        TODO("Not yet implemented")
-    }
-
-    override fun handleBack(): Boolean {
-        return false
     }
 }

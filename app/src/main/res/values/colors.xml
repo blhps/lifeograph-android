@@ -7,4 +7,5 @@
     <color name="t_light">#e9bbbb</color>
     <color name="t_lighter">#ead0d0</color>
     <color name="t_lightest">#efe0e0</color>
+    <color name="t_icon_main">#a53737</color>
 </resources>

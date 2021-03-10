@@ -59,7 +59,7 @@
     <string name="dated_chapters">Datumsbezogene Abschnitte</string>
     <string name="favorites">Favoriten</string>
 
-    <string name="search_and_filter">Suchen &amp; Filtern</string>
+    <string name="search">Suchen &amp; Filtern</string>
     <string name="all_entries">Alle Einträge</string>
     <string name="entry_last_changed_on">Eintrag zuletzt geändert am</string>
 

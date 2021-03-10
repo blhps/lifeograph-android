@@ -21,48 +21,64 @@
 
 package net.sourceforge.lifeograph
 
-import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
-import android.view.LayoutInflater
-import android.view.Menu
-import android.view.View
-import android.view.ViewGroup
-import androidx.fragment.app.Fragment
+import android.view.*
 
-class FragmentChart : Fragment()
+class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
 {
     // VARIABLES ===================================================================================
+    override val mLayoutId: Int = R.layout.fragment_chart
+    override val mMenuId: Int   = R.menu.menu_chart
+
+    private lateinit var mChartWidget: ViewChart
+
     companion object {
         lateinit var mChartElem: ChartElem
     }
-    private val mMenu: Menu? = null
-    private var mChartWidget: ViewChart? = null
 
     // METHODS =====================================================================================
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstState: Bundle?): View? {
-        Log.d(Lifeograph.TAG, "FragmentEntryList.onCreateView()")
-        return inflater.inflate(R.layout.fragment_chart, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ActivityMain.mViewCurrent = this
+
         mChartWidget = view.findViewById(R.id.chart_widget)
 
-        mChartWidget!!.m_data = ChartData(Diary.d)
-        mChartWidget!!.m_data.set_from_string(mChartElem._definition)
+        mChartWidget.m_data = ChartData(Diary.d)
+        mChartWidget.m_data.set_from_string(mChartElem._definition)
 
-        mChartWidget?.calculate_points( 1.0 )
+        mChartWidget.calculate_points( 1.0 )
     }
 
-    @SuppressLint("RestrictedApi")
     override fun onResume() {
-        Log.d(Lifeograph.TAG, "FragmentEntryList.onResume()")
         super.onResume()
-        //ActivityMain.mViewCurrent = this
+
+        Lifeograph.getActionBar().subtitle = mChartElem._title_str
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        return when(item.itemId) {
+            R.id.rename -> {
+                DialogInquireText(requireContext(),
+                                  R.string.rename,
+                                  mChartElem.m_name,
+                                  R.string.apply,
+                                  this).show()
+                true
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+    }
+
+    override fun updateMenuVisibilities() {
+        super.updateMenuVisibilities()
+
+        val flagWritable = Diary.d.is_in_edit_mode
+        mMenu.findItem(R.id.rename).isVisible = flagWritable
+    }
+
+    override fun onInquireAction(id: Int, text: String) {
+        if(id == R.string.rename) {
+            Diary.d.rename_chart( mChartElem.m_name, text)
+            Lifeograph.getActionBar().subtitle = mChartElem._title_str
+        }
     }
 }

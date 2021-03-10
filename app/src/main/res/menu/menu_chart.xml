@@ -27,6 +27,10 @@
           android:title="@string/edit"
           android:orderInCategory="80"
           compat:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/rename"
+          android:title="@string/rename"
+          android:orderInCategory="100"
+          compat:showAsAction="never" />
     <item android:id="@+id/logout_wo_save"
           android:title="@string/logoutwosaving"
           android:orderInCategory="100"

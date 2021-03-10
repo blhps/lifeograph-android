@@ -130,7 +130,7 @@ public class ViewChart extends View implements GestureDetector.OnGestureListener
     get_period_date( long date ) {
         switch( m_data.type & ChartData.PERIOD_MASK ) {
             case ChartData.WEEKLY:
-                Date.backward_to_week_start( date );
+                date = Date.backward_to_week_start( date );
                 return Date.get_pure( date );
             case ChartData.MONTHLY:
                 return( Date.get_yearmonth( date ) + Date.make_day( 1 ) );

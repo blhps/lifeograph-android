@@ -26,13 +26,14 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
-import androidx.appcompat.app.AppCompatActivity
-import androidx.fragment.app.Fragment
 import yuku.ambilwarna.AmbilWarnaDialog
 import yuku.ambilwarna.AmbilWarnaDialog.OnAmbilWarnaListener
 
-class FragmentTheme: Fragment(), Lifeograph.DiaryEditor {
-// VARIABLES =======================================================================================
+class FragmentTheme: FragmentDiaryEditor() {
+    // VARIABLES ===================================================================================
+    override val mLayoutId: Int = R.layout.fragment_theme
+    override val mMenuId: Int   = R.menu.menu_theme
+
     private lateinit var mButtonTextColor: Button
     private lateinit var mButtonBaseColor: Button
     private lateinit var mButtonHeadingColor: Button
@@ -52,17 +53,16 @@ class FragmentTheme: Fragment(), Lifeograph.DiaryEditor {
         }
     }
 
-// METHODS =========================================================================================
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        //setHasOptionsMenu(true)
-    }
+    // METHODS =====================================================================================
 
-    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstState: Bundle?): View? {
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
+                              savedInstState: Bundle?): View? {
         return inflater.inflate(R.layout.fragment_theme, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        ActivityMain.mViewCurrent = this
+
         mButtonTextColor = view.findViewById(R.id.button_text_color)
         mButtonBaseColor = view.findViewById(R.id.button_base_color)
         mButtonHeadingColor = view.findViewById(R.id.button_heading_color)
@@ -70,9 +70,7 @@ class FragmentTheme: Fragment(), Lifeograph.DiaryEditor {
         mButtonHighlightColor = view.findViewById(R.id.button_highlight_color)
         mButtonReset = view.findViewById(R.id.button_theme_reset)
 
-        val actionBar = (requireActivity() as AppCompatActivity).supportActionBar
-        actionBar!!.title = mTheme._title_str
-        actionBar.subtitle = ""
+        Lifeograph.getActionBar().subtitle = ""
 
         updateButtonColors()
         mButtonTextColor.setOnClickListener {
@@ -98,8 +96,10 @@ class FragmentTheme: Fragment(), Lifeograph.DiaryEditor {
         mButtonReset.setOnClickListener { resetTheme() }
     }
 
-    public override fun onStop() {
-        super.onStop()
+    override fun onResume() {
+        super.onResume()
+
+        Lifeograph.getActionBar().subtitle = mTheme._title_str
     }
 
     private fun showColorDialog(prevColor: Int) {
@@ -145,11 +145,10 @@ class FragmentTheme: Fragment(), Lifeograph.DiaryEditor {
         mButtonHighlightColor.setTextColor(getContrastColor(theme.color_highlight))
     }
 
-    override fun enableEditing() {
-        TODO("Not yet implemented")
-    }
+    override fun updateMenuVisibilities() {
+        super.updateMenuVisibilities()
 
-    override fun handleBack(): Boolean {
-        return false
+        val flagWritable = Diary.d.is_in_edit_mode
+        mMenu.findItem(R.id.rename).isVisible = flagWritable
     }
 }

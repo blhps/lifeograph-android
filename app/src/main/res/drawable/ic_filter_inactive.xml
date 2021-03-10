@@ -1,0 +1,28 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Copyright (C) 2021. Ahmet Öztürk (aoz_2@yahoo.com)
+
+      This file is part of Lifeograph.
+
+      Lifeograph is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      Lifeograph is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportHeight="16"
+    android:viewportWidth="16"
+    android:tint="?attr/colorControlNormal">
+    <path android:fillColor="@android:color/white"
+        android:pathData="m0.5,2.048 l0,1.7308 5.7692,4.6154 0.5769,5.1923c0,0 0.2308,0.2308 1.1538,0.2308 0.9231,0 1.1538,-0.2308 1.1538,-0.2308L9.7308,8.3942 15.5,3.7788l0,-1.7308c-4.9038,-0.9616 -9.8923,-1.0768 -15,0z" />
+</vector>

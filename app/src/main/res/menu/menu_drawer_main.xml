@@ -32,10 +32,6 @@
             android:id="@+id/nav_diaries"
             android:icon="@drawable/ic_diary"
             android:title="@string/diaries" />
-        <item
-            android:id="@+id/nav_calendar"
-            android:icon="@drawable/ic_calendar"
-            android:title="@string/calendar" />
     </group>
 
     <group
@@ -43,8 +39,12 @@
         android:checkableBehavior="single">
         <item
             android:id="@+id/nav_entries"
-            android:icon="@drawable/icon_entry"
+            android:icon="@drawable/selector_entry"
             android:title="@string/entries" />
+        <item
+            android:id="@+id/nav_calendar"
+            android:icon="@drawable/ic_calendar"
+            android:title="@string/calendar" />
         <item
             android:id="@+id/nav_filters"
             android:icon="@drawable/ic_filter"

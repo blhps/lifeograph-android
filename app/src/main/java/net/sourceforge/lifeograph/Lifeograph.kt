@@ -45,12 +45,6 @@ class Lifeograph : Application() {
         super.onCreate()
     }
 
-    interface DiaryEditor {
-        fun enableEditing()
-        fun handleBack(): Boolean
-        fun getContext(): Context?
-    }
-
     class MutableBool {
         constructor() {
             v = false
@@ -92,9 +86,9 @@ class Lifeograph : Application() {
     companion object {
         // CONSTANTS ===============================================================================
         //public static final String PROGRAM_NAME = "Lifeograph";
-        const val LIFEOGRAPH_RELEASE_CODENAME = "one can enter the same data stream twice"
-        const val LANG_INHERIT_DIARY = "d"
-        const val MI_TO_KM_RATIO = 1.609344
+        const val LIFEOGRAPH_RELEASE_CODENAME = "the spring of goliath"
+        const val LANG_INHERIT_DIARY          = "d"
+        const val MI_TO_KM_RATIO              = 1.609344
         lateinit var mActivityMain: ActivityMain
         @JvmStatic
         val context: Context
@@ -115,7 +109,7 @@ class Lifeograph : Application() {
                 DiaryElement.ES_PROGRESSED -> R.drawable.ic_todo_progressed
                 DiaryElement.ES_DONE -> R.drawable.ic_todo_done
                 DiaryElement.ES_CANCELED -> R.drawable.ic_todo_canceled
-                DiaryElement.ES_TODO -> R.drawable.ic_todo_open
+                //DiaryElement.ES_TODO -> R.drawable.ic_todo_open
                 else -> R.drawable.ic_todo_open
             }
         }
@@ -138,8 +132,18 @@ class Lifeograph : Application() {
                 throw AssertionError("Assertion failed")
             }
             if(!Date.is_ordinal(date) && Date.get_order_3rd(date) == 0) date++ // fix order
-            val entry = Diary.d.create_entry(date, text, false)
+            val entry = Diary.d.create_entry(date, text)
             if(entry != null) showElem(entry)
+        }
+
+        @JvmStatic
+        fun duplicateEntry(entrySrc: Entry, title: String): Entry {
+            val entry = Diary.d.create_entry(entrySrc._date_t, title)
+            for((i, para) in entrySrc.m_paragraphs.withIndex())
+                if(i > 0)
+                    entry.add_paragraph(para.m_text)
+
+            return entry
         }
 
         @JvmStatic
@@ -150,7 +154,7 @@ class Lifeograph : Application() {
             mActivityMain.showElem(elem)
         }
 
-        fun enableEditing(editor: DiaryEditor) {
+        fun enableEditing(editor: FragmentDiaryEditor) {
             // HANDLE OLD DIARY
             if(Diary.d.is_old) {
                 showConfirmationPrompt(
@@ -163,7 +167,7 @@ class Lifeograph : Application() {
             enableEditing2(editor)
         }
 
-        private fun enableEditing2(editor: DiaryEditor) {
+        private fun enableEditing2(editor: FragmentDiaryEditor) {
             if(!Diary.d.can_enter_edit_mode()) return
             if(Diary.d.enable_editing() != Result.SUCCESS) return
             editor.enableEditing()

@@ -34,27 +34,25 @@ import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import net.sourceforge.lifeograph.DialogInquireText.InquireListener
 import net.sourceforge.lifeograph.DialogPassword.DPAction
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
 import java.util.*
 
-class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, InquireListener,
+class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquireText.Listener,
                             DialogPassword.Listener {
     // VARIABLES ===================================================================================
     private val mColumnCount = 1
     private var mFlagOpenReady = false
     private var mPasswordAttemptNo = 0
 
-    //private final List< String >        mPaths      = new ArrayList<>();
     private val mDiaryItems: MutableList<RViewAdapterBasic.Item> = ArrayList()
 
     // METHODS =====================================================================================
     override fun onCreateView(inflater: LayoutInflater,
                               container: ViewGroup?,
                               savedInstanceState: Bundle?): View? {
-        return inflater.inflate(R.layout.fragment_list_diary, container, false)
+        return inflater.inflate(R.layout.fragment_list_diaries, container, false)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -67,9 +65,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, InquireListe
         else {
             recyclerView.layoutManager = GridLayoutManager(context, mColumnCount)
         }
-        val adapter = RViewAdapterBasic(
-                mDiaryItems, this)
-        recyclerView.adapter = adapter
+        recyclerView.adapter = RViewAdapterBasic(mDiaryItems, this)
         val fab: FloatingActionButton = view.findViewById(R.id.fab_add_diary)
         fab.setOnClickListener { createNewDiary() }
     }

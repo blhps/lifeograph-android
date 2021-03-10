@@ -105,7 +105,7 @@
         android:layout_gravity="center_vertical"
         android:layout_alignParentEnd="true"
         android:layout_alignParentRight="true"
-        android:src="@drawable/ic_collapsed"
+        app:srcCompat="@drawable/ic_collapsed"
         android:contentDescription="@string/icon"
         style="@android:style/Widget.Holo.ActionButton" />
 

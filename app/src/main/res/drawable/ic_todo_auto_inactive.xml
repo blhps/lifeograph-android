@@ -1,0 +1,39 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+
+      This file is part of Lifeograph.
+
+      Lifeograph is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      Lifeograph is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportHeight="16"
+    android:viewportWidth="16"
+    android:tint="?attr/colorControlNormal" >
+    <path android:fillColor="@android:color/white"
+        android:pathData="m1,8v5.6094C1,14.396 1.6882,15 2.4727,15H8L8,8Z"/>
+    <path android:fillColor="@android:color/white"
+        android:pathData="m8,8h7V2.3906C15,1.604 14.3118,1 13.5273,1H8Z"/>
+    <path
+        android:pathData="M2.9727,1.5C2.1882,1.5 1.5,2.104 1.5,2.8906L1.5,8H8V1.5Z"
+        android:strokeColor="@android:color/white" android:strokeLineCap="round"
+        android:strokeLineJoin="miter" android:strokeWidth="1"/>
+    <path
+        android:pathData="m13.0273,14.5c0.7845,0 1.4756,-0.604 1.4727,-1.3906V8H8v6.5z"
+        android:strokeColor="@android:color/white" android:strokeLineCap="round"
+        android:strokeLineJoin="miter" android:strokeWidth="1"/>
+</vector>

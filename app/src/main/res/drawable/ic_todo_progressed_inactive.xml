@@ -1,0 +1,29 @@
+<!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+  Copyright (C) 2021. Ahmet Öztürk (aoz_2@yahoo.com)
+
+      This file is part of Lifeograph.
+
+      Lifeograph is free software: you can redistribute it and/or modify
+      it under the terms of the GNU General Public License as published by
+      the Free Software Foundation, either version 3 of the License, or
+      (at your option) any later version.
+
+      Lifeograph is distributed in the hope that it will be useful,
+      but WITHOUT ANY WARRANTY; without even the implied warranty of
+      MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+      GNU General Public License for more details.
+
+      You should have received a copy of the GNU General Public License
+      along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+  ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
+
+<vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32dp"
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16"
+    android:tint="?attr/colorControlNormal">
+    <path android:fillColor="@android:color/white"
+        android:pathData="M2.4727,1C1.6882,1 1,1.604 1,2.3906v11.2188C1,14.396 1.6882,15 2.4727,15H13.5273C14.3118,15 15,14.396 15,13.6094V2.3906C15,1.604 14.3118,1 13.5273,1ZM5.9863,5.5117C7.0763,5.5313 8.225,6.2083 9,7.5c0.6203,1.0338 1.0016,1.08 1.4063,1.0156 0.4046,-0.0644 1.0047,-0.4945 1.4199,-1.0801 0.7708,-1.089 2.4036,0.0672 1.6328,1.1563C12.8299,9.4788 11.93,10.2978 10.7207,10.4902 9.5114,10.6827 8.1649,9.9936 7.2852,8.5273 6.6709,7.5036 6.2628,7.45 5.8379,7.5176 5.413,7.5852 4.8299,8.017 4.4844,8.5547 3.763,9.6771 2.0794,8.5951 2.8008,7.4727 3.3905,6.5549 4.3072,5.7365 5.5234,5.543 5.6755,5.5188 5.8306,5.5089 5.9863,5.5117Z" />
+</vector>

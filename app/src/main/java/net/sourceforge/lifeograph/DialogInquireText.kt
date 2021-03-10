@@ -36,7 +36,7 @@ class DialogInquireText(context: Context,
                         private val mTitle: Int,
                         private val mDefName: String,
                         private val mActName: Int,
-                        private val mListener: InquireListener) : Dialog(context) {
+                        private val mListener: Listener) : Dialog(context) {
 
     // VARIABLES ===================================================================================
     private lateinit var mInput: EditText
@@ -83,8 +83,10 @@ class DialogInquireText(context: Context,
         dismiss()
     }
 
-    interface InquireListener {
+    interface Listener {
         fun onInquireAction(id: Int, text: String)
-        fun onInquireTextChanged(id: Int, text: String): Boolean
+        fun onInquireTextChanged(id: Int, text: String): Boolean {
+            return text.isNotEmpty()
+        }
     }
 }

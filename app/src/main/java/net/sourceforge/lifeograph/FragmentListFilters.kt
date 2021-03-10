@@ -25,10 +25,10 @@ import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
-import net.sourceforge.lifeograph.DialogInquireText.InquireListener
+import net.sourceforge.lifeograph.DialogInquireText.Listener
 import java.util.*
 
-class FragmentListFilters : FragmentListElems(), InquireListener
+class FragmentListFilters : FragmentListElems(), Listener
 {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_filters
@@ -38,14 +38,6 @@ class FragmentListFilters : FragmentListElems(), InquireListener
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        mFabAdd.setOnClickListener {
-            // ask for name
-            DialogInquireText(requireContext(),
-                              R.string.create_filter,
-                              Lifeograph.getStr(R.string.new_filter),
-                              R.string.create, this).show()
-        }
-
         var button = view.findViewById<ImageButton>(R.id.set_active)
         button.setOnClickListener { setSelActive() }
         button = view.findViewById(R.id.duplicate)
@@ -53,9 +45,6 @@ class FragmentListFilters : FragmentListElems(), InquireListener
         button = view.findViewById(R.id.dismiss)
         button.setOnClickListener { dismissSel() }
     }
-//    override fun onResume() {
-//        super.onResume()
-//    }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
@@ -81,11 +70,23 @@ class FragmentListFilters : FragmentListElems(), InquireListener
         mElems.clear()
         mElems.addAll(Diary.d.m_filters.values)
         //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
+
+        mItemCount = mElems.size
+
+        mSelectionStatuses.clear()
+        mSelectionStatuses.addAll(Collections.nCopies(Diary.d.m_filters.size, false))
+    }
+
+    override fun createNewElem() {
+        // ask for name
+        DialogInquireText(requireContext(),
+                          R.string.create_filter,
+                          Lifeograph.getStr(R.string.new_filter),
+                          R.string.create, this).show()
     }
 
     private fun addFilter(name: String, definition: String) {
         Diary.d.create_filter(name, definition)
-        handleElemNumberChanged()
         updateList()
         mAdapter.notifyDataSetChanged()
     }
@@ -127,16 +128,10 @@ class FragmentListFilters : FragmentListElems(), InquireListener
         }
 
         if(flagDeleted) {
-            handleElemNumberChanged()
             updateList()
             mAdapter.clearSelection(mRecyclerView.layoutManager!!)
             exitSelectionMode()
         }
-    }
-
-    private fun handleElemNumberChanged() {
-        mSelectionStatuses.clear()
-        mSelectionStatuses.addAll(Collections.nCopies(Diary.d.m_filters.size, false))
     }
 
     // INTERFACE METHODS ===========================================================================

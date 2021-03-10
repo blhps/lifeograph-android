@@ -88,6 +88,11 @@ public class Theme extends DiaryElement {
         return 0;
     }
 
+    @Override
+    public int get_icon() {
+        return R.drawable.ic_theme;
+    }
+
     boolean
     is_system() {
         return false;

@@ -20,35 +20,27 @@
  ***********************************************************************************/
 package net.sourceforge.lifeograph
 
+import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.View
+import android.widget.ImageButton
+import java.util.*
 
 class FragmentListCharts : FragmentListElems()
 {
     // VARIABLES ===================================================================================
-    override val mLayoutId: Int = R.layout.fragment_list_chart
+    override val mLayoutId: Int = R.layout.fragment_list_charts
     override val mMenuId: Int   = R.menu.menu_chart
     override val mName: String  = Lifeograph.getStr( R.string.charts )
 
     // METHODS =====================================================================================
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if( id == R.id.enable_edit ) {
-            Lifeograph.enableEditing(this)
-            return true
-        }
-        else if( id == R.id.logout_wo_save ) {
-            Lifeograph.logoutWithoutSaving(requireView())
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
 
-    override fun updateMenuVisibilities() {
-        val flagWritable = Diary.d.is_in_edit_mode
-        mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.d.can_enter_edit_mode()
-        mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
+        var button = view.findViewById<ImageButton>(R.id.duplicate)
+        button.setOnClickListener { duplicateSel() }
+        button = view.findViewById(R.id.dismiss)
+        button.setOnClickListener { dismissSel() }
     }
 
     override fun updateList() {
@@ -56,14 +48,51 @@ class FragmentListCharts : FragmentListElems()
         Log.d(Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES")
         mElems.addAll(Diary.d.m_charts.values)
         //Collections.sort(mElems, FragmentEntryList.compareElemsByDate)
+
+        mSelectionStatuses.clear()
+        mSelectionStatuses.addAll(Collections.nCopies(Diary.d.m_charts.size, false))
+        mItemCount = mElems.size
+    }
+
+    override fun createNewElem() {
+        // ask for name
+        DialogInquireText(requireContext(),
+                          R.string.create_chart,
+                          Lifeograph.getStr(R.string.new_chart),
+                          R.string.create,
+                          this).show()
+    }
+
+    private fun duplicateSel() {
+        for((i, selected) in mSelectionStatuses.withIndex()) {
+            if(selected) {
+                DialogInquireText(requireContext(),
+                                  R.string.duplicate_chart,
+                                  mElems[i]._name,
+                                  R.string.create, this).show()
+                break
+            }
+        }
+    }
+
+    private fun dismissSel() {
+        var flagDeleted = false
+        for((i, selected) in mSelectionStatuses.withIndex()) {
+            if(selected) {
+                if(Diary.d.dismiss_chart(mElems[i]._name))
+                    flagDeleted = true
+            }
+        }
+
+        if(flagDeleted) {
+            updateList()
+            mAdapter.clearSelection(mRecyclerView.layoutManager!!)
+            exitSelectionMode()
+        }
     }
 
     // INTERFACE METHODS ===========================================================================
     override fun onInquireAction( id: Int, text: String ) {
         Lifeograph.showToast("not implemented yet")
-    }
-    override fun onInquireTextChanged( id: Int, text: String ): Boolean {
-        Lifeograph.showToast("not implemented yet")
-        return false
     }
 }

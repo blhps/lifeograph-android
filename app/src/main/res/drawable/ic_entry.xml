@@ -18,7 +18,6 @@
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="32dp"
     android:height="32dp"
     android:viewportWidth="32"
@@ -27,7 +26,6 @@
       android:pathData="M3,23 L21,5 27,11 9,29 2,30ZM22,5 L25,2 30,7 27,10"
       android:strokeLineJoin="miter"
       android:strokeWidth="1"
-      android:fillColor="#00000000"
-      android:strokeColor="#a53737"
+      android:strokeColor="@color/t_icon_main"
       android:strokeLineCap="butt"/>
 </vector>

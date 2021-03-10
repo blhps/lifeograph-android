@@ -18,49 +18,33 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+
 package net.sourceforge.lifeograph
 
 import android.annotation.SuppressLint
 import android.os.Bundle
-import android.util.Log
 import android.view.*
 import android.widget.HorizontalScrollView
-import androidx.fragment.app.Fragment
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
-import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
 import java.util.*
 
-abstract class FragmentListElems : Fragment(), DiaryEditor, RVAdapterElems.Listener,
-                                   DialogInquireText.InquireListener
+abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listener,
+                                   DialogInquireText.Listener
 {
     // VARIABLES ===================================================================================
-    protected abstract val mLayoutId: Int
-    protected abstract val mMenuId: Int
     protected abstract val mName: String
 
-    protected val mElems: MutableList<DiaryElement> = ArrayList()
-    protected val mSelectionStatuses: MutableList<Boolean> = ArrayList()
-    protected lateinit var mMenu: Menu
+    protected val          mElems: MutableList<DiaryElement> = ArrayList()
+    protected val          mSelectionStatuses: MutableList<Boolean> = ArrayList()
     protected lateinit var mAdapter: RVAdapterElems
     protected lateinit var mRecyclerView: RecyclerView
     protected lateinit var mFabAdd: FloatingActionButton
-    protected lateinit var mToolbar: HorizontalScrollView
+    private lateinit var   mToolbar: HorizontalScrollView
+    protected var          mItemCount: Int = 0
 
     // METHODS =====================================================================================
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(true)
-    }
-
-    override fun onCreateView(inflater: LayoutInflater,
-                              container: ViewGroup?,
-                              savedInstState: Bundle?): View? {
-        Log.d(Lifeograph.TAG, "FragmentChartList.onCreateView()")
-        return inflater.inflate(mLayoutId, container, false)
-    }
-
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         ActivityMain.mViewCurrent = this
 
@@ -75,18 +59,15 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RVAdapterElems.Liste
 
     @SuppressLint("RestrictedApi")
     override fun onResume() {
-        Log.d(Lifeograph.TAG, "FragmentEntryList.onResume()")
         super.onResume()
 
         ( activity as FragmentHost? )!!.updateDrawerMenu(R.id.nav_charts)
         updateList()
 
-        updateActionBarTitle()
-        updateActionBarSubtitle()
-
         mToolbar.visibility = View.GONE
-        //mFabAdd.setTranslationX( Diary.diary.is_in_edit_mode() ? 0 : 150 );
-        mFabAdd.visibility = if(Diary.d.is_in_edit_mode) View.VISIBLE else View.GONE
+
+        Lifeograph.getActionBar().title = Diary.d._title_str
+        updateActionBarSubtitle()
     }
 
     override fun onDestroyView() {
@@ -95,60 +76,18 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RVAdapterElems.Liste
         super.onDestroyView()
     }
 
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
-        inflater.inflate(mMenuId, menu)
-        super.onCreateOptionsMenu(menu, inflater)
-        mMenu = menu
+    @SuppressLint("RestrictedApi")
+    override fun updateMenuVisibilities() {
+        super.updateMenuVisibilities()
+
+        mToolbar.visibility = View.GONE
+        //mFabAdd.setTranslationX( Diary.diary.is_in_edit_mode() ? 0 : 150 );
+        mFabAdd.visibility = if(Diary.d.is_in_edit_mode) View.VISIBLE else View.GONE
     }
 
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
-        updateMenuVisibilities()
-    }
+    protected abstract fun updateList()
 
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if( id == R.id.enable_edit ) {
-            Lifeograph.enableEditing(this)
-            return true
-        }
-        else if( id == R.id.logout_wo_save ) {
-            Lifeograph.logoutWithoutSaving(requireView())
-            return true
-        }
-        return super.onOptionsItemSelected(item)
-    }
-
-    protected open fun updateMenuVisibilities() {
-        val flagWritable = Diary.d.is_in_edit_mode
-        mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.d.can_enter_edit_mode()
-        mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
-    }
-
-    protected open fun updateList() {
-    }
-
-    protected open fun createNewElem() {
-        // ask for name
-        DialogInquireText(requireContext(),
-                          R.string.create_chart,
-                          Lifeograph.getStr(R.string.new_chart),
-                          R.string.create,
-                          this).show()
-    }
-
-    private fun updateActionBarTitle() {
-        Lifeograph.getActionBar().title = Diary.d._title_str
-    }
-
-    // INTERFACE METHODS ===========================================================================
-    // DiaryEditor INTERFACE METHODS
-    override fun enableEditing() {
-        updateMenuVisibilities()
-
-        mFabAdd.show()
-    }
+    abstract fun createNewElem()
 
     override fun handleBack(): Boolean {
         if(mAdapter.hasSelection()) {
@@ -159,6 +98,7 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RVAdapterElems.Liste
         return false
     }
 
+    // INTERFACE METHODS ===========================================================================
     // RecyclerViewAdapterDiaryElems.Listener INTERFACE METHODS
     override fun onElemClick(elem: DiaryElement?) {
         Lifeograph.showElem(elem!!)
@@ -166,11 +106,9 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RVAdapterElems.Liste
 
     override fun updateActionBarSubtitle() {
         val selCount = mAdapter.mSelCount
-        if( selCount > 0 )
-            Lifeograph.getActionBar().subtitle =
-                    ( mName + " (" + selCount + " / " + mAdapter.itemCount + ")" )
-        else
-            Lifeograph.getActionBar().subtitle = mName + " (" + mAdapter.itemCount + ")"
+        Lifeograph.getActionBar().subtitle =
+                if( selCount > 0 ) "$mName ($selCount/$mItemCount)"
+                else               "$mName ($mItemCount)"
     }
 
     override fun toggleExpanded(elem: DiaryElement?) { }
@@ -192,12 +130,5 @@ abstract class FragmentListElems : Fragment(), DiaryEditor, RVAdapterElems.Liste
     }
     override fun getIcon2(elem: DiaryElement): Int {
         return 0
-    }
-
-    override fun onInquireAction(id: Int, text: String) {
-        Lifeograph.showToast("not implemented yet")
-    }
-    override fun onInquireTextChanged(id: Int, text: String): Boolean {
-        return text.isNotEmpty()
     }
 }

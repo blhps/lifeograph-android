@@ -158,6 +158,11 @@ public class Paragraph
         return( m_tags.containsKey( tag.get_name() ) );
     }
 
+    public boolean
+    has_tag_planned( Entry tag ) {
+        return( m_tags_planned.containsKey( tag.get_name() ) );
+    }
+
     boolean
     has_tag_broad( Entry tag ) /* in broad sense*/ {
         if( m_tags.containsKey( tag.get_name() ) )
@@ -188,18 +193,18 @@ public class Paragraph
 
     double
     get_value_planned_for_tag( Entry tag, Lifeograph.MutableInt count ) {
-        if( !has_tag( tag ) )
+        if( !has_tag_planned( tag ) )
             return 0.0;
         else {
             count.v++;
             //noinspection ConstantConditions
-            return m_tags_planned.get( tag.get_name() );
+            return m_tags_planned.get( tag.m_name );
         }
     }
 
     double
     get_value_remaining_for_tag( Entry tag, Lifeograph.MutableInt count ) {
-        if( !has_tag( tag ) )
+        if( !has_tag_planned( tag ) )
             return 0.0;
         else {
             count.v++;
@@ -227,7 +232,7 @@ public class Paragraph
         if( !has_tag_broad( chart_data.para_filter_tag ) )
             return 0.0;
         else
-        if( !has_tag( chart_data.tag ) )
+        if( !has_tag_planned( chart_data.tag ) )
             return 0.0;
         else {
             count.v++;

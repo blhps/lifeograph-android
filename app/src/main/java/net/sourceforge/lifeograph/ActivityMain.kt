@@ -33,7 +33,6 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationView
-import net.sourceforge.lifeograph.Lifeograph.DiaryEditor
 
 class ActivityMain : AppCompatActivity(), FragmentHost {
     // VARIABLES ===================================================================================
@@ -43,7 +42,7 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
     var mActionBar: ActionBar? = null
 
     companion object {
-        var mViewCurrent: DiaryEditor? = null
+        var mViewCurrent: FragmentDiaryEditor? = null
     }
 
     // METHODS =====================================================================================
@@ -130,17 +129,20 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
     override fun updateDrawerMenu(id: Int) {
         val navigationView = findViewById<NavigationView>(R.id.nav_view)
         val itemEntries = navigationView.menu.findItem(R.id.nav_entries)
+        val itemCalendar = navigationView.menu.findItem(R.id.nav_calendar)
         val itemCharts = navigationView.menu.findItem(R.id.nav_charts)
         val itemFilters = navigationView.menu.findItem(R.id.nav_filters)
         val itemThemes = navigationView.menu.findItem(R.id.nav_themes)
         if(id == R.id.nav_diaries) {
             itemEntries.isVisible = false
+            itemCalendar.isVisible = false
             itemCharts.isVisible = false
             itemFilters.isVisible = false
             itemThemes.isVisible = false
         }
         else {
             itemEntries.isVisible = true
+            itemCalendar.isVisible = true
             itemCharts.isVisible = true
             itemFilters.isVisible = true
             itemThemes.isVisible = true
@@ -172,5 +174,9 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
 
             }
         }
+    }
+
+    fun navigateTo(target: Int) {
+        mNavController!!.navigate(target)
     }
 }
