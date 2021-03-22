@@ -32,12 +32,12 @@ import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.navigation.Navigation
-import com.google.android.material.snackbar.Snackbar
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
 import java.io.FileInputStream
 import java.io.FileOutputStream
 import java.io.IOException
+import java.lang.StringBuilder
 
 class Lifeograph : Application() {
     override fun onCreate() {
@@ -45,17 +45,17 @@ class Lifeograph : Application() {
         super.onCreate()
     }
 
-    class MutableBool {
-        constructor() {
-            v = false
-        }
-
-        constructor(v0: Boolean) {
-            v = v0
-        }
-
-        var v: Boolean
-    }
+//    class MutableBool {
+//        constructor() {
+//            v = false
+//        }
+//
+//        constructor(v0: Boolean) {
+//            v = v0
+//        }
+//
+//        var v: Boolean
+//    }
 
     class MutableInt {
         constructor() {
@@ -71,16 +71,14 @@ class Lifeograph : Application() {
     }
 
     class MutableString {
-        constructor() {
-            v = ""
-        }
 
-        constructor(v0: String) {
-            v = v0
-        }
+//        constructor(v0: String) {
+//            v = v0
+//        }
 
         @JvmField
-        var v: String
+        var v: String = ""
+
     }
 
     companion object {
@@ -158,7 +156,7 @@ class Lifeograph : Application() {
             // HANDLE OLD DIARY
             if(Diary.d.is_old) {
                 showConfirmationPrompt(
-                        editor.getContext(),
+                        editor.context,
                         R.string.diary_upgrade_confirm,
                         R.string.upgrade_diary
                                       ) { _: DialogInterface?, _: Int -> enableEditing2(editor) }
@@ -192,13 +190,13 @@ class Lifeograph : Application() {
         const val TAG = "LFO"
         private var mInstance: Lifeograph? = null
         @JvmField
-        var screenWidth = 0f
+        var screenWidth = 0.0f
         @JvmField
-        var screenHeight = 0f
+        var screenHeight = 0.0f
         @JvmField
-        var sDPIX = 0f
-        private var sDPIY = 0f
-        const val MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0f
+        var sDPIX = 0.0f
+        private var sDPIY = 0.0f
+        const val MIN_HEIGHT_FOR_NO_EXTRACT_UI = 6.0
 
         @JvmStatic
         fun getStr(i: Int): String {
@@ -234,10 +232,10 @@ class Lifeograph : Application() {
                     .show()
         }
 
-        fun showSnack(view: View?, message: String?) {
-            Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
-                    .setAction("Action", null).show()
-        }
+//        fun showSnack(view: View?, message: String?) {
+//            Snackbar.make(view!!, message!!, Snackbar.LENGTH_LONG)
+//                    .setAction("Action", null).show()
+//        }
 
         @JvmStatic
         fun showToast(message: String?) {
@@ -397,7 +395,42 @@ class Lifeograph : Application() {
             if(divider > 1) value /= divider.toDouble()
             if(negative) value *= -1.0
             return value
-        } //  TODO WILL BE IMPLEMENTED LATER
+        }
+
+        fun formatNumber(number: Double): String {
+            val result = number.toString()
+            val posPoint = result.indexOfFirst { c: Char -> (c == '.') or (c == ',') }
+            val size = result.length
+
+            if( posPoint == -1 )
+                return result
+
+            val str = StringBuilder() // decimals separator
+            var decimalCnt = 0
+
+            for(p in size-1 downTo 0) {
+                when {
+                    p == posPoint -> {
+                        str.insert(0, '.')
+                    }
+                    p < (posPoint - 3) && posPoint > 4 && ((posPoint - 1 - p) % 3) == 0 -> {
+                        str.insert(0, ' ')
+                        str.insert(0, result[p])
+                    }
+                    p > posPoint && (decimalCnt > 0 || result[p] != '0') -> {
+                        str.insert(0, result[p])
+                        decimalCnt++
+                    }
+                    else -> {
+                        str.insert(0, result[p])
+                    }
+                }
+            }
+
+            return str.toString()
+        }
+
+        //  TODO WILL BE IMPLEMENTED LATER
         //    protected void import_messages() {
         //        Cursor cursor =
         //                getContentResolver().query( Uri.parse( "content://sms/inbox" ), null, null, null,

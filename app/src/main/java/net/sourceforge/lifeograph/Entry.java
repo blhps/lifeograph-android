@@ -178,18 +178,12 @@ public class Entry extends DiaryElement {
     @Override
     public int
     get_icon() {
-        switch( get_todo_status_effective() ) {
-            case ES_TODO:
-                return R.drawable.ic_todo_open;
-            case ES_PROGRESSED:
-                return R.drawable.ic_todo_progressed;
-            case ES_DONE:
-                return R.drawable.ic_todo_done;
-            case ES_CANCELED:
-                return R.drawable.ic_todo_canceled;
-            default:
-                return R.drawable.ic_entry;
-        }
+        if( ( m_status & ES_FILTER_TODO_PURE ) != 0 )
+            return Lifeograph.getTodoIcon( m_status & ES_FILTER_TODO_PURE );
+    else
+        return( m_unit.isEmpty() ?
+                ( m_date.get_order_3rd() == 0 ? R.drawable.ic_entry_parent : R.drawable.ic_entry ) :
+                R.drawable.ic_tag );
     }
 
     @Override

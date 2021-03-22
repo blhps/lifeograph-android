@@ -19,151 +19,134 @@
 
  ***********************************************************************************/
 
-package net.sourceforge.lifeograph;
+package net.sourceforge.lifeograph
 
+import android.content.Context
+import android.graphics.Color
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
+import android.widget.BaseAdapter
+import android.widget.TextView
+import androidx.core.content.ContextCompat
+import androidx.core.widget.TextViewCompat
+import java.util.*
 
-import android.content.Context;
-import android.graphics.Color;
-import android.view.LayoutInflater;
-import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
-import android.widget.TextView;
-import java.util.ArrayList;
-import java.util.List;
+// Days in Current Month
+internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
+    private val mContext: Context = context
+    private var mDaysInMonth = 0
+    val mDateCurrent = Date(date.m_date)
+    var mListDays: MutableList<Long> = ArrayList()
 
-
-class GridCalAdapter extends BaseAdapter
-{
-    final Context mContext;
-    int mDaysInMonth;
-    Date mDateCurrent;
-    public List< Long > mListDays;
-
-    // Days in Current Month
-    public GridCalAdapter( Context context, Date date ) {
-        super();
-        this.mContext = context;
-        mListDays = new ArrayList<>();
-
-        showMonth( date );
-    }
-    public GridCalAdapter( Context context ) {
-        super();
-        this.mContext = context;
-        mListDays = new ArrayList<>();
+    init {
+        showMonth(date)
     }
 
-    // @Override
-    public String getItem( int position ) {
-        return mListDays.get( position ).toString();
+    override fun getItem(position: Int): String {
+        return mListDays[position].toString()
     }
 
-    // @Override
-    public int getCount() {
-        return mListDays.size();
+    override fun getCount(): Int {
+        return mListDays.size
     }
 
-    protected void showMonth( Date date ) {
-        mDateCurrent = new Date( date.m_date );
-
-        mListDays.clear();
-        notifyDataSetChanged();
+    fun showMonth(date: Date) {
+        mDateCurrent.m_date = date.m_date
+        mListDays.clear()
+        notifyDataSetChanged()
 
         // HEADER
-        for( int i = 0; i < 7; i++ ) {
-            mListDays.add( 0L );
+        for(i in 0..6) {
+            mListDays.add(0L)
         }
-
-        mDaysInMonth = date.get_days_in_month();
-        Date date2 = new Date( date.m_date );
-        date2.set_day( 1 );
-        final int numSlotBefore = date2.get_weekday();
-
-        Date prevMonth = new Date( date2.m_date );
-        prevMonth.backward_months( 1 );
-        int prevMonthLength = prevMonth.get_days_in_month();
-        prevMonth.set_day( prevMonthLength - numSlotBefore );
-
-        Date nextMonth = new Date( date2.m_date );
-        nextMonth.forward_months( 1 );
-        nextMonth.set_day( 0 );
+        mDaysInMonth = date._days_in_month
+        val date2 = Date(date.m_date)
+        date2._day = 1
+        val numSlotBefore = date2._weekday
+        val prevMonth = Date(date.m_date)
+        prevMonth.backward_months(1)
+        val prevMonthLength = prevMonth._days_in_month
+        val nextMonth = Date(date2.m_date)
+        nextMonth.forward_months(1)
 
         // Prev Month days
-        for( int i = 1; i <= numSlotBefore; i++ ) {
-            mListDays.add( prevMonth.m_date + Date.make_day( i ) );
+        for(i in (prevMonthLength - numSlotBefore + 1)..prevMonthLength) {
+            mListDays.add(Date.make(prevMonth._year, prevMonth._month, i, 1))
         }
 
         // Current Month Days
-        for( int i = 0; i < mDaysInMonth; i++ ) {
-            mListDays.add( date2.m_date + Date.make_day( i ) );
+        for(i in 0 until mDaysInMonth) {
+            mListDays.add(Date.make(date._year, date._month, i + 1, 1))
         }
 
         // Next Month days
         //final int numSlotAfter = 7 - ( ( numSlotBefore + mDaysInMonth ) % 7 );
         // always use 6 rows:
-        final int numSlotAfter = 42 - ( numSlotBefore + mDaysInMonth );
-        for( int i = 1; i <= numSlotAfter; i++ ) {
-            mListDays.add( nextMonth.m_date + Date.make_day( i ) );
+        val numSlotAfter = (42 - numSlotBefore - mDaysInMonth)
+        for(i in 1..numSlotAfter) {
+            mListDays.add(Date.make(nextMonth._year, nextMonth._month, i, 1))
         }
     }
 
-    public long getItemId( int position ) {
-        return position;
+    override fun getItemId(position: Int): Long {
+        return position.toLong()
     }
 
-    @Override
-    public View getView( int position, View convertView, ViewGroup parent ) {
-        View row = convertView;
-        if( row == null ) {
-            LayoutInflater inflater =
-                    ( LayoutInflater ) mContext.getSystemService( Context.LAYOUT_INFLATER_SERVICE );
-            row = inflater.inflate( R.layout.cal_day, parent, false );
-        }
-
-        TextView tvDayNo = row.findViewById( R.id.calendar_day_gridcell );
+    override fun getView(position: Int, convertView: View?, parent: ViewGroup): View {
+        val row: View =
+            if(convertView == null) {
+                val inflater = mContext.getSystemService(Context.LAYOUT_INFLATER_SERVICE)
+                        as LayoutInflater
+                inflater.inflate(R.layout.cal_day, parent, false)
+            }
+            else
+                convertView
+        val tvDayNo = row.findViewById<TextView>(R.id.calendar_day_gridcell)
         //TextView num_events_per_day = ( TextView ) row.findViewById( R.id.num_events_per_day );
         //num_events_per_day.setTextColor( Color.GREEN );
-
-        if( position < 7 ) {
-            tvDayNo.setText( Date.WEEKDAYSSHORT[ position+1 ] );
-            tvDayNo.setTextColor( mContext.getResources().getColor( R.color.t_mid ) );
-            tvDayNo.setTextScaleX( 0.65f );
+        if(position < 7) {
+            tvDayNo.text = Date.WEEKDAYSSHORT[position + 1]
+            tvDayNo.setTextColor(ContextCompat.getColor(mContext, R.color.t_mid))
+            tvDayNo.textScaleX = 0.65f
         }
         else {
-            Date date = new Date( mListDays.get( position ) + 1 );
+            val date = Date(mListDays[position] + 1)
+            tvDayNo.text = date._day.toString()
+            val flagWithinMonth = date._month == mDateCurrent._month
+            val flagWeekDay = date._weekday > 0
+            when {
+                Diary.d.get_entry_count_on_day(date) > 0 -> {
+                    TextViewCompat.setTextAppearance(tvDayNo, R.style.boldText)
+                    tvDayNo.setTextColor(
+                            if(flagWithinMonth) ContextCompat.getColor(mContext, R.color.t_darker)
+                            else Color.DKGRAY)
+                }
+                else -> {
+                    TextViewCompat.setTextAppearance(tvDayNo, R.style.normalText)
+                    tvDayNo.setTextColor(
+                            when {
+                                flagWithinMonth && flagWeekDay -> // weekdays within month
+                                    ContextCompat.getColor(mContext, R.color.t_mid)
+                                flagWithinMonth -> // weekends within month
+                                    ContextCompat.getColor(mContext, R.color.t_light)
+                                else ->
+                                    Color.GRAY
+                            } )
 
-            tvDayNo.setText( String.valueOf( date.get_day() ) );
-
-            boolean flagWithinMonth = ( date.get_month() == mDateCurrent.get_month() );
-            boolean flagWeekDay = ( date.get_weekday() > 0 );
-
-            if( Diary.d.m_entries.containsKey( date.m_date ) ) {
-                tvDayNo.setTextAppearance( mContext, R.style.boldText );
-
-                tvDayNo.setTextColor( flagWithinMonth ?
-                            mContext.getResources().getColor( R.color.t_dark ) : Color.DKGRAY );
+                }
             }
-            else {
-                tvDayNo.setTextAppearance( mContext, R.style.normalText );
-                if( flagWithinMonth && flagWeekDay ) // weekdays within month
-                    tvDayNo.setTextColor( mContext.getResources().getColor( R.color.t_mid ) );
-                else if( flagWithinMonth ) // weekends within month
-                    tvDayNo.setTextColor( mContext.getResources().getColor( R.color.t_light ) );
-                else
-                    tvDayNo.setTextColor( Color.GRAY );
-            }
 
-            if( date.get_pure() == mDateCurrent.get_pure() )
-                tvDayNo.setBackgroundColor(
-                        mContext.getResources().getColor( R.color.t_lighter ) );
-            else if( Diary.d.is_open() &&
-                     Diary.d.m_p2chapter_ctg_cur.mMap.containsKey( date.get_pure() ) )
-                tvDayNo.setBackgroundColor(
-                        mContext.getResources().getColor( R.color.t_lightest ) );
-            else
-                tvDayNo.setBackgroundColor( Color.TRANSPARENT );
+            tvDayNo.setBackgroundColor(
+                when {
+                    date._pure == mDateCurrent._pure ->
+                        ContextCompat.getColor(mContext, R.color.t_lighter)
+                    Diary.d.is_open && Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(date._pure) ->
+                        ContextCompat.getColor(mContext, R.color.t_lightest)
+                    else ->
+                        Color.TRANSPARENT
+                } )
         }
-        return row;
+        return row
     }
 }

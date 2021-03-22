@@ -1144,7 +1144,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         public override fun apply_subheading() {
             val bgn = m_recipe_cur.m_pos_bgn
-            val end = mHost.mEditText.text.toString().indexOf('\n', bgn)
+            var end = mHost.mEditText.text.toString().indexOf('\n', bgn)
+            if(end == -1)
+                end = mHost.mEditText.text.length
             addSpan(TextAppearanceSpan(mHost.requireContext(), R.style.subheadingSpan),
                     bgn, end, Spanned.SPAN_INTERMEDIATE)
             addSpan(ForegroundColorSpan(mEntry._theme.color_subheading),

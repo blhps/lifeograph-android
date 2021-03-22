@@ -21,6 +21,7 @@
 
 package net.sourceforge.lifeograph
 
+import android.annotation.SuppressLint
 import android.content.Context
 import android.os.Bundle
 import android.util.Log
@@ -32,11 +33,10 @@ import android.widget.AdapterView
 import android.widget.AdapterView.OnItemClickListener
 import android.widget.Button
 import android.widget.GridView
-import android.widget.NumberPicker
+import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
-import net.sourceforge.lifeograph.Lifeograph.Companion.showElem
 import kotlin.math.abs
 
 private const val MIN_SCALE = 0.95f
@@ -45,16 +45,24 @@ private const val MIN_ALPHA = 0.75f
 class DialogCalendar : DialogFragment() {
     // VARIABLES ===================================================================================
     private lateinit var mViewPagerCal: ViewPager
-    private var mAdapter: GridCalAdapter? = null
-    private var mDate: Date = Date(Date.get_today(0))
-    private lateinit var mNumberPickerMonth: NumberPicker
-    private lateinit var mNumberPickerYear: NumberPicker
+    private lateinit var mAdapterPrev: GridCalAdapter
+    private lateinit var mAdapterCurr: GridCalAdapter
+    private lateinit var mAdapterNext: GridCalAdapter
+    private var mFlagDuringJump = false
+    private lateinit var mYearBar: ViewYearBar
+    private lateinit var mMonthLabelPrev: TextView
+    private lateinit var mMonthLabelCurr: TextView
+    private lateinit var mMonthLabelNext: TextView
+    private val mDate: Date = Date(Date.get_today(0))
     private lateinit var mButtonCreateChapter: Button
     private val mAllowEntryCreation: Boolean
     private val mAllowChapterCreation: Boolean = Diary.d.is_in_edit_mode
     private val mListener: Listener? = null
 
     // METHODS =====================================================================================
+    init {
+        mAllowEntryCreation = mAllowChapterCreation
+    }
     //    DialogCalendar( Listener listener, boolean allowCreation ) {
     //        mListener = listener;
     //        mAllowEntryCreation = allowCreation;
@@ -68,79 +76,74 @@ class DialogCalendar : DialogFragment() {
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         dialog?.setTitle(R.string.calendar)
-//        val gridCalendar = view.findViewById<GridView>(R.id.gridViewCalendar)
         mViewPagerCal = view.findViewById(R.id.vp_calendar)
-        mAdapter = GridCalAdapter(Lifeograph.context, mDate)
-        mNumberPickerMonth = view.findViewById(R.id.numberPickerMonth)
-        mNumberPickerYear = view.findViewById(R.id.numberPickerYear)
+        mYearBar = view.findViewById(R.id.year_bar)
         val buttonCreateEntry = view.findViewById<Button>(R.id.buttonCreateEntry)
         mButtonCreateChapter = view.findViewById(R.id.buttonCreateChapter)
-        mAdapter!!.notifyDataSetChanged()
-//        gridCalendar.adapter = mAdapter
-//        gridCalendar.onItemClickListener = OnItemClickListener { _: AdapterView<*>?, _: View?,
-//                                                                 pos: Int, _: Long ->
-//            handleDayClicked(pos)
-//        }
+
         mViewPagerCal.adapter = CalendarPagerAdapter(requireContext())
         mViewPagerCal.addOnPageChangeListener(ViewPagerCalendarChangeListener())
         mViewPagerCal.setCurrentItem(1, false)
         mViewPagerCal.setPageTransformer(true, ZoomOutPageTransformer())
 
-        mNumberPickerMonth.setOnValueChangedListener { _: NumberPicker?, _: Int, n: Int ->
-            mDate._month = n
-            if(mDate._day > mDate._days_in_month) mDate._day = mDate._days_in_month
-            handleDayChanged()
-        }
-        mNumberPickerYear.setOnValueChangedListener { _: NumberPicker?, _: Int, n: Int ->
-            mDate._year = n
-            mDate._day = mDate._days_in_month
-            handleDayChanged()
-        }
-        mNumberPickerMonth.minValue = 1
-        mNumberPickerMonth.maxValue = 12
-        mNumberPickerYear.minValue = Date.YEAR_MIN
-        mNumberPickerYear.maxValue = Date.YEAR_MAX
-        mNumberPickerMonth.value = mDate._month
-        mNumberPickerYear.value = mDate._year
+        mYearBar.setOnYearChangedListener(
+                object : ViewYearBar.YearChangedListener {
+                    override fun onYearChanged(year: Int) {
+                        mDate._year = year
+                        update()
+                    }
+                })
+
         buttonCreateEntry.setOnClickListener { createEntry() }
-        buttonCreateEntry.visibility = if(mAllowEntryCreation) View.VISIBLE else View.INVISIBLE
+        buttonCreateEntry.visibility = if(mAllowEntryCreation) View.VISIBLE else View.GONE
         mButtonCreateChapter.setOnClickListener { createChapter() }
         mButtonCreateChapter.isEnabled = mAllowChapterCreation &&
                 !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(mDate.m_date)
-        mButtonCreateChapter.visibility = if(mAllowChapterCreation) View.VISIBLE else View.INVISIBLE
+        mButtonCreateChapter.visibility = if(mAllowChapterCreation) View.VISIBLE else View.GONE
         dialog?.window!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
     }
 
     private fun createEntry() {
-        val e = Diary.d.create_entry(
-                mAdapter!!.mDateCurrent.m_date, "")
+        val e = Diary.d.create_entry(mAdapterCurr.mDateCurrent.m_date, "")
         dismiss()
-        showElem(e)
+        Lifeograph.showElem(e)
     }
 
     private fun createChapter() {
         dismiss()
-        mListener!!.createChapter(mAdapter!!.mDateCurrent.m_date)
+        mListener!!.createChapter(mAdapterCurr.mDateCurrent.m_date)
     }
 
-    private fun handleDayChanged() {
-        mAdapter!!.showMonth(mDate)
+    private fun update() {
+        val datePrev = Date(Date.backward_months(mDate.m_date, 1))
+        val dateNext = Date(Date.forward_months(mDate.m_date, 1))
+
+        mMonthLabelPrev.text = datePrev._month_str
+        mMonthLabelCurr.text = mDate._month_str
+        mMonthLabelNext.text = dateNext._month_str
+
+        mAdapterPrev.showMonth(datePrev)
+        mAdapterCurr.showMonth(mDate)
+        mAdapterNext.showMonth(dateNext)
+
         mButtonCreateChapter.isEnabled = Diary.d.is_in_edit_mode &&
-                !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(mDate.m_date)
+                !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(mDate._pure)
+
+        mYearBar.mYear = mDate._year
+        mYearBar.invalidate()
     }
 
     private fun handleDayClicked(pos: Int) {
-        if(pos < 7) return
-        val e = Diary.d.m_entries[mAdapter!!.mListDays[pos] + 1]
+        if(pos < 7) return // day names row
+        val e = Diary.d.get_entry_by_date(mAdapterCurr.mListDays[pos])
         if(e != null) {
             dismiss()
-            showElem(e)
+            Lifeograph.showElem(e)
         }
         else {
-            mDate.m_date = mAdapter!!.mListDays[pos]
-            mNumberPickerMonth.value = mDate._month
-            mNumberPickerYear.value = mDate._year
-            handleDayChanged()
+            mDate.m_date = mAdapterCurr.mListDays[pos]
+            mYearBar.mYear = mDate._year
+            update()
         }
     }
 
@@ -149,43 +152,52 @@ class DialogCalendar : DialogFragment() {
         //val relatedActivity: Activity?
     }
 
-    init {
-        mAllowEntryCreation = mAllowChapterCreation
-    }
-
     // INLINE CLASSES ==============================================================================
     inner class CalendarPagerAdapter(val context: Context): PagerAdapter() {
-        override fun instantiateItem(collection: ViewGroup, position: Int): Any {
+        @SuppressLint("CutPasteId")
+        override fun instantiateItem(container: ViewGroup, position: Int): Any {
             val inflater = LayoutInflater.from(context)
-            val layout = inflater.inflate(R.layout.calendar, collection,
+            val layout = inflater.inflate(R.layout.calendar, container,
                                           false) as ViewGroup
 
             val gridCalendar = layout.findViewById<GridView>(R.id.gv_calendar)
-            gridCalendar.adapter = mAdapter
+
+            when(position) {
+                0 -> {
+                    mMonthLabelPrev = layout.findViewById(R.id.tv_month_name)
+                    mAdapterPrev = GridCalAdapter(Lifeograph.context, mDate)
+                    gridCalendar.adapter = mAdapterPrev
+                }
+                1 -> {
+                    mMonthLabelCurr = layout.findViewById(R.id.tv_month_name)
+                    mAdapterCurr = GridCalAdapter(Lifeograph.context, mDate)
+                    gridCalendar.adapter = mAdapterCurr
+                }
+                2 -> {
+                    mMonthLabelNext = layout.findViewById(R.id.tv_month_name)
+                    mAdapterNext = GridCalAdapter(Lifeograph.context, mDate)
+                    gridCalendar.adapter = mAdapterNext
+                }
+            }
+            if(::mMonthLabelPrev.isInitialized &&
+               ::mMonthLabelCurr.isInitialized &&
+               ::mMonthLabelNext.isInitialized) update()
+
             gridCalendar.onItemClickListener = OnItemClickListener { _: AdapterView<*>?, _: View?,
                                                                      pos: Int, _: Long ->
                 handleDayClicked(pos)
             }
 
-            collection.addView(layout)
+            container.addView(layout)
 
             Log.d(Lifeograph.TAG, "Instantiate Item at pos:($position) in ViewPager")
-//            when(position) {
-//                0 -> {
-//                    mDate.backward_months(1)
-//                    mViewPagerCal.setCurrentItem(1, false)
-//                }
-//                2 -> {
-//                    mDate.forward_months(1)
-//                    //handleDayChanged()
-//                    mViewPagerCal.setCurrentItem(1, false)
-//                }
-//            }
 
             return layout
         }
 
         override fun destroyItem(container: ViewGroup, position: Int, view: Any) {
+
+            Log.d(Lifeograph.TAG, "DESTROY Item at pos:($position) in ViewPager")
             container.removeView(view as View)
         }
 
@@ -199,40 +211,29 @@ class DialogCalendar : DialogFragment() {
     }
 
     inner class ViewPagerCalendarChangeListener : ViewPager.OnPageChangeListener {
-
-        private var flagJump = false
-
-        override fun onPageScrolled(position: Int,
-                                       positionOffset: Float,
-                                       positionOffsetPixels: Int) {
+        override fun onPageScrolled(a: Int, b: Float, c: Int) {
             // We do nothing here.
         }
 
         override fun onPageSelected(position: Int) {
-            Log.d(Lifeograph.TAG, "onPageSelected($position) in ViewPager")
-            when(position) {
-                0 -> {
-                    flagJump = true
-                    mDate.backward_months(1)
-                    handleDayChanged()
+            Log.d(Lifeograph.TAG, "onPageSelected($position) mFlagDuringJ: $mFlagDuringJump")
 
-                }
-                2 -> {
-                    flagJump = true
-                    mDate.forward_months(1)
-                    handleDayChanged()
+            if(!mFlagDuringJump && ::mMonthLabelPrev.isInitialized) {
+                mFlagDuringJump = true
+                mViewPagerCal.setCurrentItem(1, false)
+                mFlagDuringJump = false
 
+                when {
+                    position < 1 -> mDate.backward_months(1)
+                    position > 1 -> mDate.forward_months(1)
                 }
-                else -> flagJump = false
+
+                update()
             }
         }
 
         override fun onPageScrollStateChanged(state: Int) {
-            //Let's wait for the animation to complete then do the jump.
-            if (flagJump && state == ViewPager.SCROLL_STATE_IDLE) {
-                // Jump without animation so the user is not aware what happened.
-                mViewPagerCal.setCurrentItem(1, false)
-            }
+            Log.d(Lifeograph.TAG, "onPageScrollStateChanged($state)")
         }
     }
 

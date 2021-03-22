@@ -150,6 +150,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         //}
         Collections.sort(mElems, compareElemsByDate)
 
+        handleElemNumberChanged()
         mItemCount = mElems.size - 3
     }
 
@@ -159,19 +160,17 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                 when(item.mId) {
                     "T" -> {
                         Lifeograph.goToToday()
-                        handleElemNumberChanged()
                     }
                     "F" -> {
                         Lifeograph.addEntry(
                                 Diary.d.get_available_order_1st(true), "")
-                        handleElemNumberChanged()
                     }
                     else -> {
                         Lifeograph.addEntry(
                                 Diary.d.get_available_order_1st(false), "")
-                        handleElemNumberChanged()
                     }
                 }
+                handleElemNumberChanged()
             }
 
             override fun populateItems(list: RVBasicList) {
@@ -278,7 +277,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
 
     fun handleElemNumberChanged() {
         mSelectionStatuses.clear()
-        mSelectionStatuses.addAll(Collections.nCopies(Diary.d._size, false))
+        mSelectionStatuses.addAll(Collections.nCopies(mElems.size, false))
     }
 
     override fun onInquireAction(id: Int, text: String) {

@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -21,59 +21,52 @@
 
 **************************************************************************** -->
 
-    <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.constraintlayout.widget.ConstraintLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:layout_gravity="center_vertical"
+    android:orientation="vertical" >
+
+    <net.sourceforge.lifeograph.ViewYearBar
+        android:id="@+id/year_bar"
+        android:layout_width="match_parent"
+        android:layout_height="40dp"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <androidx.viewpager.widget.ViewPager
+        android:id="@+id/vp_calendar"
+        android:layout_width="match_parent"
+        android:layout_height="250dp"
+        app:layout_constraintTop_toBottomOf="@id/year_bar"
+        app:layout_constraintBottom_toTopOf="@id/button_bar" />
+
+    <LinearLayout
+        android:id="@+id/button_bar"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_gravity="center_vertical"
-        android:orientation="vertical" >
+        android:orientation="horizontal"
+        android:layout_margin="15dp"
+        app:layout_constraintBottom_toBottomOf="parent" >
 
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:background="@color/t_lightest" >
-            <NumberPicker
-                android:layout_width="0dp"
-                android:layout_weight=".5"
-                android:layout_height="wrap_content"
-                android:id="@+id/numberPickerMonth"/>
+        <Button
+            android:id="@+id/buttonCreateEntry"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            android:layout_gravity="center"
+            style="@style/LifeoButtonTheme"
+            android:text="@string/create_entry" />
 
-            <NumberPicker
-                android:layout_width="0dp"
-                android:layout_weight=".5"
-                android:layout_height="wrap_content"
-                android:id="@+id/numberPickerYear"/>
-        </LinearLayout>
-
-        <androidx.viewpager.widget.ViewPager
-            android:id="@+id/vp_calendar"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content" />
-
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:orientation="horizontal"
-            android:layout_margin="15dp"
-            style="?android:attr/buttonBarStyle" >
-
-            <Button
-                android:id="@+id/buttonCreateEntry"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight=".5"
-                android:layout_gravity="center"
-                style="?android:attr/buttonBarButtonStyle"
-                android:text="@string/create_entry" />
-
-            <Button
-                android:id="@+id/buttonCreateChapter"
-                android:layout_width="0dp"
-                android:layout_height="match_parent"
-                android:layout_weight=".5"
-                android:layout_gravity="center"
-                style="?android:attr/buttonBarButtonStyle"
-                android:text="@string/create_chapter" />
-        </LinearLayout>
-
+        <Button
+            android:id="@+id/buttonCreateChapter"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight=".5"
+            android:layout_gravity="center"
+            style="@style/LifeoButtonTheme"
+            android:text="@string/create_chapter" />
     </LinearLayout>
+
+</androidx.constraintlayout.widget.ConstraintLayout>

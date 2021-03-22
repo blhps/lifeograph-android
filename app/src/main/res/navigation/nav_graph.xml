@@ -72,9 +72,6 @@
         <action
             android:id="@+id/action_diary_list_to_dialogAbout"
             app:destination="@id/nav_about" />
-        <action
-            android:id="@+id/action_nav_diaries_to_dialogCalendar"
-            app:destination="@id/nav_calendar" />
     </fragment>
     <fragment
         android:id="@+id/nav_settings"

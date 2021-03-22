@@ -28,10 +28,10 @@ import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
 
-class RViewAdapterBasic(private val mItems: List<Item>, var mListener: Listener) :
+class RViewAdapterBasic(private val mItems: List<Item>, private var mListener: Listener) :
         RecyclerView.Adapter<RViewAdapterBasic.ViewHolder>() {
     // VARIABLES ===================================================================================
-    var mViewHolder: ViewHolder? = null
+    private var mViewHolder: ViewHolder? = null
 
     class Item(val mName: String, val mId: String, val mIcon: Int, val mIdNum: Int = 0) {
         override fun toString(): String {

@@ -19,477 +19,501 @@
 
  ***********************************************************************************/
 
-package net.sourceforge.lifeograph;
+package net.sourceforge.lifeograph
 
-import android.content.Context;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.Paint;
-import android.graphics.Path;
-import android.util.AttributeSet;
-import android.view.GestureDetector;
-import android.view.MotionEvent;
-import android.view.View;
+import android.content.Context
+import android.graphics.Canvas
+import android.graphics.Color
+import android.graphics.Paint
+import android.graphics.Path
+import android.util.AttributeSet
+import android.util.Log
+import android.view.GestureDetector
+import android.view.GestureDetector.SimpleOnGestureListener
+import android.view.MotionEvent
+import android.view.ScaleGestureDetector
+import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
+import android.view.View
+import androidx.core.content.ContextCompat
+import net.sourceforge.lifeograph.Lifeograph.Companion.screenShortEdge
+import java.util.*
+import kotlin.math.*
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Map;
-import java.util.TreeMap;
 
-public class ViewChart extends View implements GestureDetector.OnGestureListener
-{
-    // CONSTANTS
-    final float border_curve = Lifeograph.getScreenShortEdge() * Lifeograph.sDPIX / 25f;
-    final float border_label = border_curve / 3f;
-    final float offset_label = border_curve / 6f;
-    final float LABEL_HEIGHT = border_curve / 1.75f;
-    final float OVERVIEW_COEFFICIENT = border_curve / 2f;
-    final float COLUMN_WIDTH_MIN = border_curve * 2f;
-    final float STROKE_WIDTH = border_curve / 30f;
-    private final float BAR_HEIGHT = LABEL_HEIGHT + offset_label;
-    final float label_y = LABEL_HEIGHT;
-    final float s_x_min = border_curve + border_label;
-    final float s_y_min = border_curve;
+class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
+    // CONSTANTS ===================================================================================
+    private val mBorderCurve = screenShortEdge * Lifeograph.sDPIX / 25f
+    private val mBorderLabel = mBorderCurve / 3f
+    private val cOffsetLabel = mBorderCurve / 6f
+    private val cHeightLabel = mBorderCurve / 1.75f
+    private val cHeightBar = cHeightLabel + cOffsetLabel
+    private val cCoeffOverview = mBorderCurve / 2f
+    private val cWidthColMin = mBorderCurve * 2f
+    private val cStrokeWidth = mBorderCurve / 30f
+    private val cLabelY = cHeightLabel
+    private val cXMin = mBorderCurve + mBorderLabel
+    private val cYMin = mBorderCurve
 
-    public ViewChart( Context c, AttributeSet attrs ) {
-        super( c, attrs );
-        context = c;
+    // VARIABLES ===================================================================================
+    private val mPaint: Paint = Paint()
+    private val mPath: Path = Path()
+    var         mData: ChartData? = null
 
-        // we set a new Path
-        mPath = new Path();
+    // GEOMETRICAL VARIABLES =======================================================================
+    private var mWidth = -1
+    private var mHeight = -1
+    private var mSpan = 0
+    private var mStepCount = 0
+    private var mStepStart = 0
+    private var mZoomLevel = 1.0
+    private var mVMin = 0.0
+    private var mVMax = 0.0
+    private var mXMax = 0f
+    private var mYMax = 0f
+    private var mYMid = 0f
+    private var mAmplitude = 0f
+    private var mLength = 0f
+    private var mStepX = 0f
+    private var mCoefficient = 0f
+    private var mOvHeight = 0f
+    private var mStepXOv = 0f
+    private var mAmpliOv = 0f
+    private var mCoeffOv = 0f
+    private val mSwipeGestureDetector: GestureDetector
+    private val mScaleGestureDetector: ScaleGestureDetector
 
-        // and we set a new Paint with the desired attributes
-        mPaint = new Paint();
-        mPaint.setAntiAlias( true );
-        mPaint.setColor( Color.BLACK );
-        mPaint.setStyle( Paint.Style.STROKE );
-        mPaint.setStrokeJoin( Paint.Join.ROUND );
-        mPaint.setStrokeWidth( 4 * STROKE_WIDTH );
-
-        mGestureDetector = new GestureDetector( c, this );
-    }
-
-    public void setListener( Listener listener ) {
-        mListener = listener;
-    }
-
-    public void set_points( ChartData points, float zoom_level ) {
-        m_data = points;
-        m_zoom_level = zoom_level;
-        m_span = points != null ? points.get_span() : 0;
-
-        if( m_width > 0 ) { // if on_size_allocate is executed before
-            update_col_geom( true );
-            invalidate();
+    // METHODS =====================================================================================
+    init {
+        mPaint.isAntiAlias = true
+        mPaint.color = Color.BLACK
+        mPaint.style = Paint.Style.STROKE
+        mPaint.strokeJoin = Paint.Join.ROUND
+        mPaint.strokeWidth = cStrokeWidth * 4
+        mSwipeGestureDetector = GestureDetector(context, SwipeGestureListener())
+        mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
+        setOnTouchListener { v: View?, event: MotionEvent? ->
+            v!!.performClick()
+            mSwipeGestureDetector.onTouchEvent(event) || mScaleGestureDetector.onTouchEvent(event)
         }
     }
 
-    void update_col_geom( boolean flag_new ) {
-        if( m_data != null ) {
-            // 100% zoom:
-            final int step_count_nominal = ( int ) ( m_length / COLUMN_WIDTH_MIN ) + 1;
-            final int step_count_min = Math.min( m_span, step_count_nominal );
+    //    public void set_points( ChartData points, float zoom_level ) {
+    //        m_data = points;
+    //        m_zoom_level = zoom_level;
+    //        m_span = points != null ? points.get_span() : 0;
+    //
+    //        if( m_width > 0 ) { // if on_size_allocate is executed before
+    //            update_col_geom( true );
+    //            invalidate();
+    //        }
+    //    }
+    private fun updateColGeom(flag_new: Boolean) {
+        // 100% zoom:
+        val stepCountNominal: Int = (mLength / cWidthColMin).toInt() + 1
+        val stepCountMin: Int = if(mSpan > stepCountNominal) stepCountNominal else mSpan
 
-            m_step_count = ( int ) ( m_zoom_level * ( m_span - step_count_min ) ) + step_count_min;
-            m_step_x = ( m_step_count < 3 ? m_length : m_length / ( m_step_count - 1 ) );
-
-            m_ov_height = m_step_count < m_span ?
-                    ( float ) Math.log10( m_height ) * OVERVIEW_COEFFICIENT : 0f;
-
-            int mltp = ( m_data.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY ? 1 : 2;
-            m_y_max = m_height - mltp * BAR_HEIGHT - m_ov_height;
-            m_y_mid = ( m_y_max + s_y_min ) / 2;
-            m_amplitude = m_y_max - s_y_min;
-            m_coefficient = ( m_data.v_max == m_data.v_min ) ? 0f :
-                    m_amplitude / ( float ) ( m_data.v_max - m_data.v_min );
-
-            final int col_start_max = m_span - m_step_count;
-            if( flag_new || m_step_start > col_start_max )
-                m_step_start = col_start_max;
-
-            // OVERVIEW PARAMETERS
-            m_ampli_ov = m_ov_height - 2 * offset_label;
-            m_coeff_ov = ( m_data.v_max == m_data.v_min ) ? 0.5f :
-                    m_ampli_ov / ( float ) ( m_data.v_max - m_data.v_min );
-            m_step_x_ov = m_width - 2 * offset_label;
-            if( m_span > 1 )
-                m_step_x_ov /= m_span - 1;
+        if(mData!!.is_underlay_planned) {
+            mVMin = min(mData!!.v_min, mData!!.v_plan_min)
+            mVMax = max(mData!!.v_max, mData!!.v_plan_max)
         }
-    }
-
-    FiltererContainer
-    get_filterer_stack() {
-        if( m_data.filter != null )
-            return m_data.filter.get_filterer_stack();
-
-        return null;
-    }
-
-    protected long
-    get_period_date( long date ) {
-        switch( m_data.type & ChartData.PERIOD_MASK ) {
-            case ChartData.WEEKLY:
-                date = Date.backward_to_week_start( date );
-                return Date.get_pure( date );
-            case ChartData.MONTHLY:
-                return( Date.get_yearmonth( date ) + Date.make_day( 1 ) );
-            case ChartData.YEARLY:
-                return( ( date & Date.FILTER_YEAR ) + Date.make_month( 1 ) + Date.make_day( 1 ) );
+        else {
+            mVMin = mData!!.v_min
+            mVMax = mData!!.v_max
         }
 
-        return 0;
+        mStepCount = ( mZoomLevel * ( mSpan - stepCountMin ) ).toInt() + stepCountMin
+        mStepX = if(mStepCount < 3) mLength else mLength / (mStepCount - 1)
+
+        mOvHeight = if(mStepCount < mSpan) log10(mHeight.toDouble()).toFloat() * cCoeffOverview
+                    else 0f
+
+        val mltp: Int = if((mData!!.type and ChartData.PERIOD_MASK) == ChartData.YEARLY) 1 else 2
+        mYMax = mHeight - mltp * cHeightBar - mOvHeight
+        mYMid = ( mYMax + cYMin ) / 2
+        mAmplitude = mYMax - cYMin
+        mCoefficient = if( mVMax == mVMin ) 0f else mAmplitude / (mVMax - mVMin).toFloat()
+
+        val colStartMax = mSpan - mStepCount
+        if( flag_new || mStepStart > colStartMax )
+            mStepStart = colStartMax
+
+        // OVERVIEW PARAMETERS
+        mAmpliOv = mOvHeight - 2 * cOffsetLabel
+        mCoeffOv = if( mVMax == mVMin ) 0.5f else mAmpliOv / ( mVMax - mVMin ).toFloat()
+        mStepXOv = mWidth - 2f * cOffsetLabel
+        if(mSpan > 1)
+            mStepXOv /= mSpan - 1
     }
 
-    void
-    calculate_points( double zoom_level ) {
-        m_data.clear_points();
+    private fun getFiltererStack(): FiltererContainer? {
+        return if(mData!!.filter != null) mData!!.filter._filterer_stack else null
+    }
 
-        FiltererContainer   fc = get_filterer_stack();
-        Collection< Entry > entries = Diary.d.m_entries.descendingMap().values();
-        double      v = 1.0;
-        double      v_plan = 0.0;
-        final int   y_axis = m_data.get_y_axis();
-        class       Values{
-            final double v; final double p;
-            public Values( double v, double p ){ this.v = v; this.p = p; } }
-        Map< Long, List< Values > > map_values = new TreeMap<>(); // multimap
+    private fun getPeriodDate(date: Long): Long {
+        when(mData!!.type and ChartData.PERIOD_MASK) {
+            ChartData.WEEKLY -> {
+                return Date.get_pure(Date.backward_to_week_start(date))
+            }
+            ChartData.MONTHLY -> return Date.get_yearmonth(date) + Date.make_day(1)
+            ChartData.YEARLY -> return (date and Date.FILTER_YEAR) + Date.make_month(
+                    1) + Date.make_day(1)
+        }
+        return 0
+    }
 
-        for( Entry entry : entries ) {
-            if( y_axis == ChartData.TAG_VALUE_PARA ) {
-                if( m_data.tag != null && !entry.has_tag( m_data.tag ) )
-                    continue;
+    fun calculatePoints(zoom_level: Double) {
+        mData!!.clear_points()
+
+        class Values(val v: Double, val p: Double)
+
+        val fc = getFiltererStack()
+        val entries: Collection<Entry> = Diary.d.m_entries.descendingMap().values
+        var v = 1.0
+        var vPlan = 0.0
+        val yAxis = mData!!._y_axis
+        val mapValues: MutableMap<Long, MutableList<Values>> = TreeMap() // multimap
+
+        for(entry in entries) {
+            if(yAxis == ChartData.TAG_VALUE_PARA) {
+                if(mData!!.tag != null && !entry.has_tag(mData!!.tag)) continue
             }
             else {
-                if( entry.is_ordinal() )
-                    continue;
-
-                if( m_data.tag != null && m_data.is_tagged_only() && !entry.has_tag( m_data.tag ) )
-                    continue;
+                if(entry.is_ordinal) continue
+                if(mData!!.tag != null && mData!!.is_tagged_only && !entry.has_tag(
+                            mData!!.tag)) continue
             }
-
-            if( fc != null && !fc.filter( entry ) )
-                continue;
-
-            switch( y_axis ) {
-                case ChartData.COUNT:
-                    break;
-                case ChartData.TEXT_LENGTH:
-                    v = entry.get_size();
-                    break;
-                case ChartData.MAP_PATH_LENGTH:
-                    v = entry.get_map_path_length();
-                    break;
-                case ChartData.TAG_VALUE_ENTRY:
-                    if( m_data.tag != null ) {
-                        v = entry.get_value_for_tag( m_data );
-                        v_plan = entry.get_value_planned_for_tag( m_data );
-                    }
-                    break;
-                case ChartData.TAG_VALUE_PARA:
-                    if( m_data.tag != null ) {
-                        // first sort the values by date:
-                        for( Paragraph para : entry.m_paragraphs ) {
-                            long date = para.get_date_broad();
-                            if( date == Date.NOT_SET || Date.is_ordinal( date ) )
-                                continue;
-                            if( !para.has_tag( m_data.tag ) )
-                                continue;
-
-                            Lifeograph.MutableInt c = new Lifeograph.MutableInt(); // dummy
-                            v = para.get_value_for_tag( m_data, c );
-                            v_plan = para.get_value_planned_for_tag( m_data, c );
-
-                            final long periodDate = get_period_date( date );
-
-                            List< Values > list = map_values.get( periodDate );
-                            if( list != null )
-                                list.add( new Values( v, v_plan ) );
-                            else {
-                                list = new ArrayList<>();
-                                list.add( new Values( v, v_plan ) );
-                                map_values.put( periodDate, list );
-                            }
+            if(fc != null && !fc.filter(entry)) continue
+            when(yAxis) {
+                ChartData.COUNT -> {
+                }
+                ChartData.TEXT_LENGTH -> v = entry._size.toDouble()
+                ChartData.MAP_PATH_LENGTH -> v = entry._map_path_length
+                ChartData.TAG_VALUE_ENTRY -> if(mData!!.tag != null) {
+                    v = entry.get_value_for_tag(mData)
+                    vPlan = entry.get_value_planned_for_tag(mData)
+                }
+                ChartData.TAG_VALUE_PARA -> if(mData!!.tag != null) {
+                    // first sort the values by date:
+                    for(para in entry.m_paragraphs) {
+                        val date = para._date_broad
+                        if(date == Date.NOT_SET || Date.is_ordinal(date)) continue
+                        if(!para.has_tag(mData!!.tag)) continue
+                        val c = Lifeograph.MutableInt() // dummy
+                        v = para.get_value_for_tag(mData!!, c)
+                        vPlan = para.get_value_planned_for_tag(mData!!, c)
+                        val periodDate = getPeriodDate(date)
+                        var list = mapValues[periodDate]
+                        if(list != null) list.add(Values(v, vPlan))
+                        else {
+                            list = ArrayList()
+                            list.add(Values(v, vPlan))
+                            mapValues[periodDate] = list
                         }
                     }
-                    break;
+                }
             }
-
-            if( y_axis != ChartData.TAG_VALUE_PARA ) // para values are added in their case
-                m_data.add_value( get_period_date( entry.get_date_t() ), v, v_plan );
+            if(yAxis != ChartData.TAG_VALUE_PARA) // para values are added in their case
+                mData!!.add_value(getPeriodDate(entry._date_t), v, vPlan)
         }
-
-        if( y_axis == ChartData.TAG_VALUE_PARA ) {
+        if(yAxis == ChartData.TAG_VALUE_PARA) {
             // feed the values in order:
-            for( Map.Entry< Long, List< Values > > kv : map_values.entrySet() ) {
-                List< Values > list = kv.getValue();
-                for( Values values : list )
-                    m_data.add_value( kv.getKey(), values.v, values.p );
+            for((key, list) in mapValues) {
+                for(values in list) mData!!.add_value(key, values.v, values.p)
             }
         }
-
-        m_data.update_min_max();
-
-        Diary.d.fill_up_chart_data( m_data );
-
-        if( zoom_level >= 0.0 )
-            m_zoom_level = zoom_level;
-
-        m_span = m_data.get_span();
-
-        if( m_width > 0 ) { // if on_size_allocate is executed before
-            update_col_geom( zoom_level >= 0.0 );
-            // TODO refresh();
+        mData!!.update_min_max()
+        Diary.d.fill_up_chart_data(mData)
+        if(zoom_level >= 0.0) mZoomLevel = zoom_level
+        mSpan = mData!!._span
+        if(mWidth > 0) { // if on_size_allocate is executed before
+            updateColGeom(zoom_level >= 0.0)
+            invalidate()
         }
+    }
+
+    fun setZoom(level: Double) {
+        if(level == mZoomLevel) return
+
+        mZoomLevel = if(level > 1.0) 1.0 else level.coerceAtLeast(0.0)
+        if(mWidth > 0) { // if on_size_allocate is executed before
+            Log.d(Lifeograph.TAG, "zoom event: $mZoomLevel")
+            updateColGeom(false)
+            invalidate()
+        }
+    }
+
+    fun scroll(offset: Int) {
+        if((mStepStart + offset >= 0) && (mStepStart + offset <= mSpan - mStepCount))
+            mStepStart += offset
+        else
+            return
+
+        invalidate()
     }
 
     // override onSizeChanged
-    @Override
-    protected void onSizeChanged( int w, int h, int oldw, int oldh ) {
-        super.onSizeChanged( w, h, oldw, oldh );
-
-        boolean flag_first = ( m_width < 0 );
-
-        m_width = w;
-        m_height = h;
-
-        m_x_max = m_width - border_curve;
-        m_length = m_x_max - s_x_min;
-
-        update_col_geom( flag_first );
+    override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
+        super.onSizeChanged(w, h, oldw, oldh)
+        val flagFirst = mWidth < 0
+        mWidth = w
+        mHeight = h
+        mXMax = mWidth - mBorderCurve
+        mLength = mXMax - cXMin
+        updateColGeom(flagFirst)
     }
 
-    @Override
-    protected void onDraw( Canvas canvas ) {
-        super.onDraw( canvas );
+    override fun onDraw(canvas: Canvas) {
+        super.onDraw(canvas)
 
         // reset path
-        mPath.reset();
+        mPath.reset()
 
         // BACKGROUND COLOR (contrary to Linux version, background is not white in Android)
-        canvas.drawColor( getResources().getColor( R.color.t_lightest ) );
+        //canvas.drawColor(ContextCompat.getColor(context, R.color.t_lightest))
+        canvas.drawColor(Color.WHITE)
 
         // HANDLE THERE-IS-TOO-FEW-ENTRIES-CASE SPECIALLY
-        if( m_data == null || m_span < 2 ) {
-            this.setVisibility( View.GONE );
-            return;
+        if(mData == null || mSpan < 2) {
+            mPaint.color = Color.BLACK
+            mPaint.textSize = cHeightLabel * 3
+            mPaint.textAlign = Paint.Align.CENTER
+            mPaint.style = Paint.Style.FILL
+
+            canvas.drawText("INSUFFICIENT DATA", mWidth / 2f, mHeight / 2f, mPaint)
+
+            return
         }
-        else
-            this.setVisibility( View.VISIBLE );
 
         // NUMBER OF STEPS IN THE PRE AND POST BORDERS
-        int pre_steps = ( int ) Math.ceil( s_x_min / m_step_x );
-        if( pre_steps > m_step_start )
-            pre_steps = m_step_start;
+        var preSteps = ceil(cXMin / mStepX).toInt()
+        if(preSteps > mStepStart)
+            preSteps = mStepStart
 
-        int post_steps = ( int ) Math.ceil( border_curve / m_step_x );
-        if( post_steps > m_span - m_step_count - m_step_start )
-            post_steps = m_span - m_step_count - m_step_start;
-
-/* TODO
-        // CHAPTER BACKGROUNDS
-        double pos_chapter_last = -FLT_MAX;
-        double pos_chapter_new = 0.0;
-        Color chapter_color_last = "#FFFFFF";
-        for(  pc_chapter : m_points.chapters )
-        {
-            pos_chapter_new = s_x_min + m_step_x * ( pc_chapter.first - m_step_start );
-            if( pos_chapter_last != -FLT_MAX )
-            {
-                if( pos_chapter_new > 0 )
-                {
-                    if( pos_chapter_new > m_width )
-                        pos_chapter_new = m_width;
-
-                    Gdk::Cairo::set_source_rgba( cr, chapter_color_last );
-                    cr.rectangle( pos_chapter_last, 0.0, pos_chapter_new - pos_chapter_last, m_y_max );
-                    cr.fill();
-                }
-
-                if( pos_chapter_new >= m_width )
-                    break;
-            }
-
-            pos_chapter_last = pos_chapter_new;
-            chapter_color_last = pc_chapter.second;
-        }
-*/
+        var postSteps = ceil(mBorderCurve / mStepX).toInt()
+        if(postSteps > mSpan - mStepCount - mStepStart)
+            postSteps = mSpan - mStepCount - mStepStart
 
         // YEAR & MONTH BAR
-        mPaint.setColor( getResources().getColor( R.color.t_dark ) );
-        mPaint.setStyle( Paint.Style.FILL );
-        int period = m_data.type & ChartData.PERIOD_MASK;
-        canvas.drawRect( 0f, m_y_max, m_width,
-                         m_y_max + ( period == ChartData.YEARLY ?
-                                     BAR_HEIGHT : BAR_HEIGHT * 2 ),
-                         mPaint );
+        mPaint.color = Color.parseColor("#DDDDDD")
+        mPaint.style = Paint.Style.FILL
+        val period = mData!!._period
+        var stepGrid = ceil(cWidthColMin / mStepX).toInt()
+        var stepGridFirst = 0
 
-        // VERTICAL LINES
-        float cumulative_width = 0f;
-        boolean flag_print_label;
-
-        mPaint.setColor( Color.BLACK );
-        mPaint.setStrokeWidth( STROKE_WIDTH );
-        mPaint.setStyle( Paint.Style.STROKE );
-        for( int i = 0; i < m_step_count; ++i ) {
-            flag_print_label = ( cumulative_width == 0 );
-            cumulative_width += m_step_x;
-            if( cumulative_width >= COLUMN_WIDTH_MIN )
-                cumulative_width = 0; // reset for the next round
-
-            if( flag_print_label ) {
-                mPath.moveTo( s_x_min + m_step_x * i, m_y_max + label_y );
-                mPath.lineTo( s_x_min + m_step_x * i, 0.0f );
+        if(period == ChartData.YEARLY)
+            canvas.drawRect(0f, mYMax, mWidth.toFloat(), mYMax + cHeightBar, mPaint)
+        else {
+            stepGrid = when {
+                stepGrid > 12 -> stepGrid + 12 -(stepGrid % 12)
+                stepGrid > 6  -> 12
+                stepGrid > 4  -> 6
+                stepGrid > 3  -> 4
+                //stepGrid > 2 ->  3
+                else          -> 3
             }
+
+            stepGridFirst = (( stepGrid - ( Date.get_month(mData!!.dates[mStepStart])
+                    % stepGrid ) + 1 ) % stepGrid)
+
+            canvas.drawRect(0f, mYMax, mWidth.toFloat(), mYMax + cHeightBar * 2, mPaint)
         }
 
         // HORIZONTAL LINES
-        mPath.moveTo( 0.0f, s_y_min );
-        mPath.lineTo( m_width, s_y_min );
-        mPath.moveTo( 0.0f, m_y_mid );
-        mPath.lineTo( m_width, m_y_mid );
+        mPaint.style = Paint.Style.STROKE
+        mPaint.color = Color.GRAY
+        mPaint.strokeWidth = cStrokeWidth / 2
 
-        canvas.drawPath( mPath, mPaint ); // draws both vertical and horizontal lines
-        mPath.reset();
-
-        // GRAPH LINE
-        mPaint.setColor( getResources().getColor( R.color.t_darker ) );
-        mPaint.setStrokeWidth( 4 * STROKE_WIDTH );
-
-        mPath.moveTo( s_x_min - m_step_x * pre_steps,
-                      m_y_max - m_coefficient *
-                                ( float ) ( m_data.values.get( m_step_start - pre_steps ) -
-                                            m_data.v_min ) );
-
-        for( int i = 1; i < m_step_count + pre_steps + post_steps; i++ ) {
-            mPath.lineTo( s_x_min + m_step_x * ( i - pre_steps ),
-                          m_y_max - m_coefficient *
-                                    ( float )
-                                            ( m_data.values.get( i + m_step_start - pre_steps ) -
-                                              m_data.v_min ) );
+        val gridStepY = ( mYMax - cYMin ) / 4
+        for(i in 0..3) {
+            mPath.moveTo(0f, cYMin + i * gridStepY)
+            mPath.lineTo(mWidth.toFloat(), cYMin + i * gridStepY)
         }
-        canvas.drawPath( mPath, mPaint );
-
-        // YEAR & MONTH LABELS
-        mPaint.setColor( Color.WHITE );
-        mPaint.setTextSize( LABEL_HEIGHT );
-        mPaint.setStyle( Paint.Style.FILL );
-
-        //mLabelDate.m_date = m_points.start_date;
-        if( period == ChartData.MONTHLY )
-            mLabelDate.forward_months( m_step_start );
-        else
-            mLabelDate.set_year( mLabelDate.get_year() + m_step_start );
-
-        int year_last = 0;
-        cumulative_width = 0;
-
-        for( int i = 0; i < m_step_count; ++i ) {
-            flag_print_label = ( cumulative_width == 0 );
-            cumulative_width += m_step_x;
-            if( cumulative_width >= COLUMN_WIDTH_MIN )
-                cumulative_width = 0; // reset for the next round
-
-            if( period == ChartData.MONTHLY ) {
-                if( flag_print_label ) {
-                    canvas.drawText( mLabelDate.format_string( "M" ),
-                                     s_x_min + m_step_x * i + offset_label,
-                                     m_y_max + label_y,
-                                     mPaint );
-
-                    if( i == 0 || year_last != mLabelDate.get_year() ) {
-                        canvas.drawText( mLabelDate.format_string( "Y" ),
-                                         s_x_min + m_step_x * i + offset_label,
-                                         m_y_max + BAR_HEIGHT + label_y,
-                                         mPaint );
-                        year_last = mLabelDate.get_year();
-                    }
-                }
-
-                mLabelDate.forward_months( 1 );
-            }
-            else { // YEARLY
-                if( flag_print_label ) {
-                    canvas.drawText( mLabelDate.format_string( "Y" ),
-                                     s_x_min + m_step_x * i + offset_label, m_y_max  + label_y,
-                                     mPaint );
-                }
-                mLabelDate.forward_years( 1 );
-            }
-        }
+        canvas.drawPath(mPath, mPaint) // draws both vertical and horizontal lines
+        mPath.reset()
 
         // y LABELS
-        mPaint.setColor( Color.BLACK );
-        canvas.drawText( m_data.v_max + " " + m_data.unit, border_label,
-                         s_y_min - offset_label, mPaint );
-        canvas.drawText( m_data.v_min + " " + m_data.unit, border_label,
-                         m_y_max - offset_label, mPaint );
-    }
+        mPaint.color = Color.BLACK
+        mPaint.style = Paint.Style.FILL
+        mPaint.textSize = cHeightLabel
 
-    //override the onTouchEvent
-    @Override
-    public boolean onTouchEvent( MotionEvent event ) {
-        this.mGestureDetector.onTouchEvent( event );
-        // Be sure to call the superclass implementation
-        return super.onTouchEvent( event );
-    }
+        canvas.drawText(Lifeograph.formatNumber(mVMax) + " " + mData!!.unit,
+                        mBorderLabel,
+                        cYMin - cOffsetLabel,
+                        mPaint)
 
-    // GestureDetector.OnGestureListener INTERFACE METHODS
-    public boolean onDown( MotionEvent event ) {
-        return true;
-    }
+        canvas.drawText(Lifeograph.formatNumber((mVMax + mVMin) / 2) + " " + mData!!.unit,
+                        mBorderLabel,
+                        mYMid - cOffsetLabel,
+                        mPaint)
 
-    public boolean onFling( MotionEvent e1, MotionEvent e2, float velocityX, float velocityY ) {
-        return true;
-    }
+        canvas.drawText(Lifeograph.formatNumber(mVMin) + " " + mData!!.unit,
+                        mBorderLabel,
+                        mYMax - cOffsetLabel,
+                        mPaint)
 
-    public void onLongPress( MotionEvent event ) {
-        if( m_data != null && mListener != null ) {
-            if( ( m_data.type & ChartData.PERIOD_MASK ) == ChartData.YEARLY )
-                mListener.onTypeChanged( ChartData.MONTHLY );
-            else
-                mListener.onTypeChanged( ChartData.YEARLY );
+        // YEAR & MONTH LABELS + VERTICAL LINES
+        var yearLast = 0
+        mPaint.color = Color.BLACK
+        mPaint.strokeWidth = cStrokeWidth / 2
+        mPaint.style = Paint.Style.FILL
+
+        for(i in stepGridFirst until mStepCount step stepGrid) {
+            val date = mData!!.dates[mStepStart + i]
+
+            mPath.moveTo(cXMin + mStepX * i, mYMax + cLabelY)
+            mPath.lineTo(cXMin + mStepX * i, 0f)
+
+            if(period == ChartData.YEARLY) {
+                //mPath.moveTo( cXMin + mStepX * i + cOffsetLabel, mYMax )
+                canvas.drawText(Date.get_year(date).toString(),
+                                cXMin + mStepX * i + cOffsetLabel,
+                                mYMax + cHeightLabel,
+                                mPaint)
+            }
+            else {
+                if(stepGrid < 12) {
+                    if(period == ChartData.MONTHLY)
+                        canvas.drawText(Date.get_month(date).toString(),
+                                        cXMin + mStepX * i + cOffsetLabel,
+                                        mYMax + cHeightLabel,
+                                        mPaint)
+                    else // weekly
+                        canvas.drawText(Date.format_string(date, "MD"),
+                                        cXMin + mStepX * i + cOffsetLabel,
+                                        mYMax + cHeightLabel,
+                                        mPaint)
+                }
+
+                if( yearLast != Date.get_year(date) ) {
+                    canvas.drawText(Date.get_year(date).toString(),
+                                    cXMin + mStepX * i + cOffsetLabel,
+                                    mYMax + cLabelY * if(stepGrid < 12) 2 else 1,
+                                    mPaint)
+                    yearLast = Date.get_year(date)
+                }
+            }
+        }
+        mPaint.style = Paint.Style.STROKE
+        canvas.drawPath(mPath, mPaint) // draws both vertical and horizontal lines
+        mPath.reset()
+
+        // GRAPH LINE
+        mPaint.color = ContextCompat.getColor(context, R.color.t_darker)
+        mPaint.strokeWidth = 4 * cStrokeWidth
+
+        mPath.moveTo(cXMin - mStepX * preSteps,
+                     mYMax - mCoefficient *
+                             (mData!!.values[mStepStart - preSteps] - mVMin).toFloat())
+
+        for(i in 1 until mStepCount + preSteps + postSteps) {
+            mPath.lineTo(cXMin + mStepX * (i - preSteps),
+                         mYMax - mCoefficient *
+                                 (mData!!.values[i + mStepStart - preSteps] - mVMin).toFloat())
+        }
+        canvas.drawPath(mPath, mPaint)
+        mPath.reset()
+
+        // UNDERLAY PREV YEAR
+        if(mData!!.is_underlay_prev_year) {
+            mPaint.color = ContextCompat.getColor(context, R.color.t_dark)
+            //cr->set_dash( s_dash_pattern, 0 );
+            mPaint.strokeWidth = cStrokeWidth * 2
+
+            var stepStartUnderlay = if(mStepStart > 12) mStepStart - 12 else 0
+            val iStart = if(mStepStart < 12) 12 - mStepStart else 0
+
+            mPath.moveTo(cXMin - mStepX * iStart,
+                         mYMax - mCoefficient *
+                                 (mData!!.values[stepStartUnderlay] - mVMin).toFloat())
+
+            for( i in iStart+1..mStepCount ) {
+                mPath.lineTo(cXMin + mStepX * i,
+                             mYMax - mCoefficient *
+                                     (mData!!.values[++stepStartUnderlay] - mVMin).toFloat())
+            }
+            canvas.drawPath(mPath, mPaint)
+            mPath.reset()
+            //cr->unset_dash();
+        }
+
+        // UNDERLAY PLANNED VALUES
+        else if(mData!!.is_underlay_planned) {
+            mPaint.color = ContextCompat.getColor(context, R.color.t_dark)
+            //cr->set_dash( s_dash_pattern, 0 );
+            mPaint.strokeWidth = cStrokeWidth * 2
+
+            mPath.moveTo(cXMin,
+                         mYMax - mCoefficient *
+                                 (mData!!.values_plan[mStepStart] - mVMin).toFloat())
+
+            for(i in 1 until mStepCount) {
+                mPath.lineTo(cXMin + mStepX * i,
+                             mYMax - mCoefficient *
+                                     (mData!!.values_plan[mStepStart + i] - mVMin).toFloat())
+            }
+            canvas.drawPath(mPath, mPaint)
+            mPath.reset()
+            //cr->unset_dash();
+        }
+
+        // OVERVIEW
+        if(mStepCount < mSpan) {
+            // OVERVIEW REGION
+            mPaint.style = Paint.Style.FILL
+            mPaint.color = Color.parseColor("#DDDDDD")
+
+            canvas.drawRect(0f, mHeight - mOvHeight,
+                            mWidth.toFloat(), mHeight.toFloat(),
+                            mPaint)
+
+            mPaint.color = ContextCompat.getColor(context, R.color.t_lighter)
+            val ptX = cOffsetLabel + (mStepStart * mStepXOv)
+            canvas.drawRect(ptX, mHeight - mOvHeight,
+                            ptX + ((mStepCount - 1) * mStepXOv), mHeight.toFloat(),
+                            mPaint)
+
+            // OVERVIEW LINE
+            mPaint.color = ContextCompat.getColor(context, R.color.t_mid)
+            mPaint.strokeWidth = 2 * cStrokeWidth
+            mPaint.style = Paint.Style.STROKE
+
+            mPath.moveTo(cOffsetLabel,
+                         (mHeight - cOffsetLabel - mCoeffOv * (mData!!.values[0] - mVMin)).toFloat())
+            for( i in 1 until mSpan ) {
+                mPath.lineTo(cOffsetLabel + mStepXOv * i,
+                             (mHeight - cOffsetLabel - mCoeffOv * (mData!!.values[i] - mVMin)).toFloat())
+            }
+            canvas.drawPath(mPath, mPaint)
+            mPath.reset()
         }
     }
 
-    public boolean onScroll( MotionEvent e1, MotionEvent e2, float distanceX, float distanceY ) {
-        return true;
+    // INNER CLASSES ===============================================================================
+    inner class ScaleGestureListener : SimpleOnScaleGestureListener() {
+        override fun onScale(detector: ScaleGestureDetector): Boolean {
+            if(mZoomLevel < 0.05)
+                return false
+
+            if(detector.scaleFactor > 1) { // zoom out
+                setZoom(mZoomLevel * 0.95)
+            }
+            else { // zoom in
+                setZoom(mZoomLevel * 1.1)
+            }
+            return true
+        }
     }
 
-    public void onShowPress( MotionEvent event ) {
+    inner class SwipeGestureListener : SimpleOnGestureListener() {
+        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distX: Float, distY: Float):
+                Boolean {
+            scroll((distX * mStepCount / mSpan).toInt())
+
+            return true
+        }
+
+        override fun onDown(e: MotionEvent?): Boolean {
+            return true
+        }
     }
-
-    public boolean onSingleTapUp( MotionEvent event ) {
-        return true;
-    }
-
-    // INTERFACE
-    public interface Listener
-    {
-        void onTypeChanged( int type );
-    }
-
-    // DATA
-    Context context;
-    private Paint mPaint;
-    private Path mPath;
-
-    ChartData m_data = null;
-    private Date mLabelDate = new Date(); // this is local in C++
-
-    // GEOMETRICAL VARIABLES
-    private int m_width = -1;
-    private int m_height = -1;
-    private int m_span = 0;
-    private int m_step_count = 0;
-    private int m_step_start = 0;
-    private double m_zoom_level = 1.0;
-    private float m_x_max = 0.0f, m_y_max = 0.0f, m_y_mid = 0.0f;
-    private float m_amplitude = 0.0f, m_length = 0.0f;
-    private float m_step_x = 0.0f, m_coefficient = 0.0f;
-    private float m_ov_height = 0.0f;
-    private float m_step_x_ov = 0.0f, m_ampli_ov = 0.0f, m_coeff_ov = 0.0f;
-
-    private GestureDetector mGestureDetector;
-    private Listener mListener = null;
 }

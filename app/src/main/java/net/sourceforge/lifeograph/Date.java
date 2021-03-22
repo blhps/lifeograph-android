@@ -278,7 +278,7 @@ public class Date {
         int century = ( year - ( year % 100 ) ) / 100;
         int c = 2 * ( 3 - ( century % 4 ) );
         int y = year % 100;
-        y = y + ( int ) java.lang.Math.floor( y / 4 );
+        y = y + ( int ) java.lang.Math.floor( y / 4.0 );
 
         int m = get_month( date ) - 1;
         int d = ( c + y + tm[ m ] + get_day( date ) );
@@ -636,8 +636,14 @@ public class Date {
     }
 
     // STRING METHODS ==============================================================================
-    public String get_weekday_str() {
+    public String
+    get_weekday_str() {
         return WEEKDAYS[ get_weekday() + 1 ];
+    }
+
+    public String
+    get_month_str() {
+        return MONTHS[ get_month() - 1 ];
     }
 
     // signature is different than in c++:
@@ -753,6 +759,10 @@ public class Date {
 
         return result.toString();
     }
+    public static String format_string( long d, String format ) {
+        return format_string( d, format, s_format_separator );
+    }
+
     public String format_string() {
         return format_string( m_date, s_format_order, s_format_separator );
     }

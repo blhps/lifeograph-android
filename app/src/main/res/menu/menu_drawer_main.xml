@@ -44,6 +44,7 @@
         <item
             android:id="@+id/nav_calendar"
             android:icon="@drawable/ic_calendar"
+            android:menuCategory="secondary"
             android:title="@string/calendar" />
         <item
             android:id="@+id/nav_filters"

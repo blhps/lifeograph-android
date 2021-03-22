@@ -50,7 +50,7 @@ class FragmentListCharts : FragmentListElems()
         //Collections.sort(mElems, FragmentEntryList.compareElemsByDate)
 
         mSelectionStatuses.clear()
-        mSelectionStatuses.addAll(Collections.nCopies(Diary.d.m_charts.size, false))
+        mSelectionStatuses.addAll(Collections.nCopies(mElems.size, false))
         mItemCount = mElems.size
     }
 
