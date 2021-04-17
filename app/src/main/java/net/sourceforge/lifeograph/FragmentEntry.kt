@@ -815,7 +815,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     else {
                         charLf = if(charLf == 'c') ']' else 'n'
                         itemType = mEditText.text.toString()[pos]
-                        // same as below. unfortunatwly no fallthrough in Kotlin
+                        // same as below. unfortunately no fallthrough in Kotlin
                     }
                 }
                 '~', '+', 'x', 'X' -> {
@@ -826,42 +826,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 '\n' -> {
                     itemType = 0.toChar()
                     charLf = 't' // tab
-                }
-                0.toChar() -> {
-                    if(charLf == 'a' || charLf == 't' || charLf == '[') {
-                        when(target_item_type) {
-                            '*' -> {
-                                mEditText.text.insert(pos, "\t• ")
-                                pos += 3
-                                posEnd += 3
-                            }
-                            ' ' -> {
-                                mEditText.text.insert(pos, "\t[ ] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            '~' -> {
-                                mEditText.text.insert(pos, "\t[~] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            '+' -> {
-                                mEditText.text.insert(pos, "\t[+] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            'x' -> {
-                                mEditText.text.insert(pos, "\t[x] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            '1' -> {
-                                mEditText.text.insert(pos, "\t$value- ")
-                                value++
-                            }
-                        }
-                    }
-                    charLf = 'n'
                 }
                 else -> {
                     if(charLf == 'a' || charLf == 't' || charLf == '[') {
