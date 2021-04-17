@@ -21,6 +21,8 @@
 
 package net.sourceforge.lifeograph
 
+import android.content.Intent
+import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import androidx.appcompat.app.ActionBar
@@ -36,6 +38,7 @@ import com.google.android.material.navigation.NavigationView
 
 class ActivityMain : AppCompatActivity(), FragmentHost {
     // VARIABLES ===================================================================================
+    var mStartUpPath: Uri? = null
     private var mNavController: NavController? = null
     private var mAppBarConfiguration: AppBarConfiguration? = null
 
@@ -98,6 +101,11 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
         // Handle Navigation item clicks
         // This works with no further action on your part if the menu and destination id’s match.
         NavigationUI.setupWithNavController(navigationView, mNavController!!)
+
+        // record the startup file if any
+        if(intent.action == Intent.ACTION_VIEW && intent.data != null) {
+            mStartUpPath = intent.data
+        }
     }
 
     override fun onResume() {

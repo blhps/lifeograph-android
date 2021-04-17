@@ -331,12 +331,13 @@ public class Diary extends DiaryElement
                 diff2 = entry.get_date_t() - date;
                 if( diff2 < 0 )
                     diff2 *= -1;
+
                 if( diff2 < diff1 ) {
                     diff1 = diff2;
                     most_curr = entry;
                     descending = true;
                 }
-            else
+                else
                 if( descending )
                     break;
             }

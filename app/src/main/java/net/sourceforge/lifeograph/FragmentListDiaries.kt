@@ -68,6 +68,15 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         recyclerView.adapter = RViewAdapterBasic(mDiaryItems, this)
         val fab: FloatingActionButton = view.findViewById(R.id.fab_add_diary)
         fab.setOnClickListener { createNewDiary() }
+
+        if(Lifeograph.mActivityMain.mStartUpPath != null) {
+            Log.d(Lifeograph.TAG, Lifeograph.mActivityMain.mStartUpPath!!.path!!)
+            val file = File(Lifeograph.mActivityMain.mStartUpPath!!.path!!)
+            if(file.exists())
+                openDiary1(file.path)
+            else
+                Lifeograph.showToast("File not found!")
+        }
     }
 
     override fun onResume() {

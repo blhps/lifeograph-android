@@ -5,7 +5,8 @@
           android:installLocation="auto"
           android:requestLegacyExternalStorage="true" >
 
-    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        tools:ignore="ScopedStorage" />
     <uses-permission android:name="android.permission.INTERNET" />
     <!--uses-permission android:name="com.android.vending.BILLING" /-->
     <!-- NOT YET uses-permission android:name="android.permission.READ_SMS" /-->
@@ -27,6 +28,18 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="android.intent.category.LAUNCHER" />
 
+            </intent-filter>
+
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+                <category android:name="android.intent.category.DEFAULT" />
+                <data android:scheme="file" />
+                <data android:scheme="content" />
+                <data android:host="*" />
+                <data android:pathPattern=".*\\.diary" />
+                <data android:pathPattern=".*\\..*\\.diary" />
+                <data android:pathPattern=".*\\..*\\..*\\.diary" />
+                <data android:mimeType="*/*" />
             </intent-filter>
 
         </activity>
