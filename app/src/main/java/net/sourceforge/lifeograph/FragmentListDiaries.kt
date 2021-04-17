@@ -98,7 +98,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
             val dirs = dir.listFiles()
             if(dirs != null) {
                 for(ff in dirs) {
-                    if(!ff.isDirectory && !ff.path.endsWith(Diary.LOCK_SUFFIX)) {
+                    if(!ff.isDirectory && !ff.path.endsWith("~")) {
                         mDiaryItems.add(RViewAdapterBasic.Item(ff.name, ff.path,
                                                                R.drawable.ic_diary))
                     }
