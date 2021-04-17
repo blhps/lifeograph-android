@@ -234,7 +234,7 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     fun setZoom(level: Double) {
         if(level == mZoomLevel) return
 
-        mZoomLevel = if(level > 1.0) 1.0 else level.coerceAtLeast(0.0)
+        mZoomLevel = if(level > 1.0) 1.0 else level.coerceAtLeast(0.1)
         if(mWidth > 0) { // if on_size_allocate is executed before
             Log.d(Lifeograph.TAG, "zoom event: $mZoomLevel")
             updateColGeom(false)
@@ -505,9 +505,19 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     }
 
     inner class SwipeGestureListener : SimpleOnGestureListener() {
+        var mCumulativeScroll = 0f
+
         override fun onScroll(e1: MotionEvent, e2: MotionEvent, distX: Float, distY: Float):
                 Boolean {
-            scroll((distX * mStepCount / mSpan).toInt())
+
+            mCumulativeScroll += distX
+
+            Log.d(Lifeograph.TAG, "CumuScroll: $mCumulativeScroll | StepX: $mStepX")
+
+            if(abs(mCumulativeScroll) > mStepX) {
+                scroll((mCumulativeScroll / mStepX).toInt())
+                mCumulativeScroll = 0f
+            }
 
             return true
         }
