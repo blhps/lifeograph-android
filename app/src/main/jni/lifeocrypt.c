@@ -1,6 +1,6 @@
 /***********************************************************************************
 
-    Copyright (C) 2007-2016 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2007-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -57,22 +57,12 @@ Java_net_sourceforge_lifeograph_Diary_decryptBuffer( JNIEnv* env,
     ( *env )->ReleaseByteArrayElements( env, j_buffer, buffer, JNI_ABORT );
 
     int size_dec_buf = 0;
-    int round = 0;
 
-    // EOF DETECTION: RATHER UGLY CODE
+    // EOF DETECTION: SOMEWHAT UGLY CODE
     for( ; size_dec_buf < size - 1; size_dec_buf++ )
     {
-        if( buffer[ size_dec_buf ] == '\n' && buffer[ size_dec_buf + 1 ] =='\n' )
-        {
-            if( round > 0 && size_dec_buf < size - 3 &&
-                ( buffer[ size_dec_buf + 2 ] != 'I' ||  buffer[ size_dec_buf + 3 ] != 'D' ) )
-            {
-                size_dec_buf += 2;
-                break;
-            }
-            else
-                round++;
-        }
+         if( buffer[ size_dec_buf ] == 0 )
+            break;
     }
 
     char* dec_buf = malloc( size_dec_buf );
