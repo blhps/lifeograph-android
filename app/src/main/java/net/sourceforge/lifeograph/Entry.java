@@ -252,11 +252,11 @@ public class Entry extends DiaryElement {
     // TEXTUAL CONTENTS ============================================================================
     boolean
     is_empty() {
-        for( Paragraph para : m_paragraphs )
-            if( !para.is_empty() )
-                return false;
-
-        return true;
+        switch( m_paragraphs.size() ) {
+            case 0:  return true;
+            case 1:  return m_paragraphs.get( 0 ).is_empty();
+            default: return false;
+        }
     }
 
     String
@@ -351,7 +351,9 @@ public class Entry extends DiaryElement {
             para.insert_text( pos - para_offset.v, text );
 
         m_date_edited = ( System.currentTimeMillis() / 1000L );
-        update_name();
+
+        if( pos <= m_paragraphs.get( 0 ).get_size() )
+            update_name();
     }
 
     void
@@ -398,6 +400,9 @@ public class Entry extends DiaryElement {
         para_bgn.erase_text( pos_bgn - para_offset_bgn.v, pos_end - pos_bgn );
 
         m_date_edited = System.currentTimeMillis() / 1000L;
+
+        if( m_paragraphs.isEmpty() || pos_bgn <= m_paragraphs.get( 0 ).get_size() )
+            update_name();
     }
 
     void
