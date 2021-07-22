@@ -9,7 +9,7 @@
     <string name="pref_DIARY_CTG_key" translatable="false">diary_ctg</string>
     <string name="pref_DIARY_STORAGE_title">Storage of Diary Files</string>
     <string name="pref_DIARY_STORAGE_key" translatable="false">diary_storage</string>
-    <string name="pref_DIARY_STORAGE_default" translatable="false">E</string>
+    <string name="pref_DIARY_STORAGE_default" translatable="false">I</string>
 
     <string name="pref_DIARY_PATH_title">Folder of Diary Files</string>
     <string name="pref_DIARY_PATH_key" translatable="false">diary_path</string>
