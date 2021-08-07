@@ -110,12 +110,12 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
 
     override fun onResume() {
         super.onResume()
-        Log.d(Lifeograph.TAG, "ActivityLogin.onResume()")
+        Log.d(Lifeograph.TAG, "ActivityMain.onResume()")
     }
 
     override fun onDestroy() {
         super.onDestroy()
-        Log.d(Lifeograph.TAG, "ActivityLogin.onDestroy()")
+        Log.d(Lifeograph.TAG, "ActivityMain.onDestroy()")
     }
 
     //    @Override
