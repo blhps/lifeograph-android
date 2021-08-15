@@ -21,12 +21,15 @@
 
 package net.sourceforge.lifeograph
 
+import android.app.Activity
 import android.content.DialogInterface
+import android.content.Intent
+import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
+import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -35,6 +38,7 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import net.sourceforge.lifeograph.DialogPassword.DPAction
+import net.sourceforge.lifeograph.helpers.FileUtil
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
 import java.util.*
@@ -46,7 +50,10 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
     private var mFlagOpenReady = false
     private var mPasswordAttemptNo = 0
 
+    private val mDiaryUris: MutableList<String> = ArrayList()
     private val mDiaryItems: MutableList<RViewAdapterBasic.Item> = ArrayList()
+
+    private lateinit var mRVList: RecyclerView
 
     // METHODS =====================================================================================
     override fun onCreateView(inflater: LayoutInflater,
@@ -55,19 +62,22 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         return inflater.inflate(R.layout.fragment_list_diaries, container, false)
     }
 
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set the adapter
-        val recyclerView: RecyclerView = view.findViewById(R.id.list_diaries)
+        mRVList = view.findViewById(R.id.list_diaries)
         val context = view.context
         if(mColumnCount <= 1) {
-            recyclerView.layoutManager = LinearLayoutManager(context)
+            mRVList.layoutManager = LinearLayoutManager(context)
         }
         else {
-            recyclerView.layoutManager = GridLayoutManager(context, mColumnCount)
+            mRVList.layoutManager = GridLayoutManager(context, mColumnCount)
         }
-        recyclerView.adapter = RViewAdapterBasic(mDiaryItems, this)
-        val fab: FloatingActionButton = view.findViewById(R.id.fab_add_diary)
-        fab.setOnClickListener { createNewDiary() }
+        mRVList.adapter = RViewAdapterBasic(mDiaryItems, this)
+        val fabNew: FloatingActionButton = view.findViewById(R.id.fab_add_new_diary)
+        val fabExisting: FloatingActionButton = view.findViewById(R.id.fab_add_existing_diary)
+        fabNew.setOnClickListener { createNewDiary() }
+        fabExisting.setOnClickListener { openFile() }
 
         if(Lifeograph.mActivityMain.mStartUpPath != null) {
             Log.d(Lifeograph.TAG, Lifeograph.mActivityMain.mStartUpPath!!.path!!)
@@ -92,31 +102,87 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
             actionbar.subtitle = ""
         }
         (activity as FragmentHost?)!!.updateDrawerMenu(R.id.nav_diaries)
+        readDiaryList()
         populateDiaries()
+    }
+
+//    override fun onStop() {
+//        super.onStop()
+//        Log.d(Lifeograph.TAG, "FragmentListDiaries.onStop()")
+//        writeDiaryList()
+//    }
+
+    @RequiresApi(Build.VERSION_CODES.O)
+    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
+        if(requestCode == 123 && resultCode == Activity.RESULT_OK) {
+            // The result data contains a URI for the directory that the user selected
+            val uri = resultData?.data!!
+            val name = FileUtil.getFileName(uri, requireContext())
+            Log.d(Lifeograph.TAG, "Name: $name")
+
+            // ensure that the persmission is persistent
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
+                requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
+
+            if(mDiaryUris.contains(uri.toString()))
+                Lifeograph.showToast("File is already in the list")
+            else {
+                mDiaryUris.add(uri.toString())
+                writeDiaryList()
+            }
+
+        }
+    }
+
+    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
+    fun openFile() {
+        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
+        intent.type = "*/*"
+        startActivityForResult(intent, 123)
     }
 
     // DIARY OPERATIONS ============================================================================
     private fun populateDiaries() {
         mDiaryItems.clear()
-        val dir = diariesDir
-        Log.d(Lifeograph.TAG, dir.path)
-        if(!dir.exists()) {
-            if(!dir.mkdirs()) Lifeograph.showToast("Failed to create the diary folder")
+
+        for(uriStr in mDiaryUris) {
+            val uri = Uri.parse(uriStr)
+            mDiaryItems.add(RViewAdapterBasic.Item(FileUtil.getFileName(uri, requireContext()),
+                                                   uriStr,
+                                                   R.drawable.ic_diary))
         }
-        else {
-            val dirs = dir.listFiles()
-            if(dirs != null) {
-                for(ff in dirs) {
-                    if(!ff.isDirectory && !ff.path.endsWith("~")) {
-                        mDiaryItems.add(RViewAdapterBasic.Item(ff.name, ff.path,
-                                                               R.drawable.ic_diary))
-                    }
-                }
+
+        mDiaryItems.add(RViewAdapterBasic.Item(Diary.sExampleDiaryName,
+                                               Diary.sExampleDiaryPath,
+                                               R.drawable.ic_diary))
+
+        mRVList.adapter?.notifyDataSetChanged()
+    }
+
+    private fun readDiaryList() {
+        mDiaryUris.clear()
+
+        if(!File(requireContext().filesDir, "diaries.lst").exists()) {
+            return
+        }
+
+        File(requireContext().filesDir, "diaries.lst").forEachLine {
+            if(it.isNotEmpty()) {
+                mDiaryUris.add(it)
+            } }
+    }
+
+    private fun writeDiaryList() {
+        var fileContent = String()
+        for(uriStr in mDiaryUris) {
+            fileContent += (uriStr + '\n')
+        }
+
+        File(requireContext().filesDir, "diaries.lst").bufferedWriter().use {
+                out -> out.write(fileContent)
             }
-        }
-        mDiaryItems.add(
-                RViewAdapterBasic.Item(Diary.sExampleDiaryName, Diary.sExampleDiaryPath,
-                                       R.drawable.ic_diary))
     }
 
     private fun openDiary1(path: String) {
@@ -144,7 +210,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
 
     private fun openDiary3() {
         mFlagOpenReady = false
-        when(Diary.d.read_header(requireContext().assets)) {
+        when(Diary.d.read_header(requireContext())) {
             Result.SUCCESS -> mFlagOpenReady = true
             Result.INCOMPATIBLE_FILE_OLD -> Lifeograph.showToast("Incompatible diary version (TOO OLD)")
             Result.INCOMPATIBLE_FILE_NEW -> Lifeograph.showToast("Incompatible diary version (TOO NEW)")

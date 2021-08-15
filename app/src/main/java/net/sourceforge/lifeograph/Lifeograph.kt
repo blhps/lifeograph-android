@@ -33,10 +33,7 @@ import android.widget.Toast
 import androidx.appcompat.app.ActionBar
 import androidx.navigation.Navigation
 import net.sourceforge.lifeograph.helpers.Result
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.IOException
+import java.io.*
 import java.lang.StringBuilder
 
 class Lifeograph : Application() {
@@ -167,7 +164,7 @@ class Lifeograph : Application() {
 
         private fun enableEditing2(editor: FragmentDiaryEditor) {
             if(!Diary.d.can_enter_edit_mode()) return
-            if(Diary.d.enable_editing() != Result.SUCCESS) return
+            if(Diary.d.enable_editing(editor.context) != Result.SUCCESS) return
             editor.enableEditing()
         }
 
@@ -264,6 +261,19 @@ class Lifeograph : Application() {
                     while(`in`.read(buf).also { len = it } > 0) {
                         out.write(buf, 0, len)
                     }
+                }
+            }
+        }
+
+        @JvmStatic
+        @Throws(IOException::class)
+        fun copyFile(src: InputStream?, dst: File?) {
+            FileOutputStream(dst).use { out ->
+                // Transfer bytes from in to out
+                val buf = ByteArray(1024)
+                var len: Int
+                while(src!!.read(buf).also { len = it } > 0) {
+                    out.write(buf, 0, len)
                 }
             }
         }

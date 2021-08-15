@@ -25,16 +25,15 @@ import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.io.OutputStreamWriter;
-import java.io.RandomAccessFile;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -44,8 +43,11 @@ import java.util.TreeMap;
 import java.util.Vector;
 
 import android.annotation.SuppressLint;
-import android.content.res.AssetManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.content.UriPermission;
 import android.graphics.Color;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
@@ -2399,32 +2401,34 @@ public class Diary extends DiaryElement
         }
 
         // CHECK FOR SYSTEM PERMISSIONS
-        File fp = new File( path );
-        if( !fp.exists() ) {
-            if( type != SetPathType.NEW )
-            {
-                Log.e( Lifeograph.TAG, "File is not found" );
-                return Result.FILE_NOT_FOUND;
-            }
-        }
-        else if( !fp.canRead() ) {
-            Log.e( Lifeograph.TAG, "File is not readable" );
-            return Result.FILE_NOT_READABLE;
-        }
-        else if( type == SetPathType.NEW && !fp.canWrite() ) {
-            Log.w( Lifeograph.TAG, "File is not writable" );
-            return Result.FILE_NOT_WRITABLE;
-        }
+//        File fp = new File( path );
+//        if( !fp.exists() ) {
+//            if( type != SetPathType.NEW )
+//            {
+//                Log.e( Lifeograph.TAG, "File is not found" );
+//                return Result.FILE_NOT_FOUND;
+//            }
+//        }
+//        else if( !fp.canRead() ) {
+//            Log.e( Lifeograph.TAG, "File is not readable" );
+//            return Result.FILE_NOT_READABLE;
+//        }
+//        else if( type == SetPathType.NEW && !fp.canWrite() ) {
+//            Log.w( Lifeograph.TAG, "File is not writable" );
+//            return Result.FILE_NOT_WRITABLE;
+//        }
 
         // ACCEPT PATH
         m_path = path;
 
         // update m_name
-        int i = m_path.lastIndexOf( "/" );
+        Uri uri = Uri.parse( m_path );
+        final String uriPath = uri.getPath();
+        int i = uriPath.lastIndexOf( "/" );
         if( i == -1 )
-            m_name = m_path;
+            m_name = uriPath;
         else
-            m_name = m_path.substring( i + 1 );
+            m_name = uriPath.substring( i + 1 );
 
         m_flag_read_only = ( type == SetPathType.READ_ONLY );
 
@@ -2435,17 +2439,37 @@ public class Diary extends DiaryElement
     }
 
     protected Result
-    read_header( AssetManager assetMan ) {
+    read_header( Context ctx ) {
         String line;
         mHeaderLineCount = 0;
 
         try {
             if( m_path.equals( sExampleDiaryPath ) ) {
                 mBufferedReader = new BufferedReader( new InputStreamReader(
-                        assetMan.open( "example.diary" ) ) );
+                        ctx.getAssets().open( "example.diary" ) ) );
             }
             else {
-                mBufferedReader = new BufferedReader( new FileReader( m_path ) );
+                mResolver = ctx.getContentResolver();
+                Uri uri = Uri.parse( m_path );
+                boolean permitted = false;
+
+                // check for permissions
+                List< UriPermission > permissions =
+                        ctx.getContentResolver().getPersistedUriPermissions();
+                for( UriPermission permission : permissions ) {
+                    if( uri.equals( permission.getUri() ) )
+                        permitted = true;
+                }
+
+                if( !permitted )
+                    return Result.FILE_NOT_READABLE;
+
+                InputStream istream = mResolver.openInputStream( uri );
+                mBytes = InputStreamToByteArray( istream );
+                istream.close();
+
+                istream = mResolver.openInputStream( uri );
+                mBufferedReader = new BufferedReader( new InputStreamReader( istream ) );
             }
 
             line = mBufferedReader.readLine();
@@ -2527,70 +2551,67 @@ public class Diary extends DiaryElement
         return parse_db_body_text();
     }
 
+    public static byte[]
+    InputStreamToByteArray(InputStream in) throws IOException
+    {
+        ByteArrayOutputStream os = new ByteArrayOutputStream();
+
+        byte[] buffer = new byte[1024];
+        int len;
+
+        // read bytes from the input stream and store them in the buffer
+        while ((len = in.read(buffer)) != -1)
+        {
+            // write bytes from the buffer into the output stream
+            os.write(buffer, 0, len);
+        }
+
+        return os.toByteArray();
+    }
+
     protected Result
     read_encrypted() {
         close_file();
 
-        try {
-            RandomAccessFile file = new RandomAccessFile( m_path, "r" );
-            for( int i= 0; i < mHeaderLineCount; i++ )
-                file.readLine();
-
-            // allocate memory for salt and iv
-            byte[] salt = new byte[ cSALT_SIZE ];
-            byte[] iv = new byte[ cIV_SIZE ];
-
-            // read salt and iv
-            file.read( salt );
-            file.read( iv );
-
-            // calculate bytes of data in file
-            int size = ( int ) ( file.length() - file.getFilePointer() );
-            if( size <= 3 ) {
-                clear();
-                return Result.CORRUPT_FILE;
-            }
-            byte[] buffer = new byte[ size ];
-            file.readFully( buffer );
-            file.close();
-
-            String mBufferedWriter = decryptBuffer( m_passphrase, salt, buffer, size, iv );
-
-            // passphrase check
-            if( mBufferedWriter.charAt( 0 ) != m_passphrase.charAt( 0 ) || mBufferedWriter.charAt( 1 ) != '\n' ) {
-                clear();
-                return Result.WRONG_PASSWORD;
-            }
-
-            mBufferedReader = new BufferedReader( new StringReader( mBufferedWriter ) );
+        int startPoint = 10;
+        for( ; startPoint < mBytes.length; startPoint++ ) {
+            if( mBytes[ startPoint - 2 ] == '\n' &&  mBytes[ startPoint - 1 ] == '\n' )
+                break;
         }
-        catch( FileNotFoundException ex ) {
-            return Result.FILE_NOT_FOUND;
+
+        // allocate memory for salt and iv
+        byte[] salt = Arrays.copyOfRange( mBytes, startPoint, startPoint+cSALT_SIZE );
+        startPoint += cSALT_SIZE;
+        byte[] iv = Arrays.copyOfRange( mBytes, startPoint, startPoint+cIV_SIZE );
+        startPoint += cIV_SIZE;
+
+        byte[] buff_enc = Arrays.copyOfRange( mBytes, startPoint, mBytes.length );
+        String buffer_full = decryptBuffer( m_passphrase, salt, buff_enc, buff_enc.length, iv );
+
+        // passphrase check
+        if( buffer_full.charAt( 0 ) != m_passphrase.charAt( 0 ) || buffer_full.charAt( 1 ) != '\n' ) {
+            clear();
+            return Result.WRONG_PASSWORD;
         }
-        catch( IOException ex ) {
-            return Result.CORRUPT_FILE;
-        }
+
+        mBufferedReader = new BufferedReader( new StringReader( buffer_full ) );
 
         return parse_db_body_text();
     }
 
     Result
-    enable_editing() {
+    enable_editing( Context ctx ) {
         if( m_flag_read_only ) {
             Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
             return Result.FILE_LOCKED;
         }
 
-        File fp = new File( m_path );
-        if( !fp.canWrite() ) { // check write access
-            Log.e( Lifeograph.TAG, "File is not writable" );
-            return Result.FILE_NOT_WRITABLE;
-        }
-
         // CREATE THE LOCK FILE
-        File lockFile = new File( m_path + LOCK_SUFFIX );
+        File lockFile = new File( ctx.getFilesDir(), m_name + "(" + m_id + ")" + LOCK_SUFFIX );
+        mLockFilePath = lockFile.getPath();
         try {
-            Lifeograph.copyFile( fp, lockFile );
+            InputStream istream = mResolver.openInputStream( Uri.parse( m_path ) );
+            Lifeograph.copyFile( istream, lockFile );
         }
         catch( IOException ex ) {
             Log.e( Lifeograph.TAG, "Could not create lock file" );
@@ -2606,32 +2627,32 @@ public class Diary extends DiaryElement
     Result
     write() {
         // BACKUP THE PREVIOUS VERSION
-        File file = new File( m_path );
-        if( file.exists() ) {
-            File dir_backups = new File( file.getParent() + "/backups" );
-            if( dir_backups.exists() || dir_backups.mkdirs() ) {
-                File file_backup = new File( dir_backups, file.getName() + ".backup0" );
-                if( file_backup.exists() ) {
-                    File file_backup1 = new File( dir_backups, file.getName() + ".backup1" );
-                    file_backup.renameTo( file_backup1 );
-                }
-                if( file.renameTo( file_backup ) )
-                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup );
-            }
-        }
+//        File file = new File( m_path );
+//        if( file.exists() ) {
+//            File dir_backups = new File( file.getParent() + "/backups" );
+//            if( dir_backups.exists() || dir_backups.mkdirs() ) {
+//                File file_backup = new File( dir_backups, file.getName() + ".backup0" );
+//                if( file_backup.exists() ) {
+//                    File file_backup1 = new File( dir_backups, file.getName() + ".backup1" );
+//                    file_backup.renameTo( file_backup1 );
+//                }
+//                if( file.renameTo( file_backup ) )
+//                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup );
+//            }
+//        }
 
         // WRITE THE FILE
-        return write( m_path );
+        return write( Uri.parse( m_path ) );
     }
 
     Result
-    write( String path ) {
+    write( Uri uri ) {
         // m_flag_only_save_filtered = false;
 
         if( m_passphrase.isEmpty() )
-            return write_plain( path, false );
+            return write_plain( uri, false );
         else
-            return write_encrypted( path );
+            return write_encrypted( uri );
     }
 
     Result
@@ -2745,9 +2766,10 @@ public class Diary extends DiaryElement
     }
 
     protected Result
-    write_plain( String path, boolean flag_header_only ) {
+    write_plain( Uri uri, boolean flag_header_only ) {
         try {
-            mBufferedWriter = new BufferedWriter( new FileWriter( path ) );
+            OutputStream ostream = mResolver.openOutputStream( uri );
+            mBufferedWriter = new BufferedWriter( new OutputStreamWriter( ostream ) );
             create_db_header_text( flag_header_only ); // header only mode = encrypted diary
             // header only mode is for encrypted diaries
             if( !flag_header_only ) {
@@ -2769,9 +2791,9 @@ public class Diary extends DiaryElement
     }
 
     protected Result
-    write_encrypted( String path ) {
+    write_encrypted( Uri uri ) {
         // writing header
-        write_plain( path, true );
+        write_plain( uri, true );
 
         try {
             ByteArrayOutputStream baos = new ByteArrayOutputStream();
@@ -2781,17 +2803,13 @@ public class Diary extends DiaryElement
             mBufferedWriter.append( m_passphrase.charAt( 0 ) ).append( '\n' );
             create_db_body_text();
             mBufferedWriter.close();
+            mBufferedWriter = null;
 
             byte[] buffer = baos.toByteArray();
-
             byte[] output = encryptBuffer( m_passphrase, buffer, buffer.length );
 
-            FileOutputStream file = new FileOutputStream( path, true );
-
-            file.write( output );
-
-            file.close();
-            mBufferedWriter = null;
+            OutputStream ostream = mResolver.openOutputStream( uri, "wa" );
+            ostream.write( output );
         }
         catch( IOException ex ) {
             Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
@@ -2822,7 +2840,7 @@ public class Diary extends DiaryElement
         if( m_login_status != LoginStatus.LOGGED_IN_EDIT || m_path.isEmpty() )
             return false;
 
-        File fp = new File( m_path + LOCK_SUFFIX );
+        File fp = new File( mLockFilePath );
         if( fp.exists() )
             return fp.delete();
         return true;
@@ -2831,7 +2849,9 @@ public class Diary extends DiaryElement
     // JAVA ONLY ===================================================================================
     boolean
     isLocked() {
-        File lockFile = new File( m_path + LOCK_SUFFIX );
+        if( mLockFilePath == null )
+            return false;
+        File lockFile = new File( mLockFilePath );
         return( lockFile.exists() );
     }
 
@@ -2842,10 +2862,14 @@ public class Diary extends DiaryElement
 
     void
     enableWorkingOnLockfile( boolean enable ) {
-        if( enable )
-            m_path += LOCK_SUFFIX;
-        else if( m_path.endsWith( LOCK_SUFFIX ) )
-            m_path = m_path.substring( 0, m_path.length() - LOCK_SUFFIX.length() );
+        if( enable ) {
+            mDiaryPathBackup = m_path;
+            m_path = Uri.fromFile( new File( mLockFilePath ) ).toString();
+        }
+        else if( !mDiaryPathBackup.isEmpty() ) {
+            m_path = mDiaryPathBackup;
+            mDiaryPathBackup = "";
+        }
     }
 
     void
@@ -2863,7 +2887,8 @@ public class Diary extends DiaryElement
     void
     writeLock() {
         if( m_flag_save_enabled && is_in_edit_mode() ) {
-            if( write( m_path + LOCK_SUFFIX ) == Result.SUCCESS )
+            Uri uriLock = Uri.fromFile( new File( mLockFilePath ) );
+            if( write( uriLock ) == Result.SUCCESS )
                 Log.d( Lifeograph.TAG, "LOCK file saved successfully" );
             else
                 Lifeograph.showToast( "Cannot save the lock file" );
@@ -2932,6 +2957,8 @@ public class Diary extends DiaryElement
     static Diary d = null;
 
     private String m_path;
+    private String mDiaryPathBackup = "";
+    private String mLockFilePath;
     private String m_passphrase;
 
     //ids (DEID)
@@ -2987,9 +3014,11 @@ public class Diary extends DiaryElement
     List< Match >     m_matches     = new ArrayList<>();
 
     // i/o
-    protected BufferedReader mBufferedReader  = null;
-    protected BufferedWriter mBufferedWriter  = null;
-    protected int            mHeaderLineCount = 0;
+    protected ContentResolver   mResolver;
+    protected byte[]            mBytes;
+    protected BufferedReader    mBufferedReader  = null;
+    protected BufferedWriter    mBufferedWriter  = null;
+    protected int               mHeaderLineCount = 0;
 
     protected static final int cIV_SIZE   = 16; // = 128 bits
     protected static final int cSALT_SIZE = 16; // = 128 bits

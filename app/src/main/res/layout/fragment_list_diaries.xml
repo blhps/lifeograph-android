@@ -38,7 +38,7 @@
         tools:listitem="@layout/list_item_basic" />
 
     <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_diary"
+        android:id="@+id/fab_add_new_diary"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_gravity="bottom|end"
@@ -46,5 +46,22 @@
         android:contentDescription="@string/create_diary"
         app:backgroundTint="@color/t_dark"
         app:srcCompat="@drawable/ic_add" />
+
+    <com.google.android.material.floatingactionbutton.FloatingActionButton
+        android:id="@+id/fab_add_existing_diary"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginBottom="80dp"
+        android:layout_marginEnd="0dp"
+        android:layout_marginLeft="0dp"
+        android:layout_marginRight="0dp"
+        android:layout_marginStart="0dp"
+        android:layout_marginTop="0dp"
+        android:contentDescription="@string/create_diary"
+        app:backgroundTint="@color/t_dark"
+        app:layout_anchor="@+id/fab_add_new_diary"
+        app:layout_anchorGravity="top"
+        app:srcCompat="@drawable/ic_browse" />
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
