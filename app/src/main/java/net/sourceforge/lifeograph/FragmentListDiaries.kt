@@ -47,7 +47,6 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
                             DialogPassword.Listener {
     // VARIABLES ===================================================================================
     private val mColumnCount = 1
-    private var mFlagOpenReady = false
     private var mPasswordAttemptNo = 0
 
     private val mDiaryUris: MutableList<String> = ArrayList()
@@ -123,8 +122,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
             // ensure that the persmission is persistent
             val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            if(Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT)
-                requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
+            requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
 
             if(mDiaryUris.contains(uri.toString()))
                 Lifeograph.showToast("File is already in the list")
@@ -186,9 +184,8 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
     }
 
     private fun openDiary1(path: String) {
-        mFlagOpenReady = false
-        when(Diary.d.set_path(path, Diary.SetPathType.NORMAL)) {
-            Result.SUCCESS -> mFlagOpenReady = true
+        when(Diary.d.set_path(requireContext(), path, Diary.SetPathType.NORMAL)) {
+            Result.SUCCESS -> openDiary3()
             Result.FILE_NOT_FOUND -> Lifeograph.showToast("File is not found")
             Result.FILE_NOT_READABLE -> Lifeograph.showToast("File is not readable")
             Result.FILE_LOCKED -> Lifeograph.showConfirmationPrompt(
@@ -200,7 +197,6 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
             ) { _: DialogInterface?, _: Int -> openDiary3() }
             else -> Lifeograph.showToast("Failed to open the diary")
         }
-        if(mFlagOpenReady) openDiary3()
     }
 
     private fun openDiary2() {
@@ -209,16 +205,13 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
     }
 
     private fun openDiary3() {
-        mFlagOpenReady = false
         when(Diary.d.read_header(requireContext())) {
-            Result.SUCCESS -> mFlagOpenReady = true
+            Result.SUCCESS -> if(Diary.d.is_encrypted) askPassword() else readBody()
             Result.INCOMPATIBLE_FILE_OLD -> Lifeograph.showToast("Incompatible diary version (TOO OLD)")
             Result.INCOMPATIBLE_FILE_NEW -> Lifeograph.showToast("Incompatible diary version (TOO NEW)")
             Result.CORRUPT_FILE -> Lifeograph.showToast("Corrupt file")
             else -> Log.e(Lifeograph.TAG, "Unprocessed return value from read_header")
         }
-        if(!mFlagOpenReady) return
-        if(Diary.d.is_encrypted) askPassword() else readBody()
     }
 
     private val diariesDir: File
@@ -293,7 +286,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
     // InquireListener INTERFACE METHODS
     override fun onInquireAction(id: Int, text: String) {
         if(id == R.string.create_diary) {
-            if(Diary.d.init_new(Lifeograph.joinPath(diariesDir.path, text), "")
+            if(Diary.d.init_new(requireContext(), Lifeograph.joinPath(diariesDir.path, text), "")
                     == Result.SUCCESS) {
                 navigateToDiary()
             }

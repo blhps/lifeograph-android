@@ -130,13 +130,13 @@ public class Diary extends DiaryElement
     }
 
     Result
-    init_new( String path, String pw ) {
+    init_new( Context ctx, String path, String pw ) {
         clear();
 
         set_id( create_new_id( this ) ); // adds itself to the ID pool with a unique ID
 
         m_read_version = DB_FILE_VERSION_INT;
-        Result result = set_path( path, SetPathType.NEW );
+        Result result = set_path( ctx, path, SetPathType.NEW );
 
         if( result != Result.SUCCESS ) {
             clear();
@@ -2389,7 +2389,7 @@ public class Diary extends DiaryElement
 
     // READING =====================================================================================
     Result
-    set_path( String path, SetPathType type ) {
+    set_path( Context ctx, String path, SetPathType type ) {
         clear();
 
         // ANDROID ONLY:
@@ -2401,6 +2401,19 @@ public class Diary extends DiaryElement
         }
 
         // CHECK FOR SYSTEM PERMISSIONS
+        mResolver = ctx.getContentResolver();
+        Uri uri = Uri.parse( path );
+        boolean permitted = false;
+
+        List< UriPermission > permissions = mResolver.getPersistedUriPermissions();
+        for( UriPermission permission : permissions ) {
+            if( uri.equals( permission.getUri() ) )
+                permitted = true;
+        }
+
+        if( !permitted )
+            return Result.FILE_NOT_READABLE;
+
 //        File fp = new File( path );
 //        if( !fp.exists() ) {
 //            if( type != SetPathType.NEW )
@@ -2418,17 +2431,21 @@ public class Diary extends DiaryElement
 //            return Result.FILE_NOT_WRITABLE;
 //        }
 
-        // ACCEPT PATH
-        m_path = path;
-
-        // update m_name
-        Uri uri = Uri.parse( m_path );
+        // UPDATE m_name
         final String uriPath = uri.getPath();
         int i = uriPath.lastIndexOf( "/" );
         if( i == -1 )
             m_name = uriPath;
         else
             m_name = uriPath.substring( i + 1 );
+
+        // ACCEPT PATH
+        m_path = path;
+
+        File lockFile = new File( Lifeograph.filesDir, m_name +
+                                                       "(" + m_path.length() + ")" +
+                                                       LOCK_SUFFIX );
+        mLockFilePath = lockFile.getPath();
 
         m_flag_read_only = ( type == SetPathType.READ_ONLY );
 
@@ -2449,20 +2466,7 @@ public class Diary extends DiaryElement
                         ctx.getAssets().open( "example.diary" ) ) );
             }
             else {
-                mResolver = ctx.getContentResolver();
                 Uri uri = Uri.parse( m_path );
-                boolean permitted = false;
-
-                // check for permissions
-                List< UriPermission > permissions =
-                        ctx.getContentResolver().getPersistedUriPermissions();
-                for( UriPermission permission : permissions ) {
-                    if( uri.equals( permission.getUri() ) )
-                        permitted = true;
-                }
-
-                if( !permitted )
-                    return Result.FILE_NOT_READABLE;
 
                 InputStream istream = mResolver.openInputStream( uri );
                 mBytes = InputStreamToByteArray( istream );
@@ -2600,17 +2604,16 @@ public class Diary extends DiaryElement
     }
 
     Result
-    enable_editing( Context ctx ) {
+    enable_editing() {
         if( m_flag_read_only ) {
             Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
             return Result.FILE_LOCKED;
         }
 
         // CREATE THE LOCK FILE
-        File lockFile = new File( ctx.getFilesDir(), m_name + "(" + m_id + ")" + LOCK_SUFFIX );
-        mLockFilePath = lockFile.getPath();
         try {
             InputStream istream = mResolver.openInputStream( Uri.parse( m_path ) );
+            File lockFile = new File( mLockFilePath );
             Lifeograph.copyFile( istream, lockFile );
         }
         catch( IOException ex ) {

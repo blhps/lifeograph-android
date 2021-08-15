@@ -52,6 +52,7 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         Lifeograph.mActivityMain = this
+        Lifeograph.filesDir = filesDir
         Lifeograph.updateScreenSizes(this)
         if(Diary.d == null) Diary.d = Diary()
 

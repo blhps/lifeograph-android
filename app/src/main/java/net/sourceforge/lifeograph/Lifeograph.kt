@@ -85,6 +85,10 @@ class Lifeograph : Application() {
         const val LANG_INHERIT_DIARY          = "d"
         const val MI_TO_KM_RATIO              = 1.609344
         lateinit var mActivityMain: ActivityMain
+
+        @JvmField
+        var filesDir: File? = null
+
         @JvmStatic
         val context: Context
             get() = mInstance!!
@@ -164,7 +168,7 @@ class Lifeograph : Application() {
 
         private fun enableEditing2(editor: FragmentDiaryEditor) {
             if(!Diary.d.can_enter_edit_mode()) return
-            if(Diary.d.enable_editing(editor.context) != Result.SUCCESS) return
+            if(Diary.d.enable_editing() != Result.SUCCESS) return
             editor.enableEditing()
         }
 
