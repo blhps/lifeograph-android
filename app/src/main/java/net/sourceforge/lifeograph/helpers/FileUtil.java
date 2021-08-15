@@ -210,8 +210,8 @@ public final class FileUtil {
     public static String getRealPathFromURI( Uri contentUri, Context context ) {
         Cursor cursor = null;
         try {
-            String[] proj = { MediaStore.Images.Media.DATA };
-            cursor = context.getContentResolver().query( contentUri, proj, null, null, null );
+            String[] pathColumn = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query( contentUri, pathColumn, null, null, null );
             int column_index = cursor.getColumnIndexOrThrow( MediaStore.Images.Media.DATA );
             cursor.moveToFirst();
             return cursor.getString( column_index );
@@ -221,7 +221,50 @@ public final class FileUtil {
                 cursor.close();
             }
         }
+
+//        File file = new File(contentUri.getPath());//create path from uri
+//        final String[] split = file.getPath().split(":");//split the path.
+//        return split[1];//assign it to a string(your choice).
+
     }
+
+
+//    public static String getFilePathFromURI(Context context, Uri contentUri) {
+//        String TEMP_DIR_PATH =
+//                Environment.getExternalStoragePublicDirectory( Environment.DIRECTORY_DOCUMENTS ).getPath();
+//        //copy file and send new file path
+//        String fileName = getFileName(contentUri);
+//        if (!TextUtils.isEmpty( fileName)) {
+//            File copyFile = new File(TEMP_DIR_PATH + File.separator + fileName);
+//            copy(context, contentUri, copyFile);
+//            return copyFile.getAbsolutePath();
+//        }
+//        return null;
+//    }
+//
+//    public static String getFileName(Uri uri) {
+//        if (uri == null) return null;
+//        String fileName = null;
+//        String path = uri.getPath();
+//        int cut = path.lastIndexOf('/');
+//        if (cut != -1) {
+//            fileName = path.substring(cut + 1);
+//        }
+//        return fileName;
+//    }
+//
+//    public static void copy(Context context, Uri srcUri, File dstFile) {
+//        try {
+//            InputStream inputStream = context.getContentResolver().openInputStream( srcUri);
+//            if (inputStream == null) return;
+//            OutputStream outputStream = new FileOutputStream( dstFile);
+//            IOUtils.copyStream(inputStream, outputStream);
+//            inputStream.close();
+//            outputStream.close();
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//        }
+//    }
 }
 
 
