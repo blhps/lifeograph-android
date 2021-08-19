@@ -29,6 +29,8 @@ import android.os.Build
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Button
+import android.widget.HorizontalScrollView
 import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
@@ -51,8 +53,11 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
 
     private val mDiaryUris: MutableList<String> = ArrayList()
     private val mDiaryItems: MutableList<RViewAdapterBasic.Item> = ArrayList()
+    private val mSelectionStatuses: MutableList<Boolean> = ArrayList()
 
     private lateinit var mRVList: RecyclerView
+    private lateinit var mAdapter: RViewAdapterBasic
+    private lateinit var mToolbar: HorizontalScrollView
 
     // METHODS =====================================================================================
     override fun onCreateView(inflater: LayoutInflater,
@@ -72,7 +77,8 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         else {
             mRVList.layoutManager = GridLayoutManager(context, mColumnCount)
         }
-        mRVList.adapter = RViewAdapterBasic(mDiaryItems, this)
+        mAdapter = RViewAdapterBasic(mDiaryItems, mSelectionStatuses, this)
+        mRVList.adapter = mAdapter
         val fabNew: FloatingActionButton = view.findViewById(R.id.fab_add_new_diary)
         val fabExisting: FloatingActionButton = view.findViewById(R.id.fab_add_existing_diary)
         fabNew.setOnClickListener { createNewDiary() }
@@ -86,6 +92,10 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
             else
                 Lifeograph.showToast("File not found!")
         }
+        mToolbar = view.findViewById(R.id.toolbar_elem)
+
+        view.findViewById<Button>(R.id.remove).setOnClickListener { removeSelectedDiaries() }
+        view.findViewById<Button>(R.id.cancel).setOnClickListener { cancelSelectionMode() }
     }
 
     override fun onResume() {
@@ -100,9 +110,18 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         if(actionbar != null) {
             actionbar.subtitle = ""
         }
+
+        mToolbar.visibility = View.GONE
+
         (activity as FragmentHost?)!!.updateDrawerMenu(R.id.nav_diaries)
         readDiaryList()
         populateDiaries()
+    }
+
+    override fun onDestroyView() {
+        if(mAdapter.hasSelection())
+            mAdapter.clearSelection(mRVList.layoutManager!!)
+        super.onDestroyView()
     }
 
 //    override fun onStop() {
@@ -156,7 +175,33 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
                                                Diary.sExampleDiaryPath,
                                                R.drawable.ic_diary))
 
+        mSelectionStatuses.clear()
+        mSelectionStatuses.addAll(Collections.nCopies(mDiaryItems.size, false))
+
         mRVList.adapter?.notifyDataSetChanged()
+    }
+
+    private fun removeSelectedDiaries() {
+        val list = mDiaryUris.toList()
+        for((i, selected) in mSelectionStatuses.withIndex()) {
+            if(selected) {
+                if(i < list.size) {
+                    mDiaryUris.remove(list[i])
+                }
+            }
+        }
+
+        mAdapter.clearSelection(mRVList.layoutManager!!)
+        writeDiaryList()
+        exitSelectionMode()
+        populateDiaries()
+    }
+
+    fun cancelSelectionMode() {
+        if(mAdapter.hasSelection()) {
+            mAdapter.clearSelection(mRVList.layoutManager!!)
+            exitSelectionMode()
+        }
     }
 
     private fun readDiaryList() {
@@ -272,10 +317,26 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
     }
 
     // INTERFACE METHODS ===========================================================================
-    // RecyclerViewAdapterDiaries.DiaryItemListener INTERFACE METHODS
+    // RViewAdapterBasic.Listener INTERFACE METHODS
     override fun onItemClick(item: RViewAdapterBasic.Item) {
         openDiary1(item.mId)
         Log.d(Lifeograph.TAG, "Diary clicked")
+    }
+
+    override fun enterSelectionMode(): Boolean {
+        mToolbar.visibility = View.VISIBLE
+        return true
+    }
+
+    override fun exitSelectionMode() {
+        updateActionBarSubtitle()
+        mToolbar.visibility = View.GONE
+    }
+
+    override fun updateActionBarSubtitle() {
+        Lifeograph.getActionBar().subtitle =
+                if( mAdapter.mSelCount > 0 ) "Selected ${mAdapter.mSelCount}/${mAdapter.itemCount}"
+                else                         ""
     }
 
     // DialogPassword INTERFACE METHODS

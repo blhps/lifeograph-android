@@ -71,8 +71,8 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
     }
 
     override fun onDestroyView() {
-        if(mAdapter.hasSelection()) mAdapter.clearSelection(
-                Objects.requireNonNull(mRecyclerView.layoutManager)!!)
+        if(mAdapter.hasSelection())
+            mAdapter.clearSelection(mRecyclerView.layoutManager!!)
         super.onDestroyView()
     }
 

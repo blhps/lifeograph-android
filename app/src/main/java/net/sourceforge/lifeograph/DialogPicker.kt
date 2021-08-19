@@ -34,13 +34,17 @@ class DialogPicker(context: Context, val mListener: Listener) : Dialog(context){
     // VARIABLES ===================================================================================
     private lateinit var mRecyclerView: RecyclerView
     private val mItems: RVBasicList = ArrayList()
+    private val mSelectionStatuses: MutableList<Boolean> = ArrayList()
     private val mAdapter: RViewAdapterBasic =
-            RViewAdapterBasic(mItems,
+            RViewAdapterBasic(mItems, mSelectionStatuses,
                               object: RViewAdapterBasic.Listener {
-                                     override fun onItemClick(item: RViewAdapterBasic.Item) {
-                                         dismiss()
-                                         mListener.onItemClick(item)
-                                     }
+                                  override fun onItemClick(item: RViewAdapterBasic.Item) {
+                                      dismiss()
+                                      mListener.onItemClick(item)
+                                  }
+                                  override fun enterSelectionMode(): Boolean { return false }
+                                  override fun exitSelectionMode() { }
+                                  override fun updateActionBarSubtitle() { }
                               })
 
     interface Listener {

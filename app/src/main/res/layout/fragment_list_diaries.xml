@@ -21,47 +21,90 @@
 
 **************************************************************************** -->
 
-<androidx.coordinatorlayout.widget.CoordinatorLayout
+<RelativeLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    tools:context=".FragmentListDiaries" >
+    android:layout_height="match_parent" >
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/list_diaries"
-        android:name="net.sourceforge.lifeograph.FragmentDiaryList"
+    <androidx.coordinatorlayout.widget.CoordinatorLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        app:layoutManager="LinearLayoutManager"
-        tools:listitem="@layout/list_item_basic" />
+        android:layout_above="@id/toolbar_elem"
+        tools:context=".FragmentListDiaries" >
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_new_diary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="bottom|end"
-        android:layout_margin="16dp"
-        android:contentDescription="@string/create_diary"
-        app:backgroundTint="@color/t_dark"
-        app:srcCompat="@drawable/ic_add" />
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/list_diaries"
+            android:name="net.sourceforge.lifeograph.FragmentDiaryList"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            app:layoutManager="LinearLayoutManager"
+            tools:listitem="@layout/list_item_basic" />
 
-    <com.google.android.material.floatingactionbutton.FloatingActionButton
-        android:id="@+id/fab_add_existing_diary"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="top|end"
-        android:layout_marginBottom="80dp"
-        android:layout_marginEnd="0dp"
-        android:layout_marginLeft="0dp"
-        android:layout_marginRight="0dp"
-        android:layout_marginStart="0dp"
-        android:layout_marginTop="0dp"
-        android:contentDescription="@string/create_diary"
-        app:backgroundTint="@color/t_dark"
-        app:layout_anchor="@+id/fab_add_new_diary"
-        app:layout_anchorGravity="top"
-        app:srcCompat="@drawable/ic_browse" />
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_new_diary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/create_diary"
+            app:backgroundTint="@color/t_dark"
+            app:srcCompat="@drawable/ic_add" />
 
-</androidx.coordinatorlayout.widget.CoordinatorLayout>
+        <com.google.android.material.floatingactionbutton.FloatingActionButton
+            android:id="@+id/fab_add_existing_diary"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="top|end"
+            android:layout_marginBottom="80dp"
+            android:layout_marginEnd="0dp"
+            android:layout_marginLeft="0dp"
+            android:layout_marginRight="0dp"
+            android:layout_marginStart="0dp"
+            android:layout_marginTop="0dp"
+            android:contentDescription="@string/create_diary"
+            app:backgroundTint="@color/t_dark"
+            app:layout_anchor="@+id/fab_add_new_diary"
+            app:layout_anchorGravity="top"
+            app:srcCompat="@drawable/ic_browse" />
+
+    </androidx.coordinatorlayout.widget.CoordinatorLayout>
+
+    <HorizontalScrollView
+    android:id="@+id/toolbar_elem"
+    android:layout_width="match_parent"
+    android:layout_alignParentBottom="true"
+    android:layout_height="wrap_content"
+    android:background="@color/t_dark"
+    android:scrollbars="none">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:baselineAligned="true"
+            android:orientation="horizontal"
+            android:visibility="visible">
+
+            <Button
+                android:id="@+id/remove"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Remove from the List"
+                android:textColor="@android:color/white" />
+
+            <Button
+                android:id="@+id/cancel"
+                style="@android:style/Widget.Holo.ActionButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Cancel"
+                android:textColor="@android:color/white" />
+
+        </LinearLayout>
+
+    </HorizontalScrollView>
+
+</RelativeLayout>

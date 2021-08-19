@@ -35,6 +35,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     override val mMenuId: Int   = 0
 
     private val          mElems: MutableList<RViewAdapterBasic.Item> = ArrayList()
+    private val          mSelectionStatuses: MutableList<Boolean> = ArrayList()
     private lateinit var mAdapter: RViewAdapterBasic
     private lateinit var mRecyclerView: RecyclerView
     private lateinit var mEditText: EditText
@@ -52,7 +53,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
         mButtonSearchTextClear = view.findViewById(R.id.buttonClearText)
         mButtonOnlyInFiltered = view.findViewById(R.id.search_in_filtered_only)
 
-        mAdapter = RViewAdapterBasic(mElems, this)
+        mAdapter = RViewAdapterBasic(mElems, mSelectionStatuses, this)
         mRecyclerView.adapter = mAdapter
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
 
@@ -123,4 +124,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
         Lifeograph.showElem(Diary.d.get_element(item.mIdNum))
     }
 
+    override fun enterSelectionMode(): Boolean = false
+    override fun exitSelectionMode() {}
+    override fun updateActionBarSubtitle() {}
 }

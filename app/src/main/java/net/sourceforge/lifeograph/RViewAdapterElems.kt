@@ -120,7 +120,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
     override fun onViewAttachedToWindow(holder: RecyclerView.ViewHolder) {
         super.onViewAttachedToWindow(holder)
         if(holder is ViewHolder)
-            holder.mView.isActivated = mSelectionStatuses[holder.adapterPosition]
+            holder.mView.isActivated = mSelectionStatuses[holder.bindingAdapterPosition]
     }
 
     override fun getItemCount(): Int {
@@ -198,7 +198,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         private fun handleLongCLick(v: View) {
             if( mAdapter.hasSelection() || mAdapter.mListener.enterSelectionMode() ) {
                 v.isActivated = !v.isActivated
-                mAdapter.setChecked(adapterPosition, v.isActivated)
+                mAdapter.setChecked(bindingAdapterPosition, v.isActivated)
 
                 if( !mAdapter.hasSelection() )
                     mAdapter.mListener.exitSelectionMode()
