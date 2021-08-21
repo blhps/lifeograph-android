@@ -79,7 +79,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         //mKeyListener = mEditText.keyListener
         if(!Diary.d.is_in_edit_mode) {
             mEditText.setRawInputType( InputType.TYPE_NULL )
-            mEditText.isFocusable = false
+            //mEditText.isFocusable = false
             //mEditText.setTextIsSelectable(true) --above seems to work better
             //mEditText.keyListener = null
 
@@ -276,7 +276,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         super.enableEditing()
 
         mEditText.setRawInputType(InputType.TYPE_CLASS_TEXT)
-        mEditText.isFocusable = true
+        //mEditText.isFocusable = true
         // force soft keyboard to be shown:
 //        if(mEditText.requestFocus()) {
 //            val imm = requireContext().getSystemService(
