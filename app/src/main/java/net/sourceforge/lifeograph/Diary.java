@@ -2771,7 +2771,7 @@ public class Diary extends DiaryElement
     protected Result
     write_plain( Uri uri, boolean flag_header_only ) {
         try {
-            OutputStream ostream = mResolver.openOutputStream( uri );
+            OutputStream ostream = mResolver.openOutputStream( uri, "wt" );
             mBufferedWriter = new BufferedWriter( new OutputStreamWriter( ostream ) );
             create_db_header_text( flag_header_only ); // header only mode = encrypted diary
             // header only mode is for encrypted diaries
