@@ -171,7 +171,7 @@ public class Diary extends DiaryElement
         close_file();
 
         m_path = "";
-        m_read_version = 0;
+        m_read_version = DB_FILE_VERSION_INT;
 
         set_id( DEID_UNSET );
         m_force_id = DEID_UNSET;
@@ -2411,7 +2411,7 @@ public class Diary extends DiaryElement
                 permitted = true;
         }
 
-        if( !permitted )
+        if( !permitted && type != SetPathType.NEW )
             return Result.FILE_NOT_READABLE;
 
 //        File fp = new File( path );

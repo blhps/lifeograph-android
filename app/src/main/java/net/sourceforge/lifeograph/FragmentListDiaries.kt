@@ -151,6 +151,22 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
             }
 
         }
+        else if(requestCode == 124 && resultCode == Activity.RESULT_OK) {
+            val uri = resultData?.data!!
+            val name = FileUtil.getFileName(uri, requireContext())
+            Log.d(Lifeograph.TAG, "Name: $name")
+
+            // ensure that the persmission is persistent
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
+
+            if(Diary.d.init_new(requireContext(), uri.toString(), "") == Result.SUCCESS) {
+                mDiaryUris.add(uri.toString())
+                writeDiaryList()
+                navigateToDiary()
+            }
+        }
     }
 
     @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
@@ -158,6 +174,13 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "*/*"
         startActivityForResult(intent, 123)
+    }
+
+    private fun createNewDiary() {
+
+        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
+        intent.type = "*/*"
+        startActivityForResult(intent, 124)
     }
 
     // DIARY OPERATIONS ============================================================================
@@ -197,7 +220,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         populateDiaries()
     }
 
-    fun cancelSelectionMode() {
+    private fun cancelSelectionMode() {
         if(mAdapter.hasSelection()) {
             mAdapter.clearSelection(mRVList.layoutManager!!)
             exitSelectionMode()
@@ -286,15 +309,6 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
             }
             return File(requireContext().filesDir, sDiaryPath)
         }
-
-    private fun createNewDiary() {
-        // ask for name
-        DialogInquireText(requireContext(),
-                          R.string.create_diary,
-                          Lifeograph.getStr(R.string.new_diary),
-                          R.string.create,
-                          this).show()
-    }
 
     private fun askPassword() {
         DialogPassword(requireContext(), Diary.d, DPAction.DPA_LOGIN, this).show()
