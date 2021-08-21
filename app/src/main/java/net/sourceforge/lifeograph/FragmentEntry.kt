@@ -36,7 +36,6 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.widget.SearchView
 import androidx.core.view.MenuItemCompat
 import net.sourceforge.lifeograph.FragmentEntry.ParserEditText.SpanNull
@@ -61,7 +60,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private lateinit var mButtonHighlight: Button
     private val          mParser = ParserEditText(this)
     var                  mFlagSetTextOperation = false
-    private var          mFlagEditorActionInProgress = false
     var                  mFlagEntryChanged = false
     private var          mFlagDismissOnExit = false
     var                  mFlagSearchIsOpen = false
@@ -98,6 +96,11 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(!mFlagSetTextOperation) {
+                    if(count == 1 && s.subSequence(start, start + count)[0] == '\n') {
+                        mFlagSetTextOperation = true
+                        handleNewLine(s, start + count - 1)
+                        mFlagSetTextOperation = false
+                    }
                     // if( start > 0 ) {
                     // m_pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
                     // if( m_pos_start == -1 )
@@ -116,104 +119,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
         })
 
-        mEditText.setOnEditorActionListener { v: TextView, _: Int, _: KeyEvent? ->
-            if(mFlagEditorActionInProgress) {
-                mFlagEditorActionInProgress = false
-                return@setOnEditorActionListener false
-            }
-            val iterEnd = v.selectionStart
-            var iterStart = v.text.toString().lastIndexOf('\n', iterEnd - 1)
-            if(iterStart < 0 || iterStart == v.text.length - 1)
-                return@setOnEditorActionListener false
-            iterStart++ // get rid of the new line char
-            val offsetStart = iterStart // save for future
-            if(v.text[iterStart] == '\t') {
-                val text = StringBuilder("\n\t")
-                var value = 0
-                var charLf = '*'
-                iterStart++ // first tab is already handled, so skip it
-                while(iterStart != iterEnd) {
-                    when(v.text[iterStart]) {
-                        '•' -> {
-                            if(charLf != '*') return@setOnEditorActionListener false
-                            charLf = ' '
-                            text.append("• ")
-                        }
-                        '[' -> {
-                            if(charLf != '*') return@setOnEditorActionListener false
-                            charLf = 'c'
-                        }
-                        '~', '+', 'x', 'X' -> {
-                            if(charLf != 'c') return@setOnEditorActionListener false
-                            charLf = ']'
-                        }
-                        ']' -> {
-                            if(charLf != ']') return@setOnEditorActionListener false
-                            charLf = ' '
-                            text.append("[ ] ")
-                        }
-                        '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                            if(charLf != '*' && charLf != '1')
-                                return@setOnEditorActionListener false
-                            charLf = '1'
-                            value *= 10
-                            value += v.text[iterStart] - '0'
-                        }
-                        '-' -> {
-                            if(charLf == '*') {
-                                text.append("- ")
-                                break
-                            }
-                            if(charLf != '1') return@setOnEditorActionListener false
-                            charLf = ' '
-                            text.append(++value)
-                                    .append(v.text[iterStart])
-                                    .append(' ')
-                        }
-                        '.', ')' -> {
-                            if(charLf != '1') return@setOnEditorActionListener false
-                            charLf = ' '
-                            text.append(++value)
-                                    .append(v.text[iterStart])
-                                    .append(' ')
-                        }
-                        '\t' -> {
-                            if(charLf != '*') return@setOnEditorActionListener false
-                            text.append('\t')
-                        }
-                        ' ' -> {
-                            if(charLf == 'c') {
-                                break
-                            }
-                            else if(charLf != ' ') return@setOnEditorActionListener false
-                            // remove the last bullet if no text follows it:
-                            if(iterStart == iterEnd - 1) {
-                                iterStart = offsetStart
-                                mFlagEditorActionInProgress = true
-                                mEditText.text.delete(iterStart, iterEnd)
-                                mEditText.text.insert(iterStart, "\n")
-                            }
-                            else {
-                                mFlagEditorActionInProgress = true
-                                mEditText.text.insert(iterEnd, text)
-                                iterStart = iterEnd + text.length
-                                if(value > 0) {
-                                    iterStart++
-                                    while(incrementNumberedLine(
-                                                    iterStart, value++, v).also { iterStart = it } > 0) {
-                                        iterStart++
-                                    }
-                                }
-                            }
-                            return@setOnEditorActionListener true
-                        }
-                        else -> return@setOnEditorActionListener false
-                    }
-                    ++iterStart
-                }
-            }
-            false
-        }
+//        mEditText.setOnEditorActionListener { handleNewLine() } <- moved to onTextChanged
 
 //        mEditText.customSelectionActionModeCallback = object : ActionMode.Callback {
 //            override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
@@ -396,6 +302,102 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         return true
     }
 
+    private fun handleNewLine(fullText: CharSequence, iterEnd: Int): Boolean {
+        // iterStart is the start of the previous line
+        var iterStart = fullText.toString().lastIndexOf('\n', iterEnd - 1)
+        if(iterStart < 0 || iterStart == fullText.length - 1)
+            return false
+        iterStart++ // get rid of the new line char
+        val offsetStart = iterStart // save for future
+        if(fullText[iterStart] == '\t') {
+            val text = StringBuilder("\t")
+            var value = 0
+            var charLf = '*'
+            iterStart++ // first tab is already handled, so skip it
+            while(iterStart != iterEnd) {
+                when(fullText[iterStart]) {
+                    '•' -> {
+                        if(charLf != '*') return false
+                        charLf = ' '
+                        text.append("• ")
+                    }
+                    '[' -> {
+                        if(charLf != '*') return false
+                        charLf = 'c'
+                    }
+                    '~', '+', 'x', 'X' -> {
+                        if(charLf != 'c') return false
+                        charLf = ']'
+                    }
+                    ']' -> {
+                        if(charLf != ']') return false
+                        charLf = ' '
+                        text.append("[ ] ")
+                    }
+                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
+                        if(charLf != '*' && charLf != '1')
+                            return false
+                        charLf = '1'
+                        value *= 10
+                        value += fullText[iterStart] - '0'
+                    }
+                    '-' -> {
+                        if(charLf == '*') {
+                            text.append("- ")
+                            break
+                        }
+                        if(charLf != '1') return false
+                        charLf = ' '
+                        text.append(++value)
+                            .append(fullText[iterStart])
+                            .append(' ')
+                    }
+                    '.', ')' -> {
+                        if(charLf != '1') return false
+                        charLf = ' '
+                        text.append(++value)
+                            .append(fullText[iterStart])
+                            .append(' ')
+                    }
+                    '\t' -> {
+                        if(charLf != '*') return false
+                        text.append('\t')
+                    }
+                    ' ' -> {
+                        if(charLf == 'c')
+                            charLf = ']'
+                        else {
+                            if(charLf != ' ') return false
+                            // remove the last bullet if no text follows it:
+                            if(iterStart == iterEnd - 1) {
+                                iterStart = offsetStart
+                                mEditText.text.delete(iterStart, iterEnd)
+                                mEditText.text.insert(iterStart, "\n")
+                            }
+                            else {
+                                mEditText.text.insert(iterEnd+1, text)
+                                iterStart = iterEnd + text.length
+                                if(value > 0) {
+                                    iterStart++
+                                    while(incrementNumberedLine(fullText,
+                                                                iterStart,
+                                                                value++).also {
+                                            iterStart = it } > 0) {
+                                        iterStart++
+                                    }
+                                }
+                            }
+                            return true
+                        }
+                    }
+                    else -> return false
+                }
+                ++iterStart
+            }
+        }
+        return false
+    }
+
     private fun updateIcon() {
         /*if( m_ptr2entry.is_favored() ) {
             Bitmap bmp = BitmapFactory.decodeResource(
@@ -460,10 +462,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         updateTheme()
 
         // SETTING TEXT
-        // mFlagSetTextOperation = true;
+        mFlagSetTextOperation = true
         if(flagParse)
             mEditText.setText(mEntry._text)
-        // mFlagSetTextOperation = false;
+        mFlagSetTextOperation = false
 
         // if( flagParse )
         // parse();
@@ -571,16 +573,18 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         return true
     }
 
-    private fun incrementNumberedLine(pos_bgn: Int, expected_value: Int, v: TextView): Int {
+    private fun incrementNumberedLine(fullText: CharSequence,
+                                      pos_bgn: Int,
+                                      expected_value: Int): Int {
         var pos = pos_bgn
-        if(pos >= v.text.length) return -1
-        var iterEnd = v.text.toString().indexOf('\n', pos)
-        if(iterEnd == -1) iterEnd = v.text.length - 1
+        if(pos >= fullText.length) return -1
+        var iterEnd = fullText.toString().indexOf('\n', pos)
+        if(iterEnd == -1) iterEnd = fullText.length - 1
         val text = StringBuilder()
         var value = 0
         var charLf = 't'
         while(pos != iterEnd) {
-            when(v.text[pos]) {
+            when(fullText[pos]) {
                 '\t' -> {
                     if(charLf != 't' && charLf != '1') return -1
                     charLf = '1'
@@ -590,17 +594,16 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     if(charLf != '1' && charLf != '-') return -1
                     charLf = '-'
                     value *= 10
-                    value += v.text[pos] - '0'
+                    value += fullText[pos] - '0'
                 }
                 '-', '.', ')' -> {
                     if(charLf != '-' || value != expected_value) return -1
                     charLf = ' '
                     value++
-                    text.append(value).append(v.text[pos]).append(' ')
+                    text.append(value).append(fullText[pos]).append(' ')
                 }
                 ' ' -> {
                     if(charLf != ' ') return -1
-                    mFlagEditorActionInProgress = true
                     mEditText.text.delete(pos_bgn, pos + 1)
                     mEditText.text.insert(pos_bgn, text)
                     return iterEnd + text.length - (pos - pos_bgn + 1)
