@@ -2630,19 +2630,18 @@ public class Diary extends DiaryElement
     Result
     write() {
         // BACKUP THE PREVIOUS VERSION
-//        File file = new File( m_path );
-//        if( file.exists() ) {
-//            File dir_backups = new File( file.getParent() + "/backups" );
-//            if( dir_backups.exists() || dir_backups.mkdirs() ) {
-//                File file_backup = new File( dir_backups, file.getName() + ".backup0" );
-//                if( file_backup.exists() ) {
-//                    File file_backup1 = new File( dir_backups, file.getName() + ".backup1" );
-//                    file_backup.renameTo( file_backup1 );
-//                }
-//                if( file.renameTo( file_backup ) )
-//                    Log.d( Lifeograph.TAG, "Backup written to: " + file_backup );
-//            }
-//        }
+        try {
+            InputStream istream = mResolver.openInputStream( Uri.parse( m_path ) );
+            File backupFile0 = new File( Lifeograph.filesDir, m_name + "_(" + m_id + ").backup0" );
+            File backupFile1 = new File( Lifeograph.filesDir, m_name + "_(" + m_id + ").backup1" );
+            if(backupFile0.exists())
+                Lifeograph.copyFile( backupFile0, backupFile1 );
+            Lifeograph.copyFile( istream, backupFile0 );
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not save backup files" );
+            return Result.FILE_NOT_WRITABLE;
+        }
 
         // WRITE THE FILE
         return write( Uri.parse( m_path ) );
