@@ -207,7 +207,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
             override fun onQueryTextChange(s: String): Boolean {
                 if(mFlagSearchIsOpen) {
-                    Diary.d.set_search_text(s.toLowerCase(Locale.ROOT), false)
+                    Diary.d.set_search_text(s.lowercase(Locale.ROOT), false)
                     reparse()
                 }
                 return true

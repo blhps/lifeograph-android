@@ -81,7 +81,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     }
 
     private fun handleSearchTextChanged(text: String) {
-        val searchStr = text.toLowerCase(Locale.ROOT)
+        val searchStr = text.lowercase(Locale.ROOT)
 
         mMatchCount = Diary.d.set_search_text(searchStr, mButtonOnlyInFiltered.isChecked)
 

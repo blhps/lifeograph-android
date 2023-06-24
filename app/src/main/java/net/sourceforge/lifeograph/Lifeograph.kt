@@ -337,7 +337,7 @@ class Lifeograph : Application() {
         fun getLong(line: String, i: MutableInt): Long {
             var result: Long = 0
             while(i.v < line.length && line[i.v] >= '0' && line[i.v] <= '9') {
-                result = result * 10 + line[i.v].toLong() - '0'.toLong()
+                result = result * 10 + line[i.v].code - '0'.code
                 i.v++
             }
             return result
@@ -347,7 +347,7 @@ class Lifeograph : Application() {
         fun getInt(line: String, i: MutableInt): Int {
             var result = 0
             while(i.v < line.length && line[i.v] >= '0' && line[i.v] <= '9') {
-                result = result * 10 + line[i.v].toInt() - '0'.toInt()
+                result = result * 10 + line[i.v].code - '0'.code
                 i.v++
             }
             return result
