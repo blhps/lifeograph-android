@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:tools="http://schemas.android.com/tools"
-          package="net.sourceforge.lifeograph"
           android:installLocation="auto"
           android:requestLegacyExternalStorage="true" >
 
@@ -16,12 +15,15 @@
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:allowBackup="false"
-        tools:ignore="GoogleAppIndexingWarning">
+        android:fullBackupContent="false"
+        tools:ignore="GoogleAppIndexingWarning"
+        android:dataExtractionRules="@xml/data_extraction_rules"
+        tools:targetApi="s">
 
         <activity
             android:name=".ActivityMain"
-            android:label="@string/app_name"
-            android:theme="@style/LifeoTheme.NoActionBar" >
+            android:theme="@style/LifeoTheme.NoActionBar"
+            android:exported="true">
 
             <intent-filter>
 
