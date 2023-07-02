@@ -29,7 +29,6 @@ import android.graphics.Typeface
 import android.net.Uri
 import android.os.Bundle
 import android.text.*
-import android.text.method.LinkMovementMethod
 import android.text.style.*
 import android.util.Log
 import android.view.*
@@ -75,7 +74,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         //Lifeograph.updateScreenSizes( this );
 
         mEditText = view.findViewById(R.id.editTextEntry)
-        mEditText.movementMethod = LinkMovementMethod.getInstance()
+        //mEditText.movementMethod = LinkMovementMethod.getInstance()
         //mKeyListener = mEditText.keyListener
         if(!Diary.d.is_in_edit_mode) {
             mEditText.setRawInputType( InputType.TYPE_NULL )
@@ -121,32 +120,52 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
 //        mEditText.setOnEditorActionListener { handleNewLine() } <- moved to onTextChanged
 
-//        mEditText.customSelectionActionModeCallback = object : ActionMode.Callback {
-//            override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
-//                return true
-//            }
-//
-//            override fun onDestroyActionMode(mode: ActionMode) {}
-//            override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
-//                menu.add(Menu.NONE, R.id.visit_link, Menu.FIRST, R.string.go)
-//                return true
-//            }
-//
-//            override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
-//                if(item.itemId == R.id.visit_link) {
+        // ----alternative way of showing the go button but does not work in read-only mode----
+//        mEditText.accessibilityDelegate = object : View.AccessibilityDelegate() {
+//            override fun sendAccessibilityEvent(host: View, eventType: Int) {
+//                super.sendAccessibilityEvent(host, eventType)
+//                if (eventType == AccessibilityEvent.TYPE_VIEW_TEXT_SELECTION_CHANGED){
 //                    val buffer = mEditText.editableText
 //                    val link = buffer.getSpans(mEditText.selectionStart,
-//                            mEditText.selectionEnd,
-//                            ClickableSpan::class.java)
+//                                               mEditText.selectionEnd,
+//                                               ClickableSpan::class.java)
 //                    if(link.isNotEmpty())
-//                        link[0].onClick(mEditText)
+//                        view.findViewById<View>(R.id.visit_link).visibility = View.GONE
 //                    else
-//                        Log.i(Lifeograph.TAG, "No link in the selection")
-//                    return true
+//                        view.findViewById<View>(R.id.visit_link).visibility = View.VISIBLE
 //                }
-//                return false
 //            }
 //        }
+
+        mEditText.customSelectionActionModeCallback = object : ActionMode.Callback {
+            override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
+                return true
+            }
+
+            override fun onDestroyActionMode(mode: ActionMode) {}
+            override fun onCreateActionMode(mode: ActionMode, menu: Menu): Boolean {
+                if( mEditText.editableText.getSpans(mEditText.selectionStart,
+                                                    mEditText.selectionEnd,
+                                                    ClickableSpan::class.java).isNotEmpty())
+                    menu.add(Menu.NONE, R.id.visit_link, Menu.FIRST, R.string.go)
+                return true
+            }
+
+            override fun onActionItemClicked(mode: ActionMode, item: MenuItem): Boolean {
+                if(item.itemId == R.id.visit_link) {
+                    val buffer = mEditText.editableText
+                    val link = buffer.getSpans(mEditText.selectionStart,
+                            mEditText.selectionEnd,
+                            ClickableSpan::class.java)
+                    if(link.isNotEmpty())
+                        link[0].onClick(mEditText)
+                    else
+                        Log.i(Lifeograph.TAG, "No link in the selection")
+                    return true
+                }
+                return false
+            }
+        }
         val mButtonBold = view.findViewById<Button>(R.id.buttonBold)
         mButtonBold.setOnClickListener { toggleFormat("*") }
         val mButtonItalic = view.findViewById<Button>(R.id.buttonItalic)
@@ -186,6 +205,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         Diary.d.writeLock()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         var item = menu.findItem(R.id.search_text)
@@ -220,6 +240,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         toDoAction.mObject = this
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when(item.itemId) {
             R.id.enable_edit -> {
