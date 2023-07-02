@@ -52,6 +52,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         button.setOnClickListener { duplicateSel() }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.search_text -> {
@@ -108,7 +109,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         fun addChapterCategoryToList(ctg: Chapter.Category) {
             for(chapter in ctg.mMap.values) {
                 mElems.add(chapter)
-                chapter.mHasChildren = !chapter.mEntries.isEmpty()
+                chapter.mHasChildren = chapter.mEntries.isNotEmpty()
                 if(!chapter._expanded) continue
                 for(entry in chapter.mEntries) {
                     if(!entry._filtered_out) {
@@ -143,7 +144,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
             entryPrevUpdated = true
         }
 
-        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) );
+        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) )
         mElems.add(HeaderElem(R.string.free_entries, Date.NUMBERED_MIN))
         mElems.add(HeaderElem(R.string.dated_entries,
                               Date.make(Date.YEAR_MAX + 1, 12, 31, 0)))
@@ -210,9 +211,9 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
             if(selected) {
                 val entry = mElems[i] as Entry
                 entry.toggle_favored()
+                mAdapter.notifyItemChanged( i )
             }
         }
-        mAdapter.notifyDataSetChanged()
     }
 
     private fun showStatusDlg() {
@@ -255,9 +256,10 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                     "+" -> DiaryElement.ES_DONE
                     else -> DiaryElement.ES_CANCELED
                 }
+
+                mAdapter.notifyItemChanged( i )
             }
         }
-        mAdapter.notifyDataSetChanged()
     }
 
     private fun duplicateSel() {
@@ -269,10 +271,10 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                                   entry.m_name,
                                   R.string.create,
                                   this).show()
+                mAdapter.notifyItemChanged( i )
                 break
             }
         }
-        mAdapter.notifyDataSetChanged()
     }
 
     fun handleElemNumberChanged() {
@@ -286,10 +288,10 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                 if(selected) {
                     val entry = mElems[i] as Entry
                     Lifeograph.duplicateEntry(entry, text)
+                    mAdapter.notifyItemChanged( i )
                     break
                 }
             }
-            mAdapter.notifyDataSetChanged()
         }
     }
 

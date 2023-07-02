@@ -180,10 +180,10 @@ public class Entry extends DiaryElement {
     get_icon() {
         if( ( m_status & ES_FILTER_TODO_PURE ) != 0 )
             return Lifeograph.getTodoIcon( m_status & ES_FILTER_TODO_PURE );
-    else
-        return( m_unit.isEmpty() ?
-                ( m_date.get_order_3rd() == 0 ? R.drawable.ic_entry_parent : R.drawable.ic_entry ) :
-                R.drawable.ic_tag );
+        else
+            return( m_unit.isEmpty() ?
+                    ( m_date.get_order_3rd() == 0 ? R.drawable.ic_entry_parent : R.drawable.ic_entry ) :
+                    R.drawable.ic_tag );
     }
 
     @Override
@@ -938,8 +938,8 @@ public class Entry extends DiaryElement {
         for( Coords pt : m_map_path ) {
             if( flag_after_first )
                 dist += Coords.get_distance( pt_prev, pt );
-        else
-            flag_after_first = true;
+            else
+                flag_after_first = true;
 
             pt_prev = pt;
         }

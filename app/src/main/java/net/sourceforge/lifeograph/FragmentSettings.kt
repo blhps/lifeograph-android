@@ -66,10 +66,11 @@ class FragmentSettings : PreferenceFragmentCompat() {
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?,
                               savedInstanceState: Bundle?): View {
         val view = super.onCreateView(inflater, container, savedInstanceState)
-        view!!.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.t_darker))
+        view.setBackgroundColor(ContextCompat.getColor(requireContext(), R.color.t_darker))
         return view
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if(requestCode == sPickFolder && resultCode == Activity.RESULT_OK) {
             // The result data contains a URI for the directory that the user selected

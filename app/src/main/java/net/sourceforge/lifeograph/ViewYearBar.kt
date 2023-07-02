@@ -130,7 +130,7 @@ class ViewYearBar(context: Context, attrs: AttributeSet?) : View(context, attrs)
         }
 
         // it does not work if we dont override this:
-        override fun onDown(e: MotionEvent?): Boolean {
+        override fun onDown(e: MotionEvent): Boolean {
             mCumulativeScroll = 0f
             return true
         }

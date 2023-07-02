@@ -54,6 +54,7 @@ abstract class FragmentDiaryEditor : Fragment() {
 //            updateMenuVisibilities()
 //    }
 
+    @Deprecated("Deprecated in Java")
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         if(mMenuId > 0)
             inflater.inflate(mMenuId, menu)
@@ -61,11 +62,13 @@ abstract class FragmentDiaryEditor : Fragment() {
         mMenu = menu
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onPrepareOptionsMenu(menu: Menu) {
         super.onPrepareOptionsMenu(menu)
         updateMenuVisibilities()
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
             R.id.home -> {

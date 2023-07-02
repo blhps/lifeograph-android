@@ -93,7 +93,7 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
         setOnTouchListener { v: View?, event: MotionEvent? ->
             v!!.performClick()
-            mSwipeGestureDetector.onTouchEvent(event) || mScaleGestureDetector.onTouchEvent(event)
+            mSwipeGestureDetector.onTouchEvent(event!!) || mScaleGestureDetector.onTouchEvent(event)
         }
     }
 
@@ -522,7 +522,7 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             return true
         }
 
-        override fun onDown(e: MotionEvent?): Boolean {
+        override fun onDown(e: MotionEvent): Boolean {
             return true
         }
     }

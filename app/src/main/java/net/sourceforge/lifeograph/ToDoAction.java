@@ -23,6 +23,8 @@
 package net.sourceforge.lifeograph;
 
 import android.content.Context;
+
+import androidx.annotation.NonNull;
 import androidx.core.view.ActionProvider;
 import android.view.MenuItem;
 import android.view.SubMenu;
@@ -35,13 +37,19 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
         //mContext = context;
     }
 
+    @NonNull
+    @Override
+    public View onCreateActionView() {
+        return null;
+    }
+
     @Override
     public boolean hasSubMenu() {
         return true;
     }
 
     @Override
-    public void onPrepareSubMenu( SubMenu menu ) {
+    public void onPrepareSubMenu( @NonNull SubMenu menu ) {
         super.onPrepareSubMenu( menu );
 
         menu.clear();
@@ -89,11 +97,6 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
                 return true;
         }
         return true;
-    }
-
-    @Override
-    public View onCreateActionView() {
-        return null;
     }
 
     public interface ToDoObject {
