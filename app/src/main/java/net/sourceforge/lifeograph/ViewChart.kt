@@ -507,7 +507,7 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     inner class SwipeGestureListener : SimpleOnGestureListener() {
         var mCumulativeScroll = 0f
 
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distX: Float, distY: Float):
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distX: Float, distY: Float):
                 Boolean {
 
             mCumulativeScroll += distX

@@ -115,7 +115,7 @@ class ViewYearBar(context: Context, attrs: AttributeSet?) : View(context, attrs)
     // INNER CLASSES ===============================================================================
     inner class GestureListener : SimpleOnGestureListener() {
 
-        override fun onScroll(e1: MotionEvent, e2: MotionEvent, distX: Float, distY: Float):
+        override fun onScroll(e1: MotionEvent?, e2: MotionEvent, distX: Float, distY: Float):
                 Boolean {
             mCumulativeScroll += distX
 
