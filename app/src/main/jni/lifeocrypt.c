@@ -65,9 +65,9 @@ Java_net_sourceforge_lifeograph_Diary_decryptBuffer( JNIEnv* env,
             break;
     }
 
-    char* dec_buf = malloc( size_dec_buf );
-    memcpy( dec_buf, buffer, size_dec_buf - 1 );
-    dec_buf[ size_dec_buf - 1 ] = 0; // terminating zero
+    char* dec_buf = malloc( size_dec_buf + 1 );
+    memcpy( dec_buf, buffer, size_dec_buf );
+    dec_buf[ size_dec_buf ] = 0; // terminating zero
 
     jstring output;
     // cannot check the '\n' due to multi-byte char case
