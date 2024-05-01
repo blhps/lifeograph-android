@@ -25,13 +25,13 @@ import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
 import android.util.Log
-import android.view.*
+import android.view.LayoutInflater
+import android.view.View
+import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
-import androidx.annotation.RequiresApi
 import androidx.appcompat.app.AppCompatActivity
 import androidx.fragment.app.Fragment
 import androidx.navigation.Navigation
@@ -43,9 +43,9 @@ import net.sourceforge.lifeograph.DialogPassword.DPAction
 import net.sourceforge.lifeograph.helpers.FileUtil
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
-import java.util.*
+import java.util.Collections
 
-class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquireText.Listener,
+class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
                             DialogPassword.Listener {
     // VARIABLES ===================================================================================
     private val mColumnCount = 1
@@ -66,7 +66,6 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         return inflater.inflate(R.layout.fragment_list_diaries, container, false)
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         // Set the adapter
         mRVList = view.findViewById(R.id.list_diaries)
@@ -130,7 +129,6 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
 //        writeDiaryList()
 //    }
 
-    @RequiresApi(Build.VERSION_CODES.O)
     override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
         if(requestCode == 123 && resultCode == Activity.RESULT_OK) {
             // The result data contains a URI for the directory that the user selected
@@ -169,8 +167,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         }
     }
 
-    @RequiresApi(Build.VERSION_CODES.LOLLIPOP)
-    fun openFile() {
+    private fun openFile() {
         val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
         intent.type = "*/*"
         startActivityForResult(intent, 123)
@@ -282,33 +279,33 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
         }
     }
 
-    private val diariesDir: File
-        get() {
-            if(sStoragePref == "C") {
-                return File(sDiaryPath)
-            }
-            else if(sStoragePref == "E") {
-//                when(Environment.getExternalStorageState()) {
-//                    Environment.MEDIA_MOUNTED -> {
-//                        // We can read and write the media
-//                        return File(context?.getExternalFilesDir(null), sDiaryPath)
-//                    }
-//                    Environment.MEDIA_MOUNTED_READ_ONLY -> {
-//                        // We can only read the media (we may do something else here)
-//                        Lifeograph.showToast(R.string.storage_not_available)
-//                        Log.d(Lifeograph.TAG, "Storage is read-only")
-//                    }
-//                    else -> {
-//                        // Something else is wrong. It may be one of many other states, but
-//                        // all we need to know is we can neither read nor write
-//                        Lifeograph.showToast(R.string.storage_not_available)
-//                    }
-//                }
-                Lifeograph.showToast(
-                        "External Storage Option is removed. Please use the custom path picker!")
-            }
-            return File(requireContext().filesDir, sDiaryPath)
-        }
+//    private val diariesDir: File
+//        get() {
+//            if(sStoragePref == "C") {
+//                return File( URI.create( sDiaryPath ) )
+//            }
+//            else if(sStoragePref == "E") {
+////                when(Environment.getExternalStorageState()) {
+////                    Environment.MEDIA_MOUNTED -> {
+////                        // We can read and write the media
+////                        return File(context?.getExternalFilesDir(null), sDiaryPath)
+////                    }
+////                    Environment.MEDIA_MOUNTED_READ_ONLY -> {
+////                        // We can only read the media (we may do something else here)
+////                        Lifeograph.showToast(R.string.storage_not_available)
+////                        Log.d(Lifeograph.TAG, "Storage is read-only")
+////                    }
+////                    else -> {
+////                        // Something else is wrong. It may be one of many other states, but
+////                        // all we need to know is we can neither read nor write
+////                        Lifeograph.showToast(R.string.storage_not_available)
+////                    }
+////                }
+//                Lifeograph.showToast(
+//                        "External Storage Option is removed. Please use the custom path picker!")
+//            }
+//            return File(requireContext().filesDir, sDiaryPath)
+//        }
 
     private fun askPassword() {
         DialogPassword(requireContext(), Diary.d, DPAction.DPA_LOGIN, this).show()
@@ -359,28 +356,28 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener, DialogInquir
     }
 
     // InquireListener INTERFACE METHODS
-    override fun onInquireAction(id: Int, text: String) {
-        if(id == R.string.create_diary) {
-            if(Diary.d.init_new(requireContext(), Lifeograph.joinPath(diariesDir.path, text), "")
-                    == Result.SUCCESS) {
-                navigateToDiary()
-            }
-            // TODO else inform the user about the problem
-        }
-    }
-
-    override fun onInquireTextChanged(id: Int, text: String): Boolean {
-        if(id == R.string.create_diary) {
-            val fp = File(diariesDir.path, text)
-            return !fp.exists()
-        }
-        return true
-    }
+//    override fun onInquireAction(id: Int, text: String) {
+//        if(id == R.string.create_diary) {
+//            if(Diary.d.init_new(requireContext(), Lifeograph.joinPath(diariesDir.path, text), "")
+//                    == Result.SUCCESS) {
+//                navigateToDiary()
+//            }
+//            // TODO else inform the user about the problem
+//        }
+//    }
+//
+//    override fun onInquireTextChanged(id: Int, text: String): Boolean {
+//        if(id == R.string.create_diary) {
+//            val fp = File(diariesDir.path, text)
+//            return !fp.exists()
+//        }
+//        return true
+//    }
 
     companion object {
         @JvmField
         var sStoragePref = ""
-        @JvmField
-        var sDiaryPath = ""
+//        @JvmField
+//        var sDiaryPath = "" // as a URI
     }
 }

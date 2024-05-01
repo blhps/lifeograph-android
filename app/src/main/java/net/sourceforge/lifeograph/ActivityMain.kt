@@ -60,10 +60,10 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
         PreferenceManager.setDefaultValues(applicationContext, R.xml.pref_general, false)
         val prefs = PreferenceManager.getDefaultSharedPreferences(
                 applicationContext)
-        FragmentListDiaries.sStoragePref = prefs.getString(
-                Lifeograph.getStr(R.string.pref_DIARY_STORAGE_key), "N/A")!!
-        FragmentListDiaries.sDiaryPath = prefs.getString(
-                Lifeograph.getStr(R.string.pref_DIARY_PATH_key), "N/A")!!
+//        FragmentListDiaries.sStoragePref = prefs.getString(
+//                Lifeograph.getStr(R.string.pref_DIARY_STORAGE_key), "N/A")!!
+//        FragmentListDiaries.sDiaryPath = prefs.getString(
+//                Lifeograph.getStr(R.string.pref_DIARY_PATH_key), "N/A")!!
         Date.s_format_order = prefs.getString(
                 Lifeograph.getStr(R.string.pref_DATE_FORMAT_ORDER_key), "N/A")
         Date.s_format_separator = prefs.getString(

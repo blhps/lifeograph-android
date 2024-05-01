@@ -4,16 +4,16 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
-    <string name="pref_DIARY_header">Diary Files</string>
+<!--    <string name="pref_DIARY_header">Diary Files</string>
 
     <string name="pref_DIARY_CTG_key" translatable="false">diary_ctg</string>
     <string name="pref_DIARY_STORAGE_title">Storage of Diary Files</string>
     <string name="pref_DIARY_STORAGE_key" translatable="false">diary_storage</string>
-    <string name="pref_DIARY_STORAGE_default" translatable="false">I</string>
+    <string name="pref_DIARY_STORAGE_default" translatable="false">I</string>-->
 
-    <string name="pref_DIARY_PATH_title">Folder of Diary Files</string>
+<!--    <string name="pref_DIARY_PATH_title">Folder of Diary Files</string>
     <string name="pref_DIARY_PATH_key" translatable="false">diary_path</string>
-    <!--string name="pref_DIARY_PATH_default" translatable="false">Diaries</string-->
+    &lt;!&ndash;string name="pref_DIARY_PATH_default" translatable="false">Diaries</string&ndash;&gt;-->
 
     <string name="pref_LOCALE_header">Locale</string>
 
@@ -29,14 +29,14 @@
     <string name="pref_UNIT_TYPE_key" translatable="false">unit_type</string>
     <string name="pref_UNIT_TYPE_default" translatable="false">Metric</string>
 
-    <string-array name="pref_DIARY_STORAGE_titles">
+<!--    <string-array name="pref_DIARY_STORAGE_titles">
         <item>Internal Storage (Deleted on uninstall)</item>
         <item>Custom (Type full path as folder name)</item>
     </string-array>
     <string-array name="pref_DIARY_STORAGE_values" translatable="false">
         <item>I</item>
         <item>C</item>
-    </string-array>
+    </string-array>-->
 
     <string-array name="pref_DATE_FORMAT_ORDER_titles">
         <item>Year Month Day</item>

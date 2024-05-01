@@ -4,7 +4,7 @@
     <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
          dismiss it. -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-    <PreferenceCategory
+<!--    <PreferenceCategory
         android:title="@string/pref_DIARY_header"
         android:key="@string/pref_DIARY_CTG_key">
 
@@ -21,7 +21,7 @@
             android:key="@string/pref_DIARY_PATH_key"
             android:title="@string/pref_DIARY_PATH_title" />
 
-    </PreferenceCategory>
+    </PreferenceCategory>-->
 
     <PreferenceCategory
         android:title="@string/pref_LOCALE_header" >
