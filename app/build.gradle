@@ -5,20 +5,19 @@ plugins {
 
 android {
     namespace 'net.sourceforge.lifeograph'
-    compileSdk 33
-    buildToolsVersion '30.0.3'
+    compileSdk 34
 
     defaultConfig {
         applicationId 'net.sourceforge.lifeograph'
-        minSdk 19
-        targetSdk 33
-        versionCode 9992
-        versionName '1.0.0.beta-2'
+        minSdk 33
+        targetSdk 34
+        versionCode 9993
+        versionName '1.0.0.beta-3'
 
         vectorDrawables.useSupportLibrary = true
     }
 
-    ndkVersion '22.0.7026061'
+    ndkVersion '27.0.11718014 rc1'
 
     // disable automatic handling of jni folder by gradle
     sourceSets.main {
@@ -29,7 +28,6 @@ android {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt')
-            zipAlignEnabled true
         }
         debug {
             jniDebuggable true
@@ -69,6 +67,7 @@ android {
     }
     buildFeatures {
         aidl true
+        buildConfig true
     }
 
     return void // just to avoid warning
@@ -79,13 +78,13 @@ android.buildTypes.release.ndk.debugSymbolLevel = 'SYMBOL_TABLE'
 dependencies {
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.9.0'
-    implementation 'androidx.activity:activity-ktx:1.6.0-rc01'
-    implementation 'androidx.preference:preference-ktx:1.2.0'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.6.0'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.6.0'
+    implementation 'com.google.android.material:material:1.11.0'
+    implementation 'androidx.activity:activity-ktx:1.9.0'
+    implementation 'androidx.preference:preference-ktx:1.2.1'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.7.7'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.7.7'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
-    implementation 'androidx.recyclerview:recyclerview:1.3.0'
-    implementation "androidx.core:core-ktx:1.10.1"
+    implementation 'androidx.recyclerview:recyclerview:1.3.2'
+    implementation "androidx.core:core-ktx:1.13.0"
     //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
