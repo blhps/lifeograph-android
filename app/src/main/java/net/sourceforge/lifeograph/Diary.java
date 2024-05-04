@@ -2804,6 +2804,7 @@ public class Diary extends DiaryElement
             // first char of passphrase for validity checking
             mBufferedWriter.append( m_passphrase.charAt( 0 ) ).append( '\n' );
             create_db_body_text();
+            mBufferedWriter.append( ( char ) 0 );
             mBufferedWriter.close();
             mBufferedWriter = null;
 
