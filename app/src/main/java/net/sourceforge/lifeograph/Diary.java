@@ -476,7 +476,7 @@ public class Diary extends DiaryElement
             return null;
         if( entry_before != null && entry_after == null )
             return entry_before;
-        if( entry_before == null && entry_after != null )
+        if( entry_before == null )
             return entry_after;
 
         return( ( source - entry_before.get_date_t() ) < ( entry_after.get_date_t() - source ) ?
