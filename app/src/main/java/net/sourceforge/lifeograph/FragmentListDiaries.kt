@@ -181,6 +181,24 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     // DIARY OPERATIONS ============================================================================
+    private fun addInternalDiariesDir() {
+        val rootDir = context?.filesDir
+        val dir = File(rootDir, sDiaryPath)
+        val files: Array<out File>? = dir.listFiles()
+        if(files != null) {
+            for(f in files) {
+                if(!f.isDirectory
+                    && !f.path.endsWith(Diary.LOCK_SUFFIX )
+                    && !f.path.endsWith("backup0")
+                    && !f.path.endsWith( "backup1")) {
+                    mDiaryItems.add(RViewAdapterBasic.Item(f.name,
+                                                           f.toURI().toString(),
+                                                           R.drawable.ic_diary))
+                }
+            }
+        }
+    }
+
     private fun populateDiaries() {
         mDiaryItems.clear()
 
@@ -191,6 +209,11 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
                                                    R.drawable.ic_diary))
         }
 
+        // add diaries from the internal storage for compatibility with older versions:
+        if(sStoragePref == "I")
+            addInternalDiariesDir()
+
+        // add example diary:
         mDiaryItems.add(RViewAdapterBasic.Item(Diary.sExampleDiaryName,
                                                Diary.sExampleDiaryPath,
                                                R.drawable.ic_diary))
@@ -375,9 +398,10 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
 //    }
 
     companion object {
+        // below variables are needed solely to support pre-1.0 versions:
         @JvmField
         var sStoragePref = ""
-//        @JvmField
-//        var sDiaryPath = "" // as a URI
+        @JvmField
+        var sDiaryPath = ""
     }
 }

@@ -45,6 +45,12 @@ class FragmentSettings : PreferenceFragmentCompat() {
         // to reflect the new value, per the Android Design guidelines
 //        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DIARY_STORAGE_key))!!)
 //        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DIARY_PATH_key))!!)
+        // only get the value not the summary:
+//        findPreference<SwitchPreferenceCompat>(getString(R.string.pref_DIARY_PATH_ADD_INTERNAL_key))
+//            ?.setOnPreferenceChangeListener { _, newValue ->
+//                FragmentListDiaries.sAddInternalDiaries = newValue.toString().toBoolean()
+//                true // Return true if the event is handled.
+//            }
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DATE_FORMAT_ORDER_key))!!)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DATE_FORMAT_SEPARATOR_key))!!)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_UNIT_TYPE_key))!!)

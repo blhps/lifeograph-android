@@ -1,12 +1,11 @@
-<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
-
+<PreferenceScreen
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
          dismiss it. -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-<!--    <PreferenceCategory
-        android:title="@string/pref_DIARY_header"
-        android:key="@string/pref_DIARY_CTG_key">
+    <!--PreferenceCategory
+        app:title="@string/pref_DIARY_header">
 
         <ListPreference
             android:key="@string/pref_DIARY_STORAGE_key"
@@ -20,38 +19,42 @@
         <Preference
             android:key="@string/pref_DIARY_PATH_key"
             android:title="@string/pref_DIARY_PATH_title" />
+        <SwitchPreferenceCompat
+            app:key="@string/pref_DIARY_PATH_ADD_INTERNAL_key"
+            app:title="@string/pref_DIARY_PATH_ADD_INTERNAL_title"
+            app:defaultValue="false" />
 
-    </PreferenceCategory>-->
+    </PreferenceCategory-->
 
     <PreferenceCategory
-        android:title="@string/pref_LOCALE_header" >
+        app:title="@string/pref_LOCALE_header" >
 
         <ListPreference
-            android:key="@string/pref_DATE_FORMAT_ORDER_key"
-            android:title="@string/pref_DATE_FORMAT_ORDER_title"
-            android:defaultValue="@string/pref_DATE_FORMAT_ORDER_default"
-            android:entries="@array/pref_DATE_FORMAT_ORDER_titles"
-            android:entryValues="@array/pref_DATE_FORMAT_ORDER_values"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="@null" />
+            app:key="@string/pref_DATE_FORMAT_ORDER_key"
+            app:title="@string/pref_DATE_FORMAT_ORDER_title"
+            app:defaultValue="@string/pref_DATE_FORMAT_ORDER_default"
+            app:entries="@array/pref_DATE_FORMAT_ORDER_titles"
+            app:entryValues="@array/pref_DATE_FORMAT_ORDER_values"
+            app:negativeButtonText="@null"
+            app:positiveButtonText="@null" />
 
         <ListPreference
-            android:key="@string/pref_DATE_FORMAT_SEPARATOR_key"
-            android:title="@string/pref_DATE_FORMAT_SEPARATOR_title"
-            android:defaultValue="@string/pref_DATE_FORMAT_SEPARATOR_default"
-            android:entries="@array/pref_DATE_FORMAT_SEPARATOR_titles"
-            android:entryValues="@array/pref_DATE_FORMAT_SEPARATOR_values"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="@null" />
+            app:key="@string/pref_DATE_FORMAT_SEPARATOR_key"
+            app:title="@string/pref_DATE_FORMAT_SEPARATOR_title"
+            app:defaultValue="@string/pref_DATE_FORMAT_SEPARATOR_default"
+            app:entries="@array/pref_DATE_FORMAT_SEPARATOR_titles"
+            app:entryValues="@array/pref_DATE_FORMAT_SEPARATOR_values"
+            app:negativeButtonText="@null"
+            app:positiveButtonText="@null" />
 
         <ListPreference
-            android:key="@string/pref_UNIT_TYPE_key"
-            android:title="@string/pref_UNIT_TYPE_title"
-            android:defaultValue="@string/pref_UNIT_TYPE_default"
-            android:entries="@array/pref_UNIT_TYPE_titles"
-            android:entryValues="@array/pref_UNIT_TYPE_values"
-            android:negativeButtonText="@null"
-            android:positiveButtonText="@null" />
+            app:key="@string/pref_UNIT_TYPE_key"
+            app:title="@string/pref_UNIT_TYPE_title"
+            app:defaultValue="@string/pref_UNIT_TYPE_default"
+            app:entries="@array/pref_UNIT_TYPE_titles"
+            app:entryValues="@array/pref_UNIT_TYPE_values"
+            app:negativeButtonText="@null"
+            app:positiveButtonText="@null" />
 
     </PreferenceCategory>
 
