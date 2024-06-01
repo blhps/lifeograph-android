@@ -2389,12 +2389,12 @@ public class Diary extends DiaryElement
 
     // READING =====================================================================================
     Result
-    set_path( Context ctx, String path, SetPathType type ) {
+    set_path( Context ctx, String uristr, SetPathType type ) {
         clear();
 
         // ANDROID ONLY:
-        if( path.equals( sExampleDiaryPath ) ) {
-            m_path = path;
+        if( uristr.equals( sExampleDiaryPath ) ) {
+            m_path = uristr;
             m_name = sExampleDiaryName;
             m_flag_read_only = true;
             return Result.SUCCESS;
@@ -2402,13 +2402,18 @@ public class Diary extends DiaryElement
 
         // CHECK FOR SYSTEM PERMISSIONS
         mResolver = ctx.getContentResolver();
-        Uri uri = Uri.parse( path );
-        boolean permitted = false;
+        Uri uri = Uri.parse( uristr );
+        boolean permitted = uri.toString().startsWith( "file:/" );
+        // we assume that file:/ means internal file, so it is always permitted
 
-        List< UriPermission > permissions = mResolver.getPersistedUriPermissions();
-        for( UriPermission permission : permissions ) {
-            if( uri.equals( permission.getUri() ) )
-                permitted = true;
+        if( !permitted ) {
+            List< UriPermission > permissions = mResolver.getPersistedUriPermissions();
+            for( UriPermission permission : permissions ) {
+                if( uri.equals( permission.getUri() ) ) {
+                    permitted = true;
+                    break;
+                }
+            }
         }
 
         if( !permitted && type != SetPathType.NEW )
@@ -2440,7 +2445,7 @@ public class Diary extends DiaryElement
             m_name = uriPath.substring( i + 1 );
 
         // ACCEPT PATH
-        m_path = path;
+        m_path = uristr;
 
         File lockFile = new File( Lifeograph.filesDir, m_name +
                                                        "(" + m_path.length() + ")" +
