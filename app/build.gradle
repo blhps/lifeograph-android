@@ -11,8 +11,8 @@ android {
         applicationId 'net.sourceforge.lifeograph'
         minSdk 33
         targetSdk 34
-        versionCode 10007
-        versionName '1.0.1.beta'
+        versionCode 10010
+        versionName '1.0.1'
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
 
         vectorDrawables.useSupportLibrary = true
