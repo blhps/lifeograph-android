@@ -71,6 +71,15 @@
             android:scaleType="centerInside"
             app:srcCompat="@drawable/ic_favorite" />
 
+        <ImageView
+            android:id="@+id/icon3"
+            android:layout_width="24dp"
+            android:layout_height="24dp"
+            android:layout_alignTop="@id/icon"
+            android:layout_alignEnd="@id/icon"
+            android:scaleType="centerInside"
+            app:srcCompat="@drawable/ic_dismiss" />
+
     </RelativeLayout>
 
     <LinearLayout

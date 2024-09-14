@@ -50,6 +50,8 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         button.setOnClickListener { showStatusDlg() }
         button = view.findViewById(R.id.duplicate)
         button.setOnClickListener { duplicateSel() }
+        button = view.findViewById(R.id.dismiss)
+        button.setOnClickListener { trashSel() }
     }
 
     @Deprecated("Deprecated in Java")
@@ -205,6 +207,9 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     override fun getIcon2(elem: DiaryElement): Int {
         return R.drawable.ic_favorite
     }
+    override fun hasIcon3(elem: DiaryElement): Boolean {
+        return if( elem is Entry ) elem.is_trashed else false
+    }
 
     private fun toggleSelFavoredness() {
         for((i, selected) in mSelectionStatuses.withIndex()) {
@@ -271,6 +276,17 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                                   entry.m_name,
                                   R.string.create,
                                   this).show()
+                mAdapter.notifyItemChanged( i )
+                break
+            }
+        }
+    }
+
+    private fun trashSel() {
+        for((i, selected) in mSelectionStatuses.withIndex()) {
+            if(selected) {
+                val entry = mElems[i] as Entry
+                entry.set_trashed( !entry.is_trashed )
                 mAdapter.notifyItemChanged( i )
                 break
             }

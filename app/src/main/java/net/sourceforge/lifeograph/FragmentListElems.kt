@@ -131,4 +131,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
     override fun getIcon2(elem: DiaryElement): Int {
         return 0
     }
+    override fun hasIcon3(elem: DiaryElement): Boolean {
+        return false
+    }
 }

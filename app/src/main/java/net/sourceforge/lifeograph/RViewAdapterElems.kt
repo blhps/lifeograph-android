@@ -92,6 +92,13 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
             else
                 holder.mIVIcon2.visibility = View.INVISIBLE
 
+            if(mListener.hasIcon3(elem)) {
+                //holder.mIVIcon3.setImageResource(mListener.getIcon3(elem))
+                holder.mIVIcon3.visibility = View.VISIBLE
+            }
+            else
+                holder.mIVIcon3.visibility = View.INVISIBLE
+
             if(elem.mHasChildren) {
                 holder.mExpander.visibility = View.VISIBLE
                 if(elem._expanded) {
@@ -165,6 +172,8 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
 
         fun hasIcon2(elem: DiaryElement): Boolean
         fun getIcon2(elem: DiaryElement): Int
+        fun hasIcon3(elem: DiaryElement): Boolean
+        //fun getIcon3(elem: DiaryElement): Int
     }
 
     class ViewHolder(val mView: View, private val mAdapter: RVAdapterElems) :
@@ -174,6 +183,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         val mSpacerL2:  TextView = mView.findViewById(R.id.spacer_L2)
         val mIVIcon:    ImageView = mView.findViewById(R.id.icon)
         val mIVIcon2:   ImageView = mView.findViewById(R.id.icon2)
+        val mIVIcon3:   ImageView = mView.findViewById(R.id.icon3)
         val mTVTitle:   TextView = mView.findViewById(R.id.title)
         val mTVDetails: TextView = mView.findViewById(R.id.detail)
         val mExpander:  ImageButton = mView.findViewById(R.id.icon_collapse)
