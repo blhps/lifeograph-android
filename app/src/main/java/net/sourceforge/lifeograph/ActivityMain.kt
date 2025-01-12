@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2025 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -172,7 +172,7 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
                 mNavController!!.navigate(R.id.nav_theme_editor)
             }
             DiaryElement.Type.FILTER -> {
-                FragmentFilter.mFilter = elem as Filter
+                FragmentFilter.setFilter( elem as Filter )
                 mNavController!!.navigate(R.id.nav_filter_editor)
             }
             DiaryElement.Type.CHART -> {
