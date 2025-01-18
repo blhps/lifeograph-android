@@ -101,9 +101,35 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
             mElems.add(filterer)
     }
 
-
     private fun addFilterer() {
+        DialogPicker(requireContext(), object: DialogPicker.Listener{
+            override fun onItemClick(item: RViewAdapterBasic.Item) {
+                when(item.mId) {
+                    "STATUS" -> { mStack.add_filterer_status( DiaryElement.ES_FILTER_TRASHED ) }
+                    "TRASHED" -> { mStack.add_filterer_trashed( true ) }
+                    "IS" -> { mStack.add_filterer_is( DiaryElement.DEID_UNSET, true ) }
+                    else -> { mStack.add_filterer_favorite( true ) }
+                }
+                updateFilterWidgets()
+            }
 
+            override fun populateItems(list: RVBasicList) {
+                list.clear()
+
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.filter_status), "STATUS",
+                    R.drawable.ic_filter))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.filter_is), "IS",
+                    R.drawable.ic_filter))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.filter_favorite), "FAVORITE",
+                    R.drawable.ic_filter))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.filter_trashed), "TRASHED",
+                    R.drawable.ic_filter))
+            }
+        }).show()
     }
     private fun removeFilterer() {
         for((i, selected) in mSelectionStatuses.withIndex()) {
@@ -123,15 +149,16 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
         Diary.d.updateAllEntriesFilterStatus()
     }
     private fun resetFilter() {
-
-    }
-
-    override fun onElemClick(elem: Filterer?) {
-        TODO("Not yet implemented")
+        mStack = mFilter._filterer_stack
+        updateFilterWidgets()
     }
 
     override fun updateActionBarSubtitle() {
-        TODO("Not yet implemented")
+        val selCount = mAdapter.mSelCount
+        val itmCount = mAdapter.itemCount
+        Lifeograph.getActionBar().subtitle =
+            if( selCount > 0 ) "${mFilter._name} ($selCount/$itmCount)"
+            else               "${mFilter._name} ($itmCount)"
     }
 
     override fun enterSelectionMode(): Boolean {
