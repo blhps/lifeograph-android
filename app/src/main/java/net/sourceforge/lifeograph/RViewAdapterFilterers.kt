@@ -98,37 +98,33 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         return mSelCount > 0
     }
 
-    fun clearSelection(layoutman: RecyclerView.LayoutManager) {
-        for((i, selected) in mSelectionStatuses.withIndex() ) {
-            if( selected ) {
-                val row = layoutman.findViewByPosition(i)
-                row?.isActivated = false
-                mSelectionStatuses[i] = false
-            }
-        }
-
-        mSelCount = 0
-
-        notifyDataSetChanged()
-    }
+//    fun clearSelection(layoutman: RecyclerView.LayoutManager) {
+//        for((i, selected) in mSelectionStatuses.withIndex() ) {
+//            if( selected ) {
+//                val row = layoutman.findViewByPosition(i)
+//                row?.isActivated = false
+//                mSelectionStatuses[i] = false
+//            }
+//        }
+//
+//        mSelCount = 0
+//
+//        notifyDataSetChanged()
+//    }
 
     interface Listener {
-        fun onElemClick(elem: Filterer?)
         fun updateActionBarSubtitle()
         fun enterSelectionMode(): Boolean
         fun exitSelectionMode()
     }
 
-    abstract class VHFilterer(private val mView: View, private val mAdapter: RVAdapterFilterers) :
+    abstract class VHFilterer(mView: View, private val mAdapter: RVAdapterFilterers) :
             RecyclerView.ViewHolder(mView) {
 
-        lateinit var mItemGen: Filterer
         init {
             mView.setOnClickListener { v: View ->
                 if(mAdapter.mSelCount > 0)
                     handleLongCLick(v)
-                else
-                    mAdapter.mListener.onElemClick(mItemGen)
             }
             mView.setOnLongClickListener { v: View ->
                 handleLongCLick(v)
@@ -153,8 +149,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         abstract fun populate()
     }
 
-    class VHFiltererStatus(private val mView: View, private val mAdapter: RVAdapterFilterers) :
-        VHFilterer(mView, mAdapter)
+    class VHFiltererStatus(mView: View, mAdapter: RVAdapterFilterers) : VHFilterer(mView, mAdapter)
     {
         private val mIVNotTodo:     ToggleImageButton = mView.findViewById(R.id.btn_flt_status_not_todo)
         private val mIVopen:        ToggleImageButton = mView.findViewById(R.id.btn_flt_status_open)
@@ -165,7 +160,6 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         private lateinit var mItem: FiltererContainer.FiltererStatus
 
         override fun setItem(item: Filterer) {
-            mItemGen = item
             mItem = item as FiltererContainer.FiltererStatus
         }
 
@@ -206,14 +200,13 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
     }
 
-    class VHFiltererFavorite(mView: View, private val mAdapter: RVAdapterFilterers) :
+    class VHFiltererFavorite(mView: View, mAdapter: RVAdapterFilterers) :
         VHFilterer(mView, mAdapter) {
         val mTvTitle: TextView = mView.findViewById(R.id.title)
 
         private lateinit var mItem: FiltererContainer.FiltererFavorite
 
         override fun setItem(item: Filterer) {
-            mItemGen = item
             mItem = item as FiltererContainer.FiltererFavorite
         }
 
@@ -224,14 +217,13 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         }
     }
 
-    class VHFiltererTrashed(mView: View, private val mAdapter: RVAdapterFilterers) :
+    class VHFiltererTrashed(mView: View, mAdapter: RVAdapterFilterers) :
         VHFilterer(mView, mAdapter) {
         val mTvTitle: TextView = mView.findViewById(R.id.title)
 
         private lateinit var mItem: FiltererContainer.FiltererTrashed
 
         override fun setItem(item: Filterer) {
-            mItemGen = item
             mItem = item as FiltererContainer.FiltererTrashed
         }
 
@@ -242,14 +234,12 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         }
     }
 
-    class VHFiltererIs(mView: View, private val mAdapter: RVAdapterFilterers) :
-        VHFilterer(mView, mAdapter) {
+    class VHFiltererIs(mView: View, mAdapter: RVAdapterFilterers) : VHFilterer(mView, mAdapter) {
         val mTvTitle: TextView = mView.findViewById(R.id.title)
 
         private lateinit var mItem: FiltererContainer.FiltererIs
 
         override fun setItem(item: Filterer) {
-            mItemGen = item
             mItem = item as FiltererContainer.FiltererIs
         }
 
