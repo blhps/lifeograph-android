@@ -247,7 +247,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 Lifeograph.enableEditing(this)
                 return true
             }
-            R.id.home -> {
+            com.google.android.material.R.id.home -> {
                 //NavUtils.navigateUpFromSameTask( this );
                 //finish();
                 return true
