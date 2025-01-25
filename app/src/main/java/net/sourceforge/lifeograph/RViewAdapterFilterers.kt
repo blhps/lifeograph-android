@@ -79,9 +79,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
             holder.mView.isActivated = mSelectionStatuses[holder.bindingAdapterPosition]
     }
 
-    override fun getItemCount(): Int {
-        return mItems.size
-    }
+    override fun getItemCount(): Int { return mItems.size }
 
     fun setChecked(position: Int, isChecked: Boolean) {
         if( isChecked != mSelectionStatuses[position] )
@@ -94,9 +92,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 //        return mSelectionStatuses[position]
 //    }
 
-    fun hasSelection(): Boolean {
-        return mSelCount > 0
-    }
+    fun hasSelection(): Boolean { return mSelCount > 0 }
 
 //    fun clearSelection(layoutman: RecyclerView.LayoutManager) {
 //        for((i, selected) in mSelectionStatuses.withIndex() ) {
@@ -159,9 +155,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
         private lateinit var mItem: FiltererContainer.FiltererStatus
 
-        override fun setItem(item: Filterer) {
-            mItem = item as FiltererContainer.FiltererStatus
-        }
+        override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererStatus }
 
         override fun getType(): Int { return VIEWTYPE_F_STATUS }
 
@@ -206,9 +200,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
         private lateinit var mItem: FiltererContainer.FiltererFavorite
 
-        override fun setItem(item: Filterer) {
-            mItem = item as FiltererContainer.FiltererFavorite
-        }
+        override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererFavorite }
 
         override fun getType(): Int { return VIEWTYPE_F_FAVORITE }
 
@@ -223,9 +215,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
         private lateinit var mItem: FiltererContainer.FiltererTrashed
 
-        override fun setItem(item: Filterer) {
-            mItem = item as FiltererContainer.FiltererTrashed
-        }
+        override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererTrashed }
 
         override fun getType(): Int { return VIEWTYPE_F_TRASHED }
 
@@ -239,9 +229,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
         private lateinit var mItem: FiltererContainer.FiltererIs
 
-        override fun setItem(item: Filterer) {
-            mItem = item as FiltererContainer.FiltererIs
-        }
+        override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererIs }
 
         override fun getType(): Int { return VIEWTYPE_F_IS }
 
