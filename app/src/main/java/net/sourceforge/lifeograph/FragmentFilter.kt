@@ -23,7 +23,6 @@ package net.sourceforge.lifeograph
 
 import android.os.Bundle
 import android.view.View
-import android.widget.HorizontalScrollView
 import android.widget.ImageButton
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -41,7 +40,10 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     private lateinit var    mAdapter: RVAdapterFilterers
     private lateinit var    mRecyclerView: RecyclerView
     private lateinit var    mFabAdd: FloatingActionButton
-    private lateinit var    mToolbar: HorizontalScrollView
+//    private lateinit var    mToolbar: HorizontalScrollView
+    private lateinit var    mButtonReset : ImageButton
+    private lateinit var    mButtonSave : ImageButton
+    private lateinit var    mButtonRemove : ImageButton
     companion object {
         lateinit var mFilter: Filter
         lateinit var mStack: FiltererContainer
@@ -61,39 +63,37 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
         mFabAdd = view.findViewById(R.id.fab_add)
         mFabAdd.setOnClickListener { addFilterer() }
-        mToolbar = view.findViewById(R.id.toolbar_elem)
+//        mToolbar = view.findViewById(R.id.toolbar_elem)
+        mButtonReset = view.findViewById(R.id.reset_filter)
+        mButtonSave = view.findViewById(R.id.save_filter)
+        mButtonRemove = view.findViewById(R.id.remove_filterer)
 
-
-        // FILLING WIDGETS
+        // LISTENERS
+        mButtonReset.setOnClickListener { resetFilter() }
+        mButtonSave.setOnClickListener { saveFilter() }
+        mButtonRemove.setOnClickListener { removeFilterer() }
 
         // UI UPDATES (must come before listeners)
         updateFilterWidgets()
-
-        // LISTENERS
-        val buttonFilterReset = view.findViewById<ImageButton>(R.id.reset_filter)
-        buttonFilterReset.setOnClickListener { resetFilter() }
-        val buttonFilterSave = view.findViewById<ImageButton>(R.id.save_filter)
-        buttonFilterSave.setOnClickListener { saveFilter() }
-        val buttonFilterRemove = view.findViewById<ImageButton>(R.id.remove_filterer)
-        buttonFilterRemove.setOnClickListener { removeFilterer() }
     }
 
     override fun onResume() {
         super.onResume()
 
-        mToolbar.visibility = View.GONE
+        mButtonSave.visibility = View.GONE
+        mButtonReset.visibility = View.GONE
+        mButtonRemove.visibility = View.GONE
 
         Lifeograph.getActionBar().subtitle = mFilter._title_str
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-        saveFilter()
-    }
-
-    override fun updateMenuVisibilities() {
-        super.updateMenuVisibilities()
-    }
+//    override fun onDestroy() {
+//        super.onDestroy()
+//    }
+//
+//    override fun updateMenuVisibilities() {
+//        super.updateMenuVisibilities()
+//    }
 
     private fun updateFilterWidgets() {
         mElems.clear()
@@ -120,13 +120,13 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
                     Lifeograph.getStr(R.string.filter_status), "STATUS",
                     R.drawable.ic_filter))
                 list.add(RViewAdapterBasic.Item(
-                    Lifeograph.getStr(R.string.filter_is), "IS",
-                    R.drawable.ic_filter))
-                list.add(RViewAdapterBasic.Item(
                     Lifeograph.getStr(R.string.filter_favorite), "FAVORITE",
                     R.drawable.ic_filter))
                 list.add(RViewAdapterBasic.Item(
                     Lifeograph.getStr(R.string.filter_trashed), "TRASHED",
+                    R.drawable.ic_filter))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.filter_is), "IS",
                     R.drawable.ic_filter))
             }
         }).show()
@@ -150,6 +150,8 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
     private fun resetFilter() {
         mStack = mFilter._filterer_stack
+        mButtonReset.visibility = View.GONE
+        mButtonSave.visibility = View.GONE
         updateFilterWidgets()
     }
 
@@ -163,7 +165,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
 
     override fun enterSelectionMode(): Boolean {
         return if(Diary.d.is_in_edit_mode) {
-            mToolbar.visibility = View.VISIBLE
+            mButtonRemove.visibility = View.VISIBLE
             true
         }
         else false
@@ -171,6 +173,6 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
 
     override fun exitSelectionMode() {
         updateActionBarSubtitle()
-        mToolbar.visibility = View.GONE
+        mButtonRemove.visibility = View.GONE
     }
 }

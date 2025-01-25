@@ -85,7 +85,7 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:contentDescription="Reset"
-                app:srcCompat="@drawable/ic_dismiss" />
+                app:srcCompat="@android:drawable/ic_menu_revert" />
 
             <ImageButton
                 android:id="@+id/remove_filterer"
