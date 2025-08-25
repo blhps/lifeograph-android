@@ -25,15 +25,25 @@
     android:baselineAligned="false"
     android:orientation="horizontal">
 
+    <net.sourceforge.lifeograph.ToggleImageButton
+        android:id="@+id/trueFalse"
+        style="?android:attr/borderlessButtonStyle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:minHeight="0dp"
+        android:minWidth="0dp"
+        android:src="@drawable/selector_true_false" />
+
     <TextView
         android:id="@+id/title"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_centerVertical="true"
         android:layout_marginEnd="10dip"
+        android:layout_toEndOf="@id/trueFalse"
         android:text="@string/filterer_status_title"
         android:textSize="16sp"
-        android:textStyle="bold" />
+        android:textStyle="bold"/>
 
     <LinearLayout
         android:id="@+id/content"

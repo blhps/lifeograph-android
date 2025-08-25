@@ -41,4 +41,5 @@ public abstract class Filterer
 
     protected FiltererContainer m_p2container;
     protected Diary             m_p2diary;
+    boolean                     m_f_has;
 }

@@ -186,6 +186,7 @@
     <string name="filter_trashed">Trashed</string>
     <string name="filterer_status_title">Status:</string>
     <string name="filterer_is_title">Is Entry:</string>
+    <string name="filterer_has_tag">Has tag:</string>
 
     <string-array name="array_filter_trash">
         <item>All Entries</item>

@@ -106,9 +106,10 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
             override fun onItemClick(item: RViewAdapterBasic.Item) {
                 when(item.mId) {
                     "STATUS" -> { mStack.add_filterer_status( DiaryElement.ES_FILTER_TRASHED ) }
+                    "FAVORITE" -> { mStack.add_filterer_favorite( true ) }
                     "TRASHED" -> { mStack.add_filterer_trashed( true ) }
                     "IS" -> { mStack.add_filterer_is( DiaryElement.DEID_UNSET, true ) }
-                    else -> { mStack.add_filterer_favorite( true ) }
+                    "HASTAG" -> { mStack.add_filterer_tagged_by( null, true ) }
                 }
                 updateFilterWidgets()
             }
@@ -127,6 +128,9 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
                     R.drawable.ic_filter))
                 list.add(RViewAdapterBasic.Item(
                     Lifeograph.getStr(R.string.filter_is), "IS",
+                    R.drawable.ic_filter))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.filterer_has_tag), "HASTAG",
                     R.drawable.ic_filter))
             }
         }).show()

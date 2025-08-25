@@ -23,14 +23,20 @@ package net.sourceforge.lifeograph
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
+import android.widget.EditText
 import androidx.recyclerview.widget.RecyclerView
 import java.util.Collections
 
-private const val VIEWTYPE_F_STATUS     = 0
-private const val VIEWTYPE_F_FAVORITE   = 1
-private const val VIEWTYPE_F_TRASHED    = 2
-private const val VIEWTYPE_F_IS         = 3
+private const val VIEWTYPE_F_STATUS         = 0
+private const val VIEWTYPE_F_FAVORITE       = 1
+private const val VIEWTYPE_F_TRASHED        = 2
+private const val VIEWTYPE_F_IS             = 3
+private const val VIEWTYPE_F_HAS_TAG        = 4
+//private const val VIEWTYPE_F_THEME          = 5
+//private const val VIEWTYPE_F_BTWN_DATES     = 6
+//private const val VIEWTYPE_F_BTWN_ENTRIES   = 7
+//private const val VIEWTYPE_F_COMPLETION     = 8
+//private const val VIEWTYPE_F_CONTAINER      = 9
 
 class RVAdapterFilterers(private val mItems: List<Filterer>,
                          private val mSelectionStatuses: MutableList<Boolean>,
@@ -46,12 +52,19 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
             VIEWTYPE_F_STATUS ->
                 VHFiltererStatus(inflater.inflate(R.layout.fragment_filterer_status, parent, false), this)
             VIEWTYPE_F_TRASHED ->
-                VHFiltererTrashed(inflater.inflate(R.layout.fragment_filterer_favorite, parent, false) , this)
+                VHFiltererTrashed(inflater.inflate(R.layout.fragment_filterer_trashed, parent, false) , this)
             VIEWTYPE_F_IS ->
                 VHFiltererIs(inflater.inflate(R.layout.fragment_filterer_is, parent, false), this)
-            else ->
+            VIEWTYPE_F_HAS_TAG ->
+                VHFiltererHasTag(inflater.inflate(R.layout.fragment_filterer_has_tag, parent, false),
+                                 this)
+            VIEWTYPE_F_FAVORITE ->
                 VHFiltererFavorite(inflater.inflate(R.layout.fragment_filterer_favorite, parent,
-                                                    false), this)
+                                   false), this)
+            else ->
+                VHFiltererUnsupported(inflater.inflate(R.layout.fragment_filterer_unsopported,
+                                                      parent,
+                                   false), this)
         }
     }
 
@@ -69,6 +82,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
             is FiltererContainer.FiltererFavorite -> VIEWTYPE_F_FAVORITE
             is FiltererContainer.FiltererTrashed -> VIEWTYPE_F_TRASHED
             is FiltererContainer.FiltererIs -> VIEWTYPE_F_IS
+            is FiltererContainer.FiltererHasTag -> VIEWTYPE_F_HAS_TAG
             else -> -1
         }
     }
@@ -143,6 +157,13 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         abstract fun setItem(item: Filterer)
         abstract fun getType() : Int
         abstract fun populate()
+        abstract fun updateState()
+
+        val mToggleTrueFalse: ToggleImageButton by lazy {
+            mView.findViewById<ToggleImageButton>(R.id.trueFalse).apply {
+                setOnClickListener { updateState() }
+            }
+        }
     }
 
     class VHFiltererStatus(mView: View, mAdapter: RVAdapterFilterers) : VHFilterer(mView, mAdapter)
@@ -160,6 +181,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun getType(): Int { return VIEWTYPE_F_STATUS }
 
         init {
+            mToggleTrueFalse.setOnClickListener { updateState() }
             mIVNotTodo.setOnClickListener { updateState() }
             mIVopen.setOnClickListener { updateState() }
             mIVprogr.setOnClickListener { updateState() }
@@ -168,6 +190,8 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         }
 
         override fun populate() {
+            mToggleTrueFalse.isChecked = mItem.m_f_has
+
             mIVNotTodo.isChecked =  mItem.m_included_statuses and DiaryElement.ES_SHOW_NOT_TODO != 0
             mIVopen.isChecked =     mItem.m_included_statuses and DiaryElement.ES_SHOW_TODO != 0
             mIVprogr.isChecked =    mItem.m_included_statuses and DiaryElement.ES_SHOW_PROGRESSED != 0
@@ -175,9 +199,10 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
             mIVcanceled.isChecked = mItem.m_included_statuses and DiaryElement.ES_SHOW_CANCELED != 0
         }
 
-        private fun updateState() {
-            mItem.m_included_statuses = 0
+        override fun updateState() {
+            mItem.m_f_has = mToggleTrueFalse.isChecked
 
+            mItem.m_included_statuses = 0
             if( mIVNotTodo.isChecked)
                 mItem.m_included_statuses = DiaryElement.ES_SHOW_NOT_TODO
             if( mIVopen.isChecked )
@@ -196,22 +221,29 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
     class VHFiltererFavorite(mView: View, mAdapter: RVAdapterFilterers) :
         VHFilterer(mView, mAdapter) {
-        val mTvTitle: TextView = mView.findViewById(R.id.title)
+        //val mTvTitle: TextView = mView.findViewById(R.id.title)
 
         private lateinit var mItem: FiltererContainer.FiltererFavorite
+
+        init {
+            mToggleTrueFalse.setOnClickListener { updateState() }
+        }
 
         override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererFavorite }
 
         override fun getType(): Int { return VIEWTYPE_F_FAVORITE }
 
         override fun populate() {
-
+            mToggleTrueFalse.isChecked = mItem.m_f_has
+        }
+        override fun updateState() {
+            mItem.m_f_has = mToggleTrueFalse.isChecked
         }
     }
 
     class VHFiltererTrashed(mView: View, mAdapter: RVAdapterFilterers) :
         VHFilterer(mView, mAdapter) {
-        val mTvTitle: TextView = mView.findViewById(R.id.title)
+        //val mTvTitle: TextView = mView.findViewById(R.id.title)
 
         private lateinit var mItem: FiltererContainer.FiltererTrashed
 
@@ -220,12 +252,15 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun getType(): Int { return VIEWTYPE_F_TRASHED }
 
         override fun populate() {
-
+            mToggleTrueFalse.isChecked = mItem.m_f_has
+        }
+        override fun updateState() {
+            mItem.m_f_has = mToggleTrueFalse.isChecked
         }
     }
 
     class VHFiltererIs(mView: View, mAdapter: RVAdapterFilterers) : VHFilterer(mView, mAdapter) {
-        val mTvTitle: TextView = mView.findViewById(R.id.title)
+        //val mTvTitle: TextView = mView.findViewById(R.id.title)
 
         private lateinit var mItem: FiltererContainer.FiltererIs
 
@@ -234,7 +269,53 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun getType(): Int { return VIEWTYPE_F_IS }
 
         override fun populate() {
+            mToggleTrueFalse.isChecked = mItem.m_f_has
+        }
+        override fun updateState() {
+            mItem.m_f_has = mToggleTrueFalse.isChecked
+        }
+    }
 
+    class VHFiltererHasTag(mView: View, mAdapter: RVAdapterFilterers) : VHFilterer(mView,
+                                                                                   mAdapter) {
+        //val mTvTitle: TextView = mView.findViewById(R.id.title)
+        private val mEntryName: EditText = mView.findViewById(R.id.entry_name)
+
+        private lateinit var mItem: FiltererContainer.FiltererHasTag
+
+        override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererHasTag }
+
+        override fun getType(): Int { return VIEWTYPE_F_HAS_TAG }
+
+        override fun populate() {
+            mToggleTrueFalse.isChecked = mItem.m_f_has
+            mEntryName.setText(mItem.m_tag._name)
+        }
+
+        override fun updateState() {
+            mItem.m_f_has = mToggleTrueFalse.isChecked
+            // TODO: get from an autocompletion system
+            val entry = Diary.d.get_entry_by_name(mEntryName.text.toString())
+            if(entry != null)
+                mItem.m_tag = entry
+        }
+    }
+
+    class VHFiltererUnsupported(mView: View, mAdapter: RVAdapterFilterers) :
+        VHFilterer(mView, mAdapter) {
+        //val mTvTitle: TextView = mView.findViewById(R.id.title)
+
+        private lateinit var mItem: FiltererContainer.FiltererFavorite
+
+        override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererFavorite }
+
+        override fun getType(): Int { return VIEWTYPE_F_FAVORITE }
+
+        override fun populate() {
+            mToggleTrueFalse.isChecked = mItem.m_f_has
+        }
+        override fun updateState() {
+            mItem.m_f_has = mToggleTrueFalse.isChecked
         }
     }
 }

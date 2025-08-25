@@ -41,7 +41,7 @@ android:orientation="horizontal">
         android:layout_toEndOf="@id/trueFalse"
         android:textSize="16sp"
         android:textStyle="bold"
-        android:text="Favorite"/>
+        android:text="Is trashed"/>
 
 
 

@@ -141,7 +141,6 @@ public class FiltererContainer extends Filterer
         }
 
         Entry   m_tag;
-        boolean m_f_has;
     }
 
     // FILTERERTHEME ===============================================================================
