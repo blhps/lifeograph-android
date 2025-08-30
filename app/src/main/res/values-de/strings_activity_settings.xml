@@ -4,11 +4,6 @@
     <!-- Strings related to Settings -->
 
     <!-- Example General settings -->
-    <string name="pref_DIARY_header">Tagebuchdateien</string>
-
-    <string name="pref_DIARY_PATH_title">Speicherort der Tagebuchdateien</string>
-
-    <string name="pref_DATE_FORMAT_header">Datumsformat</string>
 
     <string name="pref_DATE_FORMAT_ORDER_title">Reihenfolge</string>
 
@@ -24,11 +19,6 @@
         <item>. (Punkt)</item>
         <item>/ (Schrägstrich)</item>
         <item>- (Trennstrich)</item>
-    </string-array>
-
-    <string-array name="pref_DIARY_STORAGE_titles">
-        <item>Internal Storage (Deleted on uninstall)</item>
-        <item>Custom (Type full path as folder name)</item>
     </string-array>
 
 </resources>

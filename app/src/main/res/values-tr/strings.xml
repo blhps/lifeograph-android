@@ -3,7 +3,6 @@
     <string name="about">Hakkında</string>
     <string name="active_filter">Geçerli Süzgeç</string>
     <string name="add">Ekle</string>
-    <string name="add_entry">Giriş Ekle</string>
     <string name="add_password">Günlüğü Şifrele</string>
     <string name="add_today">Bugünün Girişi</string>
     <string name="all_entries">Bütün Girişler</string>
@@ -24,9 +23,6 @@
     <string name="create_chapter">Tarihli fasıl oluştur</string>
     <string name="create_diary">Yeni günlüğün ismini girin</string>
     <string name="create_entry">Giriş oluştur</string>
-    <string name="create_group">Serbest fasıl oluştur</string>
-    <string name="create_tag_ctg">Yafta kategorisi oluştur</string>
-    <string name="create_topic">Numaralı fasıl oluştur</string>
     <string name="dated_chapters">Tarihli fasıllar</string>
     <string name="diaries">Günlükler</string>
     <string name="diary">Günlük</string>
@@ -48,7 +44,6 @@
     <string name="format">Biçim</string>
     <string name="free_chapters">Serbest fasıllar</string>
     <string name="go">Git</string>
-    <string name="group">Serbest Fasıl</string>
     <string name="highlight">R</string>
     <string name="icon">ikon</string>
     <string name="italic">Y</string>
@@ -64,7 +59,6 @@
     <string name="wrong_password">Yanlış Parola</string>
     <string name="website"><a href="http://lifeograph.sourceforge.net">web sayfası</a></string>
     <string name="untagged">Yaftasız</string>
-    <string name="topic">Numaralı fasıl</string>
     <string name="todo_status">Tamamlanma durumu</string>
     <string name="todo_progressed">Devam Etmekte</string>
     <string name="todo_open">Yapılacak</string>
@@ -81,8 +75,6 @@
     <string name="rename">Ad Değiştir</string>
     <string name="rename_chapter">Faslın Adını Değiştir</string>
     <string name="reset">Sıfırla</string>
-    <string name="rename_tag_ctg">Yafta Kategorisinin Adını Değiştir</string>
-    <string name="rename_tag">Yaftanın Adını Değiştir</string>
     <string name="rename_chapter_ctg">Fasıl Kategorisinin Adını Değiştir</string>
     <string name="resorting_to_read_only">Dosya yazma korumalı, sırf okunur olarak açılıyor&#8230;</string>
     <string name="save">Kaydet</string>
@@ -122,7 +114,6 @@
     <string name="heading_color">Başlık</string>
     <string name="highlight_color">Vurgu</string>
     <string name="numbered_item_icon">#- Sayı</string>
-    <string name="pref_DIARY_STORAGE_title">Günlük Dosyaları Kayıt Deposu</string>
     <string name="reset_to_default">Varsayılana Döndür</string>
     <string name="subheading_color">Altbaşlık</string>
     <string name="text_color">Sıradan metin</string>
@@ -140,7 +131,6 @@
     <string name="add_tag">Yafta Ekle</string>
     <string name="authenticate">Doğrula</string>
     <string name="change_value">Değeri Değiştir</string>
-    <string name="create_tag">Yafta Oluştur</string>
     <string name="open">Aç</string>
     <string name="read_only">Yalnızca Okunur</string>
     <string name="remove_tag">Yaftaları Kaldır</string>

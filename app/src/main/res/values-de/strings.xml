@@ -27,8 +27,6 @@
     <string name="untagged">Ohne Stichwort</string>
     <string name="chapter_ctg">Kapitel-Kategorie</string>
     <string name="chapter">Datumsbezogener Abschnitt</string>
-    <string name="topic">Nummerierter Abschnitt</string>
-    <string name="group">Freier Abschnitt</string>
     <string name="filter">Filter</string>
 
     <string name="new_diary">Neues Tagebuch</string>
@@ -40,14 +38,9 @@
     <string name="create_diary">Name neues Tagebuch</string>
     <string name="create_entry">Eintrag erstellen</string>
     <string name="create_chapter">Abschnitt erstellen</string>
-    <string name="create_topic">Nummerierten Abschnitt erstellen</string>
-    <string name="create_group">Freien Abschnitt erstellen</string>
-    <string name="create_tag_ctg">Stichwort-Kategorie erstellen</string>
 
     <string name="rename_chapter_ctg">Kapitel-Kategorie Umbenennen</string>
     <string name="rename_chapter">Abschnitt Umbenennen</string>
-    <string name="rename_tag_ctg">Stichwort-Kategorie Umbenennen</string>
-    <string name="rename_tag">Stichwort Umbenennen</string>
 
     <string name="dismiss_ctg_and_tags">Inklusive Stichworten verwerfen</string>
 
@@ -87,7 +80,6 @@
     <string name="sort_by_size">Nach Größe sortieren</string>
     <string name="change_sorting">Art der Sortierung ändern</string>
     <string name="empty_entry">&lt;leerer Eintrag&gt;</string>
-    <string name="add_entry">Eintrag erstellen</string>
     <string name="add">Hinzufügen</string>
     <string name="dismiss">Verwerfen</string>
     <string name="rename">Umbenennen</string>
@@ -148,13 +140,11 @@
     <string name="list">Liste</string>
     <string name="list_type">Rasterpunkt </string>
     <string name="none">keine</string>
-    <string name="pref_DIARY_STORAGE_title">Speichermedium der Tagebuchdateien</string>
     <string name="reset_to_default">Vorgaben wiederherstellen</string>
     <string name="text_color">Normaler Text</string>
     <string name="todo_progressed_icon">[~] In Bearbeitung</string>
     <string name="ignore">Ignorieren</string>
     <string name="authenticate">Authentifizierung</string>
-    <string name="create_tag">Stichwort Erstellen</string>
     <string name="open">Öffnen</string>
     <string name="remove_tag">Stichwörter entfernen</string>
     <string name="add_tag">Stichwort Erstellen</string>
