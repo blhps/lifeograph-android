@@ -26,6 +26,7 @@ public abstract class Filterer
     Filterer( Diary diary, FiltererContainer p2container ) {
         m_p2container = p2container;
         m_p2diary = diary;
+        m_f_has = true;
     }
 
     boolean

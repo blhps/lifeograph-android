@@ -22,6 +22,7 @@
 package net.sourceforge.lifeograph
 
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.ImageButton
 import androidx.recyclerview.widget.LinearLayoutManager
@@ -80,9 +81,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     override fun onResume() {
         super.onResume()
 
-        mButtonSave.visibility = View.GONE
-        mButtonReset.visibility = View.GONE
-        mButtonRemove.visibility = View.GONE
+        updateToolbarButtons()
 
         Lifeograph.getActionBar().subtitle = mFilter._title_str
     }
@@ -95,6 +94,18 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
 //        super.updateMenuVisibilities()
 //    }
 
+    // DiaryEditor interface methods
+    override fun enableEditing() {
+        super.enableEditing()
+
+        updateToolbarButtons()
+    }
+
+    private fun updateToolbarButtons() {
+        mButtonSave.visibility = if(Diary.d.is_in_edit_mode) View.VISIBLE else View.GONE
+        mButtonReset.visibility = if(Diary.d.is_in_edit_mode) View.VISIBLE else View.GONE
+        mButtonRemove.visibility = View.GONE
+    }
     private fun updateFilterWidgets() {
         mElems.clear()
         for(filterer in mStack.m_pipeline)
@@ -111,7 +122,9 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
                     "IS" -> { mStack.add_filterer_is( DiaryElement.DEID_UNSET, true ) }
                     "HASTAG" -> { mStack.add_filterer_tagged_by( null, true ) }
                 }
+                mSelectionStatuses.add(false)
                 updateFilterWidgets()
+                mAdapter.notifyItemChanged( mStack.m_pipeline.size - 1 )
             }
 
             override fun populateItems(list: RVBasicList) {
@@ -136,15 +149,92 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
         }).show()
     }
     private fun removeFilterer() {
-        for((i, selected) in mSelectionStatuses.withIndex()) {
-            if(selected) {
-                val filterer = mElems[i]
-                mStack.remove_filterer( filterer )
-                mAdapter.notifyItemChanged( i )
-                break
+        val itemsToRemove = mutableListOf<Filterer>()
+        val indicesToRemove = mutableListOf<Int>()
+
+        // First, identify all items and their original indices to be removed
+        // Iterate backwards to safely use indices for removal from mSelectionStatuses
+        for (i in mSelectionStatuses.indices.reversed()) {
+            if (mSelectionStatuses[i]) {
+                // Check if the index is valid for mElems before trying to access it
+                if (i < mElems.size) {
+                    itemsToRemove.add(mElems[i]) // Add the Filterer object
+                    indicesToRemove.add(i)       // Add the original index in mElems
+                } else {
+                    // Log an error or handle inconsistency if mSelectionStatuses is out of sync with mElems
+                    Log.e("FragmentFilter", "Inconsistency: Selection status for out-of-bounds index $i")
+                }
             }
         }
+
+        if (itemsToRemove.isEmpty()) {
+            // No items were selected for removal
+            return
+        }
+
+        // 1. Remove from the primary data source (mStack)
+        for (filtererToRemove in itemsToRemove) {
+            mStack.remove_filterer(filtererToRemove)
+        }
+
+        // 2. Remove from the local lists used by the adapter (mElems and mSelectionStatuses)
+        //    It's crucial to remove from highest index to lowest to avoid shifting issues
+        //    if you were modifying mElems and mSelectionStatuses directly in the first loop.
+        //    Since indicesToRemove is already sorted from high to low (due to reversed iteration),
+        //    this is straightforward.
+        for (index in indicesToRemove) {
+            if (index < mElems.size) { // Double-check bounds, though should be fine if synced
+                mElems.removeAt(index)
+            }
+            if (index < mSelectionStatuses.size) { // Also for selection statuses
+                mSelectionStatuses.removeAt(index)
+            }
+        }
+
+        // 3. Notify the adapter about the removals.
+        //    This is trickier for multiple, non-contiguous removals if you want animations.
+        //    The most straightforward way (though less performant for animations)
+        //    is to rebuild mElems and call notifyDataSetChanged or use ListAdapter.
+        //    For individual notifications, you'd call notifyItemRemoved for each index
+        //    (adjusting for previous removals) or group contiguous removals.
+
+        // Option A: Simpler, but loses animations and less efficient
+        // updateFilterWidgets() // Repopulate mElems from the updated mStack
+        // mAdapter.notifyDataSetChanged()
+
+        // Option B: More granular notifications (if you keep mElems and mSelectionStatuses manually updated)
+        // This assumes `indicesToRemove` contains the original indices sorted from highest to lowest.
+        // As you call notifyItemRemoved, subsequent items' indices effectively shift.
+        // However, since RecyclerView processes these removals, it can often handle it.
+        // But it's safer to notify in reverse order of removal as well.
+        for (index in indicesToRemove.sortedDescending()) { // Ensure they are sorted high to low
+            mAdapter.notifyItemRemoved(index)
+        }
+        // After removals, you might need to notify for range changes in the remaining items
+        // to update their positions if your adapter relies on absolute positions for binding.
+        // A simple way if many items might have shifted:
+        if (indicesToRemove.isNotEmpty()) {
+            // Find the lowest index that was removed
+            val lowestRemovedIndex = indicesToRemove.minOrNull() ?: 0
+            if (lowestRemovedIndex < mElems.size) {
+                mAdapter.notifyItemRangeChanged(lowestRemovedIndex, mElems.size - lowestRemovedIndex)
+            } else if (mElems.isNotEmpty()){ // If all items up to the end were removed, but some remain
+                mAdapter.notifyItemRangeChanged(0, mElems.size)
+            }
+            //else if (indicesToRemove.isNotEmpty()) {
+                // All items were removed, no range change needed, notifyDataSetChanged would also work
+                // or ensure the last notifyItemRemoved covered the last item.
+            //}
+        }
+
+
+        // 4. Update UI elements
+        updateActionBarSubtitle()
+        if (mAdapter.mSelCount == 0 || mSelectionStatuses.none { it }) { // Ensure selection is truly cleared
+            exitSelectionMode()
+        }
     }
+
     private fun saveFilter() {
         val sb = StringBuilder()
         mStack.get_as_string( sb )
@@ -154,8 +244,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
     private fun resetFilter() {
         mStack = mFilter._filterer_stack
-        mButtonReset.visibility = View.GONE
-        mButtonSave.visibility = View.GONE
+        updateToolbarButtons()
         updateFilterWidgets()
     }
 

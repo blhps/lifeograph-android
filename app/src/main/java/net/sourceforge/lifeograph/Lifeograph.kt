@@ -31,10 +31,10 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
-import androidx.navigation.Navigation
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.*
 import java.lang.StringBuilder
+import androidx.navigation.findNavController
 
 class Lifeograph : Application() {
     override fun onCreate() {
@@ -181,8 +181,7 @@ class Lifeograph : Application() {
                     // unlike desktop version Android version
                     // does not back up changes
                     Diary.d.setSavingEnabled(false)
-                    Navigation.findNavController(view)
-                            .navigate(R.id.nav_diaries)
+                    view.findNavController().navigate(R.id.nav_diaries)
                 }
             }
         }

@@ -46,6 +46,7 @@ class FragmentListFilters : FragmentListElems(), Listener
         button.setOnClickListener { dismissSel() }
     }
 
+    @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         val id = item.itemId
         if( id == R.id.enable_edit ) {

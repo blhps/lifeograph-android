@@ -159,7 +159,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         abstract fun populate()
         abstract fun updateState()
 
-        val mToggleTrueFalse: ToggleImageButton by lazy {
+        val mToggleNot: ToggleImageButton by lazy {
             mView.findViewById<ToggleImageButton>(R.id.trueFalse).apply {
                 setOnClickListener { updateState() }
             }
@@ -181,7 +181,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun getType(): Int { return VIEWTYPE_F_STATUS }
 
         init {
-            mToggleTrueFalse.setOnClickListener { updateState() }
+            mToggleNot.visibility = View.GONE
             mIVNotTodo.setOnClickListener { updateState() }
             mIVopen.setOnClickListener { updateState() }
             mIVprogr.setOnClickListener { updateState() }
@@ -190,7 +190,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         }
 
         override fun populate() {
-            mToggleTrueFalse.isChecked = mItem.m_f_has
+            mToggleNot.isChecked = !mItem.m_f_has
 
             mIVNotTodo.isChecked =  mItem.m_included_statuses and DiaryElement.ES_SHOW_NOT_TODO != 0
             mIVopen.isChecked =     mItem.m_included_statuses and DiaryElement.ES_SHOW_TODO != 0
@@ -200,7 +200,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         }
 
         override fun updateState() {
-            mItem.m_f_has = mToggleTrueFalse.isChecked
+            mItem.m_f_has = !mToggleNot.isChecked
 
             mItem.m_included_statuses = 0
             if( mIVNotTodo.isChecked)
@@ -226,7 +226,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         private lateinit var mItem: FiltererContainer.FiltererFavorite
 
         init {
-            mToggleTrueFalse.setOnClickListener { updateState() }
+            //mToggleNot.setOnClickListener { updateState() }
         }
 
         override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererFavorite }
@@ -234,10 +234,10 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun getType(): Int { return VIEWTYPE_F_FAVORITE }
 
         override fun populate() {
-            mToggleTrueFalse.isChecked = mItem.m_f_has
+            mToggleNot.isChecked = !mItem.m_f_has
         }
         override fun updateState() {
-            mItem.m_f_has = mToggleTrueFalse.isChecked
+            mItem.m_f_has = !mToggleNot.isChecked
         }
     }
 
@@ -252,29 +252,43 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun getType(): Int { return VIEWTYPE_F_TRASHED }
 
         override fun populate() {
-            mToggleTrueFalse.isChecked = mItem.m_f_has
+            mToggleNot.isChecked = !mItem.m_f_has
         }
         override fun updateState() {
-            mItem.m_f_has = mToggleTrueFalse.isChecked
+            mItem.m_f_has = !mToggleNot.isChecked
         }
     }
 
     class VHFiltererIs(mView: View, mAdapter: RVAdapterFilterers) : VHFilterer(mView, mAdapter) {
         //val mTvTitle: TextView = mView.findViewById(R.id.title)
+        private val mEntryName: EditText = mView.findViewById(R.id.entry_name)
 
         private lateinit var mItem: FiltererContainer.FiltererIs
+
+        init {
+            // not supported for now:
+            mToggleNot.visibility = View.GONE
+        }
 
         override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererIs }
 
         override fun getType(): Int { return VIEWTYPE_F_IS }
 
         override fun populate() {
-            mToggleTrueFalse.isChecked = mItem.m_f_has
+            mToggleNot.isChecked = !mItem.m_f_has
+            if( mItem.m_id != DiaryElement.DEID_UNSET )
+                mEntryName.setText(Diary.d.get_entry_by_id(mItem.m_id)._name)
         }
         override fun updateState() {
-            mItem.m_f_has = mToggleTrueFalse.isChecked
+            mItem.m_f_has = !mToggleNot.isChecked
+            // TODO: get from an autocompletion system
+            if(!mEntryName.text.isEmpty()) {
+                val entry = Diary.d.get_entry_by_name(mEntryName.text.toString())
+                if(entry != null)
+                    mItem.m_id = entry._id
+            }
         }
-    }
+}
 
     class VHFiltererHasTag(mView: View, mAdapter: RVAdapterFilterers) : VHFilterer(mView,
                                                                                    mAdapter) {
@@ -283,21 +297,29 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
         private lateinit var mItem: FiltererContainer.FiltererHasTag
 
+        init {
+            // not supported for now:
+            mToggleNot.visibility = View.GONE
+        }
+
         override fun setItem(item: Filterer) { mItem = item as FiltererContainer.FiltererHasTag }
 
         override fun getType(): Int { return VIEWTYPE_F_HAS_TAG }
 
         override fun populate() {
-            mToggleTrueFalse.isChecked = mItem.m_f_has
-            mEntryName.setText(mItem.m_tag._name)
+            mToggleNot.isChecked = !mItem.m_f_has
+            if( mItem.m_tag != null )
+                mEntryName.setText(mItem.m_tag._name)
         }
 
         override fun updateState() {
-            mItem.m_f_has = mToggleTrueFalse.isChecked
+            mItem.m_f_has = !mToggleNot.isChecked
             // TODO: get from an autocompletion system
-            val entry = Diary.d.get_entry_by_name(mEntryName.text.toString())
-            if(entry != null)
-                mItem.m_tag = entry
+            if(!mEntryName.text.isEmpty()) {
+                val entry = Diary.d.get_entry_by_name(mEntryName.text.toString())
+                if(entry != null)
+                    mItem.m_tag = entry
+            }
         }
     }
 
@@ -312,10 +334,10 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun getType(): Int { return VIEWTYPE_F_FAVORITE }
 
         override fun populate() {
-            mToggleTrueFalse.isChecked = mItem.m_f_has
+            mToggleNot.isChecked = !mItem.m_f_has
         }
         override fun updateState() {
-            mItem.m_f_has = mToggleTrueFalse.isChecked
+            mItem.m_f_has = !mToggleNot.isChecked
         }
     }
 }

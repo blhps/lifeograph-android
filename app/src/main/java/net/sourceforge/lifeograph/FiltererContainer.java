@@ -60,20 +60,18 @@ public class FiltererContainer extends Filterer
     {
         FiltererFavorite( Diary diary, FiltererContainer ctr, boolean include ) {
             super( diary, ctr );
-            m_include_favorite = include;
+            m_f_has = include;
         }
 
         @Override boolean
         filter( Entry entry ) {
-            return( entry.is_favored() == m_include_favorite );
+            return( entry.is_favored() == m_f_has );
         }
 
         @Override void
         get_as_string( StringBuilder string ) {
-            string.append( "\nFf" ).append( m_include_favorite ? 'y' : 'n' );
+            string.append( "\nFf" ).append( m_f_has ? 'y' : 'n' );
         }
-
-        boolean m_include_favorite;
     }
 
     // FILTERERTRASHED =============================================================================
@@ -81,20 +79,18 @@ public class FiltererContainer extends Filterer
     {
         FiltererTrashed( Diary diary, FiltererContainer ctr, boolean include ) {
             super( diary, ctr );
-            m_include_trashed = include;
+            m_f_has = include;
         }
 
         @Override boolean
         filter( Entry entry ) {
-            return( entry.is_trashed() == m_include_trashed );
+            return( entry.is_trashed() == m_f_has );
         }
 
         @Override void
         get_as_string( StringBuilder string ) {
-            string.append( "\nFt" ).append( m_include_trashed ? 'y' : 'n' );
+            string.append( "\nFt" ).append( m_f_has ? 'y' : 'n' );
         }
-
-        boolean m_include_trashed;
     }
 
     // FILTERERIS ==================================================================================
