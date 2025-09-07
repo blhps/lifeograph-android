@@ -10,11 +10,9 @@ import java.util.ArrayList;
 import java.util.Objects;
 
 import android.annotation.SuppressLint;
-import android.annotation.TargetApi;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Environment;
 import android.os.storage.StorageManager;
 import android.provider.DocumentsContract;
@@ -34,12 +32,12 @@ public final class FileUtil {
 
 
 
-    public static boolean isKitkat() {
-        return Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
-    }
-    public static boolean isAndroid5() {
-        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
-    }
+//    public static boolean isKitkat() {
+//        return Build.VERSION.SDK_INT == Build.VERSION_CODES.KITKAT;
+//    }
+//    public static boolean isAndroid5() {
+//        return Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP;
+//    }
 
 
     @NonNull
@@ -114,10 +112,6 @@ public final class FileUtil {
 
 
     private static String getVolumePath(final String volumeId, Context con) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.LOLLIPOP) {
-            return null;
-        }
-
         try {
             StorageManager mStorageManager =
                     (StorageManager) con.getSystemService(Context.STORAGE_SERVICE);
@@ -157,7 +151,6 @@ public final class FileUtil {
         }
     }
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static String getVolumeIdFromTreeUri(final Uri treeUri) {
         final String docId = DocumentsContract.getTreeDocumentId(treeUri);
         final String[] split = docId.split(":");
@@ -171,7 +164,6 @@ public final class FileUtil {
     }
 
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private static String getDocumentPathFromTreeUri(final Uri treeUri) {
         final String docId = DocumentsContract.getTreeDocumentId(treeUri);
         final String[] split = docId.split(":");
@@ -189,8 +181,11 @@ public final class FileUtil {
             try( Cursor cursor = context.getContentResolver()
                                         .query( uri, null, null, null, null ) ) {
                 if( cursor != null && cursor.moveToFirst() ) {
-                    result = cursor.getString(
-                            cursor.getColumnIndex( OpenableColumns.DISPLAY_NAME ) );
+                    int index = cursor.getColumnIndex( OpenableColumns.DISPLAY_NAME );
+                    if( index > -1 )
+                    {
+                        result = cursor.getString( index );
+                    }
                 }
             }
             catch( Exception e ) {
