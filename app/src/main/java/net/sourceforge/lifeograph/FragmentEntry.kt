@@ -247,7 +247,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 Lifeograph.enableEditing(this)
                 return true
             }
-            com.google.android.material.R.id.home -> {
+            android.R.id.home -> {
                 //NavUtils.navigateUpFromSameTask( this );
                 //finish();
                 return true
@@ -309,7 +309,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     override fun handleBack(): Boolean {
-        mBrowsingHistory.removeLast()
+        mBrowsingHistory.removeAt(mBrowsingHistory.lastIndex)
         if(mBrowsingHistory.isEmpty()) {
             return false
         }

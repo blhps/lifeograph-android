@@ -71,7 +71,7 @@ abstract class FragmentDiaryEditor : Fragment() {
     @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when(item.itemId) {
-            com.google.android.material.R.id.home -> {
+            android.R.id.home -> {
                 handleBack()
             }
             R.id.enable_edit -> {
