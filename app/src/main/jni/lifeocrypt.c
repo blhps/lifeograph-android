@@ -21,6 +21,8 @@
 
 
 #include <jni.h>
+#include <stdlib.h>
+#include <string.h>
 
 #include "helpers.h"
 
@@ -41,20 +43,21 @@ Java_net_sourceforge_lifeograph_Diary_decryptBuffer( JNIEnv* env,
                                                      jbyteArray j_iv )
 {
     unsigned char* key;
-    const char* passphrase = ( char* ) ( *env )->GetStringUTFChars( env, j_passphrase, NULL );
-    const char* salt = ( char* ) ( *env )->GetByteArrayElements( env, j_salt, NULL );
+    const char* passphrase = ( *env )->GetStringUTFChars( env, j_passphrase, NULL );
+    jbyte* salt = ( *env )->GetByteArrayElements( env, j_salt, NULL );
 
-    Cipher_expand_key( passphrase, ( unsigned char* ) salt, &key );
+    Cipher_expand_key( passphrase, ( const unsigned char* ) salt, &key );
 
-    char* buffer = ( char* ) ( *env )->GetByteArrayElements( env, j_buffer, NULL );
-    char* iv = ( char* ) ( *env )->GetByteArrayElements( env, j_iv, NULL );
+    jbyte* buffer = ( *env )->GetByteArrayElements( env, j_buffer, NULL );
+    jbyte* iv = ( *env )->GetByteArrayElements( env, j_iv, NULL );
 
-    Cipher_decrypt_buffer( ( unsigned char* ) buffer, size, key, iv );
+    Cipher_decrypt_buffer( ( unsigned char* ) buffer, size, key, ( const unsigned char* ) iv );
 
     free( key );
     ( *env )->ReleaseByteArrayElements( env, j_salt, salt, JNI_ABORT );
     ( *env )->ReleaseByteArrayElements( env, j_iv, iv, JNI_ABORT );
     ( *env )->ReleaseByteArrayElements( env, j_buffer, buffer, JNI_ABORT );
+    ( *env )->ReleaseStringUTFChars( env, j_passphrase, passphrase );
 
     int size_dec_buf = 0;
 
@@ -72,9 +75,9 @@ Java_net_sourceforge_lifeograph_Diary_decryptBuffer( JNIEnv* env,
     jstring output;
     // cannot check the '\n' due to multi-byte char case
     if( dec_buf[ 0 ] == passphrase[ 0 ] ) //&& buffer[ 1 ] == '\n' )
-        output = ( *env )->NewStringUTF( env, dec_buf );
+        output = (*env)->NewStringUTF( env, dec_buf );
     else
-        output = ( *env )->NewStringUTF( env, "XX" );
+        output = (*env)->NewStringUTF( env, "XX" );
 
     free( dec_buf );
 
@@ -97,20 +100,28 @@ Java_net_sourceforge_lifeograph_Diary_encryptBuffer( JNIEnv* env,
     Cipher_create_new_key( passphrase, &salt, &key );
     Cipher_create_iv( &iv );
 
-    Cipher_encrypt_buffer( buffer, size, key, iv );
+    Cipher_encrypt_buffer( ( unsigned char* ) buffer, size, key, iv );
 
     // allocate
     jbyteArray j_buffer_out = ( *env )->NewByteArray( env, cSALT_SIZE + cIV_SIZE + size );
     if( !j_buffer_out )
+    {
+        ( *env )->ReleaseByteArrayElements( env, j_buffer, buffer, JNI_ABORT );
+        ( *env )->ReleaseStringUTFChars( env, j_passphrase, passphrase );
+        free( key );
+        free( salt );
+        free( iv );
         return NULL;
+    }
 
     // copy
-    ( *env )->SetByteArrayRegion( env, j_buffer_out, 0, cSALT_SIZE, salt );
-    ( *env )->SetByteArrayRegion( env, j_buffer_out, cSALT_SIZE, cIV_SIZE, iv );
+    ( *env )->SetByteArrayRegion( env, j_buffer_out, 0, cSALT_SIZE, ( const jbyte* ) salt );
+    ( *env )->SetByteArrayRegion( env, j_buffer_out, cSALT_SIZE, cIV_SIZE, ( const jbyte* ) iv );
     ( *env )->SetByteArrayRegion( env, j_buffer_out, cSALT_SIZE + cIV_SIZE, size, buffer );
 
     // free
     ( *env )->ReleaseByteArrayElements( env, j_buffer, buffer, 0 );
+    ( *env )->ReleaseStringUTFChars( env, j_passphrase, passphrase );
 
     free( key );
     free( salt );

@@ -77,24 +77,24 @@ public class ToDoAction extends ActionProvider implements MenuItem.OnMenuItemCli
 
     //@Override
     public boolean onMenuItemClick( MenuItem item ) {
-        switch( item.getItemId() ) {
-            case android.R.id.home:
-                return true;
-            case R.id.todo_auto:
-                mObject.setTodoStatus( DiaryElement.ES_NOT_TODO );
-                return true;
-            case R.id.todo_open:
-                mObject.setTodoStatus( DiaryElement.ES_TODO );
-                return true;
-            case R.id.todo_progressed:
-                mObject.setTodoStatus( DiaryElement.ES_PROGRESSED );
-                return true;
-            case R.id.todo_done:
-                mObject.setTodoStatus( DiaryElement.ES_DONE );
-                return true;
-            case R.id.todo_canceled:
-                mObject.setTodoStatus( DiaryElement.ES_CANCELED );
-                return true;
+        final int itemId = item.getItemId();
+        if (itemId == android.R.id.home) {
+            return true;
+        } else if (itemId == R.id.todo_auto) {
+            mObject.setTodoStatus(DiaryElement.ES_NOT_TODO);
+            return true;
+        } else if (itemId == R.id.todo_open) {
+            mObject.setTodoStatus(DiaryElement.ES_TODO);
+            return true;
+        } else if (itemId == R.id.todo_progressed) {
+            mObject.setTodoStatus(DiaryElement.ES_PROGRESSED);
+            return true;
+        } else if (itemId == R.id.todo_done) {
+            mObject.setTodoStatus(DiaryElement.ES_DONE);
+            return true;
+        } else if (itemId == R.id.todo_canceled) {
+            mObject.setTodoStatus(DiaryElement.ES_CANCELED);
+            return true;
         }
         return true;
     }
