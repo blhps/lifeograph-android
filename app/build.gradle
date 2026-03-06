@@ -1,6 +1,7 @@
+import org.jetbrains.kotlin.gradle.dsl.JvmTarget
+
 plugins {
     id 'com.android.application'
-    id 'org.jetbrains.kotlin.android'
 }
 
 android {
@@ -11,7 +12,7 @@ android {
         applicationId 'net.sourceforge.lifeograph'
         minSdk 33
         targetSdk 36
-        versionCode 10100
+        versionCode 10101
         versionName '1.1.0'
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
 
@@ -28,42 +29,18 @@ android {
     buildTypes {
         release {
             minifyEnabled false
-            proguardFiles getDefaultProguardFile('proguard-android.txt')
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
         }
         debug {
             jniDebuggable true
         }
     }
+
     compileOptions {
         sourceCompatibility JavaVersion.VERSION_1_8
         targetCompatibility JavaVersion.VERSION_1_8
-
-//            externalNativeBuild {
-//                cmake {
-//                    cppFlags "-std=c++11 -fexceptions"
-//                    arguments "-DANDROID_ARM_NEON=TRUE", "-DANDROID_STL=c++_shared"
-//
-//                }
-//            }
-//
-//            ndk {
-//                // Specifies the ABI configurations of your native
-//                // libraries Gradle should build and package with your APK.
-//                abiFilters 'x86', 'x86_64', 'armeabi-v7a', 'arm64-v8a' /*, 'mips', 'mips64'*/
-//            }
     }
 
-//    externalNativeBuild {
-//        cmake {
-//            path "src/main/jni/CMakeLists.txt"
-//            version "3.10.2"
-//        }
-//    }
-
-
-    kotlinOptions {
-        jvmTarget = '1.8'
-    }
     buildFeatures {
         aidl true
         buildConfig true
@@ -72,23 +49,23 @@ android {
     return void // just to avoid warning
 }
 
-// this is supposed to replace the deprecated KotlinOptions but it creates more porblems
-//kotlin {
-//    jvmToolchain (8)
-//}
+kotlin {
+    compilerOptions {
+        jvmTarget = JvmTarget.JVM_1_8
+    }
+}
 
 android.buildTypes.release.ndk.debugSymbolLevel = 'SYMBOL_TABLE'
 
 dependencies {
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'com.google.android.material:material:1.12.0'
-    implementation 'androidx.activity:activity-ktx:1.10.1'
+    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'androidx.activity:activity-ktx:1.12.4'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.3'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.9.3'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation "androidx.core:core-ktx:1.17.0"
-    //implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8:$kotlin_version"
 }
