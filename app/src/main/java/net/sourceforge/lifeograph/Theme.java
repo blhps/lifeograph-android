@@ -61,6 +61,10 @@ public class Theme extends DiaryElement {
         super( d, name, ES_VOID );
     }
 
+    protected Theme(long nativePtr) {
+        super(nativePtr);
+    }
+
     Theme( Diary d,
            String name,
            String str_font,

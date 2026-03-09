@@ -25,10 +25,10 @@ import java.util.Comparator;
 
 public abstract class DiaryElement {
     // DEID
-    final static int DEID_MIN           = 10000; // ids have to be greater than this
-    final static int DEID_UNSET         = 404;   // :)
-    final static int HOME_CURRENT_ENTRY = 1;     // entry shown at startup
-    final static int HOME_LAST_ENTRY    = 2;     // entry shown at startup
+    public final static long DEID_MIN           = 10000L; // ids have to be greater than this
+    public final static long DEID_UNSET         = 404L;   // :)
+    public final static long HOME_CURRENT_ENTRY = 1L;     // entry shown at startup
+    public final static long HOME_LAST_ENTRY    = 2L;     // entry shown at startup
     // NOTE: when HOME is fixed element, elements ID is used
 
     final static CharSequence STR_SEPARATOR = " - ";
@@ -64,46 +64,46 @@ public abstract class DiaryElement {
     }
 
     // ELEMENT STATUSES
-    final static int ES_VOID             = 0x0;
-    final static int ES_EXPANDED         = 0x40;
-    final static int ES_NOT_FAVORED      = 0x100;
-    final static int ES_FAVORED          = 0x200;
-    final static int ES_FILTER_FAVORED   = ES_NOT_FAVORED|ES_FAVORED;
-    final static int ES_NOT_TRASHED      = 0x400;
-    final static int ES_TRASHED          = 0x800;
-    final static int ES_FILTER_TRASHED   = ES_NOT_TRASHED|ES_TRASHED;
-    final static int ES_NOT_TODO         = 0x1000;
+    public final static int ES_VOID             = 0x0;
+    public final static int ES_EXPANDED         = 0x40;
+    public final static int ES_NOT_FAVORED      = 0x100;
+    public final static int ES_FAVORED          = 0x200;
+    public final static int ES_FILTER_FAVORED   = ES_NOT_FAVORED|ES_FAVORED;
+    public final static int ES_NOT_TRASHED      = 0x400;
+    public final static int ES_TRASHED          = 0x800;
+    public final static int ES_FILTER_TRASHED   = ES_NOT_TRASHED|ES_TRASHED;
+    public final static int ES_NOT_TODO         = 0x1000;
     // NOTE: NOT_TODO means AUTO when used together with other to do statuses
-    final static int ES_TODO             = 0x2000;
-    final static int ES_PROGRESSED       = 0x4000;
-    final static int ES_DONE             = 0x8000;
-    final static int ES_CANCELED         = 0x10000;
-    final static int ES_FILTER_TODO      = ES_NOT_TODO|ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
-    final static int ES_FILTER_TODO_PURE = ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
-    final static int ES_ENTRY_DEFAULT    = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
-    final static int ES_ENTRY_DEFAULT_FAV    = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
-    final static int ES_CHAPTER_DEFAULT  = ES_EXPANDED|ES_NOT_TODO;
+    public final static int ES_TODO             = 0x2000;
+    public final static int ES_PROGRESSED       = 0x4000;
+    public final static int ES_DONE             = 0x8000;
+    public final static int ES_CANCELED         = 0x10000;
+    public final static int ES_FILTER_TODO      = ES_NOT_TODO|ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
+    public final static int ES_FILTER_TODO_PURE = ES_TODO|ES_PROGRESSED|ES_DONE|ES_CANCELED;
+    public final static int ES_ENTRY_DEFAULT    = ES_NOT_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
+    public final static int ES_ENTRY_DEFAULT_FAV    = ES_FAVORED|ES_NOT_TRASHED|ES_NOT_TODO;
+    public final static int ES_CHAPTER_DEFAULT  = ES_EXPANDED|ES_NOT_TODO;
 
     // FILTER RELATED CONSTANTS AND ALIASES
-    final static int ES_SHOW_NOT_FAVORED = ES_NOT_FAVORED;
-    final static int ES_SHOW_FAVORED     = ES_FAVORED;
-    final static int ES_SHOW_NOT_TRASHED = ES_NOT_TRASHED;
-    final static int ES_SHOW_TRASHED     = ES_TRASHED;
-    final static int ES_SHOW_NOT_TODO    = ES_NOT_TODO;
-    final static int ES_SHOW_TODO        = ES_TODO;
-    final static int ES_SHOW_PROGRESSED  = ES_PROGRESSED;
-    final static int ES_SHOW_DONE        = ES_DONE;
-    final static int ES_SHOW_CANCELED    = ES_CANCELED;
-    final static int ES_FILTER_TAG           = 0x100000;
-    final static int ES_FILTER_DATE_BEGIN    = 0x200000;
-    final static int ES_FILTER_DATE_END      = 0x400000;
-    final static int ES_FILTER_INDIVIDUAL    = 0x800000;
-    final static int ES_FILTER_OUTSTANDING   = 0x20000000;
-    final static int ES_FILTERED_OUT         = 0x40000000;
-    final static int ES_FILTER_RESET         =
+    public final static int ES_SHOW_NOT_FAVORED = ES_NOT_FAVORED;
+    public final static int ES_SHOW_FAVORED     = ES_FAVORED;
+    public final static int ES_SHOW_NOT_TRASHED = ES_NOT_TRASHED;
+    public final static int ES_SHOW_TRASHED     = ES_TRASHED;
+    public final static int ES_SHOW_NOT_TODO    = ES_NOT_TODO;
+    public final static int ES_SHOW_TODO        = ES_TODO;
+    public final static int ES_SHOW_PROGRESSED  = ES_PROGRESSED;
+    public final static int ES_SHOW_DONE        = ES_DONE;
+    public final static int ES_SHOW_CANCELED    = ES_CANCELED;
+    public final static int ES_FILTER_TAG           = 0x100000;
+    public final static int ES_FILTER_DATE_BEGIN    = 0x200000;
+    public final static int ES_FILTER_DATE_END      = 0x400000;
+    public final static int ES_FILTER_INDIVIDUAL    = 0x800000;
+    public final static int ES_FILTER_OUTSTANDING   = 0x20000000;
+    public final static int ES_FILTER_OUT           = 0x40000000;
+    public final static int ES_FILTER_RESET         =
             ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO|ES_SHOW_PROGRESSED
              |ES_FILTER_OUTSTANDING;
-    final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
+    public final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
 
     public DiaryElement( Diary diary, String name, int status ) {
         m_p2diary = diary;
@@ -112,34 +112,34 @@ public abstract class DiaryElement {
         m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
     }
 
-    public DiaryElement( Diary diary, int id, int status ) {
+    public DiaryElement( Diary diary, long id, int status ) {
         m_p2diary = diary;
         m_status = status;
         m_id = id;
     }
 
-    int
+    protected DiaryElement(long nativePtr) {
+        mNativePtr = nativePtr;
+    }
+
+    public long
     get_id() {
         return m_id;
-    }
-    protected void
-    set_id( int id ) {
-        m_id = id;
     }
 
     boolean
     is_equal_to( DiaryElement other ) {
-        return( other.m_id == this.m_id );
+        return mNativePtr == other.mNativePtr;
     }
 
     boolean
-    get_filtered_out() { return( ( m_status & ES_FILTERED_OUT ) != 0 ); }
+    get_filtered_out() { return( ( m_status & ES_FILTER_OUT ) != 0 ); }
     void
     set_filtered_out( boolean filteredout ) {
         if( filteredout )
-            m_status |= ES_FILTERED_OUT;
-        else if( ( m_status & ES_FILTERED_OUT ) != 0 )
-            m_status -= ES_FILTERED_OUT;
+            m_status |= ES_FILTER_OUT;
+        else if( ( m_status & ES_FILTER_OUT ) != 0 )
+            m_status -= ES_FILTER_OUT;
     }
 
     abstract public Type get_type();
@@ -168,12 +168,12 @@ public abstract class DiaryElement {
     }
 
     // STRING METHODS
-    String
+    public String
     get_name() {
         return m_name;
     }
 
-    void
+    public void
     set_name( String name ) {
         m_name = name;
     }
@@ -214,20 +214,22 @@ public abstract class DiaryElement {
         m_status |= s;
     }
 
-    boolean
+    public boolean
     get_expanded(){
         return( ( m_status & ES_EXPANDED ) != 0 );
     }
-    void
+    public void
     set_expanded( boolean flag_expanded ) {
         set_status_flag( ES_EXPANDED, flag_expanded );
     }
 
-    String  m_name;
-    Diary   m_p2diary;
-    int     m_id;
-    int     m_status;
-    boolean mHasChildren = false; // Anroid only
+    public String  m_name;
+    public Diary   m_p2diary;
+    public long    m_id;
+    public int     m_status;
+    public boolean mHasChildren = false; // Anroid only
+
+    public long mNativePtr = 0;
 
     static class CompareElemsByName implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
@@ -264,7 +266,7 @@ public abstract class DiaryElement {
     }
 
     //static final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
-    static final CompareElemsByDate compare_elems_by_date = new CompareElemsByDate();
-    static final CompareDates compare_dates = new CompareDates();
-    static final CompareNames compare_names = new CompareNames();
+    public static final CompareElemsByDate compare_elems_by_date = new CompareElemsByDate();
+    public static final CompareDates compare_dates = new CompareDates();
+    public static final CompareNames compare_names = new CompareNames();
 }

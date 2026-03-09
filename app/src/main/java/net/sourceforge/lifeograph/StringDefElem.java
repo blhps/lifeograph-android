@@ -28,6 +28,10 @@ public abstract class StringDefElem extends DiaryElement
         m_definition = definition;
     }
 
+    protected StringDefElem(long nativePtr) {
+        super(nativePtr);
+    }
+
     @Override
     public int get_size(){
         return 0;

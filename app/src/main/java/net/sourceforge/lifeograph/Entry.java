@@ -52,132 +52,38 @@ public class Entry extends DiaryElement {
         this( diary, date, ES_ENTRY_DEFAULT );
     }
 
+    protected Entry(long nativePtr) {
+        super(nativePtr);
+    }
+
     Entry
     get_parent(){
-        return( m_p2diary.get_entry_by_date( m_date.get_parent() ) );
+        long ptr = nativeGetParent(mNativePtr);
+        return ptr != 0 ? new Entry(ptr) : null;
     }
 
     int
     get_child_count() {
-        int count = 0;
-
-        if( m_date.get_level() < 3 ) {
-            Long date = get_date_t();
-
-            if( date.equals( m_p2diary.m_entries.firstKey() ) ||
-                m_p2diary.m_entries.get( date ) == null )
-                return 0;
-
-            do {
-                date = m_p2diary.m_entries.lowerKey( date );
-                if( date == null )
-                    break;
-
-                Entry entry = m_p2diary.m_entries.get( date );
-
-                if( Objects.requireNonNull( entry ).get_filtered_out() ) // this may be optional in the future
-                    continue;
-
-                if( Date.is_child_of( entry.m_date.m_date, m_date.m_date ) )
-                    count++;
-                else
-                if( !Date.is_descendant_of( entry.m_date.m_date, m_date.m_date ) )
-                    break; // all descendants are consecutive
-            }
-            while( true );
-        }
-
-        return count;
+        return nativeGetChildCount(mNativePtr);
     }
 
     Vector< Entry >
     get_descendants() {
-        // NOTE: also returns grand-children
-        Vector< Entry > descendants = new Vector<>();
-
-        if( is_ordinal() && m_date.get_level() < 3 ) {
-            Long date = get_date_t();
-
-            if( date.equals( m_p2diary.m_entries.firstKey() ) ||
-                m_p2diary.m_entries.get( date ) == null )
-                return descendants;
-
-            while( true )
-            {
-                date = m_p2diary.m_entries.lowerKey( date );
-                if( date == null )
-                    break;
-
-                Entry entry = m_p2diary.m_entries.get( date );
-
-                assert entry != null;
-                if( Date.is_descendant_of( entry.m_date.m_date, m_date.m_date ) )
-                    descendants.add( entry );
-                else
-                    break; // all descendants are consecutive
-            }
-        }
-
+        // This might be expensive to create all Java objects
+        long[] ptrs = nativeGetDescendants(mNativePtr);
+        Vector<Entry> descendants = new Vector<>(ptrs.length);
+        for (long ptr : ptrs) descendants.add(new Entry(ptr));
         return descendants;
     }
 
     int
     get_descendant_depth() {
-        int level = m_date.get_level();
-
-        if( level >= 3 ) // covers temporal entries, too
-            return 0;
-
-        int count = 0;
-        Long date = get_date_t();
-
-        if( date.equals( m_p2diary.m_entries.firstKey() ) ||
-            m_p2diary.m_entries.get( date ) == null )
-            return 0;
-
-        while( true ) {
-            date = m_p2diary.m_entries.lowerKey( date );
-            if( date == null )
-                break;
-
-            Entry entry = m_p2diary.m_entries.get( date );
-
-            assert entry != null;
-            if( Date.is_descendant_of( entry.m_date.m_date, m_date.m_date ) )
-            {
-                int diff = entry.m_date.get_level() - level;
-                if( diff > count )
-                    count = diff;
-            }
-            else
-                break; // all descendants are consecutive
-
-            if( ( count + level ) >= 3 )
-                break;
-        }
-
-        return count;
-    }
-
-    @Override
-    public Type
-    get_type() {
-        return Type.ENTRY;
+        return nativeGetDescendantDepth(mNativePtr);
     }
 
     @Override
     public int
-    get_size() {
-        int size = 0;
-        for( Paragraph para : m_paragraphs )
-            size += ( para.get_size() + 1 );
-
-        return( size > 0 ? size - 1 : 0 );
-    }
-
-    @Override
-    public int
-    get_icon() {
+    get_icon() { // Java specific
         if( ( m_status & ES_FILTER_TODO_PURE ) != 0 )
             return Lifeograph.getTodoIcon( m_status & ES_FILTER_TODO_PURE );
         else
@@ -186,34 +92,21 @@ public class Entry extends DiaryElement {
                     R.drawable.ic_tag );
     }
 
-    @Override
-    public Date
-    get_date() {
-        return m_date;
-    }
 
-    void
-    set_date( long date ) {
-        m_date.m_date = date;
-    }
-
-    boolean
-    is_ordinal(){
-        return( m_date.is_ordinal() );
-    }
-    boolean
-    is_ordinal_hidden() {
-        return( m_date.is_hidden() );
-    }
-
-    boolean
-    has_name() {
-        if( m_paragraphs.isEmpty() ) return false;
-        return( !( m_paragraphs.get( 0 ).is_empty() ) );
+    public String
+    get_name() {
+        if (mNativePtr != 0) {
+            return nativeGetName(mNativePtr);
+        }
+        return super.get_name();
     }
 
     void
     set_name( String new_name ) {
+        if (mNativePtr != 0) {
+            // Entries don't have set_name in C++?
+            // Actually they update based on first paragraph
+        }
         if( new_name.isEmpty() )
             m_name = Lifeograph.getStr( R.string.empty_entry );
         else
@@ -222,6 +115,10 @@ public class Entry extends DiaryElement {
 
     void
     update_name() {
+        if (mNativePtr != 0) {
+            nativeUpdateName(mNativePtr);
+            return;
+        }
         if( m_paragraphs.isEmpty() )
             m_name = Lifeograph.getStr( R.string.empty_entry );
         else
@@ -231,6 +128,9 @@ public class Entry extends DiaryElement {
     @Override
     public String
     get_title_str() {
+        if (mNativePtr != 0) {
+            // TODO: implement in C++ or reconstruct here
+        }
         if( m_date.is_hidden() )
             return m_name;
         else
@@ -240,6 +140,9 @@ public class Entry extends DiaryElement {
     @Override
     public String
     get_info_str() {
+        if (mNativePtr != 0) {
+            // TODO: delegate to C++
+        }
         if( m_date.is_ordinal() ) {
             return( Lifeograph.getStr( R.string.entry_last_changed_on ) + " " +
                     Date.format_string_d( m_date_edited ) );
@@ -252,187 +155,39 @@ public class Entry extends DiaryElement {
     // TEXTUAL CONTENTS ============================================================================
     boolean
     is_empty() {
-        switch( m_paragraphs.size() ) {
-            case 0:  return true;
-            case 1:  return m_paragraphs.get( 0 ).is_empty();
-            default: return false;
-        }
+        return nativeIsEmpty(mNativePtr);
     }
 
     String
     get_text() {
-        StringBuilder text = new StringBuilder();
-
-        for( Paragraph para : m_paragraphs ) {
-            text.append( para.m_text )
-                .append( '\n' );
-        }
-
-        if( text.length() > 0 )
-            text.deleteCharAt( text.length() - 1 );
-
-        return text.toString();
+        return nativeGetText(mNativePtr);
     }
 
     void
     clear_text() {
-        m_paragraphs.clear();
+        nativeClearText(mNativePtr);
     }
 
     void
     set_text( String text ) {
-        clear_text();
-        digest_text( text );
-
-        update_name();
-        update_todo_status();
-
-        if( m_p2diary != null && get_type() != Type.CHAPTER )
-            m_p2diary.update_entry_name( this );
-    }
-
-    // following is a lambda in C++:
-    protected boolean
-    calculate_next_para( int pos_bgn, Lifeograph.MutableInt pos_end, String text,
-                         Lifeograph.MutableString para_text ) {
-        boolean ret_value = true;
-
-        pos_end.v = text.indexOf( '\n', pos_bgn );
-        if( pos_end.v == -1 ) {
-            pos_end.v = text.length();
-            ret_value = false;
-        }
-
-        para_text.v = text.substring( pos_bgn, pos_end.v );
-
-        return ret_value;
+        nativeSetText(mNativePtr, text);
     }
 
     void
     insert_text( int pos, final String text ) throws Exception {
-        Lifeograph.MutableInt para_offset = new Lifeograph.MutableInt( get_size() );
-        Paragraph             para;
-
-        if( text.isEmpty() )
-            return;
-        else
-        if( pos == -1  ) { // append text mode
-            para = add_paragraph( "" );
-            pos = para_offset.v;
-        }
-        else
-        if( m_paragraphs.isEmpty() )
-            para = add_paragraph( "" );
-        else {
-            para_offset.v = 0;
-            para = get_paragraph( pos, para_offset );
-            if( para == null )
-                throw new Exception( "Text cannot be inserted!" );
-        }
-
-        Lifeograph.MutableInt     pos_end      = new Lifeograph.MutableInt();
-        Lifeograph.MutableString  para_text    = new Lifeograph.MutableString();
-        String                    remnant_text = para.get_substr_after( pos - para_offset.v );
-
-        if( calculate_next_para( 0, pos_end, text, para_text ) ) {
-            // split paragraph
-            if( !remnant_text.isEmpty() )
-                para.erase_text( pos - para_offset.v, remnant_text.length() );
-
-            if( !para_text.v.isEmpty() ) // i.e. the first char of text is not \n
-                para.insert_text( pos - para_offset.v, para_text.v );
-
-            while( calculate_next_para( pos_end.v + 1, pos_end, text, para_text ) )
-                para = add_paragraph( para_text.v, para.m_para_no + 1 );
-
-            add_paragraph( para_text + remnant_text, para.m_para_no + 1 );
-        }
-        else
-            para.insert_text( pos - para_offset.v, text );
-
-        m_date_edited = ( System.currentTimeMillis() / 1000L );
-
-        if( pos <= m_paragraphs.get( 0 ).get_size() )
-            update_name();
+        nativeInsertText(mNativePtr, pos, text);
     }
 
     void
     erase_text( int pos_bgn, int pos_end ) {
-        Lifeograph.MutableInt para_offset_bgn = new Lifeograph.MutableInt();
-        Paragraph             para_bgn        = get_paragraph( pos_bgn, para_offset_bgn );
-
-        if( para_bgn == null )
-            return;
-
-        // merge paragraphs into the first one, if necessary:
-        int para_offset_end = ( para_offset_bgn.v + para_bgn.get_size() + 1 );
-        Paragraph para_end = null;
-
-        int num_of_deleted_paras = 0;
-
-        Iterator< Paragraph > iter = m_paragraphs.listIterator( para_bgn.m_para_no + 1 );
-        while( iter.hasNext() ) {
-            if( para_offset_end <= pos_end )
-            {
-                para_end = iter.next();
-                para_bgn.append( "\n" + para_end.m_text );
-                para_offset_end += ( para_end.get_size() + 1 );    // +1 to account for the \n
-                num_of_deleted_paras++;
-            }
-            else
-                break;
-        }
-
-        // erase the paragraphs merged into the first one:
-        if( para_end != null ) {
-            for( int i = 0; i < num_of_deleted_paras; i++ )
-                m_paragraphs.remove( para_bgn.m_para_no + 1 );
-
-            // fix paragraph nos of subsequent paragraphs
-            iter = m_paragraphs.listIterator( para_bgn.m_para_no + 1 );
-            while( iter.hasNext() ) {
-                Paragraph p = iter.next();
-                p.m_para_no -= num_of_deleted_paras;
-            }
-        }
-
-        // actually erase the text:
-        para_bgn.erase_text( pos_bgn - para_offset_bgn.v, pos_end - pos_bgn );
-
-        m_date_edited = System.currentTimeMillis() / 1000L;
-
-        if( m_paragraphs.isEmpty() || pos_bgn <= m_paragraphs.get( 0 ).get_size() )
-            update_name();
-    }
-
-    void
-    digest_text( String text ) {
-        if( text.isEmpty() )
-            return;
-
-        int i = 0;
-        int pt_bgn = 0, pt_end;
-        boolean flag_terminate_loop = false;
-
-        while( true ) {
-            pt_end = text.indexOf( '\n', pt_bgn );
-            if( pt_end == -1 ) {
-                pt_end = text.length();
-                flag_terminate_loop = true;
-            }
-
-            m_paragraphs.add(
-                    new Paragraph( text.substring( pt_bgn, pt_end ), this, i++ ) );
-
-            if( flag_terminate_loop )
-                break; // end of while( true )
-
-            pt_bgn = pt_end + 1;
-        }
+        nativeEraseText(mNativePtr, pos_bgn, pos_end);
     }
 
     Paragraph
     get_paragraph( int pos, Lifeograph.MutableInt para_offset ) {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         for( Paragraph p : m_paragraphs ) {
             if( pos <= para_offset.v + p.get_size() ) {
                 return p;
@@ -445,6 +200,10 @@ public class Entry extends DiaryElement {
     }
     Paragraph
     get_paragraph( int pos ) {
+        if (mNativePtr != 0) {
+            long ptr = nativeGetParagraphAtPos(mNativePtr, pos);
+            return ptr != 0 ? new Paragraph(ptr) : null;
+        }
         int para_offset = 0;
 
         for( Paragraph para : m_paragraphs )
@@ -460,6 +219,10 @@ public class Entry extends DiaryElement {
 
     Paragraph
     add_paragraph( String text ) {
+        if (mNativePtr != 0) {
+            // long ptr = nativeAddParagraph(mNativePtr, text);
+            // return new Paragraph(ptr);
+        }
         Paragraph para = new Paragraph( text, this, m_paragraphs.size() );
         m_paragraphs.add( para );
 
@@ -470,6 +233,9 @@ public class Entry extends DiaryElement {
     }
     Paragraph
     add_paragraph( String text, int pos ) {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         if( pos > m_paragraphs.size() )
             pos = m_paragraphs.size();
 
@@ -488,6 +254,10 @@ public class Entry extends DiaryElement {
 
     void
     clear_paragraph_data( int pos_b, int pos_e ) {
+        if (mNativePtr != 0) {
+            // nativeClearParagraphData(mNativePtr, pos_b, pos_e);
+            return;
+        }
         int para_offset = 0;
 
         for( Paragraph para : m_paragraphs ) {
@@ -505,24 +275,21 @@ public class Entry extends DiaryElement {
 
     String
     get_description() { // returns 2nd non-empty paragraph
-        int i = 0;
-        for( Paragraph para : m_paragraphs ) {
-            if( i > 0 && !para.is_empty() )
-                return para.m_text;
-            i++;
-        }
-
-        return "";
+        return nativeGetDescription(mNativePtr);
     }
 
     // FAVOREDNESS =================================================================================
     boolean
     is_favored() {
-        return( ( m_status & ES_FAVORED ) != 0 );
+        return nativeIsFavorite(mNativePtr);
     }
 
     void
     set_favored( boolean favored ) {
+        if (mNativePtr != 0) {
+            // nativeSetFavorite(mNativePtr, favored);
+            return;
+        }
         if( favored )
         {
             m_status |= ES_FAVORED;
@@ -537,12 +304,15 @@ public class Entry extends DiaryElement {
 
     void
     toggle_favored() {
-        m_status ^= ES_FILTER_FAVORED;
+        nativeToggleFavorite(mNativePtr);
     }
 
     // LANGUAGE ====================================================================================
     String
     get_lang_final() {
+        if (mNativePtr != 0) {
+            return nativeGetLangFinal(mNativePtr);
+        }
         return m_option_lang.compareTo( Lifeograph.LANG_INHERIT_DIARY ) == 0 ? m_p2diary.get_lang()
                                                                            : m_option_lang;
     }
@@ -550,29 +320,22 @@ public class Entry extends DiaryElement {
     // TRASH FUNCTIONALITY
     boolean
     is_trashed() {
-        return( ( m_status & ES_TRASHED ) != 0 );
+        return nativeIsTrashed(mNativePtr);
     }
 
     void
     set_trashed( boolean trashed ) {
-        m_status -= ( m_status & ES_FILTER_TRASHED );
-        m_status |= ( trashed ? ES_TRASHED : ES_NOT_TRASHED );
+        nativeSetTrashed(mNativePtr, trashed);
     }
 
     // TAGS ========================================================================================
     boolean
     has_tag( Entry tag ) {
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            return nativeHasTag(mNativePtr, tag.mNativePtr);
+        }
         for( Paragraph para : m_paragraphs ) {
             if( para.has_tag( tag ) )
-                return true;
-        }
-
-        return false;
-    }
-    boolean
-    has_tag_broad( Entry tag ) {
-        for( Paragraph para : m_paragraphs ) {
-            if( para.has_tag_broad( tag ) )
                 return true;
         }
 
@@ -581,6 +344,9 @@ public class Entry extends DiaryElement {
 
     Set< String >
     get_tags() {
+        if (mNativePtr != 0) {
+            // TODO: delegate to C++
+        }
         Set< String > set = new HashSet<>();
 
         for( Paragraph para : m_paragraphs )
@@ -591,6 +357,9 @@ public class Entry extends DiaryElement {
 
     double
     get_value_for_tag( Entry tag, boolean f_average ) {
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            return nativeGetTagValue(mNativePtr, tag.mNativePtr, f_average);
+        }
         double                value = 0.0;
         Lifeograph.MutableInt count = new Lifeograph.MutableInt();
 
@@ -601,6 +370,9 @@ public class Entry extends DiaryElement {
     }
     double
     get_value_planned_for_tag( Entry tag, boolean f_average ) {
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            return nativeGetTagValuePlanned(mNativePtr, tag.mNativePtr, f_average);
+        }
         double                value = 0.0;
         Lifeograph.MutableInt count = new Lifeograph.MutableInt();
 
@@ -611,6 +383,9 @@ public class Entry extends DiaryElement {
     }
     double
     get_value_remaining_for_tag( Entry tag, boolean f_average ) {
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            return nativeGetTagValueRemaining(mNativePtr, tag.mNativePtr, f_average);
+        }
         double                value = 0.0;
         Lifeograph.MutableInt count = new Lifeograph.MutableInt();
 
@@ -622,6 +397,10 @@ public class Entry extends DiaryElement {
 
     Entry
     get_sub_tag_first( Entry tag ){
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            long ptr = nativeGetSubTagFirst(mNativePtr, tag.mNativePtr);
+            return ptr != 0 ? new Entry(ptr) : null;
+        }
         if( tag != null ) {
             for( Paragraph para : m_paragraphs ) {
                 Entry sub_tag = para.get_sub_tag_first( tag );
@@ -634,6 +413,10 @@ public class Entry extends DiaryElement {
     }
     Entry
     get_sub_tag_last( Entry tag ){
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            long ptr = nativeGetSubTagLast(mNativePtr, tag.mNativePtr);
+            return ptr != 0 ? new Entry(ptr) : null;
+        }
         if( tag != null ) {
             for( int i = ( m_paragraphs.size() - 1 ); i >= 0; i-- ) {
                 Entry sub_tag = m_paragraphs.get( i ).get_sub_tag_last( tag );
@@ -647,6 +430,10 @@ public class Entry extends DiaryElement {
 
     Entry
     get_sub_tag_lowest( Entry tag ) {
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            long ptr = nativeGetSubTagLowest(mNativePtr, tag.mNativePtr);
+            return ptr != 0 ? new Entry(ptr) : null;
+        }
         Entry sub_tag_lowest = null;
 
         if( tag != null ) {
@@ -667,6 +454,10 @@ public class Entry extends DiaryElement {
     }
     Entry
     get_sub_tag_highest( Entry tag ) {
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            long ptr = nativeGetSubTagHighest(mNativePtr, tag.mNativePtr);
+            return ptr != 0 ? new Entry(ptr) : null;
+        }
         Entry sub_tag_highest = null;
 
         if( tag != null ) {
@@ -688,6 +479,7 @@ public class Entry extends DiaryElement {
 
     double
     get_value_for_tag( ChartData chart_data ) {
+        // TODO: delegate to C++
         double                value = 0.0;
         Lifeograph.MutableInt count = new Lifeograph.MutableInt();
 
@@ -698,6 +490,7 @@ public class Entry extends DiaryElement {
     }
     double
     get_value_planned_for_tag( ChartData chart_data ) {
+        // TODO: delegate to C++
         double                value = 0.0;
         Lifeograph.MutableInt count = new Lifeograph.MutableInt();
 
@@ -709,6 +502,10 @@ public class Entry extends DiaryElement {
 
     void
     add_tag( Entry tag, double value ) {
+        if (mNativePtr != 0 && tag.mNativePtr != 0) {
+            nativeAddTag(mNativePtr, tag.mNativePtr, value);
+            return;
+        }
         if( is_empty() )
             add_paragraph( "" );
 
@@ -725,16 +522,25 @@ public class Entry extends DiaryElement {
     // THEME =======================================================================================
     Theme
     get_theme() {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         return( m_p2theme != null ? m_p2theme : m_p2diary.get_theme_default() );
     }
 
     void
     set_theme( Theme theme ){
+        if (mNativePtr != 0) {
+            // TODO
+        }
         m_p2theme = theme;
     }
 
     boolean
     is_theme_set() {
+        if (mNativePtr != 0) {
+            return nativeIsThemeSet(mNativePtr);
+        }
         return( m_p2theme != null );
     }
 
@@ -830,6 +636,9 @@ public class Entry extends DiaryElement {
 
     boolean
     update_todo_status() {
+        if (mNativePtr != 0) {
+            return nativeUpdateTodoStatus(mNativePtr);
+        }
         int es = 0;
 
         for( Paragraph para : m_paragraphs ) {
@@ -851,6 +660,9 @@ public class Entry extends DiaryElement {
 
     double
     get_completion() {
+        if (mNativePtr != 0) {
+            return nativeGetCompletion(mNativePtr);
+        }
         final double wl = get_workload();
 
         if( wl == 0.0 )
@@ -861,6 +673,9 @@ public class Entry extends DiaryElement {
 
     double
     get_completed() {
+        if (mNativePtr != 0) {
+            return nativeGetCompleted(mNativePtr);
+        }
         Entry tag_comp = m_p2diary.get_completion_tag();
 
         if( tag_comp == null )
@@ -871,6 +686,9 @@ public class Entry extends DiaryElement {
 
     double
     get_workload() {
+        if (mNativePtr != 0) {
+            return nativeGetWorkload(mNativePtr);
+        }
         Entry tag_comp = m_p2diary.get_completion_tag();
 
         if( tag_comp == null )
@@ -882,38 +700,59 @@ public class Entry extends DiaryElement {
     // LOCATION ====================================================================================
     void
     set_location( double lat, double lon ) {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         m_location.latitude = lat;
         m_location.longitude = lon;
     }
     void
     remove_location() {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         m_location.unset();
     }
     boolean
     is_location_set() {
+        if (mNativePtr != 0) {
+            return nativeHasLocation(mNativePtr);
+        }
         return m_location.is_set();
     }
 
     boolean
     is_map_path_set() {
+        if (mNativePtr != 0) {
+            return !nativeGetMapPath(mNativePtr).isEmpty();
+        }
         return( !m_map_path.isEmpty() );
     }
     void
     clear_map_path() {
-        m_map_path.clear();
+        nativeClearMapPath(mNativePtr);
     }
 
     void
     add_map_path_point( double lat, double lon ) {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         m_map_path.add( new Coords( lat, lon ) );
     }
     void
     remove_last_map_path_point() {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         m_map_path.remove( m_map_path.size() - 1 );
     }
 
     void
     remove_map_path_point( Coords pt_other ) {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         int i= 0;
         for( Coords pt : m_map_path ) {
             if( pt.is_equal_to( pt_other ) ) {
@@ -926,61 +765,51 @@ public class Entry extends DiaryElement {
 
     Coords
     get_map_path_end() {
+        if (mNativePtr != 0) {
+            // TODO
+        }
         return m_map_path.get( m_map_path.size() - 1 );
     }
 
     double
     get_map_path_length() {
-        double  dist = 0.0;
-        Coords  pt_prev = null;
-        boolean flag_after_first = false;
-
-        for( Coords pt : m_map_path ) {
-            if( flag_after_first )
-                dist += Coords.get_distance( pt_prev, pt );
-            else
-                flag_after_first = true;
-
-            pt_prev = pt;
-        }
-
-        return( Lifeograph.sOptImperialUnits ? dist / Lifeograph.MI_TO_KM_RATIO : dist );
+        return nativeGetMapPathLength(mNativePtr);
     }
 
     // SUB CLASSES =================================================================================
-    static class Coords
+    public static class Coords
     {
-        Coords() {
+        public Coords() {
             latitude = -0.1;
             longitude = -0.1;
         }
-        Coords( double lat, double lon ) {
+        public Coords( double lat, double lon ) {
             latitude = lat;
             longitude = lon;
         }
 
-        String
+        public String
         to_string() {
             return( latitude + ", " + longitude );
         }
 
-        boolean
+        public boolean
         is_set() {
             return( latitude != -0.1 );
         }
 
-        void
+        public void
         unset() {
             latitude = -0.1;
             longitude = -0.1;
         }
 
-        boolean
+        public boolean
         is_equal_to( @NonNull Coords pt2 ) {
             return( pt2.latitude == latitude && pt2.longitude == longitude );
         }
 
-        static double
+        public static double
         get_distance( Coords p1, Coords p2 ) {
             final double D      = 6371 * 2;
             final double to_rad = PI/180;
@@ -994,9 +823,53 @@ public class Entry extends DiaryElement {
             return( D * atan2( sqrt( a ), sqrt( 1 - a ) ) );
         }
 
-        double latitude;
-        double longitude;
+        public double latitude;
+        public double longitude;
     }
+
+    private native long nativeGetId(long ptr);
+    private native long nativeGetParent(long ptr);
+    private native int nativeGetChildCount(long ptr);
+    private native long[] nativeGetDescendants(long ptr);
+    private native int nativeGetDescendantDepth(long ptr);
+    private native int nativeGetSize(long ptr);
+    private native long nativeGetDate(long ptr);
+    private native void nativeSetDate(long ptr, long date);
+    private native boolean nativeHasName(long ptr);
+    private native String nativeGetName(long ptr);
+    private native void nativeUpdateName(long ptr);
+    private native boolean nativeIsEmpty(long ptr);
+    private native String nativeGetText(long ptr);
+    private native void nativeClearText(long ptr);
+    private native void nativeSetText(long ptr, String text);
+    private native void nativeInsertText(long ptr, int pos, String text);
+    private native void nativeEraseText(long ptr, int pos_bgn, int pos_end);
+    private native long nativeGetParagraphAtPos(long ptr, int pos);
+    private native String nativeGetDescription(long ptr);
+    private native boolean nativeIsFavorite(long ptr);
+    private native void nativeToggleFavorite(long ptr);
+    private native String nativeGetLangFinal(long ptr);
+    private native boolean nativeIsTrashed(long ptr);
+    private native void nativeSetTrashed(long ptr, boolean trashed);
+    private native boolean nativeHasTag(long ptr, long tagPtr);
+    private native boolean nativeHasTagBroad(long ptr, long tagPtr);
+    private native double nativeGetTagValue(long ptr, long tagPtr, boolean average);
+    private native double nativeGetTagValuePlanned(long ptr, long tagPtr, boolean average);
+    private native double nativeGetTagValueRemaining(long ptr, long tagPtr, boolean average);
+    private native long nativeGetSubTagFirst(long ptr, long tagPtr);
+    private native long nativeGetSubTagLast(long ptr, long tagPtr);
+    private native long nativeGetSubTagLowest(long ptr, long tagPtr);
+    private native long nativeGetSubTagHighest(long ptr, long tagPtr);
+    private native void nativeAddTag(long ptr, long tagPtr, double value);
+    private native boolean nativeIsThemeSet(long ptr);
+    private native boolean nativeUpdateTodoStatus(long ptr);
+    private native double nativeGetCompletion(long ptr);
+    private native double nativeGetCompleted(long ptr);
+    private native double nativeGetWorkload(long ptr);
+    private native boolean nativeHasLocation(long ptr);
+    private native List<Coords> nativeGetMapPath(long ptr);
+    private native void nativeClearMapPath(long ptr);
+    private native double nativeGetMapPathLength(long ptr);
 
     Date m_date;
     long m_date_created;

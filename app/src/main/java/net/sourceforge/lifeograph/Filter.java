@@ -30,6 +30,9 @@ public class Filter extends StringDefElem
         super( d, name, definition );
     }
 
+    protected Filter(long nativePtr) {
+        super(nativePtr);
+    }
     @Override
     public Type get_type() {
         return Type.FILTER;

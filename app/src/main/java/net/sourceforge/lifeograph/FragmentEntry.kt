@@ -62,7 +62,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     var                  mFlagEntryChanged = false
     private var          mFlagDismissOnExit = false
     var                  mFlagSearchIsOpen = false
-    private val          mBrowsingHistory = ArrayList<Int>()
+    private val          mBrowsingHistory = ArrayList<Long>()
 
     companion object {
         lateinit var mEntry: Entry
@@ -1090,7 +1090,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 get() = 'u'
         }
 
-        private class LinkID(private val mId: Int) : ClickableSpan(), AdvancedSpan {
+        private class LinkID(private val mId: Long) : ClickableSpan(), AdvancedSpan {
             override fun onClick(widget: View) {
                 Log.d( Lifeograph.TAG, "Clicked on ID link")
                 val elem = Diary.d.get_element(mId)
