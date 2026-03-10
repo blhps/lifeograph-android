@@ -27,119 +27,65 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
+import java.util.Vector;
 
 import androidx.annotation.NonNull;
 
-public class Paragraph
+public class Paragraph extends DiaryElemTag
 {
-    final static char JT_LEFT = '<';
-    final static char JT_CENTER = '|';
-    final static char JT_RIGHT = '>';
+//    final static char JT_LEFT = '<';
+//    final static char JT_CENTER = '|';
+//    final static char JT_RIGHT = '>';
 
-    Paragraph( String text, Entry host, int index ) {
-        m_host = host;
-        m_para_no = index;
-        m_text = text;
+    protected
+    Paragraph(long nativePtr) { super(nativePtr); }
 
-        update_per_text();
-    }
+    public Paragraph
+    get_prev() { return new Paragraph( nativeGetPrev( mNativePtr ) ); }
+    public Paragraph
+    get_next() { return new Paragraph( nativeGetNext( mNativePtr ) ); }
+    public Paragraph
+    get_next_visible() { return new Paragraph( nativeGetNextVisible( mNativePtr ) ); }
 
-    Paragraph
-    get_prev(){
-        if( m_host == null || m_para_no == 0 )
-            return null;
+    public boolean
+    is_empty(){ return nativeIsEmpty(mNativePtr); }
+//    public char get_char( int i ){
+//        return m_text.charAt( i );
+//    }
 
-        return( m_host.m_paragraphs.get( m_para_no - 1 ) );
-    }
-
-    Paragraph
-    get_next(){
-        if( m_host == null )
-            return null;
-
-        if( m_para_no == ( m_host.m_paragraphs.size() - 1 ) )
-            return null;
-
-        return( m_host.m_paragraphs.get( m_para_no + 1 ) );
-    }
-
-    Paragraph
-    get_parent() {
-        if( m_host == null || m_para_no == 0 )
-            return null;
-
-        for( int i = m_para_no; i > 0; i-- )
-        {
-            Paragraph previous = m_host.m_paragraphs.get( i );
-
-            if( previous.m_heading_level > this.m_heading_level )
-                return previous;
-            else
-            if( previous.m_indentation_level < this.m_indentation_level && !previous.is_empty() )
-                return previous;
-
-            if( previous.m_para_no == 0 )
-                return null;
-        }
-
-        try {
-            throw new Exception( "Unexpected point reached while searching for parent para" );
-        }
-        catch( Exception e ) {
-            e.printStackTrace();
-        }
-        return null;
-    }
-
-    public boolean is_empty(){
-        return m_text.isEmpty();
-    }
-    public char get_char( int i ){
-        return m_text.charAt( i );
-    }
-
-    String
-    get_substr_after( int i ) {
-        return m_text.substring( i );
-    }
-
-    public int get_size(){
-        return m_text.length();
-    }
-
-    public void set_text( String text ){
-        m_text = text;
-        update_per_text();
-    }
-    public void append( String text ){
-        m_text += text;
-        update_per_text();
-    }
-    public void insert_text( int pos, String text ){
-        StringBuilder str_bld = new StringBuilder( m_text );
-        str_bld.insert( pos, text );
-        m_text = str_bld.toString();
-        update_per_text();
-    }
-    public void erase_text( int pos, int size ) {
-        StringBuilder str_bld = new StringBuilder( m_text );
-        str_bld.delete( pos, pos + size );
-        m_text = str_bld.toString();
-        update_per_text();
-    }
-    public void replace_text( int pos, int size, String text ) {
-        StringBuilder str_bld = new StringBuilder( m_text );
-        str_bld.delete( pos, pos + size );
-        str_bld.insert( pos, text );
-        m_text = str_bld.toString();
-        update_per_text();
-    }
-
-    public void clear_tags() {
-        m_tags.clear();
-        m_tags_planned.clear();
-        m_tags_in_order.clear();
-    }
+//    public void set_text( String text ) {
+//        m_text = text;
+//        update_per_text();
+//    }
+//    public void append( String text ) {
+//        m_text += text;
+//        update_per_text();
+//    }
+//    public void insert_text( int pos, String text ){
+//        StringBuilder str_bld = new StringBuilder( m_text );
+//        str_bld.insert( pos, text );
+//        m_text = str_bld.toString();
+//        update_per_text();
+//    }
+//    public void erase_text( int pos, int size ) {
+//        StringBuilder str_bld = new StringBuilder( m_text );
+//        str_bld.delete( pos, pos + size );
+//        m_text = str_bld.toString();
+//        update_per_text();
+//    }
+//    public void replace_text( int pos, int size, String text ) {
+//        StringBuilder str_bld = new StringBuilder( m_text );
+//        str_bld.delete( pos, pos + size );
+//        str_bld.insert( pos, text );
+//        m_text = str_bld.toString();
+//        update_per_text();
+//    }
+//
+//    public void clear_tags() {
+//        m_tags.clear();
+//        m_tags_planned.clear();
+//        m_tags_in_order.clear();
+//    }
 
     public void
     set_tag( String tag, double value ) {
@@ -153,250 +99,64 @@ public class Paragraph
         m_tags_in_order.add( tag );
     }
 
-    public boolean
-    has_tag( Entry tag ) {
-        return( m_tags.containsKey( tag.get_name() ) );
-    }
-
-    public boolean
-    has_tag_planned( Entry tag ) {
-        return( m_tags_planned.containsKey( tag.get_name() ) );
-    }
-
-    boolean
-    has_tag_broad( Entry tag ) /* in broad sense*/ {
-        if( m_tags.containsKey( tag.get_name() ) )
-            return true;
-
-        for( Entry child_tag : tag.get_descendants() ) {
-            if( has_tag_broad( child_tag ) ) // recursion
-                return true;
-        }
-
-        Paragraph parent_para = get_parent();
-        if( parent_para != null )
-            return parent_para.has_tag_broad( tag ); // recursion
-        else
-            return false;
-    }
-
-    double
-    get_value_for_tag( Entry tag, Lifeograph.MutableInt count ) {
-        if( !has_tag( tag ) )
-            return 0.0;
-        else {
-            count.v++;
-            //noinspection ConstantConditions
-            return m_tags.get( tag.get_name() );
-        }
-    }
-
-    double
-    get_value_planned_for_tag( Entry tag, Lifeograph.MutableInt count ) {
-        if( !has_tag_planned( tag ) )
-            return 0.0;
-        else {
-            count.v++;
-            //noinspection ConstantConditions
-            return m_tags_planned.get( tag.m_name );
-        }
-    }
-
-    double
-    get_value_remaining_for_tag( Entry tag, Lifeograph.MutableInt count ) {
-        if( !has_tag_planned( tag ) )
-            return 0.0;
-        else {
-            count.v++;
-            //noinspection ConstantConditions
-            return( m_tags_planned.get( tag.get_name() ) - m_tags.get( tag.get_name() ) );
-        }
-    }
-
-    double
-    get_value_for_tag( @NonNull ChartData chart_data, Lifeograph.MutableInt count ) {
-        if( chart_data.para_filter_tag != null && !has_tag_broad( chart_data.para_filter_tag ) )
-            return 0.0;
-        else
-        if( !has_tag( chart_data.tag ) )
-            return 0.0;
-        else {
-            count.v++;
-            //noinspection ConstantConditions
-            return m_tags.get( chart_data.tag.get_name() );
-        }
-    }
-
-    double
-    get_value_planned_for_tag( @NonNull ChartData chart_data, Lifeograph.MutableInt count ) {
-        if( !has_tag_broad( chart_data.para_filter_tag ) )
-            return 0.0;
-        else
-        if( !has_tag_planned( chart_data.tag ) )
-            return 0.0;
-        else {
-            count.v++;
-            //noinspection ConstantConditions
-            return m_tags_planned.get( chart_data.tag.get_name() );
-        }
-    }
-
-    // return which sub tag of a parent tag is present in the map
-    Entry
-    get_sub_tag_first( Entry parent_tag ) {
-        for( String tag_name : m_tags_in_order ) {
-            Entry tag = m_host.m_p2diary.get_entry_by_name( tag_name );
-
-            if( tag != null && Date.is_descendant_of( tag.get_date_t(), parent_tag.get_date_t() ) )
-                return tag;
-        }
-
-        return null;
-    }
-
-    Entry
-    get_sub_tag_last( Entry parent_tag ) {
-        for( int i = ( m_tags_in_order.size() - 1 ); i >= 0; i-- ) {
-            Entry tag = m_host.m_p2diary.get_entry_by_name( m_tags_in_order.get( i ) );
-
-            if( tag != null && Date.is_descendant_of( tag.get_date_t(), parent_tag.get_date_t() ) )
-                return tag;
-        }
-
-        return null;
-    }
-
-    Entry
-    get_sub_tag_lowest( Entry parent ) {
-        Entry sub_tag_lowest = null;
-
-        if( parent != null ) {
-            for( String tag_name : m_tags_in_order ) {
-                Entry sub_tag = m_host.m_p2diary.get_entry_by_name( tag_name );
-                if( sub_tag != null && Date.is_descendant_of( sub_tag.get_date_t(),
-                                                              parent.get_date_t() ) ) {
-                    if( sub_tag_lowest != null ) {
-                        if( sub_tag.get_date_t() < sub_tag_lowest.get_date_t() )
-                            sub_tag_lowest = sub_tag;
-                    }
-                    else
-                        sub_tag_lowest = sub_tag;
-                }
-            }
-        }
-
-        return sub_tag_lowest;
-    }
-
-    Entry
-    get_sub_tag_highest( Entry parent ) {
-        Entry sub_tag_highest = null;
-
-        if( parent != null ) {
-            for( String tag_name : m_tags_in_order )
-            {
-                Entry sub_tag = m_host.m_p2diary.get_entry_by_name( tag_name );
-                if( sub_tag != null && Date.is_descendant_of( sub_tag.get_date_t(),
-                                                              parent.get_date_t() ) ) {
-                    if( sub_tag_highest != null )
-                    {
-                        if( sub_tag.get_date_t() > sub_tag_highest.get_date_t() )
-                            sub_tag_highest = sub_tag;
-                    }
-                    else
-                        sub_tag_highest = sub_tag;
-                }
-            }
-        }
-
-        return sub_tag_highest;
-    }
-
-    double
-    get_completion() {
-        if( m_host == null ) return 0.0;
-
-        final double wl = get_workload();
-
-        if( wl == 0.0 )
-            return 0.0;
-
-        return( get_completed() / wl );
-    }
-
-    double
-    get_completed() {
-        if( m_host == null ) return 0.0;
-
-        Entry tag_comp = m_host.m_p2diary.get_completion_tag();
-
-        if( tag_comp == null )
-            return 0.0;
-
-        return get_value_for_tag( tag_comp, new Lifeograph.MutableInt() );
-    }
-
-    double
-    get_workload() {
-        if( m_host == null ) return 0.0;
-
-        Entry tag_comp = m_host.m_p2diary.get_completion_tag();
-
-        if( tag_comp == null )
-            return 0.0;
-
-        return get_value_planned_for_tag( tag_comp, new Lifeograph.MutableInt() );
-    }
-
-    boolean
-    has_date() {
-        return( m_date != Date.NOT_SET );
-    }
-
-    long
-    get_date_broad() {
-        if( m_date != Date.NOT_SET )
-            return m_date;
-        else
-        if( m_host != null )
-            return m_host.get_date_t();
-
-        return Date.NOT_SET;
-    }
-
-    void
-    clear_references() {
-//        for( Paragraph ref : m_references )
-//            ref = null;
-        m_references.clear();
-    }
     void
     add_reference( Paragraph ref ) {
         m_references.add( ref );
     }
-    void
-    remove_reference( Paragraph ref2remove ) {
-        m_references.remove( ref2remove );
+
+
+    public boolean
+    is_title() { return nativeIsTitle(mNativePtr); }
+    public char
+    get_heading_level() { return nativeGetHeadingLevel(mNativePtr); }
+
+    public char
+    get_alignment() { return nativeGetAlignment(mNativePtr); }
+    public void
+    set_alignment( char alignment ) { nativeSetAlignment( mNativePtr, alignment ); }
+
+    public char
+    get_list_type() { return nativeGetListType(mNativePtr); }
+
+    public int
+    get_indent_level() { return nativeGetIndentLevel(mNativePtr); }
+
+    public char
+    get_quot_type() { return nativeGetQuotType(mNativePtr); }
+    public void
+    set_quot_type( char quot_type ) { nativeSetQuotType( mNativePtr, quot_type ); }
+    public boolean
+    is_quote() { return nativeIsQuote(mNativePtr); }
+    public boolean
+    is_code() { return nativeIsCode(mNativePtr); }
+
+    public int
+    get_bgn_offset_in_host() { return nativeGetBgnOffsetInHost(mNativePtr); }
+
+    public Vector<HiddenFormat>
+    get_formats() {
+        long[] ptrs = nativeGetFormats(mNativePtr);
+        Vector<HiddenFormat> formats = new Vector<>(ptrs.length);
+        for (long ptr : ptrs) formats.add(new HiddenFormat(ptr));
+        return formats;
     }
 
+    // NATIVE FUNCTIONS ============================================================================
+    private native long nativeGetPrev(long ptr);
+    private native long nativeGetNext(long ptr);
+    private native long nativeGetNextVisible(long ptr);
+    private native boolean nativeIsEmpty(long ptr);
+    private native boolean nativeIsTitle(long ptr);
+    private native char nativeGetHeadingLevel(long ptr);
+    private native char nativeGetAlignment(long ptr);
+    private native void nativeSetAlignment(long ptr, char alignment);
+    private native int nativeGetIndentLevel(long ptr);
+    private native char nativeGetListType(long ptr);
+    private native char nativeGetQuotType(long ptr);
+    private native void nativeSetQuotType(long ptr, char quot_type);
+    private native boolean nativeIsQuote(long ptr);
+    private native boolean nativeIsCode(long ptr);
+    private native int nativeGetBgnOffsetInHost(long ptr);
+    private native long[] nativeGetFormats(long ptr);
 
-
-    protected void
-    update_per_text() {
-
-    }
-
-    public Entry m_host;
-    public int   m_para_no;
-    public int   m_status = DiaryElement.ES_NOT_TODO;
-    public int   m_indentation_level = 0;
-    public int   m_heading_level = 0;
-    public char  m_justification = JT_LEFT;
-
-    protected String                m_text;
-    protected Map< String, Double > m_tags = new TreeMap<>();
-    protected Map< String, Double > m_tags_planned = new TreeMap<>();
-    protected List< String >        m_tags_in_order = new ArrayList<>();
-    protected long                  m_date = Date.NOT_SET;
-    protected Set< Paragraph >      m_references = new HashSet<>();
 }

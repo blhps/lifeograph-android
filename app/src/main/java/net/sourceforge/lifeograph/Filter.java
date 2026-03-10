@@ -26,25 +26,16 @@ public class Filter extends StringDefElem
     public static final String DEFINITION_EMPTY = "F&";
     public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
 
-    Filter( Diary d, String name, String definition ) {
-        super( d, name, definition );
-    }
+//    Filter( Diary d, String name, String definition ) {
+//        super( d, name, definition );
+//    }
 
     protected Filter(long nativePtr) {
         super(nativePtr);
     }
-    @Override
-    public Type get_type() {
-        return Type.FILTER;
-    }
 
     @Override
-    public int get_size() {
-        return 0;
-    }
-
-    @Override
-    public int get_icon() {
+    public int get_icon() { // Java only
         return R.drawable.ic_filter;
     }
 

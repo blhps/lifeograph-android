@@ -328,7 +328,6 @@ class Diary : public DiaryElement, public PropertyContainer
         Entry*                  get_entry_by_name( const Ustring& ) const;
         Entry*                  get_entry_by_name_fuzzy( const Ustring& ) const;
         VecEntries              get_entries_by_filter( const Filter* ) const;
-        VecEntries              get_entries_by_filter( const Ustring& ) const;
         unsigned int            get_entry_count_on_day( const DateV ) const;
         // Entry*                  get_entry_next_in_day( const Date& ) const;
         Entry*                  get_entry_first_untrashed() const;
@@ -574,6 +573,8 @@ class Diary : public DiaryElement, public PropertyContainer
         LoG::Result             read_header();
 
         LoG::Result             write();
+        LoG::Result             write_lock() // added as a conveninence especially on Android
+        { return write( m_uri + LoG::LOCK_SUFFIX ); }
         LoG::Result             write( const String& );
         LoG::Result             write_copy( const String&, const String&, const Filter* );
         LoG::Result             write_txt( const String&, const Filter* );

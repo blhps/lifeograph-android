@@ -57,40 +57,30 @@ public class Theme extends DiaryElement {
         protected static System system = null;
     }
 
-    Theme( Diary d, String name ) {
-        super( d, name, ES_VOID );
-    }
+//    Theme( Diary d, String name ) {
+//        super( d, name, ES_VOID );
+//    }
 
     protected Theme(long nativePtr) {
         super(nativePtr);
     }
 
-    Theme( Diary d,
-           String name,
-           String str_font,
-           String str_base,
-           String str_text,
-           String str_heading,
-           String str_subheading,
-           String str_highlight ) {
-        super( d, name, ES_VOID );
-        font             = str_font;
-        color_base       = Color.parseColor( str_base );
-        color_text       = Color.parseColor( str_text );
-        color_heading    = Color.parseColor( str_heading );
-        color_subheading = Color.parseColor( str_subheading );
-        color_highlight  = Color.parseColor( str_highlight );
-    }
-
-    @Override public Type
-    get_type() {
-        return Type.THEME;
-    }
-
-    @Override public int
-    get_size() {
-        return 0;
-    }
+//    Theme( Diary d,
+//           String name,
+//           String str_font,
+//           String str_base,
+//           String str_text,
+//           String str_heading,
+//           String str_subheading,
+//           String str_highlight ) {
+//        super( d, name, ES_VOID );
+//        font             = str_font;
+//        color_base       = Color.parseColor( str_base );
+//        color_text       = Color.parseColor( str_text );
+//        color_heading    = Color.parseColor( str_heading );
+//        color_subheading = Color.parseColor( str_subheading );
+//        color_highlight  = Color.parseColor( str_highlight );
+//    }
 
     @Override
     public int get_icon() {
@@ -101,48 +91,10 @@ public class Theme extends DiaryElement {
     is_system() {
         return false;
     }
-    boolean
-    is_default() {
-        return( m_p2diary != null && m_p2diary.get_theme_default().is_equal_to( this ) );
-    }
 
     void
     copy_to( Theme target ) {
-        target.font = font;
-        target.color_base = color_base;
-        target.color_text = color_text;
-        target.color_heading = color_heading;
-        target.color_subheading = color_subheading;
-        target.color_highlight = color_highlight;
-
-        target.calculate_derived_colors();
-    }
-
-    void
-    calculate_derived_colors() {
-        m_color_subsubheading = midtone( color_base, color_subheading, 0.8 );
-        m_color_inline_tag    = midtone( color_base, color_highlight, 0.2 );
-        m_color_mid           = midtone( color_base, color_text );
-        m_color_region_bg     = midtone( color_base, color_text, 0.1 );
-        m_color_match_bg      = contrast2( color_base, s_color_match1, s_color_match2 );
-        m_color_link          = contrast2( color_base, s_color_link1, s_color_link2 );
-        m_color_link_broken   = contrast2( color_base, s_color_broken1, s_color_broken2 );
-
-        // TODO: we may change the coefficients below depending on the difference between the...
-        // ... contrasting colors using get_color_diff( Theme::s_color_done, theme->color_base )...
-        // ... generally, when get_color_diff is < 1.0 contrast is not satisfactory
-        m_color_open          = midtone( s_color_todo, color_text );
-        m_color_open_bg       = midtone( s_color_todo, color_base, 0.7 );
-
-        m_color_progressed    = midtone( s_color_progressed, color_text );
-        m_color_progressed_bg = midtone( s_color_progressed, color_base, 0.7 );
-
-        m_color_done          = midtone( s_color_done, color_text );
-        m_color_done_text     = midtone( s_color_done, color_text, 0.7 );
-        m_color_done_bg       = midtone( s_color_done, color_base, 0.7 );
-
-        m_color_canceled      = midtone( s_color_canceled, color_text );
-        m_color_canceled_bg   = midtone( s_color_canceled, color_base, 0.7 );
+        nativeCopyTo(mNativePtr, target);
     }
 
     protected String font;
@@ -163,23 +115,8 @@ public class Theme extends DiaryElement {
     int m_color_link;
     int m_color_link_broken;
 
-    int m_color_open;
-    int m_color_open_bg;
-    int m_color_progressed;
-    int m_color_progressed_bg;
-    int m_color_done;
-    int m_color_done_text;   // for the text rather than checkbox
-    int m_color_done_bg;
-    int m_color_canceled;
-    int m_color_canceled_bg;
 
     // CONSTANT COLORS
-    static final int s_color_match1     = Color.parseColor( "#33FF33" );
-    static final int s_color_match2     = Color.parseColor( "#009900" );
-    static final int s_color_link1      = Color.parseColor( "#6666FF" );
-    static final int s_color_link2      = Color.parseColor( "#000099" );
-    static final int s_color_broken1    = Color.parseColor( "#FF3333" );
-    static final int s_color_broken2    = Color.parseColor( "#990000" );
 
     static final int s_color_todo       = Color.parseColor( "#FF0000" );
     static final int s_color_progressed = Color.parseColor( "#FF8811" );

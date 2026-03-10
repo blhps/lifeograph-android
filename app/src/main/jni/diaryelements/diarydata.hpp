@@ -486,10 +486,10 @@ namespace VT
                          PS_INDENT_6    =  0x600'0000,
                          PS_INDENT_MAX  = 6,
                          // ALIGNMENT
-                         PS_FLT_ALIGN   = 0x3000'0000,
+                         // PS_FLT_ALIGN   = 0x3000'0000,
                          PS_ALIGN_L     = 0x1000'0000,
-                         PS_ALIGN_C     = 0x2000'0000,
-                         PS_ALIGN_R     = 0x3000'0000,
+                         // PS_ALIGN_C     = 0x2000'0000,
+                         // PS_ALIGN_R     = 0x3000'0000,
                          // STATUSES
                          PS_TODO_FORCED = 0x4000'0000,
                          PS_VISIBLE     = 0x8000'0000,
@@ -519,6 +519,14 @@ namespace VT
     REG_PROP_09(        'R', PS_LIST_GEN | PS_ORDERED_GEN | 0x90, CROMAN, N_( "Capital Roman" ) );
     REG_PROP_10(        'r', PS_LIST_GEN | PS_ORDERED_GEN | 0xA0, SROMAN, N_( "Small Roman" ) );
     REG_PROP_LAST( 10 );
+    REG_PROP_END;
+
+    // PARAGRAPH ALIGNMENT .........................................................................
+    REG_PROP_FRST( PA,  '<', 0x1000'0000,   LEFT,   N_( "Left" ) );
+    REG_PROP_01(        '|', 0x2000'0000,   CENTER, N_( "Center" ) );
+    REG_PROP_02(        '>', 0x3000'0000,   RIGHT,  N_( "Right" ) );
+    REG_PROP_LAST( 2 );
+    REG_PROP_XTRA( FILTER, 0x3000'0000 );
     REG_PROP_END;
 
     // HIDDEN FORMAT TYPES

@@ -678,18 +678,6 @@ Diary::parse_theme_line( Theme*& ptr2theme, const String& line )
     }
 }
 
-inline void
-parse_para_alignment( Paragraph* para, const char c )
-{
-    switch( c )
-    {
-        case '|': para->set_alignment( VT::PS_ALIGN_C ); break;
-        case '>': para->set_alignment( VT::PS_ALIGN_R ); break;
-        //case '<':
-        default:  para->set_alignment( VT::PS_ALIGN_L ); break;
-    }
-}
-
 void
 Diary::tmp_upgrade_ordinal_date_to_2000( DateV& old_date )
 {
@@ -1540,7 +1528,8 @@ Diary::parse_db_body_text_3000()
 
                                 if( line[ 2 ] == 'D' ) break;
 
-                                parse_para_alignment( p2para, line[ 2 ] );
+                                p2para->set_alignment( VT::get_v< VT::PA, int, char >(
+                                                           line[ 2 ] ) );
                                 p2para->set_heading_level( VT::get_v< VT::PHS, int, char >(
                                                            line[ 3 ] ) );
                                 p2para->set_list_type( VT::get_v< VT::PLS, int, char >(
@@ -1776,7 +1765,7 @@ Diary::parse_db_body_text_2000()
                                                                 p2para_after, // only in old entries
                                                                 nullptr,
                                                                 ParaInhClass::SET_TEXT );
-                        parse_para_alignment( p2para, line[ 2 ] );
+                        p2para->set_alignment( VT::get_v< VT::PA, int, char >( line[ 2 ] ) );
                         break;
                     case 'b':   // bg color
                         p2entry->set_color( line.substr( 2 ) );
@@ -2325,13 +2314,7 @@ get_entry_todo_status_char( const Entry* p2entry )
 inline char
 get_para_alignment_char( const int style )
 {
-    switch( style & VT::PS_FLT_ALIGN )
-    {
-        case VT::PS_ALIGN_C:    return '|';
-        case VT::PS_ALIGN_R:    return '>';
-        //case VT::PS_ALIGN_L:
-        default:                return '<';
-    }
+    return VT::get_v< VT::PA, char, int >( style & VT::PA::FILTER );
 }
 inline char
 get_para_list_type_char( const int style )
@@ -3041,17 +3024,6 @@ Diary::get_entries_by_filter( const Filter* filter ) const
 
     if( fc )
         delete fc;
-
-    return ev;
-}
-VecEntries
-Diary::get_entries_by_filter( const Ustring& filter_name ) const
-{
-    VecEntries ev;
-    auto&& it_filter { m_filters.find( filter_name ) };
-
-    if( it_filter != m_filters.end() )
-        return get_entries_by_filter( it_filter->second );
 
     return ev;
 }

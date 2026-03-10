@@ -25,10 +25,7 @@ import java.util.Comparator;
 
 public abstract class DiaryElement {
     // DEID
-    public final static long DEID_MIN           = 10000L; // ids have to be greater than this
     public final static long DEID_UNSET         = 404L;   // :)
-    public final static long HOME_CURRENT_ENTRY = 1L;     // entry shown at startup
-    public final static long HOME_LAST_ENTRY    = 2L;     // entry shown at startup
     // NOTE: when HOME is fixed element, elements ID is used
 
     final static CharSequence STR_SEPARATOR = " - ";
@@ -105,18 +102,18 @@ public abstract class DiaryElement {
              |ES_FILTER_OUTSTANDING;
     public final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
 
-    public DiaryElement( Diary diary, String name, int status ) {
-        m_p2diary = diary;
-        m_status = status;
-        m_name = name;
-        m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
-    }
-
-    public DiaryElement( Diary diary, long id, int status ) {
-        m_p2diary = diary;
-        m_status = status;
-        m_id = id;
-    }
+//    public DiaryElement( Diary diary, String name, int status ) {
+//        m_p2diary = diary;
+//        m_status = status;
+//        m_name = name;
+//        m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
+//    }
+//
+//    public DiaryElement( Diary diary, long id, int status ) {
+//        m_p2diary = diary;
+//        m_status = status;
+//        m_id = id;
+//    }
 
     protected DiaryElement(long nativePtr) {
         mNativePtr = nativePtr;
@@ -124,7 +121,7 @@ public abstract class DiaryElement {
 
     public long
     get_id() {
-        return m_id;
+        return nativeGetId(mNativePtr);
     }
 
     boolean
@@ -132,23 +129,17 @@ public abstract class DiaryElement {
         return mNativePtr == other.mNativePtr;
     }
 
-    boolean
-    get_filtered_out() { return( ( m_status & ES_FILTER_OUT ) != 0 ); }
-    void
-    set_filtered_out( boolean filteredout ) {
-        if( filteredout )
-            m_status |= ES_FILTER_OUT;
-        else if( ( m_status & ES_FILTER_OUT ) != 0 )
-            m_status -= ES_FILTER_OUT;
+    public Type
+    get_type() {
+        return nativeGetType(mNativePtr);
     }
+//    public String get_type_name() {
+//        return get_type().str;
+//    }
 
-    abstract public Type get_type();
-
-    public String get_type_name() {
-        return get_type().str;
+    public int get_size() {
+        return nativeGetSize(mNativePtr);
     }
-
-    public int get_size() { return 0; }
 
     public int get_icon() {
         try {
@@ -160,93 +151,41 @@ public abstract class DiaryElement {
         return 0;
     }
 
-    public Date get_date() {
-        return new Date( Date.NOT_APPLICABLE );
-    }
-    public long get_date_t() {
-        return get_date().m_date;
-    }
-
     // STRING METHODS
     public String
     get_name() {
-        return m_name;
+        return nativeGetName(mNativePtr);
     }
 
     public void
     set_name( String name ) {
-        m_name = name;
+        nativeSetName(mNativePtr, name);
     }
 
-    public String
-    get_title_str() {
-        return m_name;
+    public String // TODO: stub...
+    get_list_str() {
+        return get_name();
     }
     public String
     get_info_str() {
         return "";
     }
 
-    public int get_status() {
-        return m_status;
-    }
-    public void set_status( int status ) {
-        m_status = status;
-    }
-
-    public void set_status_flag( int flag, boolean add ) {
-        if( add )
-            m_status |= flag;
-        else if( ( m_status & flag ) != 0 )
-            m_status -= flag;
-    }
-    // only works for entries and chapters:
-    public int get_todo_status() {
-        return ( m_status & ES_FILTER_TODO );
-    }
-    public int get_todo_status_effective() {
-        final int s = ( m_status & ES_FILTER_TODO_PURE );
-        return( s != 0 ? s : ES_NOT_TODO );
-    }
-    void
-    set_todo_status( int s ) {
-        m_status -= ( m_status & ES_FILTER_TODO );
-        m_status |= s;
-    }
-
-    public boolean
-    get_expanded(){
-        return( ( m_status & ES_EXPANDED ) != 0 );
-    }
-    public void
-    set_expanded( boolean flag_expanded ) {
-        set_status_flag( ES_EXPANDED, flag_expanded );
-    }
-
-    public String  m_name;
-    public Diary   m_p2diary;
-    public long    m_id;
-    public int     m_status;
-    public boolean mHasChildren = false; // Anroid only
+//    public int get_status() {
+//        return nativeGetStatus(mNativePtr);
+//    }
+//    public void set_status( int status ) {
+//        nativeSetStatus(mNativePtr, status);
+//    }
 
     public long mNativePtr = 0;
 
     static class CompareElemsByName implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
-            return( elem_l.m_name.compareTo( elem_r.m_name ) );
+            return( elem_l.get_name().compareTo( elem_r.get_name() ) );
         }
     }
 
-    static class CompareElemsByDate implements Comparator< DiaryElement > {
-        public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
-            final long diff = ( elem_r.get_date_t() - elem_l.get_date_t() );
-            if( diff == 0 )
-                return 0;
-            else if( diff > 0 )
-                return 1;
-            else return -1;
-        }
-    }
 
     static class CompareDates implements Comparator< Long > {
         public int compare( Long date_l, Long date_r ) {
@@ -265,8 +204,13 @@ public abstract class DiaryElement {
         }
     }
 
-    //static final CompareElemsByName compare_elems_by_name = new CompareElemsByName();
-    public static final CompareElemsByDate compare_elems_by_date = new CompareElemsByDate();
     public static final CompareDates compare_dates = new CompareDates();
     public static final CompareNames compare_names = new CompareNames();
+
+    // NATIVE METHODS ==============================================================================
+    private native long nativeGetId(long ptr);
+    private native String nativeGetName(long ptr);
+    private native void nativeSetName(long ptr, String name);
+    private native Type nativeGetType(long ptr);
+    private native int nativeGetSize(long ptr);
 }

@@ -15,12 +15,69 @@ JNI_METHOD(jint, DiaryElement_nativeGetType)(JNIEnv* env, jobject obj, jlong ptr
     return static_cast<jint>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_type());
 }
 
+JNI_METHOD(jint, DiaryElement_nativeGetSize)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_size());
+}
+
 JNI_METHOD(jlong, DiaryElement_nativeGetId)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jlong>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_id().get_raw());
 }
 
 JNI_METHOD(jstring, DiaryElement_nativeGetName)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_name_std().c_str());
+}
+
+JNI_METHOD(void, DiaryElement_nativeSetName)(JNIEnv* env, jobject obj, jlong ptr, jstring name) {
+    const char* c_name = env->GetStringUTFChars(name, nullptr);
+    reinterpret_cast<LoG::DiaryElement*>(ptr)->set_name( c_name );
+    env->ReleaseStringUTFChars(name, c_name);
+}
+
+JNI_METHOD(jlongArray, Diary_nativeGetThemes)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    auto themes = diary->get_p2themes();
+    auto size = static_cast<jsize>(themes->size());
+    jlongArray result = env->NewLongArray(size);
+    std::vector<jlong> ptrs;
+    ptrs.reserve(size);
+    for (auto e : *themes) ptrs.push_back(reinterpret_cast<jlong>(e.second));
+    env->SetLongArrayRegion(result, 0, size, ptrs.data());
+    return result;
+}
+
+// DIARYELEMTAG METHODS ============================================================================
+JNI_METHOD(jlong, DiaryElemTag_nativeGetDate)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jlong>(reinterpret_cast<LoG::DiaryElemTag*>(ptr)->get_date());
+}
+
+JNI_METHOD(jlong, DiaryElemTag_nativeGetDateEdited)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jlong>(reinterpret_cast<LoG::DiaryElemTag*>(ptr)->get_date_edited());
+}
+
+JNI_METHOD(jboolean, DiaryElemTag_nativeIsExpanded)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jboolean>(reinterpret_cast<LoG::DiaryElemTag*>(ptr)->is_expanded());
+}
+
+JNI_METHOD(void, DiaryElemTag_nativeSetExpanded)(JNIEnv* env, jobject obj, jlong ptr,
+           jboolean flag_expanded) {
+    reinterpret_cast<LoG::DiaryElemTag*>(ptr)->set_expanded(flag_expanded);
+}
+
+JNI_METHOD(jint, DiaryElemTag_nativeGetTodoStatus)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::DiaryElemTag*>(ptr)->get_todo_status());
+}
+
+JNI_METHOD(jint, DiaryElemTag_nativeGetTodoStatusEffective)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::DiaryElemTag*>(ptr)->get_todo_status_effective());
+}
+
+JNI_METHOD(void, DiaryElemTag_nativeSetTodoStatus)(JNIEnv* env, jobject obj, jlong ptr,
+                                                   jint status) {
+    reinterpret_cast<LoG::DiaryElemTag*>(ptr)->set_todo_status(status);
+}
+
+JNI_METHOD(jstring, DiaryElemTag_nativeGetUnit)(JNIEnv* env, jobject obj, jlong ptr) {
+    return env->NewStringUTF(reinterpret_cast<LoG::DiaryElemTag*>(ptr)->get_unit().c_str());
 }
 
 // DIARY METHODS ===================================================================================
@@ -73,16 +130,8 @@ JNI_METHOD(jint, Diary_nativeSetPath)(JNIEnv* env, jobject obj, jlong ptr, jstri
     return static_cast<jint>(res);
 }
 
-JNI_METHOD(jint, Diary_nativeReadHeader)(JNIEnv* env, jobject obj, jlong ptr, jbyteArray data) {
-    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
-    jsize len = env->GetArrayLength(data);
-    jbyte* body = env->GetByteArrayElements(data, nullptr);
-
-    diary->set_buffer(reinterpret_cast<const char*>(body), static_cast<size_t>(len));
-    LoG::Result res = diary->read_header();
-
-    env->ReleaseByteArrayElements(data, body, JNI_ABORT);
-    return static_cast<jint>(res);
+JNI_METHOD(jint, Diary_nativeReadHeader)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->read_header());
 }
 
 JNI_METHOD(jint, Diary_nativeReadBody)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -140,6 +189,10 @@ JNI_METHOD(void, Diary_nativeSetLang)(JNIEnv* env, jobject obj, jlong ptr, jstri
 
 JNI_METHOD(jint, Diary_nativeWrite)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->write());
+}
+
+JNI_METHOD(jint, Diary_nativeWriteLock)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->write_lock());
 }
 
 JNI_METHOD(jint, Diary_nativeWriteTo)(JNIEnv* env, jobject obj, jlong ptr, jstring uri) {
@@ -255,7 +308,6 @@ JNI_METHOD(jlong, Diary_nativeGetElement)(JNIEnv* env, jobject obj, jlong ptr, j
 }
 
 // ENTRY METHODS ===================================================================================
-
 JNI_METHOD(jlong, Entry_nativeGetId)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_id().get_raw());
 }
@@ -271,7 +323,7 @@ JNI_METHOD(jint, Entry_nativeGetChildCount)(JNIEnv* env, jobject obj, jlong ptr)
 JNI_METHOD(jlongArray, Entry_nativeGetDescendants)(JNIEnv* env, jobject obj, jlong ptr) {
     auto descendants = reinterpret_cast<LoG::Entry*>(ptr)->get_descendants();
     auto size = static_cast<jsize>(descendants.size());
-    jlongArray result = env->NewLongArray(size);
+    auto result = env->NewLongArray(size);
     std::vector<jlong> ptrs;
     ptrs.reserve(size);
     for (auto e : descendants) ptrs.push_back(reinterpret_cast<jlong>(e));
@@ -339,6 +391,22 @@ JNI_METHOD(jlong, Entry_nativeGetParagraphAtPos)(JNIEnv* env, jobject obj, jlong
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_paragraph(static_cast<size_t>(pos)));
 }
 
+JNI_METHOD(jlong, Entry_nativeAddParagraphBefore)(JNIEnv* env, jobject obj, jlong ptr,
+           jstring text, jlong ptr_para_after) {
+    const char* c_text = env->GetStringUTFChars(text, nullptr);
+    auto result = reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->add_paragraph_before
+                    (c_text, reinterpret_cast<LoG::Paragraph*>(ptr_para_after )));
+    env->ReleaseStringUTFChars(text, c_text);
+    return result;
+}
+
+JNI_METHOD(jlong, Entry_nativeAddParagraphsAfter)(JNIEnv* env, jobject obj, jlong ptr,
+                                                  jlong ptr_para_bgn, jlong ptr_para_after) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->add_paragraphs_after
+            (reinterpret_cast<LoG::Paragraph*>(ptr_para_bgn),
+             reinterpret_cast<LoG::Paragraph*>(ptr_para_after)));
+}
+
 JNI_METHOD(jstring, Entry_nativeGetDescription)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_description().c_str());
 }
@@ -403,6 +471,14 @@ JNI_METHOD(void, Entry_nativeAddTag)(JNIEnv* env, jobject obj, jlong ptr, jlong 
     reinterpret_cast<LoG::Entry*>(ptr)->add_tag(reinterpret_cast<LoG::Entry*>(tagPtr), value);
 }
 
+JNI_METHOD(jlong, Entry_nativeGetTheme)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_theme());
+}
+
+JNI_METHOD(void, Entry_nativeSetTheme)(JNIEnv* env, jobject obj, jlong ptr, jlong themePtr) {
+    reinterpret_cast<LoG::Entry*>(ptr)->set_theme(reinterpret_cast<LoG::Theme*>(themePtr));
+}
+
 JNI_METHOD(jboolean, Entry_nativeIsThemeSet)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jboolean>(reinterpret_cast<LoG::Entry*>(ptr)->is_theme_set());
 }
@@ -437,16 +513,22 @@ JNI_METHOD(jlong, Entry_nativeGetNextStraight)(JNIEnv* env, jobject obj, jlong p
 
 // PARAGRAPH METHODS ===============================================================================
 
+JNI_METHOD(jlong, Paragraph_nativeGetPrev)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_prev());
+}
+JNI_METHOD(jlong, Paragraph_nativeGetNext)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_next());
+}
+JNI_METHOD(jlong, Paragraph_nativeGetNextVisible)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_next_visible());
+}
+
 JNI_METHOD(jstring, Paragraph_nativeGetText)(JNIEnv* env, jobject obj, jlong ptr) {
     auto para = reinterpret_cast<LoG::Paragraph*>(ptr);
     return env->NewStringUTF(para->get_text().c_str());
 }
 
-JNI_METHOD(jint, Paragraph_nativeGetStatus)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jint>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_todo_status());
-}
-
-JNI_METHOD(jint, Paragraph_nativeGetIndentationLevel)(JNIEnv* env, jobject obj, jlong ptr) {
+JNI_METHOD(jint, Paragraph_nativeGetIndentLevel)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jint>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_indent_level());
 }
 
@@ -454,8 +536,30 @@ JNI_METHOD(jint, Paragraph_nativeGetHeadingLevel)(JNIEnv* env, jobject obj, jlon
     return static_cast<jint>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_heading_level());
 }
 
-JNI_METHOD(jboolean, Paragraph_nativeIsExpanded)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_expanded());
+JNI_METHOD(jchar, Paragraph_nativeGetAlignment)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto result = reinterpret_cast<LoG::Paragraph*>(ptr)->get_alignment();
+    return static_cast<jchar>(LoG::VT::get_v<LoG::VT::PA, char, int>(result));
+}
+
+JNI_METHOD(void, Paragraph_nativeSetAlignment)(JNIEnv* env, jobject obj, jlong ptr, jchar alignment) {
+    int alignment_int = LoG::VT::get_v<LoG::VT::PA, int, char>(alignment);
+    reinterpret_cast<LoG::Paragraph*>(ptr)->set_alignment(alignment_int);
+}
+
+JNI_METHOD(jchar, Paragraph_nativeGetListType)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto result = reinterpret_cast<LoG::Paragraph*>(ptr)->get_list_type();
+    return static_cast<jchar>(LoG::VT::get_v<LoG::VT::PLS, char, int>(result));
+}
+
+JNI_METHOD(jlongArray, Paragraph_nativeGetFormats)(JNIEnv* env, jobject obj, jlong ptr) {
+    const auto& formats = reinterpret_cast<LoG::Paragraph*>(ptr)->m_formats;
+    auto size = static_cast<jsize>(formats.size());
+    auto result = env->NewLongArray(size);
+    std::vector<jlong> ptrs;
+    ptrs.reserve(size);
+    for (auto f : formats) ptrs.push_back(reinterpret_cast<jlong>(f));
+    env->SetLongArrayRegion(result, 0, size, ptrs.data());
+    return result;
 }
 
 } // extern "C"

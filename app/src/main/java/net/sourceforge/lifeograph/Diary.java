@@ -23,35 +23,14 @@ package net.sourceforge.lifeograph;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.StringReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
-import java.util.Objects;
-import java.util.Random;
-import java.util.TreeMap;
 import java.util.Vector;
 
-import android.annotation.SuppressLint;
 import android.content.ContentResolver;
 import android.content.Context;
-import android.content.UriPermission;
-import android.graphics.Color;
-import android.net.Uri;
-import android.util.Log;
 
 import androidx.annotation.NonNull;
-import kotlin.Pair;
 
 import net.sourceforge.lifeograph.helpers.*;
 
@@ -468,6 +447,18 @@ public class Diary extends DiaryElement
         return new Theme(ptr);
     }
 
+    Vector<Theme>
+    get_themes() {
+        long[] ptrs = nativeGetThemes(mNativePtr);
+        Vector<Theme> themes = new Vector<>(ptrs.length);
+        for (long ptr : ptrs) {
+            if (ptr != 0) {
+                themes.add(new Theme(ptr));
+            }
+        }
+        return themes;
+    }
+
     void
     dismiss_theme( @NonNull Theme theme ) throws Exception {
         // TODO....
@@ -509,6 +500,11 @@ public class Diary extends DiaryElement
         return nativeWrite(mNativePtr);
     }
 
+    Result
+    write_lock() {
+        return nativeWriteLock(mNativePtr);
+    }
+
     // NATIVE METHODS ==============================================================================
     private static native boolean initCipher();
     private native String decryptBuffer( String passphrase, byte[] salt,
@@ -520,7 +516,7 @@ public class Diary extends DiaryElement
     private native int nativeInitNew(long ptr, String path, String pw);
     private native void nativeClear(long ptr);
     private native int nativeSetPath(long ptr, String path, int type);
-    private native int nativeReadHeader(long ptr, byte[] data);
+    private native int nativeReadHeader(long ptr);
     private native int nativeReadBody(long ptr);
     private native int nativeEnableEditing(long ptr);
     private native String nativeGetPassphrase(long ptr);
@@ -554,9 +550,11 @@ public class Diary extends DiaryElement
 
     private native long nativeCreateTheme(long mNativePtr, String name0);
     private native long nativeGetTheme(long mNativePtr, String name);
+    private native long[] nativeGetThemes(long mNativePtr);
 
 
     private native Result nativeWrite(long mNativePtr);
+    private native Result nativeWriteLock(long mNativePtr);
 
     // HELPER FUNCTIONS ============================================================================
 //    public String

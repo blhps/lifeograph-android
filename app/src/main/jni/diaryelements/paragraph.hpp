@@ -453,20 +453,20 @@ class Paragraph : public DiaryElemTag
 
         // ALIGNMENT
         int                         get_alignment() const
-        { return( m_style & VT::PS_FLT_ALIGN ); }
+        { return( m_style & VT::PA::FILTER ); }
         void                        set_alignment( int align )
         {
-            m_style = ( ( m_style & ~VT::PS_FLT_ALIGN ) | ( align & VT::PS_FLT_ALIGN ) );
+            m_style = ( ( m_style & ~VT::PA::FILTER ) | ( align & VT::PA::FILTER ) );
             update_date_edited();
         }
         Pango::Alignment            get_pango_alignment() const
         {
-            switch( m_style & VT::PS_FLT_ALIGN )
+            switch( m_style & VT::PA::FILTER )
             {
-                case VT::PS_ALIGN_C:  return Pango::Alignment::CENTER;
-                case VT::PS_ALIGN_R:  return Pango::Alignment::RIGHT;
-                //case VT::PS_ALIGN_L:
-                default:              return Pango::Alignment::LEFT;
+                case VT::PA::CENTER::I: return Pango::Alignment::CENTER;
+                case VT::PA::RIGHT::I:  return Pango::Alignment::RIGHT;
+                //case VT::PA::LEFT::I:
+                default:                return Pango::Alignment::LEFT;
             }
         }
 
