@@ -23,7 +23,7 @@ package net.sourceforge.lifeograph;
 
 import java.util.Comparator;
 
-public abstract class DiaryElement {
+public class DiaryElement {
     // DEID
     public final static long DEID_UNSET         = 404L;   // :)
     // NOTE: when HOME is fixed element, elements ID is used

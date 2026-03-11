@@ -20,7 +20,7 @@ along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 package net.sourceforge.lifeograph
 
 class HiddenFormat(val mNativePtr: Long) {
-    var type: Int
+    var type: Char
         get() = nativeGetType(mNativePtr)
         set(value) = nativeSetType(mNativePtr, value)
 
@@ -49,8 +49,8 @@ class HiddenFormat(val mNativePtr: Long) {
         set(value) = nativeSetVarD(mNativePtr, value)
 
     // NATIVE METHODS ==============================================================================
-    private external fun nativeGetType(ptr: Long): Int
-    private external fun nativeSetType(ptr: Long, value: Int)
+    private external fun nativeGetType(ptr: Long): Char
+    private external fun nativeSetType(ptr: Long, value: Char)
     private external fun nativeGetUri(ptr: Long): String
     private external fun nativeSetUri(ptr: Long, value: String)
     private external fun nativeGetPosBgn(ptr: Long): Int

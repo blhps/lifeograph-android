@@ -52,7 +52,7 @@ Paragraph::Paragraph( Paragraph* p, Diary* p2diary )
     m_text( p->m_text )
 {
     for( auto& format : p->m_formats )
-        if( !( format->type & VT::HFT_F_ONTHEFLY ) )
+        if( !format->is_on_the_fly() )
             m_formats.insert( new HiddenFormat( *format ) );
 }
 
@@ -1212,7 +1212,7 @@ Paragraph::set_list_type( int type )
             return;
     }
 
-    m_style = ( ( m_style & ~( VT::PS_FLT_LIST ) ) | ( type & VT::PS_FLT_LIST ) );
+    m_style = ( ( m_style & ~( VT::PLS::FILTER ) ) | ( type & VT::PLS::FILTER ) );
 }
 
 void
@@ -1665,7 +1665,7 @@ Paragraph::insert_format( HiddenFormat* f )
     if( f->type == VT::HFT_LINK_EVAL )
         f->set_id_lo( m_id );
 
-    if( !( f->type & VT::HFT_F_ONTHEFLY ) )
+    if( !f->is_on_the_fly() )
         update_date_edited();
 }
 
@@ -1718,7 +1718,7 @@ Paragraph::remove_format( const HiddenFormat* format )
     {
         if( f->type == format->type && f->pos_bgn == format->pos_bgn )
         {
-            if( !( f->type & VT::HFT_F_ONTHEFLY ) )
+            if( !f->is_on_the_fly() )
                 update_date_edited();
             delete f;
             return true;
@@ -1732,7 +1732,7 @@ Paragraph::remove_onthefly_formats()
 {
     FormattedText::erase_if( m_formats, [ & ]( HiddenFormat* f )
     {
-        if( f->type & VT::HFT_F_ONTHEFLY )
+        if( f->is_on_the_fly() )
         {
             delete f;
             return true;
@@ -1878,7 +1878,7 @@ Paragraph::join_with_next()
         {
             set_heading_level( m_p2next->get_heading_level() );
 
-            if( !( m_style & VT::PS_FLT_LIST ) )
+            if( !( m_style & VT::PLS::FILTER ) )
             {
                 set_list_type( m_p2next->get_list_type() );
                 set_indent_level( m_p2next->get_indent_level() );

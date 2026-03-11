@@ -174,7 +174,7 @@ Entry::get_as_skvvec() const
                             "    " + PropertyStorage::get_variant_str( it_prop.second ) } );
 
         for( auto format : para->m_formats )
-            if( !( format->type & VT::HFT_F_ONTHEFLY ) )
+            if( !format->is_on_the_fly() )
                 sv.push_back( { para->get_format_id_for_sync( format ),
                                 "    " + format->get_as_human_readable_str() } );
     }

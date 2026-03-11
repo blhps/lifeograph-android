@@ -59,25 +59,8 @@ struct HiddenFormat
     StringSize  pos_bgn;
     StringSize  pos_end;
 
-    static int  get_type_from_char( char c )
-    {
-        switch( c )
-        {
-            case 'B': return VT::HFT_BOLD;
-            case 'I': return VT::HFT_ITALIC;
-            case 'H': return VT::HFT_HIGHLIGHT;
-            case 'S': return VT::HFT_STRIKETHRU;
-            case 'U': return VT::HFT_UNDERLINE;
-            case 'F': return VT::HFT_FADED;
-            case 'C': return VT::HFT_SUBSCRIPT;
-            case 'P': return VT::HFT_SUPERSCRIPT;
-            case 'T': return VT::HFT_TAG;
-            case 'L': return VT::HFT_LINK_URI;
-            case 'E': return VT::HFT_LINK_EVAL;
-            case 'D': return VT::HFT_LINK_ID;
-        }
-        return 0; // mostly to silence the compiler
-    }
+    static int
+    get_type_from_char( char c ) { return VT::get_v< VT::FMT, int, char >( c ); }
 
     Ustring   get_as_human_readable_str() const
     {
@@ -85,19 +68,22 @@ struct HiddenFormat
 
         switch( type )
         {
-            case VT::HFT_BOLD:          str = _( "Bold" ); break;
-            case VT::HFT_ITALIC:        str = _( "Italic" ); break;
-            case VT::HFT_HIGHLIGHT:     str = _( "Highlight" ); break;
-            case VT::HFT_STRIKETHRU:    str = _( "Strikethrough" ); break;
-            case VT::HFT_UNDERLINE:     str = _( "Underline" ); break;
-            case VT::HFT_SUBSCRIPT:     str = _( "Subscript" ); break;
-            case VT::HFT_SUPERSCRIPT:   str = _( "Superscript" ); break;
-            case VT::HFT_TAG:           str = STR::compose( _( "Tag to" ), ": ", ref_id ); break;
-            case VT::HFT_LINK_URI:      str = STR::compose( _( "Link to URI" ), ": ", uri ); break;
-            case VT::HFT_LINK_EVAL:     str = STR::compose( _( "Link to evaluated text" ) ); break;
-            case VT::HFT_LINK_ID:       str = STR::compose( _( "Link to entry" ), ": ", ref_id );
-                 break;
-            default:                    str = "???"; break;
+            case VT::FMT::BOLD::I:
+            case VT::FMT::ITALIC::I:
+            case VT::FMT::HIGHLIGHT::I:
+            case VT::FMT::STRIKETHRU::I:
+            case VT::FMT::UNDERLINE::I:
+            case VT::FMT::SUBSCRIPT::I:
+            case VT::FMT::SUPERSCRIPT::I:
+                str = VT::get_v< VT::FMT, const char*, int >( type ); break;
+            case VT::FMT::TAG::I:         str = STR::compose( _( "Tag to" ), ": ", ref_id ); break;
+            case VT::FMT::LINK_URI::I:    str = STR::compose( _( "Link to URI" ), ": ", uri );
+                                          break;
+            case VT::FMT::LINK_EVAL::I:   str = STR::compose( _( "Link to evaluated text" ) );
+                                          break;
+            case VT::FMT::LINK_ID::I:     str = STR::compose( _( "Link to entry" ), ": ", ref_id );
+                                          break;
+            default:                      str = "???"; break;
         }
 
         str += STR::compose( " @ ", pos_bgn, "..", pos_end );
@@ -114,6 +100,9 @@ struct HiddenFormat
     set_id_lo( const LoGID& id ) { ref_id = LoGIDF{ id, get_id_hi() }.get_raw(); }
     void
     set_id_hi( const LoGID& id ) { ref_id = LoGIDF{ get_id_lo(), id }.get_raw(); }
+
+    constexpr bool
+    is_on_the_fly() const { return( type & VT::HFT_F_ONTHEFLY ); }
 };
 
 struct FuncCmpFormats
@@ -263,7 +252,7 @@ class Paragraph : public DiaryElemTag
                 // empty paras cannot be parent by virtue of indentation:
                 if( STR::strip_spaces( m_text ).empty() )         return false;
                 // empty paras are always sub unless they are the last one:
-                if( STR::strip_spaces( p_sub->m_text ).empty() )  
+                if( STR::strip_spaces( p_sub->m_text ).empty() )
                     return can_be_parent_of( p_sub->m_p2next );
 
                 const auto ths_indent_lvl  { this->get_indentation_any() };
@@ -444,9 +433,9 @@ class Paragraph : public DiaryElemTag
         bool                        is_list() const
         { return( m_style & VT::PS_LIST_GEN ); }
         int                         get_list_type() const
-        { return( m_style & VT::PS_FLT_LIST ); }
+        { return( m_style & VT::PLS::FILTER ); }
         void                        clear_list_type()
-        {   m_style &= ~VT::PS_FLT_LIST;
+        {   m_style &= ~VT::PLS::FILTER;
             update_date_edited();
         }
         void                        set_list_type( int );
@@ -473,7 +462,7 @@ class Paragraph : public DiaryElemTag
         // TO-DO STATUS
         ElemStatus                  get_todo_status() const override
         {
-            switch( m_style & VT::PS_FLT_LIST )
+            switch( m_style & VT::PLS::FILTER )
             {
                 case VT::PLS::TODO::I:    return ES::TODO;
                 case VT::PLS::PROGRS::I:  return ES::PROGRESSED;
@@ -484,7 +473,7 @@ class Paragraph : public DiaryElemTag
         }
         int                         get_todo_status_ps() const
         {
-            const auto style { m_style & VT::PS_FLT_LIST };
+            const auto style { m_style & VT::PLS::FILTER };
             return( ( style & VT::PS_TODO_GEN ) ? style : 0 );
         }
         bool                        is_todo_status_forced() const

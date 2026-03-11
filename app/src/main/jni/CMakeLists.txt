@@ -64,8 +64,11 @@ add_library(lifeograph_core SHARED
     parsers/parser_stripper.cpp
     parsers/parser_upgrader.cpp
     helpers.c
-    # JNI Wrapper will be added here
-    lifeograph_jni.cpp
+    # JNI Wrappers
+    jni_diary.cpp
+    jni_entry.cpp
+    jni_paragraph.cpp
+    jni_diary_element.cpp
 )
 
 # Link against NDK libraries, prebuilts and RE2

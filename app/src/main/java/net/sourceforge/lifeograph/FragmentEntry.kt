@@ -21,12 +21,10 @@
 
 package net.sourceforge.lifeograph
 
-import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.graphics.Color
 import android.graphics.Typeface
-import android.net.Uri
 import android.os.Bundle
 import android.text.*
 import android.text.style.*
@@ -36,12 +34,11 @@ import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
 import androidx.appcompat.widget.SearchView
+import androidx.core.net.toUri
 import androidx.core.view.MenuItemCompat
-import net.sourceforge.lifeograph.FragmentEntry.ParserEditText.SpanNull
-import net.sourceforge.lifeograph.FragmentEntry.ParserEditText.SpanOther
+import net.sourceforge.lifeograph.FragmentEntry.AdvancedSpan
 import net.sourceforge.lifeograph.ToDoAction.ToDoObject
 import java.util.*
-import kotlin.collections.ArrayList
 
 class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Listener  {
 //    private enum class LinkStatus {
@@ -57,7 +54,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private lateinit var mEditText: EditText
     private lateinit var mButtonHighlight: Button
-    private val          mParser = ParserEditText(this)
     var                  mFlagSetTextOperation = false
     var                  mFlagEntryChanged = false
     private var          mFlagDismissOnExit = false
@@ -112,9 +108,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     // m_pos_end = mEditText.getText().length();
                     // }
                     mFlagEntryChanged = true
-                    mEntry._text = mEditText.text.toString()
+                    mEntry.insert_text(start, s.toString())
                 }
-                reparse()
             }
         })
 
@@ -201,8 +196,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     override fun onStop() {
         super.onStop()
         Log.d(Lifeograph.TAG, "ActivityEntry.onStop()")
-        if(mFlagDismissOnExit) Diary.d.dismiss_entry(mEntry, false) else sync()
-        Diary.d.writeLock()
+        if(mFlagDismissOnExit) Diary.d.dismiss_entry(mEntry) else sync()
+        Diary.d.write_lock()
     }
 
     @Deprecated("Deprecated in Java")
@@ -263,14 +258,14 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 showThemePickerDlg()
                 return true
             }
-            R.id.edit_date -> {
-                DialogInquireText(requireContext(),
-                                  R.string.edit_date,
-                                  mEntry._date.format_string(),
-                                  R.string.apply,
-                                  this).show()
-                return true
-            }
+//            R.id.edit_date -> {
+//                DialogInquireText(requireContext(),
+//                                  R.string.edit_date,
+//                                  mEntry._date.format_string(),
+//                                  R.string.apply,
+//                                  this).show()
+//                return true
+//            }
             R.id.dismiss -> {
                 dismiss()
                 return true
@@ -444,7 +439,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             mActionBar.setIcon( m_ptr2entry.get_icon() );*/
         if(isMenuInitialized) {
             mMenu.findItem(R.id.toggle_favorite).setIcon(
-                    if(mEntry.is_favored) R.drawable.ic_favorite_active
+                    if(mEntry.is_favorite) R.drawable.ic_favorite_active
                     else R.drawable.ic_favorite_inactive)
 
             mMenu.findItem(R.id.change_todo_status).setIcon(
@@ -459,18 +454,17 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     private fun updateTheme() {
-        mParser.mP2Theme = mEntry._theme
-        mEditText.setBackgroundColor(mParser.mP2Theme.color_base)
-        mEditText.setTextColor(mParser.mP2Theme.color_text)
-        mButtonHighlight.setTextColor(mParser.mP2Theme.color_text)
+        val theme = mEntry._theme
+        mEditText.setBackgroundColor(theme.color_base)
+        mEditText.setTextColor(theme.color_text)
+        mButtonHighlight.setTextColor(theme.color_text)
         val spanStringH = SpannableString("H")
-        spanStringH.setSpan(BackgroundColorSpan(mParser.mP2Theme.color_highlight), 0, 1, 0)
+        spanStringH.setSpan(BackgroundColorSpan(theme.color_highlight), 0, 1, 0)
         mButtonHighlight.text = spanStringH
     }
 
     private fun sync() {
         if(mFlagEntryChanged) {
-            mEntry.m_date_edited = (System.currentTimeMillis() / 1000L)
             mEntry._text = mEditText.text.toString()
             mFlagEntryChanged = false
         }
@@ -495,8 +489,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         //invalidateOptionsMenu(); // may be redundant here
 
         // BROWSING HISTORY
-        if(mBrowsingHistory.isEmpty() || mEntry.m_id != mBrowsingHistory.last()) // not going back
-            mBrowsingHistory.add(mEntry.m_id)
+        if(mBrowsingHistory.isEmpty() || mEntry._id != mBrowsingHistory.last()) // not going back
+            mBrowsingHistory.add(mEntry._id)
     }
 
     private fun toggleFavorite() {
@@ -555,9 +549,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                          override fun populateItems(list: RVBasicList) {
                              list.clear()
 
-                             for(theme in Diary.d.m_themes.values)
-                                 list.add(RViewAdapterBasic.Item(theme.m_name,
-                                                                 theme.m_name,
+                             for(theme in Diary.d._themes)
+                                 list.add(RViewAdapterBasic.Item(theme._name,
+                                                                 theme._name,
                                                                  R.drawable.ic_theme))
                          }
                      }).show()
@@ -565,34 +559,33 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     override fun setTodoStatus(s: Int) {
         mEntry._todo_status = s
-        mEntry.m_date_status = (System.currentTimeMillis() / 1000L)
         updateIcon()
     }
 
     // InquireListener methods
-    override fun onInquireAction(id: Int, text: String) {
-        if(id == R.string.edit_date) {
-            val date = Date(text)
-            if(date.m_date != Date.NOT_SET) {
-                if(!date.is_ordinal) date._order_3rd = 1
-                try {
-                    Diary.d.set_entry_date(mEntry, date)
-                }
-                catch(e: Exception) {
-                    e.printStackTrace()
-                }
-                Lifeograph.getActionBar().subtitle = mEntry._info_str
-            }
-        }
-    }
+//    override fun onInquireAction(id: Int, text: String) {
+//        if(id == R.string.edit_date) {
+//            val date = Date(text)
+//            if(date.m_date != Date.NOT_SET) {
+//                if(!date.is_ordinal) date._order_3rd = 1
+//                try {
+//                    Diary.d.set_entry_date(mEntry, date)
+//                }
+//                catch(e: Exception) {
+//                    e.printStackTrace()
+//                }
+//                Lifeograph.getActionBar().subtitle = mEntry._info_str
+//            }
+//        }
+//    }
 
-    override fun onInquireTextChanged(id: Int, text: String): Boolean {
-        if(id == R.string.edit_date) {
-            val date = Date.parse_string(text)
-            return date > 0 && date != mEntry.m_date.m_date
-        }
-        return true
-    }
+//    override fun onInquireTextChanged(id: Int, text: String): Boolean {
+//        if(id == R.string.edit_date) {
+//            val date = Date.parse_string(text)
+//            return date > 0 && date != mEntry.m_date.m_date
+//        }
+//        return true
+//    }
 
     private fun incrementNumberedLine(fullText: CharSequence,
                                       pos_bgn: Int,
@@ -790,12 +783,12 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
     }
 
-    private fun setListItemMark(target_item_type: Char) {
+    private fun setListItemMark(targetItemType: Char) {
         val bounds = intArrayOf(0, 0)
         if(calculateMultiParaBounds(bounds)) return
         var pos = bounds[0]
         if(bounds[0] == bounds[1]) { // empty line
-            when(target_item_type) {
+            when(targetItemType) {
                 '*' -> mEditText.text.insert(pos, "\t• ")
                 ' ' -> mEditText.text.insert(pos, "\t[ ] ")
                 '~' -> mEditText.text.insert(pos, "\t[~] ")
@@ -824,7 +817,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 '[' -> charLf = (if(charLf == '[') 'c' else 'n')
                 ' ' -> {
                     if(charLf == 's') { // separator space
-                        if(itemType != target_item_type) {
+                        if(itemType != targetItemType) {
                             mEditText.text.delete(posEraseBegin, pos + 1)
                             val diff = pos + 1 - posEraseBegin
                             pos -= diff
@@ -853,7 +846,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 }
                 else -> {
                     if(charLf == 'a' || charLf == 't' || charLf == '[') {
-                        when(target_item_type) {
+                        when(targetItemType) {
                             '*' -> {
                                 mEditText.text.insert(pos, "\t• ")
                                 pos += 3
@@ -911,454 +904,319 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private fun toggleIgnoreParagraph() {
         val bounds = intArrayOf(0, 0)
         if(calculateMultiParaBounds(bounds)) return
-        if(bounds[0] == bounds[1]) { // empty line
-            mEditText.text.insert(bounds[0], ".\t")
-            return
-        }
-        var pos = bounds[0]
-        var posEnd = bounds[1]
-        var posEraseBegin = pos
-        var charLf = '.'
-        while(pos <= posEnd) {
-            when(mEditText.text.toString()[pos]) {
-                '.' -> if(charLf == '.') {
-                    posEraseBegin = pos
-                    charLf = 't' // tab
-                }
-                else charLf = 'n'
-                '\n' -> charLf = '.'
-                '\t' -> {
-                    if(charLf == 't') {
-                        mEditText.text.delete(posEraseBegin, pos + 1)
-                        val diff = pos + 1 - posEraseBegin
-                        pos -= diff
-                        posEnd -= diff
-                    }
-                    if(charLf == '.') {
-                        mEditText.text.insert(pos, ".\t")
-                        pos += 2
-                        posEnd += 2
-                    }
-                    charLf = 'n'
-                }
-                0.toChar() -> {
-                    if(charLf == '.') {
-                        mEditText.text.insert(pos, ".\t")
-                        pos += 2
-                        posEnd += 2
-                    }
-                    charLf = 'n'
-                }
-                else -> {
-                    if(charLf == '.') {
-                        mEditText.text.insert(pos, ".\t")
-                        pos += 2
-                        posEnd += 2
-                    }
-                    charLf = 'n'
-                }
-            }
-            pos++
-        }
+        val para_bgn : Paragraph = mEntry.get_paragraph( bounds[0] )
+        val para_end : Paragraph = mEntry.get_paragraph( bounds[1] )
+        if(para_bgn._quot_type == '_') // off
+            para_bgn._quot_type = '*' // generic
+        else
+            para_bgn._quot_type = '_'
     }
 
     // PARSING =====================================================================================
-    fun reparse() {
-        mParser.parse(0, mEditText.text.length)
+
+    private fun processParagraph(p: Paragraph, offset: Int, offsetEnd: Int) {
+        val theme = mEntry._theme
+        // In Android, we don't necessarily "remove all tags" manually like GTK if we are
+        // using the ParserEditText's reset() logic, but for parity:
+        // (Assuming mEditText.text is a Spannable)
+
+        // 1. ALIGNMENT
+        val alignment = when(p._alignment) {
+            '<' -> Layout.Alignment.ALIGN_NORMAL
+            '|' -> Layout.Alignment.ALIGN_CENTER
+            '>' -> Layout.Alignment.ALIGN_OPPOSITE
+            else -> null
+        }
+        alignment?.let {
+            mEditText.text.setSpan(AlignmentSpan.Standard(it), offset, offsetEnd, 0)
+        }
+
+        // 2. HEADING TYPE
+        when(p._heading_level) {
+            'T' -> { // TITLE
+//                mEditText.text.setSpan(RelativeSizeSpan(1.5f), offset, offsetEnd, 0)
+//                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
+                mEditText.text.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
+                                       offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
+                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme.color_heading), offset,
+                                       offsetEnd, 0)
+                // TODO: Note: handle_title_edited logic would go here if needed for Android UI
+            }
+
+            'S' -> { // LARGE
+//                mEditText.text.setSpan(RelativeSizeSpan(1.2f), offset, offsetEnd, 0)
+//                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
+                mEditText.text.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
+                                       offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
+                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme.color_subheading), offset,
+                                       offsetEnd, 0)
+            }
+
+            'B' -> { // MEDIUM
+                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
+            }
+        }
+
+        // 3. LIST ITEM TYPE & SPECIAL STYLES (Exempt for title)
+        if(!p.is_title) {
+            if(offset != offsetEnd) {
+                val colorDone = 0xFF888888.toInt() // Example faded color
+                when(p._list_type) {
+                    't' -> { /* Todo: handled by specific status marks usually */
+                    }
+
+                    'O' -> { // open to-do
+                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
+                        mEditText.text.setSpan(ForegroundColorSpan(colorDone), offset, offsetEnd, 0)
+                    }
+
+                    '~' -> { // in progress
+                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
+                        mEditText.text.setSpan(ForegroundColorSpan(colorDone), offset, offsetEnd, 0)
+                    }
+
+                    '+' -> { // done
+                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
+                        mEditText.text.setSpan(ForegroundColorSpan(colorDone), offset, offsetEnd, 0)
+                    }
+
+                    'X' -> { // canceled
+                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
+                    }
+                }
+            }
+
+            if(p.is_code) {
+                mEditText.text.setSpan(TypefaceSpan("monospace"), offset, offsetEnd, 0)
+            } else if(p.is_quote) {
+                mEditText.text.setSpan(QuoteSpan(), offset, offsetEnd, 0)
+                mEditText.text.setSpan(StyleSpan(Typeface.ITALIC), offset, offsetEnd, 0)
+            }
+
+            // 4. INDENTATION
+            val indentLevel = p._indent_level
+            if(indentLevel > 0) {
+                // 20dp per level as an example
+                val margin = indentLevel * 40
+                mEditText.text.setSpan(LeadingMarginSpan.Standard(margin), offset, offsetEnd, 0)
+            }
+        }
+
+        // 5. HIDDEN FORMATS (Inline Spans)
+        for(format in p._formats) {
+            val fStart = offset + format.posBgn
+            val fEnd = offset + format.posEnd
+
+            // Ensure boundaries are valid
+            if(fStart < 0 || fEnd > mEditText.text.length || fStart >= fEnd) continue
+
+            when(format.type) {
+                'B' -> mEditText.text.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
+                'I' -> mEditText.text.setSpan(StyleSpan(Typeface.ITALIC), fStart, fEnd, 0)
+                'H' -> mEditText.text.setSpan(
+                    BackgroundColorSpan(0xFFFFFF00.toInt()),
+                    fStart,
+                    fEnd,
+                    0 )
+                'S' -> mEditText.text.setSpan(StrikethroughSpan(), fStart, fEnd, 0)
+                'C' -> mEditText.text.setSpan(SubscriptSpan(), fStart, fEnd, 0)
+                'P' -> mEditText.text.setSpan(SuperscriptSpan(), fStart, fEnd, 0)
+                'T' -> { // TAG
+                    mEditText.text.setSpan(
+                        BackgroundColorSpan(theme.m_color_inline_tag), fStart, fEnd, 0)
+                    mEditText.text.setSpan(
+                        LinkID(format.refId), fStart, fEnd, 0)
+                }
+                'L' -> { // Link: URI
+                    mEditText.text.setSpan( LinkUri(format.uri), fStart, fEnd, 0)
+                    // You already have LinkUri class defined in ParserEditText
+                    // mEditText.text.setSpan(LinkUri(format.uri), fStart, fEnd, 0)
+                }
+                'D' -> { // Link: ID
+                    val element = Diary.d.get_tag_by_id(format.refId)
+                    val span = if(element != null)
+                            LinkID(format.refId)
+                        else  // indicate dead links
+                            ForegroundColorSpan(Color.RED)
+                    mEditText.text.setSpan(span, fStart, fEnd, 0)
+                }
+                'v' -> { // TAG VALUE
+                    mEditText.text.setSpan(
+                        BackgroundColorSpan(theme.m_color_inline_tag), fStart, fEnd, 0)
+                }
+                'c' -> { // COMMENT / MARKUP
+                    mEditText.text.setSpan(
+                        TextAppearanceSpan(requireContext(), R.style.commentSpan),
+                        fStart, fEnd, 0 ) // general span
+                    mEditText.text.setSpan( ForegroundColorSpan(theme.m_color_mid), fStart,
+                                            fStart + 2, 0 ) // [[
+                    if(format.posBgn < format.posEnd - 4) {
+                        mEditText.text.setSpan(
+                            ForegroundColorSpan(theme.m_color_mid), fStart + 2, fEnd - 2, 0)
+                    }
+                    mEditText.text.setSpan(ForegroundColorSpan(theme.m_color_mid), fEnd - 2, fEnd, 0) // ]]
+                }
+                'd' -> { // DATE
+                    mEditText.text.setSpan(LinkDate(format.varD), fStart, fEnd, 0)
+                }
+                'm' -> { // MATCH
+                    mEditText.text.setSpan(
+                        BackgroundColorSpan(theme.m_color_match_bg),
+                        fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
+                    mEditText.text.setSpan(
+                        ForegroundColorSpan(theme.color_base),
+                        fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
+                }
+                // Add other types (Date, ID, etc.) based on your ParserEditText.AdvancedSpan types
+            }
+        }
     }
 
-    private interface AdvancedSpan {
+//    private fun updateTextFormatting(bgn: Int, end: Int) {
+//
+//    }
+    private fun updateTextFormatting(paraBgn: Paragraph, paraEnd: Paragraph) {
+        var offset = paraBgn._bgn_offset_in_host
+        var offsetEnd: Int
+
+        var p: Paragraph? = paraBgn
+        while(p != null) {
+            offsetEnd = offset + p._size
+
+            processParagraph(p, offset, offsetEnd)
+
+            if(p === paraEnd) { break }
+
+            // Move to next paragraph
+            offset = offsetEnd + 1
+            p = p._next_visible
+        }
+   }
+    fun reparse() {
+        updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
+    }
+
+    override fun onInquireAction(id: Int, text: String) {
+        TODO("Not yet implemented")
+    }
+
+    interface AdvancedSpan {
         val type: Char
     }
 
-    internal class ParserEditText(private val mHost: FragmentEntry) : ParserText() {
-        lateinit var mP2Theme: Theme
-        private val sMarkupScale = 0.7f
-        private val mSpans = Vector<Any?>()
 
-        override fun get_char_at(i: Int): Char {
-            return mHost.mEditText.text[i]
-        }
-
-        private fun getSlice(bgn: Int, end: Int): String {
-            return mHost.mEditText.text.subSequence(bgn, end).toString()
-        }
-
-        private fun addSpan(span: Any?, start: Int, end: Int, styles: Int) {
-            mSpans.add(span)
-            mHost.mEditText.text.setSpan(span, start, end, styles)
-        }
-
-        override fun reset(bgn: Int, end: Int){
-            super.reset(bgn, end)
-
-            // COMPLETELY CLEAR THE PARSING REGION
-            // TODO: only remove spans within the parsing boundaries...
-            // mEditText.getText().clearSpans(); <-- problematic!!
-            for(span in mSpans)
-                mHost.mEditText.text.removeSpan(span)
-            mSpans.clear()
-
-            // Following must come after reset as m_pos_para_bgn is reset there
-            // when bgn != 0, 1 added to the m_pos_para_bgn to skip the \n at the beginning
-            m_p2para_cur = mEntry.get_paragraph(
-                    if( m_pos_para_bgn > 0 ) m_pos_para_bgn + 1 else 0 )
-            mEntry.clear_paragraph_data( m_pos_para_bgn, end )
-        }
-
-        public override fun parse(bgn: Int, end: Int) {
-            mHost.updateTodoStatus()
-            super.parse(bgn, end)
-        }
-
-        public override fun process_paragraph() {
-            if(m_p2para_cur == null) return
-            when(m_p2para_cur.m_justification) {
-                Paragraph.JT_LEFT -> addSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_NORMAL),
-                                             m_pos_para_bgn, m_pos_cur, 0)
-                Paragraph.JT_CENTER -> addSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_CENTER),
-                                               m_pos_para_bgn, m_pos_cur, 0)
-                Paragraph.JT_RIGHT -> addSpan(AlignmentSpan.Standard(Layout.Alignment.ALIGN_OPPOSITE),
-                                              m_pos_para_bgn, m_pos_cur, 0)
-            }
-            m_p2para_cur = m_p2para_cur._next
-        }
-
-        // SPANS ===================================================================================
-        class SpanOther : AdvancedSpan {
-            override val type: Char
-                get() = 'O'
-        }
-
-        class SpanNull : AdvancedSpan {
-            override val type: Char
-                get() = ' '
-        }
-
-        @SuppressLint("ParcelCreator")
-        private class SpanBold : StyleSpan(Typeface.BOLD), AdvancedSpan {
-            override val type: Char
-                get() = '*'
-        }
-
-        @SuppressLint("ParcelCreator")
-        private class SpanItalic : StyleSpan(Typeface.ITALIC), AdvancedSpan {
-            override val type: Char
-                get() = '_'
-        }
-
-        @SuppressLint("ParcelCreator")
-        private inner class SpanHighlight : BackgroundColorSpan(mP2Theme.color_highlight),
-                AdvancedSpan {
-            override val type: Char
-                get() = '#'
-        }
-
-        @SuppressLint("ParcelCreator")
-        private class SpanStrikethrough : StrikethroughSpan(), AdvancedSpan {
-            override val type: Char
-                get() = '='
-        }
-
-        @SuppressLint("ParcelCreator")
-        private inner class SpanMarkup : ForegroundColorSpan(mP2Theme.m_color_mid), AdvancedSpan {
-            override val type: Char
-                get() = 'm'
-        }
-
-        private class LinkDate(private val mDate: Long) : ClickableSpan(), AdvancedSpan {
-            override fun onClick(widget: View) {
-                Log.d( Lifeograph.TAG, "Clicked on Date link")
-                var entry = Diary.d.get_entry_by_date(mDate)
-                if(entry == null)
-                    entry = Diary.d.create_entry(mDate, "")
-                Lifeograph.showElem(entry!!)
-            }
-
-            override val type: Char
-                get() = 'd'
-        }
-
-        private class LinkUri(private val mUri: String) : ClickableSpan(), AdvancedSpan {
-            override fun onClick(widget: View) {
-                Log.d( Lifeograph.TAG, "Clicked on Uri link")
-                val browserIntent = Intent(Intent.ACTION_VIEW, Uri.parse(mUri))
-                Lifeograph.mActivityMain.startActivity(browserIntent)
-            }
-
-            override val type: Char
-                get() = 'u'
-        }
-
-        private class LinkID(private val mId: Long) : ClickableSpan(), AdvancedSpan {
-            override fun onClick(widget: View) {
-                Log.d( Lifeograph.TAG, "Clicked on ID link")
-                val elem = Diary.d.get_element(mId)
-                if(elem != null) {
-                    if(elem._type != DiaryElement.Type.ENTRY)
-                        Log.d(Lifeograph.TAG, "Target is not entry")
-                    else
-                        Lifeograph.showElem(elem)
-                }
-            }
-
-            override val type: Char
-                get() = 'i'
-        }
-
-        private class LinkCheck(val mHost: FragmentEntry) :
-                ClickableSpan(), AdvancedSpan {
-            override fun onClick(widget: View) {
-                mHost.showStatusPickerDlg()
-            }
-
-            override val type: Char
-                get() = 'c'
-        }
+//        fun reset(bgn: Int, end: Int){
+//            super.reset(bgn, end)
+//
+//            // COMPLETELY CLEAR THE PARSING REGION
+//            // TODO: only remove spans within the parsing boundaries...
+//            // mEditText.getText().clearSpans(); <-- problematic!!
+//            for(span in mSpans)
+//                mHost.mEditText.text.removeSpan(span)
+//        }
 
         // APPLIERS ====================================================================================
-        public override fun apply_heading() {
-            var end = 0
-            if(mHost.mEditText.text[0] != '\n') end = mHost.mEditText.text.toString().indexOf('\n')
-            if(end == -1) end = mHost.mEditText.text.length
-            addSpan(TextAppearanceSpan(mHost.requireContext(), R.style.headingSpan), 0, end,
-                    Spanned.SPAN_INTERMEDIATE)
-            addSpan(ForegroundColorSpan(mEntry._theme.color_heading), 0, end, 0)
-            if(!mHost.mFlagSetTextOperation) {
-                mEntry.m_name = mHost.mEditText.text.toString().substring(0, end)
-                // handle_entry_title_changed() will not be used here in Android
+//        private fun applyCheck(tag_box: Any, tag: Any?) {
+//            val posBgn = m_pos_cur - 3
+//            val posBox = m_pos_cur
+//            var posEnd = mHost.mEditText.text.toString().indexOf('\n', m_pos_cur)
+//            if(posEnd == -1)
+//                posEnd = mHost.mEditText.text.length
+//            if(Diary.d.is_in_edit_mode)
+//                addSpan(LinkCheck(mHost), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
+//            addSpan(tag_box, posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
+//            addSpan(TypefaceSpan("monospace"), posBgn, posBox, 0)
+//            if(tag != null)
+//                addSpan(tag, posBox + 1, posEnd, 0) // ++ to skip separating space char
+//        }
+
+        // PARSING HELPER FUNCTIONS ====================================================================
+        private fun isSpace(offset: Int): Boolean {
+            if(offset < 0 || offset >= mEditText.text.length)
+                return false
+            return when(mEditText.text[offset]) {
+                '\n', '\t', ' ' -> true
+                else -> false
             }
         }
 
-        public override fun apply_subheading() {
-            val bgn = m_recipe_cur.m_pos_bgn
-            var end = mHost.mEditText.text.toString().indexOf('\n', bgn)
-            if(end == -1)
-                end = mHost.mEditText.text.length
-            addSpan(TextAppearanceSpan(mHost.requireContext(), R.style.subheadingSpan),
-                    bgn, end, Spanned.SPAN_INTERMEDIATE)
-            addSpan(ForegroundColorSpan(mEntry._theme.color_subheading),
-                    bgn, end, 0)
-            if(m_p2para_cur != null)
-                m_p2para_cur.m_heading_level = 2
+        private fun startsLine(offset: Int): Boolean {
+            if(offset < 0 || offset >= mEditText.text.length)
+                return false
+            return offset == 0 || mEditText.text[offset - 1] == '\n'
         }
 
-        public override fun apply_bold() {
-            applyMarkup(SpanBold())
-        }
-
-        public override fun apply_italic() {
-            applyMarkup(SpanItalic())
-        }
-
-        public override fun apply_strikethrough() {
-            applyMarkup(SpanStrikethrough())
-        }
-
-        public override fun apply_highlight() {
-            applyMarkup(SpanHighlight())
-        }
-
-        private fun applyMarkup(span: Any) {
-            val bgn = m_recipe_cur.m_pos_bgn
-            val mid = bgn + 1
-            val cur = m_pos_cur
-            addSpan(RelativeSizeSpan(sMarkupScale), bgn, mid,
-                    Spanned.SPAN_INTERMEDIATE)
-            addSpan(SpanMarkup(), bgn, mid, 0)
-            addSpan(span, mid, cur, 0)
-            addSpan(RelativeSizeSpan(sMarkupScale), cur, cur + 1,
-                    Spanned.SPAN_INTERMEDIATE)
-            addSpan(SpanMarkup(), cur, cur + 1, 0)
-        }
-
-        public override fun apply_comment() {
-            addSpan(TextAppearanceSpan(mHost.requireContext(), R.style.commentSpan),
-                    m_recipe_cur.m_pos_bgn, m_pos_cur + 1,
-                    Spanned.SPAN_INTERMEDIATE)
-            addSpan(ForegroundColorSpan(mP2Theme.m_color_mid),
-                    m_recipe_cur.m_pos_bgn, m_pos_cur + 1, Spanned.SPAN_INTERMEDIATE)
-            addSpan(SuperscriptSpan(),
-                    m_recipe_cur.m_pos_bgn, m_pos_cur + 1, 0)
-        }
-
-        public override fun apply_ignore() {
-            var end = mHost.mEditText.text.toString().indexOf('\n', m_recipe_cur.m_pos_bgn)
-            if(end < 0) end = mHost.mEditText.text.length
-            addSpan(ForegroundColorSpan(mP2Theme.m_color_mid),
-                    m_recipe_cur.m_pos_bgn, end, 0)
-        }
-
-        private fun applyHiddenLinkTags(end: Int, spanLink: Any?) {
-            addSpan(RelativeSizeSpan(sMarkupScale),
-                    m_recipe_cur.m_pos_bgn, m_recipe_cur.m_pos_mid,
-                    Spanned.SPAN_INTERMEDIATE)
-            addSpan(SpanMarkup(), m_recipe_cur.m_pos_bgn, m_recipe_cur.m_pos_mid, 0)
-            addSpan(RelativeSizeSpan(sMarkupScale), m_pos_cur, end,
-                    Spanned.SPAN_INTERMEDIATE)
-            addSpan(SpanMarkup(), m_pos_cur, end, 0)
-            addSpan(spanLink, m_recipe_cur.m_pos_mid + 1, m_pos_cur, 0)
-        }
-
-        public override fun apply_link_hidden() {
-            //remove_tag( m_tag_misspelled, it_uri_bgn, it_tab );
-            var span: Any? = null
-            when(m_recipe_cur.m_id) {
-                RID_URI -> span = LinkUri(getSlice(m_recipe_cur.m_pos_bgn + 1,
-                        m_recipe_cur.m_pos_mid))
-                RID_ID -> {
-                    val element = Diary.d.get_element(m_recipe_cur.m_int_value)
-                    span = if(element != null && element._type == DiaryElement.Type.ENTRY) LinkID(m_recipe_cur.m_int_value)
-                    else  // indicate dead links
-                        ForegroundColorSpan(Color.RED)
-                }
-            }
-            applyHiddenLinkTags(m_pos_cur + 1, span)
-        }
-
-        public override fun apply_link() {
-            //remove_tag( m_tag_misspelled, it_bgn, it_cur );
-            when(m_recipe_cur.m_id) {
-                RID_DATE -> applyDate()
-                RID_LINK_AT -> {
-                    val uri = "mailto:" + getSlice(m_recipe_cur.m_pos_bgn, m_pos_cur)
-                    addSpan(LinkUri(uri), m_recipe_cur.m_pos_bgn, m_pos_cur, 0)
-                }
-                RID_URI -> {
-                    val uri = getSlice(m_recipe_cur.m_pos_bgn, m_pos_cur)
-                    addSpan(LinkUri(uri), m_recipe_cur.m_pos_bgn, m_pos_cur, 0)
-                }
-                RID_ID -> {
-                    Log.d(Lifeograph.TAG, "********** m_int_value: " + m_recipe_cur.m_int_value)
-                    val element = Diary.d.get_element(m_recipe_cur.m_int_value)
-                    val span: Any
-                    span =
-                            if(element != null && element._type == DiaryElement.Type.ENTRY)
-                                LinkID(element.m_id)
-                            else  // indicate dead links
-                                ForegroundColorSpan(Color.RED)
-                    addSpan(span, m_recipe_cur.m_pos_bgn, m_pos_cur, 0)
-                }
-            }
-        }
-
-        private fun applyDate() {
-            // DO NOT FORGET TO COPY UPDATES HERE TO TextbufferDiarySearch::apply_date()
-            addSpan(LinkDate(m_date_last.m_date), m_recipe_cur.m_pos_bgn, m_pos_cur + 1, 0)
-            if(m_p2para_cur != null)
-                m_p2para_cur.m_date = m_date_last.m_date
-        }
-
-        private fun applyCheck(tag_box: Any, tag: Any?) {
-            val posBgn = m_pos_cur - 3
-            val posBox = m_pos_cur
-            var posEnd = mHost.mEditText.text.toString().indexOf('\n', m_pos_cur)
-            if(posEnd == -1)
-                posEnd = mHost.mEditText.text.length
-            if(Diary.d.is_in_edit_mode)
-                addSpan(LinkCheck(mHost), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
-            addSpan(tag_box, posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
-            addSpan(TypefaceSpan("monospace"), posBgn, posBox, 0)
-            if(tag != null)
-                addSpan(tag, posBox + 1, posEnd, 0) // ++ to skip separating space char
-        }
-
-        public override fun apply_check_unf() {
-            applyCheck(ForegroundColorSpan(Theme.s_color_todo), SpanBold())
-        }
-
-        public override fun apply_check_prg() {
-            applyCheck(ForegroundColorSpan(Theme.s_color_progressed), null)
-        }
-
-        public override fun apply_check_fin() {
-            applyCheck(ForegroundColorSpan(Theme.s_color_done),
-                       BackgroundColorSpan(Theme.s_color_done))
-        }
-
-        public override fun apply_check_ccl() {
-            applyCheck(ForegroundColorSpan(Theme.s_color_canceled), SpanStrikethrough())
-        }
-
-        public override fun apply_match() {
-            addSpan(BackgroundColorSpan(mP2Theme.m_color_match_bg),
-                    m_pos_search, m_pos_cur + 1, Spanned.SPAN_INTERMEDIATE)
-            addSpan(ForegroundColorSpan(mP2Theme.color_base),
-                    m_pos_search, m_pos_cur + 1, 0)
-        }
-
-        public override fun apply_inline_tag() {
-            // m_pos_mid is used to determine if a value is assigned to the tag
-            var pEnd = if(m_recipe_cur.m_pos_mid > 0) m_recipe_cur.m_pos_mid else m_pos_cur
-            val pNameBgn = m_recipe_cur.m_pos_bgn + 1
-            val pNameEnd = pEnd - 1
-            val tagName = getSlice(pNameBgn, pNameEnd)
-            val entries = Diary.d.get_entries_by_name(tagName)
-            if(entries == null || entries.isEmpty())
-                addSpan(ForegroundColorSpan(Color.RED), m_recipe_cur.m_pos_bgn, pEnd, 0)
-            else {
-                if(m_recipe_cur.m_pos_mid == 0) {
-                    addSpan(SpanMarkup(), m_recipe_cur.m_pos_bgn, pNameBgn, 0)
-                    addSpan(BackgroundColorSpan(mP2Theme.m_color_inline_tag),
-                            m_recipe_cur.m_pos_bgn, pEnd, 0)
-                    addSpan(LinkID(entries[0]._id),
-                            pNameBgn, pNameEnd, 0)
-                    addSpan(SpanMarkup(), pNameEnd, pEnd, 0)
-                    if(m_p2para_cur != null)
-                        m_p2para_cur.set_tag(tagName, 1.0)
-                }
-                else {
-                    val pBgn = m_recipe_cur.m_pos_mid + 1
-                    pEnd = m_pos_extra_2 + 1
-                    addSpan(BackgroundColorSpan(mP2Theme.m_color_inline_tag), pBgn, pEnd, 0)
-                    if(m_p2para_cur == null) return
-                    if(m_pos_extra_1 > m_recipe_cur.m_pos_bgn) { // has planned value
-                        val vReal = Lifeograph.getDouble(getSlice(pBgn, m_pos_extra_1))
-                        val vPlan = Lifeograph.getDouble(getSlice(m_pos_extra_1 + 1, pEnd))
-                        m_p2para_cur.set_tag(tagName, vReal, vPlan)
+        private fun hasSpan(offset: Int, type: Char): AdvancedSpan {
+            val spans = mEditText.text.getSpans(offset, offset, Any::class.java)
+            var hasNoOtherSpan = true
+            for(span in spans) {
+                if(span is AdvancedSpan) {
+                    hasNoOtherSpan = if(span.type == type) {
+                        return span
                     }
-                    else
-                        m_p2para_cur.set_tag(tagName, Lifeograph.getDouble(getSlice(pBgn, pEnd)))
+                    else false
                 }
             }
+            return if(hasNoOtherSpan) SpanNull() else SpanOther()
         }
     }
 
-    // PARSING HELPER FUNCTIONS ====================================================================
-    private fun isSpace(offset: Int): Boolean {
-        if(offset < 0 || offset >= mEditText.text.length)
-            return false
-        return when(mEditText.text[offset]) {
-            '\n', '\t', ' ' -> true
-            else -> false
+    // SPANS =======================================================================================
+    class SpanOther : AdvancedSpan {
+        override val type: Char
+            get() = 'O'
+    }
+
+    class SpanNull : AdvancedSpan {
+        override val type: Char
+            get() = ' '
+    }
+    private class LinkDate(private val mDate: Long) : ClickableSpan(), AdvancedSpan {
+        override fun onClick(widget: View) {
+            Log.d( Lifeograph.TAG, "Clicked on Date link")
+            var entry = Diary.d.get_entry_by_date(mDate)
+            if(entry == null)
+                entry = Diary.d.create_entry(mDate, "")
+            Lifeograph.showElem(entry!!)
         }
+
+        override val type: Char
+            get() = 'd'
     }
 
-    private fun startsLine(offset: Int): Boolean {
-        if(offset < 0 || offset >= mEditText.text.length)
-            return false
-        return offset == 0 || mEditText.text[offset - 1] == '\n'
+    private class LinkUri(private val mUri: String) : ClickableSpan(), AdvancedSpan {
+        override fun onClick(widget: View) {
+            Log.d( Lifeograph.TAG, "Clicked on Uri link")
+            val browserIntent = Intent(Intent.ACTION_VIEW, mUri.toUri())
+            Lifeograph.mActivityMain.startActivity(browserIntent)
+        }
+
+        override val type: Char
+            get() = 'u'
     }
 
-    private fun hasSpan(offset: Int, type: Char): AdvancedSpan {
-        val spans = mEditText.text.getSpans(offset, offset, Any::class.java)
-        var hasNoOtherSpan = true
-        for(span in spans) {
-            if(span is AdvancedSpan) {
-                hasNoOtherSpan = if(span.type == type) {
-                    return span
-                }
-                else false
+    private class LinkID(private val mId: Long) : ClickableSpan(), AdvancedSpan {
+        override fun onClick(widget: View) {
+            Log.d( Lifeograph.TAG, "Clicked on ID link")
+            val elem = Diary.d.get_element(mId)
+            if(elem != null) {
+                if(elem._type != DiaryElement.Type.ENTRY)
+                    Log.d(Lifeograph.TAG, "Target is not entry")
+                else
+                    Lifeograph.showElem(elem)
             }
         }
-        return if(hasNoOtherSpan) SpanNull() else SpanOther()
+
+        override val type: Char
+            get() = 'i'
     }
 
-    private fun updateTodoStatus() {
-        if(mEntry._status and DiaryElement.ES_NOT_TODO != 0) {
-            Entry.calculate_todo_status(mEntry._text)
-            updateIcon()
-            // Not relevant now: panel_diary->handle_elem_changed( m_ptr2entry );
+    private class LinkCheck(val mHost: FragmentEntry) :
+        ClickableSpan(), AdvancedSpan {
+        override fun onClick(widget: View) {
+            mHost.showStatusPickerDlg()
         }
+
+        override val type: Char
+            get() = 'c'
     }
-}

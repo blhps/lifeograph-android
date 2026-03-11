@@ -462,7 +462,7 @@ namespace VT
                          PS_LIST_GEN    = 0x200,
                          PS_TODO_GEN    = 0x400,
                          PS_ORDERED_GEN = 0x800,
-                         PS_FLT_LIST    = PS_LIST_GEN | PS_TODO_GEN | PS_ORDERED_GEN | 0xF0,
+                         //PS_FLT_LIST    = PS_LIST_GEN | PS_TODO_GEN | PS_ORDERED_GEN | 0xF0,
 
                          PS_HRULE_0     =      0x1000,    // basic horizontal rule
                          PS_SEPRTR_P    =      0x2000,    // used in search view
@@ -503,7 +503,7 @@ namespace VT
     REG_PROP_03(        'B', PS_HEADER_GEN | 0x4,   MEDIUM,   N_( "Medium" ) );
     // REG_PROP_04(        's', PS_HEADER_GEN | 0x3,   SMALL,    N_( "Small" ,) );
     REG_PROP_LAST( 3 );
-    REG_PROP_XTRA( FILTER, PS_HEADER_GEN | 0x7 );
+    REG_PROP_XTRA( FILTER,   PS_HEADER_GEN | 0x7 );
     REG_PROP_END;
 
     // PARAGRAPH LIST STYLES .......................................................................
@@ -519,6 +519,7 @@ namespace VT
     REG_PROP_09(        'R', PS_LIST_GEN | PS_ORDERED_GEN | 0x90, CROMAN, N_( "Capital Roman" ) );
     REG_PROP_10(        'r', PS_LIST_GEN | PS_ORDERED_GEN | 0xA0, SROMAN, N_( "Small Roman" ) );
     REG_PROP_LAST( 10 );
+    REG_PROP_XTRA( FILTER,   PS_LIST_GEN | PS_TODO_GEN | PS_ORDERED_GEN | 0xF0 );
     REG_PROP_END;
 
     // PARAGRAPH ALIGNMENT .........................................................................
@@ -530,7 +531,6 @@ namespace VT
     REG_PROP_END;
 
     // HIDDEN FORMAT TYPES
-    static constexpr char HFT_CHARS[]       = "BIHSUFCPTLED";
     static constexpr int HFT_FILTER_CHARS   =   0x0'007F;  // to cover non-on-the-fly ones
     static constexpr int HFT_F_ONTHEFLY     =   0x1'0000;
     static constexpr int HFT_F_LINK         =   0x4'0000;
@@ -579,18 +579,31 @@ namespace VT
                          HFT_UNSET          = 99;
 
      // FORMAT TYPES ...............................................................................
-    REG_PROP_FRST( FMT, 'B',  HFT_BOLD,           BOLD,        "Bold" );
-    REG_PROP_01(        'I',  HFT_ITALIC,         ITALIC,      "Italic" );
-    REG_PROP_02(        'H',  HFT_HIGHLIGHT,      HIGHLIGHT,   "Highlight" );
-    REG_PROP_03(        'S',  HFT_STRIKETHRU,     STRIKETHRU,  "Strikethrough" );
-    REG_PROP_04(        'U',  HFT_UNDERLINE,      UNDERLINE,   "Underline" );
-    REG_PROP_05(        'F',  HFT_FADED,          FADED,       "Faded" );
-    REG_PROP_06(        'D',  HFT_DATE,           DATE,        "Date" );
-    REG_PROP_07(        'T',  HFT_TIME,           TIME,        "Time" );
-    REG_PROP_08(        'L',  HFT_F_LINK_MANUAL,  LINK,        "Link" );
-    REG_PROP_09(        'C',  HFT_COMMENT,        COMMENT,     "Comment" );
-    REG_PROP_LAST( 9 );
-    REG_PROP_ALIAS( DEFAULT, BOLD );
+    REG_PROP_FRST( FMT, 'B',  HFT_BOLD,           BOLD,           "Bold" );
+    REG_PROP_01(        'I',  HFT_ITALIC,         ITALIC,         "Italic" );
+    REG_PROP_02(        'H',  HFT_HIGHLIGHT,      HIGHLIGHT,      "Highlight" );
+    REG_PROP_03(        'S',  HFT_STRIKETHRU,     STRIKETHRU,     "Strikethrough" );
+    REG_PROP_04(        'U',  HFT_UNDERLINE,      UNDERLINE,      "Underline" );
+    REG_PROP_05(        'F',  HFT_FADED,          FADED,          "Faded" );
+    REG_PROP_06(        'C',  HFT_SUBSCRIPT,      SUBSCRIPT,      "Subscript" );
+    REG_PROP_07(        'P',  HFT_SUPERSCRIPT,    SUPERSCRIPT,    "Superscript" );
+    REG_PROP_08(        'T',  HFT_TAG,            TAG,            "Tag" );
+    REG_PROP_09(        'L',  HFT_LINK_URI,       LINK_URI,       "Link Uri" );
+    REG_PROP_10(        'E',  HFT_LINK_EVAL,      LINK_EVAL,      "Link Eval" );
+    REG_PROP_11(        'D',  HFT_LINK_ID,        LINK_ID,        "Link ID" );
+    // below are on-the-fly formats, char representations are not stored but are used in Android:
+    REG_PROP_12(        'v',  HFT_TAG_VALUE,      TAG_VALUE,      "Tag Value" );
+    REG_PROP_13(        'c',  HFT_COMMENT,        COMMENT,        "Comment" );
+    REG_PROP_14(        't',  HFT_TIME,           TIME,           "Time" );
+    REG_PROP_15(        's',  HFT_TIME_MS,        TIME_MS,        "Time M or S" );
+    REG_PROP_16(        'd',  HFT_DATE,           DATE,           "Date" );
+    REG_PROP_17(        'm',  HFT_MATCH,          MATCH,          "Match" );
+    REG_PROP_18(        'k',  HFT_CODE_KEYWORD,   CODE_KEYWORD,   "Code Keyword" );
+    REG_PROP_19(        '#',  HFT_CODE_COMMENT,   CODE_COMMENT,   "Code Comment" );
+    REG_PROP_20(        'g',  HFT_CODE_STRING,    CODE_STRING,    "Code String" );
+    REG_PROP_LAST( 20 );
+    REG_PROP_ALIAS( DEFAULT, BOLD ); // used in filter_has_format
+    REG_PROP_XTRA( F_LINK_MANUAL,  HFT_F_LINK_MANUAL );
     REG_PROP_END;
 
      // QUOT TYPE (LITERARY / CODE) ................................................................

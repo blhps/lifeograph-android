@@ -23,7 +23,7 @@ package net.sourceforge.lifeograph;
 
 import java.util.Comparator;
 
-public abstract class DiaryElemTag extends DiaryElement
+public class DiaryElemTag extends DiaryElement
 {
     protected DiaryElemTag( long nativePtr) {
         super(nativePtr);

@@ -219,22 +219,22 @@ ParserUpgrader::apply_markup( int type, UstringSize pos_mark_bgn, UstringSize po
 void
 ParserUpgrader::apply_bold()
 {
-    apply_markup( VT::HFT_BOLD, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
+    apply_markup( VT::FMT::BOLD::I, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
 }
 void
 ParserUpgrader::apply_italic()
 {
-    apply_markup( VT::HFT_ITALIC, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
+    apply_markup( VT::FMT::ITALIC::I, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
 }
 void
 ParserUpgrader::apply_highlight()
 {
-    apply_markup( VT::HFT_HIGHLIGHT, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
+    apply_markup( VT::FMT::HIGHLIGHT::I, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
 }
 void
 ParserUpgrader::apply_strikethrough()
 {
-    apply_markup( VT::HFT_STRIKETHRU, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
+    apply_markup( VT::FMT::STRIKETHRU::I, m_recipe_cur->m_pos_bgn, m_parser_pos_cur );
 }
 
 void
@@ -251,7 +251,7 @@ ParserUpgrader::apply_inline_tag_old()
 
     if( m_recipe_cur->m_pos_mid == 0 )
     {
-        auto format = apply_markup( VT::HFT_TAG, pos_bgn - 1, pos_end );
+        auto format = apply_markup( VT::FMT::TAG::I, pos_bgn - 1, pos_end );
 
         format->set_id_lo( tag->get_id() );
         m_parser_p2para_cur->set_tag( tag->get_id(), 1.0 );
@@ -282,7 +282,7 @@ ParserUpgrader::apply_link_old()
     const auto pos_rest   { m_parser_pos_cur + 1 };
 
     m_parser_p2para_cur->add_format(
-            VT::HFT_LINK_URI,
+            VT::FMT::LINK_URI::I,
             m_parser_p2para_cur->m_text.substr( m_recipe_cur->m_pos_bgn + 1, length_uri ),
             m_recipe_cur->m_pos_bgn, m_recipe_cur->m_pos_bgn + length_lbl );
     m_parser_p2para_cur->m_text =

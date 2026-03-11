@@ -21,8 +21,6 @@
 
 package net.sourceforge.lifeograph;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Vector;
@@ -45,24 +43,24 @@ public class Diary extends DiaryElement
         initCipher();
     }
 
-    static final int SoCr_DATE          = 0x1;
-    static final int SoCr_SIZE_C        = 0x2;  // size (char count)
-    static final int SoCr_CHANGE        = 0x3;  // last change date
-    static final int SoCr_NAME          = 0x4;  // name
-    static final int SoCr_FILTER_CRTR   = 0xF;
-    static final int SoCr_DESCENDING    = 0x10;
-    static final int SoCr_ASCENDING     = 0x20;
-    static final int SoCr_FILTER_DIR    = 0xF0;
-    static final int SoCr_INVERSE       = 0x100; // (<2000) inverse dir for ordinals
-    static final int SoCr_DESCENDING_T  = 0x100; // temporal
-    static final int SoCr_ASCENDING_T   = 0x200; // temporal
-    static final int SoCr_FILTER_DIR_T  = 0xF00; // temporal
-    static final int SoCr_DEFAULT       = SoCr_DATE|SoCr_ASCENDING|SoCr_DESCENDING_T;
+//    static final int SoCr_DATE          = 0x1;
+//    static final int SoCr_SIZE_C        = 0x2;  // size (char count)
+//    static final int SoCr_CHANGE        = 0x3;  // last change date
+//    static final int SoCr_NAME          = 0x4;  // name
+//    static final int SoCr_FILTER_CRTR   = 0xF;
+//    static final int SoCr_DESCENDING    = 0x10;
+//    static final int SoCr_ASCENDING     = 0x20;
+//    static final int SoCr_FILTER_DIR    = 0xF0;
+//    static final int SoCr_INVERSE       = 0x100; // (<2000) inverse dir for ordinals
+//    static final int SoCr_DESCENDING_T  = 0x100; // temporal
+//    static final int SoCr_ASCENDING_T   = 0x200; // temporal
+//    static final int SoCr_FILTER_DIR_T  = 0xF00; // temporal
+//    static final int SoCr_DEFAULT       = SoCr_DATE|SoCr_ASCENDING|SoCr_DESCENDING_T;
 
-    static final String DB_FILE_HEADER = "LIFEOGRAPHDB";
-    static final int    DB_FILE_VERSION_INT = 3010;
-    static final int    DB_FILE_VERSION_INT_MIN = 1020;
-    static final String LOCK_SUFFIX = ".~LOCK~";
+//    static final String DB_FILE_HEADER = "LIFEOGRAPHDB";
+//    static final int    DB_FILE_VERSION_INT = 3010;
+//    static final int    DB_FILE_VERSION_INT_MIN = 1020;
+//    static final String LOCK_SUFFIX = ".~LOCK~";
 
     static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
     static final String sExampleDiaryName = "*** Example Diary ***";
@@ -72,8 +70,7 @@ public class Diary extends DiaryElement
     public enum SetPathType { NORMAL, READ_ONLY, NEW }
 
     public Diary() {
-        super( null, DiaryElement.DEID_UNSET, ES_VOID );
-        mNativePtr = nativeCreate();
+        super( d.nativeCreate() );
     }
 
     @Override
@@ -118,8 +115,8 @@ public class Diary extends DiaryElement
     }
 
     Result
-    init_new( Context ctx, String path, String pw ) {
-        int res = nativeInitNew(mNativePtr, path, pw);
+    init_new( Context ctx, String path ) {
+        int res = nativeInitNew(mNativePtr, path, "");
         return Result.values()[res];
     }
 
@@ -301,16 +298,23 @@ public class Diary extends DiaryElement
         return new Entry(ptr);
     }
 
-    Entry
+    // TAGS ========================================================================================
+    DiaryElemTag
     get_completion_tag() {
         long ptr = nativeGetCompletionTag(mNativePtr);
-        return new Entry(ptr); // FIXME: implement DiaryElemTag
+        return new DiaryElemTag(ptr);
     }
 
 //    void
 //    set_completion_tag( long id ) {
 //        m_completion_tag_id = id;
 //    }
+
+    public DiaryElemTag
+    get_tag_by_id( long id ) {
+        long ptr = nativeGetTagById(mNativePtr, id);
+        return new DiaryElemTag(ptr);
+    }
 
     // SEARCHING ===================================================================================
     int
@@ -505,6 +509,11 @@ public class Diary extends DiaryElement
         return nativeWriteLock(mNativePtr);
     }
 
+    Result
+    write_txt( String path, Filter filter ) {
+        return nativeWriteTxt(mNativePtr, path, filter.mNativePtr);
+    }
+
     // NATIVE METHODS ==============================================================================
     private static native boolean initCipher();
     private native String decryptBuffer( String passphrase, byte[] salt,
@@ -545,6 +554,7 @@ public class Diary extends DiaryElement
                                           String content);
     private native long nativeDismissEntry(long ptr, Entry entry);
     private native long nativeGetCompletionTag(long mNativePtr);
+    private native long nativeGetTagById(long mNativePtr, long id);
 
     private native boolean nativeRenameFilter(long mNativePtr, Filter filter, String name);
 
@@ -555,6 +565,7 @@ public class Diary extends DiaryElement
 
     private native Result nativeWrite(long mNativePtr);
     private native Result nativeWriteLock(long mNativePtr);
+    private native Result nativeWriteTxt(long mNativePtr, String path, long filter);
 
     // HELPER FUNCTIONS ============================================================================
 //    public String
@@ -575,7 +586,7 @@ public class Diary extends DiaryElement
     // VARIABLES ===================================================================================
     static Diary d = null;
 
-    //private String m_path = "";
+    private String m_path = "";
     //private String mDiaryPathBackup = "";
     //private String mLockFilePath;
 
@@ -614,7 +625,7 @@ public class Diary extends DiaryElement
 //
 //    protected int     m_read_version;
 
-    // options \u0026 flags
+    // options & flags
     //protected boolean m_opt_show_all_entry_locations = false;
     //protected int     m_opt_ext_panel_cur = 1;
     //protected boolean m_flag_read_only = false;
@@ -622,8 +633,8 @@ public class Diary extends DiaryElement
     //protected boolean m_flag_skip_old_check = false;
     //protected boolean m_flag_save_enabled = true;
 
-    public enum LoginStatus{ LOGGED_OUT, LOGGED_TIME_OUT, LOGGED_IN_RO, LOGGED_IN_EDIT }
-    protected LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
+//    public enum LoginStatus{ LOGGED_OUT, LOGGED_TIME_OUT, LOGGED_IN_RO, LOGGED_IN_EDIT }
+//    protected LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
 
     // searching
     protected String  m_search_text = "";
@@ -631,11 +642,11 @@ public class Diary extends DiaryElement
 
     // i/o
     protected ContentResolver   mResolver;
-    protected byte[]            mBytes;
-    protected BufferedReader    mBufferedReader  = null;
-    protected BufferedWriter    mBufferedWriter  = null;
-    protected int               mHeaderLineCount = 0;
+//    protected byte[]            mBytes;
+//    protected BufferedReader    mBufferedReader  = null;
+//    protected BufferedWriter    mBufferedWriter  = null;
+//    protected int               mHeaderLineCount = 0;
 
-    protected static final int cIV_SIZE   = 16; // \u003d 128 bits
-    protected static final int cSALT_SIZE = 16; // \u003d 128 bits
+//    protected static final int cIV_SIZE   = 16; // = 128 bits
+//    protected static final int cSALT_SIZE = 16; // = 128 bits
 }

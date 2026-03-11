@@ -2319,7 +2319,7 @@ get_para_alignment_char( const int style )
 inline char
 get_para_list_type_char( const int style )
 {
-    return VT::get_v< VT::PLS, char, int >( style & VT::PS_FLT_LIST );
+    return VT::get_v< VT::PLS, char, int >( style & VT::PLS::FILTER );
 }
 inline String
 get_para_image_chars( const Paragraph* para )
@@ -2440,8 +2440,8 @@ Diary::create_db_entry_text( const Entry* entry, FiltererContainer* fc_save )
             *m_sstream << "\nEpr" << para->get_uri();
 
         for( auto format : para->m_formats )
-            if( !( format->type & VT::HFT_F_ONTHEFLY ) )
-                *m_sstream << "\nEf" << VT::HFT_CHARS[ format->type & VT::HFT_FILTER_CHARS ]
+            if( !format->is_on_the_fly() )
+                *m_sstream << "\nEf" << VT::get_v< VT::FMT, char, int >( format->type )
                                      << format->pos_bgn << "|"
                                      << format->pos_end << "|"
                                      << ( ( format->type == VT::HFT_LINK_ID ||

@@ -146,6 +146,16 @@ public class Entry extends DiaryElemTag {
         long ptr = nativeGetParagraphAtPos(mNativePtr, pos);
         return ptr != 0 ? new Paragraph(ptr) : null;
     }
+    Paragraph
+    get_paragraph_1st() {
+        long ptr = nativeGetParagraph1st(mNativePtr);
+        return ptr != 0 ? new Paragraph(ptr) : null;
+    }
+    Paragraph
+    get_paragraph_last() {
+        long ptr = nativeGetParagraphLast(mNativePtr);
+        return ptr != 0 ? new Paragraph(ptr) : null;
+    }
 
     Paragraph
     add_paragraph_before( String text, Paragraph para_after ) {
@@ -393,6 +403,8 @@ public class Entry extends DiaryElemTag {
     private native void nativeInsertText(long ptr, int pos, String text);
     private native void nativeEraseText(long ptr, int pos_bgn, int pos_end);
     private native long nativeGetParagraphAtPos(long ptr, int pos);
+    private native long nativeGetParagraph1st(long ptr);
+    private native long nativeGetParagraphLast(long ptr);
     private native long nativeAddParagraphBefore(long ptr, String text, long ptr_para_after);
     private native long nativeAddParagraphsAfter(long ptr, long ptr_para_bgn, long ptr_para_before);
     private native String nativeGetDescription(long ptr);
