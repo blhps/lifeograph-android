@@ -21,15 +21,7 @@
 
 package net.sourceforge.lifeograph;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
-import java.util.TreeMap;
 import java.util.Vector;
-
-import androidx.annotation.NonNull;
 
 public class Paragraph extends DiaryElemTag
 {
@@ -47,8 +39,15 @@ public class Paragraph extends DiaryElemTag
     public Paragraph
     get_next_visible() { return new Paragraph( nativeGetNextVisible( mNativePtr ) ); }
 
+    public Entry
+    get_host() { return new Entry(nativeGetHost( mNativePtr ) ); }
+
     public boolean
     is_empty(){ return nativeIsEmpty(mNativePtr); }
+
+    public String
+    get_text() { return nativeGetText(mNativePtr); }
+
 //    public char get_char( int i ){
 //        return m_text.charAt( i );
 //    }
@@ -86,24 +85,6 @@ public class Paragraph extends DiaryElemTag
 //        m_tags_planned.clear();
 //        m_tags_in_order.clear();
 //    }
-
-    public void
-    set_tag( String tag, double value ) {
-        m_tags.put( tag, value );
-        m_tags_in_order.add( tag );
-    }
-    public void
-    set_tag( String tag, double v_real, double v_planned ) {
-        m_tags.put( tag, v_real );
-        m_tags_planned.put( tag, v_planned );
-        m_tags_in_order.add( tag );
-    }
-
-    void
-    add_reference( Paragraph ref ) {
-        m_references.add( ref );
-    }
-
 
     public boolean
     is_title() { return nativeIsTitle(mNativePtr); }
@@ -145,7 +126,9 @@ public class Paragraph extends DiaryElemTag
     private native long nativeGetPrev(long ptr);
     private native long nativeGetNext(long ptr);
     private native long nativeGetNextVisible(long ptr);
+    private native long nativeGetHost(long ptr);
     private native boolean nativeIsEmpty(long ptr);
+    private native String nativeGetText(long ptr);
     private native boolean nativeIsTitle(long ptr);
     private native char nativeGetHeadingLevel(long ptr);
     private native char nativeGetAlignment(long ptr);
@@ -157,6 +140,7 @@ public class Paragraph extends DiaryElemTag
     private native boolean nativeIsQuote(long ptr);
     private native boolean nativeIsCode(long ptr);
     private native int nativeGetBgnOffsetInHost(long ptr);
+    private native int nativeGetEndOffsetInHost(long ptr);
     private native long[] nativeGetFormats(long ptr);
 
 }

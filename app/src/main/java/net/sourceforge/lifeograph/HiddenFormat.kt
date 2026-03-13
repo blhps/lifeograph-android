@@ -40,6 +40,10 @@ class HiddenFormat(val mNativePtr: Long) {
         get() = nativeGetRefId(mNativePtr)
         set(value) = nativeSetRefId(mNativePtr, value)
 
+    fun get_id_lo(): Int = nativeGetIdLo(mNativePtr)
+    fun get_id_hi(): Int = nativeGetIdHi(mNativePtr)
+
+
     var varI: Long
         get() = nativeGetVarI(mNativePtr)
         set(value) = nativeSetVarI(mNativePtr, value)
@@ -59,6 +63,8 @@ class HiddenFormat(val mNativePtr: Long) {
     private external fun nativeSetPosEnd(ptr: Long, value: Int)
     private external fun nativeGetRefId(ptr: Long): Long
     private external fun nativeSetRefId(ptr: Long, value: Long)
+    private external fun nativeGetIdLo(ptr: Long): Int
+    private external fun nativeGetIdHi(ptr: Long): Int
     private external fun nativeGetVarI(ptr: Long): Long
     private external fun nativeSetVarI(ptr: Long, value: Long)
     private external fun nativeGetVarD(ptr: Long): Long

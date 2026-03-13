@@ -37,6 +37,7 @@ import android.widget.TextView
 import androidx.fragment.app.DialogFragment
 import androidx.viewpager.widget.PagerAdapter
 import androidx.viewpager.widget.ViewPager
+import net.sourceforge.lifeograph.helpers.Date
 import kotlin.math.abs
 
 private const val MIN_SCALE = 0.95f
@@ -53,8 +54,8 @@ class DialogCalendar : DialogFragment() {
     private lateinit var mMonthLabelPrev: TextView
     private lateinit var mMonthLabelCurr: TextView
     private lateinit var mMonthLabelNext: TextView
-    private val mDate: Date = Date(Date.get_today(0))
-    private lateinit var mButtonCreateChapter: Button
+    private val mDate: Date = Date(Date.get_today())
+    private lateinit var mButtonCreateMilestone: Button
     private val mAllowEntryCreation: Boolean
     private val mAllowChapterCreation: Boolean = Diary.d.is_in_edit_mode
     private val mListener: Listener? = null
@@ -79,7 +80,7 @@ class DialogCalendar : DialogFragment() {
         mViewPagerCal = view.findViewById(R.id.vp_calendar)
         mYearBar = view.findViewById(R.id.year_bar)
         val buttonCreateEntry = view.findViewById<Button>(R.id.buttonCreateEntry)
-        mButtonCreateChapter = view.findViewById(R.id.buttonCreateChapter)
+        mButtonCreateMilestone = view.findViewById(R.id.buttonCreateChapter)
 
         mViewPagerCal.adapter = CalendarPagerAdapter(requireContext())
         mViewPagerCal.addOnPageChangeListener(ViewPagerCalendarChangeListener())
@@ -89,47 +90,44 @@ class DialogCalendar : DialogFragment() {
         mYearBar.setOnYearChangedListener(
                 object : ViewYearBar.YearChangedListener {
                     override fun onYearChanged(year: Int) {
-                        mDate._year = year
+                        mDate.set_year(year)
                         update()
                     }
                 })
 
         buttonCreateEntry.setOnClickListener { createEntry() }
         buttonCreateEntry.visibility = if(mAllowEntryCreation) View.VISIBLE else View.GONE
-        mButtonCreateChapter.setOnClickListener { createChapter() }
-        mButtonCreateChapter.isEnabled = mAllowChapterCreation &&
-                !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(mDate.m_date)
-        mButtonCreateChapter.visibility = if(mAllowChapterCreation) View.VISIBLE else View.GONE
+        mButtonCreateMilestone.setOnClickListener { createMilestone() }
+        mButtonCreateMilestone.visibility = if(mAllowChapterCreation) View.VISIBLE else View.GONE
         dialog?.window!!.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
     }
 
     private fun createEntry() {
-        val e = Diary.d.create_entry(mAdapterCurr.mDateCurrent.m_date, "")
+        val e = Diary.d.create_entry(mAdapterCurr.mDateCurrent.mDate, "")
         dismiss()
         Lifeograph.showElem(e)
     }
 
-    private fun createChapter() {
+    private fun createMilestone() {
         dismiss()
-        mListener!!.createChapter(mAdapterCurr.mDateCurrent.m_date)
+        mListener!!.createChapter(mAdapterCurr.mDateCurrent.mDate)
     }
 
     private fun update() {
-        val datePrev = Date(Date.backward_months(mDate.m_date, 1))
-        val dateNext = Date(Date.forward_months(mDate.m_date, 1))
+        val datePrev = Date(Date.backward_months(mDate.mDate, 1))
+        val dateNext = Date(Date.forward_months(mDate.mDate, 1))
 
-        mMonthLabelPrev.text = datePrev._month_str
-        mMonthLabelCurr.text = mDate._month_str
-        mMonthLabelNext.text = dateNext._month_str
+        mMonthLabelPrev.text = datePrev.get_month_str()
+        mMonthLabelCurr.text = mDate.get_month_str()
+        mMonthLabelNext.text = dateNext.get_month_str()
 
         mAdapterPrev.showMonth(datePrev)
         mAdapterCurr.showMonth(mDate)
         mAdapterNext.showMonth(dateNext)
 
-        mButtonCreateChapter.isEnabled = Diary.d.is_in_edit_mode &&
-                !Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(mDate._pure)
+        mButtonCreateMilestone.isEnabled = Diary.d.is_in_edit_mode
 
-        mYearBar.mYear = mDate._year
+        mYearBar.mYear = mDate.get_year()
         mYearBar.invalidate()
     }
 
@@ -141,8 +139,8 @@ class DialogCalendar : DialogFragment() {
             Lifeograph.showElem(e)
         }
         else {
-            mDate.m_date = mAdapterCurr.mListDays[pos]
-            mYearBar.mYear = mDate._year
+            mDate.mDate = mAdapterCurr.mListDays[pos]
+            mYearBar.mYear = mDate.get_year()
             update()
         }
     }

@@ -31,10 +31,9 @@ import android.view.View
 import android.view.WindowManager
 import android.widget.Toast
 import androidx.appcompat.app.ActionBar
+import androidx.navigation.findNavController
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.*
-import java.lang.StringBuilder
-import androidx.navigation.findNavController
 
 class Lifeograph : Application() {
     override fun onCreate() {
@@ -130,7 +129,6 @@ class Lifeograph : Application() {
             if(BuildConfig.DEBUG && !Diary.d.is_in_edit_mode) {
                 throw AssertionError("Assertion failed")
             }
-            if(!Date.is_ordinal(date) && Date.get_order_3rd(date) == 0) date++ // fix order
             val entry = Diary.d.create_entry(date, text)
             if(entry != null) showElem(entry)
         }

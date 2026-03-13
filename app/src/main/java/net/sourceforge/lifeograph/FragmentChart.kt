@@ -45,13 +45,13 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
         mChartWidget.mData = ChartData(Diary.d)
         mChartWidget.mData!!.set_from_string(mChartElem._definition)
 
-        mChartWidget.calculatePoints(1.0)
+        mChartWidget.calculateAndPlot(1.0)
     }
 
     override fun onResume() {
         super.onResume()
 
-        Lifeograph.getActionBar().subtitle = mChartElem._title_str
+        Lifeograph.getActionBar().subtitle = mChartElem._name //_title_str
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
@@ -59,7 +59,7 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
             R.id.rename -> {
                 DialogInquireText(requireContext(),
                                   R.string.rename,
-                                  mChartElem.m_name,
+                                  mChartElem._name,
                                   R.string.apply,
                                   this).show()
                 true
@@ -77,8 +77,8 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
 
     override fun onInquireAction(id: Int, text: String) {
         if(id == R.string.rename) {
-            Diary.d.rename_chart( mChartElem.m_name, text)
-            Lifeograph.getActionBar().subtitle = mChartElem._title_str
+            Diary.d.rename_chart( mChartElem._name, text)
+            Lifeograph.getActionBar().subtitle = mChartElem._name //_title_str
         }
     }
 }

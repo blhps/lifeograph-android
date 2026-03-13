@@ -30,15 +30,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
 
-abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listener,
+abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterEntries.Listener,
                                    DialogInquireText.Listener
 {
     // VARIABLES ===================================================================================
     protected abstract val mName: String
 
-    protected val          mElems: MutableList<DiaryElement> = ArrayList()
+    protected val          mElems: MutableList<Entry> = ArrayList()
     protected val          mSelectionStatuses: MutableList<Boolean> = ArrayList()
-    protected lateinit var mAdapter: RVAdapterElems
+    protected lateinit var mAdapter: RVAdapterEntries
     protected lateinit var mRecyclerView: RecyclerView
     protected lateinit var mFabAdd: FloatingActionButton
     private lateinit var   mToolbar: HorizontalScrollView
@@ -49,7 +49,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
         ActivityMain.mViewCurrent = this
 
         mRecyclerView = view.findViewById(R.id.list_elems)
-        mAdapter = RVAdapterElems(mElems, mSelectionStatuses, this)
+        mAdapter = RVAdapterEntries(mElems, mSelectionStatuses, this)
         mRecyclerView.adapter = mAdapter
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
         mFabAdd = view.findViewById(R.id.fab_add)
@@ -66,7 +66,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
 
         mToolbar.visibility = View.GONE
 
-        Lifeograph.getActionBar().title = Diary.d._title_str
+        Lifeograph.getActionBar().title = Diary.d._name //_title_str
         updateActionBarSubtitle()
     }
 
@@ -111,7 +111,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
                 else               "$mName ($mItemCount)"
     }
 
-    override fun toggleExpanded(elem: DiaryElement?) { }
+    override fun toggleExpanded(elem: DiaryElemTag) { }
 
     override fun enterSelectionMode(): Boolean {
         return if(Diary.d.is_in_edit_mode) {

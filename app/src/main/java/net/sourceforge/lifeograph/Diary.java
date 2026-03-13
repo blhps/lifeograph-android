@@ -21,15 +21,9 @@
 
 package net.sourceforge.lifeograph;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Vector;
-
-import android.content.ContentResolver;
 import android.content.Context;
-
 import androidx.annotation.NonNull;
-
 import net.sourceforge.lifeograph.helpers.*;
 
 
@@ -60,12 +54,12 @@ public class Diary extends DiaryElement
 //    static final String DB_FILE_HEADER = "LIFEOGRAPHDB";
 //    static final int    DB_FILE_VERSION_INT = 3010;
 //    static final int    DB_FILE_VERSION_INT_MIN = 1020;
-//    static final String LOCK_SUFFIX = ".~LOCK~";
+    static final String LOCK_SUFFIX = ".~LOCK~"; // TODO get from C++?
 
     static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
     static final String sExampleDiaryName = "*** Example Diary ***";
 
-    static final int PASSPHRASE_MIN_SIZE = 4;
+    static final int PASSPHRASE_MIN_SIZE = 4; // TODO get from C++?
 
     public enum SetPathType { NORMAL, READ_ONLY, NEW }
 
@@ -83,6 +77,9 @@ public class Diary extends DiaryElement
     }
 
     // MAIN FUNCTIONALITY ==========================================================================
+    String
+    get_uri() { return nativeGetUri(mNativePtr); }
+
     boolean
     is_old() {
         return nativeIsOld(mNativePtr);
@@ -166,12 +163,12 @@ public class Diary extends DiaryElement
 
     // ID HANDLING =================================================================================
     DiaryElement
-    get_element( long id ) {
+    get_element( int id ) {
         long ptr = nativeGetElement(mNativePtr, id);
         return new DiaryElement(ptr);
     }
 
-    long
+    int
     create_new_id( DiaryElement element ) {
         return nativeCreateNewId(mNativePtr, element);
     }
@@ -203,23 +200,35 @@ public class Diary extends DiaryElement
 
     // ENTRIES =====================================================================================
     Entry
+    get_entry_1st() { return new Entry( nativeGetEntry1st( mNativePtr ) ); }
+
+    Entry
     get_entry_most_current() {
-        return nativeGetEntryMostCurrent(mNativePtr);
+        long ptr = nativeGetEntryMostCurrent( mNativePtr );
+        return new Entry( ptr );
     }
 
     Entry
-    get_entry_by_id( long id ) {
-        return nativeGetEntryById(mNativePtr, id);
+    get_entry_by_id( int id ) {
+        long ptr = nativeGetEntryById(mNativePtr, id);
+        return ptr == 0 ? null : new Entry( ptr );
+    }
+    Paragraph
+    get_paragraph_by_id( int id ) {
+        long ptr = nativeGetParagraphById(mNativePtr, id);
+        return ptr == 0 ? null : new Paragraph( ptr );
     }
 
     Entry
     get_entry_today() {
-        return nativeGetEntryToday(mNativePtr);
+        long ptr = nativeGetEntryToday(mNativePtr);
+        return new Entry( ptr );
     }
 
     Entry
     get_entry_by_date( long date ) {
-        return nativeGetEntryByDate(mNativePtr, date);
+        long ptr = nativeGetEntryByDate(mNativePtr, date);
+        return new Entry( ptr );
     }
 
 //    Entry
@@ -235,8 +244,8 @@ public class Diary extends DiaryElement
 //    }
 
     Vector< Entry >
-    get_entries_by_filter( Filter filter ) {
-        long[] ptrs = nativeGetEntriesByFilter(mNativePtr, filter);
+    get_entries_by_filter( @NonNull Filter filter ) {
+        long[] ptrs = nativeGetEntriesByFilter(mNativePtr, filter.mNativePtr);
         Vector<Entry> entries = new Vector<>(ptrs.length);
         for (long ptr : ptrs) {
             if (ptr != 0) {
@@ -311,26 +320,30 @@ public class Diary extends DiaryElement
 //    }
 
     public DiaryElemTag
-    get_tag_by_id( long id ) {
+    get_tag_by_id( int id ) {
         long ptr = nativeGetTagById(mNativePtr, id);
         return new DiaryElemTag(ptr);
     }
 
     // SEARCHING ===================================================================================
-    int
-    set_search_text( @NonNull String text, boolean flag_only_unfiltered ) {
-        // TODO: delegate to C++
-        return 0;
+    String
+    get_search_str() {
+        // return nativeGetSearchText(mNativePtr);
+        return ""; // TODO does not exist in C++ right now...
     }
 
-    String
-    get_search_text() {
-        return m_search_text;
-    }
+    void
+    set_search_str( @NonNull String text ) { nativeSetSearchStr(mNativePtr, text); }
 
     boolean
-    is_search_active() {
-        return( !m_search_text.isEmpty() );
+    is_search_in_progress() { return nativeIsSearchInProgress(mNativePtr); }
+
+    Vector<HiddenFormat>
+    get_matches() {
+        long[] ptrs = nativeGetMatches( mNativePtr );
+        Vector< HiddenFormat > matches = new Vector<>( ptrs.length );
+        for( long ptr : ptrs ) matches.add( new HiddenFormat( ptr ) );
+        return matches;
     }
 
     void
@@ -464,7 +477,7 @@ public class Diary extends DiaryElement
     }
 
     void
-    dismiss_theme( @NonNull Theme theme ) throws Exception {
+    dismiss_theme( @NonNull Theme theme ) {
         // TODO....
     }
 
@@ -510,16 +523,18 @@ public class Diary extends DiaryElement
     }
 
     Result
-    write_txt( String path, Filter filter ) {
+    write_txt( @NonNull String path, Filter filter ) {
         return nativeWriteTxt(mNativePtr, path, filter.mNativePtr);
     }
 
+    boolean
+    remove_lock_if_necessary() { return nativeRemoveLockIfNecessary(mNativePtr); }
+
+    void
+    set_continue_from_lock() { nativeSetContinueFromLock(mNativePtr); }
+
     // NATIVE METHODS ==============================================================================
     private static native boolean initCipher();
-    private native String decryptBuffer( String passphrase, byte[] salt,
-                                         byte[] buffer, int size, byte[] iv );
-    private native byte[] encryptBuffer( String passphrase, byte[] buffer, int size );
-
     private native long nativeCreate();
     private native void nativeDestroy(long ptr);
     private native int nativeInitNew(long ptr, String path, String pw);
@@ -530,7 +545,8 @@ public class Diary extends DiaryElement
     private native int nativeEnableEditing(long ptr);
     private native String nativeGetPassphrase(long ptr);
     private native boolean nativeSetPassphrase(long ptr, String pw);
-    private native int nativeGetReadVersion(long ptr);
+    //private native int nativeGetReadVersion(long ptr);
+    private native String nativeGetUri(long ptr);
     private native int nativeGetSize(long ptr);
     private native boolean nativeIsOld(long ptr);
     private native boolean nativeIsEncrypted(long ptr);
@@ -540,13 +556,15 @@ public class Diary extends DiaryElement
     private native String nativeGetLang(long ptr);
     private native void nativeSetLang(long ptr, String lang);
 
-    private native long nativeCreateNewId( long mNativePtr, DiaryElement element );
-    private native long nativeGetElement(long ptr, long id);
-    private native Entry nativeGetEntryMostCurrent(long ptr);
-    private native Entry nativeGetEntryById(long ptr, long id);
-    private native Entry nativeGetEntryToday(long ptr);
-    private native Entry nativeGetEntryByDate(long ptr, long date);
-    private native long[] nativeGetEntriesByFilter(long ptr, Filter filter);
+    private native int nativeCreateNewId( long mNativePtr, DiaryElement element );
+    private native long nativeGetElement(long ptr, int id);
+    private native long nativeGetEntry1st(long ptr);
+    private native long nativeGetEntryMostCurrent(long ptr);
+    private native long nativeGetEntryById(long ptr, int id);
+    private native long nativeGetParagraphById(long ptr, int id);
+    private native long nativeGetEntryToday(long ptr);
+    private native long nativeGetEntryByDate(long ptr, long date);
+    private native long[] nativeGetEntriesByFilter(long ptr, long ptr_filter);
     private native int nativeGetEntryCountOnDay(long ptr, long date);
     private native void nativeSetEntryName(long ptr, Entry entry, String name);
     private native void nativeSetEntryDate(long ptr, Entry entry, long date);
@@ -554,7 +572,7 @@ public class Diary extends DiaryElement
                                           String content);
     private native long nativeDismissEntry(long ptr, Entry entry);
     private native long nativeGetCompletionTag(long mNativePtr);
-    private native long nativeGetTagById(long mNativePtr, long id);
+    private native long nativeGetTagById(long mNativePtr, int id);
 
     private native boolean nativeRenameFilter(long mNativePtr, Filter filter, String name);
 
@@ -565,23 +583,15 @@ public class Diary extends DiaryElement
 
     private native Result nativeWrite(long mNativePtr);
     private native Result nativeWriteLock(long mNativePtr);
-    private native Result nativeWriteTxt(long mNativePtr, String path, long filter);
+    private native Result nativeWriteTxt(long mNativePtr, String path, long ptr_filter);
+    private native boolean nativeRemoveLockIfNecessary(long mNativePtr);
+    private native void nativeSetContinueFromLock(long mNativePtr);
+
+    private native void nativeSetSearchStr(long mNativePtr, String str);
+    private native boolean nativeIsSearchInProgress(long mNativePtr);
+    private native long[] nativeGetMatches(long mNativePtr);
 
     // HELPER FUNCTIONS ============================================================================
-//    public String
-//    create_unique_name_for_map( TreeMap map, String name0 ) {
-//        String name = name0;
-//        for( int i = 1; map.containsKey( name ); i++ ) {
-//            name = name0 + " " + i;
-//        }
-//
-//        return name;
-//    }
-//
-//    double
-//    parseDouble( String text ) {
-//        return Lifeograph.getDouble(text);
-//    }
 
     // VARIABLES ===================================================================================
     static Diary d = null;
@@ -636,12 +646,8 @@ public class Diary extends DiaryElement
 //    public enum LoginStatus{ LOGGED_OUT, LOGGED_TIME_OUT, LOGGED_IN_RO, LOGGED_IN_EDIT }
 //    protected LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
 
-    // searching
-    protected String  m_search_text = "";
-    List< Match >     m_matches     = new ArrayList<>();
-
     // i/o
-    protected ContentResolver   mResolver;
+//    protected ContentResolver   mResolver;
 //    protected byte[]            mBytes;
 //    protected BufferedReader    mBufferedReader  = null;
 //    protected BufferedWriter    mBufferedWriter  = null;

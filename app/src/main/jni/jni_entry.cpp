@@ -17,6 +17,22 @@ JNI_METHOD(jlong, Entry_nativeGetParent)(JNIEnv* env, jobject obj, jlong ptr) {
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_parent());
 }
 
+JNI_METHOD(jint, Entry_nativeGetGeneration)(JNIEnv* env, jobject obj, jlong ptr) {
+return reinterpret_cast<jint>(reinterpret_cast<LoG::Entry*>(ptr)->get_generation());
+}
+
+JNI_METHOD(jlong, Entry_nativeGetNext)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_next());
+}
+
+JNI_METHOD(jlong, Entry_nativeGetNextStraight)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_next_straight());
+}
+
+JNI_METHOD(jlong, Entry_nativeGetChild1st)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_child_1st());
+}
+
 JNI_METHOD(jint, Entry_nativeGetChildCount)(JNIEnv* env, jobject obj, jlong ptr) {
     return reinterpret_cast<LoG::Entry*>(ptr)->get_child_count();
 }
@@ -54,6 +70,18 @@ JNI_METHOD(jboolean, Entry_nativeHasName)(JNIEnv* env, jobject obj, jlong ptr) {
 
 JNI_METHOD(jstring, Entry_nativeGetName)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_name_std().c_str());
+}
+
+JNI_METHOD(jstring, Entry_nativeGetListStr)(JNIEnv* env, jobject obj, jlong ptr) {
+    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_list_str().c_str());
+}
+
+JNI_METHOD(jstring, Entry_nativeGetInfoStr)(JNIEnv* env, jobject obj, jlong ptr) {
+    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_info_str().c_str());
+}
+
+JNI_METHOD(jboolean , Entry_nativeIsFilteredOut)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<LoG::Entry*>(ptr)->is_filtered_out();
 }
 
 JNI_METHOD(void, Entry_nativeUpdateName)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -213,10 +241,6 @@ JNI_METHOD(jboolean, Entry_nativeHasLocation)(JNIEnv* env, jobject obj, jlong pt
 
 JNI_METHOD(jdouble, Entry_nativeGetMapPathLength)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jdouble>(reinterpret_cast<LoG::Entry*>(ptr)->get_map_path_length());
-}
-
-JNI_METHOD(jlong, Entry_nativeGetNextStraight)(JNIEnv* env, jobject obj, jlong ptr) {
-    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_next_straight());
 }
 
 } // extern "C"

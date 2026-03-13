@@ -32,7 +32,7 @@ import java.util.*
 private const val VIEWTYPE_HEADER = 0
 private const val VIEWTYPE_ITEM   = 1
 
-class RVAdapterElems(private val mItems: List<DiaryElement>,
+class RVAdapterEntries(private val mItems: List<Entry>,
                      private val mSelectionStatuses: MutableList<Boolean>,
                      var mListener: Listener) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>()
@@ -54,61 +54,48 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         if( mSelectionStatuses.isEmpty() )
             mSelectionStatuses.addAll(Collections.nCopies(mItems.size, false))
 
-        val elem: DiaryElement = mItems[position]
+        val entry: Entry = mItems[position]
 
         if( holder is ViewHolder ) {
-            holder.mItem = elem
-            holder.mIVIcon.setImageResource(elem._icon)
+            holder.mItem = entry
+            holder.mIVIcon.setImageResource(entry._icon)
 
-            when(elem._date._level) {
-                2 -> {
-                    holder.mSpacerL1.visibility = View.VISIBLE
-                    holder.mSpacerL2.visibility = View.GONE
-                }
-                3 -> {
-                    holder.mSpacerL1.visibility = View.VISIBLE
-                    holder.mSpacerL2.visibility = View.VISIBLE
-                }
-                4 -> { // case for temporal elements
-                    if(elem._date._order_3rd == 0) // chapters
-                        holder.mSpacerL1.visibility = View.GONE
-                    else
-                        holder.mSpacerL1.visibility = View.VISIBLE
-                    holder.mSpacerL2.visibility = View.GONE
-                }
-                else -> {
+            when(entry._generation) {
+                0 -> {
                     holder.mSpacerL1.visibility = View.GONE
                     holder.mSpacerL2.visibility = View.GONE
                 }
+                1 -> {
+                    holder.mSpacerL1.visibility = View.VISIBLE
+                    holder.mSpacerL2.visibility = View.GONE
+                }
+                else -> {
+                    holder.mSpacerL1.visibility = View.VISIBLE
+                    holder.mSpacerL2.visibility = View.VISIBLE
+                }
             }
 
-            holder.mTVTitle.text = elem._title_str
-            holder.mTVDetails.text = elem._info_str
+            holder.mTVTitle.text = entry._list_str
+            holder.mTVDetails.text = entry._info_str
 
-            if(mListener.hasIcon2(elem)) {
-                holder.mIVIcon2.setImageResource(mListener.getIcon2(elem))
+            if(mListener.hasIcon2(entry)) {
+                holder.mIVIcon2.setImageResource(mListener.getIcon2(entry))
                 holder.mIVIcon2.visibility = View.VISIBLE
             }
             else
                 holder.mIVIcon2.visibility = View.INVISIBLE
 
-            if(mListener.hasIcon3(elem)) {
+            if(mListener.hasIcon3(entry)) {
                 //holder.mIVIcon3.setImageResource(mListener.getIcon3(elem))
                 holder.mIVIcon3.visibility = View.VISIBLE
             }
             else
                 holder.mIVIcon3.visibility = View.INVISIBLE
 
-            if(elem.mHasChildren) {
+            if(entry.has_children()) {
                 holder.mExpander.visibility = View.VISIBLE
-                if(elem._expanded) {
-                    if(elem._type == DiaryElement.Type.CHAPTER &&
-                        Diary.d.m_sorting_criteria and Diary.SoCr_FILTER_DIR_T ==
-                        Diary.SoCr_DESCENDING_T)
-                        holder.mExpander.setImageResource(R.drawable.ic_expanded_up)
-                    else
-                        holder.mExpander.setImageResource(R.drawable.ic_expanded_dn)
-                }
+                if(entry.is_expanded)
+                    holder.mExpander.setImageResource(R.drawable.ic_expanded_dn)
                 else
                     holder.mExpander.setImageResource(R.drawable.ic_collapsed)
             }
@@ -116,7 +103,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
                 holder.mExpander.visibility = View.GONE
         }
         else if(holder is ViewHolderHeader) {
-            holder.mTvTitle.text = elem._name
+            holder.mTvTitle.text = entry._name
         }
     }
 
@@ -165,7 +152,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
 
     interface Listener {
         fun onElemClick(elem: DiaryElement?)
-        fun toggleExpanded(elem: DiaryElement?)
+        fun toggleExpanded(elem: DiaryElemTag)
         fun updateActionBarSubtitle()
         fun enterSelectionMode(): Boolean
         fun exitSelectionMode()
@@ -176,7 +163,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         //fun getIcon3(elem: DiaryElement): Int
     }
 
-    class ViewHolder(val mView: View, private val mAdapter: RVAdapterElems) :
+    class ViewHolder(val mView: View, private val mAdapter: RVAdapterEntries) :
             RecyclerView.ViewHolder(mView)
     {
         val mSpacerL1:  TextView = mView.findViewById(R.id.spacer_L1)
@@ -187,7 +174,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
         val mTVTitle:   TextView = mView.findViewById(R.id.title)
         val mTVDetails: TextView = mView.findViewById(R.id.detail)
         val mExpander:  ImageButton = mView.findViewById(R.id.icon_collapse)
-        var mItem:      DiaryElement? = null
+        var mItem:      DiaryElemTag? = null
 
         init {
             mView.setOnClickListener { v: View ->
@@ -201,7 +188,7 @@ class RVAdapterElems(private val mItems: List<DiaryElement>,
                 true
             }
             mExpander.setOnClickListener {
-                mAdapter.mListener.toggleExpanded(mItem)
+                mAdapter.mListener.toggleExpanded(mItem!!)
             }
         }
 

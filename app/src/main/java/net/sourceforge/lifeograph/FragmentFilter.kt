@@ -83,7 +83,8 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
 
         updateToolbarButtons()
 
-        Lifeograph.getActionBar().subtitle = mFilter._title_str
+        //Lifeograph.getActionBar().subtitle = mFilter._title_str
+        Lifeograph.getActionBar().subtitle = mFilter._name // TODO implemet title str
     }
 
 //    override fun onDestroy() {

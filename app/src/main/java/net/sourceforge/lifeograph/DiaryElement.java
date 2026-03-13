@@ -119,7 +119,7 @@ public class DiaryElement {
         mNativePtr = nativePtr;
     }
 
-    public long
+    public int
     get_id() {
         return nativeGetId(mNativePtr);
     }
@@ -178,7 +178,7 @@ public class DiaryElement {
 //        nativeSetStatus(mNativePtr, status);
 //    }
 
-    public long mNativePtr = 0;
+    public long mNativePtr;
 
     static class CompareElemsByName implements Comparator< DiaryElement > {
         public int compare( DiaryElement elem_l, DiaryElement elem_r ) {
@@ -208,7 +208,7 @@ public class DiaryElement {
     public static final CompareNames compare_names = new CompareNames();
 
     // NATIVE METHODS ==============================================================================
-    private native long nativeGetId(long ptr);
+    private native int nativeGetId(long ptr);
     private native String nativeGetName(long ptr);
     private native void nativeSetName(long ptr, String name);
     private native Type nativeGetType(long ptr);

@@ -24,7 +24,6 @@ package net.sourceforge.lifeograph
 import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
-import android.net.Uri
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
@@ -33,8 +32,9 @@ import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
-import androidx.navigation.Navigation
+import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
@@ -101,7 +101,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
         Log.d(Lifeograph.TAG, "FragmentDiaryList.onResume()")
         super.onResume()
         if(Diary.d.is_open) {
-            Diary.d.writeAtLogout()
+            Diary.d.write()
             Diary.d.remove_lock_if_necessary()
             Diary.d.clear()
         }
@@ -159,7 +159,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
 
-            if(Diary.d.init_new(requireContext(), uri.toString(), "") == Result.SUCCESS) {
+            if(Diary.d.init_new(requireContext(), uri.toString()) == Result.SUCCESS) {
                 mDiaryUris.add(uri.toString())
                 writeDiaryList()
                 navigateToDiary()
@@ -203,7 +203,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
         mDiaryItems.clear()
 
         for(uriStr in mDiaryUris) {
-            val uri = Uri.parse(uriStr)
+            val uri = uriStr.toUri()
             mDiaryItems.add(RViewAdapterBasic.Item(FileUtil.getFileName(uri, requireContext()),
                                                    uriStr,
                                                    R.drawable.ic_diary))
@@ -272,7 +272,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun openDiary1(path: String) {
-        when(Diary.d.set_path(requireContext(), path, Diary.SetPathType.NORMAL)) {
+        when(Diary.d.set_path(path, Diary.SetPathType.NORMAL)) {
             Result.SUCCESS -> openDiary3()
             Result.FILE_NOT_FOUND -> Lifeograph.showToast("File is not found")
             Result.FILE_NOT_READABLE -> Lifeograph.showToast("File is not readable")
@@ -288,12 +288,12 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun openDiary2() {
-        Diary.d.enableWorkingOnLockfile(true)
+        Diary.d.set_continue_from_lock()
         openDiary3()
     }
 
     private fun openDiary3() {
-        when(Diary.d.read_header(requireContext())) {
+        when(Diary.d.read_header()) {
             Result.SUCCESS -> if(Diary.d.is_encrypted) askPassword() else readBody()
             Result.INCOMPATIBLE_FILE_OLD -> Lifeograph.showToast("Incompatible diary version (TOO OLD)")
             Result.INCOMPATIBLE_FILE_NEW -> Lifeograph.showToast("Incompatible diary version (TOO NEW)")
@@ -326,7 +326,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
 ////                }
 //                Lifeograph.showToast(
 //                        "External Storage Option is removed. Please use the custom path picker!")
-//            }
+//
 //            return File(requireContext().filesDir, sDiaryPath)
 //        }
 
@@ -347,7 +347,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun navigateToDiary() {
-        Navigation.findNavController(requireView()).navigate(R.id.nav_entries)
+        requireView().findNavController().navigate(R.id.nav_entries)
     }
 
     // INTERFACE METHODS ===========================================================================

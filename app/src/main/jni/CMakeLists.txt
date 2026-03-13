@@ -69,6 +69,7 @@ add_library(lifeograph_core SHARED
     jni_entry.cpp
     jni_paragraph.cpp
     jni_diary_element.cpp
+    jni_date.cpp
 )
 
 # Link against NDK libraries, prebuilts and RE2

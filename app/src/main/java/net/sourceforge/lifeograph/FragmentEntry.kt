@@ -58,7 +58,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     var                  mFlagEntryChanged = false
     private var          mFlagDismissOnExit = false
     var                  mFlagSearchIsOpen = false
-    private val          mBrowsingHistory = ArrayList<Long>()
+    private val          mBrowsingHistory = ArrayList<Int>()
 
     companion object {
         lateinit var mEntry: Entry
@@ -207,7 +207,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val searchView = item.actionView as SearchView
         item.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
-                searchView.setQuery(Diary.d._search_text, false)
+                searchView.setQuery(Diary.d._search_str, false)
                 return true
             }
 
@@ -222,7 +222,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
             override fun onQueryTextChange(s: String): Boolean {
                 if(mFlagSearchIsOpen) {
-                    Diary.d.set_search_text(s.lowercase(Locale.ROOT), false)
+                    Diary.d._search_str = s
                     reparse()
                 }
                 return true
@@ -484,7 +484,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         // if( flagParse )
         // parse();
-        Lifeograph.getActionBar().subtitle = mEntry._title_str
+        //Lifeograph.getActionBar().subtitle = mEntry._title_str
+        Lifeograph.getActionBar().subtitle = mEntry._name
         updateIcon()
         //invalidateOptionsMenu(); // may be redundant here
 
@@ -1025,7 +1026,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     mEditText.text.setSpan(
                         BackgroundColorSpan(theme.m_color_inline_tag), fStart, fEnd, 0)
                     mEditText.text.setSpan(
-                        LinkID(format.refId), fStart, fEnd, 0)
+                        LinkID(format.refId.toInt()), fStart, fEnd, 0)
                 }
                 'L' -> { // Link: URI
                     mEditText.text.setSpan( LinkUri(format.uri), fStart, fEnd, 0)
@@ -1033,9 +1034,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     // mEditText.text.setSpan(LinkUri(format.uri), fStart, fEnd, 0)
                 }
                 'D' -> { // Link: ID
-                    val element = Diary.d.get_tag_by_id(format.refId)
+                    val element = Diary.d.get_tag_by_id(format.refId.toInt())
                     val span = if(element != null)
-                            LinkID(format.refId)
+                            LinkID(format.refId.toInt())
                         else  // indicate dead links
                             ForegroundColorSpan(Color.RED)
                     mEditText.text.setSpan(span, fStart, fEnd, 0)
@@ -1195,7 +1196,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             get() = 'u'
     }
 
-    private class LinkID(private val mId: Long) : ClickableSpan(), AdvancedSpan {
+    private class LinkID(private val mId: Int) : ClickableSpan(), AdvancedSpan {
         override fun onClick(widget: View) {
             Log.d( Lifeograph.TAG, "Clicked on ID link")
             val elem = Diary.d.get_element(mId)

@@ -36,8 +36,8 @@ import android.view.ScaleGestureDetector.SimpleOnScaleGestureListener
 import android.view.View
 import androidx.core.content.ContextCompat
 import net.sourceforge.lifeograph.Lifeograph.Companion.screenShortEdge
-import java.util.*
 import kotlin.math.*
+import net.sourceforge.lifeograph.helpers.Date
 
 
 class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
@@ -145,88 +145,12 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             mStepXOv /= mSpan - 1
     }
 
-    private fun getFiltererStack(): FiltererContainer? {
-        return if(mData!!.filter != null) mData!!.filter._filterer_stack else null
-    }
-
-    private fun getPeriodDate(date: Long): Long {
-        when(mData!!.type and ChartData.PERIOD_MASK) {
-            ChartData.WEEKLY -> {
-                return Date.get_pure(Date.backward_to_week_start(date))
-            }
-            ChartData.MONTHLY -> return Date.get_yearmonth(date) + Date.make_day(1)
-            ChartData.YEARLY -> return (date and Date.FILTER_YEAR) + Date.make_month(
-                    1) + Date.make_day(1)
-        }
-        return 0
-    }
-
-    fun calculatePoints(zoom_level: Double) {
-        mData!!.clear_points()
-
-        class Values(val v: Double, val p: Double)
-
-        val fc = getFiltererStack()
-        val entries: Collection<Entry> = Diary.d.m_entries.descendingMap().values
-        var v = 1.0
-        var vPlan = 0.0
-        val yAxis = mData!!._y_axis
-        val mapValues: MutableMap<Long, MutableList<Values>> = TreeMap() // multimap
-
-        for(entry in entries) {
-            if(yAxis == ChartData.TAG_VALUE_PARA) {
-                if(mData!!.tag != null && !entry.has_tag(mData!!.tag)) continue
-            }
-            else {
-                if(entry.is_ordinal) continue
-                if(mData!!.tag != null && mData!!.is_tagged_only && !entry.has_tag(
-                            mData!!.tag)) continue
-            }
-            if(fc != null && !fc.filter(entry)) continue
-            when(yAxis) {
-                ChartData.COUNT -> {
-                }
-                ChartData.TEXT_LENGTH -> v = entry._size.toDouble()
-                ChartData.MAP_PATH_LENGTH -> v = entry._map_path_length
-                ChartData.TAG_VALUE_ENTRY -> if(mData!!.tag != null) {
-                    v = entry.get_value_for_tag(mData)
-                    vPlan = entry.get_value_planned_for_tag(mData)
-                }
-                ChartData.TAG_VALUE_PARA -> if(mData!!.tag != null) {
-                    // first sort the values by date:
-                    for(para in entry.m_paragraphs) {
-                        val date = para._date_broad
-                        if(date == Date.NOT_SET || Date.is_ordinal(date)) continue
-                        if(!para.has_tag(mData!!.tag)) continue
-                        val c = Lifeograph.MutableInt() // dummy
-                        v = para.get_value_for_tag(mData!!, c)
-                        vPlan = para.get_value_planned_for_tag(mData!!, c)
-                        val periodDate = getPeriodDate(date)
-                        var list = mapValues[periodDate]
-                        if(list != null) list.add(Values(v, vPlan))
-                        else {
-                            list = ArrayList()
-                            list.add(Values(v, vPlan))
-                            mapValues[periodDate] = list
-                        }
-                    }
-                }
-            }
-            if(yAxis != ChartData.TAG_VALUE_PARA) // para values are added in their case
-                mData!!.add_value(getPeriodDate(entry._date_t), v, vPlan)
-        }
-        if(yAxis == ChartData.TAG_VALUE_PARA) {
-            // feed the values in order:
-            for((key, list) in mapValues) {
-                for(values in list) mData!!.add_value(key, values.v, values.p)
-            }
-        }
-        mData!!.update_min_max()
-        Diary.d.fill_up_chart_data(mData)
-        if(zoom_level >= 0.0) mZoomLevel = zoom_level
+    fun calculateAndPlot(zoomLevel: Double) {
+        mData!!.calculate_points()
+        if(zoomLevel >= 0.0) mZoomLevel = zoomLevel
         mSpan = mData!!._span
         if(mWidth > 0) { // if on_size_allocate is executed before
-            updateColGeom(zoom_level >= 0.0)
+            updateColGeom(zoomLevel >= 0.0)
             invalidate()
         }
     }
@@ -284,7 +208,7 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
             return
         }
 
-        // NUMBER OF STEPS IN THE PRE AND POST BORDERS
+        // NUMBER OF STEPS IN THE PRE- AND POST-BORDERS
         var preSteps = ceil(cXMin / mStepX).toInt()
         if(preSteps > mStepStart)
             preSteps = mStepStart

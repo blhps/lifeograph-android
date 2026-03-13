@@ -40,11 +40,10 @@ public class DiaryElemTag extends DiaryElement
     }
 
     // STRING METHODS
-
-    public String
-    get_info_str() {
-        return "";
-    }
+//    public String
+//    get_list_str() { return m_name; }
+//    public String
+//    get_info_str() { return ""; }
 
     public int get_todo_status() {
         return nativeGetTodoStatus(mNativePtr);

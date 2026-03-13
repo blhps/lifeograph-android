@@ -27,10 +27,11 @@ import android.view.*
 import android.widget.ImageButton
 import net.sourceforge.lifeograph.DialogPassword.DPAction
 import net.sourceforge.lifeograph.helpers.Result
+import java.io.File
 import java.util.*
 
 class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
-                            RVAdapterElems.Listener {
+                            RVAdapterEntries.Listener {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_entries
     override val mMenuId: Int   = R.menu.menu_list_entries
@@ -76,10 +77,16 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                 true
             }
             R.id.export_plain_text -> {
-                if(Diary.d.write_txt() == Result.SUCCESS)
-                    Lifeograph.showToast(R.string.text_export_success)
-                else
-                    Lifeograph.showToast(R.string.text_export_fail)
+                val file = File(Diary.d._uri)
+                val dirBackups = File(file.parent!! + "/backups")
+                if(dirBackups.exists() || dirBackups.mkdirs()) {
+                    val fileText = File(dirBackups, file.name + ".txt")
+                    if(Diary.d.write_txt(fileText.path, null) == Result.SUCCESS) {
+                        Lifeograph.showToast(R.string.text_export_success)
+                        return true
+                    }
+                }
+                Lifeograph.showToast(R.string.text_export_fail)
                 true
             }
             else -> super.onOptionsItemSelected(item)
@@ -108,50 +115,29 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     }
 
     override fun updateList() {
-        fun addChapterCategoryToList(ctg: Chapter.Category) {
-            for(chapter in ctg.mMap.values) {
-                mElems.add(chapter)
-                chapter.mHasChildren = chapter.mEntries.isNotEmpty()
-                if(!chapter._expanded) continue
-                for(entry in chapter.mEntries) {
-                    if(!entry._filtered_out) {
-                        mElems.add(entry)
-                    }
+        fun addDescendantsToList(entry1st: Entry) {
+            var entry: Entry? = entry1st
+            while (entry != null) {
+                if(!entry.is_filtered_out) {
+                    mElems.add(entry)
+                    if(entry.is_expanded && entry.has_children())
+                        addDescendantsToList(entry.get_child_1st())
                 }
+                entry = entry.get_next()
             }
         }
 
         Log.d(Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES")
-        val firstChapterDate = Diary.d.m_p2chapter_ctg_cur._date_t
         mElems.clear()
 
-        //if( ( Diary.diary.m_sorting_criteria & Diary.SoCr_FILTER_CRTR ) == Diary.SoCr_DATE ) {
-        addChapterCategoryToList(Diary.d.m_p2chapter_ctg_cur)
-        var entryPrev: Entry? = null
-        var entryPrevUpdated = false
-        for(entry in Diary.d.m_entries.descendingMap().values) {
-            val isDescendant = entryPrev != null &&
-                    Date.is_descendant_of(entry._date_t, entryPrev._date_t)
-            if(entryPrevUpdated) entryPrev!!.mHasChildren = isDescendant
-            entryPrevUpdated = false
-            if(isDescendant && !entryPrev!!._expanded) continue
+        addDescendantsToList(Diary.d._entry_1st)
 
-            // ordinals & orphans
-            if(!entry._filtered_out &&
-                (entry.is_ordinal || entry._date_t < firstChapterDate)) {
-                mElems.add(entry)
-            }
-            // other entries were taken care of in add_chapter_category_to_list()
-            entryPrev = entry
-            entryPrevUpdated = true
-        }
-
-        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) )
-        mElems.add(HeaderElem(R.string.free_entries, Date.NUMBERED_MIN))
-        mElems.add(HeaderElem(R.string.dated_entries,
-                              Date.make(Date.YEAR_MAX + 1, 12, 31, 0)))
+//        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) )
+//        mElems.add(HeaderElem(R.string.free_entries, Date.NUMBERED_MIN))
+//        mElems.add(HeaderElem(R.string.dated_entries,
+//                              Date.make(Date.YEAR_MAX + 1, 12, 31, 0)))
         //}
-        Collections.sort(mElems, compareElemsByDate)
+        //Collections.sort(mElems, compareElemsByDate)
 
         handleElemNumberChanged()
         mItemCount = mElems.size - 3
@@ -160,19 +146,20 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     override fun createNewElem() {
         DialogPicker(requireContext(), object: DialogPicker.Listener{
             override fun onItemClick(item: RViewAdapterBasic.Item) {
-                when(item.mId) {
-                    "T" -> {
-                        Lifeograph.goToToday()
-                    }
-                    "F" -> {
-                        Lifeograph.addEntry(
-                                Diary.d.get_available_order_1st(true), "")
-                    }
-                    else -> {
-                        Lifeograph.addEntry(
-                                Diary.d.get_available_order_1st(false), "")
-                    }
-                }
+                Lifeograph.goToToday()
+//                when(item.mId) {
+//                    "T" -> {
+//                        Lifeograph.goToToday()
+//                    }
+//                    "F" -> {
+//                        Lifeograph.addEntry(
+//                                Diary.d.get_available_order_1st(true), "")
+//                    }
+//                    else -> {
+//                        Lifeograph.addEntry(
+//                                Diary.d.get_available_order_1st(false), "")
+//                    }
+//                }
                 handleElemNumberChanged()
             }
 
@@ -192,17 +179,14 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         }).show()
     }
 
-    override fun toggleExpanded(elem: DiaryElement?) {
-        if(BuildConfig.DEBUG && elem == null) {
-            error("Assertion failed")
-        }
-        elem!!._expanded = !elem._expanded
+    override fun toggleExpanded(tag: DiaryElemTag) {
+        tag.is_expanded = !tag.is_expanded
         updateList()
         mAdapter.notifyDataSetChanged()
     }
 
     override fun hasIcon2(elem: DiaryElement): Boolean {
-        return if( elem is Entry ) elem.is_favored else false
+        return if( elem is Entry ) elem.is_favorite else false
     }
     override fun getIcon2(elem: DiaryElement): Int {
         return R.drawable.ic_favorite
@@ -214,7 +198,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     private fun toggleSelFavoredness() {
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
-                val entry = mElems[i] as Entry
+                val entry = mElems[i]
                 entry.toggle_favored()
                 mAdapter.notifyItemChanged( i )
             }
@@ -253,7 +237,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     private fun setSelTodoStatus(status: String) {
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
-                val entry = mElems[i] as Entry
+                val entry = mElems[i]
                 entry._todo_status = when(status) {
                     "A" -> DiaryElement.ES_NOT_TODO
                     " " -> DiaryElement.ES_TODO
@@ -273,7 +257,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                 val entry = mElems[i] as Entry
                 DialogInquireText(requireContext(),
                                   R.string.duplicate_entry,
-                                  entry.m_name,
+                                  entry._name,
                                   R.string.create,
                                   this).show()
                 mAdapter.notifyItemChanged( i )
@@ -326,47 +310,22 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     // RecyclerViewAdapterElems.Listener INTERFACE METHODS =========================================
 
     // COMPARATOR ==================================================================================
-    class CompareElemsByDate : Comparator<DiaryElement> {
-        override fun compare(elem_l: DiaryElement, elem_r: DiaryElement): Int {
-            // SORT BY NAME
-//            return if(elem_l._date_t == Date.NOT_APPLICABLE) {
-//                0
-//            }
-//            else {
-            val sc = Diary.d.m_sorting_criteria
-            var direction = 1
-            if(Date.is_same_kind(elem_l._date_t, elem_r._date_t)) {
-                when {
-                    Date.is_descendant_of(elem_l._date_t, elem_r._date_t) -> return 1
-                    Date.is_descendant_of(elem_r._date_t, elem_l._date_t) -> return -1
-                    else -> direction = when {
-                        elem_l._date.is_ordinal -> {
-                            if(sc and Diary.SoCr_FILTER_DIR == Diary.SoCr_ASCENDING) -1
-                            else 1
-                        }
-                        sc and Diary.SoCr_FILTER_DIR_T == Diary.SoCr_ASCENDING_T -> -1
-                        else -> 1
-                    }
-                }
-            }
+    class CompareElemsByDate : Comparator<DiaryElemTag> {
+        override fun compare(elemL: DiaryElemTag, elemR: DiaryElemTag): Int {
+            val direction = 1
             return when {
-                elem_l._date_t > elem_r._date_t -> -direction
-                elem_l._date_t < elem_r._date_t -> direction
+                elemL._date > elemR._date -> -direction
+                elemL._date < elemR._date -> direction
                 else -> 0
             }
-            //}
         }
     }
 
     // HEADER PSEUDO ELEMENT CLASS =================================================================
     internal class HeaderElem(nameRsc: Int, private val mDate: Long) :
-            DiaryElement(null, Lifeograph.getStr(nameRsc), ES_VOID) {
+            DiaryElemTag(0) {
         override fun get_type(): Type {
             return Type.NONE
-        }
-
-        override fun get_date_t(): Long {
-            return mDate
         }
     }
 }

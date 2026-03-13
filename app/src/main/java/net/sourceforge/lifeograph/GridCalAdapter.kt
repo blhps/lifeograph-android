@@ -31,12 +31,13 @@ import android.widget.TextView
 import androidx.core.content.ContextCompat
 import androidx.core.widget.TextViewCompat
 import java.util.*
+import net.sourceforge.lifeograph.helpers.Date
 
 // Days in Current Month
 internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
     private val mContext: Context = context
     private var mDaysInMonth = 0
-    val mDateCurrent = Date(date.m_date)
+    val mDateCurrent = Date(date.mDate)
     var mListDays: MutableList<Long> = ArrayList()
 
     init {
@@ -52,7 +53,7 @@ internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
     }
 
     fun showMonth(date: Date) {
-        mDateCurrent.m_date = date.m_date
+        mDateCurrent.set(date.mDate)
         mListDays.clear()
         notifyDataSetChanged()
 
@@ -60,24 +61,24 @@ internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
         for(i in 0..6) {
             mListDays.add(0L)
         }
-        mDaysInMonth = date._days_in_month
-        val date2 = Date(date.m_date)
-        date2._day = 1
-        val numSlotBefore = date2._weekday
-        val prevMonth = Date(date.m_date)
+        mDaysInMonth = date.get_days_in_month()
+        val date2 = Date(date.mDate)
+        date2.set_day(1)
+        val numSlotBefore = date2.get_weekday()
+        val prevMonth = Date(date.mDate)
         prevMonth.backward_months(1)
-        val prevMonthLength = prevMonth._days_in_month
-        val nextMonth = Date(date2.m_date)
+        val prevMonthLength = prevMonth.get_days_in_month()
+        val nextMonth = Date(date2.mDate)
         nextMonth.forward_months(1)
 
         // Prev Month days
         for(i in (prevMonthLength - numSlotBefore + 1)..prevMonthLength) {
-            mListDays.add(Date.make(prevMonth._year, prevMonth._month, i, 1))
+            mListDays.add(Date.make(prevMonth.get_year(), prevMonth.get_month(), i, 1))
         }
 
         // Current Month Days
         for(i in 0 until mDaysInMonth) {
-            mListDays.add(Date.make(date._year, date._month, i + 1, 1))
+            mListDays.add(Date.make(date.get_year(), date.get_month(), i + 1, 1))
         }
 
         // Next Month days

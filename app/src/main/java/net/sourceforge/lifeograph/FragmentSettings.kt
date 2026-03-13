@@ -30,6 +30,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import net.sourceforge.lifeograph.helpers.Date
 
 class FragmentSettings : PreferenceFragmentCompat() {
     // VARIABLES ===================================================================================

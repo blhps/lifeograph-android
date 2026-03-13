@@ -21,10 +21,10 @@
 
 package net.sourceforge.lifeograph;
 
-import java.util.List;
+import android.text.Spanned;
 import java.util.Vector;
-
 import androidx.annotation.NonNull;
+import androidx.core.text.HtmlCompat;
 
 public class Entry extends DiaryElemTag {
     protected Entry(long nativePtr) {
@@ -42,49 +42,29 @@ public class Entry extends DiaryElemTag {
                     R.drawable.ic_tag );
     }
 
-//    public String
-//    get_name() {
-//        return nativeGetName(mNativePtr);
-//    }
-
     void
     update_name() {
         nativeUpdateName(mNativePtr);
     }
 
-    @Override
-    public String
-    get_title_str() {
-        if (mNativePtr != 0) {
-            // TODO: implement in C++ or reconstruct here
-        }
-        if( m_date.is_hidden() )
-            return m_name;
-        else
-            return( m_date.format_string() + STR_SEPARATOR + m_name );
+    public Spanned get_styled_title() {
+        String rawTitle = get_list_str(); // This contains your HTML-like markup
+        // FROM_HTML_MODE_LEGACY is the standard flag for basic HTML rendering
+        return HtmlCompat.fromHtml(rawTitle, HtmlCompat.FROM_HTML_MODE_LEGACY);
     }
 
     @Override
     public String
-    get_info_str() {
-        if (mNativePtr != 0) {
-            // TODO: delegate to C++
-        }
-        if( m_date.is_ordinal() ) {
-            return( Lifeograph.getStr( R.string.entry_last_changed_on ) + " " +
-                    Date.format_string_d( m_date_edited ) );
-        }
-        else {
-            return m_date.get_weekday_str();
-        }
-    }
+    get_list_str() { return nativeGetListStr(mNativePtr); }
+
+    @Override
+    public String
+    get_info_str() { return nativeGetInfoStr(mNativePtr); }
+
+    public boolean
+    is_filtered_out() { return nativeIsFilteredOut(mNativePtr); }
 
     // HIERARCHY ===================================================================================
-    public boolean
-    has_children() {
-        return get_child_count() > 0;
-    }
-
     Entry
     get_parent(){
         long ptr = nativeGetParent(mNativePtr);
@@ -92,8 +72,30 @@ public class Entry extends DiaryElemTag {
     }
 
     int
-    get_child_count() {
-        return nativeGetChildCount(mNativePtr);
+    get_generation() { return nativeGetGeneration(mNativePtr); }
+
+    Entry
+    get_next(){
+        long ptr = nativeGetNext(mNativePtr);
+        return ptr != 0 ? new Entry(ptr) : null;
+    }
+
+    Entry
+    get_next_stright(){
+        long ptr = nativeGetNextStraight(mNativePtr);
+        return ptr != 0 ? new Entry(ptr) : null;
+    }
+
+    public boolean
+    has_children() { return get_child_count() > 0; }
+
+    int
+    get_child_count() { return nativeGetChildCount(mNativePtr); }
+
+    Entry
+    get_child_1st(){
+        long ptr = nativeGetChild1st(mNativePtr);
+        return ptr != 0 ? new Entry(ptr) : null;
     }
 
     Vector< Entry >
@@ -132,7 +134,7 @@ public class Entry extends DiaryElemTag {
     }
 
     void
-    insert_text( int pos, final String text ) throws Exception {
+    insert_text( int pos, final String text ) {
         nativeInsertText(mNativePtr, pos, text);
     }
 
@@ -165,7 +167,8 @@ public class Entry extends DiaryElemTag {
 
     Paragraph
     add_paragraphs_after( Paragraph para_bgn, Paragraph para_before ) {
-        long ptr = nativeAddParagraphsAfter(mNativePtr, para_bgn.mNativePtr, para_before.mNativePtr);
+        long ptr = nativeAddParagraphsAfter(mNativePtr, para_bgn.mNativePtr,
+                                            para_before.mNativePtr);
         return ptr != 0 ? new Paragraph(ptr) : null;
     }
 
@@ -208,7 +211,7 @@ public class Entry extends DiaryElemTag {
 
     // LANGUAGE ====================================================================================
 
-    // TRASH FUNCTIONALITY
+    // TRASH FUNCTIONALITY =========================================================================
     boolean
     is_trashed() {
         return nativeIsTrashed(mNativePtr);
@@ -387,6 +390,10 @@ public class Entry extends DiaryElemTag {
     // NATIVE FUNCTIONS ============================================================================
     private native long nativeGetId(long ptr);
     private native long nativeGetParent(long ptr);
+    private native int nativeGetGeneration(long ptr);
+    private native long nativeGetNext(long ptr);
+    private native long nativeGetNextStraight(long ptr);
+    private native long nativeGetChild1st(long ptr);
     private native int nativeGetChildCount(long ptr);
     private native long[] nativeGetDescendants(long ptr);
     private native int nativeGetDescendantDepth(long ptr);
@@ -396,6 +403,9 @@ public class Entry extends DiaryElemTag {
     private native boolean nativeHasName(long ptr);
     private native String nativeGetName(long ptr);
     private native void nativeUpdateName(long ptr);
+    private native String nativeGetListStr(long ptr);
+    private native String nativeGetInfoStr(long ptr);
+    private native boolean nativeIsFilteredOut(long ptr);
     private native boolean nativeIsEmpty(long ptr);
     private native String nativeGetText(long ptr);
     private native void nativeClearText(long ptr);

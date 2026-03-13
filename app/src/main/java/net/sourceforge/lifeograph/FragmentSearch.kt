@@ -57,8 +57,8 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
         mRecyclerView.adapter = mAdapter
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
 
-        if(Diary.d.is_search_active) {
-            mEditText.setText(Diary.d._search_text)
+        if(Diary.d.is_search_in_progress) {
+            mEditText.setText(Diary.d._search_str)
             mButtonSearchTextClear.visibility = View.VISIBLE
         }
 
@@ -83,7 +83,9 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     private fun handleSearchTextChanged(text: String) {
         val searchStr = text.lowercase(Locale.ROOT)
 
-        mMatchCount = Diary.d.set_search_text(searchStr, mButtonOnlyInFiltered.isChecked)
+        Diary.d.set_search_str(searchStr)
+
+        mMatchCount = 0 // TODO...
 
         mButtonSearchTextClear.visibility = if(text.isNotEmpty()) View.VISIBLE else View.INVISIBLE
 
@@ -92,7 +94,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     }
 
     private fun updateList() {
-        val matches = Diary.d.m_matches
+        val matches = Diary.d._matches
 
         mElems.clear()
 
@@ -101,11 +103,12 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
 
             for( (i, match) in matches.withIndex() ) {
                 if( i > 200 ) break
-                if( match.para == prevPara ) continue
-                mElems.add(RViewAdapterBasic.Item(match.para.m_text, "",
-                                                  match.para.m_host._icon,
-                                                  match.para.m_host.m_id))
-                prevPara = match.para
+                val p2para = Diary.d.get_paragraph_by_id(match.get_id_lo())
+                if( p2para == prevPara ) continue
+                mElems.add(RViewAdapterBasic.Item(p2para._text, "",
+                                                  p2para._host._icon,
+                                                  p2para._host._id))
+                prevPara = p2para
             }
         }
 

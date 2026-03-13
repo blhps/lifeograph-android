@@ -23,19 +23,7 @@ package net.sourceforge.lifeograph;
 
 public class ChartElem extends StringDefElem
 {
-    public static final String DEFINITION_DEFAULT = "Gyc\nGo--MP";
-    public static final String DEFINITION_DEFAULT_Y = "Gyc\nGo--YP";
-    // DEFINITION_DEFAULT_Y is temporary: needed for diary upgrades
-
-    public ChartElem( Diary diary, String name, String definition ) {
-        super( diary, name, definition );
-    }
-
-    @Override
-    public Type
-    get_type(){
-        return Type.CHART;
-    }
+    public ChartElem(long nativePtr) { super(nativePtr); }
 
     @Override
     public int

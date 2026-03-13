@@ -13,8 +13,8 @@ JNI_METHOD(jint, DiaryElement_nativeGetSize)(JNIEnv* env, jobject obj, jlong ptr
     return static_cast<jint>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_size());
 }
 
-JNI_METHOD(jlong, DiaryElement_nativeGetId)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jlong>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_id().get_raw());
+JNI_METHOD(jint, DiaryElement_nativeGetId)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_id().get_raw());
 }
 
 JNI_METHOD(jstring, DiaryElement_nativeGetName)(JNIEnv* env, jobject obj, jlong ptr) {
