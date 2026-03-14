@@ -169,6 +169,10 @@ JNI_METHOD(jstring, nativeGetWeekDayStr)(JNIEnv* env, jclass clazz, jlong d) {
     return env->NewStringUTF(result.c_str());
 }
 
+JNI_METHOD(jstring, nativeGetDayName)(JNIEnv* env, jclass clazz, jint no) {
+    return env->NewStringUTF(HELPERS::Date::get_day_name(static_cast<int>(no)).c_str());
+}
+
 JNI_METHOD(jlong, nativeParseString)(JNIEnv* env, jclass clazz, jstring str) {
     const char* c_str = env->GetStringUTFChars(str, nullptr);
     HELPERS::DateV result = HELPERS::Date::make(std::string(c_str));

@@ -100,13 +100,13 @@ class FragmentSettings : PreferenceFragmentCompat() {
         private val sBindPreferenceChangeListener =
                 Preference.OnPreferenceChangeListener { pref: Preference, value: Any ->
             val stringValue = value.toString()
-            when(pref.key) {
-                Lifeograph.getStr(R.string.pref_DATE_FORMAT_ORDER_key) -> {
-                    Date.s_format_order = stringValue
-                }
-                Lifeograph.getStr(R.string.pref_DATE_FORMAT_SEPARATOR_key) -> {
-                    Date.s_format_separator = stringValue[0]
-                }
+//            when(pref.key) {
+//                Lifeograph.getStr(R.string.pref_DATE_FORMAT_ORDER_key) -> {
+//                    Date.s_format_order = stringValue
+//                }
+//                Lifeograph.getStr(R.string.pref_DATE_FORMAT_SEPARATOR_key) -> {
+//                    Date.s_format_separator = stringValue[0]
+//                }
 //                Lifeograph.getStr(R.string.pref_DIARY_STORAGE_key) -> {
 //                    FragmentListDiaries.sStoragePref = stringValue
 //
@@ -117,7 +117,7 @@ class FragmentSettings : PreferenceFragmentCompat() {
 //                Lifeograph.getStr(R.string.pref_DIARY_PATH_key) -> {
 //                    FragmentListDiaries.sDiaryPath = stringValue
 //                }
-            }
+//            }
             if(pref is ListPreference) {
                 // For list preferences, look up the correct display value in
                 // the preference's 'entries' list.

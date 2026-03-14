@@ -8,19 +8,7 @@
 
 extern "C" {
 
-JNI_METHOD(jlongArray, Diary_nativeGetThemes)(JNIEnv* env, jobject obj, jlong ptr) {
-    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
-    auto themes = diary->get_p2themes();
-    auto size = static_cast<jsize>(themes->size());
-    jlongArray result = env->NewLongArray(size);
-    std::vector<jlong> ptrs;
-    ptrs.reserve(size);
-    for (auto e : *themes) ptrs.push_back(reinterpret_cast<jlong>(e.second));
-    env->SetLongArrayRegion(result, 0, size, ptrs.data());
-    return result;
-}
-
-JNI_METHOD(jlong, Diary_nativeCreate)(JNIEnv* env, jobject obj) {
+JNI_METHOD(jlong, Diary_nativeCreate)(JNIEnv* env, jclass) {
     return reinterpret_cast<jlong>(new LoG::Diary());
 }
 
@@ -68,8 +56,19 @@ JNI_METHOD(jint, Diary_nativeSetPath)(JNIEnv* env, jobject obj, jlong ptr, jstri
     return static_cast<jint>(res);
 }
 
-JNI_METHOD(jint, Diary_nativeReadHeader)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->read_header());
+JNI_METHOD(jint, Diary_nativeReadHeader)(JNIEnv* env, jobject obj, jlong ptr, jbyteArray data,
+        jstring uri) {
+    jbyte* bufferPtr = env->GetByteArrayElements(data, nullptr);
+    jsize size = env->GetArrayLength(data);
+    const char* uriStr = env->GetStringUTFChars(uri, nullptr);
+
+    // Access your Diary instance
+    LoG::Result result = reinterpret_cast<LoG::Diary*>(ptr)->read_header((char*)bufferPtr, size, uriStr);
+
+    env->ReleaseByteArrayElements(data, bufferPtr, JNI_ABORT);
+    env->ReleaseStringUTFChars(uri, uriStr);
+
+    return (jint)result;
 }
 
 JNI_METHOD(jint, Diary_nativeReadBody)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -93,6 +92,10 @@ JNI_METHOD(jint, Diary_nativeGetReadVersion)(JNIEnv* env, jobject obj, jlong ptr
 
 JNI_METHOD(jstring, Diary_nativeGetUri)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::Diary*>(ptr)->get_uri().c_str());
+}
+
+JNI_METHOD(jstring, Diary_nativeGetUriUnsaved)(JNIEnv* env, jobject obj, jlong ptr) {
+    return env->NewStringUTF(reinterpret_cast<LoG::Diary*>(ptr)->get_uri_unsaved().c_str());
 }
 
 JNI_METHOD(jint, Diary_nativeGetSize)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -131,6 +134,13 @@ JNI_METHOD(void, Diary_nativeSetLang)(JNIEnv* env, jobject obj, jlong ptr, jstri
 
 JNI_METHOD(jint, Diary_nativeWrite)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->write());
+}
+
+JNI_METHOD(jint, Diary_nativeWriteUri)(JNIEnv* env, jobject, jlong ptr, jstring uri) {
+    const char* c_uri = env->GetStringUTFChars(uri, nullptr);
+    auto result = reinterpret_cast<LoG::Diary*>(ptr)->write(c_uri);
+    env->ReleaseStringUTFChars(uri, c_uri);
+    return static_cast<jint>(result);
 }
 
 JNI_METHOD(jint, Diary_nativeWriteLock)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -189,6 +199,13 @@ JNI_METHOD(jlong, Diary_nativeGetEntryByDate)(JNIEnv* env, jobject obj, jlong pt
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_entry_by_date(static_cast<LoG::DateV>(date)));
 }
 
+JNI_METHOD(jlong, Diary_nativeGetEntryByName)(JNIEnv* env, jobject obj, jlong ptr, jstring name) {
+    const char* c_name = env->GetStringUTFChars(name, nullptr);
+    auto result = reinterpret_cast<LoG::Diary*>(ptr)->get_entry_by_name(c_name);
+    env->ReleaseStringUTFChars(name, c_name);
+    return reinterpret_cast<jlong>( result );
+}
+
 JNI_METHOD(jlongArray, Diary_nativeGetEntriesByFilter)(JNIEnv* env, jobject obj, jlong ptr, jlong ptr_filter) {
     auto diary = reinterpret_cast<LoG::Diary*>(ptr);
     auto filter = reinterpret_cast<LoG::Filter*>(ptr_filter);
@@ -235,11 +252,28 @@ JNI_METHOD(jlong, Diary_nativeCreateEntry)(JNIEnv* env, jobject obj, jlong ptr, 
     return reinterpret_cast<jlong>(new_entry);
 }
 
+JNI_METHOD(jlong, Diary_nativeDuplicateEntry)(JNIEnv* env, jobject, jlong ptr, jlong ptr_entry) {
+    auto p2entry = reinterpret_cast<LoG::Entry*>(ptr_entry);
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->duplicate_entry(p2entry));
+}
+
 JNI_METHOD(jlong, Diary_nativeDismissEntry)(JNIEnv* env, jobject obj, jlong ptr, jobject entry) {
     jclass clazz = env->GetObjectClass(entry);
     jfieldID fid = env->GetFieldID(clazz, "mNativePtr", "J");
     auto entry_ptr = reinterpret_cast<LoG::Entry*>(env->GetLongField(entry, fid));
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->dismiss_entry(entry_ptr));
+}
+
+JNI_METHOD(jlongArray, Diary_nativeGetFilters)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    const auto& filters = diary->get_filters();
+    auto size = static_cast<jsize>(filters.size());
+    jlongArray result = env->NewLongArray(size);
+    std::vector<jlong> ptrs;
+    ptrs.reserve(size);
+    for (auto f : filters) ptrs.push_back(reinterpret_cast<jlong>(f.second));
+    env->SetLongArrayRegion(result, 0, size, ptrs.data());
+    return result;
 }
 
 JNI_METHOD(jboolean, Diary_nativeRenameFilter)(JNIEnv* env, jobject obj, jlong ptr, jobject filter,
@@ -263,6 +297,30 @@ JNI_METHOD(jlong, Diary_nativeGetElement)(JNIEnv* env, jobject obj, jlong ptr, j
 
 JNI_METHOD(jlong, Diary_nativeGetTagById)(JNIEnv* env, jobject obj, jlong ptr, jint id) {
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_tag_by_id(LoG::LoGID32(id )));
+}
+
+JNI_METHOD(jlongArray, Diary_nativeGetCharts)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    const auto& charts = diary->get_charts();
+    auto size = static_cast<jsize>(charts.size());
+    jlongArray result = env->NewLongArray(size);
+    std::vector<jlong> ptrs;
+    ptrs.reserve(size);
+    for (auto c : charts) ptrs.push_back(reinterpret_cast<jlong>(c.second));
+    env->SetLongArrayRegion(result, 0, size, ptrs.data());
+    return result;
+}
+
+JNI_METHOD(jlongArray, Diary_nativeGetThemes)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    const auto& themes = diary->get_p2themes();
+    auto size = static_cast<jsize>(themes->size());
+    jlongArray result = env->NewLongArray(size);
+    std::vector<jlong> ptrs;
+    ptrs.reserve(size);
+    for (auto e : *themes) ptrs.push_back(reinterpret_cast<jlong>(e.second));
+    env->SetLongArrayRegion(result, 0, size, ptrs.data());
+    return result;
 }
 
 JNI_METHOD(jlong, Diary_nativeCreateTheme)(JNIEnv* env, jobject obj, jlong ptr, jstring name0) {

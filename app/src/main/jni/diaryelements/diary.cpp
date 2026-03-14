@@ -660,10 +660,10 @@ Diary::parse_theme_line( Theme*& ptr2theme, const String& line )
             ptr2theme->color_text.set( line.substr( 2 ) );
             break;
         case 'h':   // heading color
-            ptr2theme->color_heading.set( line.substr( 2 ) );
+            ptr2theme->color_title.set( line.substr( 2 ) );
             break;
         case 's':   // subheading color
-            ptr2theme->color_subheading.set( line.substr( 2 ) );
+            ptr2theme->color_heading_L.set( line.substr( 2 ) );
             break;
         case 'l':   // highlight color
             ptr2theme->color_highlight.set( line.substr( 2 ) );
@@ -2130,10 +2130,29 @@ Diary::parse_db_body_text_1050()
     return LoG::SUCCESS;
 }
 
+#ifdef __ANDROID__
+// Andorid does not use the Gio::File system and fills the m_sstream itself
+LoG::Result
+Diary::read_header( const char* buffer, size_t size, const String& uri )
+{
+    m_uri = uri;
+    m_size_bytes = size;
+
+    if( m_sstream ) delete m_sstream;
+    m_sstream = new std::stringstream();
+
+    // copy the buffer into the stream
+    m_sstream->write( buffer, size );
+
+    return read_header();
+}
+#endif
+
 // READING
 LoG::Result
 Diary::read_header()
 {
+#ifndef __ANDROID__ // Andoid reads the file itself
     m_sstream = new std::stringstream;
 
     try
@@ -2163,6 +2182,7 @@ Diary::read_header()
         clear();
         return LoG::COULD_NOT_START;
     }
+#endif // !__ANDROID__
 
     String line;
     getline( *m_sstream, line );
@@ -2493,8 +2513,8 @@ Diary::create_db_body_text()
             *m_sstream << "\nTm" << theme->font_monospace.to_string().c_str();
         *m_sstream << "\nTb" << convert_gdkrgba_to_html( theme->color_base );
         *m_sstream << "\nTt" << convert_gdkrgba_to_html( theme->color_text );
-        *m_sstream << "\nTh" << convert_gdkrgba_to_html( theme->color_heading );
-        *m_sstream << "\nTs" << convert_gdkrgba_to_html( theme->color_subheading );
+        *m_sstream << "\nTh" << convert_gdkrgba_to_html( theme->color_title );
+        *m_sstream << "\nTs" << convert_gdkrgba_to_html( theme->color_heading_L );
         *m_sstream << "\nTl" << convert_gdkrgba_to_html( theme->color_highlight );
         if( theme->image_bg == "#" ) // gradient
             *m_sstream << "\nTg" << convert_gdkrgba_to_html( theme->color_base2 );

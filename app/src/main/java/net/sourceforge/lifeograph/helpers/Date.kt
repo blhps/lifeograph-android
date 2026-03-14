@@ -106,9 +106,12 @@ class Date(var mDate: Long = 0) {
         @JvmStatic fun is_leap_year(d: Long): Boolean = nativeIsLeapYear(d)
 
         @JvmStatic fun make(strDate: String): Long = nativeMakeStr(strDate)
+        @JvmStatic fun make(y: Int, m: Int, d: Int): Long = nativeMake(y, m, d)
         @JvmStatic fun format_string(d: Long, format: String):
                 String = nativeFormatStringCustom(d, format)
         @JvmStatic fun format_string(d: Long): String = nativeFormatString(d)
+
+        @JvmStatic fun get_day_name(no: Int): String = nativeGetDayName(no)
 
         @JvmStatic fun calculate_days_between(d1: Long, d2: Long): Int = nativeCalculateDaysBetween(d1, d2)
 
@@ -151,6 +154,7 @@ class Date(var mDate: Long = 0) {
         @JvmStatic private external fun nativeFormatString(d: Long): String
         @JvmStatic private external fun nativeGetMonthStr(d: Long): String
         @JvmStatic private external fun nativeGetWeekDayStr(d: Long): String
+        @JvmStatic private external fun nativeGetDayName(no: Int): String
         @JvmStatic private external fun nativeCalculateDaysBetween(d1: Long, d2: Long): Int
         @JvmStatic private external fun nativeSetFormat(order: String, separator: Char)
 

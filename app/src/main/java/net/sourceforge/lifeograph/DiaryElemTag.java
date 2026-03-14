@@ -70,8 +70,6 @@ public class DiaryElemTag extends DiaryElement
         return nativeGetUnit(mNativePtr);
     }
 
-    public long mNativePtr = 0;
-
     public static class CompareElemsByDate implements Comparator< DiaryElemTag > {
         public int compare( DiaryElemTag elem_l, DiaryElemTag elem_r ) {
             final long diff = ( elem_r.get_date() - elem_l.get_date() );

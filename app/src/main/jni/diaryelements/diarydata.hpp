@@ -225,6 +225,30 @@ namespace VT
             return vs;
     }
 
+    using VecPairIntUstrings = std::vector< std::pair< int, Ustring > >;
+
+    template< typename PROP >
+    VecPairIntUstrings pairize_propspace( VecPairIntUstrings&& vs )
+    {
+        vs.push_back( { PROP::I, PROP::S } );
+
+        if( PROP::IND > 0 )
+            return pairize_propspace< typename PROP::PREV >( std::move( vs ) );
+        else
+            std::reverse( vs.begin(), vs.end() );
+        return vs;
+    }
+    template< typename PROP >
+    VecPairIntUstrings pairize_propspace()
+    {
+        VecPairIntUstrings vp = { { PROP::LAST::I, PROP::LAST::S } };
+
+        if( PROP::LAST::IND > 0 )
+            return pairize_propspace< typename PROP::LAST::PREV >( std::move( vp ) );
+        else
+            return vp;
+    }
+
 #ifndef __ANDROID__
     template< typename PROP >
     auto strlistize_propspace()
@@ -1393,10 +1417,10 @@ class Theme : public DiaryElement
                             convert_gdkrgba_to_html( color_base2 ) } );
             sv.push_back( { CSTR::THEME_TEXT,
                             convert_gdkrgba_to_html( color_text ) } );
-            sv.push_back( { CSTR::THEME_HEADING,
-                            convert_gdkrgba_to_html( color_heading ) } );
-            sv.push_back( { CSTR::THEME_SUBHEADING,
-                            convert_gdkrgba_to_html( color_subheading ) } );
+            sv.push_back( { CSTR::THEME_TITLE,
+                            convert_gdkrgba_to_html( color_title ) } );
+            sv.push_back( { CSTR::THEME_HEADING_L,
+                            convert_gdkrgba_to_html( color_heading_L ) } );
             sv.push_back( { CSTR::THEME_HIGHLIGHT,
                             convert_gdkrgba_to_html( color_highlight ) } );
 
@@ -1425,12 +1449,12 @@ class Theme : public DiaryElement
         Color                       color_base;
         Color                       color_base2; // for gradient
         Color                       color_text;
-        Color                       color_heading;
-        Color                       color_subheading;
+        Color                       color_title;
+        Color                       color_heading_L;
         Color                       color_highlight;
 
         // DERIVED COLORS
-        Color                       color_subsubheading;
+        Color                       color_heading_M;
         Color                       color_inline_tag;
         Color                       color_mid_dark;
         Color                       color_mid;

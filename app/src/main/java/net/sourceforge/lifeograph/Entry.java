@@ -205,7 +205,7 @@ public class Entry extends DiaryElemTag {
     }
 
     void
-    toggle_favored() {
+    toggle_favorite() {
         nativeToggleFavorite(mNativePtr);
     }
 
@@ -213,20 +213,14 @@ public class Entry extends DiaryElemTag {
 
     // TRASH FUNCTIONALITY =========================================================================
     boolean
-    is_trashed() {
-        return nativeIsTrashed(mNativePtr);
-    }
+    is_trashed() { return nativeIsTrashed(mNativePtr); }
 
     void
-    set_trashed( boolean trashed ) {
-        nativeSetTrashed(mNativePtr, trashed);
-    }
+    set_trashed( boolean trashed ) { nativeSetTrashed(mNativePtr, trashed); }
 
     // TAGS ========================================================================================
     boolean
-    has_tag( Entry tag ) {
-        return nativeHasTag(mNativePtr, tag.mNativePtr);
-    }
+    has_tag( Entry tag ) { return nativeHasTag(mNativePtr, tag.mNativePtr); }
 
     // THEME =======================================================================================
     Theme
@@ -241,9 +235,7 @@ public class Entry extends DiaryElemTag {
     }
 
     boolean
-    is_theme_set() {
-        return nativeIsThemeSet(mNativePtr);
-    }
+    is_theme_set() { return nativeIsThemeSet(mNativePtr); }
 
     // TO-DO STATUS ================================================================================
     protected static boolean
@@ -252,24 +244,16 @@ public class Entry extends DiaryElemTag {
     }
 
     boolean
-    update_todo_status() {
-        return nativeUpdateTodoStatus(mNativePtr);
-    }
+    update_todo_status() { return nativeUpdateTodoStatus(mNativePtr); }
 
     double
-    get_completion() {
-        return nativeGetCompletion(mNativePtr);
-    }
+    get_completion() { return nativeGetCompletion(mNativePtr); }
 
     double
-    get_completed() {
-        return nativeGetCompleted(mNativePtr);
-    }
+    get_completed() { return nativeGetCompleted(mNativePtr); }
 
     double
-    get_workload() {
-        return nativeGetWorkload(mNativePtr);
-    }
+    get_workload() { return nativeGetWorkload(mNativePtr); }
 
     // LOCATION ====================================================================================
 //    void

@@ -40,7 +40,7 @@ class FragmentListThemes : FragmentListElems(), Listener
         super.onViewCreated(view, savedInstanceState)
 
         var button = view.findViewById<ImageButton>(R.id.set_active)
-        button.setOnClickListener { setSelDefault() }
+        // TODO... button.setOnClickListener { setSelDefault() }
         button = view.findViewById(R.id.duplicate)
         button.setOnClickListener { duplicateSel() }
         button = view.findViewById(R.id.dismiss)
@@ -56,27 +56,16 @@ class FragmentListThemes : FragmentListElems(), Listener
 
     override fun updateList() {
         mElems.clear()
-        mElems.addAll(Diary.d.m_themes.values)
+        mElems.addAll(Diary.d._themes)
         //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
 
         mItemCount = mElems.size
 
         mSelectionStatuses.clear()
-        mSelectionStatuses.addAll(Collections.nCopies(Diary.d.m_themes.size, false))
+        mSelectionStatuses.addAll(Collections.nCopies(mItemCount, false))
     }
 
     override fun createNewElem() { }
-
-    private fun setSelDefault() {
-        for((i, selected) in mSelectionStatuses.withIndex()) {
-            if(selected) {
-                val theme = mElems[i] as Theme
-                Diary.d._theme_default = theme
-                mAdapter.notifyDataSetChanged()
-                break
-            }
-        }
-    }
 
     private fun duplicateSel() {
         for((i, selected) in mSelectionStatuses.withIndex()) {
@@ -110,7 +99,8 @@ class FragmentListThemes : FragmentListElems(), Listener
 
     // INTERFACE METHODS ===========================================================================
     override fun hasIcon2(elem: DiaryElement): Boolean {
-        return Diary.d._theme_default._name.equals(elem._name)
+        //return Diary.d._theme_default._name.equals(elem._name)
+        return false
     }
     override fun getIcon2(elem: DiaryElement): Int {
         return R.drawable.ic_check

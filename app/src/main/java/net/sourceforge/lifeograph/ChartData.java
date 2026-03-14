@@ -23,15 +23,7 @@
 package net.sourceforge.lifeograph;
 
 
-import android.util.Log;
-
-import java.util.ArrayList;
 import java.util.LinkedList;
-import java.util.List;
-
-import kotlin.Pair;
-
-import static java.lang.Math.abs;
 
 public class ChartData
 {
@@ -39,26 +31,22 @@ public class ChartData
 
     final static int MONTHLY                 = 0x1;
     final static int YEARLY                  = 0x2;
-    final static int WEEKLY                  = 0x3;
     final static int PERIOD_MASK             = 0xF;
-
-    final static int BOOLEAN                 = 0x10; // not used any more
-    final static int CUMULATIVE_PERIODIC     = 0x20; // corresponds to the old cumulative
-    final static int AVERAGE                 = 0x30;
-    final static int CUMULATIVE_CONTINUOUS   = 0x40;
-    final static int VALUE_TYPE_MASK         = 0xF0;
 
     final static int UNDERLAY_PREV_YEAR      = 0x100;
     final static int UNDERLAY_PLANNED        = 0x200;
     final static int UNDERLAY_MASK           = 0x300;
-    final static int UNDERLAY_NONE           = 0x300; // same as mask to save bits
 
-    final static int TAGGED_ONLY             = 0x800;
+    ChartData(Diary diary) { mNativePtr = nativeCreate( diary.mNativePtr ); }
 
-    final static int COUNT                   = 0x1000;
-    final static int TEXT_LENGTH             = 0x2000;
-
-    ChartData(long nativePtr) { mNativePtr = nativePtr; }
+    @Override
+    protected void finalize() throws Throwable {
+        if (mNativePtr != 0) {
+            nativeDestroy(mNativePtr);
+            mNativePtr = 0;
+        }
+        super.finalize();
+    }
 
     void
     clear() { nativeClear( mNativePtr ); }
@@ -70,12 +58,14 @@ public class ChartData
     calculate_points() { nativeCalculatePoints( mNativePtr ); }
 
     int
-    get_span() {
-        return values.size();
-    }
+    get_span() { return nativeGetSpan( mNativePtr ); }
 
     int
-    get_period() { return( type & PERIOD_MASK ); }
+    get_period() { return nativeGetPeriod( mNativePtr ); }
+
+    String
+    get_unit() { return nativeGetUnit( mNativePtr ); }
+
     boolean
     is_underlay_prev_year() {
         return( ( type & UNDERLAY_MASK ) == UNDERLAY_PREV_YEAR &&
@@ -92,15 +82,19 @@ public class ChartData
     // linked lists are used in Java as opposed to vector in C++ to get getLast()
     LinkedList< Double >  values      = new LinkedList<>();
     LinkedList< Double >  values_plan = new LinkedList<>();
-    LinkedList< Integer > counts      = new LinkedList<>();
     LinkedList< Long >    dates       = new LinkedList<>();
 
-    String          unit = "";
     int             type;
-    Filter          filter = null;
 
     // NATIVE FUNCTIONS ============================================================================
+    private native long nativeCreate(long ptr_diary);
+    private native void nativeDestroy(long ptr);
+
     private native void nativeClear(long ptr);
     private native void nativeCalculatePoints(long ptr);
     private native void nativeSetFromString(long ptr, String str);
+    private native int nativeGetSpan(long ptr);
+    private native int nativeGetPeriod(long ptr);
+
+    private native String nativeGetUnit(long ptr);
 }

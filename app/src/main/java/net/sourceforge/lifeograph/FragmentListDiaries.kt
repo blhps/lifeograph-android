@@ -293,7 +293,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun openDiary3() {
-        when(Diary.d.read_header()) {
+        when(Diary.d.read_header(context)) {
             Result.SUCCESS -> if(Diary.d.is_encrypted) askPassword() else readBody()
             Result.INCOMPATIBLE_FILE_OLD -> Lifeograph.showToast("Incompatible diary version (TOO OLD)")
             Result.INCOMPATIBLE_FILE_NEW -> Lifeograph.showToast("Incompatible diary version (TOO NEW)")

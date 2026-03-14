@@ -455,11 +455,11 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private fun updateTheme() {
         val theme = mEntry._theme
-        mEditText.setBackgroundColor(theme.color_base)
-        mEditText.setTextColor(theme.color_text)
-        mButtonHighlight.setTextColor(theme.color_text)
+        mEditText.setBackgroundColor(theme._color_base)
+        mEditText.setTextColor(theme._color_text)
+        mButtonHighlight.setTextColor(theme._color_text)
         val spanStringH = SpannableString("H")
-        spanStringH.setSpan(BackgroundColorSpan(theme.color_highlight), 0, 1, 0)
+        spanStringH.setSpan(BackgroundColorSpan(theme._color_highlight), 0, 1, 0)
         mButtonHighlight.text = spanStringH
     }
 
@@ -495,7 +495,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     private fun toggleFavorite() {
-        mEntry.toggle_favored()
+        mEntry.toggle_favorite()
         updateIcon()
     }
 
@@ -939,7 +939,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
                 mEditText.text.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
-                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme.color_heading), offset,
+                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme._color_title), offset,
                                        offsetEnd, 0)
                 // TODO: Note: handle_title_edited logic would go here if needed for Android UI
             }
@@ -949,7 +949,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
                 mEditText.text.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
-                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme.color_subheading), offset,
+                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme._color_heading_L), offset,
                                        offsetEnd, 0)
             }
 
@@ -1024,7 +1024,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 'P' -> mEditText.text.setSpan(SuperscriptSpan(), fStart, fEnd, 0)
                 'T' -> { // TAG
                     mEditText.text.setSpan(
-                        BackgroundColorSpan(theme.m_color_inline_tag), fStart, fEnd, 0)
+                        BackgroundColorSpan(theme._color_inline_tag), fStart, fEnd, 0)
                     mEditText.text.setSpan(
                         LinkID(format.refId.toInt()), fStart, fEnd, 0)
                 }
@@ -1043,29 +1043,29 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 }
                 'v' -> { // TAG VALUE
                     mEditText.text.setSpan(
-                        BackgroundColorSpan(theme.m_color_inline_tag), fStart, fEnd, 0)
+                        BackgroundColorSpan(theme._color_inline_tag), fStart, fEnd, 0)
                 }
                 'c' -> { // COMMENT / MARKUP
                     mEditText.text.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.commentSpan),
                         fStart, fEnd, 0 ) // general span
-                    mEditText.text.setSpan( ForegroundColorSpan(theme.m_color_mid), fStart,
+                    mEditText.text.setSpan( ForegroundColorSpan(theme._color_mid), fStart,
                                             fStart + 2, 0 ) // [[
                     if(format.posBgn < format.posEnd - 4) {
                         mEditText.text.setSpan(
-                            ForegroundColorSpan(theme.m_color_mid), fStart + 2, fEnd - 2, 0)
+                            ForegroundColorSpan(theme._color_mid), fStart + 2, fEnd - 2, 0)
                     }
-                    mEditText.text.setSpan(ForegroundColorSpan(theme.m_color_mid), fEnd - 2, fEnd, 0) // ]]
+                    mEditText.text.setSpan(ForegroundColorSpan(theme._color_mid), fEnd - 2, fEnd, 0) // ]]
                 }
                 'd' -> { // DATE
                     mEditText.text.setSpan(LinkDate(format.varD), fStart, fEnd, 0)
                 }
                 'm' -> { // MATCH
                     mEditText.text.setSpan(
-                        BackgroundColorSpan(theme.m_color_match_bg),
+                        BackgroundColorSpan(theme._color_match_bg),
                         fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
                     mEditText.text.setSpan(
-                        ForegroundColorSpan(theme.color_base),
+                        ForegroundColorSpan(theme._color_base),
                         fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
                 }
                 // Add other types (Date, ID, etc.) based on your ParserEditText.AdvancedSpan types

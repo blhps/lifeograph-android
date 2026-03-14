@@ -46,7 +46,7 @@ class FragmentListCharts : FragmentListElems()
     override fun updateList() {
         mElems.clear()
         Log.d(Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES")
-        mElems.addAll(Diary.d.m_charts.values)
+        mElems.addAll(Diary.d._charts )
         //Collections.sort(mElems, FragmentEntryList.compareElemsByDate)
 
         mSelectionStatuses.clear()

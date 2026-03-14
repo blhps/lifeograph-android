@@ -34,11 +34,11 @@ public abstract class Filterer
         return false;
     }
 
-    abstract boolean
-    filter( Entry entry );
-
-    abstract void
-    get_as_string( StringBuilder string );
+//    abstract boolean
+//    filter( Entry entry );
+//
+//    abstract void
+//    get_as_string( StringBuilder string );
 
     protected FiltererContainer m_p2container;
     protected Diary             m_p2diary;

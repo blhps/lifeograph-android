@@ -276,7 +276,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
 
         override fun populate() {
             mToggleNot.isChecked = !mItem.m_f_has
-            if( mItem.m_id != DiaryElement.DEID_UNSET )
+            if( mItem.m_id != 404 /*TODO: DiaryElement.DEID_UNSET*/ )
                 mEntryName.setText(Diary.d.get_entry_by_id(mItem.m_id)._name)
         }
         override fun updateState() {

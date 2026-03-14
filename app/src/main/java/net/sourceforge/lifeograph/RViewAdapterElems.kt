@@ -32,7 +32,7 @@ import java.util.*
 private const val VIEWTYPE_HEADER = 0
 private const val VIEWTYPE_ITEM   = 1
 
-class RVAdapterEntries(private val mItems: List<Entry>,
+class RVAdapterElems(private val mItems :List<DiaryElement>,
                      private val mSelectionStatuses: MutableList<Boolean>,
                      var mListener: Listener) :
         RecyclerView.Adapter<RecyclerView.ViewHolder>()
@@ -54,56 +54,31 @@ class RVAdapterEntries(private val mItems: List<Entry>,
         if( mSelectionStatuses.isEmpty() )
             mSelectionStatuses.addAll(Collections.nCopies(mItems.size, false))
 
-        val entry: Entry = mItems[position]
+        val elem: DiaryElement = mItems[position]
 
         if( holder is ViewHolder ) {
-            holder.mItem = entry
-            holder.mIVIcon.setImageResource(entry._icon)
+            holder.mItem = elem
+            holder.mIVIcon.setImageResource(elem._icon)
 
-            when(entry._generation) {
-                0 -> {
-                    holder.mSpacerL1.visibility = View.GONE
-                    holder.mSpacerL2.visibility = View.GONE
-                }
-                1 -> {
-                    holder.mSpacerL1.visibility = View.VISIBLE
-                    holder.mSpacerL2.visibility = View.GONE
-                }
-                else -> {
-                    holder.mSpacerL1.visibility = View.VISIBLE
-                    holder.mSpacerL2.visibility = View.VISIBLE
-                }
-            }
+            holder.mTVTitle.text = elem._list_str
+            holder.mTVDetails.text = elem._info_str
 
-            holder.mTVTitle.text = entry._list_str
-            holder.mTVDetails.text = entry._info_str
-
-            if(mListener.hasIcon2(entry)) {
-                holder.mIVIcon2.setImageResource(mListener.getIcon2(entry))
+            if(mListener.hasIcon2(elem)) {
+                holder.mIVIcon2.setImageResource(mListener.getIcon2(elem))
                 holder.mIVIcon2.visibility = View.VISIBLE
             }
             else
                 holder.mIVIcon2.visibility = View.INVISIBLE
 
-            if(mListener.hasIcon3(entry)) {
+            if(mListener.hasIcon3(elem)) {
                 //holder.mIVIcon3.setImageResource(mListener.getIcon3(elem))
                 holder.mIVIcon3.visibility = View.VISIBLE
             }
             else
                 holder.mIVIcon3.visibility = View.INVISIBLE
-
-            if(entry.has_children()) {
-                holder.mExpander.visibility = View.VISIBLE
-                if(entry.is_expanded)
-                    holder.mExpander.setImageResource(R.drawable.ic_expanded_dn)
-                else
-                    holder.mExpander.setImageResource(R.drawable.ic_collapsed)
-            }
-            else
-                holder.mExpander.visibility = View.GONE
         }
         else if(holder is ViewHolderHeader) {
-            holder.mTvTitle.text = entry._name
+            holder.mTvTitle.text = elem._name
         }
     }
 
@@ -163,7 +138,7 @@ class RVAdapterEntries(private val mItems: List<Entry>,
         //fun getIcon3(elem: DiaryElement): Int
     }
 
-    class ViewHolder(val mView: View, private val mAdapter: RVAdapterEntries) :
+    class ViewHolder(val mView: View, private val mAdapter: RVAdapterElems) :
             RecyclerView.ViewHolder(mView)
     {
         val mSpacerL1:  TextView = mView.findViewById(R.id.spacer_L1)
@@ -173,8 +148,7 @@ class RVAdapterEntries(private val mItems: List<Entry>,
         val mIVIcon3:   ImageView = mView.findViewById(R.id.icon3)
         val mTVTitle:   TextView = mView.findViewById(R.id.title)
         val mTVDetails: TextView = mView.findViewById(R.id.detail)
-        val mExpander:  ImageButton = mView.findViewById(R.id.icon_collapse)
-        var mItem:      DiaryElemTag? = null
+        var mItem:      DiaryElement? = null
 
         init {
             mView.setOnClickListener { v: View ->
@@ -186,9 +160,6 @@ class RVAdapterEntries(private val mItems: List<Entry>,
             mView.setOnLongClickListener { v: View ->
                 handleLongCLick(v)
                 true
-            }
-            mExpander.setOnClickListener {
-                mAdapter.mListener.toggleExpanded(mItem!!)
             }
         }
 

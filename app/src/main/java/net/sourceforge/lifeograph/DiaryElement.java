@@ -58,6 +58,13 @@ public class DiaryElement {
             this.layout_type = l;
             this.str = v;
         }
+
+        public static Type fromInt(int i) {
+            for (Type t : Type.values()) {
+                if (t.i == i) return t;
+            }
+            return NONE;
+        }
     }
 
     // ELEMENT STATUSES
@@ -131,7 +138,7 @@ public class DiaryElement {
 
     public Type
     get_type() {
-        return nativeGetType(mNativePtr);
+        return Type.fromInt(nativeGetType(mNativePtr));
     }
 //    public String get_type_name() {
 //        return get_type().str;
@@ -211,6 +218,6 @@ public class DiaryElement {
     private native int nativeGetId(long ptr);
     private native String nativeGetName(long ptr);
     private native void nativeSetName(long ptr, String name);
-    private native Type nativeGetType(long ptr);
+    private native int nativeGetType(long ptr);
     private native int nativeGetSize(long ptr);
 }

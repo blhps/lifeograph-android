@@ -260,17 +260,17 @@ class ViewChart(context: Context, attrs: AttributeSet?) : View(context, attrs) {
         mPaint.style = Paint.Style.FILL
         mPaint.textSize = cHeightLabel
 
-        canvas.drawText(Lifeograph.formatNumber(mVMax) + " " + mData!!.unit,
+        canvas.drawText(Lifeograph.formatNumber(mVMax) + " " + mData!!._unit,
                         mBorderLabel,
                         cYMin - cOffsetLabel,
                         mPaint)
 
-        canvas.drawText(Lifeograph.formatNumber((mVMax + mVMin) / 2) + " " + mData!!.unit,
+        canvas.drawText(Lifeograph.formatNumber((mVMax + mVMin) / 2) + " " + mData!!._unit,
                         mBorderLabel,
                         mYMid - cOffsetLabel,
                         mPaint)
 
-        canvas.drawText(Lifeograph.formatNumber(mVMin) + " " + mData!!.unit,
+        canvas.drawText(Lifeograph.formatNumber(mVMin) + " " + mData!!._unit,
                         mBorderLabel,
                         mYMax - cOffsetLabel,
                         mPaint)

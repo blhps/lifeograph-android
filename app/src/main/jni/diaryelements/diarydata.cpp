@@ -461,7 +461,7 @@ Theme::Theme( Diary* const d,
               const std::string& str_highlight )
 :   DiaryElement( d, name ),
     font( str_font ), color_base( str_base ), color_text( str_text ),
-    color_heading( str_heading ), color_subheading( str_subheading ),
+    color_title( str_heading ), color_heading_L( str_subheading ),
     color_highlight( str_highlight )
 {
     calculate_derived_colors();
@@ -472,8 +472,8 @@ Theme::Theme( Diary* const d, const Ustring& name, const Theme* theme )
     font( theme->font ),
     color_base( theme->color_base ),
     color_text( theme->color_text ),
-    color_heading( theme->color_heading ),
-    color_subheading( theme->color_subheading ),
+    color_title( theme->color_title ),
+    color_heading_L( theme->color_heading_L ),
     color_highlight( theme->color_highlight )
 {
     calculate_derived_colors();
@@ -486,8 +486,8 @@ Theme::copy_to( Theme* target ) const
     target->image_bg = image_bg;
     target->color_base = color_base;
     target->color_text = color_text;
-    target->color_heading = color_heading;
-    target->color_subheading = color_subheading;
+    target->color_title = color_title;
+    target->color_heading_L = color_heading_L;
     target->color_highlight = color_highlight;
 
     target->calculate_derived_colors();
@@ -496,7 +496,7 @@ Theme::copy_to( Theme* target ) const
 void
 Theme::calculate_derived_colors()
 {
-    color_subsubheading = midtone( color_text, color_subheading, 0.5 );
+    color_heading_M =     midtone( color_text, color_heading_L, 0.5 );
     color_inline_tag =    midtone( color_base, color_highlight, 0.2 );
     color_mid_dark =      midtone( color_base, color_text, 0.65 );
     color_mid =           midtone( color_base, color_text, 0.42 );
@@ -545,9 +545,9 @@ Theme::get_css_class_def() const
                 "font-size: ",          size,   "px; "
                 "caret-color: ",        c_text, "; }\n"
             "textview#", name, " > text selection { color: ", c_base, "; "
-                                  "background: ", color_heading.to_string(), "; }\n"
+                                  "background: ", color_title.to_string(), "; }\n"
             "textview#", name, " > text:selected { color: ", c_base, "; "
-                                  "background: ",  color_heading.to_string(), "; }\n"
+                                  "background: ",  color_title.to_string(), "; }\n"
             "box#", name, " { background-color: ", c_base, "; "
                              "background-size: cover; background-repeat: no-repeat; ",
                               i_bg, "; }\n"

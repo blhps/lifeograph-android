@@ -134,13 +134,8 @@ class Lifeograph : Application() {
         }
 
         @JvmStatic
-        fun duplicateEntry(entrySrc: Entry, title: String): Entry {
-            val entry = Diary.d.create_entry(entrySrc._date_t, title)
-            for((i, para) in entrySrc.m_paragraphs.withIndex())
-                if(i > 0)
-                    entry.add_paragraph(para.m_text)
-
-            return entry
+        fun duplicateEntry(entrySrc: Entry): Entry {
+            return Diary.d.duplicate_entry(entrySrc)
         }
 
         @JvmStatic
@@ -178,7 +173,7 @@ class Lifeograph : Application() {
                                       ) { _: DialogInterface?, _: Int ->
                     // unlike desktop version Android version
                     // does not back up changes
-                    Diary.d.setSavingEnabled(false)
+                    Diary.d.write(Diary.d._uri_unsaved)
                     view.findNavController().navigate(R.id.nav_diaries)
                 }
             }

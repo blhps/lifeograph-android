@@ -23,11 +23,6 @@ package net.sourceforge.lifeograph;
 
 public abstract class StringDefElem extends DiaryElement
 {
-    public StringDefElem( Diary diary, String name, String definition ) {
-        super( diary, name, ES_VOID );
-        m_definition = definition;
-    }
-
     protected StringDefElem(long nativePtr) {
         super(nativePtr);
     }

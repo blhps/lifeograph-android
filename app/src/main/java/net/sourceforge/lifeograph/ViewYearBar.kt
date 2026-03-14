@@ -33,12 +33,13 @@ import android.view.MotionEvent
 import android.view.View
 import androidx.core.content.ContextCompat
 import kotlin.math.abs
+import net.sourceforge.lifeograph.helpers.Date
 
 
 class ViewYearBar(context: Context, attrs: AttributeSet?) : View(context, attrs) {
     // VARIABLES ===================================================================================
     private val mPaint: Paint = Paint()
-    var         mYear: Int = Date.get_year(Date.get_today(0))
+    var         mYear: Int = Date.get_year(Date.get_today())
     private val mSwipeGestureDetector: GestureDetector
     private var mListener: YearChangedListener? = null
 

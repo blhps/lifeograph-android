@@ -24,7 +24,7 @@ package net.sourceforge.lifeograph;
 public class Filter extends StringDefElem
 {
     public static final String DEFINITION_EMPTY = "F&";
-    public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
+    //public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
 
 //    Filter( Diary d, String name, String definition ) {
 //        super( d, name, definition );
@@ -34,6 +34,15 @@ public class Filter extends StringDefElem
         super(nativePtr);
     }
 
+//    @Override
+//    protected void finalize() throws Throwable {
+//        if (mNativePtr != 0) {
+//            nativeDestroy(mNativePtr);
+//            mNativePtr = 0;
+//        }
+//        super.finalize();
+//    }
+
     @Override
     public int get_icon() { // Java only
         return R.drawable.ic_filter;
@@ -41,13 +50,20 @@ public class Filter extends StringDefElem
 
     FiltererContainer
     get_filterer_stack() {
-        if( m_definition.isEmpty() )
-            return null;
-
-        FiltererContainer fc = new FiltererContainer( m_p2diary, null );
-
-        fc.set_from_string( m_definition );
-
-        return fc;
+        long ptr = nativeGetFiltererStack( mNativePtr );
+        return ptr != 0 ? new FiltererContainer( ptr ) : null;
+//        if( m_definition.isEmpty() )
+//            return null;
+//
+//        FiltererContainer fc = new FiltererContainer( m_p2diary, null );
+//
+//        fc.set_from_string( m_definition );
+//
+//        return fc;
     }
+
+    // NATIVE METHODS ==============================================================================
+    //private native long nativeCreate(long ptr_diary);
+    //private native void nativeDestroy(long ptr);
+    private native long nativeGetFiltererStack( long ptr );
 }

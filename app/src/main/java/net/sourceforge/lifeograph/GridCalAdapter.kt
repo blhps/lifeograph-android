@@ -73,12 +73,12 @@ internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
 
         // Prev Month days
         for(i in (prevMonthLength - numSlotBefore + 1)..prevMonthLength) {
-            mListDays.add(Date.make(prevMonth.get_year(), prevMonth.get_month(), i, 1))
+            mListDays.add(Date.make(prevMonth.get_year(), prevMonth.get_month(), i))
         }
 
         // Current Month Days
         for(i in 0 until mDaysInMonth) {
-            mListDays.add(Date.make(date.get_year(), date.get_month(), i + 1, 1))
+            mListDays.add(Date.make(date.get_year(), date.get_month(), i + 1))
         }
 
         // Next Month days
@@ -86,7 +86,7 @@ internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
         // always use 6 rows:
         val numSlotAfter = (42 - numSlotBefore - mDaysInMonth)
         for(i in 1..numSlotAfter) {
-            mListDays.add(Date.make(nextMonth._year, nextMonth._month, i, 1))
+            mListDays.add(Date.make(nextMonth.get_year(), nextMonth.get_month(), i))
         }
     }
 
@@ -107,17 +107,17 @@ internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
         //TextView num_events_per_day = ( TextView ) row.findViewById( R.id.num_events_per_day );
         //num_events_per_day.setTextColor( Color.GREEN );
         if(position < 7) {
-            tvDayNo.text = Date.WEEKDAYSSHORT[position + 1]
+            tvDayNo.text = Date.get_day_name(position + 1)
             tvDayNo.setTextColor(ContextCompat.getColor(mContext, R.color.t_mid))
             tvDayNo.textScaleX = 0.65f
         }
         else {
             val date = Date(mListDays[position] + 1)
-            tvDayNo.text = date._day.toString()
-            val flagWithinMonth = date._month == mDateCurrent._month
-            val flagWeekDay = date._weekday > 0
+            tvDayNo.text = date.get_day().toString()
+            val flagWithinMonth = date.get_month() == mDateCurrent.get_month()
+            val flagWeekDay = date.get_weekday() > 0
             when {
-                Diary.d.get_entry_count_on_day(date) > 0 -> {
+                Diary.d.get_entry_count_on_day(date.mDate) > 0 -> {
                     TextViewCompat.setTextAppearance(tvDayNo, R.style.boldText)
                     tvDayNo.setTextColor(
                             if(flagWithinMonth) ContextCompat.getColor(mContext, R.color.t_darker)
@@ -140,10 +140,10 @@ internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
 
             tvDayNo.setBackgroundColor(
                 when {
-                    date._pure == mDateCurrent._pure ->
+                    date.isolate_YMD() == mDateCurrent.isolate_YMD() ->
                         ContextCompat.getColor(mContext, R.color.t_lighter)
-                    Diary.d.is_open && Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(date._pure) ->
-                        ContextCompat.getColor(mContext, R.color.t_lightest)
+//                    Diary.d.is_open && Diary.d.m_p2chapter_ctg_cur.mMap.containsKey(date._pure) ->
+//                        ContextCompat.getColor(mContext, R.color.t_lightest)
                     else ->
                         Color.TRANSPARENT
                 } )

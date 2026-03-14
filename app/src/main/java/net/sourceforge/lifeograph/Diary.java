@@ -64,7 +64,7 @@ public class Diary extends DiaryElement
     public enum SetPathType { NORMAL, READ_ONLY, NEW }
 
     public Diary() {
-        super( d.nativeCreate() );
+        super( nativeCreate() );
     }
 
     @Override
@@ -79,6 +79,9 @@ public class Diary extends DiaryElement
     // MAIN FUNCTIONALITY ==========================================================================
     String
     get_uri() { return nativeGetUri(mNativePtr); }
+
+    String
+    get_uri_unsaved() { return nativeGetUriUnsaved(mNativePtr); }
 
     boolean
     is_old() {
@@ -165,7 +168,7 @@ public class Diary extends DiaryElement
     DiaryElement
     get_element( int id ) {
         long ptr = nativeGetElement(mNativePtr, id);
-        return new DiaryElement(ptr);
+        return ptr == 0 ? null : new DiaryElement(ptr);
     }
 
     int
@@ -200,12 +203,15 @@ public class Diary extends DiaryElement
 
     // ENTRIES =====================================================================================
     Entry
-    get_entry_1st() { return new Entry( nativeGetEntry1st( mNativePtr ) ); }
+    get_entry_1st() {
+        long ptr = nativeGetEntry1st( mNativePtr );
+        return ptr == 0 ? null : new Entry( ptr );
+    }
 
     Entry
     get_entry_most_current() {
         long ptr = nativeGetEntryMostCurrent( mNativePtr );
-        return new Entry( ptr );
+        return ptr == 0 ? null : new Entry( ptr );
     }
 
     Entry
@@ -222,20 +228,20 @@ public class Diary extends DiaryElement
     Entry
     get_entry_today() {
         long ptr = nativeGetEntryToday(mNativePtr);
-        return new Entry( ptr );
+        return ptr == 0 ? null : new Entry( ptr );
     }
 
     Entry
     get_entry_by_date( long date ) {
         long ptr = nativeGetEntryByDate(mNativePtr, date);
-        return new Entry( ptr );
+        return ptr == 0 ? null : new Entry( ptr );
     }
 
-//    Entry
-//    get_entry_by_name( String name ) {
-//        // TODO: delegate to C++
-//        return null;
-//    }
+    Entry
+    get_entry_by_name( String name ) {
+        long ptr = nativeGetEntryByName(mNativePtr, name);
+        return ptr != 0 ? new Entry( ptr ) : null;
+    }
 
 //    List< Entry >
 //    get_entries_by_name( String name ) {
@@ -291,7 +297,13 @@ public class Diary extends DiaryElement
     Entry
     create_entry( long date, String content ) {
         long ptr =  nativeCreateEntry(mNativePtr, null, false, date, content);
-        return new Entry(ptr);
+        return ptr == 0 ? null : new Entry(ptr);
+    }
+
+    Entry
+    duplicate_entry( Entry source ) {
+        long ptr = nativeDuplicateEntry(mNativePtr, source.mNativePtr);
+        return ptr == 0 ? null : new Entry(ptr);
     }
 
     // adds a new entry to today even if there is already one or more:
@@ -304,14 +316,14 @@ public class Diary extends DiaryElement
     Entry
     dismiss_entry( @NonNull Entry entry ) {
         long ptr = nativeDismissEntry(mNativePtr, entry);
-        return new Entry(ptr);
+        return ptr == 0 ? null : new Entry(ptr);
     }
 
     // TAGS ========================================================================================
     DiaryElemTag
     get_completion_tag() {
         long ptr = nativeGetCompletionTag(mNativePtr);
-        return new DiaryElemTag(ptr);
+        return ptr == 0 ? null : new DiaryElemTag(ptr);
     }
 
 //    void
@@ -322,7 +334,7 @@ public class Diary extends DiaryElement
     public DiaryElemTag
     get_tag_by_id( int id ) {
         long ptr = nativeGetTagById(mNativePtr, id);
-        return new DiaryElemTag(ptr);
+        return ptr == 0 ? null : new DiaryElemTag(ptr);
     }
 
     // SEARCHING ===================================================================================
@@ -375,6 +387,19 @@ public class Diary extends DiaryElement
         return null;
     }
 
+    Vector<Filter>
+    get_filters() {
+        long[] ptrs = nativeGetFilters(mNativePtr);
+        Vector<Filter> filters = new Vector<>(ptrs.length);
+        for (long ptr : ptrs) {
+            if (ptr != 0) {
+                filters.add(new Filter(ptr));
+            }
+        }
+        return filters;
+    }
+
+
 //    boolean
 //    set_filter_active( String name ) {
 //        // TODO: delegate to C++
@@ -422,6 +447,18 @@ public class Diary extends DiaryElement
         return null;
     }
 
+    Vector<ChartElem>
+    get_charts() {
+        long[] ptrs = nativeGetCharts(mNativePtr);
+        Vector<ChartElem> charts = new Vector<>(ptrs.length);
+        for (long ptr : ptrs) {
+            if (ptr != 0) {
+                charts.add(new ChartElem(ptr));
+            }
+        }
+        return charts;
+    }
+
     boolean
     set_chart_active( String name ) {
         // TODO: delegate to C++
@@ -455,13 +492,13 @@ public class Diary extends DiaryElement
     Theme
     create_theme( String name0 ) {
         long ptr =  nativeCreateTheme(mNativePtr, name0);
-        return new Theme(ptr);
+        return ptr == 0 ? null : new Theme(ptr);
     }
 
     Theme
     get_theme( @NonNull String name ) {
         long ptr =  nativeGetTheme(mNativePtr, name);
-        return new Theme(ptr);
+        return ptr == 0 ? null : new Theme(ptr);
     }
 
     Vector<Theme>
@@ -493,10 +530,36 @@ public class Diary extends DiaryElement
         return Result.values()[result];
     }
 
+//    protected Result
+//    read_header() {
+//        int result = nativeReadHeader(mNativePtr);
+//        return Result.values()[result];
+//    }
     protected Result
-    read_header() {
-        int result = nativeReadHeader(mNativePtr);
-        return Result.values()[result];
+    read_header(android.content.Context context) {
+        android.net.Uri uri = android.net.Uri.parse(get_uri());
+        try (java.io.InputStream inputStream =
+                     context.getContentResolver().openInputStream(uri)) {
+            if (inputStream == null) return Result.FILE_NOT_FOUND;
+
+            // Read all bytes from the stream
+            byte[] bytes = getBytesFromInputStream(inputStream);
+
+            // Call the native method
+            int result = nativeReadHeader(mNativePtr, bytes, uri.toString());
+            return Result.values()[result];
+        } catch (Exception e) {
+            return Result.FAILURE;
+        }
+    }
+    // Helper method to convert InputStream to byte[]
+    private byte[] getBytesFromInputStream(java.io.InputStream is) throws java.io.IOException {
+        java.io.ByteArrayOutputStream os = new java.io.ByteArrayOutputStream();
+        byte[] buffer = new byte[0xFFFF];
+        for (int len = is.read(buffer); len != -1; len = is.read(buffer)) {
+            os.write(buffer, 0, len);
+        }
+        return os.toByteArray();
     }
 
     protected Result
@@ -515,6 +578,10 @@ public class Diary extends DiaryElement
     Result
     write() {
         return nativeWrite(mNativePtr);
+    }
+    Result
+    write( String uri ) {
+        return nativeWriteUri(mNativePtr, uri);
     }
 
     Result
@@ -535,18 +602,19 @@ public class Diary extends DiaryElement
 
     // NATIVE METHODS ==============================================================================
     private static native boolean initCipher();
-    private native long nativeCreate();
+    private static native long nativeCreate();
     private native void nativeDestroy(long ptr);
     private native int nativeInitNew(long ptr, String path, String pw);
     private native void nativeClear(long ptr);
     private native int nativeSetPath(long ptr, String path, int type);
-    private native int nativeReadHeader(long ptr);
+    private native int nativeReadHeader(long ptr, byte[] data, String uri);
     private native int nativeReadBody(long ptr);
     private native int nativeEnableEditing(long ptr);
     private native String nativeGetPassphrase(long ptr);
     private native boolean nativeSetPassphrase(long ptr, String pw);
     //private native int nativeGetReadVersion(long ptr);
     private native String nativeGetUri(long ptr);
+    private native String nativeGetUriUnsaved(long ptr);
     private native int nativeGetSize(long ptr);
     private native boolean nativeIsOld(long ptr);
     private native boolean nativeIsEncrypted(long ptr);
@@ -564,17 +632,22 @@ public class Diary extends DiaryElement
     private native long nativeGetParagraphById(long ptr, int id);
     private native long nativeGetEntryToday(long ptr);
     private native long nativeGetEntryByDate(long ptr, long date);
+    private native long nativeGetEntryByName(long ptr, String name);
     private native long[] nativeGetEntriesByFilter(long ptr, long ptr_filter);
     private native int nativeGetEntryCountOnDay(long ptr, long date);
     private native void nativeSetEntryName(long ptr, Entry entry, String name);
     private native void nativeSetEntryDate(long ptr, Entry entry, long date);
     private native long nativeCreateEntry(long ptr, Entry entry_rel, boolean fParent, long date,
                                           String content);
+    private native long nativeDuplicateEntry(long ptr, long ptr_entry);
     private native long nativeDismissEntry(long ptr, Entry entry);
     private native long nativeGetCompletionTag(long mNativePtr);
     private native long nativeGetTagById(long mNativePtr, int id);
 
+    private native long[] nativeGetFilters(long mNativePtr);
     private native boolean nativeRenameFilter(long mNativePtr, Filter filter, String name);
+
+    private native long[] nativeGetCharts(long mNativePtr);
 
     private native long nativeCreateTheme(long mNativePtr, String name0);
     private native long nativeGetTheme(long mNativePtr, String name);
@@ -582,6 +655,7 @@ public class Diary extends DiaryElement
 
 
     private native Result nativeWrite(long mNativePtr);
+    private native Result nativeWriteUri(long mNativePtr, String uri);
     private native Result nativeWriteLock(long mNativePtr);
     private native Result nativeWriteTxt(long mNativePtr, String path, long ptr_filter);
     private native boolean nativeRemoveLockIfNecessary(long mNativePtr);

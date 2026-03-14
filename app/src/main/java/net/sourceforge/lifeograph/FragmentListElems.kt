@@ -30,15 +30,15 @@ import androidx.recyclerview.widget.RecyclerView
 import com.google.android.material.floatingactionbutton.FloatingActionButton
 import java.util.*
 
-abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterEntries.Listener,
+abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listener,
                                    DialogInquireText.Listener
 {
     // VARIABLES ===================================================================================
     protected abstract val mName: String
 
-    protected val          mElems: MutableList<Entry> = ArrayList()
+    protected val          mElems: MutableList<DiaryElement> = ArrayList()
     protected val          mSelectionStatuses: MutableList<Boolean> = ArrayList()
-    protected lateinit var mAdapter: RVAdapterEntries
+    protected lateinit var mAdapter: RVAdapterElems
     protected lateinit var mRecyclerView: RecyclerView
     protected lateinit var mFabAdd: FloatingActionButton
     private lateinit var   mToolbar: HorizontalScrollView
@@ -49,7 +49,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterEntries.Liste
         ActivityMain.mViewCurrent = this
 
         mRecyclerView = view.findViewById(R.id.list_elems)
-        mAdapter = RVAdapterEntries(mElems, mSelectionStatuses, this)
+        mAdapter = RVAdapterElems(mElems, mSelectionStatuses, this)
         mRecyclerView.adapter = mAdapter
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
         mFabAdd = view.findViewById(R.id.fab_add)

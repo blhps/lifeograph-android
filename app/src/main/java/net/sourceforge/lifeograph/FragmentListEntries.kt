@@ -1,21 +1,21 @@
 /* *********************************************************************************
 
- Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
 
- This file is part of Lifeograph.
+    This file is part of Lifeograph.
 
- Lifeograph is free software: you can redistribute it and/or modify
- it under the terms of the GNU General Public License as published by
- the Free Software Foundation, either version 3 of the License, or
- (at your option) any later version.
+    Lifeograph is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
 
- Lifeograph is distributed in the hope that it will be useful,
- but WITHOUT ANY WARRANTY; without even the implied warranty of
- MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- GNU General Public License for more details.
+    Lifeograph is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
 
- You should have received a copy of the GNU General Public License
- along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+    You should have received a copy of the GNU General Public License
+    along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
 
@@ -31,7 +31,7 @@ import java.io.File
 import java.util.*
 
 class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
-                            RVAdapterEntries.Listener {
+                            RVAdapterElems.Listener {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_entries
     override val mMenuId: Int   = R.menu.menu_list_entries
@@ -121,7 +121,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                 if(!entry.is_filtered_out) {
                     mElems.add(entry)
                     if(entry.is_expanded && entry.has_children())
-                        addDescendantsToList(entry.get_child_1st())
+                        addDescendantsToList(entry.get_child_1st()!!)
                 }
                 entry = entry.get_next()
             }
@@ -130,7 +130,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         Log.d(Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES")
         mElems.clear()
 
-        addDescendantsToList(Diary.d._entry_1st)
+        Diary.d.get_entry_1st()?.let { addDescendantsToList(it) }
 
 //        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) )
 //        mElems.add(HeaderElem(R.string.free_entries, Date.NUMBERED_MIN))
@@ -198,8 +198,8 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     private fun toggleSelFavoredness() {
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
-                val entry = mElems[i]
-                entry.toggle_favored()
+                val entry = mElems[i] as Entry
+                entry.toggle_favorite()
                 mAdapter.notifyItemChanged( i )
             }
         }
@@ -237,7 +237,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     private fun setSelTodoStatus(status: String) {
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
-                val entry = mElems[i]
+                val entry = mElems[i] as Entry
                 entry._todo_status = when(status) {
                     "A" -> DiaryElement.ES_NOT_TODO
                     " " -> DiaryElement.ES_TODO
@@ -287,7 +287,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
             for((i, selected) in mSelectionStatuses.withIndex()) {
                 if(selected) {
                     val entry = mElems[i] as Entry
-                    Lifeograph.duplicateEntry(entry, text)
+                    Lifeograph.duplicateEntry(entry)
                     mAdapter.notifyItemChanged( i )
                     break
                 }

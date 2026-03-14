@@ -339,7 +339,7 @@ namespace Gio {
 
     class FileInfo {
     public:
-        bool get_attribute_boolean(const std::string&) const { return false; }
+        bool get_attribute_boolean(const std::string&) const { return true; }
         FileType get_file_type() const { return FileType::REGULAR; }
         std::string get_name() const { return ""; }
         std::string get_symlink_target() const { return ""; }
@@ -384,7 +384,7 @@ namespace Gio {
             if (pos == std::string::npos) return m_s;
             return m_s.substr(pos + 1);
         }
-        bool query_exists() const { return false; }
+        bool query_exists() const { return true; }
         FileType query_file_type() const { return FileType::REGULAR; }
         bool copy(const Glib::RefPtr<File>& destination, CopyFlags flags = CopyFlags::NONE) { return false; }
         bool move(const Glib::RefPtr<File>& destination, CopyFlags flags = CopyFlags::NONE) { return false; }

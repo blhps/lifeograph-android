@@ -69,13 +69,13 @@ class FragmentListFilters : FragmentListElems(), Listener
 
     override fun updateList() {
         mElems.clear()
-        mElems.addAll(Diary.d.m_filters.values)
+        mElems.addAll(Diary.d._filters)
         //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
 
         mItemCount = mElems.size
 
         mSelectionStatuses.clear()
-        mSelectionStatuses.addAll(Collections.nCopies(Diary.d.m_filters.size, false))
+        mSelectionStatuses.addAll(Collections.nCopies(mItemCount, false))
     }
 
     override fun createNewElem() {
@@ -96,11 +96,11 @@ class FragmentListFilters : FragmentListElems(), Listener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                if(Diary.d.set_filter_active(filter._name)) {
-                    mAdapter.notifyDataSetChanged()
-                    Diary.d.updateAllEntriesFilterStatus()
-                    break
-                }
+//                if(Diary.d.set_filter_active(filter._name)) {
+//                    mAdapter.notifyDataSetChanged()
+//                    Diary.d.updateAllEntriesFilterStatus()
+//                    break
+//                } TODO....
             }
         }
     }
@@ -137,7 +137,8 @@ class FragmentListFilters : FragmentListElems(), Listener
 
     // INTERFACE METHODS ===========================================================================
     override fun hasIcon2(elem: DiaryElement): Boolean {
-        return Diary.d._filter_active_name.equals(elem._name)
+        //return Diary.d._filter_active_name.equals(elem._name)
+        return false // TODO: make functional..
     }
     override fun getIcon2(elem: DiaryElement): Int {
         return R.drawable.ic_check

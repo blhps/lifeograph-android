@@ -23,14 +23,12 @@ package net.sourceforge.lifeograph;
 
 public class TableElem extends StringDefElem
 {
-    public static final String DEFINITION_DEFAULT = "T";
+    //public static final String DEFINITION_DEFAULT = "T";
 
-    TableElem( Diary diary, String name, String definition ) {
-        super( diary, name, definition );
-    }
+    TableElem(long nativePtr) { super(nativePtr); }
 
-    @Override public
-    Type get_type(){
-        return Type.CHART;
-    }
+//    @Override public
+//    Type get_type(){
+//        return Type.CHART;
+//    }
 }

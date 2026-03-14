@@ -120,7 +120,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
                     "STATUS" -> { mStack.add_filterer_status( DiaryElement.ES_FILTER_TRASHED ) }
                     "FAVORITE" -> { mStack.add_filterer_favorite( true ) }
                     "TRASHED" -> { mStack.add_filterer_trashed( true ) }
-                    "IS" -> { mStack.add_filterer_is( DiaryElement.DEID_UNSET, true ) }
+                    "IS" -> { mStack.add_filterer_is( 404 /*TODO: DEID.UNSET*/, true ) }
                     "HASTAG" -> { mStack.add_filterer_tagged_by( null, true ) }
                 }
                 mSelectionStatuses.add(false)
@@ -179,7 +179,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
         }
 
         // 2. Remove from the local lists used by the adapter (mElems and mSelectionStatuses)
-        //    It's crucial to remove from highest index to lowest to avoid shifting issues
+        //    It's crucial to remove from the highest index to lowest to avoid shifting issues
         //    if you were modifying mElems and mSelectionStatuses directly in the first loop.
         //    Since indicesToRemove is already sorted from high to low (due to reversed iteration),
         //    this is straightforward.
@@ -237,9 +237,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
 
     private fun saveFilter() {
-        val sb = StringBuilder()
-        mStack.get_as_string( sb )
-        mFilter._definition = sb.toString()
+        mFilter._definition = mStack._as_string
 
         Diary.d.updateAllEntriesFilterStatus()
     }

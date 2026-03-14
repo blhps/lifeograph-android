@@ -560,6 +560,8 @@ class Diary : public DiaryElement, public PropertyContainer
         LoG::Result             set_path( const std::string&, SetPathType );
         const String&           get_uri() const
         { return m_uri; }
+        String                  get_uri_unsaved() const
+        { return m_uri + ".~unsaved~"; }
         String                  convert_rel_uri( String ) const;
         String                  relativize_uri( const String& ) const;
         String                  get_rel_folder_name() const
@@ -570,6 +572,9 @@ class Diary : public DiaryElement, public PropertyContainer
         LoG::Result             enable_editing();
 
         LoG::Result             read_body();
+#ifdef __ANDROID__
+        LoG::Result             read_header( const char*, size_t, const String& );
+#endif
         LoG::Result             read_header();
 
         LoG::Result             write();

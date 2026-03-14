@@ -18,16 +18,10 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+package net.sourceforge.lifeograph
 
-package net.sourceforge.lifeograph;
-
-public class ChartElem extends StringDefElem
-{
-    public ChartElem(long nativePtr) { super(nativePtr); }
-
-    @Override
-    public int
-    get_icon() {
-        return R.drawable.ic_chart;
+class ChartElem(nativePtr: Long) : StringDefElem(nativePtr) {
+    override fun get_icon(): Int {
+        return R.drawable.ic_chart
     }
 }
