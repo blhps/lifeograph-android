@@ -100,10 +100,11 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     override fun onResume() {
         Log.d(Lifeograph.TAG, "FragmentDiaryList.onResume()")
         super.onResume()
-        if(Diary.d.is_open) {
-            Diary.d.write()
-            Diary.d.remove_lock_if_necessary()
-            Diary.d.clear()
+        val dm = Diary.getMain()
+        if(dm.is_open) {
+            // TODO: dm.write()
+            // TODO: dm.remove_lock_if_necessary()
+            dm.clear()
         }
         val actionbar = (requireActivity() as AppCompatActivity).supportActionBar
         if(actionbar != null) {
@@ -159,7 +160,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
                             Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
 
-            if(Diary.d.init_new(requireContext(), uri.toString()) == Result.SUCCESS) {
+            if(Diary.getMain().init_new(requireContext(), uri.toString()) == Result.SUCCESS) {
                 mDiaryUris.add(uri.toString())
                 writeDiaryList()
                 navigateToDiary()
@@ -272,7 +273,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun openDiary1(path: String) {
-        when(Diary.d.set_path(path, Diary.SetPathType.NORMAL)) {
+        when(Diary.getMain().set_path(path, Diary.SetPathType.NORMAL)) {
             Result.SUCCESS -> openDiary3()
             Result.FILE_NOT_FOUND -> Lifeograph.showToast("File is not found")
             Result.FILE_NOT_READABLE -> Lifeograph.showToast("File is not readable")
@@ -288,13 +289,14 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun openDiary2() {
-        Diary.d.set_continue_from_lock()
+        Diary.getMain().set_continue_from_lock()
         openDiary3()
     }
 
     private fun openDiary3() {
-        when(Diary.d.read_header(context)) {
-            Result.SUCCESS -> if(Diary.d.is_encrypted) askPassword() else readBody()
+        val dm = Diary.getMain()
+        when(dm.read_header(context)) {
+            Result.SUCCESS -> if(dm.is_encrypted) askPassword() else readBody()
             Result.INCOMPATIBLE_FILE_OLD -> Lifeograph.showToast("Incompatible diary version (TOO OLD)")
             Result.INCOMPATIBLE_FILE_NEW -> Lifeograph.showToast("Incompatible diary version (TOO NEW)")
             Result.CORRUPT_FILE -> Lifeograph.showToast("Corrupt file")
@@ -331,12 +333,12 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
 //        }
 
     private fun askPassword() {
-        DialogPassword(requireContext(), Diary.d, DPAction.DPA_LOGIN, this).show()
+        DialogPassword(requireContext(), Diary.getMain(), DPAction.DPA_LOGIN, this).show()
         mPasswordAttemptNo++
     }
 
     private fun readBody() {
-        when(Diary.d.read_body()) {
+        when(Diary.getMain().read_body()) {
             Result.SUCCESS -> navigateToDiary()
             Result.WRONG_PASSWORD -> Lifeograph.showToast(R.string.wrong_password)
             Result.CORRUPT_FILE -> Lifeograph.showToast("Corrupt file")

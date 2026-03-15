@@ -57,8 +57,9 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
         mRecyclerView.adapter = mAdapter
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
 
-        if(Diary.d.is_search_in_progress) {
-            mEditText.setText(Diary.d._search_str)
+        val dm = Diary.getMain()
+        if(dm.is_search_in_progress) {
+            mEditText.setText(dm._search_str)
             mButtonSearchTextClear.visibility = View.VISIBLE
         }
 
@@ -83,7 +84,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     private fun handleSearchTextChanged(text: String) {
         val searchStr = text.lowercase(Locale.ROOT)
 
-        Diary.d.set_search_str(searchStr)
+        Diary.getMain().set_search_str(searchStr)
 
         mMatchCount = 0 // TODO...
 
@@ -94,7 +95,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     }
 
     private fun updateList() {
-        val matches = Diary.d._matches
+        val matches = Diary.getMain()._matches
 
         mElems.clear()
 
@@ -103,7 +104,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
 
             for( (i, match) in matches.withIndex() ) {
                 if( i > 200 ) break
-                val p2para = Diary.d.get_paragraph_by_id(match.get_id_lo())
+                val p2para = Diary.getMain().get_paragraph_by_id(match.get_id_lo())
                 if( p2para == prevPara ) continue
                 mElems.add(RViewAdapterBasic.Item(p2para._text, "",
                                                   p2para._host._icon,
@@ -124,7 +125,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     }
 
     override fun onItemClick(item: RViewAdapterBasic.Item) {
-        Lifeograph.showElem(Diary.d.get_element(item.mIdNum))
+        Lifeograph.showElem(Diary.getMain().get_element(item.mIdNum))
     }
 
     override fun enterSelectionMode(): Boolean = false

@@ -117,7 +117,7 @@ internal class GridCalAdapter(context: Context, date: Date) : BaseAdapter() {
             val flagWithinMonth = date.get_month() == mDateCurrent.get_month()
             val flagWeekDay = date.get_weekday() > 0
             when {
-                Diary.d.get_entry_count_on_day(date.mDate) > 0 -> {
+                Diary.getMain().get_entry_count_on_day(date.mDate) > 0 -> {
                     TextViewCompat.setTextAppearance(tvDayNo, R.style.boldText)
                     tvDayNo.setTextColor(
                             if(flagWithinMonth) ContextCompat.getColor(mContext, R.color.t_darker)

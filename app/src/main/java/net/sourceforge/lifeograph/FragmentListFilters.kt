@@ -61,15 +61,16 @@ class FragmentListFilters : FragmentListElems(), Listener
     }
 
     override fun updateMenuVisibilities() {
-        val flagWritable = Diary.d.is_in_edit_mode
+        val dm = Diary.getMain()
+        val flagWritable = dm.is_in_edit_mode
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.d.can_enter_edit_mode()
+                dm.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
     }
 
     override fun updateList() {
         mElems.clear()
-        mElems.addAll(Diary.d._filters)
+        mElems.addAll(Diary.getMain()._filters)
         //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
 
         mItemCount = mElems.size
@@ -87,7 +88,7 @@ class FragmentListFilters : FragmentListElems(), Listener
     }
 
     private fun addFilter(name: String, definition: String) {
-        Diary.d.create_filter(name, definition)
+        Diary.getMain().create_filter(name, definition)
         updateList()
         mAdapter.notifyDataSetChanged()
     }
@@ -123,7 +124,7 @@ class FragmentListFilters : FragmentListElems(), Listener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                if(Diary.d.dismiss_filter(filter._name))
+                if(Diary.getMain().dismiss_filter(filter._name))
                     flagDeleted = true
             }
         }

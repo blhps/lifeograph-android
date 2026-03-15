@@ -238,8 +238,16 @@ namespace Glib {
 
     class Dispatcher {
     public:
-        void connect(const std::function<void()>&) {}
-        void emit() {}
+        std::function<void()> m_callback;
+
+        void connect(const std::function<void()>& ptr) { m_callback = ptr; }
+
+        void emit() {
+            if (m_callback) {
+                extern void trigger_android_dispatcher(Dispatcher* d);
+                trigger_android_dispatcher(this);
+            }
+        }
     };
 
     namespace Markup {
@@ -300,9 +308,37 @@ namespace Gdk {
     class RGBA {
     public:
         RGBA() : r(0), g(0), b(0), a(1) {}
-        RGBA(const std::string& hex) : r(0), g(0), b(0), a(1) {}
-        void set(const std::string& hex) {}
-        std::string to_string() const { return "rgba(0,0,0,1)"; }
+        RGBA(const std::string& hex) { set(hex); }
+        void set(const std::string& hex) {
+            r = g = b = 0; a = 1;
+            if (hex.empty()) return;
+            try {
+                if (hex[0] == '#') {
+                    if (hex.length() == 7) { // #RRGGBB
+                        r = std::stoi(hex.substr(1, 2), nullptr, 16) / 255.0;
+                        g = std::stoi(hex.substr(3, 2), nullptr, 16) / 255.0;
+                        b = std::stoi(hex.substr(5, 2), nullptr, 16) / 255.0;
+                    } else if (hex.length() == 9) { // #AARRGGBB
+                        a = std::stoi(hex.substr(1, 2), nullptr, 16) / 255.0;
+                        r = std::stoi(hex.substr(3, 2), nullptr, 16) / 255.0;
+                        g = std::stoi(hex.substr(5, 2), nullptr, 16) / 255.0;
+                        b = std::stoi(hex.substr(7, 2), nullptr, 16) / 255.0;
+                    } else if (hex.length() == 13) { // #RRRRGGGGBBBB
+                        r = std::stoi(hex.substr(1, 4), nullptr, 16) / 65535.0;
+                        g = std::stoi(hex.substr(5, 4), nullptr, 16) / 65535.0;
+                        b = std::stoi(hex.substr(9, 4), nullptr, 16) / 65535.0;
+                    }
+                }
+            } catch (...) {}
+        }
+        std::string to_string() const {
+            char buf[10];
+            snprintf(buf, sizeof(buf), "#%02X%02X%02X",
+                (int)std::round(r * 255),
+                (int)std::round(g * 255),
+                (int)std::round(b * 255));
+            return buf;
+        }
         double get_red() const { return r; }
         double get_green() const { return g; }
         double get_blue() const { return b; }
@@ -415,16 +451,25 @@ namespace Gio {
 #define G_FILE_ATTRIBUTE_ACCESS_CAN_READ "access::can-read"
 
 namespace sigc {
-    template<typename T> class signal {
+    template<typename T> class signal;
+
+    template<typename R, typename... Args>
+    class signal<R(Args...)> {
     public:
-        void connect(const std::function<void()>&) {}
-        void emit() {}
+        void connect(const std::function<R(Args...)>& slot) { m_slots.push_back(slot); }
+        void emit(Args... args) { for(auto& slot : m_slots) slot(args...); }
+    private:
+        std::vector<std::function<R(Args...)>> m_slots;
     };
 
     template<typename T, typename M>
-    inline std::function<void()> mem_fun(T& obj, M mem_ptr) { return [](){}; }
+    inline std::function<void()> mem_fun(T& obj, M mem_ptr) {
+        return [ptr = &obj, mem_ptr]() { (ptr->*mem_ptr)(); };
+    }
     template<typename T, typename M>
-    inline std::function<void()> mem_fun(T* obj, M mem_ptr) { return [](){}; }
+    inline std::function<void()> mem_fun(T* obj, M mem_ptr) {
+        return [obj, mem_ptr]() { (obj->*mem_ptr)(); };
+    }
 }
 
 namespace Pango {

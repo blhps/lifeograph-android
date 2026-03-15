@@ -277,13 +277,13 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         override fun populate() {
             mToggleNot.isChecked = !mItem.m_f_has
             if( mItem.m_id != 404 /*TODO: DiaryElement.DEID_UNSET*/ )
-                mEntryName.setText(Diary.d.get_entry_by_id(mItem.m_id)._name)
+                mEntryName.setText(Diary.getMain().get_entry_by_id(mItem.m_id)._name)
         }
         override fun updateState() {
             mItem.m_f_has = !mToggleNot.isChecked
             // TODO: get from an autocompletion system
             if(!mEntryName.text.isEmpty()) {
-                val entry = Diary.d.get_entry_by_name(mEntryName.text.toString())
+                val entry = Diary.getMain().get_entry_by_name(mEntryName.text.toString())
                 if(entry != null)
                     mItem.m_id = entry._id
             }
@@ -316,7 +316,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
             mItem.m_f_has = !mToggleNot.isChecked
             // TODO: get from an autocompletion system
             if(!mEntryName.text.isEmpty()) {
-                val entry = Diary.d.get_entry_by_name(mEntryName.text.toString())
+                val entry = Diary.getMain().get_entry_by_name(mEntryName.text.toString())
                 if(entry != null)
                     mItem.m_tag = entry
             }

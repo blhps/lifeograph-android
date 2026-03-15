@@ -72,6 +72,7 @@ add_library(lifeograph_core SHARED
     jni_date.cpp
     jni_chartdata.cpp
     jni_filter.cpp
+    jni_native_bridge.cpp
 )
 
 # Link against NDK libraries, prebuilts and RE2

@@ -60,6 +60,35 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
             holder.mItem = elem
             holder.mIVIcon.setImageResource(elem._icon)
 
+            if(elem is Entry) {
+                val entry: Entry = elem
+                when(entry._generation) {
+                    0 -> {
+                        holder.mSpacerL1.visibility = View.GONE
+                        holder.mSpacerL2.visibility = View.GONE
+                    }
+
+                    1 -> {
+                        holder.mSpacerL1.visibility = View.VISIBLE
+                        holder.mSpacerL2.visibility = View.GONE
+                    }
+
+                    else -> {
+                        holder.mSpacerL1.visibility = View.VISIBLE
+                        holder.mSpacerL2.visibility = View.VISIBLE
+                    }
+                }
+
+                if(entry.has_children()) {
+                    holder.mExpander.visibility = View.VISIBLE
+                    if(entry.is_expanded)
+                        holder.mExpander.setImageResource(R.drawable.ic_expanded_dn)
+                    else
+                        holder.mExpander.setImageResource(R.drawable.ic_collapsed)
+                } else
+                    holder.mExpander.visibility = View.GONE
+            }
+
             holder.mTVTitle.text = elem._list_str
             holder.mTVDetails.text = elem._info_str
 
@@ -148,6 +177,7 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
         val mIVIcon3:   ImageView = mView.findViewById(R.id.icon3)
         val mTVTitle:   TextView = mView.findViewById(R.id.title)
         val mTVDetails: TextView = mView.findViewById(R.id.detail)
+        val mExpander:  ImageButton = mView.findViewById(R.id.icon_collapse)
         var mItem:      DiaryElement? = null
 
         init {
@@ -160,6 +190,10 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
             mView.setOnLongClickListener { v: View ->
                 handleLongCLick(v)
                 true
+            }
+            if(mItem is Entry)
+            mExpander.setOnClickListener {
+                mAdapter.mListener.toggleExpanded(mItem!! as DiaryElemTag)
             }
         }
 

@@ -24,9 +24,12 @@ package net.sourceforge.lifeograph
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.core.view.MenuHost
+import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 
-abstract class FragmentDiaryEditor : Fragment() {
+abstract class FragmentDiaryEditor : Fragment(), MenuProvider {
     // VARIABLES ===================================================================================
     protected abstract val mLayoutId: Int
     protected abstract val mMenuId: Int
@@ -36,9 +39,12 @@ abstract class FragmentDiaryEditor : Fragment() {
     val isMenuInitialized get() = this::mMenu.isInitialized
 
     // METHODS =====================================================================================
-    override fun onCreate(savedInstanceState: Bundle?) {
-        super.onCreate(savedInstanceState)
-        setHasOptionsMenu(mMenuId > 0)
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
+        super.onViewCreated(view, savedInstanceState)
+        if (mMenuId > 0) {
+            val menuHost: MenuHost = requireActivity()
+            menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        }
     }
 
     override fun onCreateView(inflater: LayoutInflater,
@@ -48,29 +54,18 @@ abstract class FragmentDiaryEditor : Fragment() {
         return inflater.inflate(mLayoutId, container, false)
     }
 
-//    override fun onResume() {
-//        super.onResume()
-//        if(this::mMenu.isInitialized)
-//            updateMenuVisibilities()
-//    }
-
-    @Deprecated("Deprecated in Java")
-    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
         if(mMenuId > 0)
-            inflater.inflate(mMenuId, menu)
-        super.onCreateOptionsMenu(menu, inflater)
+            menuInflater.inflate(mMenuId, menu)
         mMenu = menu
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onPrepareOptionsMenu(menu: Menu) {
-        super.onPrepareOptionsMenu(menu)
+    override fun onPrepareMenu(menu: Menu) {
         updateMenuVisibilities()
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        return when(item.itemId) {
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when(menuItem.itemId) {
             android.R.id.home -> {
                 handleBack()
             }
@@ -82,23 +77,20 @@ abstract class FragmentDiaryEditor : Fragment() {
                 Lifeograph.logoutWithoutSaving(requireView())
                 true
             }
-            else ->
-                super.onOptionsItemSelected(item)
+            else -> false
         }
     }
 
     open fun updateMenuVisibilities() {
-        val flagWritable = Diary.d.is_in_edit_mode
-        mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
-                Diary.d.can_enter_edit_mode()
-        mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
+        val dm = Diary.getMain()
+        if (!isMenuInitialized) return
+        val flagWritable = dm.is_in_edit_mode
+        mMenu.findItem(R.id.enable_edit)?.isVisible = !flagWritable &&
+                dm.can_enter_edit_mode()
+        mMenu.findItem(R.id.logout_wo_save)?.isVisible = flagWritable
     }
 
-    open fun enableEditing() {
-        updateMenuVisibilities()
-    }
+    open fun enableEditing() { updateMenuVisibilities() }
 
-    open fun handleBack(): Boolean {
-        return false
-    }
+    open fun handleBack(): Boolean { return false }
 }

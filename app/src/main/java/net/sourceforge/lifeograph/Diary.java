@@ -51,9 +51,6 @@ public class Diary extends DiaryElement
 //    static final int SoCr_FILTER_DIR_T  = 0xF00; // temporal
 //    static final int SoCr_DEFAULT       = SoCr_DATE|SoCr_ASCENDING|SoCr_DESCENDING_T;
 
-//    static final String DB_FILE_HEADER = "LIFEOGRAPHDB";
-//    static final int    DB_FILE_VERSION_INT = 3010;
-//    static final int    DB_FILE_VERSION_INT_MIN = 1020;
     static final String LOCK_SUFFIX = ".~LOCK~"; // TODO get from C++?
 
     static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
@@ -63,13 +60,25 @@ public class Diary extends DiaryElement
 
     public enum SetPathType { NORMAL, READ_ONLY, NEW }
 
-    public Diary() {
-        super( nativeCreate() );
+    public Diary() { super( nativeCreate() ); }
+    private Diary(long nativePtr) { super( nativePtr ); } // only for internal jobs
+
+    static public void
+    initMain() {
+        if( nativeGetMain() == 0 )
+            nativeCreateMain();
     }
+
+    boolean
+    isMain( Diary other ) { return other.mNativePtr == nativeGetMain(); }
+
+    static Diary
+    getMain() { return new Diary( nativeGetMain() ); }
+
 
     @Override
     protected void finalize() throws Throwable {
-        if (mNativePtr != 0) {
+        if (mNativePtr != 0 && mNativePtr != nativeGetMain()) {
             nativeDestroy(mNativePtr);
             mNativePtr = 0;
         }
@@ -586,7 +595,8 @@ public class Diary extends DiaryElement
 
     Result
     write_lock() {
-        return nativeWriteLock(mNativePtr);
+        // TODO return nativeWriteLock(mNativePtr);
+        return Result.SUCCESS;
     }
 
     Result
@@ -603,6 +613,9 @@ public class Diary extends DiaryElement
     // NATIVE METHODS ==============================================================================
     private static native boolean initCipher();
     private static native long nativeCreate();
+    static native void nativeCreateMain();
+    static native long nativeGetMain();
+
     private native void nativeDestroy(long ptr);
     private native int nativeInitNew(long ptr, String path, String pw);
     private native void nativeClear(long ptr);
@@ -668,7 +681,7 @@ public class Diary extends DiaryElement
     // HELPER FUNCTIONS ============================================================================
 
     // VARIABLES ===================================================================================
-    static Diary d = null;
+    //static Diary d = null;
 
     private String m_path = "";
     //private String mDiaryPathBackup = "";

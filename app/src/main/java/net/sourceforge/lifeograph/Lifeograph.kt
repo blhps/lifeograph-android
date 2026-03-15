@@ -114,33 +114,35 @@ class Lifeograph : Application() {
 
         @JvmStatic
         fun goToToday() {
-            if(BuildConfig.DEBUG && !Diary.d.is_open) {
+            val dm = Diary.getMain()
+            if(BuildConfig.DEBUG && !dm.is_open) {
                 throw AssertionError("Assertion failed")
             }
-            var entry = Diary.d._entry_today
+            var entry = dm._entry_today
             if(entry == null) // add new entry if no entry exists on selected date
-                entry = Diary.d.add_today()
+                entry = dm.add_today()
             showElem(entry)
         }
 
         @JvmStatic
         fun addEntry(date0: Long, text: String?) {
+            val dm = Diary.getMain()
             var date = date0
-            if(BuildConfig.DEBUG && !Diary.d.is_in_edit_mode) {
+            if(BuildConfig.DEBUG && !dm.is_in_edit_mode) {
                 throw AssertionError("Assertion failed")
             }
-            val entry = Diary.d.create_entry(date, text)
+            val entry = dm.create_entry(date, text)
             if(entry != null) showElem(entry)
         }
 
         @JvmStatic
         fun duplicateEntry(entrySrc: Entry): Entry {
-            return Diary.d.duplicate_entry(entrySrc)
+            return Diary.getMain().duplicate_entry(entrySrc)
         }
 
         @JvmStatic
         fun showElem(elem: DiaryElement) {
-            if(BuildConfig.DEBUG && !Diary.d.is_open) {
+            if(BuildConfig.DEBUG && !Diary.getMain().is_open) {
                 throw AssertionError("Assertion failed")
             }
             mActivityMain.showElem(elem)
@@ -148,7 +150,7 @@ class Lifeograph : Application() {
 
         fun enableEditing(editor: FragmentDiaryEditor) {
             // HANDLE OLD DIARY
-            if(Diary.d.is_old) {
+            if(Diary.getMain().is_old) {
                 showConfirmationPrompt(
                         editor.context,
                         R.string.diary_upgrade_confirm,
@@ -160,20 +162,22 @@ class Lifeograph : Application() {
         }
 
         private fun enableEditing2(editor: FragmentDiaryEditor) {
-            if(!Diary.d.can_enter_edit_mode()) return
-            if(Diary.d.enable_editing() != Result.SUCCESS) return
+            val dm = Diary.getMain()
+            if(!dm.can_enter_edit_mode()) return
+            if(dm.enable_editing() != Result.SUCCESS) return
             editor.enableEditing()
         }
 
         fun logoutWithoutSaving(view: View) {
-            if(Diary.d.is_open) {
+            val dm = Diary.getMain()
+            if(dm.is_open) {
                 showConfirmationPrompt(view.context,
                                        R.string.logoutwosaving_confirm,
                                        R.string.logoutwosaving
                                       ) { _: DialogInterface?, _: Int ->
                     // unlike desktop version Android version
                     // does not back up changes
-                    Diary.d.write(Diary.d._uri_unsaved)
+                    dm.write(dm._uri_unsaved)
                     view.findNavController().navigate(R.id.nav_diaries)
                 }
             }

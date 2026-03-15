@@ -54,7 +54,7 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
         Lifeograph.mActivityMain = this
         Lifeograph.filesDir = filesDir
         Lifeograph.updateScreenSizes(this)
-        if(Diary.d == null) Diary.d = Diary()
+        Diary.initMain()
 
         // PREFERENCES
         PreferenceManager.setDefaultValues(applicationContext, R.xml.pref_general, false)

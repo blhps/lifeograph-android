@@ -31,7 +31,7 @@ public class DiaryElement {
     final static CharSequence STR_SEPARATOR = " - ";
 
     // layout type for list view section headers
-    enum LayoutType {
+    public enum LayoutType {
         ELEMENT, HEADER_SIMPLE, HEADER_TAG_CTG, HEADER_CHAPTER_CTG
     }
 
@@ -98,29 +98,6 @@ public class DiaryElement {
     public final static int ES_SHOW_PROGRESSED  = ES_PROGRESSED;
     public final static int ES_SHOW_DONE        = ES_DONE;
     public final static int ES_SHOW_CANCELED    = ES_CANCELED;
-    public final static int ES_FILTER_TAG           = 0x100000;
-    public final static int ES_FILTER_DATE_BEGIN    = 0x200000;
-    public final static int ES_FILTER_DATE_END      = 0x400000;
-    public final static int ES_FILTER_INDIVIDUAL    = 0x800000;
-    public final static int ES_FILTER_OUTSTANDING   = 0x20000000;
-    public final static int ES_FILTER_OUT           = 0x40000000;
-    public final static int ES_FILTER_RESET         =
-            ES_FILTER_FAVORED|ES_SHOW_NOT_TRASHED|ES_SHOW_NOT_TODO|ES_SHOW_TODO|ES_SHOW_PROGRESSED
-             |ES_FILTER_OUTSTANDING;
-    public final static int ES_FILTER_MAX           = 0x7FFFFFFF; // the max for int in Java
-
-//    public DiaryElement( Diary diary, String name, int status ) {
-//        m_p2diary = diary;
-//        m_status = status;
-//        m_name = name;
-//        m_id = diary != null ? diary.create_new_id( this ) : DEID_UNSET;
-//    }
-//
-//    public DiaryElement( Diary diary, long id, int status ) {
-//        m_p2diary = diary;
-//        m_status = status;
-//        m_id = id;
-//    }
 
     protected DiaryElement(long nativePtr) {
         mNativePtr = nativePtr;
@@ -137,16 +114,13 @@ public class DiaryElement {
     }
 
     public Type
-    get_type() {
-        return Type.fromInt(nativeGetType(mNativePtr));
-    }
+    get_type() { return Type.fromInt(nativeGetType(mNativePtr)); }
+
 //    public String get_type_name() {
 //        return get_type().str;
 //    }
 
-    public int get_size() {
-        return nativeGetSize(mNativePtr);
-    }
+    public int get_size() { return nativeGetSize(mNativePtr); }
 
     public int get_icon() {
         try {
@@ -160,14 +134,10 @@ public class DiaryElement {
 
     // STRING METHODS
     public String
-    get_name() {
-        return nativeGetName(mNativePtr);
-    }
+    get_name() { return nativeGetName(mNativePtr); }
 
     public void
-    set_name( String name ) {
-        nativeSetName(mNativePtr, name);
-    }
+    set_name( String name ) { nativeSetName(mNativePtr, name); }
 
     public String // TODO: stub...
     get_list_str() {

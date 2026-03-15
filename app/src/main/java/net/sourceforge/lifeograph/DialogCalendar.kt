@@ -57,7 +57,7 @@ class DialogCalendar : DialogFragment() {
     private val mDate: Date = Date(Date.get_today())
     private lateinit var mButtonCreateMilestone: Button
     private val mAllowEntryCreation: Boolean
-    private val mAllowChapterCreation: Boolean = Diary.d.is_in_edit_mode
+    private val mAllowChapterCreation: Boolean = Diary.getMain().is_in_edit_mode
     private val mListener: Listener? = null
 
     // METHODS =====================================================================================
@@ -103,7 +103,7 @@ class DialogCalendar : DialogFragment() {
     }
 
     private fun createEntry() {
-        val e = Diary.d.create_entry(mAdapterCurr.mDateCurrent.mDate, "")
+        val e = Diary.getMain().create_entry(mAdapterCurr.mDateCurrent.mDate, "")
         dismiss()
         Lifeograph.showElem(e)
     }
@@ -125,7 +125,7 @@ class DialogCalendar : DialogFragment() {
         mAdapterCurr.showMonth(mDate)
         mAdapterNext.showMonth(dateNext)
 
-        mButtonCreateMilestone.isEnabled = Diary.d.is_in_edit_mode
+        mButtonCreateMilestone.isEnabled = Diary.getMain().is_in_edit_mode
 
         mYearBar.mYear = mDate.get_year()
         mYearBar.invalidate()
@@ -133,7 +133,7 @@ class DialogCalendar : DialogFragment() {
 
     private fun handleDayClicked(pos: Int) {
         if(pos < 7) return // day names row
-        val e = Diary.d.get_entry_by_date(mAdapterCurr.mListDays[pos])
+        val e = Diary.getMain().get_entry_by_date(mAdapterCurr.mListDays[pos])
         if(e != null) {
             dismiss()
             Lifeograph.showElem(e)

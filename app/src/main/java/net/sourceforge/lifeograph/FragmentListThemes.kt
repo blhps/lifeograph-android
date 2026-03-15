@@ -56,7 +56,7 @@ class FragmentListThemes : FragmentListElems(), Listener
 
     override fun updateList() {
         mElems.clear()
-        mElems.addAll(Diary.d._themes)
+        mElems.addAll(Diary.getMain()._themes)
         //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
 
         mItemCount = mElems.size
@@ -85,7 +85,7 @@ class FragmentListThemes : FragmentListElems(), Listener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                if(Diary.d.dismiss_filter(filter._name))
+                if(Diary.getMain().dismiss_filter(filter._name))
                     flagDeleted = true
             }
         }
@@ -111,7 +111,7 @@ class FragmentListThemes : FragmentListElems(), Listener
             for((i, selected) in mSelectionStatuses.withIndex()) {
                 if(selected) {
                     val themeSrc = mElems[i] as Theme
-                    val themeNew = Diary.d.create_theme(text)
+                    val themeNew = Diary.getMain().create_theme(text)
                     themeSrc.copy_to(themeNew)
                     break
                 }

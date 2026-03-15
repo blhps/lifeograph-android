@@ -57,6 +57,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
 
     @Deprecated("Deprecated in Java")
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        val dm = Diary.getMain()
         return when(item.itemId) {
             R.id.search_text -> {
                 Lifeograph.mActivityMain.navigateTo(R.id.nav_search)
@@ -64,24 +65,24 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
             }
             R.id.add_password -> {
                 DialogPassword(requireContext(),
-                        Diary.d,
+                        dm,
                         DPAction.DPA_ADD,
                         this).show()
                 true
             }
             R.id.change_password -> {
                 DialogPassword(requireContext(),
-                        Diary.d,
+                        dm,
                         DPAction.DPA_AUTHENTICATE,
                         this).show()
                 true
             }
             R.id.export_plain_text -> {
-                val file = File(Diary.d._uri)
+                val file = File(dm._uri)
                 val dirBackups = File(file.parent!! + "/backups")
                 if(dirBackups.exists() || dirBackups.mkdirs()) {
                     val fileText = File(dirBackups, file.name + ".txt")
-                    if(Diary.d.write_txt(fileText.path, null) == Result.SUCCESS) {
+                    if(dm.write_txt(fileText.path, null) == Result.SUCCESS) {
                         Lifeograph.showToast(R.string.text_export_success)
                         return true
                     }
@@ -107,9 +108,10 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     override fun updateMenuVisibilities() {
         super.updateMenuVisibilities()
 
-        val flagWritable = Diary.d.is_in_edit_mode
-        val flagEncrypted = Diary.d.is_encrypted
-        mMenu.findItem(R.id.export_plain_text).isVisible = !Diary.d.is_virtual
+        val dm = Diary.getMain()
+        val flagWritable = dm.is_in_edit_mode
+        val flagEncrypted = dm.is_encrypted
+        mMenu.findItem(R.id.export_plain_text).isVisible = !dm.is_virtual
         mMenu.findItem(R.id.add_password).isVisible = flagWritable && !flagEncrypted
         mMenu.findItem(R.id.change_password).isVisible = flagWritable && flagEncrypted
     }
@@ -130,7 +132,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         Log.d(Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES")
         mElems.clear()
 
-        Diary.d.get_entry_1st()?.let { addDescendantsToList(it) }
+        Diary.getMain().get_entry_1st()?.let { addDescendantsToList(it) }
 
 //        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) )
 //        mElems.add(HeaderElem(R.string.free_entries, Date.NUMBERED_MIN))
@@ -299,7 +301,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     override fun onDPAction(action: DPAction) {
         when(action) {
             DPAction.DPA_AUTHENTICATE -> DialogPassword(requireContext(),
-                                                        Diary.d,
+                                                        Diary.getMain(),
                                                         DPAction.DPA_ADD,
                                                         this).show()
             DPAction.DPAR_AUTH_FAILED -> Lifeograph.showToast(R.string.wrong_password)

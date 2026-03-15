@@ -16,6 +16,15 @@ JNI_METHOD(void, Diary_nativeDestroy)(JNIEnv* env, jobject obj, jlong ptr) {
     delete reinterpret_cast<LoG::Diary*>(ptr);
 }
 
+JNI_METHOD(void, Diary_nativeCreateMain)(JNIEnv* env, jclass) {
+    LoG::Diary::d = new LoG::Diary();
+}
+
+JNI_METHOD(jlong, Diary_nativeGetMain)(JNIEnv* env, jclass) {
+    return reinterpret_cast<jlong>(LoG::Diary::d);
+}
+
+
 JNI_METHOD(jint, Diary_nativeInitNew)(JNIEnv* env, jobject obj, jlong ptr, jstring path, jstring pw) {
     auto diary = reinterpret_cast<LoG::Diary*>(ptr);
     const char* c_path = env->GetStringUTFChars(path, nullptr);
