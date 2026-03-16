@@ -4,6 +4,8 @@
 
 #define JNI_METHOD(return_type, name) JNIEXPORT return_type JNICALL Java_net_sourceforge_lifeograph_##name
 
+#define CHECK_PTR(ptr, return_value) if (ptr == 0) return return_value;
+
 extern "C" {
 
 JNI_METHOD(jlong, Paragraph_nativeGetPrev)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -37,8 +39,9 @@ JNI_METHOD(jboolean, Paragraph_nativeIsTitle)(JNIEnv* env, jobject obj, jlong pt
     return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_title());
 }
 
-JNI_METHOD(jint, Paragraph_nativeGetHeadingLevel)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jint>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_heading_level());
+JNI_METHOD(jchar, Paragraph_nativeGetHeadingLevel)(JNIEnv* env, jobject obj, jlong ptr) {
+    int result = reinterpret_cast<LoG::Paragraph*>(ptr)->get_heading_level();
+    return static_cast<jchar>(LoG::VT::get_v<LoG::VT::PHS, char, int>(result));
 }
 
 JNI_METHOD(jchar, Paragraph_nativeGetAlignment)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -95,7 +98,40 @@ JNI_METHOD(jlongArray, Paragraph_nativeGetFormats)(JNIEnv* env, jobject obj, jlo
 
 JNI_METHOD(jchar, HiddenFormat_nativeGetType)(JNIEnv* env, jobject obj, jlong ptr) {
     auto result = reinterpret_cast<LoG::HiddenFormat*>(ptr)->type;
-    return static_cast<jchar>(LoG::VT::get_v<LoG::VT::PLS, char, int>(result));
+    return static_cast<jchar>(LoG::VT::get_v<LoG::VT::FMT, char, int>(result));
+}
+JNI_METHOD(void, HiddenFormat_nativeSetType)(JNIEnv* env, jobject obj, jlong ptr, jchar type_ch) {
+    auto type = LoG::VT::get_v<LoG::VT::PLS, int, char>(char(type_ch));
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->type = type;
+}
+
+JNI_METHOD(jstring, HiddenFormat_nativeGetUri)(JNIEnv* env, jobject obj, jlong ptr) {
+    return env->NewStringUTF(reinterpret_cast<LoG::HiddenFormat*>(ptr)->uri.c_str());
+}
+JNI_METHOD(void, HiddenFormat_nativeSetUri)(JNIEnv* env, jobject obj, jlong ptr, jstring uri) {
+    const char* c_uri = env->GetStringUTFChars(uri, nullptr);
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->uri = c_uri;
+    env->ReleaseStringUTFChars(uri, c_uri);
+}
+JNI_METHOD(jint, HiddenFormat_nativeGetPosBgn)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jint>( int( reinterpret_cast<LoG::HiddenFormat*>(ptr)->pos_bgn ) );
+}
+JNI_METHOD(void, HiddenFormat_nativeSetPosBgn)(JNIEnv* env, jobject obj, jlong ptr, jint pos) {
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->pos_bgn = int(pos);
+}
+
+JNI_METHOD(jint, HiddenFormat_nativeGetPosEnd)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>( reinterpret_cast<LoG::HiddenFormat*>(ptr)->pos_end );
+}
+JNI_METHOD(void, HiddenFormat_nativeSetPosEnd)(JNIEnv* env, jobject obj, jlong ptr, jint pos) {
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->pos_end = pos;
+}
+
+JNI_METHOD(jlong, HiddenFormat_nativeGetRefId)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jlong>( reinterpret_cast<LoG::HiddenFormat*>(ptr)->ref_id );
+}
+JNI_METHOD(void, HiddenFormat_nativeSetRefId)(JNIEnv* env, jobject obj, jlong ptr, jlong id) {
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->ref_id = id;
 }
 
 JNI_METHOD(jint, HiddenFormat_nativeGetIdLo)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -104,6 +140,20 @@ JNI_METHOD(jint, HiddenFormat_nativeGetIdLo)(JNIEnv* env, jobject obj, jlong ptr
 
 JNI_METHOD(jint, HiddenFormat_nativeGetIdHi)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jint>(reinterpret_cast<LoG::HiddenFormat*>(ptr)->get_id_hi().get_raw());
+}
+
+JNI_METHOD(jlong, HiddenFormat_nativeGetVarI)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jlong>( reinterpret_cast<LoG::HiddenFormat*>(ptr)->var_i );
+}
+JNI_METHOD(void, HiddenFormat_nativeSetVarI)(JNIEnv* env, jobject obj, jlong ptr, jlong var_i) {
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->var_i = var_i;
+}
+
+JNI_METHOD(jlong, HiddenFormat_nativeGetVarD)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jlong>( reinterpret_cast<LoG::HiddenFormat*>(ptr)->var_d );
+}
+JNI_METHOD(void, HiddenFormat_nativeSetVarD)(JNIEnv* env, jobject obj, jlong ptr, jlong var_date) {
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->var_d = var_date;
 }
 
 } // extern "C"

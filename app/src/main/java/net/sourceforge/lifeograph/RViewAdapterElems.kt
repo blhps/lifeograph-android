@@ -87,6 +87,10 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
                         holder.mExpander.setImageResource(R.drawable.ic_collapsed)
                 } else
                     holder.mExpander.visibility = View.GONE
+            } else {
+                holder.mExpander.visibility = View.GONE
+                holder.mSpacerL1.visibility = View.GONE
+                holder.mSpacerL2.visibility = View.GONE
             }
 
             holder.mTVTitle.text = elem._list_str
@@ -156,7 +160,7 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
 
     interface Listener {
         fun onElemClick(elem: DiaryElement?)
-        fun toggleExpanded(elem: DiaryElemTag)
+        fun toggleExpanded(tag: DiaryElemTag)
         fun updateActionBarSubtitle()
         fun enterSelectionMode(): Boolean
         fun exitSelectionMode()
@@ -191,9 +195,10 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
                 handleLongCLick(v)
                 true
             }
-            if(mItem is Entry)
             mExpander.setOnClickListener {
-                mAdapter.mListener.toggleExpanded(mItem!! as DiaryElemTag)
+                (mItem as? Entry)?.let {
+                    mAdapter.mListener.toggleExpanded(it as DiaryElemTag)
+                }
             }
         }
 

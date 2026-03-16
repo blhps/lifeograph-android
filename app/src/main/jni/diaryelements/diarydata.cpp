@@ -510,10 +510,9 @@ Theme::calculate_derived_colors()
     // ... contrasting colors using get_color_diff( Theme::s_color_done, theme->color_base )...
     // ... generally, when get_color_diff is < 1.0 contrast is not satisfactory
     color_open =          midtone( s_color_todo, color_text );
-    color_open_bg =       midtone( s_color_todo, color_base, 0.7 );
+    // color_open_bg =       midtone( s_color_todo, color_base, 0.7 );
 
-    color_done =          midtone( s_color_done, color_text );
-    color_done_text =     midtone( s_color_done, color_text, 0.7 );
+    color_done =          midtone( s_color_done, color_text, 0.7 );
     color_done_bg =       midtone( s_color_done, color_base, 0.7 );
 
     color_canceled =      midtone( s_color_canceled, color_text );

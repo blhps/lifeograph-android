@@ -1465,9 +1465,8 @@ class Theme : public DiaryElement
         Color                       color_link_broken;
 
         Color                       color_open;
-        Color                       color_open_bg;
-        Color                       color_done;
-        Color                       color_done_text;   // for the text rather than checkbox
+        // Color                       color_open_bg;
+        Color                       color_done;   // foreground
         Color                       color_done_bg;
         Color                       color_canceled;
         Color                       color_canceled_bg;

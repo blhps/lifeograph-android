@@ -44,10 +44,6 @@
           compat:showAsAction="collapseActionView|ifRoom"
           android:orderInCategory="90"
           compat:actionViewClass="androidx.appcompat.widget.SearchView" />
-    <item android:id="@+id/edit_date"
-          android:title="@string/edit_date"
-          android:orderInCategory="100"
-          compat:showAsAction="never" />
     <item android:id="@+id/set_theme"
           android:title="@string/set_theme"
           android:orderInCategory="100"

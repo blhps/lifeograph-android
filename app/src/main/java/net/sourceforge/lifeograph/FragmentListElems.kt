@@ -111,7 +111,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
                 else               "$mName ($mItemCount)"
     }
 
-    override fun toggleExpanded(elem: DiaryElemTag) { }
+    override fun toggleExpanded(tag: DiaryElemTag) { }
 
     override fun enterSelectionMode(): Boolean {
         return if(Diary.getMain().is_in_edit_mode) {

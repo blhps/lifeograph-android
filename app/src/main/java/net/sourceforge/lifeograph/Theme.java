@@ -26,38 +26,6 @@ import android.graphics.Color;
 
 public class Theme extends DiaryElement {
 
-//    public static class System extends Theme
-//    {
-//        private System( String f,
-//                        String cb,
-//                        String ct,
-//                        String ch,
-//                        String csh,
-//                        String chl ) {
-//            super( null, "Lifeograph", f, cb, ct, ch, csh, chl );
-//        }
-//
-//        @Override
-//        public boolean
-//        is_system() {
-//            return true;
-//        }
-//
-//        public static
-//        System get() {
-//            // initialize if not already initialized:
-//            if( system == null )
-//                system = new System( "Sans 10", "#FFFFFF", "#000000", "#B72525", "#963F3F",
-//                                     "#FFBBBB" );
-//            return system;
-//        }
-//
-//        protected static System system = null;
-//    }
-
-//    Theme( Diary d, String name ) {
-//        super( d, name, ES_VOID );
-//    }
     private String colorToHex(int color) { return String.format("#%06X", (0xFFFFFF & color)); }
 
     protected Theme(long nativePtr) {
@@ -84,11 +52,19 @@ public class Theme extends DiaryElement {
     int
     get_color_highlight() { return Color.parseColor(nativeGetColorHighlight(mNativePtr)); }
     int
+    get_color_heading_M() { return Color.parseColor(nativeGetColorHeadingM(mNativePtr)); }
+    int
     get_color_mid() { return Color.parseColor(nativeGetColorMid(mNativePtr)); }
     int
     get_color_match_bg() { return Color.parseColor(nativeGetColorMatchBG(mNativePtr)); }
     int
     get_color_inline_tag() { return Color.parseColor(nativeGetColorInlineTag(mNativePtr)); }
+    int
+    get_color_open() { return Color.parseColor(nativeGetColorOpen(mNativePtr)); }
+    int
+    get_color_done() { return Color.parseColor(nativeGetColorDone(mNativePtr)); }
+    int
+    get_color_done_bg() { return Color.parseColor(nativeGetColorDoneBG(mNativePtr)); }
 
     void
     set_color_base( int color ) { nativeSetColorBase(mNativePtr, colorToHex( color ) ); }
@@ -109,9 +85,13 @@ public class Theme extends DiaryElement {
     private native String nativeGetColorTitle(long ptr);
     private native String nativeGetColorHeadingL(long ptr);
     private native String nativeGetColorHighlight(long ptr);
+    private native String nativeGetColorHeadingM(long ptr);
     private native String nativeGetColorMid(long ptr);
     private native String nativeGetColorMatchBG(long ptr);
     private native String nativeGetColorInlineTag(long ptr);
+    private native String nativeGetColorOpen(long ptr);
+    private native String nativeGetColorDone(long ptr);
+    private native String nativeGetColorDoneBG(long ptr);
 
     private native void nativeSetColorBase(long ptr, String color);
     private native void nativeSetColorText(long ptr, String color);

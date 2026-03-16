@@ -110,6 +110,11 @@ JNI_METHOD(jstring, Theme_nativeGetColorHighlight)(JNIEnv* env, jobject, jlong p
     auto color = reinterpret_cast<LoG::Theme*>(ptr)->color_highlight;
     return env->NewStringUTF(color.to_string().c_str());
 }
+JNI_METHOD(jstring, Theme_nativeGetColorHeadingM)(JNIEnv* env, jobject, jlong ptr) {
+    //if (ptr == 0) return env->NewStringUTF("#000000");
+    auto color = reinterpret_cast<LoG::Theme*>(ptr)->color_heading_M;
+    return env->NewStringUTF(color.to_string().c_str());
+}
 JNI_METHOD(jstring, Theme_nativeGetColorMid)(JNIEnv* env, jobject, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("#000000");
     auto color = reinterpret_cast<LoG::Theme*>(ptr)->color_mid;
@@ -123,6 +128,21 @@ JNI_METHOD(jstring, Theme_nativeGetColorMatchBG)(JNIEnv* env, jobject, jlong ptr
 JNI_METHOD(jstring, Theme_nativeGetColorInlineTag)(JNIEnv* env, jobject, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("#000000");
     auto color = reinterpret_cast<LoG::Theme*>(ptr)->color_inline_tag;
+    return env->NewStringUTF(color.to_string().c_str());
+}
+JNI_METHOD(jstring, Theme_nativeGetColorOpen)(JNIEnv* env, jobject, jlong ptr) {
+    //if (ptr == 0) return env->NewStringUTF("#000000");
+    auto color = reinterpret_cast<LoG::Theme*>(ptr)->color_open;
+    return env->NewStringUTF(color.to_string().c_str());
+}
+JNI_METHOD(jstring, Theme_nativeGetColorDone)(JNIEnv* env, jobject, jlong ptr) {
+    //if (ptr == 0) return env->NewStringUTF("#000000");
+    auto color = reinterpret_cast<LoG::Theme*>(ptr)->color_done;
+    return env->NewStringUTF(color.to_string().c_str());
+}
+JNI_METHOD(jstring, Theme_nativeGetColorDoneBG)(JNIEnv* env, jobject, jlong ptr) {
+    //if (ptr == 0) return env->NewStringUTF("#000000");
+    auto color = reinterpret_cast<LoG::Theme*>(ptr)->color_done_bg;
     return env->NewStringUTF(color.to_string().c_str());
 }
 

@@ -581,7 +581,7 @@ Entry::get_list_str() const
         str += "<s>";
 
     // NAME ITSELF
-    if( m_name.empty() == false )
+    if(!m_name.empty())
         str += Glib::Markup::escape_text( m_name );
 
     // DESCRIPTION
@@ -756,7 +756,7 @@ Entry::get_text() const
         text += '\n';
     }
 
-    if( text.empty() == false )
+    if( !text.empty() )
         text.erase( text.length() - 1, 1 );
 
     return text;

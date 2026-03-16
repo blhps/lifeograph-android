@@ -21,7 +21,6 @@
 
 package net.sourceforge.lifeograph
 
-import android.app.Activity
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -31,6 +30,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
 import android.widget.HorizontalScrollView
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
 import androidx.fragment.app.Fragment
@@ -58,6 +58,48 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     private lateinit var mRVList: RecyclerView
     private lateinit var mAdapter: RViewAdapterBasic
     private lateinit var mToolbar: HorizontalScrollView
+
+    private val openFileLauncher = registerForActivityResult(
+        ActivityResultContracts.OpenDocument()
+    ) { uri ->
+        uri?.let {
+            val name = FileUtil.getFileName(it, requireContext())
+            Log.d(Lifeograph.TAG, "Name: $name")
+
+            // ensure that the permission is persistent
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            requireContext().contentResolver.takePersistableUriPermission(it, takeFlags)
+
+            if(mDiaryUris.contains(it.toString()))
+                Lifeograph.showToast("File is already in the list")
+            else {
+                mDiaryUris.add(it.toString())
+                writeDiaryList()
+                populateDiaries()
+            }
+        }
+    }
+
+    private val createDiaryLauncher = registerForActivityResult(
+        ActivityResultContracts.CreateDocument("*/*")
+    ) { uri ->
+        uri?.let {
+            val name = FileUtil.getFileName(it, requireContext())
+            Log.d(Lifeograph.TAG, "Name: $name")
+
+            // ensure that the permission is persistent
+            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
+                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+            requireContext().contentResolver.takePersistableUriPermission(it, takeFlags)
+
+            if(Diary.getMain().init_new(requireContext(), it.toString()) == Result.SUCCESS) {
+                mDiaryUris.add(it.toString())
+                writeDiaryList()
+                navigateToDiary()
+            }
+        }
+    }
 
     // METHODS =====================================================================================
     override fun onCreateView(inflater: LayoutInflater,
@@ -130,55 +172,12 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
 //        writeDiaryList()
 //    }
 
-    override fun onActivityResult(requestCode: Int, resultCode: Int, resultData: Intent?) {
-        if(requestCode == 123 && resultCode == Activity.RESULT_OK) {
-            // The result data contains a URI for the directory that the user selected
-            val uri = resultData?.data!!
-            val name = FileUtil.getFileName(uri, requireContext())
-            Log.d(Lifeograph.TAG, "Name: $name")
-
-            // ensure that the persmission is persistent
-            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
-
-            if(mDiaryUris.contains(uri.toString()))
-                Lifeograph.showToast("File is already in the list")
-            else {
-                mDiaryUris.add(uri.toString())
-                writeDiaryList()
-            }
-
-        }
-        else if(requestCode == 124 && resultCode == Activity.RESULT_OK) {
-            val uri = resultData?.data!!
-            val name = FileUtil.getFileName(uri, requireContext())
-            Log.d(Lifeograph.TAG, "Name: $name")
-
-            // ensure that the persmission is persistent
-            val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
-            requireContext().contentResolver.takePersistableUriPermission(uri, takeFlags)
-
-            if(Diary.getMain().init_new(requireContext(), uri.toString()) == Result.SUCCESS) {
-                mDiaryUris.add(uri.toString())
-                writeDiaryList()
-                navigateToDiary()
-            }
-        }
-    }
-
     private fun openFile() {
-        val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
-        intent.type = "*/*"
-        startActivityForResult(intent, 123)
+        openFileLauncher.launch(arrayOf("*/*"))
     }
 
     private fun createNewDiary() {
-
-        val intent = Intent(Intent.ACTION_CREATE_DOCUMENT)
-        intent.type = "*/*"
-        startActivityForResult(intent, 124)
+        createDiaryLauncher.launch("new_diary.diary")
     }
 
     // DIARY OPERATIONS ============================================================================

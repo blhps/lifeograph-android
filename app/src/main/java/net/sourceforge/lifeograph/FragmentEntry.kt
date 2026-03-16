@@ -39,7 +39,6 @@ import androidx.core.view.MenuHost
 import androidx.core.view.MenuItemCompat
 import androidx.core.view.MenuProvider
 import androidx.lifecycle.Lifecycle
-import net.sourceforge.lifeograph.FragmentEntry.AdvancedSpan
 import net.sourceforge.lifeograph.ToDoAction.ToDoObject
 import java.util.*
 
@@ -120,6 +119,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                     mFlagEntryChanged = true
                     mEntry.insert_text(start, s.toString())
                 }
+                updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
             }
         })
 
@@ -269,14 +269,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                 showThemePickerDlg()
                 true
             }
-//            R.id.edit_date -> {
-//                DialogInquireText(requireContext(),
-//                                  R.string.edit_date,
-//                                  mEntry._date.format_string(),
-//                                  R.string.apply,
-//                                  this).show()
-//                true
-//            }
             R.id.dismiss -> {
                 dismiss()
                 true
@@ -294,7 +286,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                 dm.can_enter_edit_mode()
         mMenu.findItem(R.id.change_todo_status).isVisible = flagWritable
         mMenu.findItem(R.id.toggle_favorite).isVisible = flagWritable
-        mMenu.findItem(R.id.edit_date).isVisible = flagWritable
         mMenu.findItem(R.id.set_theme).isVisible = flagWritable
         mMenu.findItem(R.id.dismiss).isVisible = flagWritable
     }
@@ -954,7 +945,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
                 mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme._color_title), offset,
                                        offsetEnd, 0)
-                // TODO: Note: handle_title_edited logic would go here if needed for Android UI
+                // TODO: handle_title_edited logic would go here if needed for Android UI
             }
 
             'S' -> { // LARGE
@@ -974,24 +965,22 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
         // 3. LIST ITEM TYPE & SPECIAL STYLES (Exempt for title)
         if(!p.is_title) {
             if(offset != offsetEnd) {
-                val colorDone = 0xFF888888.toInt() // Example faded color
                 when(p._list_type) {
-                    't' -> { /* Todo: handled by specific status marks usually */
+                    '-' -> { // bullet
                     }
 
                     'O' -> { // open to-do
-                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
-                        mEditText.text.setSpan(ForegroundColorSpan(colorDone), offset, offsetEnd, 0)
+                        mEditText.text.setSpan(ForegroundColorSpan(theme._color_open), offset,
+                                               offsetEnd, 0)
                     }
 
-                    '~' -> { // in progress
-                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
-                        mEditText.text.setSpan(ForegroundColorSpan(colorDone), offset, offsetEnd, 0)
-                    }
+//                    '~' -> { // in progress: no special format
+//                    }
 
                     '+' -> { // done
-                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
-                        mEditText.text.setSpan(ForegroundColorSpan(colorDone), offset, offsetEnd, 0)
+                        mEditText.text.setSpan(ForegroundColorSpan(theme._color_done), offset, offsetEnd, 0)
+                        mEditText.text.setSpan(BackgroundColorSpan(theme._color_done_bg), offset,
+                                               offsetEnd, 0)
                     }
 
                     'X' -> { // canceled
@@ -1010,8 +999,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
             // 4. INDENTATION
             val indentLevel = p._indent_level
             if(indentLevel > 0) {
-                // 20dp per level as an example
-                val margin = indentLevel * 40
+                val margin = indentLevel * 60
                 mEditText.text.setSpan(LeadingMarginSpan.Standard(margin), offset, offsetEnd, 0)
             }
         }
@@ -1024,15 +1012,16 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
             // Ensure boundaries are valid
             if(fStart < 0 || fEnd > mEditText.text.length || fStart >= fEnd) continue
 
+            val colorMid = theme._color_mid
+
             when(format.type) {
                 'B' -> mEditText.text.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
                 'I' -> mEditText.text.setSpan(StyleSpan(Typeface.ITALIC), fStart, fEnd, 0)
                 'H' -> mEditText.text.setSpan(
-                    BackgroundColorSpan(0xFFFFFF00.toInt()),
-                    fStart,
-                    fEnd,
-                    0 )
+                    BackgroundColorSpan(theme._color_highlight), fStart, fEnd, 0 )
                 'S' -> mEditText.text.setSpan(StrikethroughSpan(), fStart, fEnd, 0)
+                'U' -> mEditText.text.setSpan(UnderlineSpan(), fStart, fEnd, 0)
+                'F' -> mEditText.text.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
                 'C' -> mEditText.text.setSpan(SubscriptSpan(), fStart, fEnd, 0)
                 'P' -> mEditText.text.setSpan(SuperscriptSpan(), fStart, fEnd, 0)
                 'T' -> { // TAG
@@ -1062,13 +1051,13 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                     mEditText.text.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.commentSpan),
                         fStart, fEnd, 0 ) // general span
-                    mEditText.text.setSpan( ForegroundColorSpan(theme._color_mid), fStart,
+                    mEditText.text.setSpan( ForegroundColorSpan(colorMid), fStart,
                                             fStart + 2, 0 ) // [[
                     if(format.posBgn < format.posEnd - 4) {
                         mEditText.text.setSpan(
-                            ForegroundColorSpan(theme._color_mid), fStart + 2, fEnd - 2, 0)
+                            ForegroundColorSpan(colorMid), fStart + 2, fEnd - 2, 0)
                     }
-                    mEditText.text.setSpan(ForegroundColorSpan(theme._color_mid), fEnd - 2, fEnd, 0) // ]]
+                    mEditText.text.setSpan(ForegroundColorSpan(colorMid), fEnd - 2, fEnd, 0) // ]]
                 }
                 'd' -> { // DATE
                     mEditText.text.setSpan(LinkDate(format.varD), fStart, fEnd, 0)
@@ -1113,11 +1102,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
     override fun onInquireAction(id: Int, text: String) {
         TODO("Not yet implemented")
     }
-
-    interface AdvancedSpan {
-        val type: Char
-    }
-
 
 //        fun reset(bgn: Int, end: Int){
 //            super.reset(bgn, end)
@@ -1176,6 +1160,10 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
     }
 
     // SPANS =======================================================================================
+    interface AdvancedSpan {
+        val type: Char
+    }
+
     class SpanOther : AdvancedSpan {
         override val type: Char
             get() = 'O'

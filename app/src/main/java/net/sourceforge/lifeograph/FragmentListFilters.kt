@@ -22,13 +22,16 @@
 package net.sourceforge.lifeograph
 
 import android.os.Bundle
+import android.view.Menu
+import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
+import androidx.core.view.MenuProvider
 import net.sourceforge.lifeograph.DialogInquireText.Listener
 import java.util.*
 
-class FragmentListFilters : FragmentListElems(), Listener
+class FragmentListFilters : FragmentListElems(), MenuProvider, Listener
 {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_filters
@@ -46,18 +49,24 @@ class FragmentListFilters : FragmentListElems(), Listener
         button.setOnClickListener { dismissSel() }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        val id = item.itemId
-        if( id == R.id.enable_edit ) {
-            Lifeograph.enableEditing(this)
-            return true
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        if(mMenuId > 0)
+            menuInflater.inflate(mMenuId, menu)
+        mMenu = menu
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
+        return when( menuItem.itemId) {
+            R.id.enable_edit -> {
+                Lifeograph.enableEditing(this)
+                true
+            }
+            R.id.logout_wo_save -> {
+                Lifeograph.logoutWithoutSaving(requireView())
+                true
+            }
+            else -> false
         }
-        else if( id == R.id.logout_wo_save ) {
-            Lifeograph.logoutWithoutSaving(requireView())
-            return true
-        }
-        return super.onOptionsItemSelected(item)
     }
 
     override fun updateMenuVisibilities() {

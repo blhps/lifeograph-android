@@ -25,21 +25,22 @@ import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageButton
+import androidx.core.view.MenuProvider
 import net.sourceforge.lifeograph.DialogPassword.DPAction
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
 import java.util.*
 
-class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
+class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, MenuProvider,
                             RVAdapterElems.Listener {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_entries
     override val mMenuId: Int   = R.menu.menu_list_entries
     override val mName: String  = Lifeograph.getStr( R.string.entries )
 
-    companion object {
-        val compareElemsByDate = CompareElemsByDate()
-    }
+//    companion object {
+//        val compareElemsByDate = CompareElemsByDate()
+//    }
 
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -55,10 +56,15 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         button.setOnClickListener { trashSel() }
     }
 
-    @Deprecated("Deprecated in Java")
-    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
+        if(mMenuId > 0)
+            menuInflater.inflate(mMenuId, menu)
+        mMenu = menu
+    }
+
+    override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         val dm = Diary.getMain()
-        return when(item.itemId) {
+        return when(menuItem.itemId) {
             R.id.search_text -> {
                 Lifeograph.mActivityMain.navigateTo(R.id.nav_search)
                 true
@@ -90,20 +96,9 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
                 Lifeograph.showToast(R.string.text_export_fail)
                 true
             }
-            else -> super.onOptionsItemSelected(item)
+            else -> false
         }
     }
-
-    // This callback will only be called when MyFragment is at least Started.
-//        OnBackPressedCallback callback = new OnBackPressedCallback( true /* enabled by default */) {
-//            @Override
-//            public void handleOnBackPressed() {
-//                // Handle the back button event
-//                Log.d( Lifeograph.TAG, "CALLBACK PRESSED HANDLER!!" );
-//                handleBack();
-//            }
-//        };
-//        requireActivity().getOnBackPressedDispatcher().addCallback(this, callback);
 
     override fun updateMenuVisibilities() {
         super.updateMenuVisibilities()
@@ -139,7 +134,6 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
 //        mElems.add(HeaderElem(R.string.dated_entries,
 //                              Date.make(Date.YEAR_MAX + 1, 12, 31, 0)))
         //}
-        //Collections.sort(mElems, compareElemsByDate)
 
         handleElemNumberChanged()
         mItemCount = mElems.size - 3
@@ -272,7 +266,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val entry = mElems[i] as Entry
-                entry.set_trashed( !entry.is_trashed )
+                entry.is_trashed = !entry.is_trashed
                 mAdapter.notifyItemChanged( i )
                 break
             }
@@ -312,22 +306,22 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener,
     // RecyclerViewAdapterElems.Listener INTERFACE METHODS =========================================
 
     // COMPARATOR ==================================================================================
-    class CompareElemsByDate : Comparator<DiaryElemTag> {
-        override fun compare(elemL: DiaryElemTag, elemR: DiaryElemTag): Int {
-            val direction = 1
-            return when {
-                elemL._date > elemR._date -> -direction
-                elemL._date < elemR._date -> direction
-                else -> 0
-            }
-        }
-    }
+//    class CompareElemsByDate : Comparator<DiaryElemTag> {
+//        override fun compare(elemL: DiaryElemTag, elemR: DiaryElemTag): Int {
+//            val direction = 1
+//            return when {
+//                elemL._date > elemR._date -> -direction
+//                elemL._date < elemR._date -> direction
+//                else -> 0
+//            }
+//        }
+//    }
 
     // HEADER PSEUDO ELEMENT CLASS =================================================================
-    internal class HeaderElem(nameRsc: Int, private val mDate: Long) :
-            DiaryElemTag(0) {
-        override fun get_type(): Type {
-            return Type.NONE
-        }
-    }
+//    internal class HeaderElem(nameRsc: Int, private val mDate: Long) :
+//            DiaryElemTag(0) {
+//        override fun get_type(): Type {
+//            return Type.NONE
+//        }
+//    }
 }

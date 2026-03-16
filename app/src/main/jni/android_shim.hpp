@@ -51,6 +51,20 @@ namespace Glib {
         ustring(const char* s) : std::string(s ? s : "") {}
         ustring() = default;
 
+        size_type length() const {
+            size_type count = 0;
+            for( unsigned char c : *this )
+            {
+                if( ( c & 0b11000000 ) != 0b10000000 )
+                    ++count; // Only count leading bytes (start of new character)
+            }
+            return count;
+        }
+
+        size_type size() const { return length(); }
+
+        size_type bytes() const { return std::string::length(); }
+
         ustring uppercase() const {
             ustring res = *this;
             std::transform(res.begin(), res.end(), res.begin(), [](unsigned char c){ return std::toupper(c); });

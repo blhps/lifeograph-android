@@ -33,14 +33,22 @@ public class Paragraph extends DiaryElemTag
     Paragraph(long nativePtr) { super(nativePtr); }
 
     public Paragraph
-    get_prev() { return new Paragraph( nativeGetPrev( mNativePtr ) ); }
+    get_prev() {
+        long ptr = nativeGetPrev( mNativePtr );
+        return ptr == 0 ? null : new Paragraph( ptr ); }
     public Paragraph
-    get_next() { return new Paragraph( nativeGetNext( mNativePtr ) ); }
+    get_next() {
+        long ptr = nativeGetNext( mNativePtr );
+        return ptr == 0 ? null : new Paragraph( ptr ); }
     public Paragraph
-    get_next_visible() { return new Paragraph( nativeGetNextVisible( mNativePtr ) ); }
+    get_next_visible() {
+        long ptr = nativeGetNextVisible( mNativePtr );
+        return ptr == 0 ? null : new Paragraph( nativeGetNextVisible( mNativePtr ) ); }
 
     public Entry
-    get_host() { return new Entry(nativeGetHost( mNativePtr ) ); }
+    get_host() {
+        long ptr = nativeGetHost( mNativePtr );
+        return ptr == 0 ? null : new Entry(nativeGetHost( mNativePtr ) ); }
 
     public boolean
     is_empty(){ return nativeIsEmpty(mNativePtr); }
