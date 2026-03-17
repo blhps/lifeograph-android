@@ -21,10 +21,10 @@
 
 package net.sourceforge.lifeograph
 
+import android.content.Context
 import android.content.DialogInterface
 import android.content.Intent
-import android.graphics.Color
-import android.graphics.Typeface
+import android.graphics.*
 import android.os.Bundle
 import android.text.*
 import android.text.style.*
@@ -33,6 +33,7 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
+import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.net.toUri
 import androidx.core.view.MenuHost
@@ -65,6 +66,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
 
     companion object {
         lateinit var mEntry: Entry
+        const val INDENT_UNIT_WIDTH = 60
     }
 
     // METHODS =====================================================================================
@@ -100,11 +102,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(!mFlagSetTextOperation) {
-                    if(count == 1 && s.subSequence(start, start + count)[0] == '\n') {
-                        mFlagSetTextOperation = true
-                        handleNewLine(s, start + count - 1)
-                        mFlagSetTextOperation = false
-                    }
                     // if( start > 0 ) {
                     // m_pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
                     // if( m_pos_start == -1 )
@@ -322,102 +319,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
         return true
     }
 
-    private fun handleNewLine(fullText: CharSequence, iterEnd: Int): Boolean {
-        // iterStart is the start of the previous line
-        var iterStart = fullText.toString().lastIndexOf('\n', iterEnd - 1)
-        if(iterStart < 0 || iterStart == fullText.length - 1)
-            return false
-        iterStart++ // get rid of the new line char
-        val offsetStart = iterStart // save for future
-        if(fullText[iterStart] == '\t') {
-            val text = StringBuilder("\t")
-            var value = 0
-            var charLf = '*'
-            iterStart++ // first tab is already handled, so skip it
-            while(iterStart != iterEnd) {
-                when(fullText[iterStart]) {
-                    '•' -> {
-                        if(charLf != '*') return false
-                        charLf = ' '
-                        text.append("• ")
-                    }
-                    '[' -> {
-                        if(charLf != '*') return false
-                        charLf = 'c'
-                    }
-                    '~', '+', 'x', 'X' -> {
-                        if(charLf != 'c') return false
-                        charLf = ']'
-                    }
-                    ']' -> {
-                        if(charLf != ']') return false
-                        charLf = ' '
-                        text.append("[ ] ")
-                    }
-                    '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                        if(charLf != '*' && charLf != '1')
-                            return false
-                        charLf = '1'
-                        value *= 10
-                        value += fullText[iterStart] - '0'
-                    }
-                    '-' -> {
-                        if(charLf == '*') {
-                            text.append("- ")
-                            break
-                        }
-                        if(charLf != '1') return false
-                        charLf = ' '
-                        text.append(++value)
-                            .append(fullText[iterStart])
-                            .append(' ')
-                    }
-                    '.', ')' -> {
-                        if(charLf != '1') return false
-                        charLf = ' '
-                        text.append(++value)
-                            .append(fullText[iterStart])
-                            .append(' ')
-                    }
-                    '\t' -> {
-                        if(charLf != '*') return false
-                        text.append('\t')
-                    }
-                    ' ' -> {
-                        if(charLf == 'c')
-                            charLf = ']'
-                        else {
-                            if(charLf != ' ') return false
-                            // remove the last bullet if no text follows it:
-                            if(iterStart == iterEnd - 1) {
-                                iterStart = offsetStart
-                                mEditText.text.delete(iterStart, iterEnd)
-                                mEditText.text.insert(iterStart, "\n")
-                            }
-                            else {
-                                mEditText.text.insert(iterEnd+1, text)
-                                iterStart = iterEnd + text.length
-                                if(value > 0) {
-                                    iterStart++
-                                    while(incrementNumberedLine(fullText,
-                                                                iterStart,
-                                                                value++).also {
-                                            iterStart = it } > 0) {
-                                        iterStart++
-                                    }
-                                }
-                            }
-                            return true
-                        }
-                    }
-                    else -> return false
-                }
-                ++iterStart
-            }
-        }
-        return false
-    }
-
     private fun updateIcon() {
         /*if( m_ptr2entry.is_favored() ) {
             Bitmap bmp = BitmapFactory.decodeResource(
@@ -483,7 +384,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
         // SETTING TEXT
         mFlagSetTextOperation = true
         if(flagParse)
-            mEditText.setText(mEntry._text)
+            mEditText.setText(mEntry._text_visible)
         mFlagSetTextOperation = false
 
         // if( flagParse )
@@ -590,48 +491,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
 //        }
 //        return true
 //    }
-
-    private fun incrementNumberedLine(fullText: CharSequence,
-                                      pos_bgn: Int,
-                                      expected_value: Int): Int {
-        var pos = pos_bgn
-        if(pos >= fullText.length) return -1
-        var iterEnd = fullText.toString().indexOf('\n', pos)
-        if(iterEnd == -1) iterEnd = fullText.length - 1
-        val text = StringBuilder()
-        var value = 0
-        var charLf = 't'
-        while(pos != iterEnd) {
-            when(fullText[pos]) {
-                '\t' -> {
-                    if(charLf != 't' && charLf != '1') return -1
-                    charLf = '1'
-                    text.append('\t')
-                }
-                '0', '1', '2', '3', '4', '5', '6', '7', '8', '9' -> {
-                    if(charLf != '1' && charLf != '-') return -1
-                    charLf = '-'
-                    value *= 10
-                    value += fullText[pos] - '0'
-                }
-                '-', '.', ')' -> {
-                    if(charLf != '-' || value != expected_value) return -1
-                    charLf = ' '
-                    value++
-                    text.append(value).append(fullText[pos]).append(' ')
-                }
-                ' ' -> {
-                    if(charLf != ' ') return -1
-                    mEditText.text.delete(pos_bgn, pos + 1)
-                    mEditText.text.insert(pos_bgn, text)
-                    return iterEnd + text.length - (pos - pos_bgn + 1)
-                }
-                else -> return -1
-            }
-            ++pos
-        }
-        return -1
-    }
 
     // FORMATTING BUTTONS ==========================================================================
     private fun calculateMultiParaBounds(bounds: IntArray): Boolean {
@@ -908,16 +767,15 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
     private fun toggleIgnoreParagraph() {
         val bounds = intArrayOf(0, 0)
         if(calculateMultiParaBounds(bounds)) return
-        val para_bgn : Paragraph = mEntry.get_paragraph( bounds[0] )
-        val para_end : Paragraph = mEntry.get_paragraph( bounds[1] )
-        if(para_bgn._quot_type == '_') // off
-            para_bgn._quot_type = '*' // generic
+        val paraBgn : Paragraph = mEntry.get_paragraph(bounds[0], true)
+        val paraEnd : Paragraph = mEntry.get_paragraph(bounds[1], true)
+        if(paraBgn._quot_type == '_') // off
+            paraBgn._quot_type = '*' // generic
         else
-            para_bgn._quot_type = '_'
+            paraBgn._quot_type = '_'
     }
 
     // PARSING =====================================================================================
-
     private fun processParagraph(p: Paragraph, offset: Int, offsetEnd: Int) {
         val theme = mEntry._theme
         // In Android, we don't necessarily "remove all tags" manually like GTK if we are
@@ -948,8 +806,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
             }
 
             'S' -> { // LARGE
-//                mEditText.text.setSpan(RelativeSizeSpan(1.2f), offset, offsetEnd, 0)
-//                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
                 mEditText.text.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
                 mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme._color_heading_L), offset,
@@ -963,11 +819,21 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
 
         // 3. LIST ITEM TYPE & SPECIAL STYLES (Exempt for title)
         if(!p.is_title) {
+            val listType = p._list_type
+            if (listType != 0.toChar()) {
+                // For numbered lists, you might need to get the actual order/number from the paragraph
+                val label = if ("1AaRr".contains(listType)) p._list_order_str else null
+
+                mEditText.text.setSpan(
+                    ListSpan(requireContext(), p, label, theme),
+                    offset,
+                    offsetEnd,
+                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+                                      )
+            }
+
             if(offset != offsetEnd) {
                 when(p._list_type) {
-                    '-' -> { // bullet
-                    }
-
                     'O' -> { // open to-do
                         mEditText.text.setSpan(ForegroundColorSpan(theme._color_open), offset,
                                                offsetEnd, 0)
@@ -998,7 +864,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
             // 4. INDENTATION
             val indentLevel = p._indent_level
             if(indentLevel > 0) {
-                val margin = indentLevel * 60
+                val margin = indentLevel * INDENT_UNIT_WIDTH
                 mEditText.text.setSpan(LeadingMarginSpan.Standard(margin), offset, offsetEnd, 0)
             }
         }
@@ -1021,8 +887,16 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                 'S' -> mEditText.text.setSpan(StrikethroughSpan(), fStart, fEnd, 0)
                 'U' -> mEditText.text.setSpan(UnderlineSpan(), fStart, fEnd, 0)
                 'F' -> mEditText.text.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
-                'C' -> mEditText.text.setSpan(SubscriptSpan(), fStart, fEnd, 0)
-                'P' -> mEditText.text.setSpan(SuperscriptSpan(), fStart, fEnd, 0)
+                'C' -> {
+                    mEditText.text.setSpan(
+                        TextAppearanceSpan(requireContext(), R.style.subscriptSpan),
+                        fStart, fEnd, 0 ) // general span
+                }
+                'P' -> {
+                    mEditText.text.setSpan(
+                        TextAppearanceSpan(requireContext(), R.style.superscriptSpan),
+                        fStart, fEnd, 0 ) // general span
+                }
                 'T' -> { // TAG
                     mEditText.text.setSpan(
                         BackgroundColorSpan(theme._color_inline_tag), fStart, fEnd, 0)
@@ -1110,21 +984,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
 //            // mEditText.getText().clearSpans(); <-- problematic!!
 //            for(span in mSpans)
 //                mHost.mEditText.text.removeSpan(span)
-//        }
-
-        // APPLIERS ====================================================================================
-//        private fun applyCheck(tag_box: Any, tag: Any?) {
-//            val posBgn = m_pos_cur - 3
-//            val posBox = m_pos_cur
-//            var posEnd = mHost.mEditText.text.toString().indexOf('\n', m_pos_cur)
-//            if(posEnd == -1)
-//                posEnd = mHost.mEditText.text.length
-//            if(Diary.d.is_in_edit_mode)
-//                addSpan(LinkCheck(mHost), posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
-//            addSpan(tag_box, posBgn, posBox, Spanned.SPAN_INTERMEDIATE)
-//            addSpan(TypefaceSpan("monospace"), posBgn, posBox, 0)
-//            if(tag != null)
-//                addSpan(tag, posBox + 1, posEnd, 0) // ++ to skip separating space char
 //        }
 
         // PARSING HELPER FUNCTIONS ====================================================================
@@ -1221,4 +1080,90 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
 
         override val type: Char
             get() = 'c'
+    }
+
+    private class ListSpan(
+        private val context: Context,
+        private val para: Paragraph,
+        private val label: String?, // For numbered lists
+        private val theme: Theme,
+        private val gapWidth: Int = 40
+                          ) : LeadingMarginSpan {
+
+        override fun getLeadingMargin(first: Boolean): Int = gapWidth
+
+        override fun drawLeadingMargin(
+            c: Canvas, p: Paint, x: Int, dir: Int,
+            top: Int, baseline: Int, bottom: Int,
+            text: CharSequence, start: Int, end: Int,
+            first: Boolean, layout: Layout
+                                      ) {
+            if(!first) return // Only draw on the first line of the paragraph
+
+            val oldColor = p.color
+            val style = p.style
+
+            // Adjust x for direction
+            val drawX = (x + dir + para._indent_level * FragmentEntry.INDENT_UNIT_WIDTH).toFloat()
+            val centerY = (top + bottom) / 2f
+            val size = p.textSize * 0.6f
+
+            when(val type = para._list_type) {
+                '-' -> { // Bullet
+                    p.color = theme._color_text
+                    c.drawCircle(drawX + gapWidth / 2f, centerY, size / 3f, p)
+                }
+
+                'O', '~', '+', 'X' -> { // Checkboxes
+                    val resId = when(type) {
+                        'O' -> R.drawable.ic_todo_open
+                        '~' -> R.drawable.ic_todo_progressed
+                        '+' -> R.drawable.ic_todo_done
+                        'X' -> R.drawable.ic_todo_canceled
+                        else -> 0
+                    }
+
+                    if(resId != 0) {
+                        AppCompatResources.getDrawable(context, resId)?.let { drawable ->
+//                            val color = when(type) {
+//                                '+' -> theme._color_done
+//                                'O' -> theme._color_open
+//                                else -> theme._color_text
+//                            }
+//                            drawable.setTint(color)
+                            val iconSize = (size * 1.3f).toInt()
+                            val left = drawX.toInt()
+                            val topIcon = (centerY - iconSize / 2f).toInt()
+                            drawable.setBounds(left, topIcon, left + iconSize, topIcon + iconSize)
+                            drawable.draw(c)
+                        }
+                    } else {
+//                        p.color = when(type) {
+//                            '+' -> theme._color_done
+//                            'O' -> theme._color_open
+//                            else -> theme._color_text
+//                        }
+//                        val rect = RectF(drawX, centerY - size / 2, drawX + size, centerY + size / 2)
+//                        p.style = Paint.Style.STROKE
+//                        c.drawRect(rect, p)
+//
+//                        // Draw internal mark if needed (e.g., 'x' or '+')
+//                        if(type == 'x' || type == 'X' || type == '+') {
+//                            c.drawLine(rect.left, rect.top, rect.right, rect.bottom, p)
+//                            c.drawLine(rect.left, rect.bottom, rect.right, rect.top, p)
+//                        } else if(type == '~') {
+//                            c.drawLine(rect.left, centerY, rect.right, centerY, p)
+//                        }
+                    }
+                }
+
+                '1' -> { // Numbered list
+                    p.color = theme._color_text
+                    label?.let { c.drawText(it, drawX, baseline.toFloat(), p) }
+                }
+            }
+
+            p.color = oldColor
+            p.style = style
+        }
     }

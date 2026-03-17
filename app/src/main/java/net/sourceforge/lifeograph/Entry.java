@@ -114,14 +114,12 @@ public class Entry extends DiaryElemTag {
 
     // TEXTUAL CONTENTS ============================================================================
     boolean
-    is_empty() {
-        return nativeIsEmpty(mNativePtr);
-    }
+    is_empty() { return nativeIsEmpty(mNativePtr); }
 
     String
-    get_text() {
-        return nativeGetText(mNativePtr);
-    }
+    get_text() { return nativeGetText(mNativePtr); }
+    String
+    get_text_visible() { return nativeGetTextVisible(mNativePtr); }
 
     void
     clear_text() {
@@ -144,8 +142,8 @@ public class Entry extends DiaryElemTag {
     }
 
     Paragraph
-    get_paragraph( int pos ) {
-        long ptr = nativeGetParagraphAtPos(mNativePtr, pos);
+    get_paragraph( int pos, boolean flag_visible_only ) {
+        long ptr = nativeGetParagraphAtPos(mNativePtr, pos, flag_visible_only);
         return ptr != 0 ? new Paragraph(ptr) : null;
     }
     Paragraph
@@ -392,11 +390,12 @@ public class Entry extends DiaryElemTag {
     private native boolean nativeIsFilteredOut(long ptr);
     private native boolean nativeIsEmpty(long ptr);
     private native String nativeGetText(long ptr);
+    private native String nativeGetTextVisible(long ptr);
     private native void nativeClearText(long ptr);
     private native void nativeSetText(long ptr, String text);
     private native void nativeInsertText(long ptr, int pos, String text);
     private native void nativeEraseText(long ptr, int pos_bgn, int pos_end);
-    private native long nativeGetParagraphAtPos(long ptr, int pos);
+    private native long nativeGetParagraphAtPos(long ptr, int pos, boolean flag_visible_only);
     private native long nativeGetParagraph1st(long ptr);
     private native long nativeGetParagraphLast(long ptr);
     private native long nativeAddParagraphBefore(long ptr, String text, long ptr_para_after);

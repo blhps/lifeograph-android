@@ -107,6 +107,9 @@ public class Paragraph extends DiaryElemTag
     public char
     get_list_type() { return nativeGetListType(mNativePtr); }
 
+    public String
+    get_list_order_str() { return nativeGetListOrderStr(mNativePtr); }
+
     public int
     get_indent_level() { return nativeGetIndentLevel(mNativePtr); }
 
@@ -143,6 +146,7 @@ public class Paragraph extends DiaryElemTag
     private native void nativeSetAlignment(long ptr, char alignment);
     private native int nativeGetIndentLevel(long ptr);
     private native char nativeGetListType(long ptr);
+    private native String nativeGetListOrderStr(long ptr);
     private native char nativeGetQuotType(long ptr);
     private native void nativeSetQuotType(long ptr, char quot_type);
     private native boolean nativeIsQuote(long ptr);

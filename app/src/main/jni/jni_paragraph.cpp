@@ -59,6 +59,11 @@ JNI_METHOD(jchar, Paragraph_nativeGetListType)(JNIEnv* env, jobject obj, jlong p
     return static_cast<jchar>(LoG::VT::get_v<LoG::VT::PLS, char, int>(result));
 }
 
+JNI_METHOD(jstring, Paragraph_nativeGetListOrderStr)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto para = reinterpret_cast<LoG::Paragraph*>(ptr);
+    return env->NewStringUTF(para->get_list_order_str().c_str());
+}
+
 JNI_METHOD(jchar, Paragraph_nativeGetQuotType)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jchar>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_quot_type());
 }

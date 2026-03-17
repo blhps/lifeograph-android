@@ -579,7 +579,8 @@ ThemeSystem::get()
     static ThemeSystem *s_theme{ nullptr };
 
     if( s_theme == nullptr )
-        s_theme = new ThemeSystem( "Sans 10", "white", "black", "#B72525", "#963F3F", "#FFBBBB" );
+        s_theme = new ThemeSystem( "Sans 10", "#FFFFFF", "#000000", "#B72525", "#963F3F",
+                                   "#FFBBBB" );
 
     return s_theme;
 }

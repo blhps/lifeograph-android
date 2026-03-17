@@ -26,6 +26,7 @@ import android.view.ViewGroup
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.TextView
+import androidx.core.text.HtmlCompat
 import androidx.recyclerview.widget.RecyclerView
 import java.util.*
 
@@ -93,8 +94,8 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
                 holder.mSpacerL2.visibility = View.GONE
             }
 
-            holder.mTVTitle.text = elem._list_str
-            holder.mTVDetails.text = elem._info_str
+            holder.mTVTitle.text = HtmlCompat.fromHtml(elem._list_str, HtmlCompat.FROM_HTML_MODE_LEGACY)
+            holder.mTVDetails.text = HtmlCompat.fromHtml(elem._info_str, HtmlCompat.FROM_HTML_MODE_LEGACY)
 
             if(mListener.hasIcon2(elem)) {
                 holder.mIVIcon2.setImageResource(mListener.getIcon2(elem))

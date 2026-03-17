@@ -114,9 +114,13 @@ JNI_METHOD(jboolean, Entry_nativeIsEmpty)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jboolean>(reinterpret_cast<LoG::Entry*>(ptr)->is_empty());
 }
 
-JNI_METHOD(jstring, Entry_nativeGetText)(JNIEnv* env, jobject obj, jlong ptr) {
+JNI_METHOD(jstring, Entry_nativeGetText)(JNIEnv* env, jobject, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
     return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_text().c_str());
+}
+JNI_METHOD(jstring, Entry_nativeGetTextVisible)(JNIEnv* env, jobject, jlong ptr) {
+    //if (ptr == 0) return env->NewStringUTF("");
+    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_text_visible().c_str());
 }
 
 JNI_METHOD(void, Entry_nativeClearText)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -143,9 +147,11 @@ JNI_METHOD(void, Entry_nativeEraseText)(JNIEnv* env, jobject obj, jlong ptr, jin
     reinterpret_cast<LoG::Entry*>(ptr)->erase_text(static_cast<size_t>(pos_bgn), static_cast<size_t>(pos_end - pos_bgn), false);
 }
 
-JNI_METHOD(jlong, Entry_nativeGetParagraphAtPos)(JNIEnv* env, jobject obj, jlong ptr, jint pos) {
+JNI_METHOD(jlong, Entry_nativeGetParagraphAtPos)(JNIEnv* env, jobject obj, jlong ptr, jint pos,
+        jboolean flag_visible_only) {
     CHECK_PTR(ptr, 0)
-    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_paragraph(static_cast<size_t>(pos)));
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_paragraph( size_t(pos),
+                                                                                      flag_visible_only));
 }
 
 JNI_METHOD(jlong, Entry_nativeGetParagraph1st)(JNIEnv* env, jobject obj, jlong ptr) {

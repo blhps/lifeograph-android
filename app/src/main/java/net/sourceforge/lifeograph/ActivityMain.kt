@@ -160,7 +160,7 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
 
     fun showElem(elem: DiaryElement) {
         when(elem._type) {
-            DiaryElement.Type.ENTRY, DiaryElement.Type.CHAPTER -> {
+            DiaryElement.Type.ENTRY -> {
                 FragmentEntry.mEntry = elem as Entry
                 if(mViewCurrent is FragmentEntry)
                     (mViewCurrent as FragmentEntry).show(true)

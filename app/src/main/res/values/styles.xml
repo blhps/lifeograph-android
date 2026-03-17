@@ -82,7 +82,16 @@
     </style>
     
     <style name="commentSpan" parent="@android:style/TextAppearance.Small">
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="subscriptSpan" parent="@android:style/TextAppearance.Small">
         <item name="android:textSize">10sp</item>
+        <item name="android:fontFeatureSettings">"subs" 1</item>
+    </style>
+    <style name="superscriptSpan" parent="@android:style/TextAppearance.Small">
+        <item name="android:textSize">10sp</item>
+        <item name="android:fontFeatureSettings">"sups" 1</item>
     </style>
 
 </resources>
