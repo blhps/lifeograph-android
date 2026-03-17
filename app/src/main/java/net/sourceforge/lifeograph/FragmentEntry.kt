@@ -488,8 +488,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
 
         // if( flagParse )
         // parse();
-        //Lifeograph.getActionBar().subtitle = mEntry._title_str
-        Lifeograph.getActionBar().subtitle = mEntry._name
+        Lifeograph.getActionBar().subtitle = mEntry._name // TODO: _title_str
         updateIcon()
         //invalidateOptionsMenu(); // may be redundant here
 

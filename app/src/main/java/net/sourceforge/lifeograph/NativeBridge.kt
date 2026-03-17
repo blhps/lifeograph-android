@@ -35,4 +35,12 @@ object NativeBridge {
 
     @JvmStatic
     private external fun nativePerform(ptr: Long)
+
+    @JvmStatic
+    fun getFileName(uriString: String): String {
+        return net.sourceforge.lifeograph.helpers.FileUtil.getFileName(
+            android.net.Uri.parse(uriString),
+            Lifeograph.context
+        )
+    }
 }

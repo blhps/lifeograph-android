@@ -2,11 +2,14 @@
 #include <string>
 #include <vector>
 #include "diaryelements/diary.hpp"
-#include "diaryelements/entry.hpp"
 
 #define JNI_METHOD(return_type, name) JNIEXPORT return_type JNICALL Java_net_sourceforge_lifeograph_##name
 
 extern "C" {
+
+JNI_METHOD(jboolean, Diary_initCipher)(JNIEnv* env, jclass) {
+    return static_cast<jboolean>(HELPERS::Cipher::init());
+}
 
 JNI_METHOD(jlong, Diary_nativeCreate)(JNIEnv* env, jclass) {
     return reinterpret_cast<jlong>(new LoG::Diary());

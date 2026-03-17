@@ -56,7 +56,7 @@ public final class FileUtil {
 
     public static ArrayList<String> getExtSdCardPaths(Context con) {
         ArrayList<String> paths = new ArrayList<>();
-        File[] files = ContextCompat.getExternalFilesDirs( con, "external");
+        File[] files = con.getExternalFilesDirs(null);
         File firstFile = files[0];
         for (File file : files) {
             if (file != null && !file.equals(firstFile)) {

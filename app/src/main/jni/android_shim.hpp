@@ -299,6 +299,8 @@ namespace Glib {
     inline std::string build_filename(const std::string& a, const std::string& b) {
         return a + "/" + b;
     }
+
+    extern std::string get_filename_from_android(const std::string& uri);
 }
 
 typedef char32_t gunichar;
@@ -430,6 +432,9 @@ namespace Gio {
             return m_s;
         }
         std::string get_basename() const {
+            if (m_s.compare(0, 10, "content://") == 0) {
+                return Glib::get_filename_from_android(m_s);
+            }
             size_t pos = m_s.find_last_of('/');
             if (pos == std::string::npos) return m_s;
             return m_s.substr(pos + 1);

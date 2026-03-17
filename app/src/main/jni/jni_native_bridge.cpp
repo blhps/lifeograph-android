@@ -1,10 +1,12 @@
 #include "android_shim.hpp"
 #include <jni.h>
+#include <string>
 
 // Global reference to the Java VM to attach threads if necessary
 JavaVM* g_vm = nullptr;
 jclass g_bridgeClass = nullptr;
 jmethodID g_dispatchMethod = nullptr;
+jmethodID g_getFileNameMethod = nullptr;
 
 extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
     g_vm = vm;
@@ -21,6 +23,11 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
     g_dispatchMethod = env->GetStaticMethodID(g_bridgeClass, "dispatchToMain", "(J)V");
     if (g_dispatchMethod == nullptr) {
+        return JNI_ERR;
+    }
+
+    g_getFileNameMethod = env->GetStaticMethodID(g_bridgeClass, "getFileName", "(Ljava/lang/String;)Ljava/lang/String;");
+    if (g_getFileNameMethod == nullptr) {
         return JNI_ERR;
     }
 
@@ -47,6 +54,37 @@ void trigger_android_dispatcher(Dispatcher* d) {
     if (detached) {
         g_vm->DetachCurrentThread();
     }
+}
+
+std::string get_filename_from_android(const std::string& uri) {
+    JNIEnv* env;
+    bool detached = false;
+    jint getEnvStat = g_vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    if (getEnvStat == JNI_EDETACHED) {
+        if (g_vm->AttachCurrentThread(&env, nullptr) != 0) {
+            return "";
+        }
+        detached = true;
+    }
+
+    std::string result;
+    if (env && g_bridgeClass && g_getFileNameMethod) {
+        jstring juri = env->NewStringUTF(uri.c_str());
+        jstring jfilename = (jstring)env->CallStaticObjectMethod(g_bridgeClass, g_getFileNameMethod, juri);
+        if (jfilename) {
+            const char* cfilename = env->GetStringUTFChars(jfilename, nullptr);
+            if (cfilename) {
+                result = cfilename;
+                env->ReleaseStringUTFChars(jfilename, cfilename);
+            }
+        }
+        env->DeleteLocalRef(juri);
+    }
+
+    if (detached) {
+        g_vm->DetachCurrentThread();
+    }
+    return result;
 }
 
 } // namespace Glib

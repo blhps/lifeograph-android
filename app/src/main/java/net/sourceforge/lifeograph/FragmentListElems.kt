@@ -66,7 +66,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
 
         mToolbar.visibility = View.GONE
 
-        Lifeograph.getActionBar().title = Diary.getMain()._name //_title_str
+        Lifeograph.getActionBar().title = Diary.getMain()._name
         updateActionBarSubtitle()
     }
 
