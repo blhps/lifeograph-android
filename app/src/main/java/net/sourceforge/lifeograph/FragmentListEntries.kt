@@ -21,18 +21,18 @@
 
 package net.sourceforge.lifeograph
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
 import android.widget.ImageButton
-import androidx.core.view.MenuProvider
+import androidx.lifecycle.Lifecycle
 import net.sourceforge.lifeograph.DialogPassword.DPAction
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
 import java.util.*
 
-class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, MenuProvider,
-                            RVAdapterElems.Listener {
+class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdapterElems.Listener {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_entries
     override val mMenuId: Int   = R.menu.menu_list_entries
@@ -45,6 +45,9 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, MenuPr
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        if (mMenuId > 0) {
+            requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+        }
 
         var button = view.findViewById<ImageButton>(R.id.btn_toggle_favorite)
         button.setOnClickListener { toggleSelFavoredness() }
@@ -54,12 +57,6 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, MenuPr
         button.setOnClickListener { duplicateSel() }
         button = view.findViewById(R.id.dismiss)
         button.setOnClickListener { trashSel() }
-    }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        if(mMenuId > 0)
-            menuInflater.inflate(mMenuId, menu)
-        mMenu = menu
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -96,7 +93,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, MenuPr
                 Lifeograph.showToast(R.string.text_export_fail)
                 true
             }
-            else -> false
+            else -> super.onMenuItemSelected(menuItem)
         }
     }
 
@@ -175,6 +172,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, MenuPr
         }).show()
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun toggleExpanded(tag: DiaryElemTag) {
         tag.is_expanded = !tag.is_expanded
         updateList()

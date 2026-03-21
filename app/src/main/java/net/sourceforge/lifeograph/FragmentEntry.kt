@@ -43,8 +43,7 @@ import androidx.lifecycle.Lifecycle
 import net.sourceforge.lifeograph.ToDoAction.ToDoObject
 import java.util.*
 
-class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInquireText
-    .Listener  {
+class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Listener  {
 //    private enum class LinkStatus {
 //        LS_OK, LS_ENTRY_UNAVAILABLE, LS_INVALID,  // separator: to check a valid entry link:
 //
@@ -99,9 +98,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
         mEditText.setTypeface( font );*/
         mEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
-                if(!mFlagSetTextOperation) {
-                    updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
-                }
+                updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
             }
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
@@ -210,12 +207,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
         Diary.getMain().writeLock(context)
     }
 
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        if(mMenuId > 0)
-            menuInflater.inflate(mMenuId, menu)
-        mMenu = menu
-    }
-
     override fun onPrepareMenu(menu: Menu) {
         var item = menu.findItem(R.id.search_text)
         val searchView = item.actionView as SearchView
@@ -251,13 +242,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when(menuItem.itemId) {
-            R.id.enable_edit -> {
-                Lifeograph.enableEditing(this)
-                true
-            }
-//            android.R.id.home -> {
-//                handleBack() // onSupportNavigateUp() in the ActivityMain is called in case of false
-//            }
             R.id.toggle_favorite -> {
                 toggleFavorite()
                 true
@@ -273,7 +257,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                 dismiss()
                 true
             }
-            else -> false
+            else -> super.onMenuItemSelected(menuItem)
         }
     }
 
@@ -838,25 +822,23 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                                       )
             }
 
-            if(offset != offsetEnd) {
-                when(p._list_type) {
-                    'O' -> { // open to-do
-                        mEditText.text.setSpan(ForegroundColorSpan(theme._color_open), offset,
-                                               offsetEnd, 0)
-                    }
+            when(p._list_type) {
+                'O' -> { // open to-do
+                    mEditText.text.setSpan(ForegroundColorSpan(theme._color_open), offset,
+                                           offsetEnd, 0)
+                }
 
 //                    '~' -> { // in progress: no special format
 //                    }
 
-                    '+' -> { // done
-                        mEditText.text.setSpan(ForegroundColorSpan(theme._color_done), offset, offsetEnd, 0)
-                        mEditText.text.setSpan(BackgroundColorSpan(theme._color_done_bg), offset,
-                                               offsetEnd, 0)
-                    }
+                '+' -> { // done
+                    mEditText.text.setSpan(ForegroundColorSpan(theme._color_done), offset, offsetEnd, 0)
+                    mEditText.text.setSpan(BackgroundColorSpan(theme._color_done_bg), offset,
+                                           offsetEnd, 0)
+                }
 
-                    'X' -> { // canceled
-                        mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
-                    }
+                'X' -> { // canceled
+                    mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
                 }
             }
 
