@@ -21,9 +21,20 @@
 
 package net.sourceforge.lifeograph;
 
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.Vector;
+
+import android.content.ContentResolver;
 import android.content.Context;
+import android.net.Uri;
+import android.util.Log;
+
 import androidx.annotation.NonNull;
+import androidx.documentfile.provider.DocumentFile;
+
 import net.sourceforge.lifeograph.helpers.*;
 
 
@@ -51,7 +62,8 @@ public class Diary extends DiaryElement
 //    static final int SoCr_FILTER_DIR_T  = 0xF00; // temporal
 //    static final int SoCr_DEFAULT       = SoCr_DATE|SoCr_ASCENDING|SoCr_DESCENDING_T;
 
-    static final String LOCK_SUFFIX = ".~LOCK~"; // TODO get from C++?
+    static final String SUFFIX_LOCK = ".~LOCK~";
+    static final String SUFFIX_UNSAVED = ".~unsaved~";
 
     static final String sExampleDiaryPath = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*";
     static final String sExampleDiaryName = "*** Example Diary ***";
@@ -70,7 +82,7 @@ public class Diary extends DiaryElement
     }
 
     boolean
-    isMain( Diary other ) { return other.mNativePtr == nativeGetMain(); }
+    isMain() { return mNativePtr == nativeGetMain(); }
 
     static Diary
     getMain() { return new Diary( nativeGetMain() ); }
@@ -120,19 +132,26 @@ public class Diary extends DiaryElement
     // not part of c++
     boolean
     is_virtual() {
-        return m_path.equals( sExampleDiaryPath );
+        return nativeGetUri( mNativePtr ).equals( sExampleDiaryPath );
     }
 
     Result
     init_new( Context ctx, String path ) {
-        int res = nativeInitNew(mNativePtr, path, "");
-        return Result.values()[res];
+        nativeInitNewPre(mNativePtr);
+
+        Result res = setPath( ctx, path );
+        if( res != Result.SUCCESS ) return res;
+
+        res = Result.values()[nativeInitNew(mNativePtr, path, "")];
+        if( res == Result.SUCCESS )
+            return write( ctx );
+        else
+            return res;
     }
 
     void
     clear() {
         nativeClear(mNativePtr);
-        m_path = "";
     }
 
     // DIARYELEMENT INHERITED FUNCTIONS ============================================================
@@ -534,9 +553,12 @@ public class Diary extends DiaryElement
 
     // READING =====================================================================================
     Result
-    set_path(String uristr, SetPathType type ) {
-        int result = nativeSetPath(mNativePtr, uristr, type.ordinal());
-        return Result.values()[result];
+    setPath( Context ctx, String uriStr/*, SetPathType type*/ ) {
+        String name = FileUtil.getFileName( Uri.parse(uriStr), ctx );
+        removeLockIfNecessary();
+        nativeSetUri(mNativePtr, uriStr);
+        nativeSetName(mNativePtr, name);
+        return isLocked(ctx) ? Result.FILE_LOCKED : Result.SUCCESS;
     }
 
 //    protected Result
@@ -578,37 +600,241 @@ public class Diary extends DiaryElement
     }
 
     Result
-    enable_editing() {
-        int result = nativeEnableEditing(mNativePtr);
-        return Result.values()[result];
+    enableEditing( android.content.Context ctx ) {
+//        if( nativeIsReadOnly(mNativePtr) ) {
+//            Log.e( Lifeograph.TAG, "Diary: editing cannot be enabled. Diary is read-only" );
+//            return Result.FILE_LOCKED;
+//        }
+
+        Result result = writeLock( ctx );
+
+        if( result == Result.SUCCESS ) {
+            nativeSetLoggedInEdit(mNativePtr);
+        }
+
+        return Result.SUCCESS;
     }
 
     // WRITING =====================================================================================
+    // we reimplement in Android as it is not possible to deal with content:// uris in C++
     Result
-    write() {
-        return nativeWrite(mNativePtr);
-    }
-    Result
-    write( String uri ) {
-        return nativeWriteUri(mNativePtr, uri);
+    write(android.content.Context context) {
+        Uri uri = Uri.parse( nativeGetUri( mNativePtr ) );
+        ContentResolver resolver = context.getContentResolver();
+
+        try {
+            InputStream istream = resolver.openInputStream( uri );
+            if (istream != null) {
+                // TODO: 2.1: BACKUP FOR THE LAST VERSION BEFORE UPGRADE
+//                if( m_read_version != DB_FILE_VERSION_INT ) {
+//                    DocumentFile backupOld = getNeighborFileDocument( context,
+//                                                                      uri,
+//                                                                      "." +
+//                                                                      nativeGetReadVersion()
+//                }
+
+                // BACKUP THE PREVIOUS VERSION
+                DocumentFile backupDoc = getNeighborFileDocument( context,
+                                                                  uri,
+                                                                  ".previousversion~" );
+                if (backupDoc != null) {
+                    try ( OutputStream ostream = resolver.openOutputStream( backupDoc.getUri())) {
+                        Lifeograph.copyFile(istream, ostream); // Overload copyFile for Streams
+                    }
+                }
+                else { // fallback to app's folder
+                    File backupFile = new File( context.getFilesDir(), get_name() + ".~previousversion~" );
+                    Lifeograph.copyFile( istream, backupFile );
+                }
+                istream.close();
+            }
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not save backup file: " + ex.getMessage() );
+            return Result.FILE_NOT_WRITABLE;
+        }
+
+        // WRITE THE FILE
+        Result result = writeStreamed( context, uri);
+
+        // DAILY BACKUP SAVES
+        if( result == Result.SUCCESS && Lifeograph.sSaveDailyBackups ) {
+            try {
+                InputStream istream = resolver.openInputStream( uri );
+                if(istream != null ) {
+                    String name = get_name();
+                    String baseName =
+                            name.endsWith( ".diary" ) ? name.substring( 0, name.length() - 6 ) :
+                            name;
+                    File backupFile = new File( context.getFilesDir(),
+                                                baseName + "_(" + get_id() + ")_" +
+                                                Date.format_string( Date.get_today(), "YMD", '-' ) +
+                                                ".diary" );
+                    Lifeograph.copyFile( istream, backupFile );
+                    istream.close();
+                }
+            }
+            catch( IOException ex ) {
+                Log.e( Lifeograph.TAG, "Could not save daily backup file: " + ex.getMessage() );
+            }
+        }
+
+        return result;
     }
 
     Result
-    write_lock() {
-        // TODO return nativeWriteLock(mNativePtr);
-        return Result.SUCCESS;
+    writeStreamed( android.content.Context context, Uri uri ) {
+        if( nativeWriteUri(mNativePtr, uri.toString()) == Result.SUCCESS.ordinal() )
+            try {
+                ContentResolver resolver = context.getContentResolver();
+
+                try (OutputStream ostream = resolver.openOutputStream(uri, "wt")) {
+                    if (ostream == null) return Result.FAILURE;
+
+                    // get the raw bytes (encrypted or plain) from C++
+                    byte[] data = nativeGetStrStream(mNativePtr);
+                    if (data != null) {
+                        ostream.write(data);
+                        ostream.flush();
+                        return Result.SUCCESS;
+                    }
+                }
+            }
+            catch( IOException ex ) {
+                Log.e( Lifeograph.TAG, "Failed to save diary: " + ex.getMessage() );
+            }
+        return Result.FAILURE;
     }
 
     Result
     write_txt( @NonNull String path, Filter filter ) {
-        return nativeWriteTxt(mNativePtr, path, filter.mNativePtr);
+        return Result.values()[nativeWriteTxt(mNativePtr, path, filter.mNativePtr)];
+    }
+
+    DocumentFile
+    getNeighborFileDocument(android.content.Context context, Uri uri, String suffix) {
+        try {
+            DocumentFile sourceFile = DocumentFile.fromSingleUri( context, uri);
+            DocumentFile parentDir = sourceFile.getParentFile();
+
+            if (parentDir != null && parentDir.isDirectory()) {
+                String backupName = sourceFile.getName() + suffix;
+
+                // look for existing backup or create new one
+                DocumentFile neighborDoc = parentDir.findFile(backupName);
+                if (neighborDoc == null) {
+                    neighborDoc = parentDir.createFile("application/octet-stream", backupName);
+                }
+
+                return neighborDoc;
+            }
+        }
+        catch( Exception ex ) {
+            Log.e( Lifeograph.TAG, "Error getting neighbor file: " + ex.getMessage() );
+        }
+        return null;
+    }
+
+    Result
+    writeLock(android.content.Context context) {
+        Uri uri = Uri.parse( nativeGetUri( mNativePtr ) );
+        ContentResolver resolver = context.getContentResolver();
+
+        try {
+            InputStream istream = resolver.openInputStream( uri );
+            if (istream != null) {
+                DocumentFile lockDoc = getNeighborFileDocument( context, uri, SUFFIX_LOCK );
+                if (lockDoc != null) {
+                    writeStreamed( context, lockDoc.getUri() );
+                }
+                else { // fallback to app's folder
+                    File lockFile = new File( context.getFilesDir(), get_name() + SUFFIX_LOCK );
+                    writeStreamed( context, Uri.fromFile( lockFile ) );
+                }
+                istream.close();
+            }
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not save backup file: " + ex.getMessage() );
+            return Result.FILE_NOT_WRITABLE;
+        }
+        return Result.SUCCESS;
     }
 
     boolean
-    remove_lock_if_necessary() { return nativeRemoveLockIfNecessary(mNativePtr); }
+    removeLockIfNecessary() {
+        if( !is_in_edit_mode() )
+            return false;
+
+        File fp = new File( "--" ); // TODO...
+        if( fp.exists() )
+            return fp.delete();
+        return true;
+    }
 
     void
     set_continue_from_lock() { nativeSetContinueFromLock(mNativePtr); }
+
+    boolean
+    isLocked(android.content.Context context) {
+        String uriString = nativeGetUri(mNativePtr);
+        if (uriString == null || uriString.isEmpty()) return false;
+
+        Uri uri = Uri.parse(uriString);
+
+        // 1. Check for neighboring lock file (for SAF/Content URIs)
+        try {
+            DocumentFile sourceFile = DocumentFile.fromSingleUri(context, uri);
+            DocumentFile parentDir = sourceFile != null ? sourceFile.getParentFile() : null;
+
+            if (parentDir != null && parentDir.isDirectory()) {
+                String lockName = sourceFile.getName() + SUFFIX_LOCK;
+                DocumentFile lockDoc = parentDir.findFile(lockName);
+                if (lockDoc != null && lockDoc.exists()) {
+                    return true;
+                }
+            }
+        } catch (Exception e) {
+            // Logged silently as it might fail for simple file paths
+            Log.d(Lifeograph.TAG, "Could not check neighbor lock: " + e.getMessage());
+        }
+
+        // 2. Check for fallback lock file in app's internal filesDir
+        File internalLockFile = new File(context.getFilesDir(), get_name() + SUFFIX_LOCK);
+        return internalLockFile.exists();
+    }
+
+    Result
+    writeUnsaved(android.content.Context context) {
+        Uri uri = Uri.parse( nativeGetUri( mNativePtr ) );
+        ContentResolver resolver = context.getContentResolver();
+
+        try {
+            InputStream istream = resolver.openInputStream( uri );
+            if (istream != null) {
+                DocumentFile locUnsvd = getNeighborFileDocument( context, uri, SUFFIX_UNSAVED);
+                if (locUnsvd != null) {
+                    writeStreamed( context, locUnsvd.getUri() );
+                }
+                else { // fallback to app's folder
+                    File fileUnsvd = new File( context.getFilesDir(), get_name() + SUFFIX_UNSAVED );
+                    writeStreamed( context, Uri.fromFile( fileUnsvd ) );
+                }
+                istream.close();
+            }
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not backup unsaved changes: " + ex.getMessage() );
+            return Result.FILE_NOT_WRITABLE;
+        }
+        return Result.SUCCESS;
+    }
+
+    // C++ BASED METHODS WITH A DIFFERENT USAGE ====================================================
+//    static native void
+//    set_date_format_order( String format ) { nativeSetDateFormatSeparator(format); }
+//    static native void
+//    set_date_format_separator( String format ) { nativeSetDateFormatSeparator(format); }
 
     // NATIVE METHODS ==============================================================================
     private static native boolean initCipher();
@@ -617,16 +843,17 @@ public class Diary extends DiaryElement
     static native long nativeGetMain();
 
     private native void nativeDestroy(long ptr);
+    private native void nativeInitNewPre(long ptr);
     private native int nativeInitNew(long ptr, String path, String pw);
     private native void nativeClear(long ptr);
-    private native int nativeSetPath(long ptr, String path, int type);
     private native int nativeReadHeader(long ptr, byte[] data, String uri);
     private native int nativeReadBody(long ptr);
-    private native int nativeEnableEditing(long ptr);
+    private native void nativeSetName(long ptr, String name);
     private native String nativeGetPassphrase(long ptr);
     private native boolean nativeSetPassphrase(long ptr, String pw);
     //private native int nativeGetReadVersion(long ptr);
     private native String nativeGetUri(long ptr);
+    private native void nativeSetUri(long ptr, String uri);
     private native String nativeGetUriUnsaved(long ptr);
     private native int nativeGetSize(long ptr);
     private native boolean nativeIsOld(long ptr);
@@ -634,6 +861,7 @@ public class Diary extends DiaryElement
     private native boolean nativeIsOpen(long ptr);
     private native boolean nativeIsInEditMode(long ptr);
     private native boolean nativeCanEnterEditMode(long ptr);
+    private native void nativeSetLoggedInEdit(long ptr);
     private native String nativeGetLang(long ptr);
     private native void nativeSetLang(long ptr, String lang);
 
@@ -667,12 +895,10 @@ public class Diary extends DiaryElement
     private native long[] nativeGetThemes(long mNativePtr);
 
 
-    private native Result nativeWrite(long mNativePtr);
-    private native Result nativeWriteUri(long mNativePtr, String uri);
-    private native Result nativeWriteLock(long mNativePtr);
-    private native Result nativeWriteTxt(long mNativePtr, String path, long ptr_filter);
-    private native boolean nativeRemoveLockIfNecessary(long mNativePtr);
-    private native void nativeSetContinueFromLock(long mNativePtr);
+    private native int nativeWriteUri(long mNativePtr, String uri);
+    private native byte[] nativeGetStrStream(long mNativePtr);
+    private native int nativeWriteTxt(long mNativePtr, String path, long ptr_filter);
+    private native void nativeSetContinueFromLock(long ptr);
 
     private native void nativeSetSearchStr(long mNativePtr, String str);
     private native boolean nativeIsSearchInProgress(long mNativePtr);
@@ -680,66 +906,4 @@ public class Diary extends DiaryElement
 
     // HELPER FUNCTIONS ============================================================================
 
-    // VARIABLES ===================================================================================
-    //static Diary d = null;
-
-    private String m_path = "";
-    //private String mDiaryPathBackup = "";
-    //private String mLockFilePath;
-
-    //ids (DEID)
-    //private final TreeMap< Long, DiaryElement > m_ids = new TreeMap<>();
-    //private long m_force_id          = DEID_UNSET;
-    //private long m_startup_entry_id  = HOME_CURRENT_ENTRY;
-    //private long m_last_entry_id     = DEID_UNSET;
-    //private long m_completion_tag_id = DEID_UNSET;
-
-    // CONTENT
-    //TreeMap< Long, Entry >    m_entries = new TreeMap<>( DiaryElement.compare_dates );
-//    Map< String, List< Entry > >
-//                              m_entry_names = new TreeMap<>();
-//
-//    TreeMap< String, Theme >  m_themes = new TreeMap<>();
-//    Theme                     m_theme_default = null;
-//
-//    TreeMap< String, Chapter.Category >
-//                              m_chapter_categories = new TreeMap<>( DiaryElement.compare_names );
-//    Chapter.Category          m_p2chapter_ctg_cur = null;
-//
-//    TreeMap< String, Filter > m_filters = new TreeMap<>();
-//    Filter                    m_filter_active = null;
-//
-//    TreeMap< String, ChartElem >
-//                              m_charts = new TreeMap<>();
-//    ChartElem                 m_chart_active = null;
-//
-//    TreeMap< String, TableElem >
-//                              m_tables = new TreeMap<>();
-//    TableElem                 m_table_active = null;
-//
-//    // OPTIONS
-//    protected String  m_language;
-//
-//    protected int     m_read_version;
-
-    // options & flags
-    //protected boolean m_opt_show_all_entry_locations = false;
-    //protected int     m_opt_ext_panel_cur = 1;
-    //protected boolean m_flag_read_only = false;
-    //protected boolean m_flag_ignore_locks = false;
-    //protected boolean m_flag_skip_old_check = false;
-    //protected boolean m_flag_save_enabled = true;
-
-//    public enum LoginStatus{ LOGGED_OUT, LOGGED_TIME_OUT, LOGGED_IN_RO, LOGGED_IN_EDIT }
-//    protected LoginStatus m_login_status = LoginStatus.LOGGED_OUT;
-
-    // i/o
-//    protected ContentResolver   mResolver;
-//    protected byte[]            mBytes;
-//    protected BufferedReader    mBufferedReader  = null;
-//    protected BufferedWriter    mBufferedWriter  = null;
-//    protected int               mHeaderLineCount = 0;
-
-//    protected static final int cIV_SIZE   = 16; // = 128 bits
-//    protected static final int cSALT_SIZE = 16; // = 128 bits
 }

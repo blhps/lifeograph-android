@@ -7,6 +7,19 @@ Java_net_sourceforge_lifeograph_helpers_Date_##name
 
 extern "C" {
 
+JNI_METHOD(void, nativeSetFormatOrder)(JNIEnv* env, jclass, jstring order) {
+    const char* c_order = env->GetStringUTFChars(order, nullptr);
+    HELPERS::Date::s_format_order = c_order;
+    env->ReleaseStringUTFChars(order, c_order);
+}
+
+JNI_METHOD(jchar, nativeGetFormatSeparator)(JNIEnv* env, jclass) {
+    return static_cast<jchar>(HELPERS::Date::s_format_separator);
+}
+JNI_METHOD(void, nativeSetFormatSeparator)(JNIEnv* env, jclass, jchar separator) {
+    HELPERS::Date::s_format_separator = char( separator );
+}
+
 JNI_METHOD(jboolean, nativeIsValid)(JNIEnv* env, jclass clazz, jlong d) {
     return static_cast<jboolean>(HELPERS::Date::is_valid(d));
 }
@@ -148,9 +161,11 @@ JNI_METHOD(jint, nativeGetDaysInYear)(JNIEnv* env, jclass clazz, jlong d) {
     return static_cast<jint>(HELPERS::Date::get_days_in_year(static_cast<HELPERS::DateV>(d)));
 }
 
-JNI_METHOD(jstring, nativeFormatStringCustom)(JNIEnv* env, jclass clazz, jlong d, jstring format) {
+JNI_METHOD(jstring, nativeFormatStringCustom)(JNIEnv* env, jclass clazz, jlong d, jstring format,
+ jchar separator) {
     const char* c_format = env->GetStringUTFChars(format, nullptr);
-    auto result = HELPERS::Date::format_string(static_cast<HELPERS::DateV>(d), c_format );
+    auto result = HELPERS::Date::format_string(static_cast<HELPERS::DateV>(d), c_format, char
+    (separator) );
     env->ReleaseStringUTFChars(format, c_format);
     return env->NewStringUTF(result.c_str());
 }

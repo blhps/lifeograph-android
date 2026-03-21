@@ -4,10 +4,10 @@
     <!-- NOTE: Hide buttons to simplify the UI. Users can touch outside the dialog to
          dismiss it. -->
     <!-- NOTE: ListPreference's summary should be set to its value by the activity code. -->
-    <!--PreferenceCategory
+    <PreferenceCategory
         app:title="@string/pref_DIARY_header">
 
-        <ListPreference
+        <!--ListPreference
             android:key="@string/pref_DIARY_STORAGE_key"
             android:title="@string/pref_DIARY_STORAGE_title"
             android:defaultValue="@string/pref_DIARY_STORAGE_default"
@@ -18,13 +18,13 @@
 
         <Preference
             android:key="@string/pref_DIARY_PATH_key"
-            android:title="@string/pref_DIARY_PATH_title" />
+            android:title="@string/pref_DIARY_PATH_title" /-->
         <SwitchPreferenceCompat
-            app:key="@string/pref_DIARY_PATH_ADD_INTERNAL_key"
-            app:title="@string/pref_DIARY_PATH_ADD_INTERNAL_title"
+            app:key="@string/pref_SAVE_DAILY_BACKUPS_key"
+            app:title="@string/pref_SAVE_DAILY_BACKUPS_title"
             app:defaultValue="false" />
 
-    </PreferenceCategory-->
+    </PreferenceCategory>
 
     <PreferenceCategory
         app:title="@string/pref_LOCALE_header" >

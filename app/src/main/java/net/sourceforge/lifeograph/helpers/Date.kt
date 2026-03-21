@@ -60,7 +60,8 @@ class Date(var mDate: Long = 0) {
     fun is_valid(): Boolean = nativeIsValid(mDate)
     fun is_set(): Boolean = nativeIsSet(mDate)
 
-    fun format_string(format: String): String = nativeFormatStringCustom(mDate, format)
+    fun format_string(format: String, separator: Char = nativeGetFormatSeparator()): String =
+        nativeFormatStringCustom(mDate, format, separator)
     fun format_string(): String = nativeFormatString(mDate)
 
     fun get_weekday_str(): String = nativeGetWeekDayStr(mDate)
@@ -107,8 +108,8 @@ class Date(var mDate: Long = 0) {
 
         @JvmStatic fun make(strDate: String): Long = nativeMakeStr(strDate)
         @JvmStatic fun make(y: Int, m: Int, d: Int): Long = nativeMake(y, m, d)
-        @JvmStatic fun format_string(d: Long, format: String):
-                String = nativeFormatStringCustom(d, format)
+        @JvmStatic fun format_string(d: Long, format: String, separator: Char = nativeGetFormatSeparator()):
+                String = nativeFormatStringCustom(d, format, separator)
         @JvmStatic fun format_string(d: Long): String = nativeFormatString(d)
 
         @JvmStatic fun get_day_name(no: Int): String = nativeGetDayName(no)
@@ -116,6 +117,10 @@ class Date(var mDate: Long = 0) {
         @JvmStatic fun calculate_days_between(d1: Long, d2: Long): Int = nativeCalculateDaysBetween(d1, d2)
 
         // NATIVE DECLARATIONS =====================================================================
+        @JvmStatic external fun nativeSetFormatOrder(order: String?)
+        @JvmStatic external fun nativeGetFormatSeparator(): Char
+        @JvmStatic external fun nativeSetFormatSeparator(separator: Char)
+
         @JvmStatic private external fun nativeIsValid(date: Long): Boolean
         @JvmStatic private external fun nativeIsSet(date: Long): Boolean
 
@@ -150,7 +155,8 @@ class Date(var mDate: Long = 0) {
         @JvmStatic private external fun nativeGetDaysInYear(d: Long): Int
         @JvmStatic private external fun nativeGetWeekday(d: Long): Int
         @JvmStatic private external fun nativeGetYearday(d: Long): Int
-        @JvmStatic private external fun nativeFormatStringCustom(d: Long, format: String): String
+        @JvmStatic private external fun nativeFormatStringCustom(d: Long, format: String,
+                                                                 separator: Char): String
         @JvmStatic private external fun nativeFormatString(d: Long): String
         @JvmStatic private external fun nativeGetMonthStr(d: Long): String
         @JvmStatic private external fun nativeGetWeekDayStr(d: Long): String

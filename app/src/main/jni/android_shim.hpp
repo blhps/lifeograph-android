@@ -403,19 +403,19 @@ namespace Gio {
         Glib::RefPtr<FileInfo> next_file() { return nullptr; }
     };
 
-    class FileInputStream {
-    public:
-        bool read_all(void* buffer, gsize count, gsize& bytes_read) { return false; }
-        void close() {}
-    };
-
-    class FileOutputStream {
-    public:
-        void write_all(const std::string& s, gsize& bytes_written) { bytes_written = s.size(); }
-        void write_all(const void* buffer, gsize count, gsize& bytes_written) { bytes_written = count; }
-        bool write_all(const void* buffer, gsize count, gsize& bytes_written, void* cancellable) { bytes_written = count; return true; }
-        void close() {}
-    };
+//    class FileInputStream {
+//    public:
+//        bool read_all(void* buffer, gsize count, gsize& bytes_read) { return false; }
+//        void close() {}
+//    };
+//
+//    class FileOutputStream {
+//    public:
+//        void write_all(const std::string& s, gsize& bytes_written) { bytes_written = s.size(); }
+//        void write_all(const void* buffer, gsize count, gsize& bytes_written) { bytes_written = count; }
+//        bool write_all(const void* buffer, gsize count, gsize& bytes_written, void* cancellable) { bytes_written = count; return true; }
+//        void close() {}
+//    };
 
     class File {
     public:
@@ -440,17 +440,13 @@ namespace Gio {
             return m_s.substr(pos + 1);
         }
         bool query_exists() const { return true; }
-        FileType query_file_type() const { return FileType::REGULAR; }
-        bool copy(const Glib::RefPtr<File>& destination, CopyFlags flags = CopyFlags::NONE) { return false; }
-        bool move(const Glib::RefPtr<File>& destination, CopyFlags flags = CopyFlags::NONE) { return false; }
-        bool remove() { return false; }
 
         Glib::RefPtr<FileInfo> query_info(const std::string& attributes = "", FileQueryInfoFlags flags = FileQueryInfoFlags::NONE) { return std::make_shared<FileInfo>(); }
         Glib::RefPtr<FileEnumerator> enumerate_children() { return std::make_shared<FileEnumerator>(); }
 
-        Glib::RefPtr<FileInputStream> read() { return std::make_shared<FileInputStream>(); }
-        Glib::RefPtr<FileOutputStream> create_file() { return std::make_shared<FileOutputStream>(); }
-        Glib::RefPtr<FileOutputStream> replace() { return std::make_shared<FileOutputStream>(); }
+//        Glib::RefPtr<FileInputStream> read() { return std::make_shared<FileInputStream>(); }
+//        Glib::RefPtr<FileOutputStream> create_file() { return std::make_shared<FileOutputStream>(); }
+//        Glib::RefPtr<FileOutputStream> replace() { return std::make_shared<FileOutputStream>(); }
 
         Glib::RefPtr<File> get_parent() const {
             size_t pos = m_s.find_last_of('/');

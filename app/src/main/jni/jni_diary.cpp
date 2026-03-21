@@ -28,6 +28,9 @@ JNI_METHOD(jlong, Diary_nativeGetMain)(JNIEnv* env, jclass) {
 }
 
 
+JNI_METHOD(void, Diary_nativeInitNewPre)(JNIEnv* env, jobject, jlong ptr) {
+    reinterpret_cast<LoG::Diary*>(ptr)->init_new_pre();
+}
 JNI_METHOD(jint, Diary_nativeInitNew)(JNIEnv* env, jobject obj, jlong ptr, jstring path, jstring pw) {
     auto diary = reinterpret_cast<LoG::Diary*>(ptr);
     const char* c_path = env->GetStringUTFChars(path, nullptr);
@@ -60,14 +63,6 @@ JNI_METHOD(void, Diary_nativeClear)(JNIEnv* env, jobject obj, jlong ptr) {
     reinterpret_cast<LoG::Diary*>(ptr)->clear();
 }
 
-JNI_METHOD(jint, Diary_nativeSetPath)(JNIEnv* env, jobject obj, jlong ptr, jstring path, jint type) {
-    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
-    const char* c_path = env->GetStringUTFChars(path, nullptr);
-    LoG::Result res = diary->set_path(c_path, static_cast<LoG::Diary::SetPathType>(type));
-    env->ReleaseStringUTFChars(path, c_path);
-    return static_cast<jint>(res);
-}
-
 JNI_METHOD(jint, Diary_nativeReadHeader)(JNIEnv* env, jobject obj, jlong ptr, jbyteArray data,
         jstring uri) {
     jbyte* bufferPtr = env->GetByteArrayElements(data, nullptr);
@@ -87,6 +82,12 @@ JNI_METHOD(jint, Diary_nativeReadBody)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->read_body());
 }
 
+JNI_METHOD(void, Diary_nativeSetName)(JNIEnv* env, jobject obj, jlong ptr, jstring name) {
+    const char* c_name = env->GetStringUTFChars(name, nullptr);
+    reinterpret_cast<LoG::Diary*>(ptr)->set_name(c_name);
+    env->ReleaseStringUTFChars(name, c_name);
+}
+
 JNI_METHOD(jstring, Diary_nativeGetPassphrase)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::Diary*>(ptr)->get_passphrase().c_str());
 }
@@ -104,6 +105,12 @@ JNI_METHOD(jint, Diary_nativeGetReadVersion)(JNIEnv* env, jobject obj, jlong ptr
 
 JNI_METHOD(jstring, Diary_nativeGetUri)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::Diary*>(ptr)->get_uri().c_str());
+}
+
+JNI_METHOD(void, Diary_nativeSetUri)(JNIEnv* env, jobject obj, jlong ptr, jstring uri) {
+    const char* c_uri = env->GetStringUTFChars(uri, nullptr);
+    reinterpret_cast<LoG::Diary*>(ptr)->set_uri(c_uri);
+    env->ReleaseStringUTFChars(uri, c_uri);
 }
 
 JNI_METHOD(jstring, Diary_nativeGetUriUnsaved)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -134,6 +141,10 @@ JNI_METHOD(jboolean, Diary_nativeCanEnterEditMode)(JNIEnv* env, jobject obj, jlo
     return static_cast<jboolean>(reinterpret_cast<LoG::Diary*>(ptr)->can_enter_edit_mode());
 }
 
+JNI_METHOD(void, Diary_nativeSetLoggedInEdit)(JNIEnv* env, jobject obj, jlong ptr) {
+    reinterpret_cast<LoG::Diary*>(ptr)->set_loggedin_edit();
+}
+
 JNI_METHOD(jstring, Diary_nativeGetLang)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::Diary*>(ptr)->get_lang().c_str());
 }
@@ -144,10 +155,6 @@ JNI_METHOD(void, Diary_nativeSetLang)(JNIEnv* env, jobject obj, jlong ptr, jstri
     env->ReleaseStringUTFChars(lang, c_lang);
 }
 
-JNI_METHOD(jint, Diary_nativeWrite)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->write());
-}
-
 JNI_METHOD(jint, Diary_nativeWriteUri)(JNIEnv* env, jobject, jlong ptr, jstring uri) {
     const char* c_uri = env->GetStringUTFChars(uri, nullptr);
     auto result = reinterpret_cast<LoG::Diary*>(ptr)->write(c_uri);
@@ -155,8 +162,22 @@ JNI_METHOD(jint, Diary_nativeWriteUri)(JNIEnv* env, jobject, jlong ptr, jstring 
     return static_cast<jint>(result);
 }
 
-JNI_METHOD(jint, Diary_nativeWriteLock)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->write_lock());
+JNI_METHOD(jbyteArray, Diary_nativeGetStrStream)(JNIEnv *env, jobject thiz, jlong ptr) {
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    const std::stringstream* ss = diary->get_str_stream();
+    std::string s = ss->str();
+    const char* data = s.data(); // .data() is preferred for binary; .c_str() also works
+    size_t data_size = s.size();
+
+    if (data_size == 0) return nullptr;
+
+    jbyteArray result = env->NewByteArray(static_cast<jsize>(data_size));
+    if (result == nullptr) return nullptr;
+
+    env->SetByteArrayRegion(result, 0, static_cast<jsize>(data_size),
+                            reinterpret_cast<const jbyte*>(data));
+
+    return result;
 }
 
 JNI_METHOD(jint, Diary_nativeWriteTxt)(JNIEnv* env, jobject obj, jlong ptr, jstring uri, jlong
@@ -175,16 +196,8 @@ JNI_METHOD(jint, Diary_nativeWriteTo)(JNIEnv* env, jobject obj, jlong ptr, jstri
     return static_cast<jint>(res);
 }
 
-JNI_METHOD(jboolean, Diary_nativeRemoveLockIfNecessary)(JNIEnv* env, jobject obj, jlong ptr) {
-    return reinterpret_cast<LoG::Diary*>(ptr)->remove_lock_if_necessary();
-}
-
 JNI_METHOD(void, Diary_nativeSetContinueFromLock)(JNIEnv* env, jobject obj, jlong ptr) {
     reinterpret_cast<LoG::Diary*>(ptr)->set_continue_from_lock();
-}
-
-JNI_METHOD(jint, Diary_nativeEnableEditing)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->enable_editing());
 }
 
 JNI_METHOD(jlong, Diary_nativeGetEntry1st)(JNIEnv* env, jobject obj, jlong ptr) {

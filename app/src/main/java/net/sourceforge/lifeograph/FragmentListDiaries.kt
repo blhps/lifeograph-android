@@ -142,12 +142,15 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     override fun onResume() {
         Log.d(Lifeograph.TAG, "FragmentDiaryList.onResume()")
         super.onResume()
+
         val dm = Diary.getMain()
-        if(dm.is_open) {
-            // TODO: dm.write()
+        if(dm.is_in_edit_mode) {
+            dm.write(context)
             // TODO: dm.remove_lock_if_necessary()
-            dm.clear()
         }
+        if(dm.is_open())
+            dm.clear()
+
         val actionbar = (requireActivity() as AppCompatActivity).supportActionBar
         if(actionbar != null) {
             actionbar.subtitle = ""
@@ -181,14 +184,14 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     // DIARY OPERATIONS ============================================================================
-    private fun addInternalDiariesDir() {
+    private fun addInternalDiariesDir() { // legacy
         val rootDir = context?.filesDir
         val dir = File(rootDir, sDiaryPath)
         val files: Array<out File>? = dir.listFiles()
         if(files != null) {
             for(f in files) {
                 if(!f.isDirectory
-                    && !f.path.endsWith(Diary.LOCK_SUFFIX )
+                    && !f.path.endsWith(Diary.SUFFIX_LOCK)
                     && !f.path.endsWith("backup0")
                     && !f.path.endsWith( "backup1")) {
                     mDiaryItems.add(RViewAdapterBasic.Item(f.name,
@@ -272,7 +275,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun openDiary1(path: String) {
-        when(Diary.getMain().set_path(path, Diary.SetPathType.NORMAL)) {
+        when(Diary.getMain().setPath(context,path)) {
             Result.SUCCESS -> openDiary3()
             Result.FILE_NOT_FOUND -> Lifeograph.showToast("File is not found")
             Result.FILE_NOT_READABLE -> Lifeograph.showToast("File is not readable")

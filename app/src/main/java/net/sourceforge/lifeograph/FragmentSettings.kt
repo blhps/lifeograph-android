@@ -30,6 +30,7 @@ import androidx.preference.ListPreference
 import androidx.preference.Preference
 import androidx.preference.PreferenceFragmentCompat
 import androidx.preference.PreferenceManager
+import androidx.preference.SwitchPreferenceCompat
 import net.sourceforge.lifeograph.helpers.Date
 
 class FragmentSettings : PreferenceFragmentCompat() {
@@ -47,11 +48,11 @@ class FragmentSettings : PreferenceFragmentCompat() {
 //        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DIARY_STORAGE_key))!!)
 //        bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DIARY_PATH_key))!!)
         // only get the value not the summary:
-//        findPreference<SwitchPreferenceCompat>(getString(R.string.pref_DIARY_PATH_ADD_INTERNAL_key))
-//            ?.setOnPreferenceChangeListener { _, newValue ->
-//                FragmentListDiaries.sAddInternalDiaries = newValue.toString().toBoolean()
-//                true // Return true if the event is handled.
-//            }
+        findPreference<SwitchPreferenceCompat>(getString(R.string.pref_SAVE_DAILY_BACKUPS_key))
+            ?.setOnPreferenceChangeListener { _, newValue ->
+                Lifeograph.sSaveDailyBackups = newValue.toString().toBoolean()
+                true // Return true if the event is handled.
+            }
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DATE_FORMAT_ORDER_key))!!)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_DATE_FORMAT_SEPARATOR_key))!!)
         bindPreferenceSummaryToValue(findPreference(getString(R.string.pref_UNIT_TYPE_key))!!)

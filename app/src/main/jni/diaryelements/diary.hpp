@@ -93,6 +93,12 @@ class Diary : public DiaryElement, public PropertyContainer
         void                    set_timed_out()
         { m_login_status = LOGGED_TIME_OUT; }
 
+#ifdef __ANDROID__
+        void                    set_loggedin_edit()
+        { m_login_status = LOGGED_IN_EDIT; }
+
+        void                    init_new_pre();
+#endif
         Result                  init_new( const std::string&, const std::string& = "" );
         virtual void            clear();
 
@@ -557,9 +563,13 @@ class Diary : public DiaryElement, public PropertyContainer
         int                     calculate_work_days_between( const DateV, const DateV );
 
         // DISK I/O
+#ifndef __ANDROID__
         LoG::Result             set_path( const std::string&, SetPathType );
+#endif
         const String&           get_uri() const
         { return m_uri; }
+        void                    set_uri( const String& uri )
+        { m_uri = uri; }
         String                  get_uri_unsaved() const
         { return m_uri + ".~unsaved~"; }
         String                  convert_rel_uri( String ) const;
@@ -569,7 +579,9 @@ class Diary : public DiaryElement, public PropertyContainer
         String                  get_rel_folder_path() const
         { return Glib::filename_from_uri( convert_rel_uri( "rel://" + get_rel_folder_name() ) ); }
 
+#ifndef __ANDROID__
         LoG::Result             enable_editing();
+#endif
 
         LoG::Result             read_body();
 #ifdef __ANDROID__
@@ -577,15 +589,22 @@ class Diary : public DiaryElement, public PropertyContainer
 #endif
         LoG::Result             read_header();
 
+        LoG::Result             write( const String& );
+#ifndef __ANDROID__
         LoG::Result             write();
         LoG::Result             write_lock() // added as a conveninence especially on Android
         { return write( m_uri + LoG::LOCK_SUFFIX ); }
-        LoG::Result             write( const String& );
         LoG::Result             write_copy( const String&, const String&, const Filter* );
+#else
+        const StrStream*        get_str_stream() const
+        { return m_sstream; }
+#endif
         LoG::Result             write_txt( const String&, const Filter* );
 
+#ifndef __ANDROID__
         bool                    remove_lock_if_necessary();
         bool                    is_locked() const;
+#endif
         void                    set_continue_from_lock();
 
         // IMPORTING
@@ -726,9 +745,10 @@ class Diary : public DiaryElement, public PropertyContainer
         mutable std::mutex      m_mutex_postread_operations;
         std::thread*            m_thread_postread_operations{ nullptr };
 
-        void                    create_db_entry_text( const Entry*, FiltererContainer* ); // helper
+        void                    create_db_entry_text( const Entry*, FiltererContainer*,
+                                                      StrStream& ); // helper
         void                    create_db_header_text( bool );
-        bool                    create_db_body_text();
+        bool                    create_db_body_text( StrStream& );
 
         // RUN_TIME POOL OF IMAGES FOR EMBEDS INTO ENTRIES
         MapPathPixbufs          m_map_images_f;

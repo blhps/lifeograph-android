@@ -35,6 +35,7 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationView
+import net.sourceforge.lifeograph.helpers.Date
 
 class ActivityMain : AppCompatActivity(), FragmentHost {
     // VARIABLES ===================================================================================
@@ -64,10 +65,12 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
                 Lifeograph.getStr(R.string.pref_DIARY_STORAGE_key), "N/A")!!
         FragmentListDiaries.sDiaryPath = prefs.getString(
                 Lifeograph.getStr(R.string.pref_DIARY_PATH_key), "N/A")!!
-//        Date.s_format_order = prefs.getString(
-//                Lifeograph.getStr(R.string.pref_DATE_FORMAT_ORDER_key), "N/A")!!
-//        Date.s_format_separator = prefs.getString(
-//                Lifeograph.getStr(R.string.pref_DATE_FORMAT_SEPARATOR_key), ".")!![0]
+        Lifeograph.sSaveDailyBackups = prefs.getBoolean(
+            Lifeograph.getStr(R.string.pref_SAVE_DAILY_BACKUPS_key), false)
+        Date.nativeSetFormatOrder(prefs.getString(
+                Lifeograph.getStr(R.string.pref_DATE_FORMAT_ORDER_key), "N/A")!!)
+        Date.nativeSetFormatSeparator( prefs.getString(
+                Lifeograph.getStr(R.string.pref_DATE_FORMAT_SEPARATOR_key), ".")!![0] )
         Lifeograph.sOptImperialUnits = prefs.getString(
                 Lifeograph.getStr(R.string.pref_UNIT_TYPE_key), "M") == "I"
 

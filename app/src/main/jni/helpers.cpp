@@ -635,6 +635,7 @@ get_exec_path()
 }
 #endif
 
+#ifndef __ANDROID__
 std::ios::pos_type
 get_file_size( std::ifstream& file )
 {
@@ -806,6 +807,7 @@ read_text_file( const String& path )
     return String( ( std::istreambuf_iterator< char >( file ) ),
                      std::istreambuf_iterator< char >() );
 }
+#endif // __ANDROID__
 
 #ifdef _WIN32
 String

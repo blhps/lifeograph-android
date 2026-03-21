@@ -99,6 +99,8 @@ class Lifeograph : Application() {
         // VARIABLES ===============================================================================
         @JvmField
         var sOptImperialUnits = false
+        @JvmField
+        var sSaveDailyBackups : Boolean = false
 
         // LIFEOGRAPH APPLICATION-WIDE FUNCTIONALITY ===============================================
         @JvmStatic
@@ -164,7 +166,7 @@ class Lifeograph : Application() {
         private fun enableEditing2(editor: FragmentDiaryEditor) {
             val dm = Diary.getMain()
             if(!dm.can_enter_edit_mode()) return
-            if(dm.enable_editing() != Result.SUCCESS) return
+            if(dm.enableEditing(context) != Result.SUCCESS) return
             editor.enableEditing()
         }
 
@@ -177,7 +179,7 @@ class Lifeograph : Application() {
                                       ) { _: DialogInterface?, _: Int ->
                     // unlike desktop version Android version
                     // does not back up changes
-                    dm.write(dm._uri_unsaved)
+                    dm.writeUnsaved(context)
                     view.findNavController().navigate(R.id.nav_diaries)
                 }
             }
@@ -250,20 +252,20 @@ class Lifeograph : Application() {
             return File(file1, p2).path
         }
 
-        @JvmStatic
-        @Throws(IOException::class)
-        fun copyFile(src: File?, dst: File?) {
-            FileInputStream(src).use { `in` ->
-                FileOutputStream(dst).use { out ->
-                    // Transfer bytes from in to out
-                    val buf = ByteArray(1024)
-                    var len: Int
-                    while(`in`.read(buf).also { len = it } > 0) {
-                        out.write(buf, 0, len)
-                    }
-                }
-            }
-        }
+//        @JvmStatic
+//        @Throws(IOException::class)
+//        fun copyFile(src: File?, dst: File?) {
+//            FileInputStream(src).use { `in` ->
+//                FileOutputStream(dst).use { out ->
+//                    // Transfer bytes from in to out
+//                    val buf = ByteArray(1024)
+//                    var len: Int
+//                    while(`in`.read(buf).also { len = it } > 0) {
+//                        out.write(buf, 0, len)
+//                    }
+//                }
+//            }
+//        }
 
         @JvmStatic
         @Throws(IOException::class)
@@ -276,6 +278,18 @@ class Lifeograph : Application() {
                     out.write(buf, 0, len)
                 }
             }
+        }
+
+        @JvmStatic
+        @Throws(IOException::class)
+        fun copyFile(src: InputStream?, dst: OutputStream?) {
+            if (src == null || dst == null) return
+            val buf = ByteArray(8192)
+            var len: Int
+            while (src.read(buf).also { len = it } > 0) {
+                dst.write(buf, 0, len)
+            }
+            dst.flush()
         }
 
         //    public static String getEnvLang() {

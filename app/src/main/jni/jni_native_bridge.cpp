@@ -1,10 +1,12 @@
 #include "android_shim.hpp"
 #include <jni.h>
 #include <string>
+//#include "diary.hpp"
 
 // Global reference to the Java VM to attach threads if necessary
 JavaVM* g_vm = nullptr;
 jclass g_bridgeClass = nullptr;
+//jclass g_diaryClass = nullptr;
 jmethodID g_dispatchMethod = nullptr;
 jmethodID g_getFileNameMethod = nullptr;
 
@@ -20,6 +22,12 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
         return JNI_ERR;
     }
     g_bridgeClass = (jclass)env->NewGlobalRef(clazz);
+
+//    clazz = env->FindClass("net/sourceforge/lifeograph/Diary");
+//    if (clazz == nullptr) {
+//        return JNI_ERR;
+//    }
+//    g_diaryClass = (jclass)env->NewGlobalRef(clazz);
 
     g_dispatchMethod = env->GetStaticMethodID(g_bridgeClass, "dispatchToMain", "(J)V");
     if (g_dispatchMethod == nullptr) {
@@ -70,7 +78,8 @@ std::string get_filename_from_android(const std::string& uri) {
     std::string result;
     if (env && g_bridgeClass && g_getFileNameMethod) {
         jstring juri = env->NewStringUTF(uri.c_str());
-        jstring jfilename = (jstring)env->CallStaticObjectMethod(g_bridgeClass, g_getFileNameMethod, juri);
+        auto jfilename = (jstring)env->CallStaticObjectMethod(g_bridgeClass, g_getFileNameMethod,
+                                                           juri);
         if (jfilename) {
             const char* cfilename = env->GetStringUTFChars(jfilename, nullptr);
             if (cfilename) {

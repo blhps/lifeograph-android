@@ -129,7 +129,7 @@ Diary::Diary()
 
 Diary::~Diary()
 {
-    remove_lock_if_necessary();
+    //remove_lock_if_necessary();
 }
 
 SKVVec
@@ -150,9 +150,18 @@ Diary::get_as_skvvec() const
     return sv;
 }
 
+#ifdef __ANDROID__
+void
+Diary::init_new_pre() {
+    clear();
+    set_id(create_new_id(this)); // adds itself to the ID pool with a unique ID
+    m_read_version = DB_FILE_VERSION_INT;
+}
+#endif
 Result
 Diary::init_new( const std::string& path, const std::string& pw )
 {
+#ifndef __ANDROID__
     clear();
 
     set_id( create_new_id( this ) ); // adds itself to the ID pool with a unique ID
@@ -165,6 +174,7 @@ Diary::init_new( const std::string& path, const std::string& pw )
         clear();
         return result;
     }
+#endif
 
     m_p2chart_active = create_chart( _( STRING::DEFAULT ), ChartElem::DEFINITION_DEFAULT );
     m_p2table_active = m_tables_stock.begin()->second;
@@ -224,7 +234,11 @@ Tg#F6F6F5F5F4F4
 
     m_login_status = LOGGED_IN_RO;
 
+#ifndef __ANDROID__
     return write();
+#else
+    return LoG::SUCCESS;
+#endif
 }
 
 void
@@ -430,6 +444,7 @@ Diary::clear_table_images( const String& uri )
     }
 }
 
+#ifndef __ANDROID__
 LoG::Result
 Diary::set_path( const String& path0, SetPathType type )
 {
@@ -481,6 +496,7 @@ Diary::set_path( const String& path0, SetPathType type )
     else
         return LoG::SUCCESS;
 }
+#endif // __ANDROID__
 
 void
 Diary::set_continue_from_lock()
@@ -512,6 +528,7 @@ Diary::relativize_uri( const String& full_uri ) const
         return full_uri;
 }
 
+#ifndef __ANDROID__
 LoG::Result
 Diary::enable_editing()
 {
@@ -555,6 +572,7 @@ Diary::enable_editing()
 
     return LoG::SUCCESS;
 }
+#endif // __ANDROID__
 
 bool
 Diary::set_passphrase( const std::string& passphrase )
@@ -2357,80 +2375,80 @@ get_para_image_chars( const Paragraph* para )
 }
 
 inline void
-Diary::create_db_entry_text( const Entry* entry, FiltererContainer* fc_save )
+Diary::create_db_entry_text( const Entry* entry, FiltererContainer* fc_save, StrStream& sstream )
 {
     // ENTRY DATE
-    *m_sstream << "\n\nID" << entry->get_id().get_raw()
-           << "\nE " << ( entry->is_favorite() ? 'F' : '_' )
-                     << ( entry->is_trashed() ? 'T' : '_' )
-                     << get_entry_todo_status_char( entry )
-                     << ( entry->is_expanded() ? 'E' : '_' )
-                     << VT::get_v< VT::ETS, char, int >( entry->get_title_style() )
-                     << VT::get_v< VT::CS, char, int >( entry->get_comment_style() )
-                     << entry->is_filtered_out_completely()  // cached value
-                     << ( entry->registers_scripts_raw() ? 'S' : '_' )
-                     << ( entry->is_locked_raw() ? 'L' : '_' )
-                     << "~~~~~~"    // reserved (6)
-                     << entry->m_date;
+    sstream << "\n\nID" << entry->get_id().get_raw()
+            << "\nE " << ( entry->is_favorite() ? 'F' : '_' )
+                      << ( entry->is_trashed() ? 'T' : '_' )
+                      << get_entry_todo_status_char( entry )
+                      << ( entry->is_expanded() ? 'E' : '_' )
+                      << VT::get_v< VT::ETS, char, int >( entry->get_title_style() )
+                      << VT::get_v< VT::CS, char, int >( entry->get_comment_style() )
+                      << entry->is_filtered_out_completely()  // cached value
+                      << ( entry->registers_scripts_raw() ? 'S' : '_' )
+                      << ( entry->is_locked_raw() ? 'L' : '_' )
+                      << "~~~~~~"    // reserved (6)
+                      << entry->m_date;
 
-    *m_sstream << "\nEc" << entry->get_date_created();
-    *m_sstream << "\nEe" << entry->m_date_edited;
+    sstream << "\nEc" << entry->get_date_created();
+    sstream << "\nEe" << entry->m_date_edited;
     if( entry->m_date_finish != entry->m_date )
-        *m_sstream << "\nEt" << entry->m_date_finish;
+        sstream << "\nEt" << entry->m_date_finish;
 
     // HIERARCHY
     if( fc_save )
     {
         if( entry->get_prev_unfiltered( fc_save ) )
-            *m_sstream << "\nEha" << entry->m_p2prev->get_id().get_raw();
+            sstream << "\nEha" << entry->m_p2prev->get_id().get_raw();
         else if( entry->get_parent_unfiltered( fc_save ) )
-            *m_sstream << "\nEhu" << entry->m_p2parent->get_id().get_raw();
+            sstream << "\nEhu" << entry->m_p2parent->get_id().get_raw();
         else
         {
             if( m_p2top_entry_last )
-                *m_sstream << "\nEha" << m_p2top_entry_last->get_id().get_raw();
+                sstream << "\nEha" << m_p2top_entry_last->get_id().get_raw();
             else
-                *m_sstream << "\nEhr";
+                sstream << "\nEhr";
             m_p2top_entry_last = entry;
         }
     }
     else
     {
         if( entry->m_p2prev )
-        *m_sstream << "\nEha" << entry->m_p2prev->get_id().get_raw();
+        sstream << "\nEha" << entry->m_p2prev->get_id().get_raw();
         else
         if( entry->m_p2parent )
-            *m_sstream << "\nEhu" << entry->m_p2parent->get_id().get_raw();
+            sstream << "\nEhu" << entry->m_p2parent->get_id().get_raw();
         else
-            *m_sstream << "\nEhr";
+            sstream << "\nEhr";
     }
 
     // THEME
     if( entry->is_theme_set() )
-        *m_sstream << "\nEm" << entry->get_theme()->get_name_std();
+        sstream << "\nEm" << entry->get_theme()->get_name_std();
 
     // SPELLCHECKING LANGUAGE
     if( entry->has_property( PROP::LANGUAGE ) )
-        *m_sstream << "\nEs" << entry->get_lang();
+        sstream << "\nEs" << entry->get_lang();
 
     // UNIT
     if( entry->has_property( PROP::UNIT ) )
-        *m_sstream << "\nEu" << entry->get_unit();
+        sstream << "\nEu" << entry->get_unit();
 
     if( entry->has_property( PROP::COLOR ) )
-        *m_sstream << "\nEb" << entry->get_color();
+        sstream << "\nEb" << entry->get_color();
 
     // PARAGRAPHS
     for( Paragraph* para = entry->m_p2para_1st; para; para = para->m_p2next )
     {
-        *m_sstream << "\nN " << para->m_date_created << '|' << para->m_date_edited
-                                                     << '|' << para->get_id().get_raw();
+        sstream << "\nN " << para->m_date_created << '|' << para->m_date_edited
+                                                  << '|' << para->get_id().get_raw();
 
         if( para->m_style == VT::PS_DEFAULT && para->get_quot_type() == VT::QT::OFF::C &&
             para->is_expanded() )
-            *m_sstream << "\nEpD";
+            sstream << "\nEpD";
         else
-            *m_sstream << "\nEp" << get_para_alignment_char( para->m_style )
+            sstream << "\nEp" << get_para_alignment_char( para->m_style )
                                  << VT::get_v< VT::PHS, char, int >( para->get_heading_level() )
                                  << get_para_list_type_char( para->m_style )
                                  << ( para->is_expanded() ? 'E' : 'C' )
@@ -2441,32 +2459,32 @@ Diary::create_db_entry_text( const Entry* entry, FiltererContainer* fc_save )
                                  << ( para->get_quot_type() )
                                  << ( ( para->has_hrule() ) ? 'R' : '_' )
                                  << "~~~~~"; // reserved (5)
-        *m_sstream << para->get_text_std();
+        sstream << para->get_text_std();
 
         if( para->has_property( PROP::LOCATION ) )
         {
             const auto loc { para->get_location() };
-            *m_sstream << "\nEpla" << loc->latitude << "\nEplo" << loc->longitude;
+            sstream << "\nEpla" << loc->latitude << "\nEplo" << loc->longitude;
         }
         if( para->has_property( PROP::COLOR ) )
-            *m_sstream << "\nEpc" << para->get_color();
+            sstream << "\nEpc" << para->get_color();
         if( para->has_property( PROP::LANGUAGE ) )
-            *m_sstream << "\nEpg" << para->get_lang();
+            sstream << "\nEpg" << para->get_lang();
         if( para->defines_tag() )
-            *m_sstream << "\nEpt " << para->get_tag_bound();
+            sstream << "\nEpt " << para->get_tag_bound();
         if( para->has_property( PROP::UNIT ) )
-            *m_sstream << "\nEpu" << para->get_unit();
+            sstream << "\nEpu" << para->get_unit();
         if( para->has_property( PROP::URI ) ) // TODO: 3.2: check saving uri for non-image paras
-            *m_sstream << "\nEpr" << para->get_uri();
+            sstream << "\nEpr" << para->get_uri();
 
         for( auto format : para->m_formats )
             if( !format->is_on_the_fly() )
-                *m_sstream << "\nEf" << VT::get_v< VT::FMT, char, int >( format->type )
-                                     << format->pos_bgn << "|"
-                                     << format->pos_end << "|"
-                                     << ( ( format->type == VT::HFT_LINK_ID ||
-                                            format->type == VT::HFT_TAG ) ?
-                                          std::to_string( format->ref_id ) : format->uri );
+                sstream << "\nEf" << VT::get_v< VT::FMT, char, int >( format->type )
+                                  << format->pos_bgn << "|"
+                                  << format->pos_end << "|"
+                                  << ( ( format->type == VT::HFT_LINK_ID ||
+                                         format->type == VT::HFT_TAG ) ?
+                                       std::to_string( format->ref_id ) : format->uri );
     }
 }
 
@@ -2481,81 +2499,81 @@ Diary::create_db_header_text( bool encrypted )
 }
 
 bool
-Diary::create_db_body_text()
+Diary::create_db_body_text( StrStream& sstream )
 {
     // DIARY OPTIONS
-    *m_sstream << "Do" << VT::stringize_bitmap< VT::DO >( m_options );
+    sstream << "Do" << VT::stringize_bitmap< VT::DO >( m_options );
 
-    *m_sstream << "\nDp" << m_opt_ext_panel_cur;
+    sstream << "\nDp" << m_opt_ext_panel_cur;
 
     // DEFAULT SPELLCHECKING LANGUAGE
     if( !m_language.empty() )
-        *m_sstream << "\nDs" << m_language;
+        sstream << "\nDs" << m_language;
 
     // FIRST ENTRY TO SHOW AT STARTUP (HOME ITEM) & LAST ENTRY SHOWN IN PREVIOUS SESSION
-    *m_sstream << "\nDf" << m_startup_entry_id.get_raw();
-    *m_sstream << "\nDl" << m_current_entry_id.get_raw();
+    sstream << "\nDf" << m_startup_entry_id.get_raw();
+    sstream << "\nDl" << m_current_entry_id.get_raw();
 
     // COMPLETION TAG
     if( m_completion_tag_id != DEID::UNSET )
-        *m_sstream << "\nDc" << m_completion_tag_id.get_raw();
+        sstream << "\nDc" << m_completion_tag_id.get_raw();
 
     // THEMES
     for( auto& kv_theme : m_themes )
     {
         Theme* theme{ kv_theme.second };
-        *m_sstream << "\n\nID" << theme->get_id().get_raw();
-        *m_sstream << "\nT ~" << theme->get_name_std(); // 1 reserved, remnant from default theme
-        *m_sstream << "\nTf" << theme->font.to_string().c_str();
+        sstream << "\n\nID" << theme->get_id().get_raw();
+        sstream << "\nT ~" << theme->get_name_std(); // 1 reserved, remnant from default theme
+        sstream << "\nTf" << theme->font.to_string().c_str();
         if( theme->has_font_literary() )
-            *m_sstream << "\nTq" << theme->font_literary.to_string().c_str();
+            sstream << "\nTq" << theme->font_literary.to_string().c_str();
         if( theme->has_font_monospace() )
-            *m_sstream << "\nTm" << theme->font_monospace.to_string().c_str();
-        *m_sstream << "\nTb" << convert_gdkrgba_to_html( theme->color_base );
-        *m_sstream << "\nTt" << convert_gdkrgba_to_html( theme->color_text );
-        *m_sstream << "\nTh" << convert_gdkrgba_to_html( theme->color_title );
-        *m_sstream << "\nTs" << convert_gdkrgba_to_html( theme->color_heading_L );
-        *m_sstream << "\nTl" << convert_gdkrgba_to_html( theme->color_highlight );
+            sstream << "\nTm" << theme->font_monospace.to_string().c_str();
+        sstream << "\nTb" << convert_gdkrgba_to_html( theme->color_base );
+        sstream << "\nTt" << convert_gdkrgba_to_html( theme->color_text );
+        sstream << "\nTh" << convert_gdkrgba_to_html( theme->color_title );
+        sstream << "\nTs" << convert_gdkrgba_to_html( theme->color_heading_L );
+        sstream << "\nTl" << convert_gdkrgba_to_html( theme->color_highlight );
         if( theme->image_bg == "#" ) // gradient
-            *m_sstream << "\nTg" << convert_gdkrgba_to_html( theme->color_base2 );
+            sstream << "\nTg" << convert_gdkrgba_to_html( theme->color_base2 );
         else if( !theme->image_bg.empty() )
-            *m_sstream << "\nTi" << relativize_uri( theme->image_bg );
+            sstream << "\nTi" << relativize_uri( theme->image_bg );
     }
 
     // FILTERS
     for( auto& kv_filter : m_filters )
     {
-        *m_sstream << "\n\nID" << kv_filter.second->get_id().get_raw();
-        *m_sstream << "\nF " << ( kv_filter.second == m_p2filter_list ? 'A' : '_' )
-                             << ( kv_filter.second == m_p2filter_search ? 'S' : '_' )
-                             << kv_filter.first.c_str();
-        *m_sstream << '\n' << kv_filter.second->get_definition().c_str();
+        sstream << "\n\nID" << kv_filter.second->get_id().get_raw();
+        sstream << "\nF " << ( kv_filter.second == m_p2filter_list ? 'A' : '_' )
+                          << ( kv_filter.second == m_p2filter_search ? 'S' : '_' )
+                          << kv_filter.first.c_str();
+        sstream << '\n' << kv_filter.second->get_definition().c_str();
     }
 
     // CHARTS
     for( auto& kv_chart : m_charts )
     {
-        *m_sstream << "\n\nID" << kv_chart.second->get_id().get_raw();
-        *m_sstream << "\nG " << ( kv_chart.second == m_p2chart_active ? 'A' : '_' )
-                             << kv_chart.first.c_str();
-        *m_sstream << '\n' << kv_chart.second->get_definition().c_str();
+        sstream << "\n\nID" << kv_chart.second->get_id().get_raw();
+        sstream << "\nG " << ( kv_chart.second == m_p2chart_active ? 'A' : '_' )
+                          << kv_chart.first.c_str();
+        sstream << '\n' << kv_chart.second->get_definition().c_str();
     }
 
     // TABLES
     for( auto& kv_table : m_tables )
     {
-        *m_sstream << "\n\nID" << kv_table.second->get_id().get_raw();
-        *m_sstream << "\nM " << ( kv_table.second == m_p2table_active ? 'A' : '_' )
-                             << kv_table.first.c_str();
-        *m_sstream << '\n' << kv_table.second->get_definition().c_str();
+        sstream << "\n\nID" << kv_table.second->get_id().get_raw();
+        sstream << "\nM " << ( kv_table.second == m_p2table_active ? 'A' : '_' )
+                          << kv_table.first.c_str();
+        sstream << '\n' << kv_table.second->get_definition().c_str();
     }
 
     // HOLIDAYS
-    *m_sstream << "\n\nWe" << m_weekends[ 0 ] << m_weekends[ 1 ] << m_weekends[ 2 ]
-                           << m_weekends[ 3 ] << m_weekends[ 4 ] << m_weekends[ 5 ]
-                           << m_weekends[ 6 ];
+    sstream << "\n\nWe" << m_weekends[ 0 ] << m_weekends[ 1 ] << m_weekends[ 2 ]
+                        << m_weekends[ 3 ] << m_weekends[ 4 ] << m_weekends[ 5 ]
+                        << m_weekends[ 6 ];
 
-    for( auto& holiday : m_holidays ) *m_sstream << "\nHo" << holiday;
+    for( auto& holiday : m_holidays ) sstream << "\nHo" << holiday;
 
     auto fc_save{ m_p2filter_save ? m_p2filter_save->get_filterer_stack() : nullptr };
     m_p2top_entry_last = nullptr; // reset it before start
@@ -2566,7 +2584,7 @@ Diary::create_db_body_text()
         // optionally only save filtered entries:
         if( fc_save && !fc_save->filter( entry ) ) continue;
 
-        create_db_entry_text( entry, fc_save );
+        create_db_entry_text( entry, fc_save, sstream );
     }
 
     if( fc_save ) delete fc_save;
@@ -2574,6 +2592,7 @@ Diary::create_db_body_text()
     return true;
 }
 
+#ifndef __ANDROID__
 LoG::Result
 Diary::write()
 {
@@ -2630,13 +2649,11 @@ Diary::write_copy( const String& uri, const String& passphrase, const Filter* fi
 
     return result;
 }
+#endif // __ANDROID__
 
 LoG::Result
 Diary::write_txt( const String& uri, const Filter* filter )
 {
-    auto      file_txt  { Gio::File::create_for_uri( uri ) }; // is PATH() is necessary on win?
-    auto      ofstream  { file_txt->query_exists() ? file_txt->replace()
-                                                   : file_txt->create_file() };
     StrStream ss;
 
     ss.imbue( std::locale( "C" ) ); // to prevent thousands separators
@@ -2689,9 +2706,13 @@ Diary::write_txt( const String& uri, const Filter* filter )
 
     ss << '\n';
 
+#ifndef __ANDROID__
+    auto  file_txt  { Gio::File::create_for_uri( uri ) }; // is PATH() is necessary on win?
+    auto  ofstream  { file_txt->query_exists() ? file_txt->replace() : file_txt->create_file() };
     gsize bytes_written;
     ofstream->write_all( ss.str(), bytes_written );
     ofstream->close();
+#endif
 
     if( fc_save ) delete fc_save;
 
@@ -2701,6 +2722,7 @@ Diary::write_txt( const String& uri, const Filter* filter )
 LoG::Result
 Diary::write( const String& uri )
 {
+#ifndef __ANDROID__
     Glib::RefPtr< Gio::FileOutputStream > ofstream;
 
     try
@@ -2720,47 +2742,41 @@ Diary::write( const String& uri )
         print_error( err.what() );
         return LoG::FAILURE;
     }
+#endif
 
+    // WRITING THE HEADER
     m_sstream = new std::stringstream;
     m_sstream->imbue( std::locale( "C" ) ); // to prevent thousands separators
 
     // WRITING THE HEADER
     create_db_header_text( is_encrypted() );
 
-    gsize bytes_written;
-    ofstream->write_all( m_sstream->str(), bytes_written );
-
-    delete m_sstream;
-    m_sstream = new std::stringstream;
-    m_sstream->imbue( std::locale( "C" ) ); // to prevent thousands separators
-
-    // WRITING THE BODY
-    if( is_encrypted() )
-        *m_sstream << m_passphrase[ 0 ] << '\n'; // first char of passphrase for validity checking
-
-    create_db_body_text();
-
-    // encryption
+    // WRITING THE BODY into a temporary stream
     if( is_encrypted() )
     {
-        CipherBuffers buf;
+        CipherBuffers       buf;
+        std::stringstream   body_stream;
+        body_stream.imbue( std::locale( "C" ) );
 
-        try {
-            size_t size {  m_sstream->str().size() + 1 };
+        body_stream << m_passphrase[ 0 ] << '\n'; // first char of passphrase for validity checking
+        create_db_body_text( body_stream );
 
+        const String        body_str { body_stream.str() };
+
+        try
+        {
+            size_t size { body_str.size() + 1 };
             LoG::Cipher::create_new_key( m_passphrase.c_str(), &buf.salt, &buf.key );
-
             LoG::Cipher::create_iv( &buf.iv );
-
             buf.buffer = new unsigned char[ size ];
-            memcpy( buf.buffer, m_sstream->str().c_str(), size );
-
+            memcpy( buf.buffer, body_str.c_str(), size );
             LoG::Cipher::encrypt_buffer( buf.buffer, size, buf.key, buf.iv );
 
-            gsize bytes_written;
-            ofstream->write_all( buf.salt, LoG::Cipher::cSALT_SIZE, bytes_written );
-            ofstream->write_all( buf.iv, LoG::Cipher::cIV_SIZE, bytes_written );
-            ofstream->write_all( buf.buffer, size, bytes_written );
+            // Append salt + iv + encrypted body into the saved (header) stream
+            m_sstream->write( reinterpret_cast< const char* >( buf.salt ),
+                              LoG::Cipher::cSALT_SIZE );
+            m_sstream->write( reinterpret_cast< const char* >( buf.iv ), LoG::Cipher::cIV_SIZE );
+            m_sstream->write( reinterpret_cast< const char* >( buf.buffer ), size );
 
             buf.clear();
         }
@@ -2773,14 +2789,28 @@ Diary::write( const String& uri )
     }
     else
     {
-        gsize bytes_written;
-        ofstream->write_all( m_sstream->str(), bytes_written );
+        create_db_body_text( *m_sstream );
     }
 
-    ofstream->close();
+#ifndef __ANDROID__
+    gsize bytes_written;
+    try
+    {
+        // ALL data is in m_sstream — write it in one go:
+        ofstream->write_all( m_sstream->str(), bytes_written );
+        ofstream->close();
+    }
+    catch( const Glib::Error& err )
+    {
+        print_error( err.what() );
+        return LoG::FAILURE;
+    }
+#endif
+
     return LoG::SUCCESS;
 }
 
+#ifndef __ANDROID__
 bool
 Diary::remove_lock_if_necessary()
 {
@@ -2817,6 +2847,7 @@ Diary::is_locked() const
 
     return false;
 }
+#endif // __ANDROID__
 
 // ELEMENTS
 D::DEID

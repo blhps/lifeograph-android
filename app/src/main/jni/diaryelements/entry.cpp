@@ -1400,13 +1400,13 @@ Entry::get_paragraph( UstringSize pos, Paragraph*& para, UstringSize& para_offse
     return false;
 }
 Paragraph*
-Entry::get_paragraph( UstringSize pos, bool F_ignore_hidden ) const
+Entry::get_paragraph( UstringSize pos, bool F_visible_only ) const
 {
     UstringSize offset_total{ 0 };
 
     for( Paragraph* para = m_p2para_1st; para; para = para->m_p2next )
     {
-        if( !para->is_visible() && F_ignore_hidden )
+        if( !para->is_visible() && F_visible_only )
             continue;
         else
         {

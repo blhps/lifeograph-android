@@ -98,7 +98,11 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
         /*Typeface font = Typeface.createFromAsset( getAssets(), "OpenSans-Regular.ttf" );
         mEditText.setTypeface( font );*/
         mEditText.addTextChangedListener(object : TextWatcher {
-            override fun afterTextChanged(s: Editable) {}
+            override fun afterTextChanged(s: Editable) {
+                if(!mFlagSetTextOperation) {
+                    updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
+                }
+            }
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(!mFlagSetTextOperation) {
@@ -116,7 +120,6 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
                     mFlagEntryChanged = true
                     mEntry.insert_text(start, s.toString())
                 }
-                updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
             }
         })
 
@@ -204,7 +207,7 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
         super.onStop()
         Log.d(Lifeograph.TAG, "ActivityEntry.onStop()")
         if(mFlagDismissOnExit) Diary.getMain().dismiss_entry(mEntry) else sync()
-        Diary.getMain().write_lock()
+        Diary.getMain().writeLock(context)
     }
 
     override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
@@ -776,11 +779,14 @@ class FragmentEntry : FragmentDiaryEditor(), MenuProvider, ToDoObject, DialogInq
     }
 
     // PARSING =====================================================================================
-    private fun processParagraph(p: Paragraph, offset: Int, offsetEnd: Int) {
+    private fun processParagraph(p: Paragraph, rawOffset: Int, rawOffsetEnd: Int) {
+        val textLength = mEditText.text.length
+        val offset = rawOffset.coerceIn(0, textLength)
+        val offsetEnd = rawOffsetEnd.coerceIn(0, textLength)
+
+        if (offset >= offsetEnd) return
+
         val theme = mEntry._theme
-        // In Android, we don't necessarily "remove all tags" manually like GTK if we are
-        // using the ParserEditText's reset() logic, but for parity:
-        // (Assuming mEditText.text is a Spannable)
 
         // 1. ALIGNMENT
         val alignment = when(p._alignment) {
