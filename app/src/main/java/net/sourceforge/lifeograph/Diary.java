@@ -561,11 +561,6 @@ public class Diary extends DiaryElement
         return isLocked(ctx) ? Result.FILE_LOCKED : Result.SUCCESS;
     }
 
-//    protected Result
-//    read_header() {
-//        int result = nativeReadHeader(mNativePtr);
-//        return Result.values()[result];
-//    }
     protected Result
     read_header(android.content.Context context) {
         android.net.Uri uri = android.net.Uri.parse(get_uri());
@@ -610,9 +605,9 @@ public class Diary extends DiaryElement
 
         if( result == Result.SUCCESS ) {
             nativeSetLoggedInEdit(mNativePtr);
+            return Result.SUCCESS;
         }
-
-        return Result.SUCCESS;
+        else return result;
     }
 
     // WRITING =====================================================================================
@@ -785,7 +780,7 @@ public class Diary extends DiaryElement
         // 1. Check for neighboring lock file (for SAF/Content URIs)
         try {
             DocumentFile sourceFile = DocumentFile.fromSingleUri(context, uri);
-            DocumentFile parentDir = sourceFile != null ? sourceFile.getParentFile() : null;
+            DocumentFile parentDir = sourceFile.getParentFile();
 
             if (parentDir != null && parentDir.isDirectory()) {
                 String lockName = sourceFile.getName() + SUFFIX_LOCK;
