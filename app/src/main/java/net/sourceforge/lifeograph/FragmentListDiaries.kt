@@ -21,6 +21,7 @@
 
 package net.sourceforge.lifeograph
 
+import android.annotation.SuppressLint
 import android.content.DialogInterface
 import android.content.Intent
 import android.os.Bundle
@@ -146,9 +147,9 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
         val dm = Diary.getMain()
         if(dm.is_in_edit_mode) {
             dm.write(context)
-            // TODO: dm.remove_lock_if_necessary()
+            dm.removeLockIfNecessary(context)
         }
-        if(dm.is_open())
+        if(dm.is_open)
             dm.clear()
 
         val actionbar = (requireActivity() as AppCompatActivity).supportActionBar
@@ -202,6 +203,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun populateDiaries() {
         mDiaryItems.clear()
 

@@ -555,7 +555,7 @@ public class Diary extends DiaryElement
     Result
     setPath( Context ctx, String uriStr/*, SetPathType type*/ ) {
         String name = FileUtil.getFileName( Uri.parse(uriStr), ctx );
-        removeLockIfNecessary();
+        removeLockIfNecessary(ctx);
         nativeSetUri(mNativePtr, uriStr);
         nativeSetName(mNativePtr, name);
         return isLocked(ctx) ? Result.FILE_LOCKED : Result.SUCCESS;
@@ -757,14 +757,27 @@ public class Diary extends DiaryElement
     }
 
     boolean
-    removeLockIfNecessary() {
+    removeLockIfNecessary( Context ctx ) {
         if( !is_in_edit_mode() )
             return false;
 
-        File fp = new File( "--" ); // TODO...
-        if( fp.exists() )
-            return fp.delete();
-        return true;
+        Uri uri = Uri.parse( nativeGetUri( mNativePtr ) );
+        ContentResolver resolver = ctx.getContentResolver();
+
+        try {
+            DocumentFile lockDoc = getNeighborFileDocument( ctx, uri, SUFFIX_LOCK );
+            if (lockDoc != null) {
+                return lockDoc.delete();
+            }
+            else { // fallback to app's folder
+                File lockFile = new File( ctx.getFilesDir(), get_name() + SUFFIX_LOCK );
+                return lockFile.delete();
+            }
+        }
+        catch( Exception ex ) {
+            Log.e( Lifeograph.TAG, "Could not save backup file: " + ex.getMessage() );
+        }
+        return false;
     }
 
     void
