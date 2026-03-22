@@ -46,7 +46,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
 
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ActivityMain.mViewCurrent = this
+        super.onViewCreated(view, savedInstanceState)
 
         mRecyclerView = view.findViewById(R.id.list_elems)
         mAdapter = RVAdapterElems(mElems, mSelectionStatuses, this)

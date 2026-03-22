@@ -46,7 +46,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
 
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ActivityMain.mViewCurrent = this
+        super.onViewCreated(view, savedInstanceState)
 
         mRecyclerView = view.findViewById(R.id.list_matches)
         mEditText = view.findViewById(R.id.search_text)

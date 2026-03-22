@@ -41,10 +41,12 @@ abstract class FragmentDiaryEditor : Fragment(), MenuProvider {
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+
         if (mMenuId > 0) {
-            val menuHost: MenuHost = requireActivity()
-            menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
+            requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
         }
+
+        ActivityMain.mViewCurrent = this
     }
 
     override fun onCreateView(inflater: LayoutInflater,

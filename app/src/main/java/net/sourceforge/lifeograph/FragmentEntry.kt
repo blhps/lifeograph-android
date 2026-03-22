@@ -36,10 +36,7 @@ import android.widget.EditText
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.net.toUri
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuItemCompat
-import androidx.core.view.MenuProvider
-import androidx.lifecycle.Lifecycle
 import net.sourceforge.lifeograph.ToDoAction.ToDoObject
 import java.util.*
 
@@ -71,11 +68,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        ActivityMain.mViewCurrent = this
-        if (mMenuId > 0) {
-            val menuHost: MenuHost = requireActivity()
-            menuHost.addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
-        }
 
         //Lifeograph.updateScreenSizes( this );
 

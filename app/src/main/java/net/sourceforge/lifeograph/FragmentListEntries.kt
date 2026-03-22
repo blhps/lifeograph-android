@@ -45,9 +45,6 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        if (mMenuId > 0) {
-            requireActivity().addMenuProvider(this, viewLifecycleOwner, Lifecycle.State.RESUMED)
-        }
 
         var button = view.findViewById<ImageButton>(R.id.btn_toggle_favorite)
         button.setOnClickListener { toggleSelFavoredness() }

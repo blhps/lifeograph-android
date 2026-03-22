@@ -38,7 +38,7 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
 
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ActivityMain.mViewCurrent = this
+        super.onViewCreated(view, savedInstanceState)
 
         mChartWidget = view.findViewById(R.id.chart_widget)
 

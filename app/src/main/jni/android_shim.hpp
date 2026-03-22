@@ -105,8 +105,6 @@ namespace Glib {
             return ustring(res);
         }
     private:
-        static std::string to_str(const std::string& s) { return s; }
-        static std::string to_str(const char* s) { return s ? s : ""; }
         template<typename T>
         static std::string to_str(const T& val) {
             std::ostringstream oss;

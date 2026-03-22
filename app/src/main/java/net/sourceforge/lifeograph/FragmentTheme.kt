@@ -61,7 +61,7 @@ class FragmentTheme: FragmentDiaryEditor() {
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        ActivityMain.mViewCurrent = this
+        super.onViewCreated(view, savedInstanceState)
 
         mButtonTextColor = view.findViewById(R.id.button_text_color)
         mButtonBaseColor = view.findViewById(R.id.button_base_color)

@@ -22,16 +22,13 @@
 package net.sourceforge.lifeograph
 
 import android.os.Bundle
-import android.view.Menu
-import android.view.MenuInflater
 import android.view.MenuItem
 import android.view.View
 import android.widget.ImageButton
-import androidx.core.view.MenuProvider
 import net.sourceforge.lifeograph.DialogInquireText.Listener
-import java.util.*
+import java.util.Collections
 
-class FragmentListFilters : FragmentListElems(), MenuProvider, Listener
+class FragmentListFilters : FragmentListElems(), Listener
 {
     // VARIABLES ===================================================================================
     override val mLayoutId: Int = R.layout.fragment_list_filters
@@ -47,12 +44,6 @@ class FragmentListFilters : FragmentListElems(), MenuProvider, Listener
         button.setOnClickListener { duplicateSel() }
         button = view.findViewById(R.id.dismiss)
         button.setOnClickListener { dismissSel() }
-    }
-
-    override fun onCreateMenu(menu: Menu, menuInflater: MenuInflater) {
-        if(mMenuId > 0)
-            menuInflater.inflate(mMenuId, menu)
-        mMenu = menu
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
