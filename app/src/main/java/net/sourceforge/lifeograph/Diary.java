@@ -166,7 +166,7 @@ public class Diary extends DiaryElement
     }
 
     @Override public int
-    get_icon() {
+    getIcon() {
         return R.drawable.ic_diary;
     }
 
@@ -428,11 +428,17 @@ public class Diary extends DiaryElement
     }
 
 
-//    boolean
-//    set_filter_active( String name ) {
-//        // TODO: delegate to C++
-//        return false;
-//    }
+    Filter
+    get_filter_list() {
+        long ptr = nativeGetFilterList( mNativePtr );
+        return ptr == 0 ? null : new Filter( ptr );
+    }
+
+    void
+    set_filter_list( Filter filter ) { nativeSetFilterList(mNativePtr, filter.mNativePtr); }
+
+    int
+    update_all_entries_filter_status() { return nativeUpdateAllEntriesFilterStatus(mNativePtr); }
 
 //    String
 //    get_filter_active_name() {
@@ -894,6 +900,9 @@ public class Diary extends DiaryElement
     private native long nativeGetTagById(long mNativePtr, int id);
 
     private native long[] nativeGetFilters(long mNativePtr);
+    private native long nativeGetFilterList(long mNativePtr);
+    private native void nativeSetFilterList(long mNativePtr, long ptr_filter);
+    private native int nativeUpdateAllEntriesFilterStatus(long mNativePtr);
     private native boolean nativeRenameFilter(long mNativePtr, Filter filter, String name);
 
     private native long[] nativeGetCharts(long mNativePtr);

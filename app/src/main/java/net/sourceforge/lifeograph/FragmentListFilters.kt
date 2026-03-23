@@ -21,6 +21,7 @@
 
 package net.sourceforge.lifeograph
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.view.MenuItem
 import android.view.View
@@ -56,7 +57,7 @@ class FragmentListFilters : FragmentListElems(), Listener
                 Lifeograph.logoutWithoutSaving(requireView())
                 true
             }
-            else -> false
+            else -> super.onMenuItemSelected(menuItem)
         }
     }
 
@@ -68,6 +69,7 @@ class FragmentListFilters : FragmentListElems(), Listener
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     override fun updateList() {
         mElems.clear()
         mElems.addAll(Diary.getMain()._filters)
@@ -77,6 +79,7 @@ class FragmentListFilters : FragmentListElems(), Listener
 
         mSelectionStatuses.clear()
         mSelectionStatuses.addAll(Collections.nCopies(mItemCount, false))
+        mAdapter.notifyDataSetChanged()
     }
 
     override fun createNewElem() {
@@ -90,18 +93,18 @@ class FragmentListFilters : FragmentListElems(), Listener
     private fun addFilter(name: String, definition: String) {
         Diary.getMain().create_filter(name, definition)
         updateList()
-        mAdapter.notifyDataSetChanged()
     }
 
     private fun setSelActive() {
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-//                if(Diary.d.set_filter_active(filter._name)) {
-//                    mAdapter.notifyDataSetChanged()
-//                    Diary.d.updateAllEntriesFilterStatus()
-//                    break
-//                } TODO....
+                val dm = Diary.getMain()
+                dm._filter_list = filter
+                dm.update_all_entries_filter_status()
+                exitSelectionMode()
+                updateList()
+                break
             }
         }
     }
@@ -131,15 +134,14 @@ class FragmentListFilters : FragmentListElems(), Listener
 
         if(flagDeleted) {
             updateList()
-            mAdapter.clearSelection(mRecyclerView.layoutManager!!)
             exitSelectionMode()
         }
     }
 
     // INTERFACE METHODS ===========================================================================
     override fun hasIcon2(elem: DiaryElement): Boolean {
-        //return Diary.d._filter_active_name.equals(elem._name)
-        return false // TODO: make functional..
+        val filter = Diary.getMain()._filter_list
+        return if (filter != null) (filter.mNativePtr == elem.mNativePtr) else false
     }
     override fun getIcon2(elem: DiaryElement): Int {
         return R.drawable.ic_check

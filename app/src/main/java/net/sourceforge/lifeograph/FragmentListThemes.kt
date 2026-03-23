@@ -91,9 +91,8 @@ class FragmentListThemes : FragmentListElems(), Listener
         }
 
         if(flagDeleted) {
-            updateList()
-            mAdapter.clearSelection(mRecyclerView.layoutManager!!)
             exitSelectionMode()
+            updateList()
         }
     }
 

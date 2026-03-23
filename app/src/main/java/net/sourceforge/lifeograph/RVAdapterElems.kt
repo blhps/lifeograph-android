@@ -59,7 +59,7 @@ class RVAdapterElems(private val mItems :List<DiaryElement>,
 
         if( holder is ViewHolder ) {
             holder.mItem = elem
-            holder.mIVIcon.setImageResource(elem._icon)
+            holder.mIVIcon.setImageResource(elem.icon)
 
             if(elem is Entry) {
                 val entry: Entry = elem

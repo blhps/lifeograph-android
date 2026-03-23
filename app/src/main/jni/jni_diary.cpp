@@ -301,6 +301,20 @@ JNI_METHOD(jlongArray, Diary_nativeGetFilters)(JNIEnv* env, jobject obj, jlong p
     return result;
 }
 
+JNI_METHOD(jlong, Diary_nativeGetFilterList)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_filter_list());
+}
+
+JNI_METHOD(void, Diary_nativeSetFilterList)(JNIEnv* env, jobject obj, jlong ptr, jlong ptrFilter) {
+    auto filter = reinterpret_cast<LoG::Filter*>(ptrFilter);
+    reinterpret_cast<LoG::Diary*>(ptr)->set_filter_list(filter);
+}
+
+JNI_METHOD(jint, Diary_nativeUpdateAllEntriesFilterStatus)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::Diary*>(ptr)->update_all_entries_filter_status
+    ());
+}
+
 JNI_METHOD(jboolean, Diary_nativeRenameFilter)(JNIEnv* env, jobject obj, jlong ptr, jobject filter,
         jstring name) {
     jclass clazz = env->GetObjectClass(filter);

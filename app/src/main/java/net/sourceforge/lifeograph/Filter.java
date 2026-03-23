@@ -44,22 +44,12 @@ public class Filter extends StringDefElem
 //    }
 
     @Override
-    public int get_icon() { // Java only
-        return R.drawable.ic_filter;
-    }
+    public int getIcon() { return R.drawable.ic_filter; } // Java specific
 
     FiltererContainer
     get_filterer_stack() {
         long ptr = nativeGetFiltererStack( mNativePtr );
         return ptr != 0 ? new FiltererContainer( ptr ) : null;
-//        if( m_definition.isEmpty() )
-//            return null;
-//
-//        FiltererContainer fc = new FiltererContainer( m_p2diary, null );
-//
-//        fc.set_from_string( m_definition );
-//
-//        return fc;
     }
 
     // NATIVE METHODS ==============================================================================

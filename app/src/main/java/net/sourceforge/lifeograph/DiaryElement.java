@@ -122,7 +122,7 @@ public class DiaryElement {
 
     public int get_size() { return nativeGetSize(mNativePtr); }
 
-    public int get_icon() {
+    public int getIcon() {
         try {
             throw new Exception( "This function should never called" );
         }

@@ -85,9 +85,8 @@ class FragmentListCharts : FragmentListElems()
         }
 
         if(flagDeleted) {
-            updateList()
-            mAdapter.clearSelection(mRecyclerView.layoutManager!!)
             exitSelectionMode()
+            updateList()
         }
     }
 

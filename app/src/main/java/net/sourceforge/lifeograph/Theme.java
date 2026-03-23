@@ -33,7 +33,7 @@ public class Theme extends DiaryElement {
     }
 
     @Override
-    public int get_icon() { return R.drawable.ic_theme; }
+    public int getIcon() { return R.drawable.ic_theme; }
 
     boolean
     is_system() { return nativeIsSystem(mNativePtr); }

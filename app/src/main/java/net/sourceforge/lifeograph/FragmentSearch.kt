@@ -107,7 +107,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
                 val p2para = Diary.getMain().get_paragraph_by_id(match.get_id_lo())
                 if( p2para == prevPara ) continue
                 mElems.add(RViewAdapterBasic.Item(p2para._text, "",
-                                                  p2para._host._icon,
+                                                  p2para._host.icon,
                                                   p2para._host._id))
                 prevPara = p2para
             }

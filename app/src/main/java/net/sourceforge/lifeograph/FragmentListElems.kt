@@ -91,7 +91,6 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
 
     override fun handleBack(): Boolean {
         if(mAdapter.hasSelection()) {
-            mAdapter.clearSelection(mRecyclerView.layoutManager!!)
             exitSelectionMode()
             return true
         }
@@ -121,6 +120,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
         else false
     }
     override fun exitSelectionMode() {
+        mAdapter.clearSelection(mRecyclerView.layoutManager!!)
         updateActionBarSubtitle()
         mToolbar.visibility = View.GONE
     }

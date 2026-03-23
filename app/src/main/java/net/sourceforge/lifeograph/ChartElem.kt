@@ -21,7 +21,7 @@
 package net.sourceforge.lifeograph
 
 class ChartElem(nativePtr: Long) : StringDefElem(nativePtr) {
-    override fun get_icon(): Int {
+    override fun getIcon(): Int {
         return R.drawable.ic_chart
     }
 }

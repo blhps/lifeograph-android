@@ -33,7 +33,7 @@ public class Entry extends DiaryElemTag {
 
     @Override
     public int
-    get_icon() { // Java specific
+    getIcon() { // Java specific
         if( ( get_todo_status() & ES_FILTER_TODO_PURE ) != 0 )
             return Lifeograph.getTodoIcon( get_todo_status() & ES_FILTER_TODO_PURE );
         else

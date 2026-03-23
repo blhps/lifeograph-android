@@ -130,7 +130,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
         //}
 
         handleElemNumberChanged()
-        mItemCount = mElems.size - 3
+        mItemCount = mElems.size
     }
 
     override fun createNewElem() {
