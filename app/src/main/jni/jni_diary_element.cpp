@@ -22,7 +22,11 @@ JNI_METHOD(jint, DiaryElement_nativeGetId)(JNIEnv* env, jobject obj, jlong ptr) 
 
 JNI_METHOD(jstring, DiaryElement_nativeGetName)(JNIEnv* env, jobject obj, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_name_std().c_str());
+    return env->NewStringUTF(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_name().c_str());
+}
+
+JNI_METHOD(jstring, DiaryElement_nativeGetListStr)(JNIEnv* env, jobject obj, jlong ptr) {
+    return env->NewStringUTF(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_list_str().c_str());
 }
 
 JNI_METHOD(void, DiaryElement_nativeSetName)(JNIEnv* env, jobject obj, jlong ptr, jstring name) {

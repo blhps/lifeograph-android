@@ -301,11 +301,21 @@ JNI_METHOD(jlongArray, Diary_nativeGetFilters)(JNIEnv* env, jobject obj, jlong p
     return result;
 }
 
-JNI_METHOD(jlong, Diary_nativeGetFilterList)(JNIEnv* env, jobject obj, jlong ptr) {
+JNI_METHOD(jlong, Diary_nativeGetFilterNonTrashed)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto trshd = reinterpret_cast<LoG::Diary*>(ptr)->get_filter_nontrashed();
+    return reinterpret_cast<jlong>(trshd);
+    //return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_filter_nontrashed());
+}
+JNI_METHOD(jlong, Diary_nativeGetFilterTrashed)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_filter_trashed());
+}
+
+JNI_METHOD(jlong, Diary_nativeGetFilterEntryList)(JNIEnv* env, jobject obj, jlong ptr) {
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_filter_list());
 }
 
-JNI_METHOD(void, Diary_nativeSetFilterList)(JNIEnv* env, jobject obj, jlong ptr, jlong ptrFilter) {
+JNI_METHOD(void, Diary_nativeSetFilterEntryList)(JNIEnv* env, jobject obj, jlong ptr, jlong
+ptrFilter) {
     auto filter = reinterpret_cast<LoG::Filter*>(ptrFilter);
     reinterpret_cast<LoG::Diary*>(ptr)->set_filter_list(filter);
 }
@@ -324,6 +334,13 @@ JNI_METHOD(jboolean, Diary_nativeRenameFilter)(JNIEnv* env, jobject obj, jlong p
     unsigned char result = reinterpret_cast<LoG::Diary*>(ptr)->rename_filter(filter_ptr, c_name);
     env->ReleaseStringUTFChars(name, c_name);
     return reinterpret_cast<jboolean>(result);
+}
+
+JNI_METHOD(jlong, Diary_nativeCreateFilter)(JNIEnv* env, jobject obj, jlong ptr, jstring name0) {
+    const char* c_name = env->GetStringUTFChars(name0, nullptr);
+    auto result = reinterpret_cast<LoG::Diary*>(ptr)->create_filter(c_name);
+    env->ReleaseStringUTFChars(name0, c_name);
+    return reinterpret_cast<jlong>(result);
 }
 
 JNI_METHOD(jlong, Diary_nativeGetCompletionTag)(JNIEnv* env, jobject obj, jlong ptr) {

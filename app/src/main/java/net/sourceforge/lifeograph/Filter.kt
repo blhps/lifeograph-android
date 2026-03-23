@@ -18,42 +18,30 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+package net.sourceforge.lifeograph
 
-package net.sourceforge.lifeograph;
+open class Filter(nativePtr: Long) : StringDefElem(nativePtr) {
 
-public class Filter extends StringDefElem
-{
-    public static final String DEFINITION_EMPTY = "F&";
-    //public static final String DEFINITION_DEFAULT = "F&\nFtn\nFsNOPdc";
-
-//    Filter( Diary d, String name, String definition ) {
-//        super( d, name, definition );
-//    }
-
-    protected Filter(long nativePtr) {
-        super(nativePtr);
+    class All() : Filter(0) {
+        override fun get_name(): String { return "&lt;All&gt;" }
+        override fun get_list_str(): String { return get_name() }
+        override fun get_type(): Type { return Type.FILTER } // native method fails
     }
 
-//    @Override
-//    protected void finalize() throws Throwable {
-//        if (mNativePtr != 0) {
-//            nativeDestroy(mNativePtr);
-//            mNativePtr = 0;
-//        }
-//        super.finalize();
-//    }
+    companion object {
+        val ALL : All = All()
+    }
 
-    @Override
-    public int getIcon() { return R.drawable.ic_filter; } // Java specific
+    override fun
+    getIcon(): Int { return R.drawable.ic_filter } // Java specific
 
-    FiltererContainer
-    get_filterer_stack() {
-        long ptr = nativeGetFiltererStack( mNativePtr );
-        return ptr != 0 ? new FiltererContainer( ptr ) : null;
+    fun get_filterer_stack(): FiltererContainer? {
+        val ptr = nativeGetFiltererStack(mNativePtr)
+        return if(ptr != 0L) FiltererContainer(ptr) else null
     }
 
     // NATIVE METHODS ==============================================================================
     //private native long nativeCreate(long ptr_diary);
     //private native void nativeDestroy(long ptr);
-    private native long nativeGetFiltererStack( long ptr );
+    private external fun nativeGetFiltererStack(ptr: Long): Long
 }

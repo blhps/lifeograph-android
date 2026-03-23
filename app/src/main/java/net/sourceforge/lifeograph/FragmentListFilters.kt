@@ -71,9 +71,12 @@ class FragmentListFilters : FragmentListElems(), Listener
 
     @SuppressLint("NotifyDataSetChanged")
     override fun updateList() {
+        val dm = Diary.getMain()
         mElems.clear()
-        mElems.addAll(Diary.getMain()._filters)
-        //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
+        mElems.add((Filter.ALL))
+        mElems.add(dm._filter_nontrashed)
+        mElems.add(dm._filter_trashed)
+        mElems.addAll(dm._filters)
 
         mItemCount = mElems.size
 
@@ -88,11 +91,6 @@ class FragmentListFilters : FragmentListElems(), Listener
                           R.string.create_filter,
                           Lifeograph.getStr(R.string.new_filter),
                           R.string.create, this).show()
-    }
-
-    private fun addFilter(name: String, definition: String) {
-        Diary.getMain().create_filter(name, definition)
-        updateList()
     }
 
     private fun setSelActive() {
@@ -149,13 +147,15 @@ class FragmentListFilters : FragmentListElems(), Listener
 
     override fun onInquireAction(id: Int, text: String) {
         if(id == R.string.create_filter) {
-            addFilter(text, Filter.DEFINITION_EMPTY)
+            Diary.getMain().create_filter(text)
+            updateList()
         }
         else if( id == R.string.duplicate_filter ) {
             for((i, selected) in mSelectionStatuses.withIndex()) {
                 if(selected) {
                     val filter = mElems[i] as Filter
-                    addFilter(text, filter._definition)
+                    Diary.getMain().duplicate_filter(filter._name)
+                    updateList()
                     break
                 }
             }

@@ -263,7 +263,21 @@ namespace Glib {
     };
 
     namespace Markup {
-        inline std::string escape_text(const std::string& s) { return s; }
+        inline std::string escape_text(const std::string& s) {
+            std::string res;
+            res.reserve(s.size());
+            for (char c : s) {
+                switch (c) {
+                    case '&':  res += "&amp;";  break;
+                    case '<':  res += "&lt;";   break;
+                    case '>':  res += "&gt;";   break;
+                    case '"':  res += "&quot;"; break;
+                    case '\'': res += "&apos;"; break;
+                    default:   res += c;        break;
+                }
+            }
+            return res;
+        }
     }
 
     inline std::string get_home_dir() { return ""; }

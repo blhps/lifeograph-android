@@ -47,10 +47,10 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     private lateinit var    mButtonRemove : ImageButton
     companion object {
         lateinit var mFilter: Filter
-        lateinit var mStack: FiltererContainer
+        var mStack: FiltererContainer? = null
         fun setFilter(filter: Filter) {
             mFilter = filter
-            mStack = mFilter._filterer_stack
+            mStack = mFilter.get_filterer_stack()
         }
     }
 
@@ -110,7 +110,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
     private fun updateFilterWidgets() {
         mElems.clear()
-        for(filterer in mStack.m_pipeline)
+        for(filterer in mStack!!.m_pipeline)
             mElems.add(filterer)
     }
 
@@ -118,15 +118,15 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
         DialogPicker(requireContext(), object: DialogPicker.Listener{
             override fun onItemClick(item: RViewAdapterBasic.Item) {
                 when(item.mId) {
-                    "STATUS" -> { mStack.add_filterer_status( DiaryElement.ES_FILTER_TRASHED ) }
-                    "FAVORITE" -> { mStack.add_filterer_favorite( true ) }
-                    "TRASHED" -> { mStack.add_filterer_trashed( true ) }
-                    "IS" -> { mStack.add_filterer_is( 404 /*TODO: DEID.UNSET*/, true ) }
-                    "HASTAG" -> { mStack.add_filterer_tagged_by( null, true ) }
+                    "STATUS" -> { mStack!!.add_filterer_status( DiaryElement.ES_FILTER_TRASHED ) }
+                    "FAVORITE" -> { mStack!!.add_filterer_favorite( true ) }
+                    "TRASHED" -> { mStack!!.add_filterer_trashed( true ) }
+                    "IS" -> { mStack!!.add_filterer_is( 404 /*TODO: DEID.UNSET*/, true ) }
+                    "HASTAG" -> { mStack!!.add_filterer_tagged_by( null, true ) }
                 }
                 mSelectionStatuses.add(false)
                 updateFilterWidgets()
-                mAdapter.notifyItemChanged( mStack.m_pipeline.size - 1 )
+                mAdapter.notifyItemChanged( mStack!!.m_pipeline.size - 1 )
             }
 
             override fun populateItems(list: RVBasicList) {
@@ -176,7 +176,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
 
         // 1. Remove from the primary data source (mStack)
         for (filtererToRemove in itemsToRemove) {
-            mStack.remove_filterer(filtererToRemove)
+            mStack!!.remove_filterer(filtererToRemove)
         }
 
         // 2. Remove from the local lists used by the adapter (mElems and mSelectionStatuses)
@@ -238,12 +238,12 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
 
     private fun saveFilter() {
-        mFilter._definition = mStack._as_string
+        mFilter._definition = mStack!!._as_string
 
-        Diary.getMain().updateAllEntriesFilterStatus()
+        Diary.getMain().update_all_entries_filter_status()
     }
     private fun resetFilter() {
-        mStack = mFilter._filterer_stack
+        mStack = mFilter.get_filterer_stack()
         updateToolbarButtons()
         updateFilterWidgets()
     }

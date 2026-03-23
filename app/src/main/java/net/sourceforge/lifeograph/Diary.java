@@ -404,12 +404,6 @@ public class Diary extends DiaryElement
 
     // FILTERS =====================================================================================
     Filter
-    create_filter( String name0, String definition ) {
-        // TODO: delegate to C++
-        return null;
-    }
-
-    Filter
     get_filter( String name ) {
         // TODO: delegate to C++
         return null;
@@ -427,51 +421,58 @@ public class Diary extends DiaryElement
         return filters;
     }
 
+    Filter // Non-null?
+    get_filter_nontrashed() {
+        long ptr = nativeGetFilterNonTrashed(mNativePtr);
+        return ptr == 0 ? null : new Filter( ptr );
+    }
+
+    Filter // Non-null?
+    get_filter_trashed() {
+        long ptr = nativeGetFilterTrashed(mNativePtr);
+        return ptr == 0 ? null : new Filter( ptr );
+    }
 
     Filter
     get_filter_list() {
-        long ptr = nativeGetFilterList( mNativePtr );
+        long ptr = nativeGetFilterEntryList( mNativePtr );
         return ptr == 0 ? null : new Filter( ptr );
     }
 
     void
-    set_filter_list( Filter filter ) { nativeSetFilterList(mNativePtr, filter.mNativePtr); }
+    set_filter_list( Filter filter ) { nativeSetFilterEntryList( mNativePtr, filter.mNativePtr); }
 
     int
     update_all_entries_filter_status() { return nativeUpdateAllEntriesFilterStatus(mNativePtr); }
-
-//    String
-//    get_filter_active_name() {
-//        // TODO: delegate to C++
-//        return "";
-//    }
 
     boolean
     rename_filter( Filter filter, String new_name ) {
         return nativeRenameFilter(mNativePtr, filter, new_name);
     }
 
+    Filter
+    create_filter( String name0 ) {
+        long ptr = nativeCreateFilter(mNativePtr, name0);
+        return ptr == 0 ? null : new Filter(ptr);
+    }
+
     boolean
     dismiss_filter( String name ) {
-        // TODO: delegate to C++
+        // TODO: 2.1: nativeDismissFilter(mNativePtr, name);
         return false;
     }
 
-//    boolean
-//    dismiss_filter_active() {
-//        // TODO: delegate to C++
-//        return false;
-//    }
-
-    void // Android only
-    updateAllEntriesFilterStatus() {
-        // TODO: delegate to C++
+    Filter
+    duplicate_filter( String name ) {
+        //long ptr = nativeDuplicateFilter(mNativePtr, name);
+        //return ptr == 0 ? null : new Filter(ptr);
+        return null; // TODO: 2.1
     }
 
     // CHARTS ======================================================================================
     ChartElem
     create_chart( String name0, String definition ) {
-        // TODO: delegate to C++
+        // TODO: 2.2: delegate to C++
         return null;
     }
 
@@ -900,10 +901,13 @@ public class Diary extends DiaryElement
     private native long nativeGetTagById(long mNativePtr, int id);
 
     private native long[] nativeGetFilters(long mNativePtr);
-    private native long nativeGetFilterList(long mNativePtr);
-    private native void nativeSetFilterList(long mNativePtr, long ptr_filter);
+    private native long nativeGetFilterNonTrashed( long mNativePtr);
+    private native long nativeGetFilterTrashed( long mNativePtr);
+    private native long nativeGetFilterEntryList( long mNativePtr);
+    private native void nativeSetFilterEntryList( long mNativePtr, long ptr_filter);
     private native int nativeUpdateAllEntriesFilterStatus(long mNativePtr);
     private native boolean nativeRenameFilter(long mNativePtr, Filter filter, String name);
+    private native long nativeCreateFilter( long mNativePtr, String name0);
 
     private native long[] nativeGetCharts(long mNativePtr);
 

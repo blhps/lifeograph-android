@@ -139,10 +139,8 @@ public class DiaryElement {
     public void
     set_name( String name ) { nativeSetName(mNativePtr, name); }
 
-    public String // TODO: stub...
-    get_list_str() {
-        return get_name();
-    }
+    public String
+    get_list_str() { return nativeGetListStr(mNativePtr); }
     public String
     get_info_str() {
         return "";
@@ -188,6 +186,7 @@ public class DiaryElement {
     private native int nativeGetId(long ptr);
     private native String nativeGetName(long ptr);
     private native void nativeSetName(long ptr, String name);
+    private native String nativeGetListStr(long ptr);
     private native int nativeGetType(long ptr);
     private native int nativeGetSize(long ptr);
 }
