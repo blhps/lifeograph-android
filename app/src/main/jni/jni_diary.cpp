@@ -279,6 +279,16 @@ JNI_METHOD(jlong, Diary_nativeCreateEntry)(JNIEnv* env, jobject obj, jlong ptr, 
     return reinterpret_cast<jlong>(new_entry);
 }
 
+JNI_METHOD(jlong, Diary_nativeCreateEntryDated)(JNIEnv* env, jobject obj, jlong ptr, jlong
+ptr_entry_parent, jlong date, jboolean fMileStone) {
+    auto entry_parent = reinterpret_cast< LoG::Entry* >(ptr_entry_parent);
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    auto new_entry = diary->create_entry_dated(entry_parent,
+                                                       static_cast<LoG::DateV>(date),
+                                                       fMileStone);
+    return reinterpret_cast<jlong>(new_entry);
+}
+
 JNI_METHOD(jlong, Diary_nativeDuplicateEntry)(JNIEnv* env, jobject, jlong ptr, jlong ptr_entry) {
     auto p2entry = reinterpret_cast<LoG::Entry*>(ptr_entry);
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->duplicate_entry(p2entry));

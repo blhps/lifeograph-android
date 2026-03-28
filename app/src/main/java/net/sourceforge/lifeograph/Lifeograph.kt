@@ -122,7 +122,7 @@ class Lifeograph : Application() {
             }
             var entry = dm._entry_today
             if(entry == null) // add new entry if no entry exists on selected date
-                entry = dm.add_today()
+                entry = dm.addToday()
             showElem(entry)
         }
 

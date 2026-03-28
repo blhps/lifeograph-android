@@ -195,8 +195,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     override fun onStop() {
         super.onStop()
         Log.d(Lifeograph.TAG, "ActivityEntry.onStop()")
-        if(mFlagDismissOnExit) Diary.getMain().dismiss_entry(mEntry) else sync()
-        Diary.getMain().writeLock(context)
+        val dm = Diary.getMain()
+        if(mFlagDismissOnExit) dm.dismiss_entry(mEntry) else sync()
+        if(dm.is_in_edit_mode)
+            Diary.getMain().writeLock(context)
     }
 
     override fun onPrepareMenu(menu: Menu) {

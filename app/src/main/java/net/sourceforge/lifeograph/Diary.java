@@ -211,34 +211,14 @@ public class Diary extends DiaryElement
     }
 
     int
-    create_new_id( DiaryElement element ) {
-        return nativeCreateNewId(mNativePtr, element);
-    }
-
-//    void
-//    erase_id( long id ) {
-//        m_ids.remove( id );
-//    }
-
-//    @SuppressWarnings( "UnusedReturnValue" )
-//    boolean
-//    set_force_id( long id ) {
-//        if( m_ids.get( id ) != null || id <= DiaryElement.DEID_MIN )
-//            return false;
-//        m_force_id = id;
-//        return true;
-//    }
+    create_new_id( DiaryElement element ) { return nativeCreateNewId(mNativePtr, element); }
 
     // OPTIONS =====================================================================================
     String
-    get_lang() {
-        return nativeGetLang(mNativePtr);
-    }
+    get_lang() { return nativeGetLang(mNativePtr); }
 
     void
-    set_lang( String lang ) {
-        nativeSetLang(mNativePtr, lang);
-    }
+    set_lang( String lang ) { nativeSetLang(mNativePtr, lang); }
 
     // ENTRIES =====================================================================================
     Entry
@@ -347,9 +327,9 @@ public class Diary extends DiaryElement
 
     // adds a new entry to today even if there is already one or more:
     Entry
-    add_today() {
-        // TODO: delegate to C++
-        return null;
+    addToday() {
+        long ptr = nativeCreateEntryDated( mNativePtr, 0, Date.get_today(), false );
+        return new Entry( ptr );
     }
 
     Entry
@@ -738,7 +718,8 @@ public class Diary extends DiaryElement
 
     Result
     write_txt( @NonNull String path, Filter filter ) {
-        return Result.values()[nativeWriteTxt(mNativePtr, path, filter.mNativePtr)];
+        return Result.values()[nativeWriteTxt(mNativePtr, path,
+                                              filter == null ? 0 : filter.mNativePtr)];
     }
 
     DocumentFile
@@ -923,6 +904,8 @@ public class Diary extends DiaryElement
     private native void nativeSetEntryDate(long ptr, Entry entry, long date);
     private native long nativeCreateEntry(long ptr, Entry entry_rel, boolean fParent, long date,
                                           String content);
+    private native long nativeCreateEntryDated(long ptr, long ptr_entry_rel, long date,
+                                               boolean fMileStone);
     private native long nativeDuplicateEntry(long ptr, long ptr_entry);
     private native long nativeDismissEntry(long ptr, Entry entry);
     private native long nativeGetCompletionTag(long mNativePtr);
