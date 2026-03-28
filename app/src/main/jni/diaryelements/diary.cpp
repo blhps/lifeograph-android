@@ -4049,8 +4049,7 @@ Diary::update_entry_filter_status( Entry* entry )
 int
 Diary::update_all_entries_filter_status()
 {
-    auto f     { get_filter_list() };
-    auto fc    { f ? f->get_filterer_stack() : nullptr };
+    auto fc    { m_p2filter_list ? m_p2filter_list->get_filterer_stack() : nullptr };
     int  count { 0 };
 
     for( Entry* entry = m_p2entry_1st; entry; entry = entry->get_next_straight() )

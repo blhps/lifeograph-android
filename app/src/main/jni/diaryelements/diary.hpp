@@ -381,6 +381,7 @@ class Diary : public DiaryElement, public PropertyContainer
         { m_completion_tag_id = id; }
 
         // SEARCHING
+        const Ustring&          get_search_str() const { return m_search_text; }
         void                    set_search_str( const Ustring& );
         void                    set_search_filter( const Filter* );
         const Filter*           get_search_filter() const { return m_p2filter_search; }

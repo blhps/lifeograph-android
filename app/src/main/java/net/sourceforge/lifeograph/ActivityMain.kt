@@ -170,6 +170,15 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
                 else
                     mNavController!!.navigate(R.id.nav_entry_editor)
             }
+            DiaryElement.Type.PARAGRAPH -> {
+                val paragraph = elem as Paragraph
+                FragmentEntry.mEntry = paragraph._host
+                if(mViewCurrent is FragmentEntry)
+                    (mViewCurrent as FragmentEntry).show(true)
+                else
+                    mNavController!!.navigate(R.id.nav_entry_editor)
+                // TODO: 2.1: select paragraph
+            }
             DiaryElement.Type.THEME -> {
                 FragmentTheme.mTheme = elem as Theme
                 mNavController!!.navigate(R.id.nav_theme_editor)

@@ -21,6 +21,8 @@ JNI_METHOD(void, Diary_nativeDestroy)(JNIEnv* env, jobject obj, jlong ptr) {
 
 JNI_METHOD(void, Diary_nativeCreateMain)(JNIEnv* env, jclass) {
     LoG::Diary::d = new LoG::Diary();
+    extern void handle_search_thread_notification();
+    LoG::Diary::d->m_dispatcher_search.connect( [](){ handle_search_thread_notification(); } );
 }
 
 JNI_METHOD(jlong, Diary_nativeGetMain)(JNIEnv* env, jclass) {
@@ -393,14 +395,36 @@ JNI_METHOD(jlong, Diary_nativeGetTheme)(JNIEnv* env, jobject obj, jlong ptr, jst
     return reinterpret_cast<jlong>(result);
 }
 
+JNI_METHOD(jstring, Diary_nativeGetSearchStr)(JNIEnv* env, jobject obj, jlong ptr) {
+    return env->NewStringUTF(reinterpret_cast<LoG::Diary*>(ptr)->get_search_str().c_str());
+}
+
 JNI_METHOD(void, Diary_nativeSetSearchStr)(JNIEnv* env, jobject obj, jlong ptr, jstring str) {
     const char* c_str = env->GetStringUTFChars(str, nullptr);
     reinterpret_cast<LoG::Diary*>(ptr)->set_search_str(c_str);
     env->ReleaseStringUTFChars(str, c_str);
 }
 
+JNI_METHOD(void, Diary_nativeStartSearch)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    const int processor_count = int( std::thread::hardware_concurrency() );
+    diary->start_search( std::max( processor_count - 2 , 1 ) );
+}
+JNI_METHOD(void, Diary_nativeStopSearch)(JNIEnv* env, jobject obj, jlong ptr) {
+    reinterpret_cast<LoG::Diary*>(ptr)->stop_search();
+}
+
+JNI_METHOD(void, Diary_nativeDestroySearchThreads)(JNIEnv* env, jobject obj, jlong ptr) {
+    reinterpret_cast<LoG::Diary*>(ptr)->destroy_search_threads();
+}
+
 JNI_METHOD(jboolean, Diary_nativeIsSearchInProgress)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jboolean>(reinterpret_cast<LoG::Diary*>(ptr)->is_search_in_progress());
+}
+
+JNI_METHOD(jint, Diary_nativeGetMatchCount)(JNIEnv* env, jobject obj, jlong ptr) {
+    auto matches = reinterpret_cast<LoG::Diary*>(ptr)->get_matches();
+    return static_cast<jint>(matches->size());
 }
 
 JNI_METHOD(jlongArray, Diary_nativeGetMatches)(JNIEnv* env, jobject obj, jlong ptr) {

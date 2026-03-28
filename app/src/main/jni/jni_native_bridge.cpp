@@ -1,16 +1,19 @@
 #include "android_shim.hpp"
 #include <jni.h>
 #include <string>
-//#include "diary.hpp"
+#include "diary.hpp"
 
 // Global reference to the Java VM to attach threads if necessary
 JavaVM* g_vm = nullptr;
 jclass g_bridgeClass = nullptr;
 //jclass g_diaryClass = nullptr;
 jmethodID g_dispatchMethod = nullptr;
+jmethodID g_handleSearchFinishedMethod = nullptr;
 jmethodID g_getFileNameMethod = nullptr;
 
-extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
+extern "C" {
+
+JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
     g_vm = vm;
     JNIEnv* env;
     if (vm->GetEnv((void**)&env, JNI_VERSION_1_6) != JNI_OK) {
@@ -34,6 +37,11 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
         return JNI_ERR;
     }
 
+    g_handleSearchFinishedMethod = env->GetStaticMethodID(g_bridgeClass, "handleSearchFinished", "()V");
+    if (g_handleSearchFinishedMethod == nullptr) {
+        return JNI_ERR;
+    }
+
     g_getFileNameMethod = env->GetStaticMethodID(g_bridgeClass, "getFileName", "(Ljava/lang/String;)Ljava/lang/String;");
     if (g_getFileNameMethod == nullptr) {
         return JNI_ERR;
@@ -41,6 +49,31 @@ extern "C" JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
     return JNI_VERSION_1_6;
 }
+
+void handle_search_thread_notification() {
+    LoG::Diary::d->destroy_search_threads();
+
+    JNIEnv* env;
+    bool detached = false;
+    jint getEnvStat = g_vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    if (getEnvStat == JNI_EDETACHED) {
+        if (g_vm->AttachCurrentThread(&env, nullptr) != 0) {
+            return;
+        }
+        detached = true;
+    }
+
+    if (env && g_bridgeClass && g_dispatchMethod) {
+        env->CallStaticVoidMethod(g_bridgeClass, g_handleSearchFinishedMethod);
+    }
+
+    if (detached) {
+        g_vm->DetachCurrentThread();
+    }
+
+}
+
+} // extern "C"
 
 namespace Glib {
 

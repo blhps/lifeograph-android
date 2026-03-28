@@ -41,8 +41,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     private lateinit var mEditText: EditText
     private lateinit var mButtonSearchTextClear: Button
     private lateinit var mButtonOnlyInFiltered: ToggleImageButton
-
-    private var          mMatchCount = 0
+    private var mFRestartSearch = false
 
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -84,17 +83,33 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     private fun handleSearchTextChanged(text: String) {
         val searchStr = text.lowercase(Locale.ROOT)
 
-        Diary.getMain().set_search_str(searchStr)
-
-        mMatchCount = 0 // TODO...
+        val dm = Diary.getMain()
+        dm._search_str = searchStr
+        if( dm.is_search_in_progress) {
+            mFRestartSearch = true
+            dm.stop_search()
+        }
+        else {
+            dm.start_search()
+        }
 
         mButtonSearchTextClear.visibility = if(text.isNotEmpty()) View.VISIBLE else View.INVISIBLE
+    }
 
-        updateSubtitle()
-        updateList()
+    fun handleSearchFinished() {
+        if( mFRestartSearch ) {
+            mFRestartSearch = false
+            Diary.getMain().start_search()
+        }
+        else {
+            updateSubtitle()
+            updateList()
+        }
     }
 
     private fun updateList() {
+        if (!this::mAdapter.isInitialized) return
+
         val matches = Diary.getMain()._matches
 
         mElems.clear()
@@ -108,7 +123,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
                 if( p2para == prevPara ) continue
                 mElems.add(RViewAdapterBasic.Item(p2para._text, "",
                                                   p2para._host.icon,
-                                                  p2para._host._id))
+                                                  p2para._id))
                 prevPara = p2para
             }
         }
@@ -117,11 +132,12 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     }
 
     private fun updateSubtitle() {
+        val matchCount = Diary.getMain()._match_count
         Lifeograph.getActionBar().subtitle =
-                if(mMatchCount == 0 )
+                if(matchCount == 0 )
                     Lifeograph.getStr(R.string.no_matches)
                 else
-                    "%s (%d)".format(Lifeograph.getStr(R.string.matches), mMatchCount)
+                    "%s (%d)".format(Lifeograph.getStr(R.string.matches), matchCount)
     }
 
     override fun onItemClick(item: RViewAdapterBasic.Item) {

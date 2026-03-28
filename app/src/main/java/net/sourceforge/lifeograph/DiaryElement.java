@@ -43,11 +43,9 @@ public class DiaryElement {
         FILTER( 3, LayoutType.ELEMENT, Lifeograph.getStr( R.string.filter ) ),
         CHART( 4, LayoutType.ELEMENT, Lifeograph.getStr( R.string.chart ) ),
         TABLE( 5, LayoutType.ELEMENT, Lifeograph.getStr( R.string.table ) ),
-        // entry list elements:
-        DIARY( 6, LayoutType.ELEMENT, Lifeograph.getStr( R.string.diary ) ),
-        ENTRY( 8, LayoutType.ELEMENT, Lifeograph.getStr( R.string.entry ) ),
-        CHAPTER( 9, LayoutType.ELEMENT, Lifeograph.getStr( R.string.chapter ) ),
-        DATE( 11, LayoutType.ELEMENT, "" );
+        PARAGRAPH( 6, LayoutType.ELEMENT, Lifeograph.getStr( R.string.table ) ),
+        DIARY( 7, LayoutType.ELEMENT, Lifeograph.getStr( R.string.diary ) ),
+        ENTRY( 8, LayoutType.ELEMENT, Lifeograph.getStr( R.string.entry ) );
 
         public final String str;
         public final LayoutType layout_type;

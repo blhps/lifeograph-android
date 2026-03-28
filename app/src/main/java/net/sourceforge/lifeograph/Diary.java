@@ -196,7 +196,18 @@ public class Diary extends DiaryElement
     DiaryElement
     get_element( int id ) {
         long ptr = nativeGetElement(mNativePtr, id);
-        return ptr == 0 ? null : new DiaryElement(ptr);
+        if( ptr == 0 ) return null;
+        DiaryElement elem = new DiaryElement( ptr );
+        switch( elem.get_type() ) {
+            case ENTRY:     return new Entry( ptr );
+            case PARAGRAPH: return new Paragraph( ptr );
+            case THEME:     return new Theme( ptr );
+            case FILTER:    return new Filter( ptr );
+            case CHART:     return new ChartElem( ptr );
+            case TABLE:     return new TableElem( ptr );
+            case DIARY:     return new Diary( ptr );
+            default:        return elem;
+        }
     }
 
     int
@@ -351,7 +362,13 @@ public class Diary extends DiaryElement
     DiaryElemTag
     get_completion_tag() {
         long ptr = nativeGetCompletionTag(mNativePtr);
-        return ptr == 0 ? null : new DiaryElemTag(ptr);
+        if( ptr == 0 ) return null;
+        DiaryElemTag tag = new DiaryElemTag( ptr );
+        switch( tag.get_type() ) {
+            case ENTRY:     return new Entry( ptr );
+            case PARAGRAPH: return new Paragraph( ptr );
+            default:        return tag;
+        }
     }
 
 //    void
@@ -362,21 +379,32 @@ public class Diary extends DiaryElement
     public DiaryElemTag
     get_tag_by_id( int id ) {
         long ptr = nativeGetTagById(mNativePtr, id);
-        return ptr == 0 ? null : new DiaryElemTag(ptr);
+        if( ptr == 0 ) return null;
+        DiaryElemTag tag = new DiaryElemTag( ptr );
+        switch( tag.get_type() ) {
+            case ENTRY:     return new Entry( ptr );
+            case PARAGRAPH: return new Paragraph( ptr );
+            default:        return tag;
+        }
     }
 
     // SEARCHING ===================================================================================
     String
-    get_search_str() {
-        // return nativeGetSearchText(mNativePtr);
-        return ""; // TODO does not exist in C++ right now...
-    }
+    get_search_str() { return nativeGetSearchStr(mNativePtr); }
 
     void
     set_search_str( @NonNull String text ) { nativeSetSearchStr(mNativePtr, text); }
 
+    void
+    start_search() { nativeStartSearch(mNativePtr); }
+    void
+    stop_search() { nativeStopSearch(mNativePtr); }
+
     boolean
     is_search_in_progress() { return nativeIsSearchInProgress(mNativePtr); }
+
+    int
+    get_match_count()  { return nativeGetMatchCount(mNativePtr); }
 
     Vector<HiddenFormat>
     get_matches() {
@@ -388,18 +416,18 @@ public class Diary extends DiaryElement
 
     void
     replace_all_matches( String newtext ) {
-        // TODO: delegate to C++
+        // TODO: 2.1: delegate to C++
     }
 
     // this version does not disturb the active search and is case-sensitive
     void
     replace_all_matches( String oldtext, String newtext ) {
-        // TODO: delegate to C++
+        // TODO: 2.1: delegate to C++
     }
 
     void
     clear_matches() {
-        // TODO: delegate to C++
+        // TODO: 2.1: delegate to C++
     }
 
     // FILTERS =====================================================================================
@@ -921,8 +949,13 @@ public class Diary extends DiaryElement
     private native int nativeWriteTxt(long mNativePtr, String path, long ptr_filter);
     private native void nativeSetContinueFromLock(long ptr);
 
+    private native String nativeGetSearchStr(long mNativePtr);
     private native void nativeSetSearchStr(long mNativePtr, String str);
+    private native void nativeStartSearch(long mNativePtr);
+    private native void nativeStopSearch(long mNativePtr);
+    private native void nativeDestroySearchThreads(long mNativePtr);
     private native boolean nativeIsSearchInProgress(long mNativePtr);
+    private native int nativeGetMatchCount(long mNativePtr);
     private native long[] nativeGetMatches(long mNativePtr);
 
     // HELPER FUNCTIONS ============================================================================

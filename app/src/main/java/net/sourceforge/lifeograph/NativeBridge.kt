@@ -21,6 +21,7 @@ package net.sourceforge.lifeograph
 
 import android.os.Handler
 import android.os.Looper
+import androidx.core.net.toUri
 
 object NativeBridge {
     private val mainHandler = Handler(Looper.getMainLooper())
@@ -39,8 +40,15 @@ object NativeBridge {
     @JvmStatic
     fun getFileName(uriString: String): String {
         return net.sourceforge.lifeograph.helpers.FileUtil.getFileName(
-            android.net.Uri.parse(uriString),
+            uriString.toUri(),
             Lifeograph.context
         )
+    }
+
+    @JvmStatic
+    fun handleSearchFinished() { // this func's purpose is to provide a static method bridge
+        mainHandler.post {
+            (ActivityMain.mViewCurrent as? FragmentSearch)?.handleSearchFinished()
+        }
     }
 }
