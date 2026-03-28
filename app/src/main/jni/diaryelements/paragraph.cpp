@@ -1758,6 +1758,17 @@ Paragraph::remove_formats_of_type( int t )
         update_date_edited();
 }
 
+void
+Paragraph::toggle_format( int type, UstringSize pos_bgn, UstringSize pos_end, bool F_already )
+{
+    if( type & VT::HFT_F_V_POS ) // remove both sub and sup as they cannot coexist:
+        remove_format( VT::HFT_F_V_POS, pos_bgn, pos_end );
+    if( F_already )
+        remove_format( type, pos_bgn, pos_end );
+    else
+        add_format( type, "", pos_bgn, pos_end );
+}
+
 HiddenFormat*
 Paragraph::get_format_at( int type, UstringSize pos_bgn, UstringSize pos_end ) const
 {

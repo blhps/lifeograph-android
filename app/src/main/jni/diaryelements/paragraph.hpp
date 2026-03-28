@@ -605,6 +605,7 @@ class Paragraph : public DiaryElemTag
         void                        remove_format( const HiddenFormat* );
         void                        remove_onthefly_formats();
         void                        remove_formats_of_type( int );
+        void                        toggle_format( int, UstringSize, UstringSize, bool );
         HiddenFormat*               get_format_at( int, UstringSize, UstringSize ) const;
         HiddenFormat*               get_format_at( int type, UstringSize pos ) const
         { return get_format_at( type, pos, pos + 1 ); }

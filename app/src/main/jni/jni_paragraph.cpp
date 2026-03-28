@@ -34,6 +34,9 @@ JNI_METHOD(jstring, Paragraph_nativeGetText)(JNIEnv* env, jobject obj, jlong ptr
 JNI_METHOD(jint, Paragraph_nativeGetIndentLevel)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jint>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_indent_level());
 }
+JNI_METHOD(void, Paragraph_nativeSetIndentLevel)(JNIEnv*, jobject, jlong ptr, jint level) {
+    reinterpret_cast<LoG::Paragraph*>(ptr)->set_indent_level( int( level ) );
+}
 
 JNI_METHOD(jboolean, Paragraph_nativeIsTitle)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_title());
@@ -58,6 +61,11 @@ JNI_METHOD(jchar, Paragraph_nativeGetListType)(JNIEnv* env, jobject obj, jlong p
     auto result = reinterpret_cast<LoG::Paragraph*>(ptr)->get_list_type();
     return static_cast<jchar>(LoG::VT::get_v<LoG::VT::PLS, char, int>(result));
 }
+JNI_METHOD(void, Paragraph_nativeSetListType)(JNIEnv*, jobject, jlong ptr, jchar type) {
+    int type_int = LoG::VT::get_v<LoG::VT::PLS, int, char>(char(type));
+    reinterpret_cast<LoG::Paragraph*>(ptr)->set_list_type(type_int);
+}
+
 
 JNI_METHOD(jstring, Paragraph_nativeGetListOrderStr)(JNIEnv* env, jobject obj, jlong ptr) {
     auto para = reinterpret_cast<LoG::Paragraph*>(ptr);
@@ -88,6 +96,21 @@ JNI_METHOD(jint, Paragraph_nativeGetEndOffsetInHost)(JNIEnv* env, jobject obj, j
     return static_cast<jint>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_end_offset_in_host());
 }
 
+JNI_METHOD(jlong, Paragraph_nativeGetFormatAt)(JNIEnv* env, jobject obj, jlong ptr, jchar type,
+        jint pos) {
+    const int type_i = LoG::VT::get_v< LoG::VT::FMT, int, char >( char(type) );
+    auto format = reinterpret_cast<LoG::Paragraph*>(ptr)->get_format_at(
+            type_i, unsigned( pos ) );
+    return reinterpret_cast<jlong>( format );
+}
+JNI_METHOD(jlong, Paragraph_nativeGetFormatOneOfAt)(JNIEnv* env, jobject obj, jlong ptr,
+        jchar type, jint pos) {
+    const int type_i = LoG::VT::get_v< LoG::VT::FMT, int, char >( char(type) );
+    auto format = reinterpret_cast<LoG::Paragraph*>(ptr)->get_format_oneof_at(
+            type_i, unsigned( pos ) );
+    return reinterpret_cast<jlong>( format );
+}
+
 JNI_METHOD(jlongArray, Paragraph_nativeGetFormats)(JNIEnv* env, jobject obj, jlong ptr) {
     const auto& formats = reinterpret_cast<LoG::Paragraph*>(ptr)->m_formats;
     auto size = static_cast<jsize>(formats.size());
@@ -97,6 +120,15 @@ JNI_METHOD(jlongArray, Paragraph_nativeGetFormats)(JNIEnv* env, jobject obj, jlo
     for (auto f : formats) ptrs.push_back(reinterpret_cast<jlong>(f));
     env->SetLongArrayRegion(result, 0, size, ptrs.data());
     return result;
+}
+
+JNI_METHOD(void, Paragraph_nativeToggleFormat)(JNIEnv* env, jobject obj, jlong ptr, jchar type,
+                                               jint pos_bgn, jint pos_end, jboolean fAlready) {
+    const int type_i = LoG::VT::get_v< LoG::VT::FMT, int, char >( char(type) );
+    reinterpret_cast<LoG::Paragraph*>(ptr)->toggle_format(type_i,
+                                                          unsigned(pos_bgn),
+                                                          unsigned(pos_end),
+                                                          fAlready);
 }
 
 // HIDDEN FORMAT METHODS ===========================================================================

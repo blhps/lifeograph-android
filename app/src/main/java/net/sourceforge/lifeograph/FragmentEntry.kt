@@ -33,11 +33,13 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
+import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.net.toUri
 import androidx.core.view.MenuItemCompat
 import net.sourceforge.lifeograph.ToDoAction.ToDoObject
+import net.sourceforge.lifeograph.helpers.STR
 import java.util.*
 
 class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Listener  {
@@ -55,6 +57,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private lateinit var mEditText: EditText
     private lateinit var mButtonHighlight: Button
     var                  mFlagSetTextOperation = false
+    var                  mFlagBlockFormatter = false
     var                  mFlagEntryChanged = false
     private var          mFlagDismissOnExit = false
     var                  mFlagSearchIsOpen = false
@@ -90,7 +93,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         mEditText.setTypeface( font );*/
         mEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
-                updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
+                if(!mFlagBlockFormatter)
+                    updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
             }
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
@@ -161,18 +165,18 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
         }
         val mButtonBold = view.findViewById<Button>(R.id.buttonBold)
-        mButtonBold.setOnClickListener { toggleFormat("*") }
+        mButtonBold.setOnClickListener { toggleFormat('B') }
         val mButtonItalic = view.findViewById<Button>(R.id.buttonItalic)
-        mButtonItalic.setOnClickListener { toggleFormat("_") }
+        mButtonItalic.setOnClickListener { toggleFormat('I') }
         val mButtonStrikethrough = view.findViewById<Button>(R.id.buttonStrikethrough)
         val spanStringS = SpannableString("S")
         spanStringS.setSpan(StrikethroughSpan(), 0, 1, 0)
         mButtonStrikethrough.text = spanStringS
-        mButtonStrikethrough.setOnClickListener { toggleFormat("=") }
+        mButtonStrikethrough.setOnClickListener { toggleFormat('S') }
         mButtonHighlight = view.findViewById(R.id.buttonHighlight)
-        mButtonHighlight.setOnClickListener { toggleFormat("#") }
-        val mButtonIgnore = view.findViewById<Button>(R.id.button_ignore)
-        mButtonIgnore.setOnClickListener { toggleIgnoreParagraph() }
+        mButtonHighlight.setOnClickListener { toggleFormat('H') }
+        val mButtonQuotation = view.findViewById<Button>(R.id.button_ignore)
+        mButtonQuotation.setOnClickListener { toggleQuotation() }
         val mButtonComment = view.findViewById<Button>(R.id.button_comment)
         mButtonComment.setOnClickListener { addComment() }
         val mButtonList = view.findViewById<Button>(R.id.button_list)
@@ -202,6 +206,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     override fun onPrepareMenu(menu: Menu) {
+        super.onPrepareMenu(menu)
+
         var item = menu.findItem(R.id.search_text)
         val searchView = item.actionView as SearchView
         item.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
@@ -396,7 +402,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         DialogPicker(requireContext(),
                      object: DialogPicker.Listener{
                                override fun onItemClick(item: RViewAdapterBasic.Item) {
-                                   setListItemMark( item.mId[0])
+                                   setListItemType(item.mId[0])
                                }
 
                                override fun populateItems(list: RVBasicList) {
@@ -474,259 +480,140 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //    }
 
     // FORMATTING BUTTONS ==========================================================================
-    private fun calculateMultiParaBounds(bounds: IntArray): Boolean {
-        val str = mEditText.text.toString()
+    private fun calculateTokenBounds(bounds: IntArray, type: Char, fCategorical: Boolean = false): HiddenFormat? {
         if(mEditText.hasSelection()) {
             bounds[0] = mEditText.selectionStart
             bounds[1] = mEditText.selectionEnd
+            return null
         }
-        else {
-            bounds[1] = mEditText.selectionStart
-            bounds[0] = bounds[1]
-            if(bounds[0] <= 0) return true
-            if(str[bounds[0] - 1] == '\n') {
-                if(bounds[0] == str.length) return false
-                if(str[bounds[0]] == '\n') return false
+        else// if( m_para_sel_bgn )
+        {
+            val posCursor = mEditText.selectionStart
+            val paraBgn = mEntry.get_paragraph(posCursor, true)
+            val posParaBgn = paraBgn._bgn_offset_in_host
+            val posCursorInParaBgn = posCursor - posParaBgn
+            val format = if( fCategorical ) paraBgn.get_format_oneof_at(type, posCursorInParaBgn)
+                         else paraBgn.get_format_at(type, posCursorInParaBgn)
+            if( format != null )
+            {
+                val posParaBgn = paraBgn._bgn_offset_in_host
+                bounds[0] = posParaBgn + format.posBgn
+                bounds[1] = posParaBgn + format.posEnd
+                return format
             }
         }
-        bounds[0]--
-        if(str.lastIndexOf('\n', bounds[0]) == -1) {
-            if(str.indexOf('\n', bounds[0]) == -1)
-                return true
-            else
-                bounds[0] = str.indexOf('\n', bounds[0]) + 1
+
+        // if no selection and no existing tag:
+        val str = mEditText.text.toString()
+        var bgn = mEditText.selectionStart
+        var end = mEditText.selectionStart
+
+        // find word boundaries:
+        // backward_find_char logic
+        while(bgn > 0) {
+            val charBefore = str[bgn - 1]
+            val shouldStop = if(type == 'T') !STR.is_char_name(charBefore)
+                             else STR.is_char_space(charBefore)
+            if(shouldStop) break
+            bgn--
         }
-        else
-            bounds[0] = str.lastIndexOf('\n', bounds[0]) + 1
-        if(str.indexOf('\n', bounds[1]) == -1)
-            bounds[1] = str.length - 1
-        else
-            bounds[1] = str.indexOf('\n', bounds[1]) - 1
-        return bounds[0] > bounds[1]
+
+        // forward_find_char logic
+        if(type == 'T') { // i.e. VT::HFT_TAG
+            while(end < str.length && STR.is_char_name(str[end])) {
+                end++
+            }
+        } else {
+            while(end < str.length && !STR.is_char_name(str[end])) {
+                end++
+            }
+        }
+
+        // if omitting punctuation did not end well:
+        if(type == 'T' && bgn == end) {
+            bgn = mEditText.selectionStart
+            while(bgn > 0 && !STR.is_char_space(str[bgn - 1])) {
+                bgn--
+            }
+
+            end = mEditText.selectionStart
+            while(end < str.length && !STR.is_char_space(str[end])) {
+                end++
+            }
+        }
+
+        bounds[0] = bgn
+        bounds[1] = end
+
+        return null
     }
 
-    private fun toggleFormat(markup: String) {
-        var pStart: Int
-        var pEnd: Int
-        if(mEditText.hasSelection()) {
-            var start = -2
-            var end = -1
-            var properlySeparated = false
-            pStart = mEditText.selectionStart
-            pEnd = mEditText.selectionEnd - 1
-            val pFirstNl = mEditText.text.toString().indexOf('\n')
-            when {
-                pFirstNl == -1 -> // there is only heading
-                    return
-                pEnd <= pFirstNl ->
-                    return
-                pStart > pFirstNl ->
-                    pStart-- // also evaluate the previous character
-                else -> { // p_start <= p_first_nl
-                    pStart = pFirstNl + 1
-                    properlySeparated = true
-                    start = -1
-                }
-            }
-            while(true) {
-                val theSpan = hasSpan(pStart, markup[0])
-                if(theSpan.type == '*' || theSpan.type == '_' || theSpan.type == '#' || theSpan.type == '=')
-                    return
-                when(mEditText.text[pStart]) {
-                    '\n' -> {
-                        if(start >= 0) {
-                            if(properlySeparated) {
-                                mEditText.text.insert(start, markup)
-                                end += 2
-                                pStart += 2
-                                pEnd += 2
-                            }
-                            else {
-                                mEditText.text.insert(start, " $markup")
-                                end += 3
-                                pStart += 3
-                                pEnd += 3
-                            }
-                            mEditText.text.insert(end, markup)
-                            properlySeparated = true
-                            start = -1
-                            break
-                        }
-                        if(start == -2) {
-                            properlySeparated = true
-                            start = -1
-                        }
-                    }
-                    ' ', '\t' -> if(start == -2) {
-                        properlySeparated = true
-                        start = -1
-                    }
-                    else -> {
-                        if(start == -2) start = -1 else if(start == -1) start = pStart
-                        end = pStart
-                    }
-                }
-                if(pStart == pEnd) break
-                pStart++
-            }
-            // add markup chars to the beginning and end:
-            if(start >= 0) {
-                end += if(properlySeparated) {
-                    mEditText.text.insert(start, markup)
-                    2
-                }
-                else {
-                    mEditText.text.insert(start, " $markup")
-                    3
-                }
-                mEditText.text.insert(end, markup)
-                // TODO place_cursor( get_iter_at_offset( end ) );
-            }
-        }
-        else { // no selection case
-            pEnd = mEditText.selectionStart
-            pStart = pEnd
-            if(isSpace(pStart) || pStart == mEditText.length() - 1) {
-                if(startsLine(pStart)) return
-                pStart--
-                if(hasSpan(pStart, 'm').type == 'm') pStart--
-            }
-            else if(hasSpan(pStart, 'm').type == 'm') {
-                if(startsLine(pStart)) return
-                pStart--
-                if(isSpace(pStart)) pStart += 2
-            }
-            val theSpan = hasSpan(pStart, markup[0])
-
-            // if already has the markup remove it
-            if(theSpan.type == markup[0]) {
-                pStart = mEditText.text.getSpanStart(theSpan)
-                pEnd = mEditText.text.getSpanEnd(theSpan)
-                mEditText.text.delete(pStart - 1, pStart)
-                mEditText.text.delete(pEnd - 1, pEnd)
-            }
-            else if(theSpan.type == ' ') {
-                // find word boundaries:
-                while(pStart > 0) {
-                    val c = mEditText.text[pStart]
-                    if(c == '\n' || c == ' ' || c == '\t') {
-                        pStart++
-                        break
-                    }
-                    pStart--
-                }
-                mEditText.text.insert(pStart, markup)
-                while(pEnd < mEditText.text.length) {
-                    val c = mEditText.text[pEnd]
-                    if(c == '\n' || c == ' ' || c == '\t') break
-                    pEnd++
-                }
-                mEditText.text.insert(pEnd, markup)
-                // TODO (if necessary) place_cursor( offset );
-            }
-        }
-    }
-
-    private fun setListItemMark(targetItemType: Char) {
+    private fun toggleFormat(type: Char, fCheckOnly: Boolean = false) {
         val bounds = intArrayOf(0, 0)
-        if(calculateMultiParaBounds(bounds)) return
-        var pos = bounds[0]
-        if(bounds[0] == bounds[1]) { // empty line
-            when(targetItemType) {
-                '*' -> mEditText.text.insert(pos, "\t• ")
-                ' ' -> mEditText.text.insert(pos, "\t[ ] ")
-                '~' -> mEditText.text.insert(pos, "\t[~] ")
-                '+' -> mEditText.text.insert(pos, "\t[+] ")
-                'x' -> mEditText.text.insert(pos, "\t[x] ")
-                '1' -> mEditText.text.insert(pos, "\t1- ")
+        calculateTokenBounds( bounds, type )
+
+        val paraBgn = mEntry.get_paragraph(bounds[0], true)
+        val paraEnd = mEntry.get_paragraph(bounds[1], true)
+        val posBgn  = bounds[0] - paraBgn._bgn_offset_in_host
+        val posEnd  = bounds[1] - paraEnd._bgn_offset_in_host
+        val fAlready : Boolean = paraBgn.get_format_at(type, bounds[0]) != null
+
+        if( !fCheckOnly ) {
+            var p: Paragraph? = paraBgn
+            while( p != null ) {
+                val pid = p._id
+                val startPos = if (pid == paraBgn._id) posBgn else 0
+                val endPos = if (pid == paraEnd._id) posEnd else p._size
+
+                p.toggle_format( type, startPos, endPos, fAlready )
+
+                if(pid == paraEnd._id) break
+                p = p.get_next()
             }
-            return
+
+            updateTextFormatting(paraBgn, paraEnd)
         }
-        var posEnd = bounds[1]
-        var posEraseBegin = pos
-        var itemType = 0.toChar() // none
-        var charLf = 't' // tab
-        var value = 1 // for numeric lists
-        mainloop@ while(pos <= posEnd) {
-            when(mEditText.text.toString()[pos]) {
-                '\t' -> if(charLf == 't' || charLf == '[') {
-                    charLf = '[' // opening bracket
-                    posEraseBegin = pos
-                }
-                else charLf = 'n'
-                '•', '-' -> {
-                    charLf = if(charLf == '[') 's' else 'n'
-                    itemType = if(charLf == 's') '*' else 0.toChar()
-                }
-                '[' -> charLf = (if(charLf == '[') 'c' else 'n')
-                ' ' -> {
-                    if(charLf == 's') { // separator space
-                        if(itemType != targetItemType) {
-                            mEditText.text.delete(posEraseBegin, pos + 1)
-                            val diff = pos + 1 - posEraseBegin
-                            pos -= diff
-                            posEnd -= diff
-                            charLf = 'a'
-                            continue@mainloop
-                        }
-                        else {
-                            charLf ='n'
-                        }
-                    }
-                    else {
-                        charLf = if(charLf == 'c') ']' else 'n'
-                        itemType = mEditText.text.toString()[pos]
-                        // same as below. unfortunately no fallthrough in Kotlin
-                    }
-                }
-                '~', '+', 'x', 'X' -> {
-                    charLf = if(charLf == 'c') ']' else 'n'
-                    itemType = mEditText.text.toString()[pos]
-                }
-                ']' -> charLf = (if(charLf == ']') 's' else 'n')
-                '\n' -> {
-                    itemType = 0.toChar()
-                    charLf = 't' // tab
-                }
-                else -> {
-                    if(charLf == 'a' || charLf == 't' || charLf == '[') {
-                        when(targetItemType) {
-                            '*' -> {
-                                mEditText.text.insert(pos, "\t• ")
-                                pos += 3
-                                posEnd += 3
-                            }
-                            ' ' -> {
-                                mEditText.text.insert(pos, "\t[ ] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            '~' -> {
-                                mEditText.text.insert(pos, "\t[~] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            '+' -> {
-                                mEditText.text.insert(pos, "\t[+] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            'x' -> {
-                                mEditText.text.insert(pos, "\t[x] ")
-                                pos += 5
-                                posEnd += 5
-                            }
-                            '1' -> {
-                                mEditText.text.insert(pos, "\t$value- ")
-                                value++
-                            }
-                        }
-                    }
-                    charLf = 'n'
-                }
-            }
-            pos++
+    }
+
+    private fun doForEachSelPara(action: (Paragraph) -> Unit, fRecursive: Boolean) {
+        val selectionStart = mEditText.selectionStart
+        val selectionEnd = mEditText.selectionEnd
+
+        // Get the start and end paragraphs based on the selection offsets
+        val paraBgn: Paragraph = mEntry.get_paragraph(selectionStart, true)
+        val paraEnd: Paragraph =
+            mEntry.get_paragraph(selectionEnd.coerceAtLeast(selectionStart), true)
+
+        var p: Paragraph? = paraBgn
+        while(p != null) {
+            // Execute the lambda passed as an argument
+            action(p)
+
+            if(p === paraEnd) break
+            p = p.get_next()
         }
+
+        if(fRecursive) {
+            // TODO: 2.1 or later
+        }
+    }
+
+    private fun setListItemType(type: Char) {
+        doForEachSelPara({ para ->
+                             val wasList : Boolean = para.isList
+                             para._list_type = type
+
+                             // automatically indent if all criteria are met
+                             if (!wasList && para.isList && para._indent_level == 0 &&
+                                 para._heading_level != 'S' && !para.is_code) {
+                                 para._indent_level = 1
+                             }
+            }, false)
+
+            // TODO: 2.1: limit to: if( mentry.get_todo_status() & ES::NOT_TODO )
+            mEntry.update_todo_status()
+
+            updateIcon()
     }
 
     private fun addComment() {
@@ -745,15 +632,13 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
     }
 
-    private fun toggleIgnoreParagraph() {
-        val bounds = intArrayOf(0, 0)
-        if(calculateMultiParaBounds(bounds)) return
-        val paraBgn : Paragraph = mEntry.get_paragraph(bounds[0], true)
-        val paraEnd : Paragraph = mEntry.get_paragraph(bounds[1], true)
-        if(paraBgn._quot_type == '_') // off
-            paraBgn._quot_type = '*' // generic
-        else
-            paraBgn._quot_type = '_'
+    private fun toggleQuotation() {
+        doForEachSelPara({ para ->
+                 if(para._quot_type == '_') // off
+                     para._quot_type = '*' // generic
+                 else
+                     para._quot_type = '_'
+             }, false)
     }
 
     // PARSING =====================================================================================
@@ -765,6 +650,12 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         if (offset >= offsetEnd) return
 
         val theme = mEntry._theme
+
+        // remove existing spans in this paragraph's range before re-applying
+        val spans = mEditText.text.getSpans(offset, offsetEnd, Any::class.java)
+        for(span in spans) {
+            mEditText.text.removeSpan(span)
+        }
 
         // 1. ALIGNMENT
         val alignment = when(p._alignment) {
@@ -943,12 +834,26 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
             processParagraph(p, offset, offsetEnd)
 
-            if(p === paraEnd) { break }
+            if(p._id == paraEnd._id) { break }
 
             // Move to next paragraph
             offset = offsetEnd + 1
             p = p._next_visible
         }
+
+        // to force the UI to refresh on format toggles without losing cursor position:
+        if( mFlagSetTextOperation ) return
+        val selectionStart = mEditText.selectionStart
+        val selectionEnd = mEditText.selectionEnd
+        // nudge the EditText to re-draw spans
+        mFlagBlockFormatter = true
+        mEditText.setText(mEditText.text, TextView.BufferType.EDITABLE)
+        // restore selection
+        if( selectionStart >= 0 && selectionEnd >= 0 ) {
+            mEditText.setSelection(selectionStart, selectionEnd)
+        }
+        mFlagBlockFormatter = false
+
    }
     fun reparse() {
         updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
@@ -958,46 +863,27 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         TODO("Not yet implemented")
     }
 
-//        fun reset(bgn: Int, end: Int){
-//            super.reset(bgn, end)
-//
-//            // COMPLETELY CLEAR THE PARSING REGION
-//            // TODO: only remove spans within the parsing boundaries...
-//            // mEditText.getText().clearSpans(); <-- problematic!!
-//            for(span in mSpans)
-//                mHost.mEditText.text.removeSpan(span)
+    // PARSING HELPER FUNCTIONS ====================================================================
+//    private fun startsLine(offset: Int): Boolean {
+//        if(offset < 0 || offset >= mEditText.text.length)
+//            return false
+//        return offset == 0 || mEditText.text[offset - 1] == '\n'
+//    }
+
+//    private fun hasSpan(offset: Int, type: Char): AdvancedSpan {
+//        val spans = mEditText.text.getSpans(offset, offset, Any::class.java)
+//        var hasNoOtherSpan = true
+//        for(span in spans) {
+//            if(span is AdvancedSpan) {
+//                hasNoOtherSpan = if(span.type == type) {
+//                    return span
+//                }
+//                else false
+//            }
 //        }
-
-        // PARSING HELPER FUNCTIONS ====================================================================
-        private fun isSpace(offset: Int): Boolean {
-            if(offset < 0 || offset >= mEditText.text.length)
-                return false
-            return when(mEditText.text[offset]) {
-                '\n', '\t', ' ' -> true
-                else -> false
-            }
-        }
-
-        private fun startsLine(offset: Int): Boolean {
-            if(offset < 0 || offset >= mEditText.text.length)
-                return false
-            return offset == 0 || mEditText.text[offset - 1] == '\n'
-        }
-
-        private fun hasSpan(offset: Int, type: Char): AdvancedSpan {
-            val spans = mEditText.text.getSpans(offset, offset, Any::class.java)
-            var hasNoOtherSpan = true
-            for(span in spans) {
-                if(span is AdvancedSpan) {
-                    hasNoOtherSpan = if(span.type == type) {
-                        return span
-                    }
-                    else false
-                }
-            }
-            return if(hasNoOtherSpan) SpanNull() else SpanOther()
-        }
-    }
+//        return if(hasNoOtherSpan) SpanNull() else SpanOther()
+//    }
+}
 
     // SPANS =======================================================================================
     interface AdvancedSpan {

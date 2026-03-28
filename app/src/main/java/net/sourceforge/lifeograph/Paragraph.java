@@ -31,7 +31,6 @@ public class Paragraph extends DiaryElemTag
 
     protected
     Paragraph(long nativePtr) { super(nativePtr); }
-
     public Paragraph
     get_prev() {
         long ptr = nativeGetPrev( mNativePtr );
@@ -51,14 +50,10 @@ public class Paragraph extends DiaryElemTag
         return ptr == 0 ? null : new Entry(nativeGetHost( mNativePtr ) ); }
 
     public boolean
-    is_empty(){ return nativeIsEmpty(mNativePtr); }
+    is_empty() { return nativeIsEmpty(mNativePtr); }
 
     public String
     get_text() { return nativeGetText(mNativePtr); }
-
-//    public char get_char( int i ){
-//        return m_text.charAt( i );
-//    }
 
 //    public void set_text( String text ) {
 //        m_text = text;
@@ -106,12 +101,18 @@ public class Paragraph extends DiaryElemTag
 
     public char
     get_list_type() { return nativeGetListType(mNativePtr); }
+    public void
+    set_list_type( char type ) { nativeSetListType( mNativePtr, type ); }
+    public boolean
+    isList() { return nativeGetListType(mNativePtr) != '_'; }
 
     public String
     get_list_order_str() { return nativeGetListOrderStr(mNativePtr); }
 
     public int
     get_indent_level() { return nativeGetIndentLevel(mNativePtr); }
+    public void
+    set_indent_level( int level ) { nativeSetIndentLevel(mNativePtr, level); }
 
     public char
     get_quot_type() { return nativeGetQuotType(mNativePtr); }
@@ -125,12 +126,28 @@ public class Paragraph extends DiaryElemTag
     public int
     get_bgn_offset_in_host() { return nativeGetBgnOffsetInHost(mNativePtr); }
 
+    public HiddenFormat
+    get_format_at( char type, int pos) {
+        long ptr = nativeGetFormatAt(mNativePtr, type, pos);
+        return ptr == 0 ? null : new HiddenFormat(ptr);
+    }
+    public HiddenFormat
+    get_format_oneof_at( char type, int pos) {
+        long ptr = nativeGetFormatOneOfAt(mNativePtr, type, pos);
+        return ptr == 0 ? null : new HiddenFormat(ptr);
+    }
+
     public Vector<HiddenFormat>
     get_formats() {
         long[] ptrs = nativeGetFormats(mNativePtr);
         Vector<HiddenFormat> formats = new Vector<>(ptrs.length);
         for (long ptr : ptrs) formats.add(new HiddenFormat(ptr));
         return formats;
+    }
+
+    public void
+    toggle_format(char type, int startPos, int endPos, boolean fAlready) {
+        nativeToggleFormat(mNativePtr, type, startPos, endPos, fAlready);
     }
 
     // NATIVE FUNCTIONS ============================================================================
@@ -145,7 +162,9 @@ public class Paragraph extends DiaryElemTag
     private native char nativeGetAlignment(long ptr);
     private native void nativeSetAlignment(long ptr, char alignment);
     private native int nativeGetIndentLevel(long ptr);
+    private native void nativeSetIndentLevel(long ptr, int level);
     private native char nativeGetListType(long ptr);
+    private native void nativeSetListType(long ptr, char type);
     private native String nativeGetListOrderStr(long ptr);
     private native char nativeGetQuotType(long ptr);
     private native void nativeSetQuotType(long ptr, char quot_type);
@@ -153,6 +172,10 @@ public class Paragraph extends DiaryElemTag
     private native boolean nativeIsCode(long ptr);
     private native int nativeGetBgnOffsetInHost(long ptr);
     private native int nativeGetEndOffsetInHost(long ptr);
+    private native long nativeGetFormatAt(long ptr, char type, int pos);
+    private native long nativeGetFormatOneOfAt(long ptr, char type, int pos);
     private native long[] nativeGetFormats(long ptr);
+    private native void nativeToggleFormat(long ptr, char type, int startPos, int endPos,
+                                           boolean fAlready);
 
 }
