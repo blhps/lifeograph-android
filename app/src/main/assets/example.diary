@@ -1,273 +1,502 @@
 LIFEOGRAPHDB
-V 1050
-E no
+V 3010
+E n
+Id15664173
 
-O ddM
-l en_US
-S 10034
-L 4710117
-ID10043
-t general
-tc17
-mfCantarell 11
-mb#DDC2EB05F92B
-mt#000000000000
-mh#5C5C35356666
-ms#A2216DB59C6E
-ml#5857A693FA05
-ID10036
-TeImportance
-ID10008
-t major milestone
-tc17
-mfCantarell 11
-mb#F33233123312
-mt#EEEEEEEEECEC
-mh#000000000000
-ms#2E2E34343636
-ml#CCCC00000000
-uc17
-ID10032
-CO3221225472	General Info
-Cpen
+Do~~~~
+Dp2
+Dsen_US
+Df10034
+Dl4710117
+
+ID13509258
+T ~general
+TfCantarell 11
+Tb#DDC2EB05F92B
+Tt#000000000000
+Th#5C5C35356666
+Ts#A2216DB59C6E
+Tl#5857A693FA05
+
+ID41168983
+T ~major milestone
+TfCantarell 11
+Tb#E9E9AEAEAEAE
+Tt#000000000000
+Th#9E9E0C0C0C0C
+Ts#A3A33E3E3E3E
+Tl#FFFF78780000
+
 ID10004
-CCcDefault
-ID10046
-CT1056225280	On the Way to Maturity
-Cpen
-ID10006
-CT1055178752	Infancy
-Cpen
-fs_tFfNTP__
+F __Chapter Category:Default
+F|
+FiT10046
+FiT10006
 
-ID10002
-E__n3221225475
-Dr1420385672
-Dh1478417298
-Ds1420385672
-TTgeneral
-P Comparison with Desktop Version
-P 
-P Android version provides most of the features in the Linux desktop version and the missing functionality -as long as it makes sense in Android environment- will be implemented in the future releases. The main differences are as follows:
-P 
-P 	• Hidden entries and filtering by date interval are missing
-P 	• Trash is not supported
-P 	• Printing is not available
-P 	• Importing is not available
-P 
-P Android version can open any file created by the desktop version. Unsupported information will be preserved on save.
+ID97175159
+F A_Default
+F&
+FsNOPdc
+Ftn
 
-ID10033
-Ef_n3221225474
-Dr1339235057
-Dh1420385656
-Ds1339235057
-TTgeneral
-P Example Entry
-P 
-P As above, first paragraph of an entry is always formatted as heading
-P 
-P  Subheadings
-P Paragraphs starting with a space (" ") are formatted as a subheading
-P 
-P  wiki-style richtext formatting
-P 	• By using _special_ =characters= #you can# *format* text [[and add comments]]
-P 
-P  Links (activated by long clicking)
-P Dates entered in YEAR/MONTH/DAY format are converted into links:
-P 	• 2012-09-16, 2014/11/20
-P a new entry is created if the target date is empty.
-P 
-P Web and email addresses in the text are detected and automatically converted to links:
-P 	• http://web.address
-P 	• email@ddress
-P 
+ID13507871
+G ADefault
+Gt100
+Go_LMP
+
+We1000001
+
+ID10032
+E __nEBN___~~~~~~202603290215347
+Ec202603290215347
+Ee202603290215347
+Et207201280195112
+Ehr
+N 202603290215347|202603290215347|49852379
+EpDGeneral Info
 
 ID10034
-E__n3221225473
-Dr1339235609
-Dh1420379320
-Ds1339235609
-P Welcome to Lifeograph for Android
-P 
-P This is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+E __n_BN___~~~~~~201206090125329
+Ec201206090125329
+Ee201501040154840
+Ehu10032
+N 202603290215347|202603290215347|74077277
+EpDWelcome to Lifeograph for Android
+N 202603290215347|202603290215347|86671839
+EpD
+N 202603290215347|202603290215347|64723177
+EpDThis is an example diary showcasing some features of Lifeograph. It also contains a most comprehensive release history of Lifeograph for Android.
+
+ID10033
+E F_n_BN___~~~~~~201209160000000
+Ec201206090124417
+Ee201501040173416
+Et201411200000000
+Eha10034
+Emgeneral
+N 202603290215347|202603290215347|65156749
+EpDExample Entry
+N 202603290215347|202603290215347|52207198
+EpD
+N 202603290215347|202603290215347|88368791
+EpDAs above, first paragraph of an entry is always formatted as heading
+N 202603290215347|202603290215347|90645183
+EpD
+N 202603290215347|202603290215347|72262367
+Ep<S_E~0_____~~~~~Subheadings
+N 202603290215347|202603290215347|25173661
+EpDParagraphs starting with a space (" ") are formatted as a subheading
+N 202603290215347|202603290215347|91822676
+EpD
+N 202603290215347|202603290215347|72966313
+Ep<S_E~0_____~~~~~wiki-style richtext formatting
+N 202603290215347|202603290215347|73286783
+Ep<_-E~1_____~~~~~By using special characters you can format text [[and add comments]]
+EfI9|16|
+EfS17|27|
+EfH28|35|
+EfB36|42|
+N 202603290215347|202603290215347|80137460
+EpD
+N 202603290215347|202603290215347|75362590
+Ep<S_E~0_____~~~~~Links (activated by long clicking)
+N 202603290215347|202603290215347|65630282
+EpDDates entered in YEAR/MONTH/DAY format are converted into links:
+N 202603290215347|202603290215347|65104330
+Ep<_-E~1_____~~~~~2012-09-16, 2014/11/20
+N 202603290215347|202603290215347|44108740
+EpDa new entry is created if the target date is empty.
+N 202603290215347|202603290215347|11368529
+EpD
+N 202603290215347|202603290215347|91122786
+EpDWeb and email addresses in the text are detected and automatically converted to links:
+N 202603290215347|202603290215347|11907739
+Ep<_-E~1_____~~~~~http://web.address
+N 202603290215347|202603290215347|63513309
+Ep<_-E~1_____~~~~~email@ddress
+N 202603290215347|202603290215347|88996607
+EpD
+N 202603290215347|202603290215347|88384955
+EpDgeneral
+EfT0|7|10043
+
+ID10002
+E __n_BN___~~~~~~201501040173432
+Ec201501040173432
+Ee202603290220645
+Eha10033
+Emgeneral
+N 202603290215347|202603290215347|34033482
+EpDComparison with Desktop Version
+N 202603290215347|202603290215347|28213603
+EpD
+N 202603290215347|202603290220628|89220785
+EpDAndroid version provides most of the features in the Linux desktop version and the missing functionality —as long as it makes sense in Android environment— will be implemented in the future releases. The main functionality missing on Android are as follows:
+N 202603290215347|202603290220633|55717093
+Ep<_-E~1_____~~~~~Hidden entries and filtering by date interval
+N 202603290215347|202603290220637|80876489
+Ep<_-E~1_____~~~~~Printing
+N 202603290215347|202603290220640|45802630
+Ep<_-E~1_____~~~~~Importing and exporting
+N 202603290220003|202603290220645|29939051
+Ep<_-E~1_____~~~~~Python scripting
+N 202603290220458|202603290220518|99735799
+Ep<_-E~1_____~~~~~Text editor background images and gradients
+N 202603290215347|202603290215347|32584616
+EpD
+N 202603290215347|202603290215347|93476831
+EpDAndroid version can open any file created by the desktop version. Unsupported information will be preserved on save.
+N 202603290215347|202603290215347|60912033
+EpDgeneral
+EfT0|7|10043
+
+ID89793631
+E __n_DN___~~~~~~202405200000000
+Ec202603290215459
+Ee202603290221210
+Eha10032
+Emmajor milestone
+N 202603290215459|202603290215537|12961888
+EpD1.0.0 / the spring of goliath
+N 202603290215459|202603290215741|89402964
+EpD2024-05-20
+N 202603290215459|202603290221210|51876622
+Ep<S_E~0_____~~~~~What is new?
+N 202603290221150|202603290221200|96520551
+Ep<_-E~1_____~~~~~Somewhat improved filter editor (Initial work towards an editor that mimics the desktop editor)
+N 202603290221152|202603290221152|49540531
+Ep<_-E~1_____~~~~~Bumped up dependencies.
 
 ID4710117
-E__n1059421185
-Dr1604127746
-Dh1604141675
-Ds1604127746
-P 0.9.0 / one can enter the same data stream twice
-P 
-P  What is new?
-P 
-P 	• Enable editing after opening a diary file, rather than deciding before opening
-P 	• Completed support for lock files
-P 	• Some huge code cleanups
-P 	• Updated dependencies
+E __n_DN___~~~~~~202010310000000
+Ec202010310100226
+Ee202603290220701
+Eha89793631
+N 202603290215347|202603290215347|33853341
+EpD0.9.0 / one can enter the same data stream twice
+N 202603290215347|202603290215347|83893984
+EpD2020-10-31
+N 202603290215347|202603290220701|41376937
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|50248965
+Ep<_-E~1_____~~~~~Enable editing after opening a diary file, rather than deciding before opening
+N 202603290215347|202603290215347|91031227
+Ep<_-E~1_____~~~~~Completed support for lock files
+N 202603290215347|202603290215347|27453274
+Ep<_-E~1_____~~~~~Some huge code cleanups
+N 202603290215347|202603290215347|29778920
+Ep<_-E~1_____~~~~~Updated dependencies
 
 ID2112607
-E__n1058825217
-Dr1566717252
-Dh1566717596
-Ds1566717252
-P 0.8.1 /
-P 
-P  What is new?
-P 
-P 	• Added support for 64bit native code
-P 	• Create element IDs randomly to eliminate false matches during synchronization
-P 	• Updated default theme colors to match Lifeograph palette
-P 	• Improved contrast of button text
-P 	• Updated dependencies
+E __n_DN___~~~~~~201908250000000
+Ec201908250101412
+Ee202603290220706
+Eha4710117
+N 202603290215347|202603290215347|64922695
+EpD0.8.1 /
+N 202603290215347|202603290215347|51222441
+EpD2019-08-25
+N 202603290215347|202603290220706|88744764
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|36639684
+Ep<_-E~1_____~~~~~Added support for 64bit native code
+N 202603290215347|202603290215347|97038478
+Ep<_-E~1_____~~~~~Create element IDs randomly to eliminate false matches during synchronization
+N 202603290215347|202603290215347|34344158
+Ep<_-E~1_____~~~~~Updated default theme colors to match Lifeograph palette
+N 202603290215347|202603290215347|39256787
+Ep<_-E~1_____~~~~~Improved contrast of button text
+N 202603290215347|202603290215347|74246408
+Ep<_-E~1_____~~~~~Updated dependencies
 
 ID10013
-E__n1058364417
-Dr1540323971
-Dh1540324592
-Ds1540323971
-TTmajor milestone
-P 0.8.0 / artemisia
-P 
-P  What is new?
-P 	• Added support for "Auto" todo status
-P 	• Use monospace font for to-do item check boxes
-P 	• Updated icons to match the new ones in the desktop version
-P 	• Ask for confirmation when upgrading diary files
-P 	• Removed support for diary file version 110
-P 	• Some code cleanups & modernizations
+E __n_DN___~~~~~~201810230000000
+Ec201810230224611
+Ee201810230225632
+Eha2112607
+Emmajor milestone
+N 202603290215347|202603290215347|20190805
+EpD0.8.0 / artemisia
+N 202603290215347|202603290215347|57770618
+EpD2018-10-23
+N 202603290215347|202603290215347|86366856
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|28748273
+Ep<_-E~1_____~~~~~Added support for "Auto" todo status
+N 202603290215347|202603290215347|93270294
+Ep<_-E~1_____~~~~~Use monospace font for to-do item check boxes
+N 202603290215347|202603290215347|26176480
+Ep<_-E~1_____~~~~~Updated icons to match the new ones in the desktop version
+N 202603290215347|202603290215347|55362398
+Ep<_-E~1_____~~~~~Ask for confirmation when upgrading diary files
+N 202603290215347|202603290215347|82570732
+Ep<_-E~1_____~~~~~Removed support for diary file version 110
+N 202603290215347|202603290215347|88851480
+Ep<_-E~1_____~~~~~Some code cleanups & modernizations
+N 202603290215347|202603290215347|68505321
+EpDmajor milestone
+EfT0|15|10008
 
 ID10012
-E__n1057370113
-Dr1481571938
-Dh1481572018
-Ds1481571938
-P 0.7.1 /
-P 
-P  What is new?
-P 
-P 	• Improved reading encrypted files
+E __n_DN___~~~~~~201612120000000
+Ec201612120224538
+Ee202603290220711
+Eha10013
+N 202603290215347|202603290215347|42647743
+EpD0.7.1 /
+N 202603290215347|202603290215347|45595935
+EpD2016-12-12
+N 202603290215347|202603290220711|50687521
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|88291933
+Ep<_-E~1_____~~~~~Improved reading encrypted files
 
 ID10005
-E__n1057338369
-Dr1478417410
-Dh1479068781
-Ds1478417410
-TTmajor milestone
-P 0.7.0 / Parametric tags
-P 
-P  What is new?
-P 	• New UI for tagging entries akin to the desktop version
-P 	• Read-only mode
-P 	• Statistical graphs
-P 	• Support for parametric tags
-P 	• Adoption of Material Design and various UI improvements
-P 	• Ability to enter custom diary paths
-P 	• Several fixes and minor improvements
+E __n_DN___~~~~~~201611130000000
+Ec201611060103010
+Ee201611130232621
+Eha10012
+Emmajor milestone
+N 202603290215347|202603290215347|59583505
+EpD0.7.0 / Parametric tags
+N 202603290215347|202603290215347|37993429
+EpD2016-11-13
+N 202603290215347|202603290215347|52707362
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|64151897
+Ep<_-E~1_____~~~~~New UI for tagging entries akin to the desktop version
+N 202603290215347|202603290215347|86976353
+Ep<_-E~1_____~~~~~Read-only mode
+N 202603290215347|202603290215347|79895299
+Ep<_-E~1_____~~~~~Statistical graphs
+N 202603290215347|202603290215347|63722392
+Ep<_-E~1_____~~~~~Support for parametric tags
+N 202603290215347|202603290215347|43794615
+Ep<_-E~1_____~~~~~Adoption of Material Design and various UI improvements
+N 202603290215347|202603290215347|93455708
+Ep<_-E~1_____~~~~~Ability to enter custom diary paths
+N 202603290215347|202603290215347|67436806
+Ep<_-E~1_____~~~~~Several fixes and minor improvements
+N 202603290215347|202603290215347|70302379
+EpDmajor milestone
+EfT0|15|10008
 
 ID10011
-E__n1057014785
-Dr1452637872
-Dh1453049366
-Ds1452637872
-P 0.6.0 / Lists in entries
-P 
-P  What is new?
-P 	• Added support for check lists and bullet lists in entries
-P 	• Basic support for numeric lists in entries
-P 	• Added the ability to edit theme colors
-P 	• Increased the number of backup files to 2
-P 	• Improved the text search behavior
-P 	• Added an option to use the internal storage for diaries
-P 	• Changing date of a chapter
-P 	• Fixed some bugs
+E __n_DN___~~~~~~201601170000000
+Ec201601130003112
+Ee201601170184926
+Eha10005
+N 202603290215347|202603290215347|10023870
+EpD0.6.0 / Lists in entries
+N 202603290215347|202603290215347|31185607
+EpD2016-01-17
+N 202603290215347|202603290215347|86943993
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|20817423
+Ep<_-E~1_____~~~~~Added support for check lists and bullet lists in entries
+N 202603290215347|202603290215347|32248797
+Ep<_-E~1_____~~~~~Basic support for numeric lists in entries
+N 202603290215347|202603290215347|79795461
+Ep<_-E~1_____~~~~~Added the ability to edit theme colors
+N 202603290215347|202603290215347|14672921
+Ep<_-E~1_____~~~~~Increased the number of backup files to 2
+N 202603290215347|202603290215347|91324802
+Ep<_-E~1_____~~~~~Improved the text search behavior
+N 202603290215347|202603290215347|30207437
+Ep<_-E~1_____~~~~~Added an option to use the internal storage for diaries
+N 202603290215347|202603290215347|34175516
+Ep<_-E~1_____~~~~~Changing date of a chapter
+N 202603290215347|202603290215347|97673971
+Ep<_-E~1_____~~~~~Fixed some bugs
 
 ID10007
-E__n1056615425
-Dr1431372492
-Dh1431372573
-Ds1431372492
-P 0.5.1 /
-P 
-P  What is new?
-P 
-P 	• Added German and Turkish translations
-P 	• Fixed calendar bug related to creating entries
+E __n_DN___~~~~~~201505110000000
+Ec201505110222812
+Ee201505110222933
+Eha10011
+N 202603290215347|202603290215347|32337812
+EpD0.5.1 /
+N 202603290215347|202603290215347|90252071
+EpD2015-05-11
+N 202603290215347|202603290215347|48686787
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|81994364
+EpD
+N 202603290215347|202603290215347|66277543
+Ep<_-E~1_____~~~~~Added German and Turkish translations
+N 202603290215347|202603290215347|75698062
+Ep<_-E~1_____~~~~~Fixed calendar bug related to creating entries
 
 ID10001
-E__n1056477185
-Dr1420383747
-Dh1420384001
-Ds1420383747
-TTmajor milestone
-P 0.5.0 / Encryption!
-P 
-P  What is new?
-P 	• Added support for encrypted diaries
-P 	• Added in app purchase option to remove ads
-P 	• Added a toolbar button to easily add comments to entries
-P 	• Fixes some bugs
+E __n_DN___~~~~~~201501040000000
+Ec201501040170227
+Ee201501040170641
+Eha10007
+Emmajor milestone
+N 202603290215347|202603290215347|90986964
+EpD0.5.0 / Encryption!
+N 202603290215347|202603290215347|93063459
+EpD2015-01-04
+N 202603290215347|202603290215347|67445016
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|77298920
+Ep<_-E~1_____~~~~~Added support for encrypted diaries
+N 202603290215347|202603290215347|97343079
+Ep<_-E~1_____~~~~~Added in app purchase option to remove ads
+N 202603290215347|202603290215347|23501915
+Ep<_-E~1_____~~~~~Added a toolbar button to easily add comments to entries
+N 202603290215347|202603290215347|54266045
+Ep<_-E~1_____~~~~~Fixes some bugs
+N 202603290215347|202603290215347|66269493
+EpDmajor milestone
+EfT0|15|10008
 
 ID10003
-E__n1056296961
-Dr1409577396
-Dh1420383732
-Ds1409577396
-P 0.4.0 /
-P 
-P  What is new?
-P 	• Support for color themes in entry editor
-P 	• Support for links to URIs and other entries (activated via long press)
-P 	• Addded an ever present calendar for bigger devices (options activated via long press)
-P 	• Tag categories can be created, renamed and dismissed
-P 	• Chapter categories can be renamed and dismissed
-P 	• Added a search box to the entry tool bar
-P 	• Improvements to the look of the app
-P 	• Many small fixes and performance improvements
-P 
-P 
+E __n_DN___~~~~~~201411200000000
+Ec201409010161636
+Ee201501040170212
+Eha10001
+N 202603290215347|202603290215347|37266332
+EpD0.4.0 /
+N 202603290215347|202603290215347|22179843
+EpD2014-11-20
+N 202603290215347|202603290215347|12187931
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|19607859
+Ep<_-E~1_____~~~~~Support for color themes in entry editor
+N 202603290215347|202603290215347|72598876
+Ep<_-E~1_____~~~~~Support for links to URIs and other entries (activated via long press)
+N 202603290215347|202603290215347|44839735
+Ep<_-E~1_____~~~~~Addded an ever present calendar for bigger devices (options activated via long press)
+N 202603290215347|202603290215347|51978707
+Ep<_-E~1_____~~~~~Tag categories can be created, renamed and dismissed
+N 202603290215347|202603290215347|55339068
+Ep<_-E~1_____~~~~~Chapter categories can be renamed and dismissed
+N 202603290215347|202603290215347|67718353
+Ep<_-E~1_____~~~~~Added a search box to the entry tool bar
+N 202603290215347|202603290215347|92208601
+Ep<_-E~1_____~~~~~Improvements to the look of the app
+N 202603290215347|202603290215347|34029321
+Ep<_-E~1_____~~~~~Many small fixes and performance improvements
+N 202603290215347|202603290215347|17276165
+EpD
+N 202603290215347|202603290215347|76096934
+EpD
 
 ID10047
-E__n1056267265
-Dr1375512954
-Dh1420383694
-Ds1375512954
-P 0.3.0 / 
-P 
-P  What is new?
-P 	• Brand new user interface with a new theme
-P 	• Entries, chapters and tags are shown in separate tabs
-P 	• Added "Untagged" virtual tag to list untagged entries
-P 	• Existing tag categories are visible now
-P 	• Implemented changing the current chapter category
-P 	• A new option to change the location of diary files
-P 	• Exporting the diary as a plain text file
-P 	• Last version of a diary is backed up on save
-P 	• Editing the date of an existing entry
-P 	• Many more...
+E __n_DN___~~~~~~201410230000000
+Ec201308030095554
+Ee201501040170134
+Eha10003
+N 202603290215347|202603290215347|21771317
+EpD0.3.0 / 
+N 202603290215347|202603290215347|80033250
+EpD2014-10-23
+N 202603290215347|202603290215347|56375345
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|33670511
+Ep<_-E~1_____~~~~~Brand new user interface with a new theme
+N 202603290215347|202603290215347|39654710
+Ep<_-E~1_____~~~~~Entries, chapters and tags are shown in separate tabs
+N 202603290215347|202603290215347|52529071
+Ep<_-E~1_____~~~~~Added "Untagged" virtual tag to list untagged entries
+N 202603290215347|202603290215347|63806086
+Ep<_-E~1_____~~~~~Existing tag categories are visible now
+N 202603290215347|202603290215347|58290915
+Ep<_-E~1_____~~~~~Implemented changing the current chapter category
+N 202603290215347|202603290215347|22782731
+Ep<_-E~1_____~~~~~A new option to change the location of diary files
+N 202603290215347|202603290215347|76949987
+Ep<_-E~1_____~~~~~Exporting the diary as a plain text file
+N 202603290215347|202603290215347|89532237
+Ep<_-E~1_____~~~~~Last version of a diary is backed up on save
+N 202603290215347|202603290215347|92999235
+Ep<_-E~1_____~~~~~Editing the date of an existing entry
+N 202603290215347|202603290215347|85280685
+Ep<_-E~1_____~~~~~Many more...
 
 ID10009
-E__n1056225281
-Dr1338845645
-Dh1420382546
-Ds1338845645
-TTmajor milestone
-P 0.2.0 / Real start
-P 
-P  What is new?
-P 	• Fixed/improved markup character handling
-P 	• Fixed numerous bugs
-P 	• Updated Czech translation
-P 
-P 
+E __n_DN___~~~~~~201409140000000
+Ec201206050003405
+Ee201501040164226
+Eha10047
+Emmajor milestone
+N 202603290215347|202603290215347|38617536
+EpD0.2.0 / Real start
+N 202603290215347|202603290215347|52350698
+EpD2014-09-14
+N 202603290215347|202603290215347|28049601
+Ep<S_E~0_____~~~~~What is new?
+N 202603290215347|202603290215347|95161995
+Ep<_-E~1_____~~~~~Fixed/improved markup character handling
+N 202603290215347|202603290215347|77145092
+Ep<_-E~1_____~~~~~Fixed numerous bugs
+N 202603290215347|202603290215347|28380397
+Ep<_-E~1_____~~~~~Updated Czech translation
+N 202603290215347|202603290215347|33889092
+EpD
+N 202603290215347|202603290215347|85743530
+EpD
+N 202603290215347|202603290215347|31150075
+EpDmajor milestone
+EfT0|15|10008
+
+ID10046
+E __n_MN___~~~~~~201409140000000
+Ec202603290215347
+Ee202603290215347
+Et200306210225440
+Eha10009
+N 202603290215347|202603290215347|65505615
+EpDOn the Way to Maturity
 
 ID10010
-E__n1055178753
-Dr1338845739
-Dh1420384398
-Ds1338845739
-TTmajor milestone
-P 0.1.0 / First release
-P 
-P First Android release with most of the main features in
+E __n_DN___~~~~~~201209160000000
+Ec201206050003539
+Ee201501040171318
+Eha10046
+Emmajor milestone
+N 202603290215347|202603290215347|15404020
+EpD0.1.0 / First release
+N 202603290215347|202603290215347|26183345
+EpD2012-09-16
+N 202603290215347|202603290215347|90890414
+EpDFirst Android release with most of the main features in
+N 202603290215347|202603290215347|93669576
+EpDmajor milestone
+EfT0|15|10008
 
+ID10006
+E __n_MN___~~~~~~201209160000000
+Ec202603290215347
+Ee202603290215347
+Et200306090201232
+Eha10010
+N 202603290215347|202603290215347|16901506
+EpDInfancy
+
+ID75351837
+E __n_NN___~~~~~~202603290215347
+Ec202603290215347
+Ee202603290215358
+Eha10006
+N 202603290215347|202603290215358|18843528
+EpDTags
+
+ID10043
+E __n_NN___~~~~~~202603290215347
+Ec202603290215347
+Ee202603290215347
+Et203801310094728
+Ehu75351837
+N 202603290215347|202603290215347|61143742
+EpDgeneral
+
+ID10008
+E __n_NN___~~~~~~202603290215347
+Ec202603290215347
+Ee202603290215347
+Et203801310100433
+Eha10043
+N 202603290215347|202603290215347|86251473
+EpDmajor milestone
