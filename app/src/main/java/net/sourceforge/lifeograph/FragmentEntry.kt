@@ -98,7 +98,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
-                if(!mFlagSetTextOperation) {
+                if(!mFlagSetTextOperation && !mFlagBlockFormatter) {
                     // if( start > 0 ) {
                     // m_pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
                     // if( m_pos_start == -1 )
@@ -238,6 +238,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         item = menu.findItem(R.id.change_todo_status)
         val toDoAction = MenuItemCompat.getActionProvider(item) as ToDoAction
         toDoAction.mObject = this
+
+        updateIcons()
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -306,7 +308,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         return true
     }
 
-    private fun updateIcon() {
+    private fun updateIcons() {
         /*if( m_ptr2entry.is_favored() ) {
             Bitmap bmp = BitmapFactory.decodeResource(
                     getResources(), m_ptr2entry.get_icon() )
@@ -335,7 +337,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     else R.drawable.ic_favorite_inactive)
 
             mMenu.findItem(R.id.change_todo_status).setIcon(
-                    when(mEntry._todo_status_effective) {
+                    when(mEntry._todo_status) {
                         Entry.ES_TODO ->       R.drawable.ic_todo_open_inactive
                         Entry.ES_PROGRESSED -> R.drawable.ic_todo_progressed_inactive
                         Entry.ES_DONE ->       R.drawable.ic_todo_done_inactive
@@ -377,7 +379,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         // if( flagParse )
         // parse();
         Lifeograph.getActionBar().subtitle = mEntry._name // TODO: _title_str
-        updateIcon()
         //invalidateOptionsMenu(); // may be redundant here
 
         // BROWSING HISTORY
@@ -387,7 +388,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private fun toggleFavorite() {
         mEntry.toggle_favorite()
-        updateIcon()
+        updateIcons()
     }
 
     private fun dismiss() {
@@ -451,7 +452,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     override fun setTodoStatus(s: Int) {
         mEntry._todo_status = s
-        updateIcon()
+        updateIcons()
     }
 
     // InquireListener methods
@@ -517,16 +518,13 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             if(shouldStop) break
             bgn--
         }
-
         // forward_find_char logic
-        if(type == 'T') { // i.e. VT::HFT_TAG
-            while(end < str.length && STR.is_char_name(str[end])) {
-                end++
-            }
-        } else {
-            while(end < str.length && !STR.is_char_name(str[end])) {
-                end++
-            }
+        while(end < str.length) {
+            val charAfter = str[end]
+            val shouldStop = if(type == 'T') !STR.is_char_name(charAfter)
+                             else STR.is_char_space(charAfter)
+            if(shouldStop) break
+            end++
         }
 
         // if omitting punctuation did not end well:
@@ -556,7 +554,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val paraEnd = mEntry.get_paragraph(bounds[1], true)
         val posBgn  = bounds[0] - paraBgn._bgn_offset_in_host
         val posEnd  = bounds[1] - paraEnd._bgn_offset_in_host
-        val fAlready : Boolean = paraBgn.get_format_at(type, bounds[0]) != null
+        val fAlready : Boolean = paraBgn.get_format_at(type, posBgn) != null
 
         if( !fCheckOnly ) {
             var p: Paragraph? = paraBgn
@@ -613,7 +611,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             // TODO: 2.1: limit to: if( mentry.get_todo_status() & ES::NOT_TODO )
             mEntry.update_todo_status()
 
-            updateIcon()
+            updateIcons()
     }
 
     private fun addComment() {
