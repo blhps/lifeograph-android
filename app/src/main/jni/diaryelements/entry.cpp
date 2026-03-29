@@ -1525,9 +1525,9 @@ Entry::add_paragraphs_after( Paragraph* const para_chain_bgn, Paragraph* const p
     if( para_before && !para_before->is_empty() )
         para_chain_bgn->inherit_style_from( para_before, ic );
 
-    // undo except for SET_TEXT operations (on add operations undo is added after the operation):
     if( !ic.contains( ParaInhClass::SET_TEXT ) )
     {
+        // UNDO (on add operations undo is added after the operation):
         const int offset { para_before ? para_before->get_end_offset_in_host() : 0 };
 
         add_undo_action( UndoableType::INSERT_TEXT,
@@ -1535,11 +1535,8 @@ Entry::add_paragraphs_after( Paragraph* const para_chain_bgn, Paragraph* const p
                          offset,
                          offset + chain_char_count )
             ->m_n_paras_after = chain_para_count;
-    }
 
-    // DATE UPDATES
-    if( !ic.contains( ParaInhClass::SET_TEXT ) )
-    {
+        // DATE UPDATES
         update_date_edited();
         update_inline_dates( para_chain_bgn, para_chain_end );
     }
@@ -1937,12 +1934,13 @@ Entry::get_sub_tags( const DiaryElemTag* tag ) const
 void
 Entry::add_tag( DiaryElemTag* tag, Value value )
 {
-    // NOTE: does manipulation through other functions. so, does not update edit date
+    // NOTE: for low level operations. does not update Entry's edit date
 
     if( is_empty() )
-        add_paragraph_before( "", nullptr );
+        add_paragraph_before( "", nullptr, nullptr, ParaInhClass::SET_TEXT );
 
-    add_paragraph_before( tag->get_name(), nullptr )->add_format_tag( tag, 0 );
+    add_paragraph_before( tag->get_name(), nullptr, nullptr, ParaInhClass::SET_TEXT )
+            ->add_format_tag( tag, 0 );
 
     if( value != 1.0 )
         m_p2para_last->append( STR::compose( value ),

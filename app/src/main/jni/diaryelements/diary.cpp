@@ -932,6 +932,7 @@ Diary::upgrade_to_3000()
             return false;
         }
 
+        // assign date to ordinal entries + set title style:
         for( auto&& kv_e : m_entries )
         {
             Entry* e{ kv_e.second };
@@ -972,10 +973,14 @@ Diary::upgrade_to_3000()
 
             if( e->m_date_edited < DateV( DateOld::DATE_MAX ) ) // if not already upgraded
                 e->set_date_edited( Date::make_from_ctime( e->m_date_edited ) );
-            if( m_read_version < 2014 )
-                e->m_date_finish = Date::make_from_ctime( e->m_date_finish );
-            else
-                tmp_upgrade_date_to_3000( e->m_date_finish );
+
+            if( e->m_date_finish < DateV( DateOld::DATE_MAX ) ) // if not already upgraded
+            {
+                if( m_read_version < 2014 )
+                    e->m_date_finish = Date::make_from_ctime( e->m_date_finish );
+                else
+                    tmp_upgrade_date_to_3000( e->m_date_finish );
+            }
 
             m_entries.emplace( e->m_date, e );
 
@@ -1836,6 +1841,7 @@ Diary::parse_db_body_text_1050()
 
     // TAGS TOP LEVEL
     p2entry = new Entry( this, DateOld::make_ordinal( false, ++tag_o1, 0 ) );
+    p2entry->m_date_finish = p2entry->m_date_created;
     m_entries.emplace( p2entry->m_date, p2entry );
     m_cache_tags[ p2entry->get_id() ] = p2entry;
     p2entry->add_paragraph_before( "[###>", nullptr, nullptr, ParaInhClass::SET_TEXT );
@@ -1856,6 +1862,7 @@ Diary::parse_db_body_text_1050()
                 // TAGS
                 case 'T':   // tag category
                     p2entry = new Entry( this, DateOld::make_ordinal( false, tag_o1, ++tag_o2 ) );
+                    p2entry->m_date_finish = p2entry->m_date_created;
                     m_entries.emplace( p2entry->m_date, p2entry );
                     m_cache_tags[ p2entry->get_id() ] = p2entry;
                     p2entry->add_paragraph_before( line.substr( 2 ), nullptr, nullptr,
@@ -2060,15 +2067,17 @@ Diary::parse_db_body_text_1050()
         switch( line[ 0 ] )
         {
             case 'I':
+                // add tags as inline tags
+                tmp_add_tags_as_paragraph( p2entry, entry_tags );
+                // it is important to ensure setting force ID is directly followed
+                // by new Entry() so paragraphs have to be added before setting it
+
                 m_force_id = D::DEID( line.substr( 2 ) );
                 break;
             case 'E':   // new entry
             case 'e':   // trashed
                 if( line.size() < 5 )
                     continue;
-
-                // add tags as inline tags
-                tmp_add_tags_as_paragraph( p2entry, entry_tags );
 
                 p2entry = new Entry( this, std::stoul( line.substr( 4 ) ),
                                      line[ 1 ] == 'f' ? ES::ENTRY_DEFAULT_FAV : ES::ENTRY_DEFAULT );
@@ -2151,9 +2160,8 @@ Diary::parse_db_body_text_1050()
 #ifdef __ANDROID__
 // Andorid does not use the Gio::File system and fills the m_sstream itself
 LoG::Result
-Diary::read_header( const char* buffer, size_t size, const String& uri )
+Diary::read_header( const char* buffer, size_t size )
 {
-    m_uri = uri;
     m_size_bytes = size;
 
     if( m_sstream ) delete m_sstream;

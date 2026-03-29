@@ -105,14 +105,10 @@ public class Diary extends DiaryElement
     get_uri_unsaved() { return nativeGetUriUnsaved(mNativePtr); }
 
     boolean
-    is_old() {
-        return nativeIsOld(mNativePtr);
-    }
+    is_old() { return nativeIsOld(mNativePtr); }
 
     boolean
-    is_encrypted() {
-        return nativeIsEncrypted(mNativePtr);
-    }
+    is_encrypted() { return nativeIsEncrypted(mNativePtr); }
 
     boolean
     is_open() {
@@ -567,32 +563,42 @@ public class Diary extends DiaryElement
     }
 
     // READING =====================================================================================
+    /** reimplements C++'s Diary::set_path() */
     Result
     setPath( Context ctx, String uriStr/*, SetPathType type*/ ) {
-        String name = FileUtil.getFileName( Uri.parse(uriStr), ctx );
         removeLockIfNecessary(ctx);
+        clear();
+
         nativeSetUri(mNativePtr, uriStr);
-        nativeSetName(mNativePtr, name);
+
+        if( uriStr.equals( sExampleDiaryPath ) ) {
+            nativeSetName(mNativePtr, sExampleDiaryName);
+            nativeSetReadOnly(mNativePtr);
+            return Result.SUCCESS;
+        }
+
+        nativeSetName(mNativePtr, FileUtil.getFileName( Uri.parse(uriStr), ctx ));
         return isLocked(ctx) ? Result.FILE_LOCKED : Result.SUCCESS;
     }
 
-    protected Result
-    read_header(android.content.Context context) {
-        android.net.Uri uri = android.net.Uri.parse(get_uri());
-        try (java.io.InputStream inputStream =
-                     context.getContentResolver().openInputStream(uri)) {
-            if (inputStream == null) return Result.FILE_NOT_FOUND;
+    protected Result read_header( Context ctx ) {
+        String uriStr = nativeGetUri( mNativePtr );
 
-            // Read all bytes from the stream
-            byte[] bytes = getBytesFromInputStream(inputStream);
+        try( InputStream inputStream = uriStr.equals( sExampleDiaryPath ) ?
+                               ctx.getAssets().open( "example.diary" ) :
+                               ctx.getContentResolver() .openInputStream( Uri.parse( uriStr ) ) ) {
 
-            // Call the native method
-            int result = nativeReadHeader(mNativePtr, bytes, uri.toString());
-            return Result.values()[result];
-        } catch (Exception e) {
+            if( inputStream == null ) return Result.FILE_NOT_FOUND;
+
+            byte[] bytes = getBytesFromInputStream( inputStream );
+            int result = nativeReadHeader( mNativePtr, bytes );
+            return Result.values()[ result ];
+        }
+        catch( Exception e ) {
             return Result.FAILURE;
         }
     }
+
     // Helper method to convert InputStream to byte[]
     private byte[] getBytesFromInputStream(java.io.InputStream is) throws java.io.IOException {
         java.io.ByteArrayOutputStream os = new java.io.ByteArrayOutputStream();
@@ -870,9 +876,10 @@ public class Diary extends DiaryElement
     private native void nativeInitNewPre(long ptr);
     private native int nativeInitNew(long ptr, String path, String pw);
     private native void nativeClear(long ptr);
-    private native int nativeReadHeader(long ptr, byte[] data, String uri);
+    private native int nativeReadHeader(long ptr, byte[] data);
     private native int nativeReadBody(long ptr);
     private native void nativeSetName(long ptr, String name);
+    private native void nativeSetReadOnly(long ptr);
     private native String nativeGetPassphrase(long ptr);
     private native boolean nativeSetPassphrase(long ptr, String pw);
     //private native int nativeGetReadVersion(long ptr);

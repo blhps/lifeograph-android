@@ -65,17 +65,14 @@ JNI_METHOD(void, Diary_nativeClear)(JNIEnv* env, jobject obj, jlong ptr) {
     reinterpret_cast<LoG::Diary*>(ptr)->clear();
 }
 
-JNI_METHOD(jint, Diary_nativeReadHeader)(JNIEnv* env, jobject obj, jlong ptr, jbyteArray data,
-        jstring uri) {
+JNI_METHOD(jint, Diary_nativeReadHeader)(JNIEnv* env, jobject obj, jlong ptr, jbyteArray data) {
     jbyte* bufferPtr = env->GetByteArrayElements(data, nullptr);
     jsize size = env->GetArrayLength(data);
-    const char* uriStr = env->GetStringUTFChars(uri, nullptr);
 
     // Access your Diary instance
-    LoG::Result result = reinterpret_cast<LoG::Diary*>(ptr)->read_header((char*)bufferPtr, size, uriStr);
+    LoG::Result result = reinterpret_cast<LoG::Diary*>(ptr)->read_header((char*)bufferPtr, size);
 
     env->ReleaseByteArrayElements(data, bufferPtr, JNI_ABORT);
-    env->ReleaseStringUTFChars(uri, uriStr);
 
     return (jint)result;
 }
@@ -88,6 +85,10 @@ JNI_METHOD(void, Diary_nativeSetName)(JNIEnv* env, jobject obj, jlong ptr, jstri
     const char* c_name = env->GetStringUTFChars(name, nullptr);
     reinterpret_cast<LoG::Diary*>(ptr)->set_name(c_name);
     env->ReleaseStringUTFChars(name, c_name);
+}
+
+JNI_METHOD(void, Diary_nativeSetReadOnly)(JNIEnv* env, jobject obj, jlong ptr) {
+    reinterpret_cast<LoG::Diary*>(ptr)->set_read_only();
 }
 
 JNI_METHOD(jstring, Diary_nativeGetPassphrase)(JNIEnv* env, jobject obj, jlong ptr) {

@@ -88,6 +88,10 @@ class Diary : public DiaryElement, public PropertyContainer
         { return( m_login_status == LOGGED_IN_EDIT ); }
         bool                    can_enter_edit_mode() const
         { return( m_F_read_only == false ); }
+
+#ifdef __ANDROID__
+        void                    set_read_only() { m_F_read_only = true; }
+#endif
         bool                    is_logged_time_out() const
         { return( m_login_status == LOGGED_TIME_OUT ); }
         void                    set_timed_out()
@@ -586,7 +590,7 @@ class Diary : public DiaryElement, public PropertyContainer
 
         LoG::Result             read_body();
 #ifdef __ANDROID__
-        LoG::Result             read_header( const char*, size_t, const String& );
+        LoG::Result             read_header( const char*, size_t );
 #endif
         LoG::Result             read_header();
 

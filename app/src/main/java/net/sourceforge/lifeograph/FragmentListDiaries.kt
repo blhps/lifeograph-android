@@ -277,7 +277,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun openDiary1(path: String) {
-        when(Diary.getMain().setPath(context,path)) {
+        when(Diary.getMain().setPath(context, path)) {
             Result.SUCCESS -> openDiary3()
             Result.FILE_NOT_FOUND -> Lifeograph.showToast("File is not found")
             Result.FILE_NOT_READABLE -> Lifeograph.showToast("File is not readable")
