@@ -177,9 +177,9 @@ class Lifeograph : Application() {
                                        R.string.logoutwosaving_confirm,
                                        R.string.logoutwosaving
                                       ) { _: DialogInterface?, _: Int ->
-                    // unlike desktop version Android version
-                    // does not back up changes
                     dm.writeUnsaved(context)
+                    dm.removeLockIfNecessary(context)
+                    dm.clear()
                     view.findNavController().navigate(R.id.nav_diaries)
                 }
             }
