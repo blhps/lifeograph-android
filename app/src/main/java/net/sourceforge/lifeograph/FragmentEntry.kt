@@ -74,13 +74,14 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         //Lifeograph.updateScreenSizes( this );
 
         mEditText = view.findViewById(R.id.editTextEntry)
-        //mEditText.movementMethod = LinkMovementMethod.getInstance()
-        //mKeyListener = mEditText.keyListener
         if(!Diary.getMain().is_in_edit_mode) {
-            mEditText.setRawInputType( InputType.TYPE_NULL )
-            //mEditText.isFocusable = false
-            //mEditText.setTextIsSelectable(true) --above seems to work better
-            //mEditText.keyListener = null
+            // allows the user to move the cursor and select text,
+            // but prevents the keyboard from popping up and changing text
+            mEditText.showSoftInputOnFocus = false
+            mEditText.isFocusable = true
+            mEditText.isFocusableInTouchMode = true
+            mEditText.setTextIsSelectable(true)
+            mEditText.keyListener = null
 
             view.findViewById<View>(R.id.toolbar_text_edit).visibility = View.GONE
         }
@@ -129,6 +130,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //            }
 //        }
 
+        // the below method is much more reliable for links than LinkMovementMethod
         mEditText.customSelectionActionModeCallback = object : ActionMode.Callback {
             override fun onPrepareActionMode(mode: ActionMode, menu: Menu): Boolean {
                 return true
@@ -283,14 +285,12 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     override fun enableEditing() {
         super.enableEditing()
 
-        mEditText.setRawInputType(InputType.TYPE_CLASS_TEXT)
-        //mEditText.isFocusable = true
-        // force soft keyboard to be shown:
-//        if(mEditText.requestFocus()) {
-//            val imm = requireContext().getSystemService(
-//                    Context.INPUT_METHOD_SERVICE) as InputMethodManager
-//            imm.showSoftInput(mEditText, InputMethodManager.SHOW_IMPLICIT)
-//        }
+        mEditText.showSoftInputOnFocus = true // Restore keyboard behavior
+        mEditText.keyListener = android.text.method.TextKeyListener.getInstance()
+        mEditText.setRawInputType(InputType.TYPE_CLASS_TEXT or InputType.TYPE_TEXT_FLAG_MULTI_LINE)
+        mEditText.isFocusable = true
+        mEditText.isFocusableInTouchMode = true
+
         requireActivity().findViewById<View>(R.id.toolbar_text_edit).visibility = View.VISIBLE
         reparse()
     }
