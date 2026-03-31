@@ -58,8 +58,16 @@
                 android:layout_height="wrap_content"
                 android:textColor="@android:color/white"
                 android:text="@string/italic"
-                style="@style/Widget.AppCompat.ActionButton"
-                android:textStyle="italic"/>
+                android:textStyle="italic"
+                style="@style/Widget.AppCompat.ActionButton"/>
+
+            <Button
+                android:id="@+id/buttonUnderline"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@android:color/white"
+                android:text="@string/placeholder"
+                style="@style/Widget.AppCompat.ActionButton"/>
 
             <Button
                 android:id="@+id/buttonStrikethrough"
@@ -77,14 +85,6 @@
                 style="@style/Widget.AppCompat.ActionButton" />
 
             <Button
-                android:id="@+id/button_list"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:text="@string/bullet_icon"
-                android:textColor="@android:color/white"
-                style="@style/Widget.AppCompat.ActionButton" />
-
-            <Button
                 android:id="@+id/button_comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
@@ -94,13 +94,12 @@
                 tools:ignore="HardcodedText" />
 
             <Button
-                android:id="@+id/button_ignore"
+                android:id="@+id/button_para"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:text="@string/paragraph"
                 android:textColor="@android:color/white"
-                android:background="@android:color/transparent"
-                android:text="@string/ignore"
-                style="@style/Widget.AppCompat.ActionButton"/>
+                style="@style/Widget.AppCompat.ActionButton" />
 
         </LinearLayout>
 

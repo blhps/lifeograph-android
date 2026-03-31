@@ -164,6 +164,7 @@
 
     <string name="bold">B</string>
     <string name="italic">I</string>
+    <string name="underline">U</string>
     <string name="strikethrough">S</string>
     <string name="highlight">H</string>
 
@@ -187,6 +188,11 @@
     <string name="filterer_status_title">Status:</string>
     <string name="filterer_is_title">Is Entry:</string>
     <string name="filterer_has_tag">Has tag:</string>
+    <string name="paragraph">Paragraph</string>
+    <string name="list_letter_capital">A-</string>
+    <string name="list_roman_capital">I-</string>
+    <string name="list_number">1-</string>
+    <string name="list_bullet">•</string>
 
     <string-array name="array_filter_trash">
         <item>All Entries</item>

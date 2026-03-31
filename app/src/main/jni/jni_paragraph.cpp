@@ -63,7 +63,7 @@ JNI_METHOD(jchar, Paragraph_nativeGetListType)(JNIEnv* env, jobject obj, jlong p
 }
 JNI_METHOD(void, Paragraph_nativeSetListType)(JNIEnv*, jobject, jlong ptr, jchar type) {
     int type_int = LoG::VT::get_v<LoG::VT::PLS, int, char>(char(type));
-    reinterpret_cast<LoG::Paragraph*>(ptr)->set_list_type(type_int);
+    reinterpret_cast<LoG::Paragraph*>(ptr)->set_para_type2(type_int);
 }
 
 

@@ -1223,7 +1223,17 @@ Paragraph::set_para_type2( int type )
         if( type == VT::PS_LIST_GEN )
             clear_list_type();
         else
+        {
+            const bool was_list { is_list() };
             set_list_type( type );
+            if( !was_list && get_indent_level() == 0 &&
+                get_heading_level() != VT::PHS::LARGE::I && !is_code() )
+                // there are many reasons not to indent
+            {
+                set_indent_level( 1 );
+                //set_visible( true );
+            }
+        }
     }
 
     if( type & VT::PS_HEADER_GEN )

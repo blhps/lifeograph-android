@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- ***************************************************************************
+
+    Copyright (C) 2012-2026 Ahmet Öztürk (aoz_2@yahoo.com)
+
+    This file is part of Lifeograph.
+
+    Lifeograph is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Lifeograph is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+
+**************************************************************************** -->
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    style="@style/LifeoAlertDlgTheme"
+    android:theme="@style/LifeoAlertDlgTheme"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="16dp">
+
+    <!-- Row 1: Indentation and Alignment -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <ImageButton
+            android:id="@+id/bt_indent_decrease"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="0dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_para_indent_less"
+            android:contentDescription="Indent less" />
+
+        <com.google.android.material.button.MaterialButtonToggleGroup
+            android:id="@+id/tg_alignment"
+            android:layout_width="0dp"
+            android:layout_height="48dp"
+            android:layout_weight="1"
+            android:gravity="center"
+            app:singleSelection="true"
+            app:selectionRequired="true">
+
+            <Button
+                android:id="@+id/bt_align_left"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minHeight="0dp"
+                app:icon="@drawable/ic_para_align_left"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                android:contentDescription="Align left" />
+
+            <Button
+                android:id="@+id/bt_align_center"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:icon="@drawable/ic_para_align_center"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                android:contentDescription="Align center" />
+
+            <Button
+                android:id="@+id/bt_align_right"
+                style="?attr/materialButtonOutlinedStyle"
+                android:layout_width="0dp"
+                android:layout_height="match_parent"
+                android:layout_weight="1"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                app:icon="@drawable/ic_para_align_right"
+                app:iconGravity="textStart"
+                app:iconPadding="0dp"
+                android:contentDescription="Align right" />
+        </com.google.android.material.button.MaterialButtonToggleGroup>
+
+        <ImageButton
+            android:id="@+id/bt_indent_increase"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
+            android:padding="0dp"
+            android:scaleType="centerInside"
+            android:src="@drawable/ic_para_indent_more"
+            android:contentDescription="Indent more" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/colorOnSurface" />
+
+    <!-- Row 2: Text Sizes -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/tg_text_size"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:singleSelection="true"
+        app:selectionRequired="true">
+
+        <Button
+            android:id="@+id/bt_size_normal"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="Normal"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/bt_size_m"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="M"
+            android:textStyle="bold" />
+
+        <Button
+            android:id="@+id/bt_size_l"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="L"
+            android:textSize="18sp"
+            android:textStyle="bold" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/colorOnSurface" />
+
+    <!-- Row 3: Checkbox styles -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/tg_checkboxes"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/bt_para_not_list"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:contentDescription="Not list"/>
+
+        <Button
+            android:id="@+id/bt_para_open"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_todo_open"
+            app:iconGravity="textStart"
+            android:contentDescription="Open" />
+
+        <Button
+            android:id="@+id/bt_para_progressed"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_todo_progressed"
+            app:iconGravity="textStart"
+            android:contentDescription="In progress"/>
+
+        <Button
+            android:id="@+id/bt_para_done"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_todo_done"
+            app:iconGravity="textStart"
+            android:contentDescription="Done" />
+
+        <Button
+            android:id="@+id/bt_para_canceled"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            app:icon="@drawable/ic_todo_canceled"
+            app:iconGravity="textStart"
+            android:contentDescription="Canceled" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <!-- Row 4: Bullet/Numbering styles -->
+    <com.google.android.material.button.MaterialButtonToggleGroup
+        android:id="@+id/tg_bullets"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="4dp"
+        app:singleSelection="true">
+
+        <Button
+            android:id="@+id/bt_para_bullet"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/list_bullet" />
+
+        <Button
+            android:id="@+id/bt_para_number"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/list_number" />
+
+        <Button
+            android:id="@+id/bt_para_letter"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/list_letter_capital" />
+
+        <Button
+            android:id="@+id/bt_para_roman"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="@string/list_roman_capital" />
+
+        <Button
+            android:id="@+id/bt_para_capital"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:text="^" />
+    </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/colorOnSurface" />
+
+    <!-- Row 5: Horizontal Rule -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Horizontal Rule"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <com.google.android.material.switchmaterial.SwitchMaterial
+            android:id="@+id/sw_horizontal_rule"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Horz Rule" />
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/colorOnSurface" />
+
+    <!-- Row 6: Quotation / Code -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Quotation / Code"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <Spinner
+            android:id="@+id/sp_quotation_code"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:minWidth="120dp"
+            android:minHeight="48dp"/>
+<!--            android:background="@drawable/bg_spinner_outlined" />-->
+    </LinearLayout>
+
+</LinearLayout>

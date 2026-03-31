@@ -69,6 +69,7 @@
     <string name="text_export_fail">Günlüğün dışa aktarımı başarısız oldu</string>
     <string name="text_export_success">Günlüğün dışa aktarımı başarıyla Backups klasörüne kaydedildi</string>
     <string name="theme">Tema</string>
+    <string name="underline">A</string>
     <string name="show">Göster</string>
     <string name="program_name">Android İçin Lifeograph</string>
     <string name="purchase">Satın Al</string>
@@ -144,5 +145,6 @@
     <string name="continue_from_lock">Kilitten Devam Et</string>
     <string name="continue_from_lock_prompt">Günlük kilitli. Kilit dosyasından devam etmek ister
         misiniz?</string>
+    <string name="paragraph">Paragraf</string>
 
 </resources>

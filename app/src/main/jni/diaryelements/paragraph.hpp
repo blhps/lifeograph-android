@@ -684,6 +684,7 @@ class Paragraph : public DiaryElemTag
             m_style = ( ( m_style & ~VT::PS_FLT_TYPE ) | ( type & VT::PS_FLT_TYPE ) );
             update_date_edited();
         }
+        // high level para type setter that also considers ramifications:
         void                        set_para_type2( int type );
 
         // INDENTATION

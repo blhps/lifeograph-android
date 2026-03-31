@@ -166,21 +166,30 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
         val mButtonBold = view.findViewById<Button>(R.id.buttonBold)
         mButtonBold.setOnClickListener { toggleFormat('B') }
+
         val mButtonItalic = view.findViewById<Button>(R.id.buttonItalic)
         mButtonItalic.setOnClickListener { toggleFormat('I') }
+
+        val mButtonUnderline = view.findViewById<Button>(R.id.buttonUnderline)
+        val spanUnderline = SpannableString(getString(R.string.underline))
+        spanUnderline.setSpan(UnderlineSpan(), 0, 1, 0)
+        mButtonUnderline.text = spanUnderline
+        mButtonUnderline.setOnClickListener { toggleFormat('U') }
+
         val mButtonStrikethrough = view.findViewById<Button>(R.id.buttonStrikethrough)
-        val spanStringS = SpannableString("S")
+        val spanStringS = SpannableString(getString(R.string.strikethrough))
         spanStringS.setSpan(StrikethroughSpan(), 0, 1, 0)
         mButtonStrikethrough.text = spanStringS
         mButtonStrikethrough.setOnClickListener { toggleFormat('S') }
+
         mButtonHighlight = view.findViewById(R.id.buttonHighlight)
         mButtonHighlight.setOnClickListener { toggleFormat('H') }
-        val mButtonQuotation = view.findViewById<Button>(R.id.button_ignore)
-        mButtonQuotation.setOnClickListener { toggleQuotation() }
+
+        val mButtonPara = view.findViewById<Button>(R.id.button_para)
+        mButtonPara.setOnClickListener { showParaDlg() }
+
         val mButtonComment = view.findViewById<Button>(R.id.button_comment)
         mButtonComment.setOnClickListener { addComment() }
-        val mButtonList = view.findViewById<Button>(R.id.button_list)
-        mButtonList.setOnClickListener { showStatusPickerDlg() }
 
         if(mEntry._size > 0) {
             requireActivity().window.setSoftInputMode(
@@ -399,35 +408,35 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         ) { _: DialogInterface?, _: Int -> mFlagDismissOnExit = true }
     }
 
-    fun showStatusPickerDlg() {
-        DialogPicker(requireContext(),
-                     object: DialogPicker.Listener{
-                               override fun onItemClick(item: RViewAdapterBasic.Item) {
-                                   setListItemType(item.mId[0])
-                               }
-
-                               override fun populateItems(list: RVBasicList) {
-                                   list.clear()
-
-                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.bullet),
-                                                                   "*",
-                                                                   R.drawable.ic_bullet))
-
-                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_open),
-                                                                   " ",
-                                                                   R.drawable.ic_todo_open))
-                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_progressed),
-                                                                   "~",
-                                                                   R.drawable.ic_todo_progressed))
-                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_done),
-                                                                   "+",
-                                                                   R.drawable.ic_todo_done))
-                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_canceled),
-                                                                   "x",
-                                                                   R.drawable.ic_todo_canceled))
-                               }
-                           }).show()
-    }
+//    fun showStatusPickerDlg() {
+//        DialogPicker(requireContext(),
+//                     object: DialogPicker.Listener{
+//                               override fun onItemClick(item: RViewAdapterBasic.Item) {
+//                                   setListItemType(item.mId[0])
+//                               }
+//
+//                               override fun populateItems(list: RVBasicList) {
+//                                   list.clear()
+//
+//                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.bullet),
+//                                                                   "*",
+//                                                                   R.drawable.ic_bullet))
+//
+//                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_open),
+//                                                                   " ",
+//                                                                   R.drawable.ic_todo_open))
+//                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_progressed),
+//                                                                   "~",
+//                                                                   R.drawable.ic_todo_progressed))
+//                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_done),
+//                                                                   "+",
+//                                                                   R.drawable.ic_todo_done))
+//                                   list.add(RViewAdapterBasic.Item(Lifeograph.getStr(R.string.todo_canceled),
+//                                                                   "x",
+//                                                                   R.drawable.ic_todo_canceled))
+//                               }
+//                           }).show()
+//    }
 
     private fun showThemePickerDlg() {
         DialogPicker(requireContext(),
@@ -448,6 +457,18 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                                                                  R.drawable.ic_theme))
                          }
                      }).show()
+    }
+
+    private fun showParaDlg() {
+        DialogParagraph(requireContext(), object : DialogParagraph.Listener {
+            override fun onApplyParaAction(action: (Paragraph) -> Unit) {
+                doForEachSelPara(action, false)
+
+                mEntry.update_todo_status()
+                updateIcons()
+                reparse()
+            }
+        }).show()
     }
 
     override fun setTodoStatus(s: Int) {
@@ -594,24 +615,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         if(fRecursive) {
             // TODO: 2.1 or later
         }
-    }
-
-    private fun setListItemType(type: Char) {
-        doForEachSelPara({ para ->
-                             val wasList : Boolean = para.isList
-                             para._list_type = type
-
-                             // automatically indent if all criteria are met
-                             if (!wasList && para.isList && para._indent_level == 0 &&
-                                 para._heading_level != 'S' && !para.is_code) {
-                                 para._indent_level = 1
-                             }
-            }, false)
-
-            // TODO: 2.1: limit to: if( mentry.get_todo_status() & ES::NOT_TODO )
-            mEntry.update_todo_status()
-
-            updateIcons()
     }
 
     private fun addComment() {
@@ -938,15 +941,15 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             get() = 'i'
     }
 
-    private class LinkCheck(val mHost: FragmentEntry) :
-        ClickableSpan(), AdvancedSpan {
-        override fun onClick(widget: View) {
-            mHost.showStatusPickerDlg()
-        }
-
-        override val type: Char
-            get() = 'c'
-    }
+//    private class LinkCheck(val mHost: FragmentEntry) :
+//        ClickableSpan(), AdvancedSpan {
+//        override fun onClick(widget: View) {
+//            mHost.showStatusPickerDlg()
+//        }
+//
+//        override val type: Char
+//            get() = 'c'
+//    }
 
     private class ListSpan(
         private val context: Context,

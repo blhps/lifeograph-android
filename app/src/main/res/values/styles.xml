@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LifeoTheme" parent="Theme.AppCompat.Light.DarkActionBar">
+    <style name="LifeoTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
         <item name="colorPrimary">@color/t_darker</item>
         <item name="colorAccent">@color/t_lighter</item>
         <item name="android:textColorPrimary">@android:color/white</item> <!--ActionBar text-->
@@ -25,7 +25,7 @@
         <item name="android:textColor">@color/t_darkest</item>
     </style>
 
-    <style name="LifeoAlertDlgTheme" parent="Theme.AppCompat.Light.Dialog.Alert">
+    <style name="LifeoAlertDlgTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
         <!-- Used for the buttons -->
         <item name="colorAccent">@android:color/white</item>
         <!-- Used for the title and text -->

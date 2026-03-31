@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="cancel">Abbrechen</string>
-    <string name="apply">Verwenden</string>
+    <string name="apply">Anwenden</string>
     <string name="go">Gehe</string>
     <string name="about">Über</string>
     <string name="settings">Einstellungen</string>
@@ -95,9 +95,10 @@
     <string name="program_name">Lifeograph für Android</string>
     <string name="icon">icon</string>
 
-    <string name="bold">B</string>
-    <string name="italic">I</string>
-    <string name="strikethrough">S</string>
+    <string name="bold">F</string>
+    <string name="italic">K</string>
+    <string name="underline">U</string>
+    <string name="strikethrough">D</string>
     <string name="highlight">H</string>
 
     <string name="welcome">Willkommen zu Lifeograph für Android!</string>
