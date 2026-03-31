@@ -58,7 +58,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private lateinit var mButtonHighlight: Button
     var                  mFlagSetTextOperation = false
     var                  mFlagBlockFormatter = false
-    var                  mFlagEntryChanged = false
     private var          mFlagDismissOnExit = false
     var                  mFlagSearchIsOpen = false
     private val          mBrowsingHistory = ArrayList<Int>()
@@ -107,8 +106,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                         val addedText = s.subSequence(start, start + count).toString()
                         mEntry.insert_text(start, addedText)
                     }
-
-                    mFlagEntryChanged = true
                 }
             }
         })
@@ -206,7 +203,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         super.onStop()
         Log.d(Lifeograph.TAG, "ActivityEntry.onStop()")
         val dm = Diary.getMain()
-        if(mFlagDismissOnExit) dm.dismiss_entry(mEntry) else sync()
+        if(mFlagDismissOnExit) dm.dismiss_entry(mEntry)
         if(dm.is_in_edit_mode)
             Diary.getMain().writeLock(context)
     }
@@ -361,13 +358,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val spanStringH = SpannableString("H")
         spanStringH.setSpan(BackgroundColorSpan(theme._color_highlight), 0, 1, 0)
         mButtonHighlight.text = spanStringH
-    }
-
-    private fun sync() {
-        if(mFlagEntryChanged) {
-            mEntry._text = mEditText.text.toString()
-            mFlagEntryChanged = false
-        }
     }
 
     fun show(flagParse: Boolean) {
