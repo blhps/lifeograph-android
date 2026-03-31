@@ -117,9 +117,12 @@ public class Entry extends DiaryElemTag {
     is_empty() { return nativeIsEmpty(mNativePtr); }
 
     String
-    get_text() { return nativeGetText(mNativePtr); }
+    get_text() { return nativeGetText(mNativePtr); } // does not have a redundant \n
     String
-    get_text_visible() { return nativeGetTextVisible(mNativePtr); }
+    get_text_visible() {
+        String text = nativeGetTextVisible( mNativePtr );
+        return text.substring( 0, text.length() - 1 ); // text always ends with a redundant \n
+    }
 
     void
     clear_text() {

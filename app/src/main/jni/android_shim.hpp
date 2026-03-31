@@ -65,6 +65,42 @@ namespace Glib {
 
         size_type bytes() const { return std::string::length(); }
 
+        // helper to convert character index to byte offset:
+        size_type char_to_byte_idx(size_type char_pos) const {
+            size_type byte_idx = 0;
+            size_type current_char = 0;
+            while (current_char < char_pos && byte_idx < std::string::length()) {
+                unsigned char c = (*this)[byte_idx];
+                // UTF-8 lead byte check:
+                // 0xxxxxxx (ASCII) or 11xxxxxx (Lead byte of multi-byte)
+                if ((c & 0b11000000) != 0b10000000) {
+                    if (current_char == char_pos) break;
+                    current_char++;
+                }
+                byte_idx++;
+                // move past continuation bytes
+                while (byte_idx < std::string::length() &&
+                       ((*this)[byte_idx] & 0b11000000) == 0b10000000) {
+                    byte_idx++;
+                }
+            }
+            return byte_idx;
+        }
+
+        // Override insert to use character positions
+        ustring& insert(size_type char_pos, const std::string& str) {
+            std::string::insert(char_to_byte_idx(char_pos), str);
+            return *this;
+        }
+
+        // You likely need to override erase as well
+        ustring& erase(size_type char_pos, size_type n_chars) {
+            size_type start_byte = char_to_byte_idx(char_pos);
+            size_type end_byte = char_to_byte_idx(char_pos + n_chars);
+            std::string::erase(start_byte, end_byte - start_byte);
+            return *this;
+        }
+
         ustring uppercase() const {
             ustring res = *this;
             std::transform(res.begin(), res.end(), res.begin(), [](unsigned char c){ return std::toupper(c); });
