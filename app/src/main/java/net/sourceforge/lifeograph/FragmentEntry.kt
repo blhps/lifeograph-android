@@ -94,24 +94,21 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         mEditText.addTextChangedListener(object : TextWatcher {
             override fun afterTextChanged(s: Editable) {
                 if(!mFlagBlockFormatter)
-                    updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
+                    updateTextFormatting(s, mEntry._paragraph_1st, mEntry._paragraph_last)
             }
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(!mFlagSetTextOperation && !mFlagBlockFormatter) {
-                    // if( start > 0 ) {
-                    // m_pos_start = mEditText.getText().toString().indexOf( '\n', start - 1 );
-                    // if( m_pos_start == -1 )
-                    // m_pos_start = 0;
-                    // }
-                    //
-                    // if( start < m_pos_end ) {
-                    // m_pos_end = mEditText.getText().toString().indexOf( '\n', start + count );
-                    // if( m_pos_end == -1 )
-                    // m_pos_end = mEditText.getText().length();
-                    // }
+                    if( before > 0 ) { // deletion
+                        mEntry.erase_text(start, start + before)
+                    }
+
+                    if( count > 0 ) { // insertion
+                        val addedText = s.subSequence(start, start + count).toString()
+                        mEntry.insert_text(start, addedText)
+                    }
+
                     mFlagEntryChanged = true
-                    mEntry.insert_text(start, s.toString())
                 }
             }
         })
@@ -590,7 +587,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 p = p.get_next()
             }
 
-            updateTextFormatting(paraBgn, paraEnd)
+            updateTextFormatting(mEditText.text, paraBgn, paraEnd)
         }
     }
 
@@ -643,8 +640,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     // PARSING =====================================================================================
-    private fun processParagraph(p: Paragraph, rawOffset: Int, rawOffsetEnd: Int) {
-        val textLength = mEditText.text.length
+    private fun processParagraph(edt: Editable, p: Paragraph, rawOffset: Int, rawOffsetEnd: Int) {
+        val textLength = edt.length
         val offset = rawOffset.coerceIn(0, textLength)
         val offsetEnd = rawOffsetEnd.coerceIn(0, textLength)
 
@@ -652,10 +649,19 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         val theme = mEntry._theme
 
+        val classesToRemove = arrayOf(
+            CharacterStyle::class.java, // Covers Bold, Italic, Color, Background
+            ParagraphStyle::class.java, // Covers Alignment, LeadingMargin
+            ListSpan::class.java        // Your custom span
+                                     )
+
         // remove existing spans in this paragraph's range before re-applying
-        val spans = mEditText.text.getSpans(offset, offsetEnd, Any::class.java)
-        for(span in spans) {
-            mEditText.text.removeSpan(span)
+        for (clazz in classesToRemove) {
+            val spans = edt.getSpans(offset, offsetEnd, clazz)
+            for(span in spans) {
+                if(span is Selection) continue
+                edt.removeSpan(span)
+            }
         }
 
         // 1. ALIGNMENT
@@ -666,30 +672,28 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             else -> null
         }
         alignment?.let {
-            mEditText.text.setSpan(AlignmentSpan.Standard(it), offset, offsetEnd, 0)
+            edt.setSpan(AlignmentSpan.Standard(it), offset, offsetEnd, 0)
         }
 
         // 2. HEADING TYPE
         when(p._heading_level) {
             'T' -> { // TITLE
-//                mEditText.text.setSpan(RelativeSizeSpan(1.5f), offset, offsetEnd, 0)
-//                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
-                mEditText.text.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
+                edt.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
-                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme._color_title), offset,
+                edt.setSpan(ForegroundColorSpan(mEntry._theme._color_title), offset,
                                        offsetEnd, 0)
                 // TODO: handle_title_edited logic would go here if needed for Android UI
             }
 
             'S' -> { // LARGE
-                mEditText.text.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
+                edt.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
-                mEditText.text.setSpan(ForegroundColorSpan(mEntry._theme._color_heading_L), offset,
+                edt.setSpan(ForegroundColorSpan(mEntry._theme._color_heading_L), offset,
                                        offsetEnd, 0)
             }
 
             'B' -> { // MEDIUM
-                mEditText.text.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
+                edt.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
             }
         }
 
@@ -700,7 +704,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 // For numbered lists, you might need to get the actual order/number from the paragraph
                 val label = if ("1AaRr".contains(listType)) p._list_order_str else null
 
-                mEditText.text.setSpan(
+                edt.setSpan(
                     ListSpan(requireContext(), p, label, theme),
                     offset,
                     offsetEnd,
@@ -710,7 +714,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
             when(p._list_type) {
                 'O' -> { // open to-do
-                    mEditText.text.setSpan(ForegroundColorSpan(theme._color_open), offset,
+                    edt.setSpan(ForegroundColorSpan(theme._color_open), offset,
                                            offsetEnd, 0)
                 }
 
@@ -718,28 +722,28 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //                    }
 
                 '+' -> { // done
-                    mEditText.text.setSpan(ForegroundColorSpan(theme._color_done), offset, offsetEnd, 0)
-                    mEditText.text.setSpan(BackgroundColorSpan(theme._color_done_bg), offset,
+                    edt.setSpan(ForegroundColorSpan(theme._color_done), offset, offsetEnd, 0)
+                    edt.setSpan(BackgroundColorSpan(theme._color_done_bg), offset,
                                            offsetEnd, 0)
                 }
 
                 'X' -> { // canceled
-                    mEditText.text.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
+                    edt.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
                 }
             }
 
             if(p.is_code) {
-                mEditText.text.setSpan(TypefaceSpan("monospace"), offset, offsetEnd, 0)
+                edt.setSpan(TypefaceSpan("monospace"), offset, offsetEnd, 0)
             } else if(p.is_quote) {
-                mEditText.text.setSpan(QuoteSpan(), offset, offsetEnd, 0)
-                mEditText.text.setSpan(StyleSpan(Typeface.ITALIC), offset, offsetEnd, 0)
+                edt.setSpan(QuoteSpan(), offset, offsetEnd, 0)
+                edt.setSpan(StyleSpan(Typeface.ITALIC), offset, offsetEnd, 0)
             }
 
             // 4. INDENTATION
             val indentLevel = p._indent_level
             if(indentLevel > 0) {
                 val margin = indentLevel * INDENT_UNIT_WIDTH
-                mEditText.text.setSpan(LeadingMarginSpan.Standard(margin), offset, offsetEnd, 0)
+                edt.setSpan(LeadingMarginSpan.Standard(margin), offset, offsetEnd, 0)
             }
         }
 
@@ -749,38 +753,37 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             val fEnd = offset + format.posEnd
 
             // Ensure boundaries are valid
-            if(fStart < 0 || fEnd > mEditText.text.length || fStart >= fEnd) continue
+            if(fStart < 0 || fEnd > edt.length || fStart >= fEnd) continue
 
             val colorMid = theme._color_mid
 
             when(format.type) {
-                'B' -> mEditText.text.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
-                'I' -> mEditText.text.setSpan(StyleSpan(Typeface.ITALIC), fStart, fEnd, 0)
-                'H' -> mEditText.text.setSpan(
-                    BackgroundColorSpan(theme._color_highlight), fStart, fEnd, 0 )
-                'S' -> mEditText.text.setSpan(StrikethroughSpan(), fStart, fEnd, 0)
-                'U' -> mEditText.text.setSpan(UnderlineSpan(), fStart, fEnd, 0)
-                'F' -> mEditText.text.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
+                'B' -> edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
+                'I' -> edt.setSpan(StyleSpan(Typeface.ITALIC), fStart, fEnd, 0)
+                'H' -> edt.setSpan(BackgroundColorSpan(theme._color_highlight), fStart, fEnd, 0 )
+                'S' -> edt.setSpan(StrikethroughSpan(), fStart, fEnd, 0)
+                'U' -> edt.setSpan(UnderlineSpan(), fStart, fEnd, 0)
+                'F' -> edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
                 'C' -> {
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.subscriptSpan),
                         fStart, fEnd, 0 ) // general span
                 }
                 'P' -> {
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.superscriptSpan),
                         fStart, fEnd, 0 ) // general span
                 }
                 'T' -> { // TAG
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         BackgroundColorSpan(theme._color_inline_tag), fStart, fEnd, 0)
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         LinkID(format.refId.toInt()), fStart, fEnd, 0)
                 }
                 'L' -> { // Link: URI
-                    mEditText.text.setSpan( LinkUri(format.uri), fStart, fEnd, 0)
+                    edt.setSpan( LinkUri(format.uri), fStart, fEnd, 0)
                     // You already have LinkUri class defined in ParserEditText
-                    // mEditText.text.setSpan(LinkUri(format.uri), fStart, fEnd, 0)
+                    // edt.setSpan(LinkUri(format.uri), fStart, fEnd, 0)
                 }
                 'D' -> { // Link: ID
                     val element = Diary.getMain().get_tag_by_id(format.refId.toInt())
@@ -788,32 +791,32 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                             LinkID(format.refId.toInt())
                         else  // indicate dead links
                             ForegroundColorSpan(Color.RED)
-                    mEditText.text.setSpan(span, fStart, fEnd, 0)
+                    edt.setSpan(span, fStart, fEnd, 0)
                 }
                 'v' -> { // TAG VALUE
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         BackgroundColorSpan(theme._color_inline_tag), fStart, fEnd, 0)
                 }
                 'c' -> { // COMMENT / MARKUP
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.commentSpan),
                         fStart, fEnd, 0 ) // general span
-                    mEditText.text.setSpan( ForegroundColorSpan(colorMid), fStart,
+                    edt.setSpan( ForegroundColorSpan(colorMid), fStart,
                                             fStart + 2, 0 ) // [[
                     if(format.posBgn < format.posEnd - 4) {
-                        mEditText.text.setSpan(
+                        edt.setSpan(
                             ForegroundColorSpan(colorMid), fStart + 2, fEnd - 2, 0)
                     }
-                    mEditText.text.setSpan(ForegroundColorSpan(colorMid), fEnd - 2, fEnd, 0) // ]]
+                    edt.setSpan(ForegroundColorSpan(colorMid), fEnd - 2, fEnd, 0) // ]]
                 }
                 'd' -> { // DATE
-                    mEditText.text.setSpan(LinkDate(format.varD), fStart, fEnd, 0)
+                    edt.setSpan(LinkDate(format.varD), fStart, fEnd, 0)
                 }
                 'm' -> { // MATCH
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         BackgroundColorSpan(theme._color_match_bg),
                         fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
-                    mEditText.text.setSpan(
+                    edt.setSpan(
                         ForegroundColorSpan(theme._color_base),
                         fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
                 }
@@ -822,10 +825,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
     }
 
-//    private fun updateTextFormatting(bgn: Int, end: Int) {
-//
-//    }
-    private fun updateTextFormatting(paraBgn: Paragraph, paraEnd: Paragraph) {
+    private fun updateTextFormatting(edt: Editable, paraBgn: Paragraph, paraEnd: Paragraph) {
         var offset = paraBgn._bgn_offset_in_host
         var offsetEnd: Int
 
@@ -833,7 +833,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         while(p != null) {
             offsetEnd = offset + p._size
 
-            processParagraph(p, offset, offsetEnd)
+            processParagraph(edt, p, offset, offsetEnd)
 
             if(p._id == paraEnd._id) { break }
 
@@ -848,7 +848,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val selectionEnd = mEditText.selectionEnd
         // nudge the EditText to re-draw spans
         mFlagBlockFormatter = true
-        mEditText.setText(mEditText.text, TextView.BufferType.EDITABLE)
+        //mEditText.setText(edt, TextView.BufferType.EDITABLE)
+        //mEditText.requestLayout()
         // restore selection
         if( selectionStart >= 0 && selectionEnd >= 0 ) {
             mEditText.setSelection(selectionStart, selectionEnd)
@@ -857,7 +858,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
    }
     fun reparse() {
-        updateTextFormatting(mEntry._paragraph_1st, mEntry._paragraph_last)
+        updateTextFormatting(mEditText.text, mEntry._paragraph_1st, mEntry._paragraph_last)
     }
 
     override fun onInquireAction(id: Int, text: String) {
