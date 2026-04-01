@@ -37,6 +37,12 @@ JNI_METHOD(jint, Paragraph_nativeGetIndentLevel)(JNIEnv* env, jobject obj, jlong
 JNI_METHOD(void, Paragraph_nativeSetIndentLevel)(JNIEnv*, jobject, jlong ptr, jint level) {
     reinterpret_cast<LoG::Paragraph*>(ptr)->set_indent_level( int( level ) );
 }
+JNI_METHOD(void, Paragraph_nativeIndent)(JNIEnv*, jobject, jlong ptr) {
+    reinterpret_cast<LoG::Paragraph*>(ptr)->indent();
+}
+JNI_METHOD(void, Paragraph_nativeUnindent)(JNIEnv*, jobject, jlong ptr) {
+    reinterpret_cast<LoG::Paragraph*>(ptr)->unindent();
+}
 
 JNI_METHOD(jboolean, Paragraph_nativeIsTitle)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_title());
@@ -45,6 +51,10 @@ JNI_METHOD(jboolean, Paragraph_nativeIsTitle)(JNIEnv* env, jobject obj, jlong pt
 JNI_METHOD(jchar, Paragraph_nativeGetHeadingLevel)(JNIEnv* env, jobject obj, jlong ptr) {
     int result = reinterpret_cast<LoG::Paragraph*>(ptr)->get_heading_level();
     return static_cast<jchar>(LoG::VT::get_v<LoG::VT::PHS, char, int>(result));
+}
+JNI_METHOD(void, Paragraph_nativeSetHeadingLevel)(JNIEnv* env, jobject obj, jlong ptr, jchar level) {
+    int level_int = LoG::VT::get_v<LoG::VT::PHS, int, char>(char(level));
+    reinterpret_cast<LoG::Paragraph*>(ptr)->set_heading_level( level_int);
 }
 
 JNI_METHOD(jchar, Paragraph_nativeGetAlignment)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -65,7 +75,9 @@ JNI_METHOD(void, Paragraph_nativeSetListType)(JNIEnv*, jobject, jlong ptr, jchar
     int type_int = LoG::VT::get_v<LoG::VT::PLS, int, char>(char(type));
     reinterpret_cast<LoG::Paragraph*>(ptr)->set_para_type2(type_int);
 }
-
+JNI_METHOD(void, Paragraph_nativeClearListType)(JNIEnv*, jobject, jlong ptr) {
+    reinterpret_cast<LoG::Paragraph*>(ptr)->clear_list_type();
+}
 
 JNI_METHOD(jstring, Paragraph_nativeGetListOrderStr)(JNIEnv* env, jobject obj, jlong ptr) {
     auto para = reinterpret_cast<LoG::Paragraph*>(ptr);
@@ -86,6 +98,17 @@ JNI_METHOD(jboolean, Paragraph_nativeIsQuote)(JNIEnv* env, jobject obj, jlong pt
 
 JNI_METHOD(jboolean, Paragraph_nativeIsCode)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_code());
+}
+
+JNI_METHOD(jboolean, Paragraph_nativeHasHRule)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->has_hrule());
+}
+JNI_METHOD(void, Paragraph_nativeSetHRule)(JNIEnv* env, jobject obj, jlong ptr, jboolean fHasHRule) {
+    reinterpret_cast<LoG::Paragraph*>(ptr)->set_hrule(fHasHRule);
+}
+
+JNI_METHOD(jboolean, Paragraph_nativeIsFoldable)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_foldable());
 }
 
 JNI_METHOD(jint, Paragraph_nativeGetBgnOffsetInHost)(JNIEnv* env, jobject obj, jlong ptr) {

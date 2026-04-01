@@ -37,7 +37,7 @@
         android:orientation="horizontal">
 
         <ImageButton
-            android:id="@+id/bt_indent_decrease"
+            android:id="@+id/bt_indent_less"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -97,7 +97,7 @@
         </com.google.android.material.button.MaterialButtonToggleGroup>
 
         <ImageButton
-            android:id="@+id/bt_indent_increase"
+            android:id="@+id/bt_indent_more"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="48dp"
             android:layout_height="48dp"
@@ -116,14 +116,14 @@
 
     <!-- Row 2: Text Sizes -->
     <com.google.android.material.button.MaterialButtonToggleGroup
-        android:id="@+id/tg_text_size"
+        android:id="@+id/tg_heading_type"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         app:singleSelection="true"
         app:selectionRequired="true">
 
         <Button
-            android:id="@+id/bt_size_normal"
+            android:id="@+id/bt_para_normal"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -132,7 +132,7 @@
             android:textAllCaps="false" />
 
         <Button
-            android:id="@+id/bt_size_m"
+            android:id="@+id/bt_para_heading_M"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"
@@ -141,7 +141,7 @@
             android:textStyle="bold" />
 
         <Button
-            android:id="@+id/bt_size_l"
+            android:id="@+id/bt_para_heading_L"
             style="?attr/materialButtonOutlinedStyle"
             android:layout_width="0dp"
             android:layout_height="match_parent"

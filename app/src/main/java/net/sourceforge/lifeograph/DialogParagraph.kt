@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2026 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -24,6 +24,7 @@ package net.sourceforge.lifeograph
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.widget.ImageButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 
@@ -32,7 +33,7 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
     // VARIABLES ===================================================================================
 
     interface Listener {
-        fun onApplyParaAction(action: (Paragraph) -> Unit)
+        fun onApplyParaAction(action: (Paragraph) -> Unit, fRefreshFully: Boolean = false)
         fun getParagraph(): Paragraph
     }
 
@@ -45,17 +46,26 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
 
         val para = listener.getParagraph()
 
-        val tgCheckboxes = findViewById<MaterialButtonToggleGroup>(R.id.tg_checkboxes)
+        val btIndentMore = findViewById<ImageButton>(R.id.bt_indent_more)
+        val btIndentLess = findViewById<ImageButton>(R.id.bt_indent_less)
+        val tgHeadingType = findViewById<MaterialButtonToggleGroup>(R.id.tg_heading_type)
+        val tgTodoStatus = findViewById<MaterialButtonToggleGroup>(R.id.tg_checkboxes)
         val tgBullets = findViewById<MaterialButtonToggleGroup>(R.id.tg_bullets)
         val swHorzRule = findViewById<MaterialSwitch>(R.id.sw_horizontal_rule)
         val swExpanded = findViewById<MaterialSwitch>(R.id.sw_para_expanded)
 
+        // SETTING CURRENT VALUES ==================================================================
+        when( para._heading_level ) {
+            '_' -> tgHeadingType.check(R.id.bt_para_normal)
+            'B' -> tgHeadingType.check(R.id.bt_para_heading_M)
+            'S' -> tgHeadingType.check(R.id.bt_para_heading_L)
+        }
         when( para._list_type ) {
-            '_' -> tgCheckboxes.check( R.id.bt_para_not_list )
-            'O' -> tgCheckboxes.check( R.id.bt_para_open )
-            '~' -> tgCheckboxes.check( R.id.bt_para_progressed )
-            '+' -> tgCheckboxes.check( R.id.bt_para_done )
-            'X' -> tgCheckboxes.check( R.id.bt_para_canceled )
+            '_' -> tgTodoStatus.check(R.id.bt_para_not_list)
+            'O' -> tgTodoStatus.check(R.id.bt_para_open)
+            '~' -> tgTodoStatus.check(R.id.bt_para_progressed)
+            '+' -> tgTodoStatus.check(R.id.bt_para_done)
+            'X' -> tgTodoStatus.check(R.id.bt_para_canceled)
             '-' -> tgBullets.check( R.id.bt_para_bullet )
             '1' -> tgBullets.check( R.id.bt_para_number )
             'A' -> tgBullets.check( R.id.bt_para_letter )
@@ -63,18 +73,18 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
         }
 
         swExpanded.isChecked = para.is_expanded
-        // swHorzRule.isChecked = ... // TODO...
+        swHorzRule.isChecked = para.has_hrule()
 
-        tgCheckboxes.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            // when a checkbox is selected, clear the bullet/numbering row
-            if (isChecked) tgBullets.clearChecked()
+        // ASSIGNING LISTENERS =====================================================================
+        btIndentMore.setOnClickListener { listener.onApplyParaAction( { p -> p.indent() } ) }
+        btIndentLess.setOnClickListener { listener.onApplyParaAction( { p -> p.unindent() } ) }
+        // NOTE: do not dismiss to allow repeated action
 
+        tgHeadingType.addOnButtonCheckedListener { _, checkedId, _ ->
             val action: (Paragraph) -> Unit = when (checkedId) {
-                R.id.bt_para_not_list -> { para -> para._list_type = '_' }
-                R.id.bt_para_open -> { para -> para._list_type = 'O' }
-                R.id.bt_para_progressed -> { para -> para._list_type = '~' }
-                R.id.bt_para_done -> { para -> para._list_type = '+' }
-                R.id.bt_para_canceled -> { para -> para._list_type = 'X' }
+                R.id.bt_para_normal -> { para -> para._heading_level = '_' }
+                R.id.bt_para_heading_M -> { para -> para._heading_level = 'B' }
+                R.id.bt_para_heading_L -> { para -> para._heading_level = 'S' }
                 else -> { _ -> }
             }
 
@@ -82,31 +92,53 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
             dismiss()
         }
 
-        tgBullets.addOnButtonCheckedListener { group, checkedId, isChecked ->
-            if (isChecked) tgCheckboxes.clearChecked()
+        tgTodoStatus.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            // when a checkbox is selected, clear the bullet/numbering row
+            if (isChecked) {
+                tgBullets.clearChecked()
 
-            val action: (Paragraph) -> Unit = when (checkedId) {
-                R.id.bt_para_bullet -> { para -> para._list_type = '-' }
-                R.id.bt_para_number -> { para -> para._list_type = '1' }
-                R.id.bt_para_letter -> { para -> para._list_type = 'A' }
-                R.id.bt_para_roman -> { para -> para._list_type = 'R' }
-                R.id.bt_para_capital -> { para -> para._list_type = 'a' }
-                // TODO: 2.0: implement capital variants properly
-                else -> { _ -> }
+                val action: (Paragraph) -> Unit = when(checkedId) {
+                    R.id.bt_para_not_list -> { para -> para.clear_list_type() }
+                    R.id.bt_para_open -> { para -> para._list_type = 'O' }
+                    R.id.bt_para_progressed -> { para -> para._list_type = '~' }
+                    R.id.bt_para_done -> { para -> para._list_type = '+' }
+                    R.id.bt_para_canceled -> { para -> para._list_type = 'X' }
+                    else -> { _ -> }
+                }
+
+                listener.onApplyParaAction(action)
+                dismiss()
             }
+        }
 
-            listener.onApplyParaAction(action)
-            dismiss()
+        tgBullets.addOnButtonCheckedListener { _, checkedId, isChecked ->
+            if (isChecked) {
+                tgTodoStatus.clearChecked()
+
+                val action: (Paragraph) -> Unit = when(checkedId) {
+                    R.id.bt_para_bullet -> { para -> para._list_type = '-' }
+                    R.id.bt_para_number -> { para -> para._list_type = '1' }
+                    R.id.bt_para_letter -> { para -> para._list_type = 'A' }
+                    R.id.bt_para_roman -> { para -> para._list_type = 'R' }
+                    R.id.bt_para_capital -> { para -> para._list_type = 'a' }
+                    // TODO: 2.0: implement capital variants properly
+                    else -> { _ -> }
+                }
+
+                listener.onApplyParaAction(action)
+                dismiss()
+            }
         }
 
         swExpanded.setOnCheckedChangeListener { _, isChecked ->
             val action: (Paragraph) -> Unit = { p -> p.is_expanded = isChecked }
-            listener.onApplyParaAction(action)
+            listener.onApplyParaAction(action, true)
             dismiss()
         }
 
         swHorzRule.setOnCheckedChangeListener { _, isChecked ->
-            // Handle horizontal rule toggle
+            val action: (Paragraph) -> Unit = { p -> p.set_hrule( isChecked ) }
+            listener.onApplyParaAction(action)
             dismiss()
         }
     }

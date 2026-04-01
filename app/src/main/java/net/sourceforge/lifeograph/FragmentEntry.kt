@@ -32,7 +32,6 @@ import android.util.Log
 import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
-import android.widget.EditText
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.net.toUri
@@ -53,7 +52,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     override val mLayoutId: Int = R.layout.fragment_entry
     override val mMenuId: Int   = R.menu.menu_entry
 
-    private lateinit var mEditText: EditText
+    private lateinit var mEditText: EditTextEntry
     private lateinit var mButtonHighlight: Button
     var                  mFlagSetTextOperation = false
     var                  mFlagBlockFormatter = false
@@ -159,6 +158,33 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 return false
             }
         }
+
+        mEditText.setOnTouchListener { v, event ->
+            if(event.action == MotionEvent.ACTION_UP) {
+                val x = event.x.toInt()
+                val y = event.y.toInt()
+
+                if(x < 100) { // TODO: adjust threshold based on your gapWidth + padding
+                    val layout = mEditText.layout
+                    if (layout != null) {
+                        val line = mEditText.layout.getLineForVertical(y)
+                        val offset = mEditText.layout.getLineStart(line)
+
+                        // Find the paragraph at this offset
+                        val para = mEntry.get_paragraph(offset, true)
+
+                        if(para != null && para.is_foldable) {
+                            v.performClick()
+                            para.is_expanded = !para.is_expanded
+                            show(true)
+                            return@setOnTouchListener true
+                        }
+                    }
+                }
+            }
+            false
+        }
+
         val mButtonBold = view.findViewById<Button>(R.id.buttonBold)
         mButtonBold.setOnClickListener { toggleFormat('B') }
 
@@ -190,7 +216,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             requireActivity().window.setSoftInputMode(
                     WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         }
-        show(savedInstanceState == null)
+        show(savedInstanceState == null) // non-null on rotation
     }
 
     /*@Override
@@ -359,7 +385,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         mButtonHighlight.text = spanStringH
     }
 
-    fun show(flagParse: Boolean) {
+    fun show(fReset: Boolean) {
         mFlagDismissOnExit = false
 
         // THEME
@@ -367,12 +393,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         // SETTING TEXT
         mFlagSetTextOperation = true
-        if(flagParse)
+        if(fReset)
             mEditText.setText(mEntry._text_visible)
         mFlagSetTextOperation = false
 
-        // if( flagParse )
-        // parse();
         Lifeograph.getActionBar().subtitle = mEntry._name // TODO: _title_str
         //invalidateOptionsMenu(); // may be redundant here
 
@@ -447,12 +471,15 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private fun showParaDlg() {
         DialogParagraph(requireContext(), object : DialogParagraph.Listener {
-            override fun onApplyParaAction(action: (Paragraph) -> Unit) {
+            override fun onApplyParaAction(action: (Paragraph) -> Unit, fRefreshFully: Boolean) {
                 doForEachSelPara(action, false)
 
                 mEntry.update_todo_status()
                 updateIcons()
-                reparse()
+                if( fRefreshFully )
+                    show(true)
+                else
+                    reparse()
             }
             override fun getParagraph(): Paragraph {
                 val selectionStart = mEditText.selectionStart
@@ -581,7 +608,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 p = p.get_next()
             }
 
-            updateTextFormatting(mEditText.text, paraBgn, paraEnd)
+            mEditText.text?.let { updateTextFormatting(it, paraBgn, paraEnd) }
         }
     }
 
@@ -589,17 +616,17 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val selectionStart = mEditText.selectionStart
         val selectionEnd = mEditText.selectionEnd
 
-        // Get the start and end paragraphs based on the selection offsets
+        // get the start and end paragraphs based on the selection offsets
         val paraBgn: Paragraph = mEntry.get_paragraph(selectionStart, true)
         val paraEnd: Paragraph =
             mEntry.get_paragraph(selectionEnd.coerceAtLeast(selectionStart), true)
 
         var p: Paragraph? = paraBgn
         while(p != null) {
-            // Execute the lambda passed as an argument
+            // execute the lambda passed as an argument
             action(p)
 
-            if(p === paraEnd) break
+            if(p._id == paraEnd._id) break
             p = p.get_next()
         }
 
@@ -613,14 +640,15 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         if(pStart>=0)
             return
-        if(mEditText.hasSelection()) {
-            val pEnd: Int = mEditText.selectionEnd - 1
-            mEditText.text.insert(pStart, "[[")
-            mEditText.text.insert(pEnd + 2, "]]")
-        }
-        else { // no selection case
-            mEditText.text.insert(pStart, "[[]]")
-            mEditText.setSelection(pStart + 2)
+        mEditText.text?.let { edt ->
+            if(mEditText.hasSelection()) {
+                val pEnd: Int = mEditText.selectionEnd - 1
+                edt.insert(pStart, "[[")
+                edt.insert(pEnd + 2, "]]")
+            } else { // no selection case
+                edt.insert(pStart, "[[]]")
+                mEditText.setSelection(pStart + 2)
+            }
         }
     }
 
@@ -646,7 +674,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val classesToRemove = arrayOf(
             CharacterStyle::class.java, // Covers Bold, Italic, Color, Background
             ParagraphStyle::class.java, // Covers Alignment, LeadingMargin
-            ListSpan::class.java        // Your custom span
+            SpanList::class.java        // Your custom span
                                      )
 
         // remove existing spans in this paragraph's range before re-applying
@@ -699,7 +727,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 val label = if ("1AaRr".contains(listType)) p._list_order_str else null
 
                 edt.setSpan(
-                    ListSpan(requireContext(), p, label, theme),
+                    SpanList(requireContext(), p, label, theme),
                     offset,
                     offsetEnd,
                     Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
@@ -741,7 +769,19 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
         }
 
-        // 5. HIDDEN FORMATS (Inline Spans)
+        // 5. FOLDING
+        if( p.is_foldable ) { //&& !p.is_expanded )
+            val spanFolding = SpanFolding(
+                    p.is_expanded,
+                    if (p._heading_level == 'S') theme._color_heading_L else theme._color_heading_M,
+                    p._indent_level
+                                         )
+
+            // We use a specific range (e.g., the first char or a hidden char) to attach the span
+            edt.setSpan(spanFolding, offset, offsetEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+        }
+
+        // 6. HIDDEN FORMATS (Inline Spans)
         for(format in p._formats) {
             val fStart = offset + format.posBgn
             val fEnd = offset + format.posEnd
@@ -852,7 +892,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
    }
     fun reparse() {
-        updateTextFormatting(mEditText.text, mEntry._paragraph_1st, mEntry._paragraph_last)
+        mEditText.text?.let {  updateTextFormatting(it,
+                                                    mEntry._paragraph_1st,
+                                                    mEntry._paragraph_last) }
     }
 
     override fun onInquireAction(id: Int, text: String) {
@@ -879,7 +921,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //        }
 //        return if(hasNoOtherSpan) SpanNull() else SpanOther()
 //    }
-}
 
     // SPANS =======================================================================================
     interface AdvancedSpan {
@@ -946,12 +987,12 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //            get() = 'c'
 //    }
 
-    private class ListSpan(
+    private class SpanList(
         private val context: Context,
         private val para: Paragraph,
         private val label: String?, // For numbered lists
         private val theme: Theme,
-        private val gapWidth: Int = 40
+        private val gapWidth: Int = INDENT_UNIT_WIDTH
                           ) : LeadingMarginSpan {
 
         override fun getLeadingMargin(first: Boolean): Int = gapWidth
@@ -968,7 +1009,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             val style = p.style
 
             // Adjust x for direction
-            val drawX = (x + dir + para._indent_level * FragmentEntry.INDENT_UNIT_WIDTH).toFloat()
+            val drawX = (x + dir + para._indent_level * INDENT_UNIT_WIDTH).toFloat()
             val centerY = (top + bottom) / 2f
             val size = p.textSize * 0.6f
 
@@ -1031,3 +1072,56 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             p.style = style
         }
     }
+
+    private class SpanFolding(
+        private val isExpanded: Boolean,
+        private val color: Int,
+        private val indentLevel: Int,
+        private val gapWidth: Int = 0
+                             ) : LeadingMarginSpan {
+
+        override fun getLeadingMargin(first: Boolean): Int = gapWidth
+
+        override fun drawLeadingMargin(
+            c: Canvas, p: Paint, x: Int, dir: Int,
+            top: Int, baseline: Int, bottom: Int,
+            text: CharSequence, start: Int, end: Int,
+            first: Boolean, layout: Layout
+                                      ) {
+            if(!first) return // Only draw the arrow on the first line
+
+            val oldColor = p.color
+            val oldStyle = p.style
+
+            p.color = color
+            p.style = Paint.Style.FILL
+            p.isAntiAlias = true
+
+            // x is the current margin start, dir is layout direction
+            val indentation = 0//indentLevel * INDENT_UNIT_WIDTH
+            val drawX = x + dir + indentation + 20f - INDENT_UNIT_WIDTH
+            val centerY = (top + bottom) / 2f
+            val size = 32f
+
+            val path = Path()
+            if(isExpanded) {
+                // Downward arrow
+                path.moveTo(drawX - size / 2, centerY - size / 4)
+                path.lineTo(drawX + size / 2, centerY - size / 4)
+                path.lineTo(drawX, centerY + size / 4)
+            } else {
+                // Rightward arrow
+                path.moveTo(drawX - size / 4, centerY - size / 2)
+                path.lineTo(drawX - size / 4, centerY + size / 2)
+                path.lineTo(drawX + size / 4, centerY)
+            }
+            path.close()
+            c.drawPath(path, p)
+
+            p.color = oldColor
+            p.style = oldStyle
+        }
+    }
+
+
+}

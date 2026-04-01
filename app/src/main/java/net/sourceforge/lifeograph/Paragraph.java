@@ -93,6 +93,8 @@ public class Paragraph extends DiaryElemTag
     is_title() { return nativeIsTitle(mNativePtr); }
     public char
     get_heading_level() { return nativeGetHeadingLevel(mNativePtr); }
+    public void
+    set_heading_level( char level ) {  nativeSetHeadingLevel(mNativePtr, level); }
 
     public char
     get_alignment() { return nativeGetAlignment(mNativePtr); }
@@ -103,6 +105,8 @@ public class Paragraph extends DiaryElemTag
     get_list_type() { return nativeGetListType(mNativePtr); }
     public void
     set_list_type( char type ) { nativeSetListType( mNativePtr, type ); }
+    public void
+    clear_list_type() { nativeClearListType( mNativePtr ); }
     public boolean
     isList() { return nativeGetListType(mNativePtr) != '_'; }
 
@@ -113,6 +117,10 @@ public class Paragraph extends DiaryElemTag
     get_indent_level() { return nativeGetIndentLevel(mNativePtr); }
     public void
     set_indent_level( int level ) { nativeSetIndentLevel(mNativePtr, level); }
+    public void
+    indent() { nativeIndent(mNativePtr); }
+    public void
+    unindent() { nativeUnindent(mNativePtr); }
 
     public char
     get_quot_type() { return nativeGetQuotType(mNativePtr); }
@@ -122,6 +130,14 @@ public class Paragraph extends DiaryElemTag
     is_quote() { return nativeIsQuote(mNativePtr); }
     public boolean
     is_code() { return nativeIsCode(mNativePtr); }
+
+    public boolean
+    has_hrule() { return nativeHasHRule(mNativePtr); }
+    public void
+    set_hrule( boolean fHasHRule ) { nativeSetHRule( mNativePtr, fHasHRule ); }
+
+    public boolean
+    is_foldable() { return nativeIsFoldable(mNativePtr); }
 
     public int
     get_bgn_offset_in_host() { return nativeGetBgnOffsetInHost(mNativePtr); }
@@ -159,17 +175,24 @@ public class Paragraph extends DiaryElemTag
     private native String nativeGetText(long ptr);
     private native boolean nativeIsTitle(long ptr);
     private native char nativeGetHeadingLevel(long ptr);
+    private native void nativeSetHeadingLevel(long ptr, char level);
     private native char nativeGetAlignment(long ptr);
     private native void nativeSetAlignment(long ptr, char alignment);
     private native int nativeGetIndentLevel(long ptr);
     private native void nativeSetIndentLevel(long ptr, int level);
+    private native void nativeIndent(long ptr);
+    private native void nativeUnindent(long ptr);
     private native char nativeGetListType(long ptr);
     private native void nativeSetListType(long ptr, char type);
+    private native void nativeClearListType(long ptr);
     private native String nativeGetListOrderStr(long ptr);
     private native char nativeGetQuotType(long ptr);
     private native void nativeSetQuotType(long ptr, char quot_type);
     private native boolean nativeIsQuote(long ptr);
     private native boolean nativeIsCode(long ptr);
+    private native boolean nativeHasHRule(long ptr);
+    private native void nativeSetHRule(long ptr, boolean fHasHRule);
+    private native boolean nativeIsFoldable(long ptr);
     private native int nativeGetBgnOffsetInHost(long ptr);
     private native int nativeGetEndOffsetInHost(long ptr);
     private native long nativeGetFormatAt(long ptr, char type, int pos);
