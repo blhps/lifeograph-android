@@ -285,11 +285,34 @@
             android:textAppearance="?attr/textAppearanceSubtitle1"
             android:textColor="?android:attr/textColorPrimary" />
 
-        <com.google.android.material.switchmaterial.SwitchMaterial
+        <com.google.android.material.materialswitch.MaterialSwitch
             android:id="@+id/sw_horizontal_rule"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:contentDescription="Horz Rule" />
+            android:contentDescription="Horz Rule"
+            app:showText="false" />
+    </LinearLayout>
+    <!-- Row 6: Expanded -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Expanded"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_para_expanded"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Expanded"
+            app:showText="false" />
     </LinearLayout>
 
     <View

@@ -33,7 +33,6 @@ import android.view.*
 import android.view.inputmethod.EditorInfo
 import android.widget.Button
 import android.widget.EditText
-import android.widget.TextView
 import androidx.appcompat.content.res.AppCompatResources
 import androidx.appcompat.widget.SearchView
 import androidx.core.net.toUri
@@ -64,7 +63,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     companion object {
         lateinit var mEntry: Entry
-        const val INDENT_UNIT_WIDTH = 60
+        const val INDENT_UNIT_WIDTH = 80
     }
 
     // METHODS =====================================================================================
@@ -454,6 +453,11 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 mEntry.update_todo_status()
                 updateIcons()
                 reparse()
+            }
+            override fun getParagraph(): Paragraph {
+                val selectionStart = mEditText.selectionStart
+                val para: Paragraph = mEntry.get_paragraph(selectionStart, true)
+                return para
             }
         }).show()
     }

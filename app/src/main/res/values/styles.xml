@@ -1,14 +1,24 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <style name="LifeoTheme" parent="Theme.MaterialComponents.Light.DarkActionBar">
+    <style name="LifeoTheme" parent="Theme.Material3.Light">
         <item name="colorPrimary">@color/t_darker</item>
-        <item name="colorAccent">@color/t_lighter</item>
-        <item name="android:textColorPrimary">@android:color/white</item> <!--ActionBar text-->
-        <item name="android:itemBackground">@color/t_darkest</item> <!--Options menu bg-->
+        <item name="colorSecondary">@color/t_lighter</item>
+        <item name="android:textColorPrimary">@android:color/white</item>
         <item name="android:textColorSecondary">@color/t_lighter</item>
-        <item name="colorPrimaryDark">@color/t_darker</item> <!--system tray bg-->
         <item name="buttonStyle">@style/LifeoButtonTheme</item>
         <item name="editTextStyle">@style/LifeoEditTextTheme</item>
+        <item name="colorSurfaceVariant">@color/t_darkest</item>
+        <item name="colorOutline">@android:color/white</item>
+        <item name="colorOnSurface">@android:color/white</item>
+        <item name="colorOnPrimary">@android:color/white</item>
+        <item name="colorPrimaryContainer">@color/t_lighter</item>
+        <item name="colorSecondaryContainer">@color/t_lighter</item>
+        <item name="colorOnPrimaryContainer">@android:color/white</item>
+        <item name="colorOnSecondaryContainer">@android:color/white</item>
+        <item name="colorSurface">@color/t_darkest</item>
+        <item name="popupMenuStyle">@style/LifeoPopupMenu</item>
+        <item name="android:popupMenuStyle">@style/LifeoPopupMenu</item>
+        <item name="actionOverflowMenuStyle">@style/LifeoPopupMenu</item>
     </style>
 
     <!-- FOR THE MAIN WINDOW -->
@@ -25,13 +35,21 @@
         <item name="android:textColor">@color/t_darkest</item>
     </style>
 
-    <style name="LifeoAlertDlgTheme" parent="Theme.MaterialComponents.Light.Dialog.Alert">
-        <!-- Used for the buttons -->
-        <item name="colorAccent">@android:color/white</item>
-        <!-- Used for the title and text -->
+    <style name="LifeoAlertDlgTheme" parent="Theme.Material3.Light.Dialog">
+        <item name="colorPrimary">@color/t_darker</item>
+        <item name="colorSecondary">@color/t_lighter</item>
+        <item name="colorSecondaryContainer">@color/t_lighter</item>
+        <item name="colorOnSecondaryContainer">@android:color/white</item>
+        <item name="colorSurfaceVariant">@color/t_darkest</item>
+        <item name="colorOutline">@android:color/white</item>
+        <item name="colorOnSurface">@android:color/white</item>
+        <item name="colorOnPrimary">@android:color/white</item>
         <item name="android:textColorPrimary">@color/t_lightest</item>
-        <!-- Used for the background -->
         <item name="android:background">@color/t_dark</item>
+    </style>
+
+    <style name="LifeoPopupMenu" parent="Widget.Material3.PopupMenu">
+        <item name="android:popupBackground">@color/t_darkest</item>
     </style>
 
     <!--style name="LifeoTheme.TabStyle" parent="@style/Widget.AppCompat.ActionBar.TabView">

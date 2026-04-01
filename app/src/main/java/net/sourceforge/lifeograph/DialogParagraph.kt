@@ -25,6 +25,7 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import com.google.android.material.button.MaterialButtonToggleGroup
+import com.google.android.material.materialswitch.MaterialSwitch
 
 // ABOUT DIALOG ====================================================================================
 class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx) {
@@ -32,6 +33,7 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
 
     interface Listener {
         fun onApplyParaAction(action: (Paragraph) -> Unit)
+        fun getParagraph(): Paragraph
     }
 
     // METHODS =====================================================================================
@@ -41,9 +43,27 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
         setCancelable(true)
         setTitle(R.string.todo_auto)
 
+        val para = listener.getParagraph()
 
         val tgCheckboxes = findViewById<MaterialButtonToggleGroup>(R.id.tg_checkboxes)
         val tgBullets = findViewById<MaterialButtonToggleGroup>(R.id.tg_bullets)
+        val swHorzRule = findViewById<MaterialSwitch>(R.id.sw_horizontal_rule)
+        val swExpanded = findViewById<MaterialSwitch>(R.id.sw_para_expanded)
+
+        when( para._list_type ) {
+            '_' -> tgCheckboxes.check( R.id.bt_para_not_list )
+            'O' -> tgCheckboxes.check( R.id.bt_para_open )
+            '~' -> tgCheckboxes.check( R.id.bt_para_progressed )
+            '+' -> tgCheckboxes.check( R.id.bt_para_done )
+            'X' -> tgCheckboxes.check( R.id.bt_para_canceled )
+            '-' -> tgBullets.check( R.id.bt_para_bullet )
+            '1' -> tgBullets.check( R.id.bt_para_number )
+            'A' -> tgBullets.check( R.id.bt_para_letter )
+            'R' -> tgBullets.check( R.id.bt_para_roman )
+        }
+
+        swExpanded.isChecked = para.is_expanded
+        // swHorzRule.isChecked = ... // TODO...
 
         tgCheckboxes.addOnButtonCheckedListener { group, checkedId, isChecked ->
             // when a checkbox is selected, clear the bullet/numbering row
@@ -79,6 +99,15 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
             dismiss()
         }
 
+        swExpanded.setOnCheckedChangeListener { _, isChecked ->
+            val action: (Paragraph) -> Unit = { p -> p.is_expanded = isChecked }
+            listener.onApplyParaAction(action)
+            dismiss()
+        }
 
+        swHorzRule.setOnCheckedChangeListener { _, isChecked ->
+            // Handle horizontal rule toggle
+            dismiss()
+        }
     }
 }
