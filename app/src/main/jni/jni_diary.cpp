@@ -199,6 +199,9 @@ JNI_METHOD(jint, Diary_nativeWriteTo)(JNIEnv* env, jobject obj, jlong ptr, jstri
     return static_cast<jint>(res);
 }
 
+JNI_METHOD(jboolean, Diary_nativeGetContinueFromLock)(JNIEnv*, jobject, jlong ptr) {
+    return reinterpret_cast<LoG::Diary*>(ptr)->get_continue_from_lock();
+}
 JNI_METHOD(void, Diary_nativeSetContinueFromLock)(JNIEnv* env, jobject obj, jlong ptr) {
     reinterpret_cast<LoG::Diary*>(ptr)->set_continue_from_lock();
 }

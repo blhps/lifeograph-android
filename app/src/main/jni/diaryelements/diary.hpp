@@ -611,6 +611,9 @@ class Diary : public DiaryElement, public PropertyContainer
         bool                    is_locked() const;
 #endif
         void                    set_continue_from_lock();
+#ifdef __ANDROID__
+        bool                    get_continue_from_lock() const { return m_F_continue_from_lock; }
+#endif
 
         // IMPORTING
         void                    synchronize_options( const Diary* );

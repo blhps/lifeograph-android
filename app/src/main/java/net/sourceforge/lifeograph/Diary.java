@@ -25,6 +25,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
+import java.nio.file.Files;
 import java.util.Vector;
 
 import android.content.ContentResolver;
@@ -586,7 +587,10 @@ public class Diary extends DiaryElement
 
         try( InputStream inputStream = uriStr.equals( sExampleDiaryPath ) ?
                                ctx.getAssets().open( "example.diary" ) :
-                               ctx.getContentResolver() .openInputStream( Uri.parse( uriStr ) ) ) {
+                                       ( nativeGetContinueFromLock(mNativePtr) ?
+                                         getLockStream(ctx) :
+                                         ctx.getContentResolver().openInputStream(
+                                                 Uri.parse( uriStr ) ) ) ) {
 
             if( inputStream == null ) return Result.FILE_NOT_FOUND;
 
@@ -778,6 +782,36 @@ public class Diary extends DiaryElement
         return Result.SUCCESS;
     }
 
+    InputStream
+    getLockStream(android.content.Context ctx) {
+        Uri uri = Uri.parse( nativeGetUri( mNativePtr ) );
+        ContentResolver resolver = ctx.getContentResolver();
+
+        try {
+            // we open the original stream just to verify accessibility as done in writeLock()
+            InputStream istream = resolver.openInputStream( uri );
+            if (istream != null) {
+                istream.close(); // Close immediately as we only need the lock file
+
+                DocumentFile lockDoc = getNeighborFileDocument( ctx, uri, SUFFIX_LOCK );
+                if (lockDoc != null) {
+                    return resolver.openInputStream(lockDoc.getUri());
+                }
+                else { // fallback to app's folder
+                    File lockFile = new File( ctx.getFilesDir(), get_name() + SUFFIX_LOCK );
+                    if (lockFile.exists()) {
+                        return Files.newInputStream( lockFile.toPath() );
+                    }
+                }
+            }
+        }
+        catch( IOException ex ) {
+            Log.e( Lifeograph.TAG, "Could not open lock file: " + ex.getMessage() );
+            return null;
+        }
+        return null;
+    }
+
     boolean
     removeLockIfNecessary( Context ctx ) {
         if( !is_in_edit_mode() )
@@ -937,6 +971,7 @@ public class Diary extends DiaryElement
     private native int nativeWriteUri(long mNativePtr, String uri);
     private native byte[] nativeGetStrStream(long mNativePtr);
     private native int nativeWriteTxt(long mNativePtr, String path, long ptr_filter);
+    private native boolean nativeGetContinueFromLock(long ptr);
     private native void nativeSetContinueFromLock(long ptr);
 
     private native String nativeGetSearchStr(long mNativePtr);
