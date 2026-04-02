@@ -483,8 +483,11 @@ void
 Theme::copy_to( Theme* target ) const
 {
     target->font = font;
+    target->font_literary = font_literary;
+    target->font_monospace = font_monospace;
     target->image_bg = image_bg;
     target->color_base = color_base;
+    target->color_base2 = color_base2;
     target->color_text = color_text;
     target->color_title = color_title;
     target->color_heading_L = color_heading_L;

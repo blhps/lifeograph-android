@@ -369,7 +369,7 @@ Paragraph::get_list_order() const
     {
         const int indent_lvl_cur{ para->get_indent_level() };
         const int headng_lvl_cur{ para->get_heading_level() };
-        if( indent_lvl_cur < indent_lvl || headng_lvl_cur < headng_lvl )
+        if( indent_lvl_cur < indent_lvl || headng_lvl_cur > headng_lvl )
             break;
         else
         if( indent_lvl_cur == indent_lvl && headng_lvl_cur == headng_lvl &&
