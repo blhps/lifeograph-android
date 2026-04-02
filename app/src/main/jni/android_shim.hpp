@@ -51,7 +51,7 @@ namespace Glib {
         ustring(const char* s) : std::string(s ? s : "") {}
         ustring() = default;
 
-        size_type length() const {
+        [[nodiscard]] size_type length() const {
             size_type count = 0;
             for( unsigned char c : *this )
             {
@@ -60,6 +60,17 @@ namespace Glib {
             }
             return count;
         }
+
+        ustring substr(size_type pos, size_type n = std::string::npos) const {
+            size_type start_byte = char_to_byte_idx(pos);
+            if (n == std::string::npos) {
+                return ustring(std::string::substr(start_byte));
+            }
+
+            size_type end_byte = char_to_byte_idx(pos + n);
+            return ustring(std::string::substr(start_byte, end_byte - start_byte));
+        }
+
 
         size_type size() const { return length(); }
 
@@ -140,6 +151,7 @@ namespace Glib {
             }
             return ustring(res);
         }
+
     private:
         template<typename T>
         static std::string to_str(const T& val) {
@@ -537,24 +549,46 @@ namespace sigc {
 
 namespace Pango {
     enum FontMask {
+        NONE = 0,
         FAMILY = 1
     };
 
     class FontDescription {
     public:
-        FontDescription() {}
+        FontDescription() : m_size( 0 ) {}
 
-        FontDescription(const std::string &) {}
+        FontDescription(const std::string& description) : m_size( 0 ) {
+            size_t last_space = description.find_last_of(' ');
+            if (last_space != std::string::npos) {
+                try {
+                    m_size = std::stoi(description.substr(last_space + 1));
+                    m_family = description.substr(0, last_space);
+                } catch (...) {
+                    m_family = description;
+                }
+            } else {
+                m_family = description;
+            }
+        }
 
-        std::string to_string() const { return ""; }
+        [[nodiscard]] std::string to_string() const {
+            return m_size > 0 ? m_family + " " + std::to_string(m_size) : m_family;
+        }
 
-        bool get_size_is_absolute() const { return true; }
+        static bool get_size_is_absolute() { return true; }
 
-        int get_size() const { return 0; }
+        [[nodiscard]] int get_size() const { return m_size; }
 
-        std::string get_family() const { return "sans"; }
+        [[nodiscard]] std::string get_family() const { return m_family; }
 
-        FontMask get_set_fields() const { return FAMILY; }
+        FontMask get_set_fields() const { return m_family.empty() ? NONE: FAMILY; }
+
+    private:
+        std::string     m_family;
+        int             m_size;
+    };
+
+    class FontMetrics {
     };
 
     enum class Alignment {
