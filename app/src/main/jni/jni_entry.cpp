@@ -138,7 +138,7 @@ JNI_METHOD(void, Entry_nativeSetText)(JNIEnv* env, jobject obj, jlong ptr, jstri
 JNI_METHOD(void, Entry_nativeInsertText)(JNIEnv* env, jobject obj, jlong ptr, jint pos, jstring text) {
     CHECK_PTR(ptr, )
     const char* c_text = env->GetStringUTFChars(text, nullptr);
-    reinterpret_cast<LoG::Entry*>(ptr)->insert_text(static_cast<size_t>(pos), c_text, LoG::ParaInhClass::NONE);
+    reinterpret_cast<LoG::Entry*>(ptr)->insert_text(static_cast<size_t>(pos), c_text, LoG::ParaInhClass::DEFAULT);
     env->ReleaseStringUTFChars(text, c_text);
 }
 

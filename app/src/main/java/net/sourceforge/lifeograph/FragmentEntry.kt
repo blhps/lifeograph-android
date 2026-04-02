@@ -104,6 +104,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     if( count > 0 ) { // insertion
                         val addedText = s.subSequence(start, start + count).toString()
                         mEntry.insert_text(start, addedText)
+                        // this method always inherits on Andro and it may be an issue on paste
                     }
                 }
             }

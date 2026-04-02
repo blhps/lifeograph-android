@@ -136,7 +136,7 @@ public class Entry extends DiaryElemTag {
 
     void
     insert_text( int pos, final String text ) {
-        nativeInsertText(mNativePtr, pos, text);
+        nativeInsertText(mNativePtr, pos, text); // NOTE: this inherits above para's style
     }
 
     void
