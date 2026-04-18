@@ -69,10 +69,10 @@ UndoStack::clear()
 {
     int i;
     for( i = m_undos.size()-1; i>= 0; i-- )
-        delete m_undos[i];
+        delete m_undos[ i ];
 
     for( i = m_redos.size()-1; i>= 0; i-- )
-        delete m_redos[i];
+        delete m_redos[ i ];
 
     m_undos.clear();
     m_redos.clear();

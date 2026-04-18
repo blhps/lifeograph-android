@@ -556,8 +556,10 @@ Entry::get_list_str() const
     switch( get_title_style() )
     {
         case VT::ETS::MILESTONE::I:
-            str += "<span color=\"#666666\" bgcolor=\"";
-            str += get_color_no_fail();
+            str += "<span color=\"";
+            str += get_color_contrast();
+            str += "\" bgcolor=\"";
+            str += get_color();
             str += "\"> – ";
             str += Date::format_string( m_date );
             str += " – </span>  ";
@@ -1063,7 +1065,8 @@ Entry::insert_text( UstringSize pos, const Ustring& new_text, const ListHiddenFo
             // please note that when pos==end, split_at just creates an empty new paragraph
             para = add_paragraphs_after( para->split_at( pos_split + para_text.length(), parser ),
                                          para,
-                                         !para_inherit ? ic : ParaInhClass::NONE );
+                                         !para_inherit ? ( ic | ParaInhClass::SET_TEXT )
+                                                           : ParaInhClass::SET_TEXT );
                                          // if para inherit is set, inheritance is applied below
             pos_split = 0;
 
@@ -1072,8 +1075,10 @@ Entry::insert_text( UstringSize pos, const Ustring& new_text, const ListHiddenFo
                 ParaInhClasses ic_final { ic };
                 if( !para_inherit->is_title() && para_inherit->is_empty() && !para->is_empty() )
                     ic_final |= ParaInhClass::HEADING_LVL;
-                if( n_paras_changed == 1 )
-                    ic_final |= ParaInhClass::INDENTATION;
+                // if( n_paras_changed == 1 )
+                //     ic_final |= ParaInhClass::INDENTATION;
+                // ^^^ INDENTATION is already default, why add it here? ^^^
+                // ...besides it breaks paste in code snippets due to added spaces after :
                 para->inherit_style_from( para_inherit, ic_final );
             }
 
@@ -1461,6 +1466,39 @@ Entry::add_paragraph_before( const Ustring& text, Paragraph* para_after, ParserB
 
     return para;
 }
+
+// NOTE: not sure if this is really useful...
+// std::pair< Paragraph*, Paragraph* >
+// Entry::add_paragraph_before_multi( const Ustring& text, Paragraph* para_after,
+//                                    ParserBackGround* parser, ParaInhClasses ic )
+// {
+//     VecUstrings lines;
+//     size_t      pos_bgn { 0 };
+//     size_t      pos_end { text.find( '\n' ) };
+//
+//     // Split the string by newline
+//     while( pos_end != Ustring::npos )
+//     {
+//         lines.push_back( text.substr( pos_bgn, pos_end - pos_bgn ) );
+//         pos_bgn = pos_end + 1;
+//         pos_end = text.find( '\n', pos_bgn );
+//     }
+//     lines.push_back( text.substr( pos_bgn ) ); // Add the last remaining part
+//
+//     Paragraph* first  { nullptr };
+//     Paragraph* last   { nullptr };
+//
+//     for( const auto& line : lines )
+//     {
+//         // Use the existing API to add individual lines
+//         Paragraph* p = add_paragraph_before( line, para_after, parser, ic );
+//
+//         if( !first ) first = p;
+//         last = p;
+//     }
+//
+//     return { first, last };
+// }
 
 Paragraph*
 Entry::add_paragraphs_after( Paragraph* const para_chain_bgn, Paragraph* const para_before,

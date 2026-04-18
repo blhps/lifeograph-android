@@ -289,9 +289,9 @@ namespace VT
     REG_PROP_END;
 
     // TAG VALUE TYPE / STATUS .....................................................................
-    REG_PROP_FRST( TVTS, 'A', 0x040,  PLANNED,    N_( "Planned" ) );
-    REG_PROP_01(         'C', 0x080,  REALIZED,   N_( "Realized" ) );
-    REG_PROP_02(         'C', 0x100,  REMAINING,  N_( "Remaining" ) );
+    REG_PROP_FRST( TVTS, 'P', 0x040,  PLANNED,    N_( "Planned" ) );
+    REG_PROP_01(         'R', 0x080,  REALIZED,   N_( "Realized" ) );
+    REG_PROP_02(         'B', 0x100,  REMAINING,  N_( "Remaining" ) );
     REG_PROP_LAST( 2 );
     REG_PROP_END;
 
@@ -778,7 +778,7 @@ struct PropValueObj
 //     { return std::make_unique< Derived >( static_cast< const Derived& >( *this ) ); }
 // };
 // PropertyValue holds one of the supported types
-using PropertyValue = std::variant< bool, char, int, double,
+using PropertyValue = std::variant< bool, char, int, uint32_t, double,
                                     D::DEID,
                                     String,
                                     std::shared_ptr< PropValueObj > >;
@@ -1171,11 +1171,16 @@ class DiaryElemTag : public DiaryElement, public PropertyContainer
         // COLOR
         bool                    has_color() const
         { return m_properties.has( PROP::COLOR ); }
-        String                  get_color( const String& def_color = "" ) const
-        { return m_properties.get< String >( PROP::COLOR, def_color ); }
-        String                  get_color_no_fail() const
-        { return m_properties.get< String >( PROP::COLOR, "#FFFFFF" ); }
+        String                  get_color( uint32_t c = 0xFFFFFF ) const
+        { return convert_uint32_to_html( m_properties.get< uint32_t >( PROP::COLOR, c ) ); }
+        String                  get_color_contrast() const
+        {
+            const auto color = m_properties.get< uint32_t >( PROP::COLOR, 0xFFFFFF );
+            return convert_uint32_to_html( get_contrasting_color( color ) );
+        }
         void                    set_color( const String& color )
+        { m_properties.set( PROP::COLOR, convert_colorstr_to_uint32( color ) ); }
+        void                    set_color( uint32_t color )
         { m_properties.set( PROP::COLOR, color ); }
 
         // LANGUAGE
@@ -1531,8 +1536,6 @@ Mo0P)";
 class ChartData
 {
     public:
-        typedef std::pair< float, Color > PairMilestone;
-
         struct YValues
         {
             Value v;
@@ -1555,6 +1558,9 @@ class ChartData
                 elems.insert( t );
             }
         };
+
+        using PairMilestone = std::pair< float, Color >;
+        using MapDateValues = std::map< DateV, YValues >;
 
         // NOTE: change in these values will break compatibility with older diary versions
         static constexpr int    DEL_PERIOD_MONTHLY      = 0x1;  // old value
@@ -1597,6 +1603,11 @@ class ChartData
 
         static constexpr int    PROPERTIES_DEFAULT      = STYLE_LINE|COMBINE_CUMULATIVE_CONTINUOUS|
                                                           PERIOD_MONTHLY;
+
+        static constexpr int    NUM_Y_STEPS             { 5 };
+        // "nice" multipliers to try for step size rounding, in order of preference
+        static constexpr std::array< double, 7 >
+                                NICE_MANTISSAS          = { 1.0, 1.5, 2.0, 2.5, 4.0, 5.0, 10.0 };
 
         ChartData( Diary* d, int t = PROPERTIES_DEFAULT );
         ~ChartData();
@@ -1650,8 +1661,10 @@ class ChartData
 
         Value                       v_min       { Constants::INFINITY_PLS };
         Value                       v_max       { Constants::INFINITY_MNS };
+        Value                       v_grid_min  { Constants::INFINITY_PLS };
+        Value                       v_grid_step { 0 };
 
-        std::map< DateV, YValues >  values_date;
+        MapDateValues               values_date;
         std::map< Ustring, int >    values_str2index;
         std::map< int, Ustring >    values_index2str;
         std::map< int, YValues >    values_str;
@@ -1688,6 +1701,8 @@ class ChartData
                     v_max = vmax_new;
             }
         }
+
+        void                        calculate_grid();
 
         Diary*                      m_p2diary;
 

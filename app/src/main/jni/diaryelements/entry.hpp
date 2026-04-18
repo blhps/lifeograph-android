@@ -102,6 +102,8 @@ class Entry : public DiaryElemTag
         DiaryElemTag*           get_parent_tag() const override { return m_p2parent; }
         Entry*                  get_parent_unfiltered( FiltererContainer* fc ) const;
         Entry*                  get_child_1st() const { return m_p2child_1st; }
+        Entry*                  get_child_last() const
+        { return( m_p2child_1st ? m_p2child_1st->get_sibling_last() : nullptr ); }
         Entry*                  get_prev() const      { return m_p2prev; }
         Entry*                  get_prev_or_up() const
         { return( m_p2prev ? m_p2prev : m_p2parent ); }
@@ -292,6 +294,11 @@ class Entry : public DiaryElemTag
         Paragraph*              add_paragraph_before( const Ustring&, Paragraph*,
                                                       ParserBackGround* = nullptr,
                                                       ParaInhClasses = ParaInhClass::NONE );
+        // NOTE: not sure if this is really useful
+        // std::pair< Paragraph*, Paragraph* >
+        //                         add_paragraph_before_multi( const Ustring&, Paragraph*,
+        //                                                     ParserBackGround* = nullptr,
+        //                                                     ParaInhClasses = ParaInhClass::NONE );
         Paragraph*              add_paragraphs_after( Paragraph* const, Paragraph* const,
                                                       ParaInhClasses = ParaInhClass::NONE );
         void                    remove_paragraphs( Paragraph*, Paragraph* = nullptr,
@@ -498,6 +505,9 @@ class Entry : public DiaryElemTag
             return p2undo;
         }
 
+        // ON-THE-FLY VALUES
+        double                  m_scroll_pos    { 0.0 };
+
     protected:
         void                    digest_text( const Ustring&, ParserBackGround* );
 
@@ -517,9 +527,7 @@ class Entry : public DiaryElemTag
         Entry*                  m_p2next        { nullptr };
 
         // ON-THE-FLY VALUES
-        // double                  m_scroll_pos    { 0.0 };
         int                     m_cursor_pos    { 0 };
-
         UndoStack               m_session_edits;
 
     private:

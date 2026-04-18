@@ -908,10 +908,15 @@ ChartData::add_value_date( DateV date, const Value vy, const Value vu, DiaryElem
 void
 ChartData::fill_in_intermediate_date_values()
 {
-    // auto get_next_real = [ this ]( DateV d ) -> DateV
-    // {
+    auto get_next_real = [ this ]( DateV d ) -> MapDateValues::iterator
+    {
+        auto it { values_date.find( d ) };
+        for( ; it != values_date.end(); ++it )
+            if( it->second.c > 0 )
+                break;
 
-    // };
+        return it;
+    };
 
     switch( get_combining() )
     {
@@ -931,18 +936,41 @@ ChartData::fill_in_intermediate_date_values()
             }
             break;
         }
-        case ChartData::COMBINE_AVERAGE://---is this really meaningful?
-            // if( vd.second.c == 0 )
-            // {
-            //     auto d = vd.first;
-            //     auto vi = vy;
-            //     auto ui = vu;
-            //     const auto steps_between = calculate_distance( d, get_next_real() );
-            //     const auto v_offset = ( vy - values_date.begin()->second.v ) / steps_between;
-            //     const auto u_offset = ( vu - values_date.begin()->second.u ) / steps_between;
-            //     vd.second.v = vi + v_offset * step_i;
-            // }
-            break;
+        case ChartData::COMBINE_AVERAGE:
+        {
+            DateV d_last_real { Date::NOT_SET };
+            Value vy_last_real { 0.0 }, vu_last_real { 0.0 };
+            Value vy_step { 0.0 }, vu_step { 0.0 };
+            int   i_step { 0 };
+
+            for( auto& vd : values_date )
+            {
+                if( vd.second.c == 0 )
+                {
+                    if( i_step == 0 )
+                    {
+                        const auto vd_next_real { get_next_real( vd.first ) };
+                        if( vd_next_real == values_date.end() ) break;
+                        const auto steps_between { calculate_distance( d_last_real,
+                                                                       vd_next_real->first ) };
+                        vy_step = ( vd_next_real->second.v - vy_last_real ) / steps_between;
+                        vu_step = ( vd_next_real->second.u - vu_last_real ) / steps_between;
+                        i_step = 1;
+
+                    }
+                    vd.second.v = vy_last_real + vy_step * i_step;
+                    vd.second.u = vu_last_real + vu_step * i_step;
+                    ++i_step;
+                }
+                else
+                {
+                    i_step = 0;
+                    vy_last_real = vd.second.v;
+                    vu_last_real = vd.second.u;
+                    d_last_real = vd.first;
+                }
+            }
+        }
     }
 }
 
@@ -1035,6 +1063,120 @@ ChartData::update_span()
     }
 }
 
+// helper func: rounds a value down to the nearest multiple of 'step':
+static double
+floor_to( double value, double step )
+{
+    double result { std::floor( value / step ) * step };
+    // snap near-zero results to exactly 0 to avoid float drift
+    return( ( std::abs( result ) < step * 1e-9 ) ? 0.0 : result );
+}
+
+// helper func: returns the "nicest" step size >= raw_step by snapping to the nearest value...
+// ...of the form mantissa * 10^exponent:
+static double
+nice_step( double raw_step )
+{
+    const double exponent = std::floor( std::log10( raw_step ) );
+    const double magnitude = std::pow( 10.0, exponent );
+    const double fraction = raw_step / magnitude; // in [1, 10)
+
+    for( double m : ChartData::NICE_MANTISSAS )
+        if( fraction <= m + 1e-9 ) return m * magnitude;
+
+    // fallback: next power of ten
+    return 10.0 * magnitude;
+}
+
+// calculates optimum axis parameters for a y-axis chart. guarantees:
+// - min_round_value <= value_min
+// - min_round_value + NUM_DIVISIONS * step_size >= value_max
+// - both values are "nicely" rounded
+// - if value_min <= 0 <= value_max, zero is exactly on a grid line
+void
+ChartData::calculate_grid()
+{
+    // if( v_min > v_max ) throw std::invalid_argument( "value_min must be <= value_max" );
+
+    // handle degenerate flat-line case:
+    if( v_min == v_max )
+    {
+        double center = v_max;
+        v_grid_step = ( center == 0.0 ) ? 1.0
+                                        : nice_step( std::abs( center ) / ChartData::NUM_Y_STEPS );
+        v_grid_min = floor_to( center, v_grid_step ) - v_grid_step;
+    }
+
+    const double range = v_max - v_min;
+    const double raw_step = range / ChartData::NUM_Y_STEPS;
+    double step = nice_step( raw_step );
+
+    // if the range spans zero, shift the grid so that zero lands exactly on a line:
+    if( v_min <= 0.0 && v_max >= 0.0 )
+    {
+        // with this step size, find the lowest grid line <= value_min that
+        // keeps 0.0 as an exact multiple of step.
+        double min_round = floor_to( v_min, step ); // already a multiple of step
+
+        // verify upper bound; if not satisfied, bump step up one notch and retry
+        while( min_round + ChartData::NUM_Y_STEPS * step < v_max )
+        {
+            // Advance to next nice step size
+            const double exponent = std::floor( std::log10( step ) );
+            const double magnitude = std::pow( 10.0, exponent );
+            const double fraction = step / magnitude;
+
+            double next_fraction = 10.0; // fallback
+            for( double m : ChartData::NICE_MANTISSAS )
+                if( m > fraction + 1e-9 )
+                {
+                    next_fraction = m;
+                    break;
+                }
+
+            step = next_fraction * magnitude;
+            min_round = floor_to( v_min, step );
+        }
+
+        v_grid_step = step;
+        v_grid_min = min_round;
+        return;
+    }
+
+    // normal (no zero-crossing) case:
+    double best_min = std::numeric_limits< double >::max();
+    double best_step = step;
+    double best_score = std::numeric_limits< double >::max();
+
+    // explore a small neighbourhood of nice steps around the computed one
+    const double exponent = std::floor( std::log10( raw_step ) );
+    const double magnitude = std::pow( 10.0, exponent );
+
+    for( double scale : { magnitude * 0.1, magnitude, magnitude * 10.0 } )
+    {
+        for( double m : ChartData::NICE_MANTISSAS )
+        {
+            double candidate = m * scale;
+            if( candidate < raw_step - 1e-9 ) continue; // too small
+
+            double min_round = floor_to( v_min, candidate );
+            if( min_round + ChartData::NUM_Y_STEPS * candidate < v_max ) continue; // doesn't cover
+
+            // score: prefer smallest total span
+            double score = min_round + ChartData::NUM_Y_STEPS * candidate - v_min;
+            if( score < best_score - 1e-9 )
+            {
+                best_score = score;
+                best_step = candidate;
+                best_min = min_round;
+            }
+        }
+    }
+
+    v_grid_step = best_step;
+    v_grid_min = best_min;
+}
+
 void
 ChartData::update_min_max()
 {
@@ -1054,6 +1196,9 @@ ChartData::update_min_max()
         else
             v_min -= ( v_max - v_min );
     }
+
+    // otimum grid line coordinates on y-axis:
+    calculate_grid();
 }
 
 void
@@ -1123,8 +1268,7 @@ ChartData::calculate_points()
 
     col->deallocate_filter_stacks();
 
-    if( get_combining() == ChartData::COMBINE_CUMULATIVE_CONTINUOUS )
-        fill_in_intermediate_date_values();
+    fill_in_intermediate_date_values();
 
     if( get_type() == ChartData::TYPE_DATE &&
         get_period() != ChartData::PERIOD_YEARLY &&

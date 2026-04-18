@@ -202,14 +202,18 @@ class FiltererIs : public Filterer
                     int depth = VT::OP_DEPTH::DEFAULT::I );
 
         void                    initialize_ui( FiltererContainerUI* ) override;
-        bool                    filter( const Entry* ) const override;
+        bool                    filter_common( const DiaryElemTag* ) const;
+        bool                    filter( const Entry* e ) const override
+        { return filter_common( e ); }
+        bool                    filter( const Paragraph* p ) const override
+        { return filter_common( p ); }
         void                    get_as_string( Ustring& ) const override;
         Ustring                 get_as_human_readable_str() const override;
 
-        const static int        m_obj_classes { FOC::ENTRIES };
+        const static int        m_obj_classes { FOC::ENTRIES | FOC::PARAGRAPHS };
 
     // protected:
-        Entry*                  m_p2entry     { nullptr };
+        DiaryElemTag*           m_p2tag       { nullptr };
         int                     m_depth       { VT::OP_DEPTH::DEFAULT::I };
 };
 

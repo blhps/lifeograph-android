@@ -966,6 +966,28 @@ convert_gdkrgba_to_html( const Color& gdkcolor )
     return buffer;
 }
 
+// converts a hex color string to uint32_t.
+// accepts both "#RRGGBB" and "RRGGBB" formats.
+uint32_t            convert_colorstr_to_uint32( const String& hex );
+
+// converts a uint32_t color to a "#RRGGBB" hex string.
+inline String
+convert_uint32_to_html( uint32_t color )
+{
+    static constexpr char hex[] = "0123456789ABCDEF";
+    char buf[ 8 ];
+    buf[ 0 ] = '#';
+    buf[ 1 ] = hex[ ( color >> 20 ) & 0xF ];
+    buf[ 2 ] = hex[ ( color >> 16 ) & 0xF ];
+    buf[ 3 ] = hex[ ( color >> 12 ) & 0xF ];
+    buf[ 4 ] = hex[ ( color >> 8 ) & 0xF ];
+    buf[ 5 ] = hex[ ( color >> 4 ) & 0xF ];
+    buf[ 6 ] = hex[ ( color ) & 0xF ];
+    buf[ 7 ] = '\0';
+    return String( buf, 7 ); // known length, no strlen scan
+}
+
+uint32_t            get_contrasting_color( uint32_t );
 Color               contrast2( const Color&, const Color&, const Color& );
 Color               midtone( const Color&, const Color& );
 Color               midtone( const Color&, const Color&, double, double = 1.0 );
@@ -1078,7 +1100,7 @@ struct CipherBuffers
 };
 
 // DROP POSITIONS ==================================================================================
-enum class DropPosition { NONE, BEFORE, INTO, AFTER, AFTER_ABSOLUTE };
+enum class DropPosition { NONE, BEFORE, INTO, AFTER };
 // AFTER can be regarded as INTO under certain circumstances
 // but AFTER_ABSOLUTE cannot
 

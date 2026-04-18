@@ -972,13 +972,13 @@ TableColumn::calculate_script( TableLine* line ) noexcept
             py::tuple t { obj.cast< py::tuple >() };
             if( t.size() != 2 )
             {
-                print_error( "Table modifier script should return an (int, str) tuple!" );
+                print_error( "Table modifier script should return a (float, str) tuple!" );
                 return;
             }
 
-            if( !py::isinstance< py::int_ >( t[ 0 ] ) ) return;
+            if( !py::isinstance< py::float_ >( t[ 0 ] ) )
             {
-                print_error( "First element in table modifier script return tuple must be int!" );
+                print_error( "First element in table modifier script return tuple must be float!" );
                 return;
             }
 
@@ -988,7 +988,7 @@ TableColumn::calculate_script( TableLine* line ) noexcept
                 return;
             }
 
-            line->set_value_num( get_index(), t[ 0 ].cast< int >() );
+            line->set_value_num( get_index(), t[ 0 ].cast< float >() );
             line->set_value_txt( get_index(), t[ 1 ].cast< String >() );
         }
         else if( py::isinstance< py::str >( obj ) )
@@ -1115,9 +1115,9 @@ TableLine::get_value_txt( int i ) const
 void
 TableLine::set_value_num( const int i, Value v, Value w )
 {
-    for( int i2 = m_values_num.size(); i2 <= i; i2++ )
+    for( int i2 = m_values_num.size(); i2 <= i; ++i2 )
         m_values_num.push_back( 0.0 );
-    for( int i2 = m_weights.size(); i2 <= i; i2++ )
+    for( int i2 = m_weights.size(); i2 <= i; ++i2 )
         m_weights.push_back( 0.0 );
 
     m_values_num[ i ] = v;
@@ -1127,7 +1127,7 @@ TableLine::set_value_num( const int i, Value v, Value w )
 void
 TableLine::set_value_txt( int i, Ustring&& v )
 {
-    for( int i2 = m_values_txt.size(); i2 <= i; i2++ )
+    for( int i2 = m_values_txt.size(); i2 <= i; ++i2 )
         m_values_txt.push_back( "" );
 
     m_values_txt[ i ] = v;
@@ -1136,9 +1136,9 @@ TableLine::set_value_txt( int i, Ustring&& v )
 void
 TableLine::add_col_v_num( const int i, Value v, Value w )
 {
-    for( int i2 = m_values_num.size(); i2 <= i; i2++ )
+    for( int i2 = m_values_num.size(); i2 <= i; ++i2 )
         m_values_num.push_back( 0.0 );
-    for( int i2 = m_weights.size(); i2 <= i; i2++ )
+    for( int i2 = m_weights.size(); i2 <= i; ++i2 )
         m_weights.push_back( 0.0 );
 
     m_values_num[ i ] += v;
@@ -1148,7 +1148,7 @@ TableLine::add_col_v_num( const int i, Value v, Value w )
 void
 TableLine::add_col_v_txt( int i, const Ustring& v )
 {
-    for( int i2 = m_values_txt.size(); i2 <= i; i2++ )
+    for( int i2 = m_values_txt.size(); i2 <= i; ++i2 )
         m_values_txt.push_back( "" );
 
     if( m_values_txt[ i ] != v ) // do not repeatedly add same value
@@ -1315,9 +1315,9 @@ TableLine*
 TableLine::create_group_line( TableLine* sl )
 {
     TableLine* gl { new TableLine( m_p2data, m_depth + 1, sl->is_expanded() ) };
-
-    gl->incorporate_subline_values( sl );
     gl->m_p2parent = this;
+
+    // set text for grouping columns:
     for( int i = 0; i <= m_depth; ++i )
     {
         const auto ic { m_p2data->get_group_column( i )->get_index() };

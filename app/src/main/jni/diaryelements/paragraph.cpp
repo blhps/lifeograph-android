@@ -148,7 +148,8 @@ bool
 Paragraph::is_descendant_of( const DiaryElemTag* pp ) const
 
 {
-    if( pp->get_type() != ET_PARAGRAPH ) return false;
+    if( pp->is_entry() ) return( dynamic_cast< const Entry* >( pp ) == m_host );
+
     const Paragraph* ppp    { dynamic_cast< const Paragraph* >( pp ) };
     const Paragraph* child  { this };
     if( ppp->m_host != m_host || ppp->m_order_in_host >= m_order_in_host ) return false;
@@ -519,6 +520,8 @@ Paragraph::get_text_code() const
         if( format->type == VT::HFT_TAG )
         {
             DiaryElemTag* tag { Diary::d->get_tag_by_id( format->get_id_lo() ) };
+            if( !tag ) continue;
+
             const String  repl_str
             { STR::compose( tag->is_entry() ? "Diary.get_main().get_tag_by_id("
                                             : "Diary.get_main().get_paragraph_by_id(",
@@ -1285,9 +1288,9 @@ update_para_style_after_after_indentation_change( Paragraph* p )
     }
 }
 bool
-Paragraph::indent()
+Paragraph::indent( bool F_treat_code_specially )
 {
-    if( is_code() )
+    if( is_code() && F_treat_code_specially )
     {
         const auto cur_level { get_space_indent() };
         set_space_indent( cur_level + INDENT_SPACE_COUNT - ( cur_level % INDENT_SPACE_COUNT )  );
@@ -1301,12 +1304,13 @@ Paragraph::indent()
     return false;
 }
 bool
-Paragraph::unindent()
+Paragraph::unindent( bool F_treat_code_specially )
 {
-    const auto cur_level { is_code() ? get_space_indent() : get_indent_level() };
+    const auto cur_level { ( is_code() && F_treat_code_specially ) ? get_space_indent()
+                                                                   : get_indent_level() };
     if( cur_level == 0 ) return false;
 
-    if( is_code() )
+    if( is_code() && F_treat_code_specially )
     {
         const auto misalignment { cur_level % INDENT_SPACE_COUNT };
         set_space_indent( cur_level - ( misalignment ? misalignment : INDENT_SPACE_COUNT ) );
@@ -1350,15 +1354,17 @@ Paragraph::set_space_indent( const unsigned depth )
     update_date_edited();
 }
 
+// this was not such a good idea and we stopped using this function
 void
 Paragraph::convert_indentation_type( char new_quot_t )
 {
-    // convert indenetation type based on the quot type:
+    // code -> non-code transition:
     if( is_code() && ( new_quot_t == VT::QT::OFF::C || new_quot_t == VT::QT::LITERARY::C ) )
     {
         set_indent_level( get_space_indent() / INDENT_SPACE_COUNT );
         set_space_indent( 0 );
     }
+    // non-code -> code transition:
     else if( !is_code() && new_quot_t != VT::QT::OFF::C && new_quot_t != VT::QT::LITERARY::C )
     {
         set_space_indent( get_indent_level() * INDENT_SPACE_COUNT );

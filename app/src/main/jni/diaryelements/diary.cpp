@@ -1518,10 +1518,10 @@ Diary::parse_db_body_text_3000()
                         {
                             case 'c':
                                 p2para->set_color( line.substr( 3 ) );
-                                break; 
+                                break;
                             case 'g':
                                 p2para->set_lang( line.substr( 3 ) );
-                                break; 
+                                break;
                             case 'l':
                             {
                                 auto loc { p2para->get_location() };
@@ -1533,13 +1533,13 @@ Diary::parse_db_body_text_3000()
                             }
                             case 'r': // uri for images
                                 p2para->set_uri( line.substr( 3 ) );
-                                break; 
+                                break;
                             case 't':   // tag definition
                                 p2para->set_tag_bound( std::stoi( line.substr( 4 ) ) );
                                 break;
                             case 'u':
                                 p2para->set_unit( line.substr( 3 ) );
-                                break; 
+                                break;
                             default:
                                 p2para = p2entry->add_paragraph_before(
                                         line.substr( line[ 2 ] == 'D' ? 3 : 18 ),
@@ -2606,16 +2606,16 @@ Diary::write()
 {
     if( m_F_read_only ) throw LoG::Error( "Trying to save read-only diary!" );
 
-    if( !check_uri_writable( m_uri ) ) return LoG::FILE_NOT_WRITABLE;
-
-    // BACKUP FOR THE LAST VERSION BEFORE UPGRADE
-    if( m_read_version != DB_FILE_VERSION_INT )
-        copy_file_suffix( m_uri, ".", m_read_version, true );
-
-    // BACKUP THE PREVIOUS VERSION
     auto file_diary { Gio::File::create_for_uri( m_uri ) };
     if( file_diary->query_exists() )
     {
+        if( !check_uri_writable( m_uri ) ) return LoG::FILE_NOT_WRITABLE;
+
+        // BACKUP FOR THE LAST VERSION BEFORE UPGRADE
+        if( m_read_version != DB_FILE_VERSION_INT )
+            copy_file_suffix( m_uri, ".", m_read_version, true );
+
+        // BACKUP THE PREVIOUS VERSION
         auto file_prev { Gio::File::create_for_uri( m_uri + ".~previousversion~" ) };
         file_diary->move( file_prev, Gio::File::CopyFlags::OVERWRITE );
     }
@@ -2986,7 +2986,10 @@ Diary::get_entry_most_current() const
 Entry*
 Diary::get_entry_today() const
 {
-    return get_entry_by_date( Date::get_today() );
+    for( auto e : get_entries_by_date( Date::get_today() ) )
+        if( e->get_title_style() == VT::ETS::DATE_AND_NAME::I ) // only return dated entries
+            return e;
+    return nullptr;
 }
 
 Entry*
@@ -3300,6 +3303,12 @@ Diary::get_milestone_before( const DateV date ) const
     return nullptr;
 }
 
+/** creates a new entry in a relative position
+ *  @entry_rel  if is null adds a top level entry at the beginning or end depending
+ *              the value of @F_parent (false=beginning, true=end)
+ *  @F_parent   whether @entry_rel will be regarded as parent or sibling
+ *              when true entry will be added as the first child to @entry_rel
+ */
 Entry*
 Diary::create_entry( Entry* entry_rel, bool F_parent, DateV date, const Ustring& content,
                      int style )
@@ -3310,13 +3319,15 @@ Diary::create_entry( Entry* entry_rel, bool F_parent, DateV date, const Ustring&
 
     if( !entry_rel )
     {
-        if( m_p2entry_1st )
+        if( F_parent && m_p2entry_1st )
             m_p2entry_1st->get_sibling_last()->add_sibling_after( entry );
-        else
+        else if( !m_p2entry_1st )
             m_p2entry_1st = entry;
+        else
+            m_p2entry_1st->add_sibling_before( entry );
     }
     else if( F_parent )
-        entry_rel->add_child_last( entry );
+        entry_rel->add_child_1st( entry );
     else
         entry_rel->add_sibling_after( entry );
 
@@ -3392,19 +3403,20 @@ Diary::create_entry( DateV date, bool flag_favorite, bool flag_trashed, bool fla
 Entry*
 Diary::create_entry_dummy()
 {
-    return create_entry( nullptr, false, Date::get_today(), _( "New Entry" ),
+    return create_entry( nullptr, true, Date::get_today(), _( "New Entry" ),
                          VT::ETS::NAME_ONLY::I );
 }
 Entry*
-Diary::create_entry_dated( Entry* entry_parent, DateV date, bool F_milestone )
+Diary::create_entry_dated( Entry* entry_prev, DateV date, bool F_milestone )
 {
     // FIRST DETECT THE IDEAL POSITION FOR THE ENTRY
-    Entry*  entry_bgn   { entry_parent ? entry_parent->m_p2child_1st : m_p2entry_1st };
+    Entry*  entry_bgn   { entry_prev ? entry_prev : m_p2entry_1st };
     Entry*  entry_sibl1 { nullptr };
     Entry*  entry_sibl2 { nullptr };
-    Entry*  entry_rel   { entry_parent };
-    bool    F_parent    { true };
+    Entry*  entry_rel   { entry_prev };
+    bool    F_parent    { false };
 
+    // find two dated siblings to figure out the order:
     for( Entry* e = entry_bgn; e; e = e->m_p2next )
     {
         if( e->get_title_style() == VT::ETS::DATE_AND_NAME::I )
@@ -3419,20 +3431,69 @@ Diary::create_entry_dated( Entry* entry_parent, DateV date, bool F_milestone )
         }
     }
 
-    if( entry_sibl1 || entry_sibl2 )
+    // we got what we need to figure out the order:
+    if( entry_sibl1 && entry_sibl2 )
     {
-        const bool F_ascending { entry_sibl2 ? entry_sibl1->get_date() < entry_sibl2->get_date()
-                                             : false }; // descending is the default order
+        const bool F_ascending { entry_sibl1->get_date() < entry_sibl2->get_date() };
 
-        for( Entry* e = entry_bgn; e; e = e->m_p2next )
+
+        for( Entry* e = entry_bgn; e; )
         {
-            if( e->get_title_style() == VT::ETS::DATE_AND_NAME::I &&
-                ( ( F_ascending && e->get_date() >= date ) ||
-                  ( !F_ascending && e->get_date() <= date ) ) )
+            if( F_ascending )
             {
-                entry_rel = ( e->m_p2prev ? e->m_p2prev : e->m_p2parent );
-                F_parent = !( e->m_p2prev );
-                break;
+                if( date >= e->get_date() )
+                    // && e->get_title_style() == VT::ETS::DATE_AND_NAME::I <- should we?
+                {
+                    if( !e->m_p2next || date < e->m_p2next->get_date() )
+                    {
+                        entry_rel = e; // insert after e
+                        break;
+                    }
+                    e = e->m_p2next;
+                }
+                else // date < e->get_date()
+                {
+                    if( !e->m_p2prev )
+                    {
+                        entry_rel = e->get_parent(); // parent == nullptr if top level
+                        F_parent = entry_rel; // add as the first entry if parent == nullptr
+                        break;
+                    }
+                    else if( date >= e->m_p2prev->get_date() )
+                    {
+                        entry_rel = e->m_p2prev; // insert after e
+                        break;
+                    }
+                    e = e->m_p2prev;
+                }
+            }
+            else // descending
+            {
+                if( date <= e->get_date() )
+                    // && e->get_title_style() == VT::ETS::DATE_AND_NAME::I <- should we?
+                {
+                    if( !e->m_p2next || date > e->m_p2next->get_date() )
+                    {
+                        entry_rel = e; // insert after e
+                        break;
+                    }
+                    e = e->m_p2next;
+                }
+                else // date > e->get_Date()
+                {
+                    if( !e->m_p2prev )
+                    {
+                        entry_rel = e->get_parent(); // parent == nullptr if top level
+                        F_parent = entry_rel; // add as the first entry if parent == nullptr
+                        break;
+                    }
+                    else if( date <= e->m_p2prev->get_date() )
+                    {
+                        entry_rel = e->m_p2prev; // insert after e
+                        break;
+                    }
+                    e = e->m_p2prev;
+                }
             }
         }
     }
@@ -3551,12 +3612,6 @@ Diary::move_entry( Entry* p2entry2move, Entry* p2entry_target, const DropPositio
             p2entry_target->add_child_last( p2entry2move );
             break;
         case DropPosition::AFTER:
-            if( p2entry_target->is_expanded() && p2entry_target->has_children() )
-            {
-                p2entry_target->get_child_1st()->add_sibling_before( p2entry2move );
-                break;
-            }
-        case DropPosition::AFTER_ABSOLUTE: // no break
             p2entry_target->add_sibling_after( p2entry2move );
             break;
     }
@@ -3666,10 +3721,10 @@ Diary::start_search( const int thread_count )
         {
             if( m_options & VT::DO::SEARCH_MATCH_CASE::I )
                 m_search_regex = Glib::Regex::create( m_search_text,
-                                                      Glib::Regex::CompileFlags::UNGREEDY );
+                                                      Glib::Regex::CompileFlags::DEFAULT );
             else
                 m_search_regex = Glib::Regex::create( m_search_text,
-                                                      Glib::Regex::CompileFlags::UNGREEDY |
+                                                      Glib::Regex::CompileFlags::DEFAULT |
                                                       Glib::Regex::CompileFlags::CASELESS );
         }
         catch ( const Glib::Error& e )
@@ -4237,7 +4292,7 @@ Diary::import_entry( const Entry* entry_r, Entry* tag_for_imported, bool F_add )
     if( F_add && !get_element( entry_r->get_id() ) ) // if id is available
         m_force_id = entry_r->get_id();
 
-    Entry* entry_l { F_add ? create_entry( nullptr, false, entry_r->m_date, "" )
+    Entry* entry_l { F_add ? create_entry( nullptr, true, entry_r->m_date, "" )
                            : get_entry_by_id( entry_r->get_id() ) };
 
     if( !entry_l ) return false;
@@ -4254,7 +4309,8 @@ Diary::import_entry( const Entry* entry_r, Entry* tag_for_imported, bool F_add )
     for( auto p = entry_r->m_p2para_1st; p; p = p->m_p2next )
     {
         try_force_id( p->get_id() );
-        p_new = entry_l->add_paragraphs_after( new Paragraph( p, this ), p_new );
+        p_new = entry_l->add_paragraphs_after( new Paragraph( p, this ), p_new,
+                                                              ParaInhClass::SET_TEXT );
     }
 
     // preserve the theme:
@@ -4262,7 +4318,7 @@ Diary::import_entry( const Entry* entry_r, Entry* tag_for_imported, bool F_add )
     {
         auto theme_l { get_element2< Theme >( entry_r->get_theme()->get_id() ) };
         if( theme_l )
-            entry_l->set_theme( theme_l);
+            entry_l->set_theme( theme_l );
     }
 
     if( tag_for_imported )

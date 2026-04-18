@@ -589,6 +589,115 @@ Date::calculate_months_between( const DateV d1, const DateV d2 )
 }
 
 // COLOR OPERATIONS ================================================================================
+// helper func: parses an unsigned 8-bit integer from [p, end), skipping leading spaces.
+// advances p past the parsed token. Throws on invalid input or value > 255.
+static uint8_t
+parse_channel( const char*& p, const char* end )
+{
+    while( p < end && *p == ' ' ) ++p; // skip leading spaces
+
+    if( p == end || *p < '0' || *p > '9' )
+        throw std::invalid_argument( "Expected numeric channel value" );
+
+    char* next;
+    unsigned long val = std::strtoul( p, &next, 10 );
+    if( val > 255 ) throw std::invalid_argument( "Channel value out of range (0-255)" );
+
+    p = next;
+    while( p < end && *p == ' ' ) ++p; // skip trailing spaces
+    return static_cast< uint8_t >( val );
+}
+
+// convert a hex color string to uint32_t (0x00RRGGBB).
+// accepts: "#RRGGBB", "RRGGBB", "#RRRRGGGGBBBB", "RRRRGGGGBBBB", "rgb(R, G, B)"
+uint32_t
+convert_colorstr_to_uint32( const std::string& str )
+{
+    const char* s = str.c_str();
+
+    // rgb(...) format:
+    if( s[ 0 ] == 'r' && s[ 1 ] == 'g' && s[ 2 ] == 'b' && s[ 3 ] == '(' )
+    {
+        const char* p = s + 4;
+        const char* end = s + str.size();
+
+        uint8_t r = parse_channel( p, end );
+        if( p == end || *p++ != ',' ) throw std::invalid_argument( "Expected ',' after R" );
+        uint8_t g = parse_channel( p, end );
+        if( p == end || *p++ != ',' ) throw std::invalid_argument( "Expected ',' after G" );
+        uint8_t b = parse_channel( p, end );
+        if( p == end || *p++ != ')' ) throw std::invalid_argument( "Expected closing ')'" );
+        if( p != end ) throw std::invalid_argument( "Unexpected characters after ')'" );
+
+        return ( static_cast< uint32_t >( r ) << 16 ) | ( static_cast< uint32_t >( g ) << 8 ) |
+               static_cast< uint32_t >( b );
+    }
+
+    // #RRGGBB / RRGGBB / #RRRRGGGGBBBB / RRRRGGGGBBBB formats:
+    if( *s == '#' ) ++s;
+
+    auto isHex = []( char c )
+    { return ( c >= '0' && c <= '9' ) || ( c >= 'a' && c <= 'f' ) || ( c >= 'A' && c <= 'F' ); };
+
+    int len = 0;
+    while( s[ len ] && isHex( s[ len ] ) ) ++len;
+
+    if( s[ len ] != '\0' ) throw std::invalid_argument( "Non-hex character in color string" );
+    if( len != 6 && len != 12 ) throw std::invalid_argument( "Hex color must be 6 or 12 digits" );
+
+    if( len == 6 )
+    {
+        return static_cast< uint32_t >( std::stoul( s, nullptr, 16 ) );
+    }
+    else
+    {
+        // parse each 4-digit (16-bit) channel and take the high byte.
+        // equivalent to dividing by 256, but a right-shift avoids floating point.
+        auto parseHex4 = []( const char* p ) -> uint8_t
+        {
+            char buf[ 5 ] = { p[ 0 ], p[ 1 ], p[ 2 ], p[ 3 ], '\0' };
+            return static_cast< uint8_t >( std::stoul( buf, nullptr, 16 ) >> 8 );
+        };
+
+        uint8_t r = parseHex4( s + 0 );
+        uint8_t g = parseHex4( s + 4 );
+        uint8_t b = parseHex4( s + 8 );
+
+        return ( static_cast< uint32_t >( r ) << 16 ) | ( static_cast< uint32_t >( g ) << 8 ) |
+               static_cast< uint32_t >( b );
+    }
+}
+
+// helper: calculate perceptual luminance from a linear (gamma-decoded) channel value
+// uses the IEC 61966-2-1 sRGB standard
+static inline float
+linearize( uint8_t channel )
+{
+    float c = channel / 255.0f;
+    return ( c <= 0.04045f ) ? ( c / 12.92f )
+                             : ( ( c + 0.055f ) / 1.055f ) * ( ( c + 0.055f ) / 1.055f ) *
+                                   std::sqrt( ( c + 0.055f ) / 1.055f ); // approximates pow(x, 2.4)
+}
+
+// return 0x000000 (black) or 0xFFFFFF (white) as the best contrasting text color
+// for a given background color in 0xRRGGBB hex format.
+// uses WCAG 2.1 relative luminance + contrast ratio for legibility compliance.
+uint32_t
+get_contrasting_color( uint32_t bgHex )
+{
+    uint8_t r = ( bgHex >> 16 ) & 0xFF;
+    uint8_t g = ( bgHex >> 8 ) & 0xFF;
+    uint8_t b = ( bgHex ) & 0xFF;
+
+    // WCAG relative luminance coefficients
+    float L = 0.2126f * linearize( r ) + 0.7152f * linearize( g ) + 0.0722f * linearize( b );
+
+    // contrast ratio vs white = (L + 0.05) / 0.05
+    // contrast ratio vs black = 1.05   / (L + 0.05)
+    // white wins when L < 0.1791 (threshold derived from equal contrast point)
+    return ( L < 0.1791f ) ? 0xFFFFFF : 0x000000;
+}
+
 Color
 contrast2( const Color& bg, const Color& c1, const Color& c2 )
 {
@@ -2015,7 +2124,7 @@ get_LB_item_count( Gtk::ListBox* LB )
 }
 
 void
-scroll_to_selected_LB_row( Gtk::ListBox* LB_ )
+center_selected_LB_row( Gtk::ListBox* LB_ )
 {
     Glib::signal_idle().connect_once(
             sigc::bind(
@@ -2033,12 +2142,42 @@ scroll_to_selected_LB_row( Gtk::ListBox* LB_ )
                             if( row->translate_coordinates( *LB, 0.0, 0.0, x, y ) )
                             {
                                 // Scroll the vertical adjustment to center the row in the viewport
-                                auto rowHeight = row->get_preferred_size().minimum.get_height();
-                                adj->set_value( y - ( adj->get_page_size() - rowHeight ) / 2 );
+                                auto row_height { row->get_preferred_size().minimum.get_height() };
+                                adj->set_value( y - ( adj->get_page_size() - row_height ) / 2 );
                             }
                         }
                     },
                     LB_ ) );
+}
+
+void
+ensure_selected_LB_row_in_view( Gtk::ListBox* LB_, Gtk::ListBoxRow* row )
+{
+    if( !row ) return;
+
+    Glib::signal_idle().connect_once( sigc::bind(
+        []( Gtk::ListBox* LB, Gtk::ListBoxRow* row )
+        {
+            // get the vertical adjustment of the ListBox or its parent ScrolledWindow
+            auto adj { LB->get_adjustment() };
+            if( !adj ) return;
+
+            double x, y;
+            // translate the row's top-left (0,0) to the ListBox's coordinate space
+            row->translate_coordinates( *LB, 0, 0, x, y );
+
+            double  value       { adj->get_value() };
+            double  page_size   { adj->get_page_size() };
+            auto    row_height  { row->get_preferred_size().minimum.get_height() };
+
+            // if the row is above the visible area, scroll up
+            if( y < value )
+                adj->set_value( y );
+            // if the row is below the visible area, scroll down
+            else if( y + row_height > value + page_size )
+                adj->set_value( y + row_height - page_size );
+        },
+        LB_, row ) );
 }
 
 void

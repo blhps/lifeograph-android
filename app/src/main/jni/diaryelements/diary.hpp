@@ -348,6 +348,17 @@ class Diary : public DiaryElement, public PropertyContainer
         void                    add_tag_to_cache( DiaryElemTag*, bool = true );
         void                    sort_entry_siblings( Entry*, EntryComparer&&, int );
         Entry*                  get_milestone_before( const DateV ) const;
+
+        /** is used in conjuction with create_entry to ensure adding as the last child */
+        static bool             guarantee_add_last_for_parent( Entry*& p2entry_parent )
+        {
+            if( p2entry_parent->has_children() )
+            {
+                p2entry_parent = p2entry_parent->get_child_last();
+                return false;
+            }
+            return true;
+        }
         Entry*                  create_entry( Entry*, bool, DateV, const Ustring& = "",
                                               int = VT::ETS::DATE_AND_NAME::I );
         Entry*                  create_entry( DateV, bool, bool, bool );

@@ -218,18 +218,18 @@ FiltererUnit::get_as_human_readable_str() const
 
 // FILTERER IS NOT =================================================================================
 FiltererIs::FiltererIs( FiltererContainer* ctr, D::DEID id, int depth )
-: Filterer( ctr ), m_p2entry( ctr->m_p2diary->get_entry_by_id( id ) ), m_depth( depth )
+: Filterer( ctr ), m_p2tag( ctr->m_p2diary->get_tag_by_id( id ) ), m_depth( depth )
 { }
 
 bool
-FiltererIs::filter( const Entry* entry ) const
+FiltererIs::filter_common( const DiaryElemTag* p2tag_r ) const
 {
-    if( !m_p2entry )
+    if( !m_p2tag )
         return true;
-    if( ( m_depth & VT::OP_DEPTH::ITSELF::I ) && entry->get_id() == m_p2entry->get_id() )
+    if( ( m_depth & VT::OP_DEPTH::ITSELF::I ) && p2tag_r->get_id() == m_p2tag->get_id() )
         return true;
     if( m_depth & VT::OP_DEPTH::DESCENDANTS::I )
-        return( entry->is_descendant_of( m_p2entry ) );
+        return( p2tag_r->is_descendant_of( m_p2tag ) );
 
     return false;
 }
@@ -239,7 +239,7 @@ FiltererIs::get_as_string( Ustring& string ) const
 {
     string += STR::compose( "\nFn~~", VT::get_v< VT::OP_DEPTH, char, int >( m_depth ),
                             "~~~~", // reserved (4)
-                            get_id_raw_failsafe( m_p2entry ) );
+                            get_id_raw_failsafe( m_p2tag ) );
 }
 Ustring
 FiltererIs::get_as_human_readable_str() const
@@ -782,9 +782,9 @@ FiltererContainsText::update_regex()
         try
         {
             if( m_case_sensitive )
-                m_regex = Glib::Regex::create( m_text, Glib::Regex::CompileFlags::UNGREEDY );
+                m_regex = Glib::Regex::create( m_text, Glib::Regex::CompileFlags::DEFAULT );
             else
-                m_regex = Glib::Regex::create( m_text, Glib::Regex::CompileFlags::UNGREEDY |
+                m_regex = Glib::Regex::create( m_text, Glib::Regex::CompileFlags::DEFAULT |
                                                        Glib::Regex::CompileFlags::CASELESS );
         }
         catch ( const Glib::RegexError& e )

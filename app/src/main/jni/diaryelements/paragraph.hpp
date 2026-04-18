@@ -153,6 +153,7 @@ struct FormattedText
 // INHERITANCE CLASS ===============================================================================
 enum class ParaInhClass : unsigned int
 {
+    NONE          = 0,
     QUOT_TYPE     = 1,
     LIST_TYPE     = 1 << 1,
     HEADING_LVL   = 1 << 2,
@@ -162,9 +163,8 @@ enum class ParaInhClass : unsigned int
                     static_cast< unsigned int >( LIST_TYPE ) |
                     static_cast< unsigned int >( INDENTATION ),
 
-    // below are not inheritance classes, do not mix with others:
-    NONE          = 1 << 20,
-    SET_TEXT      = 1 << 21,
+    // below are not inheritance classes but are used for other purposes:
+    SET_TEXT      = 1 << 21, // mainly to determine if undo will be added
 };
 
 using ParaInhClasses = HELPERS::EnumFlags< ParaInhClass >;
@@ -692,8 +692,8 @@ class Paragraph : public DiaryElemTag
         { return( m_style & VT::PS_FLT_INDENT ) >> 24; }
 
         bool                        set_indent_level( unsigned );
-        bool                        indent();
-        bool                        unindent();
+        bool                        indent( bool = true );
+        bool                        unindent( bool = true );
         unsigned                    get_space_indent() const;
         void                        set_space_indent( const unsigned );
         int                         get_indentation_any() const
