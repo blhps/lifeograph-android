@@ -279,9 +279,17 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
             }
         }
     }
-
     private fun addParentEntry() {
+        val dm = Diary.getMain()
+        // filter the selected entries:
+        val selectedEntries = mElems.filterIndexed { i, _ -> mSelectionStatuses[i] }
+            .filterIsInstance<Entry>()
+            .toTypedArray() // Convert to Entry[] (jobjectArray)
 
+        if(selectedEntries.isNotEmpty()) {
+            val entryParent = dm.create_entry_parent(selectedEntries, Date.get_today(), "")
+            Lifeograph.showElem(entryParent)
+        }
     }
     private fun addSiblingEntry() {
         val dm = Diary.getMain()
@@ -300,11 +308,15 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     private fun addChildEntry() {
         val dm = Diary.getMain()
         val selectedIndex = mSelectionStatuses.indexOf(true)
-        val selectedEntry = mElems[selectedIndex] as? Entry
-        selectedEntry?.is_expanded = true
-//      TODO:   dm.create_entry_child( selectedEntry,
-//                              Date.get_today(),
-//                              "")
+        if(selectedIndex != -1) {
+            val selectedEntry = mElems[selectedIndex] as? Entry
+            val entryNew = dm.create_entry_child(
+                selectedEntry,
+                Date.get_today(),
+                ""
+                                                )
+            Lifeograph.showElem(entryNew)
+        }
     }
 
     private fun duplicateSel() {

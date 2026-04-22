@@ -287,6 +287,60 @@ JNI_METHOD(jlong, Diary_nativeCreateEntry)(JNIEnv* env, jobject obj, jlong ptr, 
     return reinterpret_cast<jlong>(new_entry);
 }
 
+JNI_METHOD(jlong, Diary_nativeCreateEntryChild)(JNIEnv* env, jobject obj, jlong ptr, jobject,
+        jlong date, jstring content) {
+    auto entry_parent = reinterpret_cast< LoG::Entry* >(ptr);
+    const char* c_content = env->GetStringUTFChars(content, nullptr);
+    auto new_entry = reinterpret_cast<LoG::Diary*>(ptr)->create_entry_child(entry_parent,
+                                                                      static_cast<LoG::DateV>(date),
+                                                                      c_content,
+                                                                      LoG::VT::ETS::INHERIT::I);
+    env->ReleaseStringUTFChars(content, c_content);
+    return reinterpret_cast<jlong>(new_entry);
+}
+
+JNI_METHOD(jlong, Diary_nativeCreateEntryParent)(JNIEnv* env, jobject obj, jlong ptr, jobjectArray
+entries, jlong date, jstring content) {
+    // variables:
+    auto diary = reinterpret_cast<LoG::Diary*>(ptr);
+    LoG::EntrySelection entries_set; // a temporary set to pass to C++ core
+    const char* c_content = env->GetStringUTFChars(content, nullptr);
+
+    // fill the temporary set:
+    if (entries != nullptr) {
+        jsize length = env->GetArrayLength(entries);
+
+        // cache class and field ID for performance
+        jclass entry_class = nullptr;
+        jfieldID fid = nullptr;
+
+        for (jsize i = 0; i < length; i++) {
+            jobject entry_obj = env->GetObjectArrayElement(entries, i);
+            if (entry_obj != nullptr) {
+                if (entry_class == nullptr) {
+                    entry_class = env->GetObjectClass(entry_obj);
+                    fid = env->GetFieldID(entry_class, "mNativePtr", "J");
+                }
+
+                auto entry_ptr = reinterpret_cast<LoG::Entry*>(env->GetLongField(entry_obj, fid));
+                if (entry_ptr) {
+                    entries_set.insert(entry_ptr);
+                }
+                env->DeleteLocalRef(entry_obj);
+            }
+        }
+    }
+
+    // call the core method:
+    auto new_entry = diary->create_entry_parent(entries_set,
+                                                static_cast<LoG::DateV>(date),
+                                                c_content,
+                                                LoG::VT::ETS::INHERIT::I);
+
+    env->ReleaseStringUTFChars(content, c_content);
+    return reinterpret_cast<jlong>(new_entry);
+}
+
 JNI_METHOD(jlong, Diary_nativeCreateEntryDated)(JNIEnv* env, jobject obj, jlong ptr, jlong
 ptr_entry_parent, jlong date, jboolean fMileStone) {
     auto entry_parent = reinterpret_cast< LoG::Entry* >(ptr_entry_parent);

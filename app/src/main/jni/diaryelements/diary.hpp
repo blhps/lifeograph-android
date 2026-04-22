@@ -355,6 +355,11 @@ class Diary : public DiaryElement, public PropertyContainer
         // convenience function to create a last child:
         Entry*                  create_entry_child( Entry*, DateV, const Ustring& = "",
                                                     int = VT::ETS::DATE_AND_NAME::I );
+        // convenince function for creating an entry and moving some entries into it:
+        Entry*                  create_entry_parent( const EntrySelection&,
+                                                     DateV,
+                                                     const Ustring& = "",
+                                                     int = VT::ETS::DATE_AND_NAME::I );
         // adds a new entry to today even if there is already one or more:
         Entry*                  create_entry_dated( Entry*, DateV, bool = false );
         Entry*                  create_entry_dummy();

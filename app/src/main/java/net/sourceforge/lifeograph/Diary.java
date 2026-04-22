@@ -320,11 +320,16 @@ public class Diary extends DiaryElement
         long ptr = nativeCreateEntry(mNativePtr, entryRel, fParent, date, content);
         return ptr == 0 ? null : new Entry(ptr);
     }
-//    Entry
-//    create_entry_child( Entry entryParent, long date, String content ) {
-//        long ptr = nativeCreateEntryChild(mNativePtr, entryRel, date, content);
-//        return ptr == 0 ? null : new Entry(ptr);
-//    }
+    Entry
+    create_entry_child( Entry entryParent, long date, String content ) {
+        long ptr = nativeCreateEntryChild(mNativePtr, entryParent, date, content);
+        return ptr == 0 ? null : new Entry(ptr);
+    }
+    Entry
+    create_entry_parent( Entry[] entries, long date, String content ) {
+        long ptr = nativeCreateEntryParent(mNativePtr, entries, date, content);
+        return ptr == 0 ? null : new Entry(ptr);
+    }
 
     Entry
     duplicate_entry( Entry source ) {
@@ -955,6 +960,10 @@ public class Diary extends DiaryElement
     private native void nativeSetEntryDate(long ptr, Entry entry, long date);
     private native long nativeCreateEntry(long ptr, Entry entry_rel, boolean fParent, long date,
                                           String content);
+    private native long nativeCreateEntryChild(long ptr, Entry entry_rel, long date,
+                                               String content);
+    private native long nativeCreateEntryParent(long ptr, Entry[] entries, long date,
+                                                String content);
     private native long nativeCreateEntryDated(long ptr, long ptr_entry_rel, long date,
                                                boolean fMileStone);
     private native long nativeDuplicateEntry(long ptr, long ptr_entry);

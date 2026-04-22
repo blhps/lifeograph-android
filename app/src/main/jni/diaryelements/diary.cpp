@@ -3383,6 +3383,23 @@ Diary::create_entry_child( Entry* p2entry_rel, DateV date, const Ustring& conten
         p2entry_rel = p2entry_rel->get_child_last();
     return Diary::d->create_entry( p2entry_rel, F_parent, date, content, style );
 }
+/** convenince function for creating an entry and moving some entries into it */
+Entry*
+Diary::create_entry_parent( const EntrySelection& entries, DateV date, const Ustring& content,
+                            int style )
+{
+    Entry*  p2entry_first { *entries.begin() }; // we trust that the selected entries are ordered properly
+
+    auto    entry_parent  { Diary::d->create_entry( p2entry_first->get_prev_or_up(),
+                                                    !p2entry_first->get_prev(),
+                                                    Date::get_today(),
+                                                    "",
+                                                    VT::ETS::INHERIT::I ) };
+
+    Diary::d->move_entries( &entries, entry_parent, DropPosition::INTO );
+
+    return entry_parent;
+}
 
 Entry*
 Diary::create_entry_dummy()

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <string name="cancel">Abbrechen</string>
+    <string name="add_child">Çocuk Ekle</string>
     <string name="apply">Anwenden</string>
     <string name="go">Gehe</string>
     <string name="about">Über</string>
@@ -157,6 +158,8 @@
     <string name="diary_upgrade_confirm">Bist du sicher, dass du das Tagebuch upgraden willst?</string>
     <string name="upgrade_diary">Upgrade das Tagebuch</string>
     <string name="edit">Bearbeiten</string>
+    <string name="add_parent">Ata Ekle</string>
+    <string name="add_sibling">Kardeş Ekle</string>
 
 </resources>
 
