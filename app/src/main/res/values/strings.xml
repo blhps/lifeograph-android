@@ -7,11 +7,9 @@
     <string name="about">About</string>
     <string name="add">Add</string>
     <string name="add_today">Entry to Today</string>
-    <string name="add_free">Free Entry</string>
-    <string name="add_numbered">Numbered Entry</string>
-    <string name="numbered_entries">NUMBERED ENTRIES</string>
-    <string name="free_entries">FREE ENTRIES</string>
-    <string name="dated_entries">DATED ENTRIES</string>
+    <string name="add_parent">Add Parent</string>
+    <string name="add_sibling">Add Sibling</string>
+    <string name="add_child">Add Child</string>
     <string name="apply">Apply</string>
     <string name="authenticate">Authenticate</string>
     <string name="calendar">Calendar</string>
@@ -193,6 +191,11 @@
     <string name="list_roman_capital">I-</string>
     <string name="list_number">1-</string>
     <string name="list_bullet">•</string>
+    <string name="name_only">Name Only</string>
+    <string name="name_description">Name - Description</string>
+    <string name="number_name">Number - Name</string>
+    <string name="date_name">Date - Name</string>
+    <string name="milestone">Milestone</string>
 
     <string-array name="array_filter_trash">
         <item>All Entries</item>

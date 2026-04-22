@@ -125,6 +125,8 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
         mToolbar.visibility = View.GONE
     }
 
+    fun getSelCount(): Int { return mAdapter.mSelCount }
+
     override fun hasIcon2(elem: DiaryElement): Boolean {
         return false
     }

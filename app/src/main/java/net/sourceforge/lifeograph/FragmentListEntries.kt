@@ -25,12 +25,13 @@ import android.annotation.SuppressLint
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import android.widget.Button
 import android.widget.ImageButton
-import androidx.lifecycle.Lifecycle
 import net.sourceforge.lifeograph.DialogPassword.DPAction
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
-import java.util.*
+import java.util.Collections // import only what needed from java.util or it clashes with Date
+import net.sourceforge.lifeograph.helpers.Date
 
 class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdapterElems.Listener {
     // VARIABLES ===================================================================================
@@ -46,14 +47,16 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var button = view.findViewById<ImageButton>(R.id.btn_toggle_favorite)
-        button.setOnClickListener { toggleSelFavoredness() }
-        button = view.findViewById(R.id.btn_todo_status)
-        button.setOnClickListener { showStatusDlg() }
-        button = view.findViewById(R.id.duplicate)
-        button.setOnClickListener { duplicateSel() }
-        button = view.findViewById(R.id.dismiss)
-        button.setOnClickListener { trashSel() }
+        val button = view.findViewById<Button>(R.id.btn_title_style)
+        button.setOnClickListener { setTitleStyle() }
+        var ibutton = view.findViewById<ImageButton>(R.id.btn_toggle_favorite)
+        ibutton.setOnClickListener { toggleSelFavoredness() }
+        ibutton = view.findViewById(R.id.btn_todo_status)
+        ibutton.setOnClickListener { showStatusDlg() }
+        ibutton = view.findViewById(R.id.duplicate) // not sure if a dedicted button is needed
+        ibutton.setOnClickListener { duplicateSel() }
+        ibutton = view.findViewById(R.id.dismiss)
+        ibutton.setOnClickListener { trashSel() }
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
@@ -134,39 +137,35 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     }
 
     override fun createNewElem() {
-        DialogPicker(requireContext(), object: DialogPicker.Listener{
-            override fun onItemClick(item: RViewAdapterBasic.Item) {
-                Lifeograph.goToToday()
-//                when(item.mId) {
-//                    "T" -> {
-//                        Lifeograph.goToToday()
-//                    }
-//                    "F" -> {
-//                        Lifeograph.addEntry(
-//                                Diary.d.get_available_order_1st(true), "")
-//                    }
-//                    else -> {
-//                        Lifeograph.addEntry(
-//                                Diary.d.get_available_order_1st(false), "")
-//                    }
-//                }
-                handleElemNumberChanged()
-            }
+        if( getSelCount() > 0 )
+            DialogPicker(requireContext(), object: DialogPicker.Listener{
+                override fun onItemClick(item: RViewAdapterBasic.Item) {
+                    when(item.mId) {
+                        "P" -> { addParentEntry() }
+                        "S" -> { addSiblingEntry() }
+                        else -> { addChildEntry() }
+                    }
+                    handleElemNumberChanged()
+                }
 
-            override fun populateItems(list: RVBasicList) {
-                list.clear()
+                override fun populateItems(list: RVBasicList) {
+                    list.clear()
 
-                list.add(RViewAdapterBasic.Item(
-                        Lifeograph.getStr(R.string.add_today), "T",
+                    list.add(RViewAdapterBasic.Item(
+                        Lifeograph.getStr(R.string.add_parent), "P",
+                        R.drawable.ic_entry_parent))
+                    list.add(RViewAdapterBasic.Item(
+                        Lifeograph.getStr(R.string.add_sibling), "S",
                         R.drawable.ic_entry))
-                list.add(RViewAdapterBasic.Item(
-                        Lifeograph.getStr(R.string.add_free), "F",
+                    list.add(RViewAdapterBasic.Item(
+                        Lifeograph.getStr(R.string.add_child), "C",
                         R.drawable.ic_entry))
-                list.add(RViewAdapterBasic.Item(
-                        Lifeograph.getStr(R.string.add_numbered), "N",
-                        R.drawable.ic_entry))
-            }
-        }).show()
+                }
+            }).show()
+        else {
+            Lifeograph.goToToday()
+            handleElemNumberChanged()
+        }
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -184,6 +183,35 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     }
     override fun hasIcon3(elem: DiaryElement): Boolean {
         return if( elem is Entry ) elem.is_trashed else false
+    }
+
+    private fun setTitleStyle() {
+        DialogPicker(requireContext(), object: DialogPicker.Listener{
+            override fun onItemClick(item: RViewAdapterBasic.Item) {
+                setSelTitleStyle(item.mId[0])
+                handleElemNumberChanged()
+            }
+
+            override fun populateItems(list: RVBasicList) {
+                list.clear()
+
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.name_only), "N",
+                    R.drawable.ic_entry))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.name_description), "S",
+                    R.drawable.ic_entry))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.number_name), "B",
+                    R.drawable.ic_entry))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.date_name), "D",
+                    R.drawable.ic_entry))
+                list.add(RViewAdapterBasic.Item(
+                    Lifeograph.getStr(R.string.milestone), "M",
+                    R.drawable.ic_entry))
+            }
+        }).show()
     }
 
     private fun toggleSelFavoredness() {
@@ -240,6 +268,43 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
                 mAdapter.notifyItemChanged( i )
             }
         }
+    }
+
+    private fun setSelTitleStyle(style: Char) {
+        for((i, selected) in mSelectionStatuses.withIndex()) {
+            if(selected) {
+                val entry = mElems[i] as Entry
+                entry._title_Style = style
+                mAdapter.notifyItemChanged( i )
+            }
+        }
+    }
+
+    private fun addParentEntry() {
+
+    }
+    private fun addSiblingEntry() {
+        val dm = Diary.getMain()
+        val selectedIndex = mSelectionStatuses.indexOf(true)
+        if(selectedIndex != -1) {
+            val selectedEntry = mElems[selectedIndex] as? Entry
+            val entryNew = dm.create_entry(
+                selectedEntry,
+                false,
+                Date.get_today(),
+                ""
+                                          )
+            Lifeograph.showElem(entryNew)
+        }
+    }
+    private fun addChildEntry() {
+        val dm = Diary.getMain()
+        val selectedIndex = mSelectionStatuses.indexOf(true)
+        val selectedEntry = mElems[selectedIndex] as? Entry
+        selectedEntry?.is_expanded = true
+//      TODO:   dm.create_entry_child( selectedEntry,
+//                              Date.get_today(),
+//                              "")
     }
 
     private fun duplicateSel() {

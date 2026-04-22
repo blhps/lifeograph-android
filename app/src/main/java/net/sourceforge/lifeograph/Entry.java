@@ -53,6 +53,11 @@ public class Entry extends DiaryElemTag {
         return HtmlCompat.fromHtml(rawTitle, HtmlCompat.FROM_HTML_MODE_LEGACY);
     }
 
+    public char
+    get_title_Style() { return nativeGetTitleStyle(mNativePtr); }
+    public void
+    set_title_Style( char style ) { nativeSetTitleStyle(mNativePtr, style); }
+
     @Override
     public String
     get_list_str() { return nativeGetListStr(mNativePtr); }
@@ -388,6 +393,8 @@ public class Entry extends DiaryElemTag {
     private native boolean nativeHasName(long ptr);
     private native String nativeGetName(long ptr);
     private native void nativeUpdateName(long ptr);
+    private native char nativeGetTitleStyle(long ptr);
+    private native void nativeSetTitleStyle(long ptr, char style);
     private native String nativeGetListStr(long ptr);
     private native String nativeGetInfoStr(long ptr);
     private native boolean nativeIsFilteredOut(long ptr);

@@ -69,11 +69,11 @@
             android:visibility="visible">
 
             <Button
-                android:id="@+id/add_child"
+                android:id="@+id/btn_title_style"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="ADD CHILD"
+                android:text="Title"
                 android:textColor="@android:color/white" />
 
             <ImageButton

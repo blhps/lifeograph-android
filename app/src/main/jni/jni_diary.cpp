@@ -278,7 +278,11 @@ JNI_METHOD(jlong, Diary_nativeCreateEntry)(JNIEnv* env, jobject obj, jlong ptr, 
         rel_ptr = reinterpret_cast<LoG::Entry*>(env->GetLongField(entry_rel, fid));
     }
     const char* c_content = env->GetStringUTFChars(content, nullptr);
-    auto new_entry = reinterpret_cast<LoG::Diary*>(ptr)->create_entry(rel_ptr, fParent, static_cast<LoG::DateV>(date), c_content);
+    auto new_entry = reinterpret_cast<LoG::Diary*>(ptr)->create_entry(rel_ptr,
+                                                                      fParent,
+                                                                      static_cast<LoG::DateV>(date),
+                                                                      c_content,
+                                                                      LoG::VT::ETS::INHERIT::I);
     env->ReleaseStringUTFChars(content, c_content);
     return reinterpret_cast<jlong>(new_entry);
 }

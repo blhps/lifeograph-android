@@ -312,9 +312,19 @@ public class Diary extends DiaryElement
 
     Entry
     create_entry( long date, String content ) {
-        long ptr =  nativeCreateEntry(mNativePtr, null, false, date, content);
+        long ptr = nativeCreateEntry(mNativePtr, null, true, date, content);
         return ptr == 0 ? null : new Entry(ptr);
     }
+    Entry
+    create_entry( Entry entryRel, boolean fParent, long date, String content ) {
+        long ptr = nativeCreateEntry(mNativePtr, entryRel, fParent, date, content);
+        return ptr == 0 ? null : new Entry(ptr);
+    }
+//    Entry
+//    create_entry_child( Entry entryParent, long date, String content ) {
+//        long ptr = nativeCreateEntryChild(mNativePtr, entryRel, date, content);
+//        return ptr == 0 ? null : new Entry(ptr);
+//    }
 
     Entry
     duplicate_entry( Entry source ) {

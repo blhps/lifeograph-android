@@ -89,6 +89,15 @@ JNI_METHOD(jstring, Entry_nativeGetName)(JNIEnv* env, jobject obj, jlong ptr) {
     return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_name_std().c_str());
 }
 
+JNI_METHOD(jchar, Entry_nativeGetTitleStyle)(JNIEnv* env, jobject obj, jlong ptr) {
+    return LoG::VT::get_v< LoG::VT::ETS, char, int >( reinterpret_cast<LoG::Entry*>(ptr)
+            ->get_title_style() );
+}
+JNI_METHOD(void, Entry_nativeSetTitleStyle)(JNIEnv* env, jobject obj, jlong ptr, jchar style) {
+    const int style_i = LoG::VT::get_v< LoG::VT::ETS, int, char >( char(style) );
+    reinterpret_cast<LoG::Entry*>(ptr)->set_title_style( style_i );
+}
+
 JNI_METHOD(jstring, Entry_nativeGetListStr)(JNIEnv* env, jobject obj, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
     return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_list_str().c_str());
