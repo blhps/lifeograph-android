@@ -153,7 +153,10 @@ JNI_METHOD(void, Entry_nativeInsertText)(JNIEnv* env, jobject obj, jlong ptr, ji
 
 JNI_METHOD(void, Entry_nativeEraseText)(JNIEnv* env, jobject obj, jlong ptr, jint pos_bgn, jint pos_end) {
     CHECK_PTR(ptr, )
-    reinterpret_cast<LoG::Entry*>(ptr)->erase_text(static_cast<size_t>(pos_bgn), static_cast<size_t>(pos_end - pos_bgn), false);
+    reinterpret_cast<LoG::Entry*>(ptr)->erase_text(static_cast<size_t>(pos_bgn),
+                                                   static_cast<size_t>(pos_end), true);
+    // NOTE: setting F_full_procedure to true causes undo to be added which is not used on Android
+    // but we dont bother separating them as undo support may come to Android in the future
 }
 
 JNI_METHOD(jlong, Entry_nativeGetParagraphAtPos)(JNIEnv* env, jobject obj, jlong ptr, jint pos,
