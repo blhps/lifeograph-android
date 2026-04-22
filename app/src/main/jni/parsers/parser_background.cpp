@@ -125,8 +125,11 @@ ParserBackGround::process_paragraph()
                 }
                 else
                 {
-                    format->uri = midtone( Color( tag->get_color() ),
-                                           host_theme->color_text, 0.4 ).to_string();
+                    format->uri = contrast3( host_theme->color_base,
+                                             host_theme->image_bg == "#" ? host_theme->color_base2
+                                                                         : host_theme->color_base,
+                                             Color( tag->get_color() ) ).to_string();
+
                     m_parser_p2para_cur->set_tag( tag->get_id(), 1.0 );
                     m_p2format_tag_cur = format;
 

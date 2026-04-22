@@ -3355,35 +3355,7 @@ Diary::create_entry( Entry* entry_rel, bool F_parent, DateV date, const Ustring&
     return( entry );
 }
 
-Entry*
-Diary::duplicate_entry( Entry* entry_rel )
-{
-    Entry* entry = new Entry( this, entry_rel->get_date(), entry_rel->get_todo_status() );
-
-    for( Paragraph* p = entry_rel->get_paragraph_1st(); p; p = p->m_p2next )
-        entry->add_paragraphs_after( new Paragraph( p ), entry->get_paragraph_last() );
-
-    if( entry->get_paragraph_1st() )
-    {
-        entry->get_paragraph_1st()->append( " (*)", nullptr );
-        entry->update_name();
-    }
-
-    entry_rel->add_sibling_after( entry );
-
-    entry->set_title_style( entry_rel->get_title_style() );
-    entry->set_comment_style( entry_rel->get_comment_style() );
-
-    if( entry_rel->is_theme_set() )
-        entry->set_theme( entry_rel->get_theme() );
-
-    m_entries.emplace( Date::isolate_YMD( entry->m_date ), entry );
-    m_cache_tags[ entry->get_id() ] = entry;
-
-    return( entry );
-}
-
-// THIS VERSION IS USED DURING DIARY FILE READ ONLY:
+/** this version is used during diary file read only */
 Entry*
 Diary::create_entry( DateV date, bool flag_favorite, bool flag_trashed, bool flag_expanded )
 {
@@ -3398,6 +3370,18 @@ Diary::create_entry( DateV date, bool flag_favorite, bool flag_trashed, bool fla
     m_cache_tags[ entry->get_id() ] = entry;
 
     return( entry );
+}
+
+/** convenince function to ensusre the created child is added to the end 
+ *  @p2entry_rel    points to the parent entry (initially)
+ */
+Entry*
+Diary::create_entry_child( Entry* p2entry_rel, DateV date, const Ustring& content, int style )
+{
+    const bool F_parent { !p2entry_rel->has_children() };
+    if( !F_parent )
+        p2entry_rel = p2entry_rel->get_child_last();
+    return Diary::d->create_entry( p2entry_rel, F_parent, date, content, style );
 }
 
 Entry*
@@ -3507,6 +3491,34 @@ Diary::create_entry_dated( Entry* entry_prev, DateV date, bool F_milestone )
                                              : VT::ETS::DATE_AND_NAME::I ) };
 
     return entry;
+}
+
+Entry*
+Diary::duplicate_entry( Entry* entry_rel )
+{
+    Entry* entry = new Entry( this, entry_rel->get_date(), entry_rel->get_todo_status() );
+
+    for( Paragraph* p = entry_rel->get_paragraph_1st(); p; p = p->m_p2next )
+        entry->add_paragraphs_after( new Paragraph( p ), entry->get_paragraph_last() );
+
+    if( entry->get_paragraph_1st() )
+    {
+        entry->get_paragraph_1st()->append( " (*)", nullptr );
+        entry->update_name();
+    }
+
+    entry_rel->add_sibling_after( entry );
+
+    entry->set_title_style( entry_rel->get_title_style() );
+    entry->set_comment_style( entry_rel->get_comment_style() );
+
+    if( entry_rel->is_theme_set() )
+        entry->set_theme( entry_rel->get_theme() );
+
+    m_entries.emplace( Date::isolate_YMD( entry->m_date ), entry );
+    m_cache_tags[ entry->get_id() ] = entry;
+
+    return( entry );
 }
 
 Entry*

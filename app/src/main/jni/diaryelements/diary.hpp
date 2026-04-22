@@ -349,23 +349,16 @@ class Diary : public DiaryElement, public PropertyContainer
         void                    sort_entry_siblings( Entry*, EntryComparer&&, int );
         Entry*                  get_milestone_before( const DateV ) const;
 
-        /** is used in conjuction with create_entry to ensure adding as the last child */
-        static bool             guarantee_add_last_for_parent( Entry*& p2entry_parent )
-        {
-            if( p2entry_parent->has_children() )
-            {
-                p2entry_parent = p2entry_parent->get_child_last();
-                return false;
-            }
-            return true;
-        }
         Entry*                  create_entry( Entry*, bool, DateV, const Ustring& = "",
                                               int = VT::ETS::DATE_AND_NAME::I );
         Entry*                  create_entry( DateV, bool, bool, bool );
-        Entry*                  duplicate_entry( Entry* );
+        // convenience function to create a last child:
+        Entry*                  create_entry_child( Entry*, DateV, const Ustring& = "",
+                                                    int = VT::ETS::DATE_AND_NAME::I );
         // adds a new entry to today even if there is already one or more:
         Entry*                  create_entry_dated( Entry*, DateV, bool = false );
         Entry*                  create_entry_dummy();
+        Entry*                  duplicate_entry( Entry* );
         Entry*                  remove_entry_from_hierarchy( Entry* );
         void                    remove_entry_from_hierarchy_with_descendants( Entry* );
         void                    move_entry( Entry*, Entry*, const DropPosition& );

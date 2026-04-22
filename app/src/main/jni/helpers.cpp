@@ -28,6 +28,7 @@
 #endif
 
 #include <iomanip>
+#include <algorithm>
 
 #ifndef __ANDROID__
 #include "helpers_gtk.hpp"
@@ -679,18 +680,27 @@ linearize( uint8_t channel )
                                    std::sqrt( ( c + 0.055f ) / 1.055f ); // approximates pow(x, 2.4)
 }
 
+inline float
+get_luminance( float r, float g, float b )
+{
+    // WCAG relative weights for human perception
+    return( 0.2126f * r + 0.7152f * g + 0.0722f * b );
+}
+inline float
+get_luminance( const Color& c )
+{ return get_luminance( c.get_red(), c.get_green(),c.get_blue() ); }
+
 // return 0x000000 (black) or 0xFFFFFF (white) as the best contrasting text color
 // for a given background color in 0xRRGGBB hex format.
 // uses WCAG 2.1 relative luminance + contrast ratio for legibility compliance.
 uint32_t
-get_contrasting_color( uint32_t bgHex )
+get_contrasting_color_bw( uint32_t bgHex )
 {
     uint8_t r = ( bgHex >> 16 ) & 0xFF;
     uint8_t g = ( bgHex >> 8 ) & 0xFF;
     uint8_t b = ( bgHex ) & 0xFF;
 
-    // WCAG relative luminance coefficients
-    float L = 0.2126f * linearize( r ) + 0.7152f * linearize( g ) + 0.0722f * linearize( b );
+    float L = get_luminance(linearize( r ), linearize( g ), linearize( b ) );
 
     // contrast ratio vs white = (L + 0.05) / 0.05
     // contrast ratio vs black = 1.05   / (L + 0.05)
@@ -708,6 +718,68 @@ contrast2( const Color& bg, const Color& c1, const Color& c2 )
         return c1;
     else
         return c2;
+}
+
+// helper to clamp values between 0.0 and 1.0:
+inline float clamp01( float v ) { return std::clamp( v, 0.0f, 1.0f ); }
+
+Color
+contrast3( const Color& bg1, const Color& bg2, const Color& base )
+{
+    float l1 = get_luminance( bg1 );
+    float l2 = get_luminance( bg2 );
+    float base_l = get_luminance( base );
+
+    // if the background is a massive sweep (e.g. Black to White)
+    // we shouldn't try to outrun both. We aim for the middle.
+    float bg_span = std::abs( l1 - l2 );
+
+    // if the background is very "wide", the text color
+    // should ideally be a mid-tone or stay near its original.
+    if( bg_span > 0.8f )
+    {
+        // Background is extreme. Don't push too hard.
+        // If the base color is already mid-range, leave it alone!
+        if( base_l > 0.3f && base_l < 0.7f ) return base;
+    }
+
+    const float margin = 0.4f;
+    float target_l = base_l;
+
+    // use a weighted average to see where the "center of mass" is:
+    float avg_bg_l = ( l1 + l2 ) / 2.0f;
+
+    if( avg_bg_l < 0.5f )
+    {
+        // generally dark background
+        float max_danger = std::max( l1, l2 );
+        // Only boost if we are below the danger zone
+        if( target_l < max_danger + 0.1f )
+        {
+            target_l = std::min( 0.9f, max_danger + margin );
+        }
+    }
+    else
+    {
+        // generally light background
+        float min_danger = std::min( l1, l2 );
+        // Only darken if we are above the danger zone
+        if( target_l > min_danger - 0.1f )
+        {
+            target_l = std::max( 0.1f, min_danger - margin );
+        }
+    }
+
+    // instead of a direct ratio, use a "Linear Interpolation" (Lerp)
+    // to nudge the color. This prevents the "snapping" to white.
+    float weight = 0.6f; // how much to favor the new target vs original
+    float final_l = ( target_l * weight ) + ( base_l * ( 1.0f - weight ) );
+
+    float scale = final_l / std::max( base_l, 0.01f );
+
+    return Color( clamp01( base.get_red() * scale ),
+                  clamp01( base.get_green() * scale ),
+                  clamp01( base.get_blue() * scale ) );
 }
 
 Color

@@ -434,15 +434,15 @@ NameAndValue::parse( const Ustring& text )
 
 // THEMES ==========================================================================================
 // STATIC MEMBERS
-const Color Theme::s_color_match1( "#33FF33" );
-const Color Theme::s_color_match2( "#009900" );
-const Color Theme::s_color_link1( "#6666FF" );
-const Color Theme::s_color_link2( "#000099" );
-const Color Theme::s_color_broken1( "#FF3333" );
-const Color Theme::s_color_broken2( "#990000" );
+const Color Theme::s_color_match( "#33DD33" );
+// const Color Theme::s_color_match2( "#009900" );
+const Color Theme::s_color_link( "#6666FF" );
+// const Color Theme::s_color_link2( "#000099" );
+const Color Theme::s_color_broken( "#DD0000" );
+// const Color Theme::s_color_broken2( "#990000" );
 
 const Color Theme::s_color_todo( "#FF0000" );
-const Color Theme::s_color_done( "#66BB00" );
+const Color Theme::s_color_done( "#66AA11" );
 const Color Theme::s_color_canceled( "#AA8855" );
 
 Theme::Theme( Diary* const d, const Ustring& name, const Ustring& )
@@ -499,27 +499,24 @@ Theme::copy_to( Theme* target ) const
 void
 Theme::calculate_derived_colors()
 {
+    const Color& color_tmp_base2 { image_bg == "#" ? color_base2 : color_base };
+
     color_heading_M =     midtone( color_text, color_heading_L, 0.5 );
     color_inline_tag =    midtone( color_base, color_highlight, 0.2 );
     color_mid_dark =      midtone( color_base, color_text, 0.65 );
     color_mid =           midtone( color_base, color_text, 0.42 );
     color_pale =          midtone( color_base, color_text, 0.28 );
     color_region_bg =     midtone( color_base, color_text, 0.1, 0.6 ); // alpha = 0.6
-    color_match_bg =      contrast2( color_base, s_color_match1, s_color_match2 );
-    color_link =          contrast2( color_base, s_color_link1, s_color_link2 );
-    color_link_broken =   contrast2( color_base, s_color_broken1, s_color_broken2 );
+    color_match_bg =      contrast3( color_base, color_tmp_base2, s_color_match );
+    color_link =          contrast3( color_base, color_tmp_base2, s_color_link );
+    color_link_broken =   contrast3( color_base, color_tmp_base2, s_color_broken );
 
-    // TODO: 3.2: we may change the coefficients below depending on the difference between the...
-    // ... contrasting colors using get_color_diff( Theme::s_color_done, theme->color_base )...
-    // ... generally, when get_color_diff is < 1.0 contrast is not satisfactory
-    color_open =          midtone( s_color_todo, color_text );
+    color_open =          contrast3( color_base, color_tmp_base2, s_color_todo );
     // color_open_bg =       midtone( s_color_todo, color_base, 0.7 );
-
-    color_done =          midtone( s_color_done, color_text, 0.7 );
-    color_done_bg =       midtone( s_color_done, color_base, 0.7 );
-
+    color_done =          midtone( s_color_done, color_text, 0.8 );
+    color_done_bg =       contrast3( color_base, color_text, s_color_done );
     color_canceled =      midtone( s_color_canceled, color_text );
-    color_canceled_bg =   midtone( s_color_canceled, color_base, 0.7 );
+    //color_canceled_bg =   midtone( s_color_canceled, color_base, 0.7 );
 }
 
 String

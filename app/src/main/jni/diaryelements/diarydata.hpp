@@ -1176,7 +1176,7 @@ class DiaryElemTag : public DiaryElement, public PropertyContainer
         String                  get_color_contrast() const
         {
             const auto color = m_properties.get< uint32_t >( PROP::COLOR, 0xFFFFFF );
-            return convert_uint32_to_html( get_contrasting_color( color ) );
+            return convert_uint32_to_html( get_contrasting_color_bw( color ) );
         }
         void                    set_color( const String& color )
         { m_properties.set( PROP::COLOR, convert_colorstr_to_uint32( color ) ); }
@@ -1474,14 +1474,14 @@ class Theme : public DiaryElement
         Color                       color_done;   // foreground
         Color                       color_done_bg;
         Color                       color_canceled;
-        Color                       color_canceled_bg;
+        // Color                       color_canceled_bg;
 
         // CONSTANT COLORS
-        static const Color          s_color_match1;
+        static const Color          s_color_match;
         static const Color          s_color_match2;
-        static const Color          s_color_link1;
+        static const Color          s_color_link;
         static const Color          s_color_link2;
-        static const Color          s_color_broken1;
+        static const Color          s_color_broken;
         static const Color          s_color_broken2;
 
         static const Color          s_color_todo;

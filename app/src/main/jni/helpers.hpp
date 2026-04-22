@@ -987,8 +987,9 @@ convert_uint32_to_html( uint32_t color )
     return String( buf, 7 ); // known length, no strlen scan
 }
 
-uint32_t            get_contrasting_color( uint32_t );
+uint32_t            get_contrasting_color_bw( uint32_t );
 Color               contrast2( const Color&, const Color&, const Color& );
+Color               contrast3( const Color&, const Color&, const Color& ); // for gradient bgs
 Color               midtone( const Color&, const Color& );
 Color               midtone( const Color&, const Color&, double, double = 1.0 );
 

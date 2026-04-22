@@ -385,6 +385,7 @@ namespace Gdk {
     public:
         RGBA() : r(0), g(0), b(0), a(1) {}
         RGBA(const std::string& hex) { set(hex); }
+        RGBA(double r_, double g_, double b_, double a_ = 1) : r(r_), g(g_), b(b_), a(a_) {}
         void set(const std::string& hex) {
             r = g = b = 0; a = 1;
             if (hex.empty()) return;
