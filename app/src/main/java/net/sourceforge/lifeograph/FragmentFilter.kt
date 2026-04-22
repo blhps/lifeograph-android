@@ -103,7 +103,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
 
     private fun updateToolbarButtons() {
-        val flagEdit = Diary.getMain().is_in_edit_mode
+        val flagEdit = Diary.main.is_in_edit_mode()
         mButtonSave.visibility = if(flagEdit) View.VISIBLE else View.GONE
         mButtonReset.visibility = if(flagEdit) View.VISIBLE else View.GONE
         mButtonRemove.visibility = View.GONE
@@ -240,7 +240,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     private fun saveFilter() {
         mFilter._definition = mStack!!._as_string
 
-        Diary.getMain().update_all_entries_filter_status()
+        Diary.main.update_all_entries_filter_status()
     }
     private fun resetFilter() {
         mStack = mFilter.get_filterer_stack()
@@ -257,7 +257,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
 
     override fun enterSelectionMode(): Boolean {
-        return if(Diary.getMain().is_in_edit_mode) {
+        return if(Diary.main.is_in_edit_mode()) {
             mButtonRemove.visibility = View.VISIBLE
             true
         }

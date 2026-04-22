@@ -66,7 +66,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
 
         mToolbar.visibility = View.GONE
 
-        Lifeograph.getActionBar().title = Diary.getMain()._name
+        Lifeograph.getActionBar().title = Diary.main._name
         updateActionBarSubtitle()
     }
 
@@ -82,7 +82,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
 
         mToolbar.visibility = View.GONE
         //mFabAdd.setTranslationX( Diary.diary.is_in_edit_mode() ? 0 : 150 );
-        mFabAdd.visibility = if(Diary.getMain().is_in_edit_mode) View.VISIBLE else View.GONE
+        mFabAdd.visibility = if(Diary.main.is_in_edit_mode()) View.VISIBLE else View.GONE
     }
 
     protected abstract fun updateList()
@@ -113,7 +113,7 @@ abstract class FragmentListElems : FragmentDiaryEditor(), RVAdapterElems.Listene
     override fun toggleExpanded(tag: DiaryElemTag) { }
 
     override fun enterSelectionMode(): Boolean {
-        return if(Diary.getMain().is_in_edit_mode) {
+        return if(Diary.main.is_in_edit_mode()) {
             mToolbar.visibility = View.VISIBLE
             true
         }

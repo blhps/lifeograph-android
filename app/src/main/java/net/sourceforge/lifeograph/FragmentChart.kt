@@ -42,7 +42,7 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
 
         mChartWidget = view.findViewById(R.id.chart_widget)
 
-        mChartWidget.mData = ChartData(Diary.getMain())
+        mChartWidget.mData = ChartData(Diary.main)
         mChartWidget.mData!!.set_from_string(mChartElem._definition)
 
         mChartWidget.calculateAndPlot(1.0)
@@ -71,13 +71,13 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
     override fun updateMenuVisibilities() {
         super.updateMenuVisibilities()
 
-        val flagWritable = Diary.getMain().is_in_edit_mode
+        val flagWritable = Diary.main.is_in_edit_mode()
         mMenu.findItem(R.id.rename).isVisible = flagWritable
     }
 
     override fun onInquireAction(id: Int, text: String) {
         if(id == R.string.rename) {
-            Diary.getMain().rename_chart( mChartElem._name, text)
+            Diary.main.rename_chart( mChartElem._name, text)
             Lifeograph.getActionBar().subtitle = mChartElem._name //_title_str
         }
     }

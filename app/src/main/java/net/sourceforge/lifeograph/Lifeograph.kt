@@ -82,7 +82,6 @@ class Lifeograph : Application() {
         //public static final String PROGRAM_NAME = "Lifeograph";
         const val LIFEOGRAPH_RELEASE_CODENAME = "the spring of goliath"
         const val LANG_INHERIT_DIARY          = "d"
-        const val MI_TO_KM_RATIO              = 1.609344
         lateinit var mActivityMain: ActivityMain
 
         @JvmField
@@ -116,11 +115,11 @@ class Lifeograph : Application() {
 
         @JvmStatic
         fun goToToday() {
-            val dm = Diary.getMain()
-            if(BuildConfig.DEBUG && !dm.is_open) {
+            val dm = Diary.main
+            if(BuildConfig.DEBUG && !dm.is_open()) {
                 throw AssertionError("Assertion failed")
             }
-            var entry = dm._entry_today
+            var entry = dm.get_entry_today()
             if(entry == null) // add new entry if no entry exists on selected date
                 entry = dm.addToday()
             showElem(entry)
@@ -128,23 +127,17 @@ class Lifeograph : Application() {
 
         @JvmStatic
         fun addEntry(date0: Long, text: String?) {
-            val dm = Diary.getMain()
-            var date = date0
-            if(BuildConfig.DEBUG && !dm.is_in_edit_mode) {
+            val dm = Diary.main
+            if(BuildConfig.DEBUG && !dm.is_in_edit_mode()) {
                 throw AssertionError("Assertion failed")
             }
-            val entry = dm.create_entry(date, text)
+            val entry = dm.create_entry(date0, text)
             if(entry != null) showElem(entry)
         }
 
         @JvmStatic
-        fun duplicateEntry(entrySrc: Entry): Entry {
-            return Diary.getMain().duplicate_entry(entrySrc)
-        }
-
-        @JvmStatic
         fun showElem(elem: DiaryElement) {
-            if(BuildConfig.DEBUG && !Diary.getMain().is_open) {
+            if(BuildConfig.DEBUG && !Diary.main.is_open()) {
                 throw AssertionError("Assertion failed")
             }
             mActivityMain.showElem(elem)
@@ -152,7 +145,7 @@ class Lifeograph : Application() {
 
         fun enableEditing(editor: FragmentDiaryEditor) {
             // HANDLE OLD DIARY
-            if(Diary.getMain().is_old) {
+            if(Diary.main.is_old()) {
                 showConfirmationPrompt(
                         editor.context,
                         R.string.diary_upgrade_confirm,
@@ -164,15 +157,15 @@ class Lifeograph : Application() {
         }
 
         private fun enableEditing2(editor: FragmentDiaryEditor) {
-            val dm = Diary.getMain()
+            val dm = Diary.main
             if(!dm.can_enter_edit_mode()) return
             if(dm.enableEditing(context) != Result.SUCCESS) return
             editor.enableEditing()
         }
 
         fun logoutWithoutSaving(view: View) {
-            val dm = Diary.getMain()
-            if(dm.is_open) {
+            val dm = Diary.main
+            if(dm.is_open()) {
                 showConfirmationPrompt(view.context,
                                        R.string.logoutwosaving_confirm,
                                        R.string.logoutwosaving

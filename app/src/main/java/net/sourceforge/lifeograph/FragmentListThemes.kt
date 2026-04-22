@@ -39,9 +39,7 @@ class FragmentListThemes : FragmentListElems(), Listener
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
 
-        var button = view.findViewById<ImageButton>(R.id.set_active)
-        // TODO... button.setOnClickListener { setSelDefault() }
-        button = view.findViewById(R.id.duplicate)
+        var button = view.findViewById<ImageButton>(R.id.duplicate)
         button.setOnClickListener { duplicateSel() }
         button = view.findViewById(R.id.dismiss)
         button.setOnClickListener { dismissSel() }
@@ -56,7 +54,7 @@ class FragmentListThemes : FragmentListElems(), Listener
 
     override fun updateList() {
         mElems.clear()
-        mElems.addAll(Diary.getMain()._themes)
+        mElems.addAll(Diary.main.get_themes())
         //Collections.sort(mFilters, FragmentEntryList.compareElemsByName)
 
         mItemCount = mElems.size
@@ -85,7 +83,7 @@ class FragmentListThemes : FragmentListElems(), Listener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                if(Diary.getMain().dismiss_filter(filter._name))
+                if(Diary.main.dismiss_filter(filter._name))
                     flagDeleted = true
             }
         }
@@ -110,7 +108,7 @@ class FragmentListThemes : FragmentListElems(), Listener
             for((i, selected) in mSelectionStatuses.withIndex()) {
                 if(selected) {
                     val themeSrc = mElems[i] as Theme
-                    val themeNew = Diary.getMain().create_theme(text)
+                    val themeNew = Diary.main.create_theme(text)
                     themeSrc.copy_to(themeNew)
                     break
                 }

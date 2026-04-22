@@ -73,13 +73,6 @@
             android:visibility="visible">
 
             <ImageButton
-                android:id="@+id/set_active"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                app:srcCompat="@drawable/ic_check" />
-
-            <ImageButton
                 android:id="@+id/duplicate"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"

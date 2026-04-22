@@ -72,7 +72,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         //Lifeograph.updateScreenSizes( this );
 
         mEditText = view.findViewById(R.id.editTextEntry)
-        if(!Diary.getMain().is_in_edit_mode) {
+        if(!Diary.main.is_in_edit_mode()) {
             // allows the user to move the cursor and select text,
             // but prevents the keyboard from popping up and changing text
             mEditText.showSoftInputOnFocus = false
@@ -104,7 +104,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     if( count > 0 ) { // insertion
                         val addedText = s.subSequence(start, start + count).toString()
                         mEntry.insert_text(start, addedText)
-                        // this method always inherits on Andro and it may be an issue on paste
+                        // this method always inherits on Andro, and it may be an issue on paste
                     }
                 }
             }
@@ -230,10 +230,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     override fun onStop() {
         super.onStop()
         Log.d(Lifeograph.TAG, "ActivityEntry.onStop()")
-        val dm = Diary.getMain()
+        val dm = Diary.main
         if(mFlagDismissOnExit) dm.dismiss_entry(mEntry)
-        if(dm.is_in_edit_mode)
-            Diary.getMain().writeLock(context)
+        if(dm.is_in_edit_mode())
+            Diary.main.writeLock(requireContext())
     }
 
     override fun onPrepareMenu(menu: Menu) {
@@ -243,7 +243,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val searchView = item.actionView as SearchView
         item.setOnActionExpandListener(object : MenuItem.OnActionExpandListener {
             override fun onMenuItemActionExpand(menuItem: MenuItem): Boolean {
-                searchView.setQuery(Diary.getMain()._search_str, false)
+                searchView.setQuery(Diary.main.get_search_str(), false)
                 return true
             }
 
@@ -258,7 +258,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
             override fun onQueryTextChange(s: String): Boolean {
                 if(mFlagSearchIsOpen) {
-                    Diary.getMain()._search_str = s
+                    Diary.main.set_search_str(s)
                     reparse()
                 }
                 return true
@@ -297,8 +297,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     override fun updateMenuVisibilities() {
         super.updateMenuVisibilities()
 
-        val dm = Diary.getMain()
-        val flagWritable = dm.is_in_edit_mode
+        val dm = Diary.main
+        val flagWritable = dm.is_in_edit_mode()
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
                 dm.can_enter_edit_mode()
         mMenu.findItem(R.id.change_todo_status).isVisible = flagWritable
@@ -328,7 +328,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             return false
         }
         else {
-            val entry = Diary.getMain().get_entry_by_id(mBrowsingHistory.last())
+            val entry = Diary.main.get_entry_by_id(mBrowsingHistory.last())
             if(entry != null) {
                 mEntry = entry
                 show(true)
@@ -453,7 +453,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         DialogPicker(requireContext(),
                      object: DialogPicker.Listener{
                          override fun onItemClick(item: RViewAdapterBasic.Item) {
-                             val theme = Diary.getMain().get_theme(item.mId)
+                             val theme = Diary.main.get_theme(item.mId)
                              mEntry._theme = theme
                              updateTheme()
                              reparse()
@@ -462,7 +462,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                          override fun populateItems(list: RVBasicList) {
                              list.clear()
 
-                             for(theme in Diary.getMain()._themes)
+                             for(theme in Diary.main.get_themes())
                                  list.add(RViewAdapterBasic.Item(theme._name,
                                                                  theme._name,
                                                                  R.drawable.ic_theme))
@@ -631,9 +631,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             p = p.get_next()
         }
 
-        if(fRecursive) {
-            // TODO: 2.1 or later
-        }
+//        if(fRecursive) {
+//            // TODO: 2.1 or later
+//        }
     }
 
     private fun addComment() {
@@ -821,7 +821,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     // edt.setSpan(LinkUri(format.uri), fStart, fEnd, 0)
                 }
                 'D' -> { // Link: ID
-                    val element = Diary.getMain().get_tag_by_id(format.refId.toInt())
+                    val element = Diary.main.get_tag_by_id(format.refId.toInt())
                     val span = if(element != null)
                             LinkID(format.refId.toInt())
                         else  // indicate dead links
@@ -940,7 +940,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private class LinkDate(private val mDate: Long) : ClickableSpan(), AdvancedSpan {
         override fun onClick(widget: View) {
             Log.d( Lifeograph.TAG, "Clicked on Date link")
-            val dm = Diary.getMain()
+            val dm = Diary.main
             var entry = dm.get_entry_by_date(mDate)
             if(entry == null)
                 entry = dm.create_entry(mDate, "")
@@ -965,7 +965,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private class LinkID(private val mId: Int) : ClickableSpan(), AdvancedSpan {
         override fun onClick(widget: View) {
             Log.d( Lifeograph.TAG, "Clicked on ID link")
-            val elem = Diary.getMain().get_element(mId)
+            val elem = Diary.main.get_element(mId)
             if(elem != null) {
                 if(elem._type != DiaryElement.Type.ENTRY)
                     Log.d(Lifeograph.TAG, "Target is not entry")

@@ -24,7 +24,6 @@ package net.sourceforge.lifeograph
 import android.os.Bundle
 import android.util.Log
 import android.view.*
-import androidx.core.view.MenuHost
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -84,9 +83,9 @@ abstract class FragmentDiaryEditor : Fragment(), MenuProvider {
     }
 
     open fun updateMenuVisibilities() {
-        val dm = Diary.getMain()
+        val dm = Diary.main
         if (!isMenuInitialized) return
-        val flagWritable = dm.is_in_edit_mode
+        val flagWritable = dm.is_in_edit_mode()
         mMenu.findItem(R.id.enable_edit)?.isVisible = !flagWritable &&
                 dm.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save)?.isVisible = flagWritable

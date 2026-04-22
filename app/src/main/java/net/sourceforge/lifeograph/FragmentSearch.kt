@@ -19,6 +19,7 @@
 
 package net.sourceforge.lifeograph
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import android.text.Editable
 import android.text.TextWatcher
@@ -56,9 +57,9 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
         mRecyclerView.adapter = mAdapter
         mRecyclerView.layoutManager = LinearLayoutManager(view.context)
 
-        val dm = Diary.getMain()
-        if(dm.is_search_in_progress) {
-            mEditText.setText(dm._search_str)
+        val dm = Diary.main
+        if(dm.is_search_in_progress()) {
+            mEditText.setText(dm.get_search_str())
             mButtonSearchTextClear.visibility = View.VISIBLE
         }
 
@@ -83,9 +84,9 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     private fun handleSearchTextChanged(text: String) {
         val searchStr = text.lowercase(Locale.ROOT)
 
-        val dm = Diary.getMain()
-        dm._search_str = searchStr
-        if( dm.is_search_in_progress) {
+        val dm = Diary.main
+        dm.set_search_str(searchStr)
+        if( dm.is_search_in_progress()) {
             mFRestartSearch = true
             dm.stop_search()
         }
@@ -99,7 +100,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     fun handleSearchFinished() {
         if( mFRestartSearch ) {
             mFRestartSearch = false
-            Diary.getMain().start_search()
+            Diary.main.start_search()
         }
         else {
             updateSubtitle()
@@ -107,23 +108,26 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
         }
     }
 
+    @SuppressLint("NotifyDataSetChanged")
     private fun updateList() {
         if (!this::mAdapter.isInitialized) return
 
-        val matches = Diary.getMain()._matches
+        val matches = Diary.main.get_matches()
 
         mElems.clear()
 
-        if( matches != null && matches.isNotEmpty() ) {
+        if(matches.isNotEmpty()) {
             var prevPara: Paragraph? = null
 
             for( (i, match) in matches.withIndex() ) {
                 if( i > 200 ) break
-                val p2para = Diary.getMain().get_paragraph_by_id(match.get_id_lo())
+                val p2para = Diary.main.get_paragraph_by_id(match.get_id_lo())
                 if( p2para == prevPara ) continue
-                mElems.add(RViewAdapterBasic.Item(p2para._text, "",
-                                                  p2para._host.icon,
-                                                  p2para._id))
+                p2para?.let{
+                    mElems.add(RViewAdapterBasic.Item(it._text, "",
+                                                      it._host.icon,
+                                                      it._id))
+                }
                 prevPara = p2para
             }
         }
@@ -132,7 +136,7 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     }
 
     private fun updateSubtitle() {
-        val matchCount = Diary.getMain()._match_count
+        val matchCount = Diary.main.get_match_count()
         Lifeograph.getActionBar().subtitle =
                 if(matchCount == 0 )
                     Lifeograph.getStr(R.string.no_matches)
@@ -141,7 +145,8 @@ class FragmentSearch : FragmentDiaryEditor(), RViewAdapterBasic.Listener {
     }
 
     override fun onItemClick(item: RViewAdapterBasic.Item) {
-        Lifeograph.showElem(Diary.getMain().get_element(item.mIdNum))
+        val di = Diary.main.get_element(item.mIdNum)
+        di?.let{ Lifeograph.showElem(it) }
     }
 
     override fun enterSelectionMode(): Boolean = false

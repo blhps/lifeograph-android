@@ -62,8 +62,8 @@ class FragmentListFilters : FragmentListElems(), Listener
     }
 
     override fun updateMenuVisibilities() {
-        val dm = Diary.getMain()
-        val flagWritable = dm.is_in_edit_mode
+        val dm = Diary.main
+        val flagWritable = dm.is_in_edit_mode()
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
                 dm.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
@@ -71,12 +71,12 @@ class FragmentListFilters : FragmentListElems(), Listener
 
     @SuppressLint("NotifyDataSetChanged")
     override fun updateList() {
-        val dm = Diary.getMain()
+        val dm = Diary.main
         mElems.clear()
         mElems.add((Filter.ALL))
-        mElems.add(dm._filter_nontrashed)
-        mElems.add(dm._filter_trashed)
-        mElems.addAll(dm._filters)
+        dm.get_filter_nontrashed()?.let { mElems.add(it) }
+        dm.get_filter_trashed()?.let { mElems.add(it) }
+        mElems.addAll(dm.get_filters() as Collection<DiaryElement>)
 
         mItemCount = mElems.size
 
@@ -97,8 +97,8 @@ class FragmentListFilters : FragmentListElems(), Listener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                val dm = Diary.getMain()
-                dm._filter_list = filter
+                val dm = Diary.main
+                dm.set_filter_list(filter)
                 dm.update_all_entries_filter_status()
                 exitSelectionMode()
                 updateList()
@@ -125,7 +125,7 @@ class FragmentListFilters : FragmentListElems(), Listener
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
                 val filter = mElems[i] as Filter
-                if(Diary.getMain().dismiss_filter(filter._name))
+                if(Diary.main.dismiss_filter(filter._name))
                     flagDeleted = true
             }
         }
@@ -138,7 +138,7 @@ class FragmentListFilters : FragmentListElems(), Listener
 
     // INTERFACE METHODS ===========================================================================
     override fun hasIcon2(elem: DiaryElement): Boolean {
-        val filter = Diary.getMain()._filter_list
+        val filter = Diary.main.get_filter_list()
         return if (filter != null) (filter.mNativePtr == elem.mNativePtr) else false
     }
     override fun getIcon2(elem: DiaryElement): Int {
@@ -147,14 +147,14 @@ class FragmentListFilters : FragmentListElems(), Listener
 
     override fun onInquireAction(id: Int, text: String) {
         if(id == R.string.create_filter) {
-            Diary.getMain().create_filter(text)
+            Diary.main.create_filter(text)
             updateList()
         }
         else if( id == R.string.duplicate_filter ) {
             for((i, selected) in mSelectionStatuses.withIndex()) {
                 if(selected) {
                     val filter = mElems[i] as Filter
-                    Diary.getMain().duplicate_filter(filter._name)
+                    Diary.main.duplicate_filter(filter._name)
                     updateList()
                     break
                 }

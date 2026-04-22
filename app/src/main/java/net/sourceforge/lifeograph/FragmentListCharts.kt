@@ -46,7 +46,7 @@ class FragmentListCharts : FragmentListElems()
     override fun updateList() {
         mElems.clear()
         Log.d(Lifeograph.TAG, "FragmentChartList.updateList()::ALL ENTRIES")
-        mElems.addAll(Diary.getMain()._charts )
+        mElems.addAll(Diary.main.get_charts() as Collection<DiaryElement>)
         //Collections.sort(mElems, FragmentEntryList.compareElemsByDate)
 
         mSelectionStatuses.clear()
@@ -79,7 +79,7 @@ class FragmentListCharts : FragmentListElems()
         var flagDeleted = false
         for((i, selected) in mSelectionStatuses.withIndex()) {
             if(selected) {
-                if(Diary.getMain().dismiss_chart(mElems[i]._name))
+                if(Diary.main.dismiss_chart(mElems[i]._name))
                     flagDeleted = true
             }
         }

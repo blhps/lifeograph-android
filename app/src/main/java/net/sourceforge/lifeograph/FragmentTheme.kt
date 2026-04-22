@@ -148,7 +148,7 @@ class FragmentTheme: FragmentDiaryEditor() {
     override fun updateMenuVisibilities() {
         super.updateMenuVisibilities()
 
-        val flagWritable = Diary.getMain().is_in_edit_mode
+        val flagWritable = Diary.main.is_in_edit_mode()
         mMenu.findItem(R.id.rename).isVisible = flagWritable
     }
 }

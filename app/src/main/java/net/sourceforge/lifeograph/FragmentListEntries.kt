@@ -30,7 +30,7 @@ import android.widget.ImageButton
 import net.sourceforge.lifeograph.DialogPassword.DPAction
 import net.sourceforge.lifeograph.helpers.Result
 import java.io.File
-import java.util.Collections // import only what needed from java.util or it clashes with Date
+import java.util.Collections // import only what needed from java.util, or it clashes with Date
 import net.sourceforge.lifeograph.helpers.Date
 
 class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdapterElems.Listener {
@@ -60,7 +60,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     }
 
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
-        val dm = Diary.getMain()
+        val dm = Diary.main
         return when(menuItem.itemId) {
             R.id.search_text -> {
                 Lifeograph.mActivityMain.navigateTo(R.id.nav_search)
@@ -81,7 +81,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
                 true
             }
             R.id.export_plain_text -> {
-                val file = File(dm._uri)
+                val file = File(dm.get_uri())
                 val dirBackups = File(file.parent!! + "/backups")
                 if(dirBackups.exists() || dirBackups.mkdirs()) {
                     val fileText = File(dirBackups, file.name + ".txt")
@@ -100,10 +100,10 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     override fun updateMenuVisibilities() {
         super.updateMenuVisibilities()
 
-        val dm = Diary.getMain()
-        val flagWritable = dm.is_in_edit_mode
-        val flagEncrypted = dm.is_encrypted
-        mMenu.findItem(R.id.export_plain_text).isVisible = !dm.is_virtual
+        val dm = Diary.main
+        val flagWritable = dm.is_in_edit_mode()
+        val flagEncrypted = dm.is_encrypted()
+        mMenu.findItem(R.id.export_plain_text).isVisible = !dm.is_virtual()
         mMenu.findItem(R.id.add_password).isVisible = flagWritable && !flagEncrypted
         mMenu.findItem(R.id.change_password).isVisible = flagWritable && flagEncrypted
     }
@@ -124,7 +124,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
         Log.d(Lifeograph.TAG, "FragmentElemList.updateList()::ALL ENTRIES")
         mElems.clear()
 
-        Diary.getMain().get_entry_1st()?.let { addDescendantsToList(it) }
+        Diary.main.get_entry_1st()?.let { addDescendantsToList(it) }
 
 //        mElems.add(HeaderElem( R.string.numbered_entries, Date.DATE_MAX ) )
 //        mElems.add(HeaderElem(R.string.free_entries, Date.NUMBERED_MIN))
@@ -280,7 +280,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
         }
     }
     private fun addParentEntry() {
-        val dm = Diary.getMain()
+        val dm = Diary.main
         // filter the selected entries:
         val selectedEntries = mElems.filterIndexed { i, _ -> mSelectionStatuses[i] }
             .filterIsInstance<Entry>()
@@ -288,11 +288,11 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
 
         if(selectedEntries.isNotEmpty()) {
             val entryParent = dm.create_entry_parent(selectedEntries, Date.get_today(), "")
-            Lifeograph.showElem(entryParent)
+            entryParent?.let { Lifeograph.showElem(it) }
         }
     }
     private fun addSiblingEntry() {
-        val dm = Diary.getMain()
+        val dm = Diary.main
         val selectedIndex = mSelectionStatuses.indexOf(true)
         if(selectedIndex != -1) {
             val selectedEntry = mElems[selectedIndex] as? Entry
@@ -302,11 +302,11 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
                 Date.get_today(),
                 ""
                                           )
-            Lifeograph.showElem(entryNew)
+            entryNew?.let{Lifeograph.showElem(it)}
         }
     }
     private fun addChildEntry() {
-        val dm = Diary.getMain()
+        val dm = Diary.main
         val selectedIndex = mSelectionStatuses.indexOf(true)
         if(selectedIndex != -1) {
             val selectedEntry = mElems[selectedIndex] as? Entry
@@ -315,7 +315,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
                 Date.get_today(),
                 ""
                                                 )
-            Lifeograph.showElem(entryNew)
+            entryNew?.let { Lifeograph.showElem(it) }
         }
     }
 
@@ -355,7 +355,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
             for((i, selected) in mSelectionStatuses.withIndex()) {
                 if(selected) {
                     val entry = mElems[i] as Entry
-                    Lifeograph.duplicateEntry(entry)
+                    Diary.main.duplicate_entry(entry)
                     mAdapter.notifyItemChanged( i )
                     break
                 }
@@ -367,7 +367,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
     override fun onDPAction(action: DPAction) {
         when(action) {
             DPAction.DPA_AUTHENTICATE -> DialogPassword(requireContext(),
-                                                        Diary.getMain(),
+                                                        Diary.main,
                                                         DPAction.DPA_ADD,
                                                         this).show()
             DPAction.DPAR_AUTH_FAILED -> Lifeograph.showToast(R.string.wrong_password)
