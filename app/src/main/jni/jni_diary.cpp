@@ -158,6 +158,13 @@ JNI_METHOD(void, Diary_nativeSetLang)(JNIEnv* env, jobject obj, jlong ptr, jstri
     env->ReleaseStringUTFChars(lang, c_lang);
 }
 
+JNI_METHOD(jboolean, Diary_nativeIsDayHoliday)(JNIEnv* env, jobject obj, jlong ptr, jlong date) {
+    return static_cast<jboolean>(reinterpret_cast<LoG::Diary*>(ptr)->is_day_holiday(date) );
+}
+JNI_METHOD(jboolean, Diary_nativeIsDayWorkday)(JNIEnv* env, jobject obj, jlong ptr, jlong date) {
+    return static_cast<jboolean>(reinterpret_cast<LoG::Diary*>(ptr)->is_day_workday(date) );
+}
+
 JNI_METHOD(jint, Diary_nativeWriteUri)(JNIEnv* env, jobject, jlong ptr, jstring uri) {
     const char* c_uri = env->GetStringUTFChars(uri, nullptr);
     auto result = reinterpret_cast<LoG::Diary*>(ptr)->write(c_uri);

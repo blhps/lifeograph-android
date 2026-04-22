@@ -100,6 +100,7 @@ class Date(var mDate: Long = 0) {
         @JvmStatic fun backward_to_month_start(d: Long): Long = nativeBackwardToMonthStart(d)
         @JvmStatic fun backward_to_year_start(d: Long): Long = nativeBackwardToYearStart(d)
 
+        @JvmStatic fun get_week_start_day(): Int = nativeGetWeekStartDay()
         @JvmStatic fun get_weekday(d: Long): Int = nativeGetWeekday(d)
         @JvmStatic fun get_yearday(d: Long): Int = nativeGetYearday(d)
         @JvmStatic fun get_days_in_month(d: Long): Int = nativeGetDaysInMonth(d)
@@ -153,6 +154,7 @@ class Date(var mDate: Long = 0) {
         @JvmStatic private external fun nativeIsLeapYear(d: Long): Boolean
         @JvmStatic private external fun nativeGetDaysInMonth(d: Long): Int
         @JvmStatic private external fun nativeGetDaysInYear(d: Long): Int
+        @JvmStatic private external fun nativeGetWeekStartDay(): Int
         @JvmStatic private external fun nativeGetWeekday(d: Long): Int
         @JvmStatic private external fun nativeGetYearday(d: Long): Int
         @JvmStatic private external fun nativeFormatStringCustom(d: Long, format: String,

@@ -164,6 +164,9 @@ class Diary : DiaryElement {
         nativeSetLang(mNativePtr, lang)
     }
 
+    fun is_date_holiday(date: Long): Boolean { return nativeIsDayHoliday(mNativePtr, date) }
+    fun is_date_workday(date: Long): Boolean { return nativeIsDayWorkday(mNativePtr, date) }
+
     // ENTRIES =====================================================================================
     fun get_entry_1st(): Entry? {
         val ptr = nativeGetEntry1st(mNativePtr)
@@ -810,6 +813,7 @@ class Diary : DiaryElement {
         return Result.SUCCESS
     }
 
+    // NATIVE METHODS ==============================================================================
     private external fun nativeDestroy(ptr: Long)
     private external fun nativeInitNewPre(ptr: Long)
     private external fun nativeInitNew(ptr: Long, path: String?, pw: String?): Int
@@ -834,6 +838,8 @@ class Diary : DiaryElement {
     private external fun nativeSetLoggedInEdit(ptr: Long)
     private external fun nativeGetLang(ptr: Long): String?
     private external fun nativeSetLang(ptr: Long, lang: String?)
+    private external fun nativeIsDayHoliday(ptr: Long, date: Long): Boolean
+    private external fun nativeIsDayWorkday(ptr: Long, date: Long): Boolean
 
     private external fun nativeCreateNewId(mNativePtr: Long, element: DiaryElement?): Int
     private external fun nativeGetElement(ptr: Long, id: Int): Long

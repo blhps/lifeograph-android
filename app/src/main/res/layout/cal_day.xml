@@ -19,6 +19,8 @@
         android:id="@+id/calendar_day_gridcell"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+        android:maxLines="1"
+        android:ellipsize="end"
         android:layout_gravity="center"
         android:gravity="center"
         android:text="@string/placeholder"

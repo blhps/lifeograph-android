@@ -161,6 +161,10 @@ JNI_METHOD(jint, nativeGetDaysInYear)(JNIEnv* env, jclass clazz, jlong d) {
     return static_cast<jint>(HELPERS::Date::get_days_in_year(static_cast<HELPERS::DateV>(d)));
 }
 
+JNI_METHOD(jint, nativeGetWeekStartDay)(JNIEnv* env, jclass clazz) {
+    return static_cast<jint>( HELPERS::Date::s_week_start_day );
+}
+
 JNI_METHOD(jstring, nativeFormatStringCustom)(JNIEnv* env, jclass clazz, jlong d, jstring format,
  jchar separator) {
     const char* c_format = env->GetStringUTFChars(format, nullptr);
