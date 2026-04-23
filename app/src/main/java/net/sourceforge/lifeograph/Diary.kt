@@ -23,7 +23,6 @@ package net.sourceforge.lifeograph
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import androidx.documentfile.provider.DocumentFile
 import net.sourceforge.lifeograph.Lifeograph.Companion.copyFile
 import net.sourceforge.lifeograph.helpers.Date.Companion.format_string
 import net.sourceforge.lifeograph.helpers.Date.Companion.get_today
@@ -33,9 +32,9 @@ import java.io.ByteArrayOutputStream
 import java.io.File
 import java.io.IOException
 import java.io.InputStream
-import java.nio.file.Files
 import java.util.Vector
 import androidx.core.net.toUri
+import net.sourceforge.lifeograph.helpers.DiaryDirectoryUtil
 
 class Diary : DiaryElement {
 //    enum class SetPathType {
@@ -579,37 +578,15 @@ class Diary : DiaryElement {
         val uri = nativeGetUri(mNativePtr).toUri()
         val resolver = context.contentResolver
 
+        // BACKUP THE PREVIOUS VERSION
         try {
-            val istream = resolver.openInputStream(uri)
-            if(istream != null) {
-                // TODO: 2.1: BACKUP FOR THE LAST VERSION BEFORE UPGRADE
-//                if( m_read_version != DB_FILE_VERSION_INT ) {
-//                    DocumentFile backupOld = getNeighborFileDocument( context,
-//                                                                      uri,
-//                                                                      "." +
-//                                                                      nativeGetReadVersion()
-//                }
-
-                // BACKUP THE PREVIOUS VERSION
-
-                val backupDoc = getNeighborFileDocument(
-                    context,
-                    uri,
-                    ".previousversion~"
-                                                       )
-                if(backupDoc != null) {
-                    resolver.openOutputStream(backupDoc.uri).use { ostream ->
-                        copyFile(istream, ostream) // Overload copyFile for Streams
-                    }
-                } else { // fallback to app's folder
-                    val backupFile = File(context.filesDir, "$_name.~previousversion~")
-                    copyFile(istream, backupFile)
-                }
-                istream.close()
+            val prevDoc = DiaryDirectoryUtil.createLockFile(context, uri, SUFFIX_PREVVER)
+            if(prevDoc != null) {
+                writeStreamed(context, prevDoc.uri)
             }
         } catch(ex: IOException) {
-            Log.e(Lifeograph.TAG, "Could not save backup file: " + ex.message)
-            return Result.FILE_NOT_WRITABLE
+            Log.e(Lifeograph.TAG, "Could not save previous version file: " + ex.message)
+            // return Result.FILE_NOT_WRITABLE
         }
 
         // WRITE THE FILE
@@ -667,95 +644,61 @@ class Diary : DiaryElement {
                                             )]
     }
 
-    fun getNeighborFileDocument(context: Context, uri: Uri, suffix: String): DocumentFile? {
-        try {
-            val sourceFile: DocumentFile = DocumentFile.fromSingleUri(context, uri)!!
-            val parentDir = sourceFile.parentFile
-
-            if(parentDir != null && parentDir.isDirectory) {
-                val backupName = sourceFile.name + suffix
-
-                // look for existing backup or create new one
-                var neighborDoc = parentDir.findFile(backupName)
-                if(neighborDoc == null) {
-                    neighborDoc = parentDir.createFile("application/octet-stream", backupName)
-                }
-
-                return neighborDoc
-            }
-        } catch(ex: Exception) {
-            Log.e(Lifeograph.TAG, "Error getting neighbor file: " + ex.message)
-        }
-        return null
-    }
+//    fun getNeighborFileDocument(context: Context, uri: Uri, suffix: String): DocumentFile? {
+//        try {
+//            val sourceFile: DocumentFile = DocumentFile.fromSingleUri(context, uri)!!
+//            val parentDir = sourceFile.parentFile
+//
+//            if(parentDir != null && parentDir.isDirectory) {
+//                val backupName = sourceFile.name + suffix
+//
+//                // look for existing backup or create new one
+//                var neighborDoc = parentDir.findFile(backupName)
+//                if(neighborDoc == null) {
+//                    neighborDoc = parentDir.createFile("application/octet-stream", backupName)
+//                }
+//
+//                return neighborDoc
+//            }
+//        } catch(ex: Exception) {
+//            Log.e(Lifeograph.TAG, "Error getting neighbor file: " + ex.message)
+//        }
+//        return null
+//    }
 
     fun writeLock(context: Context): Result {
-        val uri = nativeGetUri(mNativePtr).toUri()
-        val resolver = context.contentResolver
-
         try {
-            val istream = resolver.openInputStream(uri)
-            if(istream != null) {
-                val lockDoc = getNeighborFileDocument(context, uri, SUFFIX_LOCK)
-                if(lockDoc != null) {
-                    writeStreamed(context, lockDoc.uri)
-                } else { // fallback to app's folder
-                    val lockFile = File(context.filesDir, _name + SUFFIX_LOCK)
-                    writeStreamed(context, Uri.fromFile(lockFile))
-                }
-                istream.close()
+            val uri = nativeGetUri(mNativePtr).toUri()
+            val lockDoc = DiaryDirectoryUtil.createLockFile( context, uri, SUFFIX_LOCK)
+            if(lockDoc != null) {
+                writeStreamed(context, lockDoc.uri)
+                return Result.SUCCESS
             }
         } catch(ex: IOException) {
-            Log.e(Lifeograph.TAG, "Could not save backup file: " + ex.message)
-            return Result.FILE_NOT_WRITABLE
+            ex.message?.let { Log.e(Lifeograph.TAG, it) }
         }
-        return Result.SUCCESS
+        Log.e(Lifeograph.TAG, "Could not save backup file!")
+        return Result.FILE_NOT_WRITABLE
     }
 
     fun getLockStream(ctx: Context): InputStream? {
-        val uri = nativeGetUri(mNativePtr).toUri()
-        val resolver = ctx.contentResolver
-
         try {
-            // we open the original stream just to verify accessibility as done in writeLock()
-            val istream = resolver.openInputStream(uri)
-            if(istream != null) {
-                istream.close() // Close immediately as we only need the lock file
-
-                val lockDoc = getNeighborFileDocument(ctx, uri, SUFFIX_LOCK)
-                if(lockDoc != null) {
-                    return resolver.openInputStream(lockDoc.uri)
-                } else { // fallback to app's folder
-                    val lockFile = File(ctx.filesDir, _name + SUFFIX_LOCK)
-                    if(lockFile.exists()) {
-                        return Files.newInputStream(lockFile.toPath())
-                    }
-                }
+            val resolver = ctx.contentResolver
+            val uri = nativeGetUri(mNativePtr).toUri()
+            val lockDoc = DiaryDirectoryUtil.createLockFile( ctx, uri, SUFFIX_LOCK)
+            if(lockDoc != null) {
+                return resolver.openInputStream(lockDoc.uri)
             }
         } catch(ex: IOException) {
-            Log.e(Lifeograph.TAG, "Could not open lock file: " + ex.message)
-            return null
+            Log.e(Lifeograph.TAG, "Could not open lock file for reading: " + ex.message)
         }
         return null
     }
 
     fun removeLockIfNecessary(ctx: Context): Boolean {
         if(!is_in_edit_mode()) return false
-
         val uri = nativeGetUri(mNativePtr).toUri()
-
-        try {
-            val lockDoc = getNeighborFileDocument(ctx, uri, SUFFIX_LOCK)
-            if(lockDoc != null) {
-                return lockDoc.delete()
-            } else { // fallback to app's folder
-                val lockFile = File(ctx.filesDir, _name + SUFFIX_LOCK)
-                return lockFile.delete()
-            }
-        } catch(ex: Exception) {
-            Log.e(Lifeograph.TAG, "Could not save backup file: " + ex.message)
-        }
-        return false
+        return DiaryDirectoryUtil.deleteLockFile(ctx, uri, SUFFIX_LOCK)
     }
 
     fun set_continue_from_lock() {
@@ -763,54 +706,23 @@ class Diary : DiaryElement {
     }
 
     fun isLocked(context: Context): Boolean {
-        val uriString = nativeGetUri(mNativePtr)
-        if(uriString.isEmpty()) return false
-
-        val uri = uriString.toUri()
-
-        // 1. Check for neighboring lock file (for SAF/Content URIs)
-        try {
-            val sourceFile: DocumentFile = DocumentFile.fromSingleUri(context, uri)!!
-            val parentDir = sourceFile.parentFile
-
-            if(parentDir != null && parentDir.isDirectory) {
-                val lockName = sourceFile.name + SUFFIX_LOCK
-                val lockDoc = parentDir.findFile(lockName)
-                if(lockDoc != null && lockDoc.exists()) {
-                    return true
-                }
-            }
-        } catch(e: Exception) {
-            // Logged silently as it might fail for simple file paths
-            Log.d(Lifeograph.TAG, "Could not check neighbor lock: " + e.message)
-        }
-
-        // 2. Check for fallback lock file in app's internal filesDir
-        val internalLockFile = File(context.filesDir, _name + SUFFIX_LOCK)
-        return internalLockFile.exists()
+        val uri = nativeGetUri(mNativePtr).toUri()
+        return DiaryDirectoryUtil.isLocked( context, uri, SUFFIX_LOCK )
     }
 
-    fun writeUnsaved(context: Context): Result {
-        val uri = nativeGetUri(mNativePtr).toUri()
-        val resolver = context.contentResolver
-
+    fun writeUnsaved(ctx: Context): Result {
         try {
-            val istream = resolver.openInputStream(uri)
-            if(istream != null) {
-                val locUnsvd = getNeighborFileDocument(context, uri, SUFFIX_UNSAVED)
-                if(locUnsvd != null) {
-                    writeStreamed(context, locUnsvd.uri)
-                } else { // fallback to app's folder
-                    val fileUnsvd = File(context.filesDir, _name + SUFFIX_UNSAVED)
-                    writeStreamed(context, Uri.fromFile(fileUnsvd))
-                }
-                istream.close()
+            val uri = nativeGetUri(mNativePtr).toUri()
+            val unsavedDoc = DiaryDirectoryUtil.createLockFile(ctx, uri, SUFFIX_UNSAVED)
+            if(unsavedDoc != null) {
+                writeStreamed(ctx, unsavedDoc.uri)
+                return Result.SUCCESS
             }
         } catch(ex: IOException) {
-            Log.e(Lifeograph.TAG, "Could not backup unsaved changes: " + ex.message)
-            return Result.FILE_NOT_WRITABLE
+            ex.message?.let { Log.e(Lifeograph.TAG, it) }
         }
-        return Result.SUCCESS
+        Log.e(Lifeograph.TAG, "Could not backup unsaved changes!")
+        return Result.FILE_NOT_WRITABLE
     }
 
     // NATIVE METHODS ==============================================================================
@@ -885,11 +797,8 @@ class Diary : DiaryElement {
     private external fun nativeGetFilterEntryList(mNativePtr: Long): Long
     private external fun nativeSetFilterEntryList(mNativePtr: Long, ptr_filter: Long)
     private external fun nativeUpdateAllEntriesFilterStatus(mNativePtr: Long): Int
-    private external fun nativeRenameFilter(
-        mNativePtr: Long,
-        filter: Filter?,
-        name: String?
-                                           ): Boolean
+    private external fun nativeRenameFilter(mNativePtr: Long, filter: Filter?,
+                                            name: String? ): Boolean
 
     private external fun nativeCreateFilter(mNativePtr: Long, name0: String?): Long
 
@@ -898,7 +807,6 @@ class Diary : DiaryElement {
     private external fun nativeCreateTheme(mNativePtr: Long, name0: String?): Long
     private external fun nativeGetTheme(mNativePtr: Long, name: String?): Long
     private external fun nativeGetThemes(mNativePtr: Long): LongArray
-
 
     private external fun nativeWriteUri(mNativePtr: Long, uri: String?): Int
     private external fun nativeGetStrStream(mNativePtr: Long): ByteArray?
@@ -939,6 +847,7 @@ class Diary : DiaryElement {
         //    static final int SoCr_DEFAULT       = SoCr_DATE|SoCr_ASCENDING|SoCr_DESCENDING_T;
         const val SUFFIX_LOCK: String = ".~LOCK~"
         const val SUFFIX_UNSAVED: String = ".~unsaved~"
+        const val SUFFIX_PREVVER: String = ".~previousversion~"
 
         const val EXAMPLE_DIARY_PATH: String = "*/E/X/A/M/P/L/E/D/I/A/R/Y/*"
         const val EXAMPLE_DIARY_NAME: String = "*** Example Diary ***"
