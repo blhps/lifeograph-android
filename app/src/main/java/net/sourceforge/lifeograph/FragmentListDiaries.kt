@@ -32,10 +32,12 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.Button
+import android.widget.EditText
 import android.widget.HorizontalScrollView
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.net.toUri
+import androidx.documentfile.provider.DocumentFile
 import androidx.fragment.app.Fragment
 import androidx.navigation.findNavController
 import androidx.recyclerview.widget.GridLayoutManager
@@ -99,15 +101,16 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
                 if (diaries.isEmpty()) {
                     Lifeograph.showToast("No diary files found in this folder")
                 } else {
-                    showDiarySelectionDialog(it, diaries)
+                    showDiarySelectionDialog(diaries)
                 }
             }
     }
 
-    private fun showDiarySelectionDialog(treeUri: Uri, diaries: List<Pair<String, Uri>>) {
+    private fun showDiarySelectionDialog(diaries: List<Pair<String, Uri>>) {
         val names = diaries.map { it.first }.toTypedArray()
         val checked = BooleanArray(names.size) { false }
 
+        // TODO: 2.1: fix theme of dialog
         AlertDialog.Builder(requireContext())
             .setTitle("Select Diaries to Add")
             .setMultiChoiceItems(names, checked) { _, index, isChecked ->
@@ -137,23 +140,53 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private val createDiaryLauncher = registerForActivityResult(
-        ActivityResultContracts.CreateDocument("*/*")
-    ) { uri ->
-        uri?.let {
-            val name = FileUtil.getFileName(it, requireContext())
-            Log.d(Lifeograph.TAG, "Name: $name")
-
-            // ensure that the permission is persistent
+        ActivityResultContracts.OpenDocumentTree()
+                                                               ) { treeUri ->
+        treeUri?.let {
             val takeFlags = Intent.FLAG_GRANT_READ_URI_PERMISSION or
-                            Intent.FLAG_GRANT_WRITE_URI_PERMISSION
+                    Intent.FLAG_GRANT_WRITE_URI_PERMISSION
             requireContext().contentResolver.takePersistableUriPermission(it, takeFlags)
 
-            if(Diary.main.init_new(requireContext(), it.toString()) == Result.SUCCESS) {
-                mDiaryUris.add(it.toString())
-                writeDiaryList()
-                navigateToDiary()
-            }
+            showCreateDiaryDialog(it)
         }
+    }
+
+    private fun showCreateDiaryDialog(treeUri: Uri) {
+        // TODO: 2.1: fix theme of dialog
+        val builder = AlertDialog.Builder(requireContext())
+        val input = EditText(builder.context).apply {
+            hint = "Diary Filename"
+            setSingleLine()
+            setText("New Diary.diary")
+            setSelection(0, "New Diary".length) // select just the name part, excluding the extension
+        }
+
+        AlertDialog.Builder(requireContext())
+            .setTitle("New Diary")
+            .setView(input)
+            .setPositiveButton("Create") { _, _ ->
+                val name = input.text.toString().trim().let {
+                    if (it.endsWith(".diary")) it else "$it.diary" // adjust extension as needed
+                }
+                val treeDocFile = DocumentFile.fromTreeUri(requireContext(), treeUri) ?: return@setPositiveButton
+
+                val fileUri = treeDocFile.createFile("application/octet-stream", name)?.uri
+                if (fileUri == null) {
+                    Lifeograph.showToast("Failed to create file")
+                    return@setPositiveButton
+                }
+
+                if (mDiaryUris.contains(fileUri.toString())) {
+                    Lifeograph.showToast("File is already in the list")
+                } else if(Diary.main.init_new(requireContext(),
+                                              fileUri.toString()) == Result.SUCCESS) {
+                    mDiaryUris.add(fileUri.toString())
+                    writeDiaryList()
+                    navigateToDiary()
+                }
+            }
+            .setNegativeButton("Cancel", null)
+            .show()
     }
 
     // METHODS =====================================================================================
@@ -184,7 +217,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
             Log.d(Lifeograph.TAG, Lifeograph.mActivityMain.mStartUpPath!!.path!!)
             val file = File(Lifeograph.mActivityMain.mStartUpPath!!.path!!)
             if(file.exists())
-                openDiary1(file.path)
+                openDiary1(file.path) // TODO: 2.1 revisit
             else
                 Lifeograph.showToast("File not found!")
         }
@@ -236,7 +269,7 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
     }
 
     private fun createNewDiary() {
-        createDiaryLauncher.launch("new_diary.diary")
+        createDiaryLauncher.launch(null)
     }
 
     // DIARY OPERATIONS ============================================================================

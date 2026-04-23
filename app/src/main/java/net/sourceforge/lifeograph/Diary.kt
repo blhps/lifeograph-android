@@ -495,7 +495,6 @@ class Diary : DiaryElement {
     /** reimplements C++'s Diary::set_path()  */
     fun setPath(ctx: Context, uriStr: String /*, SetPathType type*/): Result {
         removeLockIfNecessary(ctx)
-        clear()
 
         nativeSetUri(mNativePtr, uriStr)
 

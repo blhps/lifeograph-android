@@ -55,7 +55,7 @@ object DiaryDirectoryUtil {
 
     fun getTreeUriFromFileUri(fileUri: Uri): Uri {
         val docId = DocumentsContract.getDocumentId(fileUri)
-        val treeId = docId.substringBefore("/") // e.g. "0000-0000:Documents" -> "0000-0000:Documents"
+        val treeId = docId.substringBeforeLast("/") // split at last '/'
         // Reconstruct the tree URI
         return DocumentsContract.buildTreeDocumentUri(fileUri.authority, treeId)
     }
