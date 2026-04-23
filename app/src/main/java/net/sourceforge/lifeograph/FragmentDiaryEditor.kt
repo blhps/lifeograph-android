@@ -24,6 +24,7 @@ package net.sourceforge.lifeograph
 import android.os.Bundle
 import android.util.Log
 import android.view.*
+import androidx.activity.OnBackPressedCallback
 import androidx.core.view.MenuProvider
 import androidx.fragment.app.Fragment
 import androidx.lifecycle.Lifecycle
@@ -36,6 +37,17 @@ abstract class FragmentDiaryEditor : Fragment(), MenuProvider {
     protected lateinit var mMenu: Menu
 
     val isMenuInitialized get() = this::mMenu.isInitialized
+
+    val mBackCallback = object : OnBackPressedCallback(true) { // Start disabled
+        override fun handleOnBackPressed() {
+            // this is only called if isEnabled is true
+            if(!handleBack()) {
+                isEnabled = false // disable after clearing selection
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+                isEnabled = true // re-enable after clearing selection
+            }
+        }
+    }
 
     // METHODS =====================================================================================
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -52,6 +64,9 @@ abstract class FragmentDiaryEditor : Fragment(), MenuProvider {
                               container: ViewGroup?,
                               savedInstState: Bundle?): View? {
         Log.d(Lifeograph.TAG, "FragmentChartList.onCreateView()")
+
+        requireActivity().onBackPressedDispatcher.addCallback(viewLifecycleOwner, mBackCallback)
+
         return inflater.inflate(mLayoutId, container, false)
     }
 
@@ -68,7 +83,8 @@ abstract class FragmentDiaryEditor : Fragment(), MenuProvider {
     override fun onMenuItemSelected(menuItem: MenuItem): Boolean {
         return when(menuItem.itemId) {
             android.R.id.home -> {
-                handleBack()
+                requireActivity().onBackPressedDispatcher.onBackPressed()
+                true
             }
             R.id.enable_edit -> {
                 Lifeograph.enableEditing(this)

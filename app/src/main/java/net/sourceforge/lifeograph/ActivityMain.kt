@@ -89,21 +89,12 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
                 as NavHostFragment?)!!
         mNavController = navHostFragment.navController
 
-//        AppBarConfiguration appBarConfiguration =
-//                new AppBarConfiguration.Builder( navController.getGraph() )
-//                        .setOpenableLayout( drawerLayout )
-//                        .build();
-
-
-//        Toolbar toolbar = findViewById(R.id.toolbar);
-//        setSupportActionBar(toolbar);
-
-        // Show and Manage the Drawer and Back Icon
+        // show and Manage the Drawer and Back Icon:
         NavigationUI.setupActionBarWithNavController(this, mNavController!!,
                 mAppBarConfiguration!!)
 
-        // Handle Navigation item clicks
-        // This works with no further action on your part if the menu and destination id’s match.
+        // handle Navigation item clicks:
+        // this works with no further action on our part if the menu and destination id’s match.
         NavigationUI.setupWithNavController(navigationView, mNavController!!)
 
         // record the startup file if any
@@ -125,17 +116,10 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
     //    @Override
     //    protected void onActivityResult( int requestCode, int resultCode, Intent data ) {
     //    }
-    //    @Override
-    //    public void onBackPressed() {
-    //        Log.d( Lifeograph.TAG, "BACK PRESSED!!!!" );
-    //        if( mViewCurrent == null || !mViewCurrent.handleBack() )
-    //            super.onBackPressed();
-    //    }
+
     override fun onSupportNavigateUp(): Boolean {
-        Log.d(Lifeograph.TAG, "NAVIGATE UP!!!!")
-        return ((mViewCurrent != null && mViewCurrent!!.handleBack())
-                || NavigationUI.navigateUp(mNavController!!, mAppBarConfiguration!!)
-                || super.onSupportNavigateUp())
+        onBackPressedDispatcher.onBackPressed() // just delegate to the unified handler
+        return true
     }
 
     override fun updateDrawerMenu(id: Int) {
@@ -198,6 +182,6 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
     }
 
     fun navigateTo(target: Int) {
-        mNavController!!.navigate(target)
+        mNavController?.navigate(target)
     }
 }
