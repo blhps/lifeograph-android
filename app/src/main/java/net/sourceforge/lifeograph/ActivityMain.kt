@@ -28,8 +28,10 @@ import android.util.Log
 import androidx.appcompat.app.ActionBar
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
+import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import androidx.navigation.NavController
+import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
@@ -95,7 +97,35 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
 
         // handle Navigation item clicks:
         // this works with no further action on our part if the menu and destination id’s match.
-        NavigationUI.setupWithNavController(navigationView, mNavController!!)
+        //NavigationUI.setupWithNavController(navigationView, mNavController!!)
+        // replace the above with below to prevent navigation history from being erased
+        // ...all the time a drawer item is clicked:
+        navigationView.setNavigationItemSelectedListener { menuItem ->
+            val isStartDestination = menuItem.itemId == mNavController!!.graph.startDestinationId
+
+            val options = NavOptions.Builder()
+                .setLaunchSingleTop(true)
+                .apply {
+                    if (isStartDestination) {
+                        // clear the entire back stack when going back to Diary List
+                        setPopUpTo(mNavController!!.graph.startDestinationId, inclusive = false)
+                    }
+                    // for all other destinations, no popUpTo — preserve history
+                }
+                .build()
+
+            try {
+                mNavController!!.navigate(menuItem.itemId, null, options)
+                drawerLayout.closeDrawer(GravityCompat.START)
+                true
+            } catch (e: IllegalArgumentException) {
+                false
+            }
+        }
+        // keep drawer item highlighted to match current destination (conmes with the above change):
+        mNavController!!.addOnDestinationChangedListener { _, destination, _ ->
+            navigationView.setCheckedItem(destination.id)
+        }
 
         // record the startup file if any
         if(intent.action == Intent.ACTION_VIEW && intent.data != null) {
