@@ -85,6 +85,14 @@
                 style="@style/Widget.AppCompat.ActionButton" />
 
             <Button
+                android:id="@+id/buttonFaded"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/t_lighter"
+                android:text="@string/faded"
+                style="@style/Widget.AppCompat.ActionButton" />
+
+            <Button
                 android:id="@+id/button_comment"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"

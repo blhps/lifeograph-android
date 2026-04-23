@@ -146,5 +146,6 @@
     <string name="continue_from_lock_prompt">Günlük kilitli. Kilit dosyasından devam etmek ister
         misiniz?</string>
     <string name="paragraph">Paragraf</string>
+    <string name="faded">S</string>
 
 </resources>

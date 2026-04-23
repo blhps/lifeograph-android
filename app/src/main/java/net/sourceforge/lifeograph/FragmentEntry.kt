@@ -186,26 +186,30 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             false
         }
 
-        val mButtonBold = view.findViewById<Button>(R.id.buttonBold)
-        mButtonBold.setOnClickListener { toggleFormat('B') }
+        val buttonBold = view.findViewById<Button>(R.id.buttonBold)
+        buttonBold.setOnClickListener { toggleFormat('B') }
 
-        val mButtonItalic = view.findViewById<Button>(R.id.buttonItalic)
-        mButtonItalic.setOnClickListener { toggleFormat('I') }
+        val buttonItalic = view.findViewById<Button>(R.id.buttonItalic)
+        buttonItalic.setOnClickListener { toggleFormat('I') }
 
-        val mButtonUnderline = view.findViewById<Button>(R.id.buttonUnderline)
+        val buttonUnderline = view.findViewById<Button>(R.id.buttonUnderline)
         val spanUnderline = SpannableString(getString(R.string.underline))
         spanUnderline.setSpan(UnderlineSpan(), 0, 1, 0)
-        mButtonUnderline.text = spanUnderline
-        mButtonUnderline.setOnClickListener { toggleFormat('U') }
+        buttonUnderline.text = spanUnderline
+        buttonUnderline.setOnClickListener { toggleFormat('U') }
 
-        val mButtonStrikethrough = view.findViewById<Button>(R.id.buttonStrikethrough)
+        val buttonStrikethrough = view.findViewById<Button>(R.id.buttonStrikethrough)
         val spanStringS = SpannableString(getString(R.string.strikethrough))
         spanStringS.setSpan(StrikethroughSpan(), 0, 1, 0)
-        mButtonStrikethrough.text = spanStringS
-        mButtonStrikethrough.setOnClickListener { toggleFormat('S') }
+        buttonStrikethrough.text = spanStringS
+        buttonStrikethrough.setOnClickListener { toggleFormat('S') }
 
         mButtonHighlight = view.findViewById(R.id.buttonHighlight)
         mButtonHighlight.setOnClickListener { toggleFormat('H') }
+
+        val buttonFaded = view.findViewById<Button>(R.id.buttonFaded)
+        buttonFaded.setOnClickListener { toggleFormat('F') }
+
 
         val mButtonPara = view.findViewById<Button>(R.id.button_para)
         mButtonPara.setOnClickListener { showParaDlg() }
