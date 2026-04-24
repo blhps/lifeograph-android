@@ -859,6 +859,16 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                         ForegroundColorSpan(theme._color_base),
                         fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
                 }
+                'k' -> { // KEYWORD
+                    edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
+                    edt.setSpan(ForegroundColorSpan(theme._color_title), fStart, fEnd, 0)
+                }
+                '#' -> { // CODE COMMENT
+                    edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
+                }
+                'g' -> { // CODE STRING
+                    edt.setSpan(ForegroundColorSpan(theme._color_match_bg), fStart, fEnd, 0)
+                }
                 // Add other types (Date, ID, etc.) based on your ParserEditText.AdvancedSpan types
             }
         }

@@ -54,7 +54,7 @@ static const CodeLangMap CODE_LANGUAGES =
 R"(\b(?:if|then|else|elif|fi|case|esac|for|select|while|until|do|done|in|function|time|coproc|break|continue|return|eval|exec|exit|export|getopts|hash|pwd|readonly|shift|test|times|trap|umask|unset)\b)"
     },
     { VT::QT::BASH::I | VT::QT::COMMENTS,
-R"(#.*)"
+R"((#.*))"
     },
     { VT::QT::BASH::I | VT::QT::STRINGS,
 R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"))"
@@ -65,7 +65,7 @@ R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"))"
 R"(\b(?:int|float|double|char|bool|void|auto|const|volatile|static|extern|inline|class|struct|enum|namespace|template|typename|using|public|private|protected|virtual|override|return|if|else|for|while|do|switch|case|break|continue|new|delete|throw|try|catch)\b)"
     },
     { VT::QT::CPP::I | VT::QT::COMMENTS,
-R"(//.*)"
+R"((//.*))"
 // TODO: block comments
     },
     { VT::QT::CPP::I | VT::QT::STRINGS,
@@ -79,7 +79,7 @@ R"(\b(?:PROGRAM|END|SUBROUTINE|FUNCTION|MODULE|USE|IMPLICIT|NONE|REAL|INTEGER|LO
         Glib::Regex::CompileFlags::CASELESS )
     },
     { VT::QT::FORTRAN::I | VT::QT::COMMENTS,
-R"(!.*)"
+R"((!.*))"
     },
     { VT::QT::FORTRAN::I | VT::QT::STRINGS,
 R"((?:'(?:''|[^'])*'|"(?:\"\"|[^"])*"))"
@@ -90,7 +90,7 @@ R"((?:'(?:''|[^'])*'|"(?:\"\"|[^"])*"))"
 R"(\b(?:break|case|chan|const|continue|default|defer|else|fallthrough|for|func|go|goto|if|import|interface|map|package|range|return|select|struct|switch|type|var)\b)"
     },
     { VT::QT::GO::I | VT::QT::COMMENTS,
-R"(//.*)"
+R"((//.*))"
 // TODO: block kcomments R"(/\*[\s\S]*?\*/)"
     },
     { VT::QT::GO::I | VT::QT::STRINGS,
@@ -103,7 +103,7 @@ R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
 R"(\b(?:case|class|data|default|deriving|do|else|if|import|in|infix|infixl|infixr|instance|let|module|newtype|of|then|type|where|qualified|as|hiding|pattern)\b)"
     },
     { VT::QT::HASKELL::I | VT::QT::COMMENTS,
-R"(--.*)"
+R"((--.*))"
 // TODO: comments R"(\{\-[\s\S]*?\-\})"
     },
     { VT::QT::HASKELL::I | VT::QT::STRINGS,
@@ -118,7 +118,7 @@ R"(<[^<]*>)",
         Glib::Regex::CompileFlags::CASELESS )
     },
     { VT::QT::HTML::I | VT::QT::COMMENTS,
-R"(<!--[\s\S]*?-->)"
+R"((<!--[\s\S]*?-->))"
     },
     { VT::QT::HTML::I | VT::QT::STRINGS,
 R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
@@ -131,7 +131,7 @@ R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
 R"(\b(?:abstract|assert|boolean|break|byte|case|catch|char|class|const|continue|default|do|double|else|enum|extends|final|finally|float|for|goto|if|implements|import|instanceof|int|interface|long|native|new|null|package|private|protected|public|return|short|static|strictfp|super|switch|synchronized|this|throw|throws|transient|try|void|volatile|while|true|false)\b)"
     },
     { VT::QT::JAVA::I | VT::QT::COMMENTS,
-R"(//.*)"
+R"((//.*))"
     },
     { VT::QT::JAVA::I | VT::QT::STRINGS,
 R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"))"
@@ -142,7 +142,7 @@ R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"))"
 R"(\b(?:break|case|catch|class|const|continue|debugger|default|delete|do|else|export|extends|finally|for|function|if|import|in|instanceof|let|new|return|super|switch|this|throw|try|typeof|var|void|while|with|yield|await|async)\b)"
     },
     { VT::QT::JAVASCRIPT::I | VT::QT::COMMENTS,
-R"(//.*)"
+R"((//.*))"
 // TODO: block comments  R"(/\*[\s\S]*?\*/)"
     },
     { VT::QT::JAVASCRIPT::I | VT::QT::STRINGS,
@@ -155,7 +155,7 @@ R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
 R"(\b(?:as|break|class|continue|do|else|false|for|fun|if|in|interface|is|null|object|package|return|super|this|throw|true|try|typealias|typeof|val|var|when|while|by|catch|constructor|delegate|dynamic|field|file|finally|get|import|init|param|property|receiver|set|setparam|where)\b)"
     },
     { VT::QT::KOTLIN::I | VT::QT::COMMENTS,
-R"(//.*)"
+R"((//.*))"
 // TODO: block comments  R"(/\*[\s\S]*?\*/)"
     },
     { VT::QT::KOTLIN::I | VT::QT::STRINGS,
@@ -168,7 +168,7 @@ R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
 R"(\b(?:defun|defmacro|defvar|defparameter|let|let\*|setq|lambda|if|cond|progn|quote|function|loop|return|car|cdr|cons|list|and|or|not|t|nil)\b)"
     },
     { VT::QT::LISP::I | VT::QT::COMMENTS,
-R"(;.*)"
+R"((;.*))"
     },
     { VT::QT::LISP::I | VT::QT::STRINGS,
 R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"))"
@@ -179,7 +179,7 @@ R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"))"
 R"(\b(?:and|break|do|else|elseif|end|false|for|function|goto|if|in|local|nil|not|or|repeat|return|then|true|until|while)\b)"
     },
     { VT::QT::LUA::I | VT::QT::COMMENTS,
-R"(--.*)"
+R"((--.*))"
     },
     { VT::QT::LUA::I | VT::QT::STRINGS,
 R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"))"
@@ -192,12 +192,12 @@ R"(\b(?:PROGRAM|UNIT|INTERFACE|IMPLEMENTATION|BEGIN|END|VAR|TYPE|CONST|PROCEDURE
         Glib::Regex::CompileFlags::CASELESS )
     },
     { VT::QT::PASCAL::I | VT::QT::COMMENTS,
-R"(//.*|\{[^}]*\})"
+R"((//.*|\{[^}]*\}))"
 // TODO: { comment }    R"(\{[^}]*\})"
 // TODO: (* comment *)   R"(\(\*[^*]*\*+(?:[^)(][^*]*\*+)*\))"
     },
     { VT::QT::PASCAL::I | VT::QT::STRINGS,
-R"('(?:''|[^'])*')"
+R"(('(?:''|[^'])*'))"
     },
 
 // PERL ============================================================================================
@@ -205,7 +205,7 @@ R"('(?:''|[^'])*')"
 R"(\b(?:continue|do|else|elsif|for|foreach|goto|if|last|my|next|our|package|redo|require|sub|undef|unless|until|use|while)\b)"
     },
     { VT::QT::PERL::I | VT::QT::COMMENTS,
-R"(#.*)"
+R"((#.*))"
     },
     { VT::QT::PERL::I | VT::QT::STRINGS,
 R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
@@ -216,10 +216,10 @@ R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
 R"(\b(False|None|True|and|as|assert|async|await|break|class|continue|def|del|elif|else|except|finally|for|from|global|if|import|in|is|lambda|nonlocal|not|or|pass|raise|return|try|while|with|yield)\b)"
     },
     { VT::QT::PYTHON::I | VT::QT::COMMENTS,
-R"(#.*)"
+R"((#.*))"
     },
     { VT::QT::PYTHON::I | VT::QT::STRINGS,
-R"(['"]{1,3}([^'"\\]|\\.|\\\n)*?['"]{1,3})"
+R"((['"]{1,3}(?:[^'"\\]|\\.|\\\n)*?['"]{1,3}))"
     },
 
 // RUBY ============================================================================================
@@ -227,7 +227,7 @@ R"(['"]{1,3}([^'"\\]|\\.|\\\n)*?['"]{1,3})"
 R"(\b(?:BEGIN|END|alias|and|begin|break|case|class|def|defined\?|do|else|elsif|end|ensure|false|for|if|in|module|next|nil|not|or|redo|rescue|retry|return|self|super|then|true|undef|unless|until|when|while|yield)\b)"
     },
     { VT::QT::RUBY::I | VT::QT::COMMENTS,
-R"(#.*)"
+R"((#.*))"
     },
     { VT::QT::RUBY::I | VT::QT::STRINGS,
 R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|%(?:q|Q)?\{.*?\}))"
@@ -238,7 +238,7 @@ R"((?:'(?:\\.|[^'\\])*'|"(?:\\.|[^"\\])*"|%(?:q|Q)?\{.*?\}))"
 R"(\b(?:as|break|const|continue|crate|else|enum|extern|false|fn|for|if|impl|in|let|loop|match|mod|move|mut|pub|ref|return|self|Self|static|struct|super|trait|true|type|unsafe|use|where|while|async|await|dyn)\b)"
     },
     { VT::QT::RUST::I | VT::QT::COMMENTS,
-R"(//.*)"
+R"((//.*))"
 // TODO: block comments R"(/\*[\s\S]*?\*/)"
     },
     { VT::QT::RUST::I | VT::QT::STRINGS,
@@ -250,11 +250,11 @@ R"((?:"(?:\\.|[^"\\])*"|'(?:\\.|[^'\\])*'))"
 R"(\b(?:abstract|case|catch|class|def|do|else|extends|false|final|finally|for|forSome|if|implicit|import|lazy|macro|match|new|null|object|override|package|private|protected|return|sealed|super|this|throw|trait|true|try|type|val|var|while|with|yield)\b)"
     },
     { VT::QT::SCALA::I | VT::QT::COMMENTS,
-R"(//.*)"
+R"((//.*))"
 // TODO: Block comments  R"(/\*[\s\S]*?\*/)"
     },
     { VT::QT::SCALA::I | VT::QT::STRINGS,
-R"("(\\.|[^"\\])*")"
+R"(("(\\.|[^"\\])*"))"
 // TODO: Triple-quoted strings  R"("""[\s\S]*?""")"
     },
 
@@ -263,7 +263,7 @@ R"("(\\.|[^"\\])*")"
 R"(\b(?:SELECT|FROM|WHERE|INSERT|INTO|VALUES|UPDATE|SET|DELETE|JOIN|LEFT|RIGHT|FULL|OUTER|INNER|ON|AS|GROUP|BY|ORDER|LIMIT|OFFSET|HAVING|DISTINCT|CREATE|TABLE|ALTER|DROP|PRIMARY|KEY|FOREIGN|REFERENCES|NOT|NULL|CHECK|DEFAULT|INDEX|VIEW|TRIGGER|AND|OR|IN|IS|LIKE|BETWEEN|UNION|ALL|EXISTS)\b)"
     },
     { VT::QT::SQL::I | VT::QT::COMMENTS,
-R"(--.*)"
+R"((--.*))"
     },
     { VT::QT::SQL::I | VT::QT::STRINGS,
 R"((?:'(?:''|[^'])*'|"(?:\"\"|[^"])*"))"

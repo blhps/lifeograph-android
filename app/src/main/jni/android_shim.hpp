@@ -38,6 +38,11 @@
 
 #include <re2/re2.h>
 
+#include <android/log.h>
+
+#define LOG_TAG "LFO"
+#define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
+
 typedef size_t gsize;
 
 #define PANGO_SCALE 1024
@@ -194,8 +199,8 @@ namespace Glib {
         MatchInfo() : m_regex(nullptr), m_pos(0) {}
         bool next();
         void fetch_pos(int num, int& bgn, int& end) const {
-            bgn = m_match.data() - m_string.data();
-            end = bgn + m_match.length();
+            end = m_pos;
+            bgn = end - m_match.length();
         }
 
         void init(const Regex* regex, const std::string& s) {
@@ -237,7 +242,9 @@ namespace Glib {
 
         bool match(const std::string& s, MatchInfo& mi) const {
             mi.init(this, s);
-            re2::StringPiece input(s);
+            // construct StringPiece starting from last match end
+            re2::StringPiece input(s.data() + mi.m_pos, s.size() - mi.m_pos);
+
             if (re2::RE2::PartialMatch(input, *m_re2, &mi.m_match)) {
                 mi.m_pos = (mi.m_match.data() - s.data()) + mi.m_match.length();
                 return true;
