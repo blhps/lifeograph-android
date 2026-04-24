@@ -3378,7 +3378,8 @@ Diary::create_entry( DateV date, bool flag_favorite, bool flag_trashed, bool fla
 Entry*
 Diary::create_entry_child( Entry* p2entry_rel, DateV date, const Ustring& content, int style )
 {
-    const bool F_parent { !p2entry_rel->has_children() };
+    const bool F_parent { !p2entry_rel || !p2entry_rel->has_children() };
+    // !p2entry_rel to ensure child is added as a last top level entry
     if( !F_parent )
         p2entry_rel = p2entry_rel->get_child_last();
     return Diary::d->create_entry( p2entry_rel, F_parent, date, content, style );
@@ -3388,7 +3389,7 @@ Entry*
 Diary::create_entry_parent( const EntrySelection& entries, DateV date, const Ustring& content,
                             int style )
 {
-    Entry*  p2entry_first { *entries.begin() }; // we trust that the selected entries are ordered properly
+    Entry*  p2entry_first { *entries.begin() }; // we trust that the entries are ordered properly
 
     auto    entry_parent  { Diary::d->create_entry( p2entry_first->get_prev_or_up(),
                                                     !p2entry_first->get_prev(),
