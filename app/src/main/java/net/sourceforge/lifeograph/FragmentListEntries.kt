@@ -179,7 +179,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
         return if( elem is Entry ) elem.is_favorite else false
     }
     override fun getIcon2(elem: DiaryElement): Int {
-        return R.drawable.ic_favorite
+        return R.drawable.ic_overlay_favorite
     }
     override fun hasIcon3(elem: DiaryElement): Boolean {
         return if( elem is Entry ) elem.is_trashed else false

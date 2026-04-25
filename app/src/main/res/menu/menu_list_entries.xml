@@ -29,7 +29,7 @@
           compat:showAsAction="ifRoom|withText" />
     <item android:id="@+id/search_text"
           android:title="@string/search_hint"
-          android:icon="@drawable/ic_search"
+          android:icon="@drawable/ic_action_search"
           compat:showAsAction="collapseActionView|ifRoom"
           android:orderInCategory="90"
           compat:actionViewClass="androidx.appcompat.widget.SearchView" />

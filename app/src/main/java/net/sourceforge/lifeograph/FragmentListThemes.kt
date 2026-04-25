@@ -100,7 +100,7 @@ class FragmentListThemes : FragmentListElems(), Listener
         return false
     }
     override fun getIcon2(elem: DiaryElement): Int {
-        return R.drawable.ic_check
+        return R.drawable.ic_action_check
     }
 
     override fun onInquireAction(id: Int, text: String) {

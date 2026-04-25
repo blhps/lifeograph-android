@@ -26,6 +26,6 @@
     <item android:id="@+id/add_diary"
           android:title="@string/edit"
           android:orderInCategory="80"
-          android:icon="@drawable/ic_add"
+          android:icon="@drawable/ic_action_add"
           compat:showAsAction="ifRoom" />
 </menu>

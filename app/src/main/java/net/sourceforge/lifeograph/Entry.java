@@ -33,9 +33,13 @@ public class Entry extends DiaryElemTag {
 
     @Override
     public int
-    getIcon() { // Java specific
+    getIcon() { // reimplelmented in Android
         if( ( get_todo_status() & ES_FILTER_TODO_PURE ) != 0 )
             return Lifeograph.getTodoIcon( get_todo_status() & ES_FILTER_TODO_PURE );
+        else if( get_title_Style() == 'M' )
+            return R.drawable.ic_milestone;
+        else if( registers_scripts() )
+            return R.drawable.ic_entry_script;
         else
             return( get_unit().isEmpty() ?
                     ( has_children() ? R.drawable.ic_entry_parent : R.drawable.ic_entry ) :
@@ -68,6 +72,10 @@ public class Entry extends DiaryElemTag {
 
     public boolean
     is_filtered_out() { return nativeIsFilteredOut(mNativePtr); }
+
+    public boolean
+    registers_scripts() { return nativeRegistersScripts(mNativePtr); }
+
 
     // HIERARCHY ===================================================================================
     Entry
@@ -398,6 +406,7 @@ public class Entry extends DiaryElemTag {
     private native String nativeGetListStr(long ptr);
     private native String nativeGetInfoStr(long ptr);
     private native boolean nativeIsFilteredOut(long ptr);
+    private native boolean nativeRegistersScripts(long ptr);
     private native boolean nativeIsEmpty(long ptr);
     private native String nativeGetText(long ptr);
     private native String nativeGetTextVisible(long ptr);

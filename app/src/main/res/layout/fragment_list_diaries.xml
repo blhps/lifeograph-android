@@ -51,7 +51,7 @@
             android:layout_margin="16dp"
             android:contentDescription="@string/create_diary"
             app:backgroundTint="@color/t_dark"
-            app:srcCompat="@drawable/ic_add" />
+            app:srcCompat="@drawable/ic_action_add" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/fab_add_existing_diary"
@@ -68,7 +68,7 @@
             app:backgroundTint="@color/t_dark"
             app:layout_anchor="@+id/fab_add_new_diary"
             app:layout_anchorGravity="top"
-            app:srcCompat="@drawable/ic_browse" />
+            app:srcCompat="@drawable/ic_action_browse" />
 
     </androidx.coordinatorlayout.widget.CoordinatorLayout>
 

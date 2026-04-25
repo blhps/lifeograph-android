@@ -1,5 +1,5 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+  Copyright (C) 2026. Ahmet Öztürk (aoz_2@yahoo.com)
 
       This file is part of Lifeograph.
 
@@ -17,14 +17,18 @@
       along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
   ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~-->
 
-<vector
-    xmlns:android="http://schemas.android.com/apk/res/android"
-    android:height="32dp"
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt"
     android:width="32dp"
-    android:viewportHeight="16"
-    android:viewportWidth="16">
-    <path android:fillAlpha="0.39215687"
-        android:pathData="M2.5,2L13.5,2A0.5,0.5 0,0 1,14 2.5L14,13.5A0.5,0.5 0,0 1,13.5 14L2.5,14A0.5,0.5 0,0 1,2 13.5L2,2.5A0.5,0.5 0,0 1,2.5 2z"
-        android:strokeColor="#f20d0d" android:strokeLineCap="butt"
-        android:strokeLineJoin="round" android:strokeWidth="2"/>
+    android:height="32dp"
+    android:viewportWidth="16"
+    android:viewportHeight="16">
+  <path
+      android:pathData="M2,1.5L14,1.5A0.5,0.5 0,0 1,14.5 2L14.5,14A0.5,0.5 0,0 1,14 14.5L2,14.5A0.5,0.5 0,0 1,1.5 14L1.5,2A0.5,0.5 0,0 1,2 1.5z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1"
+      android:fillColor="#f98e8e"
+      android:strokeColor="#f20d0d"
+      android:fillAlpha="0.893337"
+      android:strokeLineCap="butt"/>
 </vector>

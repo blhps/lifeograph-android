@@ -1,5 +1,5 @@
 <!--~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-  Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+  Copyright (C) 2026. Ahmet Öztürk (aoz_2@yahoo.com)
 
       This file is part of Lifeograph.
 
@@ -24,10 +24,17 @@
     android:viewportWidth="16"
     android:viewportHeight="16">
   <path
-      android:pathData="M1.5,11.5 L10.5,2.5l3,3 -9,9L1,15ZM11,2.5 L12.5,1 15,3.5 13.5,5"
+      android:pathData="M7.969,1.5 L14.5,8 8,14.5 1.5,8Z"
       android:strokeLineJoin="round"
       android:strokeWidth="1"
       android:fillColor="#fae0e0"
       android:strokeColor="#a53737"
+      android:strokeLineCap="butt"/>
+  <path
+      android:pathData="M8,4 L12,8 8,12 4,8Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1"
+      android:fillColor="#a53737"
+      android:strokeColor="#00000000"
       android:strokeLineCap="butt"/>
 </vector>

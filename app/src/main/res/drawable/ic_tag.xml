@@ -21,11 +21,20 @@
     xmlns:aapt="http://schemas.android.com/aapt"
     android:width="32dp"
     android:height="32dp"
-    android:viewportWidth="32"
-    android:viewportHeight="32">
+    android:viewportWidth="16"
+    android:viewportHeight="16">
   <path
-      android:pathData="M22,8L2,8v16h20l8,-8zM22,14c1,0 2,1 2,2 0,1 -1,2 -2,2 -1,0 -2,-1 -2,-2 0,-1 1,-2 2,-2z"
-      android:fillColor="#a53737"
-      android:strokeColor="#00000000"
+      android:pathData="m31.5,2.5h-11v10h11l4,-5z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1"
+      android:fillColor="#f8c5c5"
+      android:strokeColor="#a53737"
+      android:fillType="evenOdd"/>
+  <path
+      android:pathData="m1.5,2.5v10H11l4.5,-5 -4.5,-5zM11,6c0.75,0 1.5,0.582 1.5,1.5C12.5,8.25 11.898,9 11,9 10.191,9 9.5,8.352 9.5,7.5 9.5,6.75 10.151,6 11,6Z"
+      android:strokeLineJoin="round"
+      android:strokeWidth="1"
+      android:fillColor="#f8c5c5"
+      android:strokeColor="#a53737"
       android:fillType="evenOdd"/>
 </vector>

@@ -121,7 +121,7 @@ class DialogPassword(context: Context,
                     mButtonOk!!.isEnabled = true
                 }
                 passphrase == passphrase2 -> {
-                    mImage2!!.setImageResource(R.drawable.ic_check)
+                    mImage2!!.setImageResource(R.drawable.ic_action_check)
                     mButtonOk!!.isEnabled = true
                 }
                 else -> {

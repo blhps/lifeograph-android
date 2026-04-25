@@ -113,6 +113,10 @@ JNI_METHOD(jboolean, Entry_nativeIsFilteredOut)(JNIEnv* env, jobject obj, jlong 
     return reinterpret_cast<LoG::Entry*>(ptr)->is_filtered_out();
 }
 
+JNI_METHOD(jboolean, Entry_nativeRegistersScripts)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<LoG::Entry*>(ptr)->registers_scripts();
+}
+
 JNI_METHOD(void, Entry_nativeUpdateName)(JNIEnv* env, jobject obj, jlong ptr) {
     CHECK_PTR(ptr, )
     reinterpret_cast<LoG::Entry*>(ptr)->update_name();
