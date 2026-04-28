@@ -1,6 +1,6 @@
 /* *********************************************************************************
 
-    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2026 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -18,26 +18,11 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+
 package net.sourceforge.lifeograph
 
-import net.sourceforge.lifeograph.Diary.Companion.nativeGetMain
-
-abstract class StringDefElem protected constructor(nativePtr: Long) : DiaryElement(nativePtr) {
-    override fun get_size(): Int {
-        return 0
-    }
-
-    var definition: String
-        get() = nativeGetDefinition(mNativePtr)
-        set(def: String) = nativeSetDefinition(mNativePtr, def)
-
-//    fun add_definition_line(line: String) {
-//        if(!m_definition!!.isEmpty()) m_definition += '\n'
-//        m_definition += line
-//    }
-
-    // NATIVE METHODS ==============================================================================
-    private external fun nativeGetDefinition(ptr: Long): String
-    private external fun nativeSetDefinition(ptr: Long, def: String)
-
-}
+data class YValues (
+    val v: Double,
+    val u: Double,
+    val c: Int
+)

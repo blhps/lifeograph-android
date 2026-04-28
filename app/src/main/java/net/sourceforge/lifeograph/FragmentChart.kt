@@ -43,9 +43,9 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
         mChartWidget = view.findViewById(R.id.chart_widget)
 
         mChartWidget.mData = ChartData(Diary.main)
-        mChartWidget.mData!!.set_from_string(mChartElem._definition)
+        mChartWidget.mData?.set_from_string(mChartElem.definition)
 
-        mChartWidget.calculateAndPlot(1.0)
+        mChartWidget.calculateAndPlot()
     }
 
     override fun onResume() {

@@ -1706,6 +1706,7 @@ class ChartData
 
         Diary*                      m_p2diary;
 
+    friend class ChartCommon;
     friend class Chart;
     friend class WidgetChart;
 };

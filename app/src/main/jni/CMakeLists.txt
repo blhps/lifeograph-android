@@ -211,6 +211,7 @@ add_library(lifeograph_core SHARED
     parsers/parser_base.cpp
     parsers/parser_stripper.cpp
     parsers/parser_upgrader.cpp
+    widgets/chart_common.cpp
     jni_diary.cpp
     jni_entry.cpp
     jni_paragraph.cpp
@@ -220,6 +221,8 @@ add_library(lifeograph_core SHARED
     jni_filter.cpp
     jni_str.cpp
     jni_native_bridge.cpp
+    jni_view_chart.cpp
+    jni_stringdef_elem.cpp
 )
 
 target_link_libraries(lifeograph_core

@@ -238,7 +238,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
 
     private fun saveFilter() {
-        mFilter._definition = mStack!!._as_string
+        mFilter.definition = mStack!!._as_string
 
         Diary.main.update_all_entries_filter_status()
     }

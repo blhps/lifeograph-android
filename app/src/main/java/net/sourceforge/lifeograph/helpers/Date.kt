@@ -113,6 +113,8 @@ class Date(var mDate: Long = 0) {
                 String = nativeFormatStringCustom(d, format, separator)
         @JvmStatic fun format_string(d: Long): String = nativeFormatString(d)
 
+        @JvmStatic fun get_year_str(d: Long): String = nativeGetYearStr(d)
+        @JvmStatic fun get_month_str(d: Long): String = nativeGetMonthStr(d)
         @JvmStatic fun get_day_name(no: Int): String = nativeGetDayName(no)
 
         @JvmStatic fun calculate_days_between(d1: Long, d2: Long): Int = nativeCalculateDaysBetween(d1, d2)
@@ -160,6 +162,7 @@ class Date(var mDate: Long = 0) {
         @JvmStatic private external fun nativeFormatStringCustom(d: Long, format: String,
                                                                  separator: Char): String
         @JvmStatic private external fun nativeFormatString(d: Long): String
+        @JvmStatic private external fun nativeGetYearStr(d: Long): String
         @JvmStatic private external fun nativeGetMonthStr(d: Long): String
         @JvmStatic private external fun nativeGetWeekDayStr(d: Long): String
         @JvmStatic private external fun nativeGetDayName(no: Int): String

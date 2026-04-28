@@ -178,6 +178,10 @@ JNI_METHOD(jstring, nativeFormatString)(JNIEnv* env, jclass clazz, jlong d) {
     return env->NewStringUTF(result.c_str());
 }
 
+JNI_METHOD(jstring, nativeGetYearStr)(JNIEnv* env, jclass clazz, jlong d) {
+    auto result = HELPERS::Date::get_year_str(static_cast<HELPERS::DateV>(d));
+    return env->NewStringUTF(result.c_str());
+}
 JNI_METHOD(jstring, nativeGetMonthStr)(JNIEnv* env, jclass clazz, jlong d) {
     auto result = HELPERS::Date::get_month_str(static_cast<HELPERS::DateV>(d));
     return env->NewStringUTF(result.c_str());
