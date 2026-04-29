@@ -37,11 +37,12 @@
         android:layout_gravity="center_horizontal" />
 
     <TextView
-        android:id="@+id/textView"
+        android:id="@+id/textViewZoomLevel"
         android:layout_width="match_parent"
         android:layout_height="0dp"
         android:layout_weight="0.25"
-        android:text="Edit Chart" />
+        android:gravity="center"
+        android:text="" />
 
 
 </LinearLayout>

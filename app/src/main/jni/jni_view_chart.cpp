@@ -15,6 +15,10 @@ JNI_METHOD(void, ViewChart_nativeDestroy)(JNIEnv*, jobject, jlong ptr) {
     delete reinterpret_cast<LoG::ChartCommon*>(ptr);
 }
 
+JNI_METHOD(jlong, ViewChart_nativeGetChartData)(JNIEnv*, jobject, jlong ptr) {
+    auto chart = reinterpret_cast<LoG::ChartCommon*>(ptr);
+    return reinterpret_cast<jlong>(&chart->m_data);
+}
 
 JNI_METHOD(jfloat, ViewChart_nativeGetXOffset)(JNIEnv*, jobject, jlong ptr) {
     return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_x_offset );

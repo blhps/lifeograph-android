@@ -20,24 +20,25 @@
  ***********************************************************************************/
 package net.sourceforge.lifeograph
 
-import java.util.LinkedList
 
+@Suppress("PropertyName", "FunctionName")
+class ChartData(val mNativePtr: Long) {
 
-class ChartData
-internal constructor(diary: Diary) {
-    var mNativePtr: Long
-
-    @Throws(Throwable::class)
-    protected fun finalize() {
-        if(mNativePtr != 0L) {
-            nativeDestroy(mNativePtr)
-            mNativePtr = 0
-        }
-        //super.finalize()
-    }
+//    @Throws(Throwable::class)
+//    protected fun finalize() {
+//        if(mNativePtr != 0L) {
+//            nativeDestroy(mNativePtr)
+//            mNativePtr = 0
+//        }
+//        //super.finalize()
+//    }
 
     fun clear() { nativeClear(mNativePtr) }
-    fun set_from_string(chart_def: String?) { nativeSetFromString(mNativePtr, chart_def) }
+    fun set_from_string(chartDef: String?) { nativeSetFromString(mNativePtr, chartDef) }
+
+    fun set_diary(diary: Diary) { nativeSetDiary(mNativePtr, diary.mNativePtr) }
+
+    fun refresh_table() { nativeRefreshTable(mNativePtr) }
 
     fun calculate_points() { nativeCalculatePoints(mNativePtr) }
 
@@ -66,21 +67,14 @@ internal constructor(diary: Diary) {
     val values_date: LinkedHashMap<Long, YValues> get() { return nativeGetValuesDate(mNativePtr) }
     val values_str: LinkedHashMap<Int, YValues> get() { return nativeGetValuesStr(mNativePtr) }
     val values_index2str: LinkedHashMap<Int, String> get() { return nativeGetValuesIndex2Str(mNativePtr) }
-    //var values_plan: LinkedList<Double> = LinkedList<Double>()
-    //val dates: LinkedList<Long> get() { return nativeGetDates(mNativePtr) }
-
-    //    final static int UNDERLAY_PREV_YEAR      = 0x100;
-    //    final static int UNDERLAY_PLANNED        = 0x200;
-    //    final static int UNDERLAY_MASK           = 0x300;
-    init {
-        mNativePtr = nativeCreate(diary.mNativePtr)
-    }
 
     // NATIVE FUNCTIONS ============================================================================
-    private external fun nativeCreate(ptr_diary: Long): Long
-    private external fun nativeDestroy(ptr: Long)
+    //private external fun nativeCreate(ptr_diary: Long): Long
+    //private external fun nativeDestroy(ptr: Long)
 
     private external fun nativeClear(ptr: Long)
+    private external fun nativeSetDiary(ptr: Long, ptrDiary: Long)
+    private external fun nativeRefreshTable(ptr: Long)
     private external fun nativeCalculatePoints(ptr: Long)
     private external fun nativeSetFromString(ptr: Long, str: String?)
 

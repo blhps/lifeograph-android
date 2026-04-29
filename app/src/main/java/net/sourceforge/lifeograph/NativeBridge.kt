@@ -19,6 +19,7 @@
 
 package net.sourceforge.lifeograph
 
+import android.graphics.Paint
 import android.os.Handler
 import android.os.Looper
 import androidx.core.net.toUri
@@ -50,5 +51,13 @@ object NativeBridge {
         mainHandler.post {
             (ActivityMain.mViewCurrent as? FragmentSearch)?.handleSearchFinished()
         }
+    }
+
+    @JvmStatic
+    fun getChartLabelSize(): Float {
+        val paint = Paint()
+        paint.textSize = 12f * Lifeograph.context.resources.displayMetrics.density
+        val fm = paint.fontMetrics
+        return fm.descent - fm.ascent
     }
 }

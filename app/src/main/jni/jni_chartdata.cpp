@@ -18,6 +18,15 @@ JNI_METHOD(void, ChartData_nativeClear)(JNIEnv*, jobject, jlong ptr) {
      reinterpret_cast<LoG::ChartData*>(ptr)->clear();
 }
 
+JNI_METHOD(void, ChartData_nativeSetDiary)(JNIEnv*, jobject, jlong ptr, jlong ptr_diary) {
+    auto p2diary = reinterpret_cast<LoG::Diary*>(ptr_diary);
+    reinterpret_cast<LoG::ChartData*>(ptr)->set_diary(p2diary);
+}
+
+JNI_METHOD(void, ChartData_nativeRefreshTable)(JNIEnv*, jobject, jlong ptr) {
+    reinterpret_cast<LoG::ChartData*>(ptr)->refresh_table();
+}
+
 JNI_METHOD(void, ChartData_nativeCalculatePoints)(JNIEnv*, jobject, jlong ptr) {
     reinterpret_cast<LoG::ChartData*>(ptr)->calculate_points();
 }

@@ -368,6 +368,7 @@ namespace Glib {
     }
 
     extern std::string get_filename_from_android(const std::string& uri);
+    extern float get_chart_label_size_from_android();
 }
 
 typedef char32_t gunichar;

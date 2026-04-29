@@ -30,16 +30,15 @@ import android.view.MotionEvent
 import android.view.ScaleGestureDetector
 import android.view.View
 import androidx.core.graphics.toColorInt
-import net.sourceforge.lifeograph.helpers.Date
-import kotlin.collections.component1
-import kotlin.collections.component2
-import kotlin.math.*
 import androidx.core.graphics.withSave
+import net.sourceforge.lifeograph.helpers.Date
+import kotlin.math.*
 
 @Suppress("PropertyName", "FunctionName")
 class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     var mNativePtr: Long
+
 
     @Throws(Throwable::class)
     protected fun finalize() {
@@ -48,15 +47,6 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
             mNativePtr = 0
         }
         //super.finalize()
-    }
-
-    fun calculateAndPlot() {
-        val data = mData ?: return
-
-        data.calculate_points()
-        update_h_x_values()
-        set_zoom(if(data.type == ChartData.TYPE_DATE) 1f else 0f)
-        invalidate()
     }
 
     // GEOMETRICAL VARIABLES =======================================================================
@@ -88,6 +78,10 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     val m_step_x_ov: Float get() = nativeGetStepXOV(mNativePtr)
     val m_coeff_ov: Float get() = nativeGetCoeffOV(mNativePtr)
 
+    val m_data: ChartData? get() {
+        val ptr: Long = nativeGetChartData(mNativePtr)
+        return if(ptr != 0L) ChartData(ptr) else null }
+
     private fun update_h_x_values() { nativeUpdateHXValues(mNativePtr) }
     private fun update_pre_and_post_steps() { nativeUpdatePreAndPostSteps(mNativePtr) }
     private fun get_value_at(i: Int): Double { return nativeGetValueAt(mNativePtr, i) }
@@ -96,12 +90,12 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mPath = Path()
-    var mData: ChartData? = null
 
     private val mSwipeGestureDetector: GestureDetector
     private val mScaleGestureDetector: ScaleGestureDetector
 
     init {
+        mNativePtr = nativeCreate()
         mPaint.strokeJoin = Paint.Join.ROUND
         mSwipeGestureDetector = GestureDetector(context, SwipeGestureListener())
         mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
@@ -109,11 +103,17 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
             v?.performClick()
             mSwipeGestureDetector.onTouchEvent(event!!) || mScaleGestureDetector.onTouchEvent(event)
         }
+        m_data?.set_diary(Diary.main)
     }
 
-//    private fun updateLabelSize() {
-//        // TODO
-//    }
+    fun calculateAndPlot() {
+        val data = m_data ?: return
+
+        data.calculate_points()
+        update_h_x_values()
+        set_zoom(if(data.type == ChartData.TYPE_DATE) 1f else 0f)
+        invalidate()
+    }
 
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
@@ -123,7 +123,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private fun resize(w: Int, h: Int) { nativeResize(mNativePtr, w, h) }
 
     private fun drawXValuesStrPrepare(canvas: Canvas): Float {
-        val data = mData ?: return 0f
+        val data = m_data ?: return 0f
 
         if( data.style == ChartData.STYLE_LINE ) {
             mPaint.style = Paint.Style.FILL
@@ -142,7 +142,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawXValueStrColumn(canvas: Canvas, txt: String, i: Int, barTop: Float) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         mPath.reset()
         if( data.style == ChartData.STYLE_BARS )
@@ -172,7 +172,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawXValuesNum(canvas: Canvas) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         val itV = data.values_num.iterator()
         val barTop = drawXValuesStrPrepare(canvas)
@@ -184,7 +184,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawXValuesStr(canvas: Canvas) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         val itV = data.values_index2str.iterator()
         val barTop = drawXValuesStrPrepare(canvas)
@@ -196,7 +196,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawXValuesDate(canvas: Canvas) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         // YEAR & MONTH BAR
         val period = data.period
@@ -275,14 +275,14 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
             i += stepGrid
             if( i < m_step_count )
-                repeat(stepGrid) { itDate.next() }
+                repeat(min(stepGrid, m_step_count - i)) { itDate.next() }
             else
                 break
         }
     }
 
     private fun drawXValues(canvas: Canvas) {
-        val data = mData ?: return
+        val data = m_data ?: return
         when(data.type) {
             ChartData.TYPE_STRING -> drawXValuesStr(canvas)
             ChartData.TYPE_NUMBER -> drawXValuesNum(canvas)
@@ -294,7 +294,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawYLevels(canvas: Canvas) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         val stepY = data.v_grid_step * m_coefficient
 
@@ -319,7 +319,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawLine( canvas: Canvas ) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         mPaint.color = Color.valueOf( 0.7f, 0.4f, 0.4f ).toArgb()
         //mPaint.lineJoin = Paint.Join.BEVEL
@@ -338,7 +338,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
     private fun drawLine2( canvas: Canvas, fUnderlay: Boolean ) {
-        val data = mData ?: return
+        val data = m_data ?: return
         when( data.type ) {
             ChartData.TYPE_STRING -> drawLine3( canvas, data.values_str, fUnderlay )
             ChartData.TYPE_NUMBER -> drawLine3( canvas, data.values_num, fUnderlay )
@@ -346,7 +346,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
     private fun drawLine3(canvas: Canvas, values: Map<*, YValues>, fUnderlay: Boolean) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         mPaint.style = Paint.Style.STROKE
         mPaint.strokeWidth = mUnitLineThk * 3
@@ -376,7 +376,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawBars( canvas: Canvas ) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         mPaint.color = Color.valueOf( 0.7f, 0.4f, 0.4f ).toArgb()
         mPaint.style = Paint.Style.FILL
@@ -395,7 +395,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         }
     }
     private fun drawBars2( canvas: Canvas, fUnderlay: Boolean ) {
-        val data = mData ?: return
+        val data = m_data ?: return
         when(data.type) {
             ChartData.TYPE_STRING -> drawBars3( canvas, data.values_str, fUnderlay )
             ChartData.TYPE_NUMBER -> drawBars3( canvas, data.values_num, fUnderlay )
@@ -437,7 +437,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     private fun drawOverview(canvas: Canvas) {
-        val data = mData ?: return
+        val data = m_data ?: return
 
         // OVERVIEW REGION
         mPaint.color = Color.LTGRAY
@@ -482,7 +482,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
-        val data = mData ?: return
+        val data = m_data ?: return
 
         // BACKGROUND
         //if( !m_F_printing_mode ) {
@@ -538,14 +538,11 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         invalidate()
     }
 
-    init {
-        mNativePtr = nativeCreate()
-    }
-
     // NATIVE FUNCTIONS ============================================================================
     private external fun nativeCreate(): Long
     private external fun nativeDestroy(ptr: Long)
 
+    private external fun nativeGetChartData(ptr: Long): Long
     private external fun nativeGetXOffset(ptr: Long): Float
     private external fun nativeGetYOffset(ptr: Long): Float
     private external fun nativeGetWidth(ptr: Long): Int

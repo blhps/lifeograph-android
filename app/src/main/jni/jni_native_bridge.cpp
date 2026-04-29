@@ -10,6 +10,7 @@ jclass g_bridgeClass = nullptr;
 jmethodID g_dispatchMethod = nullptr;
 jmethodID g_handleSearchFinishedMethod = nullptr;
 jmethodID g_getFileNameMethod = nullptr;
+jmethodID g_getChartLabelSizeMethod = nullptr;
 
 extern "C" {
 
@@ -44,6 +45,11 @@ JNIEXPORT jint JNICALL JNI_OnLoad(JavaVM* vm, void* reserved) {
 
     g_getFileNameMethod = env->GetStaticMethodID(g_bridgeClass, "getFileName", "(Ljava/lang/String;)Ljava/lang/String;");
     if (g_getFileNameMethod == nullptr) {
+        return JNI_ERR;
+    }
+
+    g_getChartLabelSizeMethod = env->GetStaticMethodID(g_bridgeClass, "getChartLabelSize", "()F");
+    if (g_getChartLabelSizeMethod == nullptr) {
         return JNI_ERR;
     }
 
@@ -121,6 +127,28 @@ std::string get_filename_from_android(const std::string& uri) {
             }
         }
         env->DeleteLocalRef(juri);
+    }
+
+    if (detached) {
+        g_vm->DetachCurrentThread();
+    }
+    return result;
+}
+
+float get_chart_label_size_from_android() {
+    JNIEnv* env;
+    bool detached = false;
+    jint getEnvStat = g_vm->GetEnv((void**)&env, JNI_VERSION_1_6);
+    if (getEnvStat == JNI_EDETACHED) {
+        if (g_vm->AttachCurrentThread(&env, nullptr) != 0) {
+            return 0.0f;
+        }
+        detached = true;
+    }
+
+    float result = 0.0f;
+    if (env && g_bridgeClass && g_getChartLabelSizeMethod) {
+        result = env->CallStaticFloatMethod(g_bridgeClass, g_getChartLabelSizeMethod);
     }
 
     if (detached) {

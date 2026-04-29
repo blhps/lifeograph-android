@@ -76,7 +76,15 @@ class ChartCommon
         }
 
     private:
-        virtual bool                update_label_size() { return false; }
+#ifndef __ANDROID__
+        virtual bool                update_label_size() = 0;
+#else
+        bool                        update_label_size()
+        {
+            m_label_size = Glib::get_chart_label_size_from_android();
+            return true;
+        }
+#endif
         virtual void                refresh() {}
 
     protected:
@@ -130,10 +138,12 @@ class ChartCommon
         Ustring                     get_date_str( DateV ) const;
 
         // DATA
+#ifdef __ANDROID__
+    public: // to allow access from Android
+#endif
         ChartData                   m_data          { nullptr };
 
         // GEOMETRY
-    public: // to allow access from Android
         static constexpr int        Y_DIVISIONS_MAX { 4 };
         double                      m_x_offset      { 0.0 };
         double                      m_y_offset      { 0.0 };

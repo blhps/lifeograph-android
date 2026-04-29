@@ -97,7 +97,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
 
     // DiaryEditor interface methods
     override fun enableEditing() {
-        super.enableEditing()
+    super.enableEditing()
 
         updateToolbarButtons()
     }

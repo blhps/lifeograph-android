@@ -42,8 +42,7 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
 
         mChartWidget = view.findViewById(R.id.chart_widget)
 
-        mChartWidget.mData = ChartData(Diary.main)
-        mChartWidget.mData?.set_from_string(mChartElem.definition)
+        mChartWidget.m_data?.set_from_string(mChartElem.definition)
 
         mChartWidget.calculateAndPlot()
     }
