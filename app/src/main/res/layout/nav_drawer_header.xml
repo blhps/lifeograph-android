@@ -26,17 +26,23 @@
     android:layout_height="wrap_content"
     android:background="@color/t_darker"
     android:gravity="bottom"
-    android:orientation="vertical"
-    android:paddingBottom="16dp"
-    android:paddingLeft="16dp"
-    android:paddingRight="16dp"
-    android:paddingTop="16dp"
+    android:orientation="horizontal"
+    android:paddingStart="8dp"
+    android:paddingEnd="16dp"
+    android:paddingTop="48dp"
     android:theme="@style/ThemeOverlay.AppCompat.Dark">
+
+    <ImageView
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:src="@mipmap/ic_launcher_monochrome"
+        android:contentDescription="@string/Lifeograph" />
 
     <TextView
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:paddingTop="8dp"
+        android:layout_height="match_parent"
+        android:gravity="center_vertical"
         android:text="@string/Lifeograph"
         android:textAppearance="@style/TextAppearance.AppCompat.Headline" />
+
 </LinearLayout>

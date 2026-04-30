@@ -67,6 +67,7 @@ class FragmentListFilters : FragmentListElems(), Listener
         mMenu.findItem(R.id.enable_edit).isVisible = !flagWritable &&
                 dm.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
+        mMenu.findItem(R.id.rename).isVisible = false
     }
 
     @SuppressLint("NotifyDataSetChanged")
@@ -142,7 +143,7 @@ class FragmentListFilters : FragmentListElems(), Listener
         return if (filter != null) (filter.mNativePtr == elem.mNativePtr) else false
     }
     override fun getIcon2(elem: DiaryElement): Int {
-        return R.drawable.ic_action_check
+        return R.drawable.ic_overlay_check
     }
 
     override fun onInquireAction(id: Int, text: String) {

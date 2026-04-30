@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- Selected state: use the dark background color -->
+    <item android:color="@color/t_dark" android:state_checked="true" />
+
+    <!-- Default state: white/light color -->
+    <item android:color="@color/t_lightest" />
+</selector>

@@ -15,6 +15,14 @@ JNI_METHOD(jlong, Filter_nativeGetFiltererStack)(JNIEnv* env, jobject, jlong ptr
     return reinterpret_cast<jlong>( reinterpret_cast<LoG::Filter*>(ptr)->get_filterer_stack() );
 }
 
+JNI_METHOD(jboolean, Filter_nativeCanFilterEntries)(JNIEnv* env, jobject, jlong ptr) {
+    return static_cast<jboolean>( reinterpret_cast<LoG::Filter*>(ptr)->can_filter_class(LoG::FOC::ENTRIES) );
+}
+
+JNI_METHOD(jboolean, Filter_nativeCanFilterParagraphs)(JNIEnv* env, jobject, jlong ptr) {
+    return static_cast<jboolean>( reinterpret_cast<LoG::Filter*>(ptr)->can_filter_class(LoG::FOC::PARAGRAPHS) );
+}
+
 JNI_METHOD(jstring, FiltererContainer_nativeGetAsString)(JNIEnv* env, jobject obj, jlong ptr) {
     Glib::ustring str;
     reinterpret_cast<LoG::FiltererContainer*>(ptr)->get_as_string(str);

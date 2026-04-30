@@ -26,14 +26,23 @@
     style="@style/LifeoAlertDlgTheme"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:minWidth="320dp"
     android:paddingLeft="30dp"
     android:paddingRight="30dp"
     android:orientation="vertical">
 
+    <ImageView
+        android:layout_width="128dp"
+        android:layout_height="128dp"
+        android:src="@mipmap/ic_launcher_monochrome"
+        android:layout_marginTop="30dp"
+        android:layout_marginBottom="8dp"
+        android:layout_gravity="center"
+        android:contentDescription="@string/Lifeograph" />
+
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_marginTop="30dp"
         android:gravity="center"
         android:text="@string/program_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />

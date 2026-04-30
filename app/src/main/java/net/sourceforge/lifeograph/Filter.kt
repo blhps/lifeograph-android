@@ -26,6 +26,8 @@ open class Filter(nativePtr: Long) : StringDefElem(nativePtr) {
         override fun get_name(): String { return "&lt;All&gt;" }
         override fun get_list_str(): String { return get_name() }
         override fun get_type(): Type { return Type.FILTER } // native method fails
+        override fun can_filter_entries(): Boolean { return true }
+        override fun can_filter_paragraphs(): Boolean { return true }
     }
 
     companion object {
@@ -34,6 +36,18 @@ open class Filter(nativePtr: Long) : StringDefElem(nativePtr) {
 
     override fun
     getIcon(): Int { return R.drawable.ic_filter } // Java specific
+
+    override fun
+    get_info_str(): String {
+        val parts = mutableListOf<String>()
+        if(can_filter_entries()) parts.add("Entries")
+        if(can_filter_paragraphs()) parts.add("Paragraphs")
+
+        return "Filters: ${parts.joinToString(", ")}"
+    }
+
+    open fun can_filter_entries(): Boolean { return nativeCanFilterEntries(mNativePtr) }
+    open fun can_filter_paragraphs(): Boolean { return nativeCanFilterParagraphs(mNativePtr) }
 
     fun get_filterer_stack(): FiltererContainer? {
         val ptr = nativeGetFiltererStack(mNativePtr)
@@ -44,4 +58,6 @@ open class Filter(nativePtr: Long) : StringDefElem(nativePtr) {
     //private native long nativeCreate(long ptr_diary);
     //private native void nativeDestroy(long ptr);
     private external fun nativeGetFiltererStack(ptr: Long): Long
+    private external fun nativeCanFilterEntries(ptr: Long): Boolean
+    private external fun nativeCanFilterParagraphs(ptr: Long): Boolean
 }
