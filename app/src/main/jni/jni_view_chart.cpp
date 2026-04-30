@@ -27,24 +27,24 @@ JNI_METHOD(jfloat, ViewChart_nativeGetYOffset)(JNIEnv*, jobject, jlong ptr) {
     return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_y_offset );
 }
 
-JNI_METHOD(jfloat, ViewChart_nativeGetWidth)(JNIEnv*, jobject, jlong ptr) {
-    return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_width );
+JNI_METHOD(jint, ViewChart_nativeGetWidth)(JNIEnv*, jobject, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_width );
 }
-JNI_METHOD(jfloat, ViewChart_nativeGetHeight)(JNIEnv*, jobject, jlong ptr) {
-    return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_height );
+JNI_METHOD(jint, ViewChart_nativeGetHeight)(JNIEnv*, jobject, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_height );
 }
 
-JNI_METHOD(jfloat, ViewChart_nativeGetStepCount)(JNIEnv*, jobject, jlong ptr) {
-    return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_step_count );
+JNI_METHOD(jint, ViewChart_nativeGetStepCount)(JNIEnv*, jobject, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_step_count );
 }
-JNI_METHOD(jfloat, ViewChart_nativeGetStepStart)(JNIEnv*, jobject, jlong ptr) {
-    return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_step_start );
+JNI_METHOD(jint, ViewChart_nativeGetStepStart)(JNIEnv*, jobject, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_step_start );
 }
-JNI_METHOD(jfloat, ViewChart_nativeGetPreSteps)(JNIEnv*, jobject, jlong ptr) {
-    return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_pre_steps );
+JNI_METHOD(jint, ViewChart_nativeGetPreSteps)(JNIEnv*, jobject, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_pre_steps );
 }
-JNI_METHOD(jfloat, ViewChart_nativeGetPostSteps)(JNIEnv*, jobject, jlong ptr) {
-    return static_cast<jfloat>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_post_steps );
+JNI_METHOD(jint, ViewChart_nativeGetPostSteps)(JNIEnv*, jobject, jlong ptr) {
+    return static_cast<jint>(reinterpret_cast<LoG::ChartCommon*>(ptr)->m_post_steps );
 }
 
 JNI_METHOD(jfloat, ViewChart_nativeGetZoomLevel)(JNIEnv*, jobject, jlong ptr) {

@@ -106,9 +106,8 @@ ChartCommon::update_col_geom( bool F_new )
 {
     // 100% zoom:
     const bool F_style_line  { m_data.get_style() == ChartData::STYLE_LINE };
-    const auto step_count_nom{ unsigned( m_length / m_width_col_min ) + ( F_style_line ? 1U
-                                                                                       : 0U ) };
-    const auto step_count_min{ m_data.m_span > step_count_nom ? step_count_nom : m_data.m_span };
+    const int step_count_nom{ int( m_length / m_width_col_min ) + ( F_style_line ? 1 : 0 ) };
+    const int step_count_min{ m_data.m_span > step_count_nom ? step_count_nom : m_data.m_span };
 
     m_step_count = ( m_zoom_level * ( m_data.m_span - step_count_min ) ) + step_count_min;
     m_step_x = m_length / ( m_step_count - ( F_style_line ? 1 : 0 ) );
@@ -122,7 +121,7 @@ ChartCommon::update_col_geom( bool F_new )
 
     m_ampli_y = m_y_max - m_y_min;
 
-    const unsigned int col_start_max{ m_data.m_span - m_step_count };
+    const int col_start_max{ m_data.m_span - m_step_count };
     if( F_new || m_step_start > col_start_max )
         m_step_start = col_start_max;
 

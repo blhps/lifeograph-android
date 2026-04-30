@@ -33,12 +33,18 @@ import androidx.core.graphics.toColorInt
 import androidx.core.graphics.withSave
 import net.sourceforge.lifeograph.helpers.Date
 import kotlin.math.*
+import kotlin.math.roundToInt
 
 @Suppress("PropertyName", "FunctionName")
 class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
-    var mNativePtr: Long
+    var mNativePtr: Long = 0
 
+    interface OnZoomLevelChangedListener {
+        fun onZoomLevelChanged(zoomLevel: Float)
+    }
+
+    var onZoomLevelChangedListener: OnZoomLevelChangedListener? = null
 
     @Throws(Throwable::class)
     protected fun finalize() {
@@ -50,8 +56,8 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
 
     // GEOMETRICAL VARIABLES =======================================================================
-    val m_x_offset: Float get() = nativeGetXOffset(mNativePtr)
-    val m_y_offset: Float get() = nativeGetYOffset(mNativePtr)
+//    val m_x_offset: Float get() = nativeGetXOffset(mNativePtr)
+//    val m_y_offset: Float get() = nativeGetYOffset(mNativePtr)
     val m_width: Int get() = nativeGetWidth(mNativePtr)
     val m_height: Int get() = nativeGetHeight(mNativePtr)
     val m_step_count: Int get() = nativeGetStepCount(mNativePtr)
@@ -86,8 +92,6 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private fun update_pre_and_post_steps() { nativeUpdatePreAndPostSteps(mNativePtr) }
     private fun get_value_at(i: Int): Double { return nativeGetValueAt(mNativePtr, i) }
 
-    private var mUnitLineThk = 1f
-
     private val mPaint = Paint(Paint.ANTI_ALIAS_FLAG)
     private val mPath = Path()
 
@@ -97,6 +101,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     init {
         mNativePtr = nativeCreate()
         mPaint.strokeJoin = Paint.Join.ROUND
+
         mSwipeGestureDetector = GestureDetector(context, SwipeGestureListener())
         mScaleGestureDetector = ScaleGestureDetector(context, ScaleGestureListener())
         setOnTouchListener { v, event ->
@@ -118,6 +123,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     override fun onSizeChanged(w: Int, h: Int, oldw: Int, oldh: Int) {
         super.onSizeChanged(w, h, oldw, oldh)
         resize(w, h)
+        mPaint.textSize = m_label_height
     }
 
     private fun resize(w: Int, h: Int) { nativeResize(mNativePtr, w, h) }
@@ -128,8 +134,8 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         if( data.style == ChartData.STYLE_LINE ) {
             mPaint.style = Paint.Style.FILL
             mPaint.color = "#E6E6E6".toColorInt() // 0.9, 0.9, 0.9
-            canvas.drawRect( m_x_offset, m_y_offset + m_y_max,
-                             m_width.toFloat(), m_h_x_values, mPaint )
+            canvas.drawRect( 0f, m_y_max,
+                             m_width.toFloat(), m_height.toFloat(), mPaint )
         }
 
         //m_layout->set_font_description( m_font_main );
@@ -138,7 +144,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         mPaint.textAlign = Paint.Align.LEFT
 
         mPaint.color = Color.BLACK
-        return( m_y_offset + m_height - m_ov_height - m_h_x_values )
+        return( m_height - m_ov_height - m_h_x_values )
     }
 
     private fun drawXValueStrColumn(canvas: Canvas, txt: String, i: Int, barTop: Float) {
@@ -146,9 +152,9 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
         mPath.reset()
         if( data.style == ChartData.STYLE_BARS )
-            mPath.moveTo(m_x_offset + m_x_min + m_step_x * ( i + 0.5f ), barTop)
+            mPath.moveTo(m_x_min + m_step_x * ( i + 0.5f ), barTop)
         else
-            mPath.moveTo(m_x_offset + m_x_min + m_step_x * i, barTop)
+            mPath.moveTo(m_x_min + m_step_x * i, barTop)
 
         if( data.style == ChartData.STYLE_LINE ) {
             mPath.rLineTo( 0f, m_label_height )
@@ -202,7 +208,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         val period = data.period
         var stepGrid = ceil(m_width_col_min / m_step_x).toInt()
         var stepGridFirst = 0
-        val barTop = m_y_offset + m_height - m_ov_height - m_h_x_values
+        val barTop = m_height - m_ov_height - m_h_x_values
         val itDate = data.values_date.iterator()
         var yearLast = 0
 
@@ -226,35 +232,33 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 
         mPath.reset()
 
+        mPaint.style = Paint.Style.FILL
         mPaint.color = "#E6E6E6".toColorInt() // 0.9, 0.9, 0.9
-        canvas.drawRect(m_x_offset, barTop, m_width.toFloat(),
-                        m_h_x_values, mPaint)
+        canvas.drawRect(0f, barTop, m_width.toFloat(),
+                        m_height.toFloat(), mPaint)
 
         //m_layout->set_font_description( m_font_main );
         mPaint.textAlign = Paint.Align.LEFT
         mPaint.color = Color.BLACK
 
-        repeat(stepGridFirst) { itDate.next() }
-        kv = itDate.next()
+        repeat(stepGridFirst) { kv = itDate.next() }
 
         var i = stepGridFirst
         while(true) {
             val date = kv.key
+            var x = if( data.style == ChartData.STYLE_BARS )
+                        m_x_min + m_step_x * ( i + 0.5f )
+                    else
+                        m_x_min + m_step_x * i
+            var y = barTop
 
-            if( data.style == ChartData.STYLE_BARS )
-                mPath.moveTo(m_x_offset + m_x_min + m_step_x * ( i + 0.5f ), barTop)
-            else
-                mPath.moveTo(m_x_offset + m_x_min + m_step_x * i, barTop)
+            mPath.moveTo(x, y)
             mPath.rLineTo( 0f, m_label_height )
-            mPath.rLineTo( m_border_label, -m_label_height )
 
-            // this gets the coordinates at the very end of the current path:
-            val measure = PathMeasure(mPath, false)
-            val lastPos = FloatArray(2)
-            measure.getPosTan(measure.length, lastPos, null)
-
+            x += m_border_label
+            y += m_label_height
             if( period == ChartData.PERIOD_YEARLY ) {
-                canvas.drawText(Date.get_year_str( date ), lastPos[0], lastPos[1], mPaint)
+                canvas.drawText(Date.get_year_str( date ), x, y, mPaint)
             }
             else
             {
@@ -264,18 +268,19 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
                         Date.get_month_str( date )
                     else // weekly
                         Date.format_string( date, "MD")
-                    canvas.drawText(dateStr, lastPos[0], lastPos[1], mPaint)
+                    canvas.drawText(dateStr, x, y, mPaint)
                 }
 
                 if( yearLast != Date.get_year(date) ) {
-                    canvas.drawText( Date.get_year_str( date ), lastPos[0], lastPos[1] + m_label_height, mPaint)
+                    canvas.drawText( Date.get_year_str( date ), x, y + m_label_height,
+                                     mPaint)
                     yearLast = Date.get_year(date)
                 }
             }
 
             i += stepGrid
             if( i < m_step_count )
-                repeat(min(stepGrid, m_step_count - i)) { itDate.next() }
+                repeat(min(stepGrid, m_step_count - i)) { kv = itDate.next() }
             else
                 break
         }
@@ -289,6 +294,8 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
             ChartData.TYPE_DATE -> drawXValuesDate(canvas)
         }
 
+        mPaint.style = Paint.Style.STROKE
+        mPaint.strokeWidth = UNIT_LINE_THK * 2
         mPaint.color = Color.valueOf(0.7f, 0.7f, 0.7f).toArgb()
         canvas.drawPath(mPath, mPaint)
     }
@@ -297,40 +304,43 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         val data = m_data ?: return
 
         val stepY = data.v_grid_step * m_coefficient
+        val margin = 4 * m_border_label
 
         mPaint.color = Color.valueOf( 0.6f, 0.6f, 0.6f ).toArgb()
-        mPaint.strokeWidth = mUnitLineThk
+        mPaint.strokeWidth = UNIT_LINE_THK * 2
         mPaint.textAlign = Paint.Align.LEFT
+        mPaint.style = Paint.Style.FILL
         //m_layout->set_width( 150 * Pango::SCALE );
 
         mPath.reset()
         for (i in 0..4) {
+            val y = (m_y_max - i * stepY).roundToInt().toFloat() // round to align to pixels
             // horizontal lines:
-            mPath.moveTo( m_x_offset + m_width, (m_y_offset + m_y_max - i * stepY).toFloat())
-            mPath.rLineTo( -m_width.toFloat(), 0f )
+            mPath.moveTo( 0f, y )
+            mPath.rLineTo( m_width.toFloat(), 0f )
 
             // labels:
             val valStr = Lifeograph.formatNumber( data.v_grid_min + data.v_grid_step * i ) +
                                                   " " + data.unit
-            canvas.drawText(valStr, 4 * m_border_label, -m_label_size, mPaint)
-
-            canvas.drawPath( mPath, mPaint )
+            canvas.drawText(valStr, margin, y - margin, mPaint)
         }
+        mPaint.style = Paint.Style.STROKE
+        canvas.drawPath( mPath, mPaint )
     }
 
     private fun drawLine( canvas: Canvas ) {
         val data = m_data ?: return
 
+        mPaint.style = Paint.Style.STROKE
         mPaint.color = Color.valueOf( 0.7f, 0.4f, 0.4f ).toArgb()
-        //mPaint.lineJoin = Paint.Join.BEVEL
-        mPaint.strokeWidth = mUnitLineThk * 3
+        mPaint.strokeWidth = UNIT_LINE_THK * 6
 
         drawLine2( canvas, false )
 
         // UNDERLAY
         if( data.has_underlay() ) {
             mPaint.color = Color.valueOf( 0.1f, 0.7f, 0.7f ).toArgb()
-            mPaint.strokeWidth = mUnitLineThk * 2
+            mPaint.strokeWidth = UNIT_LINE_THK * 2
 
             //cr->set_dash( s_dash_pattern, 0 )
             drawLine2( canvas, true )
@@ -348,27 +358,22 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private fun drawLine3(canvas: Canvas, values: Map<*, YValues>, fUnderlay: Boolean) {
         val data = m_data ?: return
 
-        mPaint.style = Paint.Style.STROKE
-        mPaint.strokeWidth = mUnitLineThk * 3
-        mPaint.color = "#B26666".toColorInt() // 0.7, 0.4, 0.4
-
         mPath.reset()
 
         val itV = values.entries.iterator()
         repeat(m_step_start - m_pre_steps) { itV.next() } // advance to start
         val (_, v) = itV.next()
 
-        mPath.moveTo( m_x_offset + m_x_min - m_step_x * m_pre_steps,
-                      m_y_offset + m_y_max
-                              - m_coefficient * ( if(fUnderlay) v.u else v.v ).toFloat()
-                              - data.v_grid_min.toFloat() )
+        mPath.moveTo( m_x_min - m_step_x * m_pre_steps,
+                      m_y_max - m_coefficient * ( if(fUnderlay) v.u else v.v ).toFloat()
+                                  - data.v_grid_min.toFloat() )
 
         for( i in 1 until (m_step_count + m_pre_steps + m_post_steps)) {
             val (_, v) = itV.next()
 
             // may not be needed if( vy != std::numeric_limits< double >::max() )
-            mPath.lineTo( m_x_offset + m_x_min + m_step_x * ( i - m_pre_steps ),
-                          m_y_offset + m_y_max
+            mPath.lineTo( m_x_min + m_step_x * ( i - m_pre_steps ),
+                          m_y_max
                                   - m_coefficient * ( if(fUnderlay) v.u else v.v ).toFloat()
                                   - data.v_grid_min.toFloat() )
         }
@@ -387,7 +392,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         // UNDERLAY
         if( data.has_underlay() ) {
             mPaint.color = Color.valueOf( 0.1f, 0.7f, 0.7f ).toArgb()
-            mPaint.strokeWidth = mUnitLineThk * 2
+            mPaint.strokeWidth = UNIT_LINE_THK * 2
 
             //cr->set_dash( s_dash_pattern, 0 )
             drawBars2( canvas, true )
@@ -404,7 +409,8 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     }
     private fun drawBars3(canvas: Canvas, values: Map<*, YValues>, fUnderlay: Boolean) {
         val itV = values.entries.iterator()
-        val fShowV = !fUnderlay //and ( m_step_x * Pango::SCALE ) > ( m_font_bold.get_size() * 4 ) };
+        val fShowV = false //!fUnderlay and ( m_step_x * Pango::SCALE ) > ( m_font_bold.get_size()
+        // * 4 ) };
         repeat(m_step_start - m_pre_steps) { itV.next() } // advance to start
 
         if( fShowV ) {
@@ -418,18 +424,18 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         for( i in 0 until m_step_count + m_pre_steps + m_post_steps ) {
             val (_, v) = itV.next()
             val barH = m_coefficient * ( if(fUnderlay) v.u else v.v).toFloat()
+            val x = m_x_min + m_step_x * ( i - m_pre_steps + 0.1f )
 
-            if( barH != 0f )
-                canvas.drawRect(m_x_offset + m_x_min + m_step_x * ( i - m_pre_steps + 0.1f ),
-                                m_y_offset + m_y_0,
-                                m_step_x * 0.8f,
-                                -barH,
-                                mPaint )
+            if( barH != 0f ) {
+                val y = m_y_0
+
+                canvas.drawRect( x, y, x + m_step_x * 0.8f, y - barH, mPaint )
+            }
 
             if( fShowV && v.v != 0.0 ) {
                 canvas.drawText( Lifeograph.formatNumber( v.v),
-                                 m_x_offset + m_x_min + m_step_x * ( i - m_pre_steps + 0.1f ),
-                                 m_y_offset + m_y_0 - barH - ( if(barH < 0f) 0f
+                                 x,
+                                 m_y_0 - barH - ( if(barH < 0f) 0f
                                                                     else m_label_height ),
                                  mPaint )
             }
@@ -442,27 +448,28 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
         // OVERVIEW REGION
         mPaint.color = Color.LTGRAY
         mPaint.style = Paint.Style.FILL
-        canvas.drawRect( m_x_offset, m_y_offset + m_height - m_ov_height,
-                         m_width.toFloat(), m_ov_height, mPaint)
+        canvas.drawRect( 0f, m_height - m_ov_height,
+                         m_width.toFloat(), m_height.toFloat(), mPaint)
 
 //        if( m_F_overview_hovered )
 //            mPaint.color = Color.WHITE
 //        else
             mPaint.color = Color.valueOf( 0.95f, 0.95f, 0.95f ).toArgb()
-        canvas.drawRect( m_x_offset + m_border_label + m_step_start * m_step_x_ov,
-                         m_y_offset + m_height - m_ov_height,
-                         ( m_step_count - 1 ) * m_step_x_ov,
-                         m_ov_height,
+        val x = m_border_label + m_step_start * m_step_x_ov
+        canvas.drawRect( x,
+                         m_height - m_ov_height,
+                         x + ( m_step_count - 1 ) * m_step_x_ov,
+                         m_height.toFloat(),
                          mPaint)
 
         // OVERVIEW LINE
         mPaint.color = Color.valueOf( 0.9f, 0.3f, 0.3f ).toArgb()
-        // TODO: mPaint.lineJoin = Paint.Join.BEVEL
-        mPaint.strokeWidth = mUnitLineThk * 2
+        mPaint.strokeWidth = UNIT_LINE_THK * 3
+        mPaint.style = Paint.Style.STROKE
 
         mPath.reset()
-        mPath.moveTo( m_x_offset + m_border_label,
-                      m_y_offset + m_height - m_border_label
+        mPath.moveTo( m_border_label,
+                      m_height - m_border_label
                               - m_coeff_ov * ( get_value_at( 0 ) - data.v_min ).toFloat() )
 
         for(i in 1 until data.span) {
@@ -476,13 +483,15 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
 //            cr->set_source_rgb( 0.2, 0.2, 0.2 )
 //        else
             mPaint.color = Color.valueOf( 0.45f, 0.45f, 0.45f ).toArgb()
-        canvas.drawRect( m_x_offset + 1f, m_y_offset + m_height - m_ov_height,
-                         m_width - 2f, m_ov_height - 1f, mPaint )
+        canvas.drawRect( 1f, m_height - m_ov_height,
+                         m_width - 1f, m_height - 1f, mPaint )
     }
 
     override fun onDraw(canvas: Canvas) {
         super.onDraw(canvas)
         val data = m_data ?: return
+
+        mPaint.isAntiAlias = true
 
         // BACKGROUND
         //if( !m_F_printing_mode ) {
@@ -536,6 +545,7 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     fun set_zoom(level: Float) {
         nativeSetZoom(mNativePtr, level)
         invalidate()
+        onZoomLevelChangedListener?.onZoomLevelChanged(m_zoom_level)
     }
 
     // NATIVE FUNCTIONS ============================================================================
@@ -543,8 +553,8 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private external fun nativeDestroy(ptr: Long)
 
     private external fun nativeGetChartData(ptr: Long): Long
-    private external fun nativeGetXOffset(ptr: Long): Float
-    private external fun nativeGetYOffset(ptr: Long): Float
+//    private external fun nativeGetXOffset(ptr: Long): Float
+//    private external fun nativeGetYOffset(ptr: Long): Float
     private external fun nativeGetWidth(ptr: Long): Int
     private external fun nativeGetHeight(ptr: Long): Int
     private external fun nativeGetStepCount(ptr: Long): Int
@@ -572,17 +582,19 @@ class ViewChart(context: Context, attrs: AttributeSet) : View(context, attrs) {
     private external fun nativeResize(ptr: Long, w: Int, h: Int)
     private external fun nativeScroll(ptr: Long, offset: Int): Double
 
+    // STATIC OBJECTS ==============================================================================
+    companion object {
+        private const val UNIT_LINE_THK = 1f
+    }
     // INNER CLASSES ===============================================================================
     inner class ScaleGestureListener : ScaleGestureDetector.SimpleOnScaleGestureListener() {
         override fun onScale(detector: ScaleGestureDetector): Boolean {
-            if(m_zoom_level < 0.05)
-                return false
-
-            if(detector.scaleFactor > 1) { // zoom out
-                set_zoom(m_zoom_level * 0.95f)
+            val z = m_zoom_level
+            if(detector.scaleFactor > 1) { // zoom in
+                set_zoom( if( z <= 0.05f ) 0f else z * 0.95f )
             }
-            else { // zoom in
-                set_zoom(m_zoom_level * 1.1f)
+            else { // zoom out
+                set_zoom( if( z == 0f ) 0.05f else min( 1f, z * 1.1f ) )
             }
             return true
         }

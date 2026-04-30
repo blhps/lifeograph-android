@@ -23,6 +23,7 @@ package net.sourceforge.lifeograph
 
 import android.os.Bundle
 import android.view.*
+import android.widget.TextView
 
 class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
 {
@@ -31,6 +32,7 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
     override val mMenuId: Int   = R.menu.menu_chart
 
     private lateinit var mChartWidget: ViewChart
+    private lateinit var mTextViewZoomLevel: TextView
 
     companion object {
         lateinit var mChartElem: ChartElem
@@ -41,10 +43,20 @@ class FragmentChart : FragmentDiaryEditor(), DialogInquireText.Listener
         super.onViewCreated(view, savedInstanceState)
 
         mChartWidget = view.findViewById(R.id.chart_widget)
+        mTextViewZoomLevel = view.findViewById(R.id.textViewZoomLevel)
+
+        mChartWidget.onZoomLevelChangedListener = object : ViewChart.OnZoomLevelChangedListener {
+            override fun onZoomLevelChanged(zoomLevel: Float) {
+                mTextViewZoomLevel.text = String.format("%.2f", zoomLevel)
+            }
+        }
 
         mChartWidget.m_data?.set_from_string(mChartElem.definition)
 
         mChartWidget.calculateAndPlot()
+
+        // Set initial zoom level
+        mTextViewZoomLevel.text = String.format("%.2f", mChartWidget.m_zoom_level)
     }
 
     override fun onResume() {

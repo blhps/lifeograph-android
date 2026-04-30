@@ -1669,7 +1669,7 @@ class ChartData
         std::map< int, Ustring >    values_index2str;
         std::map< int, YValues >    values_str;
         std::map< Value, YValues >  values_num;
-        unsigned int                m_span      { 0 };
+        int                         m_span      { 0 };
 
         Ustring                     m_unit;
         int                         m_properties;

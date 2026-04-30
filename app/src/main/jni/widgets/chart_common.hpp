@@ -149,10 +149,10 @@ class ChartCommon
         double                      m_y_offset      { 0.0 };
         int                         m_width         { -1 };
         int                         m_height        { -1 };
-        unsigned int                m_step_count    { 0 };
-        unsigned int                m_step_start    { 0 };
-        unsigned int                m_pre_steps;
-        unsigned int                m_post_steps;
+        int                         m_step_count    { 0 };
+        int                         m_step_start    { 0 };
+        int                         m_pre_steps;
+        int                         m_post_steps;
         double                      m_zoom_level    { 1.0 };
 
         double                      m_border_curve;
