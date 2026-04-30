@@ -12,8 +12,8 @@ android {
         applicationId 'net.sourceforge.lifeograph'
         minSdk 33
         targetSdk 36
-        versionCode 10101
-        versionName '1.1.0'
+        versionCode 19991
+        versionName '2.0.0.Beta1'
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
 
         vectorDrawables.useSupportLibrary = true
@@ -72,8 +72,8 @@ dependencies {
     implementation 'com.google.android.material:material:1.13.0'
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
-    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.7'
-    implementation 'androidx.navigation:navigation-ui-ktx:2.9.7'
+    implementation 'androidx.navigation:navigation-fragment-ktx:2.9.8'
+    implementation 'androidx.navigation:navigation-ui-ktx:2.9.8'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
     implementation "androidx.core:core-ktx:1.18.0"

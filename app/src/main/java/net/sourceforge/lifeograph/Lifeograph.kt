@@ -79,8 +79,6 @@ class Lifeograph : Application() {
 
     companion object {
         // CONSTANTS ===============================================================================
-        //public static final String PROGRAM_NAME = "Lifeograph";
-        const val LIFEOGRAPH_RELEASE_CODENAME = "the spring of goliath"
         const val LANG_INHERIT_DIARY          = "d"
         lateinit var mActivityMain: ActivityMain
 

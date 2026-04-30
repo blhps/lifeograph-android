@@ -160,6 +160,7 @@
     <string name="edit">Bearbeiten</string>
     <string name="add_parent">Ata Ekle</string>
     <string name="add_sibling">Kardeş Ekle</string>
+    <string name="add_filterer">Süzücü Ekle</string>
 
 </resources>
 

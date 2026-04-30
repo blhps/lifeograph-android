@@ -38,13 +38,11 @@ class DialogAbout : DialogFragment() {
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
-        dialog!!.setTitle(R.string.program_name)
+        //dialog!!.setTitle(R.string.program_name)
         isCancelable = true
         var tv = view.findViewById<TextView>(R.id.textViewWebsite)
         tv.movementMethod = LinkMovementMethod.getInstance()
         tv = view.findViewById(R.id.textViewVersion)
-        tv.text = String.format("%s\n\"%s\"",
-                                BuildConfig.VERSION_NAME,
-                                Lifeograph.LIFEOGRAPH_RELEASE_CODENAME)
+        tv.text = BuildConfig.VERSION_NAME
     }
 }

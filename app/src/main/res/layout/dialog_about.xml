@@ -2,7 +2,7 @@
 
 <!-- ***************************************************************************
 
-    Copyright (C) 2012-2021 Ahmet Öztürk (aoz_2@yahoo.com)
+    Copyright (C) 2012-2026 Ahmet Öztürk (aoz_2@yahoo.com)
 
     This file is part of Lifeograph.
 
@@ -26,14 +26,32 @@
     style="@style/LifeoAlertDlgTheme"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
+    android:paddingLeft="30dp"
+    android:paddingRight="30dp"
     android:orientation="vertical">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="30dp"
+        android:gravity="center"
+        android:text="@string/program_name"
+        android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
         android:id="@+id/textViewVersion"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_margin="20dp"
+        android:layout_margin="5dp"
         android:gravity="center"
+        android:textAppearance="?android:attr/textAppearanceLarge" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginBottom="30dp"
+        android:gravity="center"
+        android:text="@string/release_code_name"
         android:textAppearance="?android:attr/textAppearanceMedium" />
 
     <TextView
