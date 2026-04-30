@@ -1732,7 +1732,7 @@ Entry::move_para_before( Paragraph* para2move, Paragraph* para_after )
 }
 
 Ustring
-Entry::get_info_str() const
+Entry::get_tip_str() const
 {
     Ustring str { STR::compose( _( "Created" ),  ":    <b>", get_date_created_str(), "</b>\n",
                                 _( "Edited" ),   ":    <b>", get_date_edited_str(), "</b>" ) };

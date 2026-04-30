@@ -24,12 +24,6 @@ package net.sourceforge.lifeograph;
 import java.util.Comparator;
 
 public class DiaryElement {
-    // DEID
-    public final static long DEID_UNSET         = 404L;   // :)
-    // NOTE: when HOME is fixed element, elements ID is used
-
-    final static CharSequence STR_SEPARATOR = " - ";
-
     // layout type for list view section headers
     public enum LayoutType {
         ELEMENT, HEADER_SIMPLE, HEADER_TAG_CTG, HEADER_CHAPTER_CTG
@@ -140,9 +134,9 @@ public class DiaryElement {
     public String
     get_list_str() { return nativeGetListStr(mNativePtr); }
     public String
-    get_info_str() {
-        return "";
-    }
+    get_tip_str() { return nativeGetTipStr(mNativePtr); }
+    public String
+    get_info_str() { return ""; }
 
 //    public int get_status() {
 //        return nativeGetStatus(mNativePtr);
@@ -185,6 +179,7 @@ public class DiaryElement {
     private native String nativeGetName(long ptr);
     private native void nativeSetName(long ptr, String name);
     private native String nativeGetListStr(long ptr);
+    private native String nativeGetTipStr(long ptr);
     private native int nativeGetType(long ptr);
     private native int nativeGetSize(long ptr);
 }

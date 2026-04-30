@@ -317,8 +317,6 @@ class Entry : public DiaryElemTag
             return( pd ? pd->get_text() : "" );
         }
 
-        Ustring                 get_info_str() const;
-
         //Ustring                 get_date_status_str() const;
         void                    update_inline_dates( Paragraph* = nullptr, Paragraph* = nullptr );
 
@@ -387,6 +385,8 @@ class Entry : public DiaryElemTag
         double                  get_workload() const;
 
         Ustring                 get_list_str() const override;
+        Ustring                 get_tip_str() const override;
+
         Ustring                 get_ancestry_path() const override;
 
         bool                    is_favorite() const { return( m_status & ES::FAVORED ); }

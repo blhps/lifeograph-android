@@ -29,6 +29,11 @@ JNI_METHOD(jstring, DiaryElement_nativeGetListStr)(JNIEnv* env, jobject obj, jlo
     return env->NewStringUTF(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_list_str().c_str());
 }
 
+JNI_METHOD(jstring, DiaryElement_nativeGetTipStr)(JNIEnv* env, jobject obj, jlong ptr) {
+    if (ptr == 0) return env->NewStringUTF("");
+    return env->NewStringUTF(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_tip_str().c_str());
+}
+
 JNI_METHOD(void, DiaryElement_nativeSetName)(JNIEnv* env, jobject obj, jlong ptr, jstring name) {
     if (ptr == 0) return;
     const char* c_name = env->GetStringUTFChars(name, nullptr);

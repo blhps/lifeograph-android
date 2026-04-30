@@ -26,6 +26,8 @@ import java.util.Vector;
 import androidx.annotation.NonNull;
 import androidx.core.text.HtmlCompat;
 
+import net.sourceforge.lifeograph.helpers.Date;
+
 public class Entry extends DiaryElemTag {
     protected Entry(long nativePtr) {
         super(nativePtr);
@@ -64,11 +66,9 @@ public class Entry extends DiaryElemTag {
 
     @Override
     public String
-    get_list_str() { return nativeGetListStr(mNativePtr); }
-
-    @Override
-    public String
-    get_info_str() { return nativeGetInfoStr(mNativePtr); }
+    get_info_str() {
+        return "Edited: " + Date.format_string( get_date_edited() );
+    }
 
     public boolean
     is_filtered_out() { return nativeIsFilteredOut(mNativePtr); }
@@ -403,8 +403,6 @@ public class Entry extends DiaryElemTag {
     private native void nativeUpdateName(long ptr);
     private native char nativeGetTitleStyle(long ptr);
     private native void nativeSetTitleStyle(long ptr, char style);
-    private native String nativeGetListStr(long ptr);
-    private native String nativeGetInfoStr(long ptr);
     private native boolean nativeIsFilteredOut(long ptr);
     private native boolean nativeRegistersScripts(long ptr);
     private native boolean nativeIsEmpty(long ptr);

@@ -98,16 +98,6 @@ JNI_METHOD(void, Entry_nativeSetTitleStyle)(JNIEnv* env, jobject obj, jlong ptr,
     reinterpret_cast<LoG::Entry*>(ptr)->set_title_style( style_i );
 }
 
-JNI_METHOD(jstring, Entry_nativeGetListStr)(JNIEnv* env, jobject obj, jlong ptr) {
-    if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_list_str().c_str());
-}
-
-JNI_METHOD(jstring, Entry_nativeGetInfoStr)(JNIEnv* env, jobject obj, jlong ptr) {
-    if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_info_str().c_str());
-}
-
 JNI_METHOD(jboolean, Entry_nativeIsFilteredOut)(JNIEnv* env, jobject obj, jlong ptr) {
     CHECK_PTR(ptr, JNI_FALSE)
     return reinterpret_cast<LoG::Entry*>(ptr)->is_filtered_out();

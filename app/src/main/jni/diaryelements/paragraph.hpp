@@ -340,7 +340,7 @@ class Paragraph : public DiaryElemTag
         Ustring                     get_substr( UstringSize bgn, UstringSize end ) const
         { return( end > bgn ? m_text.substr( bgn, end - bgn ) : ( end == bgn ? "" : "XXX" ) ); }
         Paragraph*                  get_sub( UstringSize bgn, UstringSize end ) const;
-        Ustring                     get_info_str() const
+        Ustring                     get_tip_str() const override
         {
             return STR::compose( _( "Created" ),  ":    <b>", get_date_created_str(), "</b>\n",
                                  _( "Edited" ),   ":    <b>", get_date_edited_str(), "</b>" );

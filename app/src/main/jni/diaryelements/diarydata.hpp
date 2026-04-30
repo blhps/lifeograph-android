@@ -986,6 +986,7 @@ class DiaryElement : public Named
 
         virtual Ustring         get_list_str() const
         { return Glib::Markup::escape_text( m_name ); }
+        virtual Ustring         get_tip_str() const { return ""; }
 
         const D::DEID&          get_id() const { return m_id; }
         D::DEIDF                get_id_full() const;
