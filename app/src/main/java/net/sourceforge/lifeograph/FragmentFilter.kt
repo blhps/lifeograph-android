@@ -87,13 +87,6 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
 //        super.onDestroy()
 //    }
 
-    // DiaryEditor interface methods
-    override fun enableEditing() {
-    super.enableEditing()
-        updateMenuVisibilities()
-        mFabAdd.visibility = View.VISIBLE
-    }
-
     private fun updateToolbarButtons() {
         mButtonRemove.visibility = View.GONE
     }

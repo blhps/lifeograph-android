@@ -30,11 +30,4 @@
     <item android:id="@+id/rename"
           android:title="@string/rename"
           android:orderInCategory="100" />
-    <item android:id="@+id/edit_theme"
-          android:title="@string/edit_theme"
-          android:orderInCategory="100" />
-    <item android:id="@+id/logout_wo_save"
-          android:title="@string/logoutwosaving"
-          android:orderInCategory="100"
-          compat:showAsAction="never" />
 </menu>

@@ -95,6 +95,10 @@ JNI_METHOD(jboolean, Theme_nativeIsSystem)(JNIEnv*, jobject, jlong ptr) {
     return static_cast<jboolean>(reinterpret_cast<LoG::Theme*>(ptr)->is_system());
 }
 
+JNI_METHOD(jlong, Theme_nativeGetSystemTheme)(JNIEnv*, jclass) {
+    return reinterpret_cast<jlong>(LoG::ThemeSystem::get());
+}
+
 JNI_METHOD(void, Theme_nativeCopyTo)(JNIEnv*, jobject, jlong ptr, jlong ptr_theme) {
     if (ptr == 0 || ptr_theme == 0) return;
     auto p2theme_other = reinterpret_cast<LoG::Theme*>(ptr_theme);

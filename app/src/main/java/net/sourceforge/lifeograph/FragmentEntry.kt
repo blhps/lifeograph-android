@@ -382,11 +382,11 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private fun updateTheme() {
         val theme = mEntry._theme
-        mEditText.setBackgroundColor(theme._color_base)
-        mEditText.setTextColor(theme._color_text)
-        mButtonHighlight.setTextColor(theme._color_text)
+        mEditText.setBackgroundColor(theme.color_base)
+        mEditText.setTextColor(theme.color_text)
+        mButtonHighlight.setTextColor(theme.color_text)
         val spanStringH = SpannableString("H")
-        spanStringH.setSpan(BackgroundColorSpan(theme._color_highlight), 0, 1, 0)
+        spanStringH.setSpan(BackgroundColorSpan(theme.color_highlight), 0, 1, 0)
         mButtonHighlight.text = spanStringH
     }
 
@@ -707,7 +707,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             'T' -> { // TITLE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
-                edt.setSpan(ForegroundColorSpan(mEntry._theme._color_title), offset,
+                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_title), offset,
                                        offsetEnd, 0)
                 // TODO: handle_title_edited logic would go here if needed for Android UI
             }
@@ -715,7 +715,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             'S' -> { // LARGE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
                                        offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
-                edt.setSpan(ForegroundColorSpan(mEntry._theme._color_heading_L), offset,
+                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_heading_L), offset,
                                        offsetEnd, 0)
             }
 
@@ -741,7 +741,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
             when(p._list_type) {
                 'O' -> { // open to-do
-                    edt.setSpan(ForegroundColorSpan(theme._color_open), offset,
+                    edt.setSpan(ForegroundColorSpan(theme.color_open), offset,
                                            offsetEnd, 0)
                 }
 
@@ -749,8 +749,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //                    }
 
                 '+' -> { // done
-                    edt.setSpan(ForegroundColorSpan(theme._color_done), offset, offsetEnd, 0)
-                    edt.setSpan(BackgroundColorSpan(theme._color_done_bg), offset,
+                    edt.setSpan(ForegroundColorSpan(theme.color_done), offset, offsetEnd, 0)
+                    edt.setSpan(BackgroundColorSpan(theme.color_done_bg), offset,
                                            offsetEnd, 0)
                 }
 
@@ -778,7 +778,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         if( p.is_foldable ) { //&& !p.is_expanded )
             val spanFolding = SpanFolding(
                     p.is_expanded,
-                    if (p._heading_level == 'S') theme._color_heading_L else theme._color_heading_M,
+                    if (p._heading_level == 'S') theme.color_heading_L else theme.color_heading_M,
                     p._indent_level
                                          )
 
@@ -794,12 +794,12 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             // Ensure boundaries are valid
             if(fStart < 0 || fEnd > edt.length || fStart >= fEnd) continue
 
-            val colorMid = theme._color_mid
+            val colorMid = theme.color_mid
 
             when(format.type) {
                 'B' -> edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
                 'I' -> edt.setSpan(StyleSpan(Typeface.ITALIC), fStart, fEnd, 0)
-                'H' -> edt.setSpan(BackgroundColorSpan(theme._color_highlight), fStart, fEnd, 0 )
+                'H' -> edt.setSpan(BackgroundColorSpan(theme.color_highlight), fStart, fEnd, 0 )
                 'S' -> edt.setSpan(StrikethroughSpan(), fStart, fEnd, 0)
                 'U' -> edt.setSpan(UnderlineSpan(), fStart, fEnd, 0)
                 'F' -> edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
@@ -815,7 +815,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 }
                 'T' -> { // TAG
                     edt.setSpan(
-                        BackgroundColorSpan(theme._color_inline_tag), fStart, fEnd, 0)
+                        BackgroundColorSpan(theme.color_inline_tag), fStart, fEnd, 0)
                     edt.setSpan(
                         LinkID(format.refId.toInt()), fStart, fEnd, 0)
                 }
@@ -834,7 +834,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 }
                 'v' -> { // TAG VALUE
                     edt.setSpan(
-                        BackgroundColorSpan(theme._color_inline_tag), fStart, fEnd, 0)
+                        BackgroundColorSpan(theme.color_inline_tag), fStart, fEnd, 0)
                 }
                 'c' -> { // COMMENT / MARKUP
                     edt.setSpan(
@@ -853,21 +853,21 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 }
                 'm' -> { // MATCH
                     edt.setSpan(
-                        BackgroundColorSpan(theme._color_match_bg),
+                        BackgroundColorSpan(theme.color_match_bg),
                         fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
                     edt.setSpan(
-                        ForegroundColorSpan(theme._color_base),
+                        ForegroundColorSpan(theme.color_base),
                         fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
                 }
                 'k' -> { // KEYWORD
                     edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
-                    edt.setSpan(ForegroundColorSpan(theme._color_title), fStart, fEnd, 0)
+                    edt.setSpan(ForegroundColorSpan(theme.color_title), fStart, fEnd, 0)
                 }
                 '#' -> { // CODE COMMENT
                     edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
                 }
                 'g' -> { // CODE STRING
-                    edt.setSpan(ForegroundColorSpan(theme._color_match_bg), fStart, fEnd, 0)
+                    edt.setSpan(ForegroundColorSpan(theme.color_match_bg), fStart, fEnd, 0)
                 }
                 // Add other types (Date, ID, etc.) based on your ParserEditText.AdvancedSpan types
             }
@@ -1030,7 +1030,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
             when(val type = para._list_type) {
                 '-' -> { // Bullet
-                    p.color = theme._color_text
+                    p.color = theme.color_text
                     c.drawCircle(drawX + gapWidth / 2f, centerY, size / 3f, p)
                 }
 
@@ -1046,9 +1046,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     if(resId != 0) {
                         AppCompatResources.getDrawable(context, resId)?.let { drawable ->
 //                            val color = when(type) {
-//                                '+' -> theme._color_done
-//                                'O' -> theme._color_open
-//                                else -> theme._color_text
+//                                '+' -> theme.color_done
+//                                'O' -> theme.color_open
+//                                else -> theme.color_text
 //                            }
 //                            drawable.setTint(color)
                             val iconSize = (size * 1.3f).toInt()
@@ -1059,9 +1059,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                         }
                     } else {
 //                        p.color = when(type) {
-//                            '+' -> theme._color_done
-//                            'O' -> theme._color_open
-//                            else -> theme._color_text
+//                            '+' -> theme.color_done
+//                            'O' -> theme.color_open
+//                            else -> theme.color_text
 //                        }
 //                        val rect = RectF(drawX, centerY - size / 2, drawX + size, centerY + size / 2)
 //                        p.style = Paint.Style.STROKE
@@ -1078,7 +1078,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 }
 
                 '1' -> { // Numbered list
-                    p.color = theme._color_text
+                    p.color = theme.color_text
                     label?.let { c.drawText(it, drawX, baseline.toFloat(), p) }
                 }
             }

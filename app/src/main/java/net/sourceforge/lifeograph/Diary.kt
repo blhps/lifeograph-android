@@ -882,8 +882,8 @@ class Diary : DiaryElement {
         // NATIVE METHODS ==============================================================================
         @JvmStatic private external fun initCipher(): Boolean
         @JvmStatic private external fun nativeCreate(): Long
-        @JvmStatic external fun nativeCreateMain()
-        @JvmStatic external fun nativeGetMain(): Long
-        @JvmStatic external fun nativeGetDeidUnset(): Int // move to DiaryElement or create DEID?
+        @JvmStatic private external fun nativeCreateMain()
+        @JvmStatic private external fun nativeGetMain(): Long
+        @JvmStatic private external fun nativeGetDeidUnset(): Int // move to DiaryElement or create DEID?
     }
 }

@@ -19,9 +19,6 @@
 
  ***********************************************************************************/
 package net.sourceforge.lifeograph
-
-import net.sourceforge.lifeograph.Diary.Companion.nativeGetMain
-
 abstract class StringDefElem protected constructor(nativePtr: Long) : DiaryElement(nativePtr) {
     override fun get_size(): Int {
         return 0
@@ -29,7 +26,7 @@ abstract class StringDefElem protected constructor(nativePtr: Long) : DiaryEleme
 
     var definition: String
         get() = nativeGetDefinition(mNativePtr)
-        set(def: String) = nativeSetDefinition(mNativePtr, def)
+        set(def) = nativeSetDefinition(mNativePtr, def)
 
 //    fun add_definition_line(line: String) {
 //        if(!m_definition!!.isEmpty()) m_definition += '\n'

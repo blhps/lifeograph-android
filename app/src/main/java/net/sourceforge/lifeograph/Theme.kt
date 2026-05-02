@@ -18,84 +18,91 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+package net.sourceforge.lifeograph
 
-package net.sourceforge.lifeograph;
+import android.graphics.Color
+import androidx.core.graphics.toColorInt
 
 
-import android.graphics.Color;
-
-public class Theme extends DiaryElement {
-
-    private String colorToHex(int color) { return String.format("#%06X", (0xFFFFFF & color)); }
-
-    protected Theme(long nativePtr) {
-        super(nativePtr);
+class Theme(nativePtr: Long) : DiaryElement(nativePtr) {
+    private fun colorToHex(color: Int): String {
+        return String.format("#%06X", (0xFFFFFF and color))
     }
 
-    @Override
-    public int getIcon() { return R.drawable.ic_theme; }
+    override fun getIcon(): Int {
+        return R.drawable.ic_theme
+    }
 
-    boolean
-    is_system() { return nativeIsSystem(mNativePtr); }
+    fun is_system(): Boolean { return nativeIsSystem(mNativePtr) }
 
-    void
-    copy_to( Theme target ) { nativeCopyTo(mNativePtr, target.mNativePtr); }
+    fun copy_to(target: Theme) {
+        nativeCopyTo(mNativePtr, target.mNativePtr)
+    }
 
-    int
-    get_color_base() { return Color.parseColor(nativeGetColorBase(mNativePtr)); }
-    int
-    get_color_text() { return Color.parseColor(nativeGetColorText(mNativePtr)); }
-    int
-    get_color_title() { return Color.parseColor(nativeGetColorTitle(mNativePtr)); }
-    int
-    get_color_heading_L() { return Color.parseColor(nativeGetColorHeadingL(mNativePtr)); }
-    int
-    get_color_highlight() { return Color.parseColor(nativeGetColorHighlight(mNativePtr)); }
-    int
-    get_color_heading_M() { return Color.parseColor(nativeGetColorHeadingM(mNativePtr)); }
-    int
-    get_color_mid() { return Color.parseColor(nativeGetColorMid(mNativePtr)); }
-    int
-    get_color_match_bg() { return Color.parseColor(nativeGetColorMatchBG(mNativePtr)); }
-    int
-    get_color_inline_tag() { return Color.parseColor(nativeGetColorInlineTag(mNativePtr)); }
-    int
-    get_color_open() { return Color.parseColor(nativeGetColorOpen(mNativePtr)); }
-    int
-    get_color_done() { return Color.parseColor(nativeGetColorDone(mNativePtr)); }
-    int
-    get_color_done_bg() { return Color.parseColor(nativeGetColorDoneBG(mNativePtr)); }
+    fun resetToSystem() {
+        get_system_theme().copy_to(this)
+    }
 
-    void
-    set_color_base( int color ) { nativeSetColorBase(mNativePtr, colorToHex( color ) ); }
-    void
-    set_color_text( int color ) { nativeSetColorText(mNativePtr, colorToHex( color ) ); }
-    void
-    set_color_title( int color ) { nativeSetColorTitle(mNativePtr, colorToHex( color ) ); }
-    void
-    set_color_heading_L( int color ) { nativeSetColorHeadingL(mNativePtr, colorToHex( color ) ); }
-    void
-    set_color_highlight( int color ) { nativeSetColorHighlight(mNativePtr, colorToHex( color ) ); }
+    var color_base: Int
+        get() { return nativeGetColorBase(mNativePtr).toColorInt() }
+        set(color: Int) { nativeSetColorBase(mNativePtr, colorToHex(color)) }
+
+    var color_text: Int
+        get() { return nativeGetColorText(mNativePtr).toColorInt() }
+        set(color: Int) { nativeSetColorText(mNativePtr, colorToHex(color)) }
+
+    var color_title: Int
+        get() { return  nativeGetColorTitle(mNativePtr).toColorInt() }
+        set(color: Int) { nativeSetColorTitle(mNativePtr, colorToHex(color)) }
+
+    var color_heading_L: Int
+        get() { return nativeGetColorHeadingL(mNativePtr).toColorInt() }
+        set(color: Int) { nativeSetColorHeadingL(mNativePtr, colorToHex(color)) }
+
+    var color_highlight: Int
+        get() { return nativeGetColorHighlight(mNativePtr).toColorInt() }
+        set(color: Int) { nativeSetColorHighlight(mNativePtr, colorToHex(color)) }
+
+    val color_heading_M: Int get() { return nativeGetColorHeadingM(mNativePtr).toColorInt() }
+
+    val color_mid: Int get() { return nativeGetColorMid(mNativePtr).toColorInt() }
+
+    val color_match_bg: Int get() { return nativeGetColorMatchBG(mNativePtr).toColorInt() }
+
+    val color_inline_tag: Int get() { return nativeGetColorInlineTag(mNativePtr).toColorInt() }
+
+    val color_open: Int get() { return nativeGetColorOpen(mNativePtr).toColorInt() }
+
+    val color_done: Int get() { return nativeGetColorDone(mNativePtr).toColorInt() }
+
+    val color_done_bg: Int get() { return nativeGetColorDoneBG(mNativePtr).toColorInt() }
 
     // NATIVE FUNCTIONS ============================================================================
-    private native boolean nativeIsSystem(long ptr);
-    private native void nativeCopyTo(long ptr, long ptr_theme);
-    private native String nativeGetColorBase(long ptr);
-    private native String nativeGetColorText(long ptr);
-    private native String nativeGetColorTitle(long ptr);
-    private native String nativeGetColorHeadingL(long ptr);
-    private native String nativeGetColorHighlight(long ptr);
-    private native String nativeGetColorHeadingM(long ptr);
-    private native String nativeGetColorMid(long ptr);
-    private native String nativeGetColorMatchBG(long ptr);
-    private native String nativeGetColorInlineTag(long ptr);
-    private native String nativeGetColorOpen(long ptr);
-    private native String nativeGetColorDone(long ptr);
-    private native String nativeGetColorDoneBG(long ptr);
+    private external fun nativeIsSystem(ptr: Long): Boolean
+    private external fun nativeCopyTo(ptr: Long, ptr_theme: Long)
+    private external fun nativeGetColorBase(ptr: Long): String
+    private external fun nativeGetColorText(ptr: Long): String
+    private external fun nativeGetColorTitle(ptr: Long): String
+    private external fun nativeGetColorHeadingL(ptr: Long): String
+    private external fun nativeGetColorHighlight(ptr: Long): String
+    private external fun nativeGetColorHeadingM(ptr: Long): String
+    private external fun nativeGetColorMid(ptr: Long): String
+    private external fun nativeGetColorMatchBG(ptr: Long): String
+    private external fun nativeGetColorInlineTag(ptr: Long): String
+    private external fun nativeGetColorOpen(ptr: Long): String
+    private external fun nativeGetColorDone(ptr: Long): String
+    private external fun nativeGetColorDoneBG(ptr: Long): String
 
-    private native void nativeSetColorBase(long ptr, String color);
-    private native void nativeSetColorText(long ptr, String color);
-    private native void nativeSetColorTitle(long ptr, String color);
-    private native void nativeSetColorHeadingL(long ptr, String color);
-    private native void nativeSetColorHighlight(long ptr, String color);
+    private external fun nativeSetColorBase(ptr: Long, color: String)
+    private external fun nativeSetColorText(ptr: Long, color: String)
+    private external fun nativeSetColorTitle(ptr: Long, color: String)
+    private external fun nativeSetColorHeadingL(ptr: Long, color: String)
+    private external fun nativeSetColorHighlight(ptr: Long, color: String)
+
+
+    companion object {
+        fun get_system_theme(): Theme { return Theme( nativeGetSystemTheme() ) }
+
+        @JvmStatic private external fun nativeGetSystemTheme(): Long
+    }
 }

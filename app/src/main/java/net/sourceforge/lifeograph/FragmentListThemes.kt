@@ -109,7 +109,7 @@ class FragmentListThemes : FragmentListElems(), Listener
                 if(selected) {
                     val themeSrc = mElems[i] as Theme
                     val themeNew = Diary.main.create_theme(text)
-                    themeSrc.copy_to(themeNew)
+                    themeNew?.let { themeSrc.copy_to(it) }
                     break
                 }
             }

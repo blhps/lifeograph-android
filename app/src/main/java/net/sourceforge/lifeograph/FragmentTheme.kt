@@ -75,23 +75,23 @@ class FragmentTheme: FragmentDiaryEditor() {
         updateButtonColors()
         mButtonTextColor.setOnClickListener {
             sIndex = 0
-            showColorDialog(mTheme._color_text + -0x1000000)
+            showColorDialog(mTheme.color_text + -0x1000000)
         }
         mButtonBaseColor.setOnClickListener {
             sIndex = 1
-            showColorDialog(mTheme._color_base + -0x1000000)
+            showColorDialog(mTheme.color_base + -0x1000000)
         }
         mButtonHeadingColor.setOnClickListener {
             sIndex = 2
-            showColorDialog(mTheme._color_title + -0x1000000)
+            showColorDialog(mTheme.color_title + -0x1000000)
         }
         mButtonSubheadingColor.setOnClickListener {
             sIndex = 3
-            showColorDialog(mTheme._color_heading_L + -0x1000000)
+            showColorDialog(mTheme.color_heading_L + -0x1000000)
         }
         mButtonHighlightColor.setOnClickListener {
             sIndex = 4
-            showColorDialog(mTheme._color_highlight + -0x1000000)
+            showColorDialog(mTheme.color_highlight + -0x1000000)
         }
         mButtonReset.setOnClickListener { resetTheme() }
     }
@@ -109,11 +109,11 @@ class FragmentTheme: FragmentDiaryEditor() {
                                        override fun onOk(dialog: AmbilWarnaDialog, color: Int) {
                                            mButtonReset.isEnabled = true
                                            when(sIndex) {
-                                               0 -> mTheme._color_text = color
-                                               1 -> mTheme._color_base = color
-                                               2 -> mTheme._color_title = color
-                                               3 -> mTheme._color_heading_L = color
-                                               4 -> mTheme._color_highlight = color
+                                               0 -> mTheme.color_text = color
+                                               1 -> mTheme.color_base = color
+                                               2 -> mTheme.color_title = color
+                                               3 -> mTheme.color_heading_L = color
+                                               4 -> mTheme.color_highlight = color
                                            }
                                            updateButtonColors()
                                        }
@@ -126,29 +126,37 @@ class FragmentTheme: FragmentDiaryEditor() {
     }
 
     private fun resetTheme() {
-        // TODO mTheme.reset();
+        mTheme.resetToSystem()
         mButtonReset.isEnabled = false
         updateButtonColors()
     }
 
     private fun updateButtonColors() {
         val theme = mTheme
-        mButtonTextColor.setBackgroundColor(theme._color_text)
-        mButtonBaseColor.setBackgroundColor(theme._color_base)
-        mButtonHeadingColor.setBackgroundColor(theme._color_title)
-        mButtonSubheadingColor.setBackgroundColor(theme._color_heading_L)
-        mButtonHighlightColor.setBackgroundColor(theme._color_highlight)
-        mButtonTextColor.setTextColor(getContrastColor(theme._color_text))
-        mButtonBaseColor.setTextColor(getContrastColor(theme._color_base))
-        mButtonHeadingColor.setTextColor(getContrastColor(theme._color_title))
-        mButtonSubheadingColor.setTextColor(getContrastColor(theme._color_heading_L))
-        mButtonHighlightColor.setTextColor(getContrastColor(theme._color_highlight))
+        mButtonTextColor.setBackgroundColor(theme.color_text)
+        mButtonBaseColor.setBackgroundColor(theme.color_base)
+        mButtonHeadingColor.setBackgroundColor(theme.color_title)
+        mButtonSubheadingColor.setBackgroundColor(theme.color_heading_L)
+        mButtonHighlightColor.setBackgroundColor(theme.color_highlight)
+        mButtonTextColor.setTextColor(getContrastColor(theme.color_text))
+        mButtonBaseColor.setTextColor(getContrastColor(theme.color_base))
+        mButtonHeadingColor.setTextColor(getContrastColor(theme.color_title))
+        mButtonSubheadingColor.setTextColor(getContrastColor(theme.color_heading_L))
+        mButtonHighlightColor.setTextColor(getContrastColor(theme.color_highlight))
     }
 
     override fun updateMenuVisibilities() {
         super.updateMenuVisibilities()
 
         val flagWritable = Diary.main.is_in_edit_mode()
-        mMenu.findItem(R.id.rename).isVisible = flagWritable
+        mMenu.findItem(R.id.rename).isVisible = false // TODO: 2.1
+
+        mButtonTextColor.isEnabled = flagWritable
+        mButtonBaseColor.isEnabled = flagWritable
+        mButtonHeadingColor.isEnabled = flagWritable
+        mButtonSubheadingColor.isEnabled = flagWritable
+        mButtonHighlightColor.isEnabled = flagWritable
+        mButtonReset.isEnabled = flagWritable
     }
+
 }
