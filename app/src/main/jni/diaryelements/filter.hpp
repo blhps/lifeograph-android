@@ -217,14 +217,14 @@ class FiltererIs : public Filterer
         int                     m_depth       { VT::OP_DEPTH::DEFAULT::I };
 };
 
-class FiltererTaggedBy : public Filterer
+class FiltererHasTag : public Filterer
 {
     public:
         int                     get_obj_classes() const override { return m_obj_classes; }
 
-        FiltererTaggedBy( FiltererContainer* ctr, DiaryElemTag* tag = nullptr,
-                          bool F_consider_parents = false )
-        : Filterer( ctr ), m_tag( tag ), m_F_consider_parents( F_consider_parents ) {}
+        FiltererHasTag( FiltererContainer* ctr, DiaryElemTag* tag = nullptr,
+                        bool F_consider_parents = false )
+        : Filterer( ctr ), m_p2tag( tag ), m_F_consider_parents( F_consider_parents ) {}
 
         void                    initialize_ui( FiltererContainerUI* ) override;
         bool                    filter( const Entry* ) const override;
@@ -235,20 +235,20 @@ class FiltererTaggedBy : public Filterer
         const static int        m_obj_classes { FOC::ENTRIES | FOC::PARAGRAPHS };
 
     // protected:
-        DiaryElemTag*           m_tag;
+        DiaryElemTag*           m_p2tag;
         bool                    m_F_consider_parents;
 };
 
-class FiltererSubtaggedBy : public Filterer
+class FiltererHasSubtag : public Filterer
 {
     public:
         int                     get_obj_classes() const override { return m_obj_classes; }
 
-        FiltererSubtaggedBy( FiltererContainer* ctr,
-                             DiaryElemTag* tag_parent = nullptr, DiaryElemTag* tag_child = nullptr,
-                             char rel = '=', int type = VT::LAST )
+        FiltererHasSubtag( FiltererContainer* ctr,
+                           DiaryElemTag* tag_parent = nullptr, DiaryElemTag* tag_child = nullptr,
+                           char rel = '=', int type = VT::LAST )
         : Filterer( ctr ), m_tag_parent( tag_parent ), m_tag_child( tag_child ),
-                              m_relation( rel ), m_type( type ) {}
+          m_relation( rel ), m_type( type ) {}
 
         void                    initialize_ui( FiltererContainerUI* ) override;
         bool                    filter( const Entry* ) const override;
@@ -755,7 +755,7 @@ class FiltererContainer final : public Filterer
             m_pipeline.push_back( filterer );
             return filterer;
         }
-        void                    remove_filterer( Filterer* );
+        bool                    remove_filterer( Filterer* );
 
         void                    set_last_filterer_not()
         { m_pipeline.back()->set_not( true ); }

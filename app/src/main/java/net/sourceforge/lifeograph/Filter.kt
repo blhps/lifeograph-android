@@ -32,6 +32,14 @@ open class Filter(nativePtr: Long) : StringDefElem(nativePtr) {
 
     companion object {
         val ALL : All = All()
+
+        // Filterer Types:
+        const val FT_STATUS         = 's'
+        const val FT_FAVORITE       = 'f'
+        const val FT_TRASHED        = 't'
+        const val FT_IS             = 'i'
+        const val FT_HAS_TAG        = 'r'
+        const val FT_UNSOPPRTED     = '~'
     }
 
     override fun

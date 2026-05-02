@@ -253,36 +253,36 @@ FiltererIs::get_as_human_readable_str() const
                                                            : _( "itself or a descendant of" ) ) );
 }
 
-// FILTERER TAGGED BY ==============================================================================
+// FILTERER HAS TAG ================================================================================
 bool
-FiltererTaggedBy::filter( const Entry* entry ) const
+FiltererHasTag::filter( const Entry* entry ) const
 {
-    return( m_tag == nullptr || entry->has_tag_broad( m_tag, m_F_consider_parents ) );
+    return( m_p2tag == nullptr || entry->has_tag_broad( m_p2tag, m_F_consider_parents ) );
 }
 bool
-FiltererTaggedBy::filter( const Paragraph* para ) const
+FiltererHasTag::filter( const Paragraph* para ) const
 {
-    return( m_tag == nullptr || para->has_tag_broad( m_tag, m_F_consider_parents ) );
+    return( m_p2tag == nullptr || para->has_tag_broad( m_p2tag, m_F_consider_parents ) );
 }
 
 void
-FiltererTaggedBy::get_as_string( Ustring& string ) const
+FiltererHasTag::get_as_string( Ustring& string ) const
 {
     string += STR::compose( "\nFr", m_F_consider_parents ? 'P' : '~',
-                            get_id_raw_failsafe( m_tag ) );
+                            get_id_raw_failsafe( m_p2tag ) );
 }
 Ustring
-FiltererTaggedBy::get_as_human_readable_str() const
+FiltererHasTag::get_as_human_readable_str() const
 {
     return( STR::compose(
         m_F_consider_parents ? _( "Itself or one of its parents" ) : _( "Itself" ),
         is_not() ? _( "is NOT tagged by" ) : _( "is tagged by" ), " ",
-        m_tag ? "\"" + m_tag->get_name() + "\"" : "--" ) );
+        m_p2tag ? "\"" + m_p2tag->get_name() + "\"" : "--" ) );
 }
 
-// FILTERER SUBTAGGED BY ===========================================================================
+// FILTERER HAS SUBTAG =============================================================================
 bool
-FiltererSubtaggedBy::filter( const Entry* entry ) const
+FiltererHasSubtag::filter( const Entry* entry ) const
 {
     if( m_tag_parent == nullptr )
         return true;
@@ -307,7 +307,7 @@ FiltererSubtaggedBy::filter( const Entry* entry ) const
     return filter_common( subtag );
 }
 bool
-FiltererSubtaggedBy::filter( const Paragraph* para ) const
+FiltererHasSubtag::filter( const Paragraph* para ) const
 {
     if( m_tag_parent == nullptr )
         return true;
@@ -332,7 +332,7 @@ FiltererSubtaggedBy::filter( const Paragraph* para ) const
     return filter_common( subtag );
 }
 bool
-FiltererSubtaggedBy::filter_common( DiaryElemTag* subtag ) const
+FiltererHasSubtag::filter_common( DiaryElemTag* subtag ) const
 {
     if( !subtag )      return false;
     if( !m_tag_child ) return true; // if no child tag is selected, any tag will do
@@ -346,7 +346,7 @@ FiltererSubtaggedBy::filter_common( DiaryElemTag* subtag ) const
 }
 
 void
-FiltererSubtaggedBy::get_as_string( Ustring& string ) const
+FiltererHasSubtag::get_as_string( Ustring& string ) const
 {
     string += STR::compose( "\nFb", get_id_raw_failsafe( m_tag_parent ),
                                     '|', m_relation, '|',
@@ -355,7 +355,7 @@ FiltererSubtaggedBy::get_as_string( Ustring& string ) const
                                     m_type );
 }
 Ustring
-FiltererSubtaggedBy::get_as_human_readable_str() const
+FiltererHasSubtag::get_as_human_readable_str() const
 {
     Ustring str;
 
@@ -1105,7 +1105,7 @@ FiltererScript::get_as_human_readable_str() const
 
 // FILTERER CONTAINER ==============================================================================
 // this is re-implemented in WidgetFilter:
-void
+bool
 FiltererContainer::remove_filterer( Filterer* filterer )
 {
     // NOTE: no longer deletes the filterer as it causes conflicts with the GUI version.
@@ -1117,9 +1117,10 @@ FiltererContainer::remove_filterer( Filterer* filterer )
         {
             m_pipeline.erase( iter );
             // delete filterer;
-            break;
+            return true;
         }
     }
+    return false;
 }
 
 // this is re-implemented in WidgetFilter:
@@ -1191,9 +1192,9 @@ FiltererContainer::set_from_string( const Ustring& string )
                 ++index;
                 const auto id_c  { D::DEID( LoGID32( STR::get_i32( line, ++index ) ) ) };
                 const auto type  { STR::get_i32( line, ++index ) };
-                container->add< FiltererSubtaggedBy >( m_p2diary->get_tag_by_id( id_p ),
-                                                       m_p2diary->get_tag_by_id( id_c ),
-                                                       rel, type );
+                container->add< FiltererHasSubtag >( m_p2diary->get_tag_by_id( id_p ),
+                                                     m_p2diary->get_tag_by_id( id_c ),
+                                                     rel, type );
                 break;
             }
             case 'c':   // completion
@@ -1303,11 +1304,11 @@ FiltererContainer::set_from_string( const Ustring& string )
             case 'o':   // has map coordinates (bool)
                 container->add< FiltererHasCoords >();
                 break;
-            case 'r':   // tagged/referenced by (DEID)
+            case 'r':   // has tag/references (DEID)
             {
                 const auto id{ D::DEID( line.substr( 3 ) ) };
-                container->add< FiltererTaggedBy >( m_p2diary->get_tag_by_id( id ),
-                                                    line[ 2 ] == 'P' );
+                container->add< FiltererHasTag >( m_p2diary->get_tag_by_id( id ),
+                                                  line[ 2 ] == 'P' );
                 if( line[ 2 ] == 'F' ) // support for old diaries
                     set_last_filterer_not();
                 break;
@@ -1507,11 +1508,11 @@ void FiltererUnit::initialize_ui( FiltererContainerUI* p2FC )
 void FiltererIs::initialize_ui( FiltererContainerUI* p2FC )
 { p2FC->add_filterer< FiltererIsUI, FiltererIs >( this ); }
 
-void FiltererTaggedBy::initialize_ui( FiltererContainerUI* p2FC )
-{ p2FC->add_filterer< FiltererTaggedByUI, FiltererTaggedBy >( this ); }
+void FiltererHasTag::initialize_ui( FiltererContainerUI* p2FC )
+{ p2FC->add_filterer< FiltererHasTagUI, FiltererHasTag >( this ); }
 
-void FiltererSubtaggedBy::initialize_ui( FiltererContainerUI* p2FC )
-{ p2FC->add_filterer< FiltererSubtaggedByUI,FiltererSubtaggedBy >( this ); }
+void FiltererHasSubtag::initialize_ui( FiltererContainerUI* p2FC )
+{ p2FC->add_filterer< FiltererHasSubtagUI,FiltererHasSubtag >( this ); }
 
 void FiltererDefinesTag::initialize_ui( FiltererContainerUI* p2FC )
 { p2FC->add_filterer< FiltererDefinesTagUI,FiltererDefinesTag >( this ); }
@@ -1576,8 +1577,8 @@ void FiltererFavorite::initialize_ui( FiltererContainerUI* p2FC ) {}
 void FiltererTrashed::initialize_ui( FiltererContainerUI* p2FC ) {}
 void FiltererUnit::initialize_ui( FiltererContainerUI* p2FC ) {}
 void FiltererIs::initialize_ui( FiltererContainerUI* p2FC ) {}
-void FiltererTaggedBy::initialize_ui( FiltererContainerUI* p2FC ) {}
-void FiltererSubtaggedBy::initialize_ui( FiltererContainerUI* p2FC ) {}
+void FiltererHasTag::initialize_ui( FiltererContainerUI* p2FC ) {}
+void FiltererHasSubtag::initialize_ui( FiltererContainerUI* p2FC ) {}
 void FiltererDefinesTag::initialize_ui( FiltererContainerUI* p2FC ) {}
 void FiltererTagValue::initialize_ui( FiltererContainerUI* p2FC ) {}
 void FiltererTheme::initialize_ui( FiltererContainerUI* p2FC ) {}

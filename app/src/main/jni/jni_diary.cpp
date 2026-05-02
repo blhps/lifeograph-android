@@ -29,6 +29,9 @@ JNI_METHOD(jlong, Diary_nativeGetMain)(JNIEnv* env, jclass) {
     return reinterpret_cast<jlong>(LoG::Diary::d);
 }
 
+JNI_METHOD(jint, Diary_nativeGetDeidUnset)(JNIEnv* env, jclass) {
+    return static_cast<jint>(LoG::DEID::UNSET.get_raw());
+}
 
 JNI_METHOD(void, Diary_nativeInitNewPre)(JNIEnv* env, jobject, jlong ptr) {
     reinterpret_cast<LoG::Diary*>(ptr)->init_new_pre();
@@ -226,11 +229,11 @@ JNI_METHOD(jlong, Diary_nativeGetEntryMostCurrent)(JNIEnv* env, jobject obj, jlo
 }
 
 JNI_METHOD(jlong, Diary_nativeGetEntryById)(JNIEnv* env, jobject obj, jlong ptr, jint id) {
-    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_entry_by_id(LoG::LoGID32 (id)));
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_entry_by_id(LoG::LoGID32(id)));
 }
 
 JNI_METHOD(jlong, Diary_nativeGetParagraphById)(JNIEnv* env, jobject obj, jlong ptr, jint id) {
-    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_paragraph_by_id(LoG::LoGID32 (id)));
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_paragraph_by_id(LoG::LoGID32(id)));
 }
 
 JNI_METHOD(jlong, Diary_nativeGetEntryByDate)(JNIEnv* env, jobject obj, jlong ptr, jlong date) {
@@ -434,6 +437,13 @@ JNI_METHOD(jlong, Diary_nativeGetElement)(JNIEnv* env, jobject obj, jlong ptr, j
 
 JNI_METHOD(jlong, Diary_nativeGetTagById)(JNIEnv* env, jobject obj, jlong ptr, jint id) {
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Diary*>(ptr)->get_tag_by_id(LoG::LoGID32(id )));
+}
+
+JNI_METHOD(jlong, Diary_nativeGetTagByName)(JNIEnv* env, jobject obj, jlong ptr, jstring name) {
+    const char* c_name = env->GetStringUTFChars(name, nullptr);
+    auto result = reinterpret_cast<LoG::Diary*>(ptr)->get_tag_by_name(c_name);
+    env->ReleaseStringUTFChars(name, c_name);
+    return reinterpret_cast<jlong>( result );
 }
 
 JNI_METHOD(jlongArray, Diary_nativeGetCharts)(JNIEnv* env, jobject obj, jlong ptr) {

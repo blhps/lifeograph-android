@@ -47,7 +47,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     private lateinit var    mButtonRemove : ImageButton
     companion object {
         lateinit var mFilter: Filter
-        var mStack: FiltererContainer? = null
+        private var mStack: FiltererContainer? = null
         fun setFilter(filter: Filter) {
             mFilter = filter
             mStack = mFilter.get_filterer_stack()
@@ -110,42 +110,44 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
     private fun updateFilterWidgets() {
         mElems.clear()
-        for(filterer in mStack!!.m_pipeline)
-            mElems.add(filterer)
+        mStack?.pipeline?.let { mElems.addAll(it) }
     }
 
     private fun addFilterer() {
         DialogPicker(requireContext(), object: DialogPicker.Listener{
             override fun onItemClick(item: RViewAdapterBasic.Item) {
-                when(item.mId) {
-                    "STATUS" -> { mStack!!.add_filterer_status( DiaryElement.ES_FILTER_TRASHED ) }
-                    "FAVORITE" -> { mStack!!.add_filterer_favorite( true ) }
-                    "TRASHED" -> { mStack!!.add_filterer_trashed( true ) }
-                    "IS" -> { mStack!!.add_filterer_is( 404 /*TODO: DEID.UNSET*/, true ) }
-                    "HASTAG" -> { mStack!!.add_filterer_tagged_by( null, true ) }
+                mStack?.let {
+                    when(item.mId[0]) {
+                        Filter.FT_STATUS -> it.add_filterer_status()
+                        Filter.FT_FAVORITE -> it.add_filterer_favorite()
+                        Filter.FT_TRASHED -> it.add_filterer_trashed()
+                        Filter.FT_IS -> it.add_filterer_is()
+                        Filter.FT_HAS_TAG -> it.add_filterer_has_tag()
+                    }
+
+                    mSelectionStatuses.add(false)
+                    updateFilterWidgets()
+                    mAdapter.notifyItemChanged( it.pipeline.size - 1 )
                 }
-                mSelectionStatuses.add(false)
-                updateFilterWidgets()
-                mAdapter.notifyItemChanged( mStack!!.m_pipeline.size - 1 )
             }
 
             override fun populateItems(list: RVBasicList) {
                 list.clear()
 
                 list.add(RViewAdapterBasic.Item(
-                    Lifeograph.getStr(R.string.filter_status), "STATUS",
+                    Lifeograph.getStr(R.string.filter_status), Filter.FT_STATUS.toString(),
                     R.drawable.ic_filter))
                 list.add(RViewAdapterBasic.Item(
-                    Lifeograph.getStr(R.string.filter_favorite), "FAVORITE",
+                    Lifeograph.getStr(R.string.filter_favorite), Filter.FT_FAVORITE.toString(),
                     R.drawable.ic_filter))
                 list.add(RViewAdapterBasic.Item(
-                    Lifeograph.getStr(R.string.filter_trashed), "TRASHED",
+                    Lifeograph.getStr(R.string.filter_trashed), Filter.FT_TRASHED.toString(),
                     R.drawable.ic_filter))
                 list.add(RViewAdapterBasic.Item(
-                    Lifeograph.getStr(R.string.filter_is), "IS",
+                    Lifeograph.getStr(R.string.filter_is), Filter.FT_IS.toString(),
                     R.drawable.ic_filter))
                 list.add(RViewAdapterBasic.Item(
-                    Lifeograph.getStr(R.string.filterer_has_tag), "HASTAG",
+                    Lifeograph.getStr(R.string.filterer_has_tag), Filter.FT_HAS_TAG.toString(),
                     R.drawable.ic_filter))
             }
         }).show()
@@ -238,7 +240,7 @@ class FragmentFilter : FragmentDiaryEditor(), RVAdapterFilterers.Listener  {
     }
 
     private fun saveFilter() {
-        mFilter.definition = mStack!!._as_string
+        mStack?.let{ mFilter.definition = it.get_as_string() }
 
         Diary.main.update_all_entries_filter_status()
     }

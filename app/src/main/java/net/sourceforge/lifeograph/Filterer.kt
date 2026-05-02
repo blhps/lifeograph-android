@@ -18,29 +18,16 @@
     along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
 
  ***********************************************************************************/
+package net.sourceforge.lifeograph
 
-package net.sourceforge.lifeograph;
+abstract class Filterer( val mNativePtr: Long ) {
+    open fun isContainer(): Boolean { return false }
 
-public abstract class Filterer
-{
-    Filterer( Diary diary, FiltererContainer p2container ) {
-        m_p2container = p2container;
-        m_p2diary = diary;
-        m_f_has = true;
-    }
+    var f_not: Boolean
+        get() { return nativeGetNot(mNativePtr) }
+        set(value) { nativeSetNot(mNativePtr, value) }
 
-    boolean
-    is_container() {
-        return false;
-    }
-
-//    abstract boolean
-//    filter( Entry entry );
-//
-//    abstract void
-//    get_as_string( StringBuilder string );
-
-    protected FiltererContainer m_p2container;
-    protected Diary             m_p2diary;
-    boolean                     m_f_has;
+    // NATIVE METHODS ==============================================================================
+    private external fun nativeGetNot(ptr: Long): Boolean
+    private external fun nativeSetNot(ptr: Long, value: Boolean)
 }
