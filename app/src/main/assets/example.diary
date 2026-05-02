@@ -4,10 +4,10 @@ E n
 Id15664173
 
 Do~~~~
-Dp2
+Dp5
 Dsen_US
 Df10034
-Dl4710117
+Dl25312722
 
 ID13509258
 T ~general
@@ -70,7 +70,7 @@ EpDThis is an example diary showcasing some features of Lifeograph. It also cont
 ID10033
 E F_n_BN___~~~~~~201209160000000
 Ec201206090124417
-Ee201501040173416
+Ee202605020221420
 Et201411200000000
 Eha10034
 Emgeneral
@@ -112,8 +112,8 @@ N 202603290215347|202603290215347|91122786
 EpDWeb and email addresses in the text are detected and automatically converted to links:
 N 202603290215347|202603290215347|11907739
 Ep<_-E~1_____~~~~~http://web.address
-N 202603290215347|202603290215347|63513309
-Ep<_-E~1_____~~~~~email@ddress
+N 202603290215347|202605020221420|63513309
+Ep<_-E~1_____~~~~~email@ddress.com
 N 202603290215347|202603290215347|88996607
 EpD
 N 202603290215347|202603290215347|88384955
@@ -123,7 +123,7 @@ EfT0|7|10043
 ID10002
 E __n_BN___~~~~~~201501040173432
 Ec201501040173432
-Ee202603290220645
+Ee202605020221553
 Eha10033
 Emgeneral
 N 202603290215347|202603290215347|34033482
@@ -132,8 +132,8 @@ N 202603290215347|202603290215347|28213603
 EpD
 N 202603290215347|202603290220628|89220785
 EpDAndroid version provides most of the features in the Linux desktop version and the missing functionality —as long as it makes sense in Android environment— will be implemented in the future releases. The main functionality missing on Android are as follows:
-N 202603290215347|202603290220633|55717093
-Ep<_-E~1_____~~~~~Hidden entries and filtering by date interval
+N 202603290215347|202605020221553|55717093
+Ep<_-E~1_____~~~~~Several filterers are not available to add (the ones added in desktop versions work)
 N 202603290215347|202603290220637|80876489
 Ep<_-E~1_____~~~~~Printing
 N 202603290215347|202603290220640|45802630
@@ -150,28 +150,89 @@ N 202603290215347|202603290215347|60912033
 EpDgeneral
 EfT0|7|10043
 
-ID89793631
-E __n_DN___~~~~~~202405200000000
-Ec202603290215459
-Ee202603290221210
+ID25312722
+E __n_DN___~~~~~~202605020000000
+Ec202605020221621
+Ee202605020230636
 Eha10032
+Emmajor milestone
+N 202605020221621|202605020222607|26930804
+EpD2.0.0.Beta1 / The Squirrel Princess
+N 202605020221652|202605020222617|67851253
+EpD2026.05.02
+N 202605020221652|202605020221652|19309687
+Ep<S_E~0_____~~~~~What is new?
+N 202605020221652|202605020222815|96236163
+Ep<_-E~1_____~~~~~Completely replaced the core with the C++ core that is used in the desktop
+N 202605020222815|202605020223009|78827529
+Ep<_-E~2_____~~~~~This will improve performance while ensuring performance parity between the different versions
+N 202605020223009|202605020223110|50505323
+Ep<_-E~1_____~~~~~As a result of above item, some of the  latest features in the desktop version are now available. Most prominently,
+N 202605020223110|202605020223252|98258227
+Ep<_-E~2_____~~~~~Improved entry text parsing including code syntax highlighting
+N 202605020223156|202605020223515|69446624
+Ep<_-E~2_____~~~~~Greatly improved chart drawing
+N 202605020223516|202605020223744|69631549
+Ep<_-E~2_____~~~~~New entry list system that behaves similar to latest desktop versions
+N 202605020230500|202605020230515|14035136
+Ep<_-E~2_____~~~~~Paragraph folding is supported in the entry editor
+N 202605020230621|202605020230636|53569403
+Ep<_-E~2_____~~~~~Additional list styles such as roman numerals
+N 202605020230545|202605020230559|37240796
+Ep<_-E~2_____~~~~~Entry title styles can be edited
+N 202605020221652|202605020230404|12354204
+Ep<_-E~1_____~~~~~New folder permission system that allows saving backup and lock files to the same directory enabling greater interoperability with desktop versions for shared folders
+N 202605020230404|202605020230424|73400047
+Ep<_-E~1_____~~~~~Updated the icons, including the new main icon
+N 202605020230344|202605020230355|29112146
+Ep<_-E~1_____~~~~~Upgraded all dependencies
+
+ID86293761
+E __n_DN___~~~~~~202508310000000
+Ec202605020223953
+Ee202605020230259
+Eha25312722
+Emmajor milestone
+N 202605020224001|202605020224001|84670477
+EpD1.1.0 / 
+N 202605020224001|202605020224020|28355151
+EpD2025.08.31
+N 202605020223953|202605020224129|66331019
+Ep<S_E~0_____~~~~~What is new?
+N 202605020223953|202605020223953|79741260
+Ep<_-E~1_____~~~~~Somewhat improved filter editor (Initial work towards an editor that mimics the desktop editor)
+N 202605020230224|202605020230259|83658413
+Ep<_-E~1_____~~~~~Implemented trash and added a trash icon to the related entries in the list
+N 202605020223953|202605020223953|56783977
+Ep<_-E~1_____~~~~~Bumped up dependencies.
+
+ID89793631
+E __n_DN___~~~~~~202405250000000
+Ec202603290215459
+Ee202605020230054
+Eha86293761
 Emmajor milestone
 N 202603290215459|202603290215537|12961888
 EpD1.0.0 / the spring of goliath
-N 202603290215459|202603290215741|89402964
-EpD2024-05-20
+N 202603290215459|202605020225516|89402964
+EpD2024.05.25
 N 202603290215459|202603290221210|51876622
 Ep<S_E~0_____~~~~~What is new?
-N 202603290221150|202603290221200|96520551
-Ep<_-E~1_____~~~~~Somewhat improved filter editor (Initial work towards an editor that mimics the desktop editor)
-N 202603290221152|202603290221152|49540531
-Ep<_-E~1_____~~~~~Bumped up dependencies.
+N 202603290221150|202605020225639|96520551
+Ep<_-E~1_____~~~~~Upgraded the core to work with desktop version 2.0
+N 202603290221152|202605020225724|49540531
+Ep<_-E~1_____~~~~~Improved swipe gestures in the chart view
+N 202605020230014|202605020230018|28119106
+Ep<_-E~1_____~~~~~Removed ads
+N 202605020230037|202605020230054|48097003
+Ep<_-E~1_____~~~~~Implemented adding individual files to the list
 
 ID4710117
 E __n_DN___~~~~~~202010310000000
 Ec202010310100226
 Ee202603290220701
 Eha89793631
+Emmajor milestone
 N 202603290215347|202603290215347|33853341
 EpD0.9.0 / one can enter the same data stream twice
 N 202603290215347|202603290215347|83893984
