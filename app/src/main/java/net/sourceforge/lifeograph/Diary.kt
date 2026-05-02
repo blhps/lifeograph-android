@@ -36,6 +36,7 @@ import java.util.Vector
 import androidx.core.net.toUri
 import net.sourceforge.lifeograph.helpers.DiaryDirectoryUtil
 
+@Suppress("PropertyName", "FunctionName")
 class Diary : DiaryElement {
 //    enum class SetPathType {
 //        NORMAL, READ_ONLY, NEW
@@ -299,6 +300,16 @@ class Diary : DiaryElement {
     //    }
     fun get_tag_by_id(id: Int): DiaryElemTag? {
         val ptr = nativeGetTagById(mNativePtr, id)
+        if(ptr == 0L) return null
+        val tag = DiaryElemTag(ptr)
+        return when(tag._type) {
+            Type.ENTRY -> Entry(ptr)
+            Type.PARAGRAPH -> Paragraph(ptr)
+            else -> tag
+        }
+    }
+    fun get_tag_by_name(name: String): DiaryElemTag? {
+        val ptr = nativeGetTagByName(mNativePtr, name)
         if(ptr == 0L) return null
         val tag = DiaryElemTag(ptr)
         return when(tag._type) {
@@ -789,6 +800,7 @@ class Diary : DiaryElement {
     private external fun nativeDismissEntry(ptr: Long, entry: Entry?): Long
     private external fun nativeGetCompletionTag(mNativePtr: Long): Long
     private external fun nativeGetTagById(mNativePtr: Long, id: Int): Long
+    private external fun nativeGetTagByName(mNativePtr: Long, name: String): Long
 
     private external fun nativeGetFilters(mNativePtr: Long): LongArray
     private external fun nativeGetFilterNonTrashed(mNativePtr: Long): Long
@@ -852,6 +864,7 @@ class Diary : DiaryElement {
         const val EXAMPLE_DIARY_NAME: String = "*** Example Diary ***"
 
         const val PASSPHRASE_MIN_SIZE: Int = 4 // TODO get from C++?
+        val DEID_UNSET: Int = nativeGetDeidUnset()
 
         fun initMain() {
             if(nativeGetMain() == 0L) nativeCreateMain()
@@ -867,13 +880,10 @@ class Diary : DiaryElement {
         //    static native void
         //    set_date_format_separator( String format ) { nativeSetDateFormatSeparator(format); }
         // NATIVE METHODS ==============================================================================
-        @JvmStatic
-        private external fun initCipher(): Boolean
-        @JvmStatic
-        private external fun nativeCreate(): Long
-        @JvmStatic
-        external fun nativeCreateMain()
-        @JvmStatic
-        external fun nativeGetMain(): Long
+        @JvmStatic private external fun initCipher(): Boolean
+        @JvmStatic private external fun nativeCreate(): Long
+        @JvmStatic external fun nativeCreateMain()
+        @JvmStatic external fun nativeGetMain(): Long
+        @JvmStatic external fun nativeGetDeidUnset(): Int // move to DiaryElement or create DEID?
     }
 }
