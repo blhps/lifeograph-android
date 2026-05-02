@@ -46,7 +46,7 @@ android:orientation="horizontal">
         android:text="@string/filterer_is_title" />
 
     <EditText
-        android:id="@+id/entry_name"
+        android:id="@+id/tag_name"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:layout_toEndOf="@id/title"

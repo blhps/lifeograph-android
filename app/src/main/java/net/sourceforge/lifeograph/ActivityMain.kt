@@ -198,8 +198,13 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
                 mNavController!!.navigate(R.id.nav_theme_editor)
             }
             DiaryElement.Type.FILTER -> {
-                FragmentFilter.setFilter( elem as Filter )
-                mNavController!!.navigate(R.id.nav_filter_editor)
+                if( elem.is_stock) {
+                    Lifeograph.showToast("Stock items cannot be edited!")
+                }
+                else {
+                    FragmentFilter.setFilter(elem as Filter)
+                    mNavController!!.navigate(R.id.nav_filter_editor)
+                }
             }
             DiaryElement.Type.CHART -> {
                 FragmentChart.mChartElem = (elem as ChartElem)

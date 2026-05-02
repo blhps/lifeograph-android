@@ -68,6 +68,8 @@ class FragmentListFilters : FragmentListElems(), Listener
                 dm.can_enter_edit_mode()
         mMenu.findItem(R.id.logout_wo_save).isVisible = flagWritable
         mMenu.findItem(R.id.rename).isVisible = false
+
+        mFabAdd.visibility = if (flagWritable) View.VISIBLE else View.GONE
     }
 
     @SuppressLint("NotifyDataSetChanged")

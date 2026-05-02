@@ -211,7 +211,6 @@ class Diary : public DiaryElement, public PropertyContainer
             m_force_id = DEID::STOCK_TABLE;
             T* str_def_elem { new T( this, name, def ) };
             map.emplace( name, str_def_elem );
-            str_def_elem->set_status_flag( ES::STOCK, true );
 
             return str_def_elem;
         }

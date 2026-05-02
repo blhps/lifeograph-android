@@ -755,7 +755,6 @@ namespace ES
     static const ElemStatus SHOW_DONE           = DONE;
     static const ElemStatus SHOW_CANCELED       = CANCELED;
 
-    static const ElemStatus STOCK               = 0x100000;
     static const ElemStatus HAS_VSBL_DESCENDANT = 0x1000000;  // used in filtering
     static const ElemStatus CUT                 = 0x20000000;
     static const ElemStatus FILTERED_OUT        = 0x40000000;
@@ -995,7 +994,7 @@ class DiaryElement : public Named
         { return( other->m_id == this->m_id ); }
 
         bool                    is_stock() const
-        { return( m_status & ES::STOCK ); }
+        { return( m_id.is_stock() ); }
 
         Diary*                  get_diary() const
         { return m_p2diary; }

@@ -1,7 +1,10 @@
 //  NAME -------------------------------------- NUMBER --------- STRING ---------------------------
 // =========================================== (numbers are stored) ================= STOCK VALUES =
-XE( DEID,       MIN,                            10000 )     // legacy min for runtime IDs
-XE( DEID,       MIN_ACTUAL,                     10000000 )  // min for runtime IDs
+XE( DEID,       MIN,                            10000 )     // legacy min for stored IDs
+XE( DEID,       MIN_ACTUAL,                     10000000 )  // min for stored IDs
+
+// NOTE: keep stock IDs below MIN not NIN_ACTUAL
+
 
 // startup entry options
 XS( DEID,       MOST_CURRENT_ENTRY,             1,               "Show Most Current Entry" )

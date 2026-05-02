@@ -588,9 +588,6 @@ class TableElem : public StringDefElem
 
         [[nodiscard]] const R2Pixbuf&
         get_icon() const override;
-
-        bool                    is_stock() const
-        { return( get_id() == DEID::STOCK_TABLE ); }
 };
 
 using MapUstringTableElem = MapUstringDiaryElem< TableElem >;

@@ -32,6 +32,7 @@ android:orientation="horizontal">
         android:layout_height="wrap_content"
         android:minHeight="0dp"
         android:minWidth="0dp"
+        android:visibility="invisible"
         android:src="@drawable/selector_true_false" />
 
     <TextView

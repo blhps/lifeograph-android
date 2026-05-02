@@ -24,6 +24,7 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import android.widget.EditText
+import androidx.core.widget.doAfterTextChanged
 import androidx.recyclerview.widget.RecyclerView
 import java.util.Collections
 
@@ -118,6 +119,7 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         fun updateActionBarSubtitle()
         fun enterSelectionMode(): Boolean
         fun exitSelectionMode()
+        fun onFiltererChanged()
     }
 
     abstract class VHFilterer<T: Filterer>(mView: View, private val mAdapter: RVAdapterFilterers) :
@@ -149,28 +151,28 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         }
 
         @Suppress("UNCHECKED_CAST")
-        fun setItem(item: Filterer) {
-            mItem = item as T
-        }
+        fun setItem(item: Filterer) { mItem = item as T }
 
         abstract fun getType() : Char
         open fun populate() {
-            mToggleNot.isChecked = !mItem.f_not
+            mToggleNot.isChecked = mItem.f_not
         }
-        open fun updateState() {
-            mItem.f_not = !mToggleNot.isChecked
+        fun handleChanges() {
+            mItem.f_not = mToggleNot.isChecked
+            updateState()
+            mAdapter.mListener.onFiltererChanged()
         }
+        open fun updateState() { } // to be implemented by devired classes when needed
 
         val mToggleNot: ToggleImageButton by lazy {
             mView.findViewById<ToggleImageButton>(R.id.trueFalse).apply {
-                setOnClickListener { updateState() }
+                setOnClickListener { handleChanges() }
             }
         }
     }
 
     class VHFiltererStatus(mView: View, mAdapter: RVAdapterFilterers) :
-        VHFilterer<FiltererContainer.FiltererStatus>(mView,
-                                                                                                      mAdapter)
+        VHFilterer<FiltererContainer.FiltererStatus>(mView, mAdapter)
     {
         private val mIVNotTodo:     ToggleImageButton = mView.findViewById(R.id.btn_flt_status_not_todo)
         private val mIVopen:        ToggleImageButton = mView.findViewById(R.id.btn_flt_status_open)
@@ -178,16 +180,14 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         private val mIVdone:        ToggleImageButton = mView.findViewById(R.id.btn_flt_status_done)
         private val mIVcanceled:    ToggleImageButton = mView.findViewById(R.id.btn_flt_status_canceled)
 
-
         override fun getType(): Char { return Filter.FT_STATUS }
 
         init {
-            mToggleNot.visibility = View.GONE
-            mIVNotTodo.setOnClickListener { updateState() }
-            mIVopen.setOnClickListener { updateState() }
-            mIVprogr.setOnClickListener { updateState() }
-            mIVdone.setOnClickListener { updateState() }
-            mIVcanceled.setOnClickListener { updateState() }
+            mIVNotTodo.setOnClickListener { handleChanges() }
+            mIVopen.setOnClickListener { handleChanges() }
+            mIVprogr.setOnClickListener { handleChanges() }
+            mIVdone.setOnClickListener { handleChanges() }
+            mIVcanceled.setOnClickListener { handleChanges() }
         }
 
         override fun populate() {
@@ -202,8 +202,6 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
         }
 
         override fun updateState() {
-            super.updateState()
-
             var incStts = 0
             if( mIVNotTodo.isChecked)
                 incStts = DiaryElement.ES_SHOW_NOT_TODO
@@ -237,7 +235,11 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
     class VHFiltererIs(mView: View, mAdapter: RVAdapterFilterers) :
         VHFilterer<FiltererContainer.FiltererIs>(mView, mAdapter) {
         //val mTvTitle: TextView = mView.findViewById(R.id.title)
-        private val mEntryName: EditText = mView.findViewById(R.id.entry_name)
+        private val mTagName: EditText = mView.findViewById(R.id.tag_name)
+
+        init {
+            mTagName.doAfterTextChanged { handleChanges() }
+        }
 
         override fun getType(): Char { return Filter.FT_IS }
 
@@ -245,14 +247,13 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
             super.populate()
 
             if( mItem.id != Diary.DEID_UNSET )
-                mEntryName.setText(Diary.main.get_tag_by_id(mItem.id)?._name)
+                mTagName.setText(Diary.main.get_tag_by_id(mItem.id)?._name)
         }
         override fun updateState() {
-            super.updateState()
 
             // TODO: get from an autocompletion system
-            if(!mEntryName.text.isEmpty()) {
-                val tag = Diary.main.get_tag_by_name(mEntryName.text.toString())
+            if(!mTagName.text.isEmpty()) {
+                val tag = Diary.main.get_tag_by_name(mTagName.text.toString())
                 if(tag != null)
                     mItem.id = tag._id
                 else
@@ -264,7 +265,11 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
     class VHFiltererHasTag(mView: View, mAdapter: RVAdapterFilterers) :
         VHFilterer<FiltererContainer.FiltererHasTag>(mView, mAdapter) {
         //val mTvTitle: TextView = mView.findViewById(R.id.title)
-        private val mEntryName: EditText = mView.findViewById(R.id.entry_name)
+        private val mTagName: EditText = mView.findViewById(R.id.tag_name)
+
+        init {
+            mTagName.doAfterTextChanged { handleChanges() }
+        }
 
         override fun getType(): Char { return Filter.FT_HAS_TAG }
 
@@ -272,15 +277,14 @@ class RVAdapterFilterers(private val mItems: List<Filterer>,
             super.populate()
 
             if( mItem.id != Diary.DEID_UNSET )
-                mEntryName.setText(Diary.main.get_tag_by_id(mItem.id)?._name)
+                mTagName.setText(Diary.main.get_tag_by_id(mItem.id)?._name)
         }
 
         override fun updateState() {
-            super.updateState()
 
             // TODO: get from an autocompletion system
-            if(!mEntryName.text.isEmpty()) {
-                val tag = Diary.main.get_tag_by_name(mEntryName.text.toString())
+            if(!mTagName.text.isEmpty()) {
+                val tag = Diary.main.get_tag_by_name(mTagName.text.toString())
                 if(tag != null)
                     mItem.id = tag._id
                 else

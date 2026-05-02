@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<!-- ***************************************************************************
+
+    Copyright (C) 2012-2026 Ahmet Öztürk (aoz_2@yahoo.com)
+
+    This file is part of Lifeograph.
+
+    Lifeograph is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    Lifeograph is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with Lifeograph.  If not, see <http://www.gnu.org/licenses/>.
+
+**************************************************************************** -->
+
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+      xmlns:compat="http://schemas.android.com/apk/res-auto">
+    <item android:id="@+id/enable_edit"
+        android:title="@string/edit"
+        android:orderInCategory="80"
+        compat:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/revert_filter"
+          android:title="@string/reset"
+          android:icon="@drawable/ic_action_revert"
+          android:orderInCategory="80"
+          compat:showAsAction="ifRoom" />
+    <item android:id="@+id/save_filter"
+        android:title="@string/save"
+        android:orderInCategory="100"
+        compat:showAsAction="ifRoom|withText" />
+    <item android:id="@+id/rename"
+          android:title="@string/rename"
+          android:orderInCategory="100"
+          compat:showAsAction="never" />
+</menu>

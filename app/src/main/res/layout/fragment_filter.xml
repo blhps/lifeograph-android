@@ -72,22 +72,6 @@
             android:visibility="visible">
 
             <ImageButton
-                android:id="@+id/save_filter"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="Save"
-                app:srcCompat="@drawable/ic_action_check" />
-
-            <ImageButton
-                android:id="@+id/reset_filter"
-                style="@android:style/Widget.Holo.ActionButton"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:contentDescription="Reset"
-                app:srcCompat="@drawable/ic_action_revert" />
-
-            <ImageButton
                 android:id="@+id/remove_filterer"
                 style="@android:style/Widget.Holo.ActionButton"
                 android:layout_width="wrap_content"

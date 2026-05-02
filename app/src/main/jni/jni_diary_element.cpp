@@ -15,6 +15,11 @@ JNI_METHOD(jint, DiaryElement_nativeGetSize)(JNIEnv* env, jobject obj, jlong ptr
     return static_cast<jint>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_size());
 }
 
+JNI_METHOD(jboolean, DiaryElement_nativeIsStock)(JNIEnv* env, jobject obj, jlong ptr) {
+    if (ptr == 0) return 0;
+    return static_cast<jboolean >(reinterpret_cast<LoG::DiaryElement*>(ptr)->is_stock());
+}
+
 JNI_METHOD(jint, DiaryElement_nativeGetId)(JNIEnv* env, jobject obj, jlong ptr) {
     if (ptr == 0) return 0;
     return static_cast<jint>(reinterpret_cast<LoG::DiaryElement*>(ptr)->get_id().get_raw());

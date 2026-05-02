@@ -145,6 +145,11 @@ public class DiaryElement {
 //        nativeSetStatus(mNativePtr, status);
 //    }
 
+    public boolean
+    is_stock() {
+        if( mNativePtr == 0 ) return true;
+        return nativeIsStock(mNativePtr); }
+
     public long mNativePtr;
 
     static class CompareElemsByName implements Comparator< DiaryElement > {
@@ -182,4 +187,5 @@ public class DiaryElement {
     private native String nativeGetTipStr(long ptr);
     private native int nativeGetType(long ptr);
     private native int nativeGetSize(long ptr);
+    private native boolean nativeIsStock(long ptr);
 }
