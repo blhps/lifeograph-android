@@ -99,22 +99,22 @@ class ChartData(val mNativePtr: Long) {
     private external fun nativeGetValuesIndex2Str(ptr: Long): LinkedHashMap<Int, String>
 
     companion object {
-        val PERIOD_MONTHLY: Int get() = nativePERIOD_MONTHLY()
-        val PERIOD_YEARLY: Int get() = nativePERIOD_YEARLY()
+        val PERIOD_MONTHLY: Int = nativePERIOD_MONTHLY()
+        val PERIOD_YEARLY: Int = nativePERIOD_YEARLY()
         @JvmStatic private external fun nativePERIOD_MONTHLY(): Int
         @JvmStatic private external fun nativePERIOD_YEARLY(): Int
 
-        val NUM_Y_STEPS: Int get() = nativeNUM_Y_STEPS()
+        val NUM_Y_STEPS: Int = nativeNUM_Y_STEPS()
         @JvmStatic private external fun nativeNUM_Y_STEPS(): Int
 
-        val STYLE_LINE: Int get() = nativeSTYLE_LINE()
-        val STYLE_BARS: Int get() = nativeSTYLE_BARS()
+        val STYLE_LINE: Int = nativeSTYLE_LINE()
+        val STYLE_BARS: Int = nativeSTYLE_BARS()
         @JvmStatic private external fun nativeSTYLE_LINE(): Int
         @JvmStatic private external fun nativeSTYLE_BARS(): Int
 
-        val TYPE_DATE: Int get() = nativeTYPE_DATE()
-        val TYPE_STRING: Int get() = nativeTYPE_STRING()
-        val TYPE_NUMBER: Int get() = nativeTYPE_NUMBER()
+        val TYPE_DATE: Int = nativeTYPE_DATE()
+        val TYPE_STRING: Int = nativeTYPE_STRING()
+        val TYPE_NUMBER: Int = nativeTYPE_NUMBER()
         @JvmStatic private external fun nativeTYPE_DATE(): Int
         @JvmStatic private external fun nativeTYPE_STRING(): Int
         @JvmStatic private external fun nativeTYPE_NUMBER(): Int
