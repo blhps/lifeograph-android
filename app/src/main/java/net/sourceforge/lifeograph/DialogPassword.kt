@@ -28,7 +28,9 @@ import android.text.TextWatcher
 import android.util.Log
 import android.view.KeyEvent
 import android.view.View
+import android.view.WindowManager
 import android.view.inputmethod.EditorInfo
+import android.view.inputmethod.InputMethodManager
 import android.widget.Button
 import android.widget.EditText
 import android.widget.ImageView
@@ -60,6 +62,7 @@ class DialogPassword(context: Context,
         mInput2 = findViewById(R.id.edit_password_2)
         mImage1 = findViewById(R.id.image_password_1)
         mImage2 = findViewById(R.id.image_password_2)
+
         when(mAction) {
             DPAction.DPA_LOGIN -> {
                 setTitle("Enter password for " + mDiary._name)
@@ -109,6 +112,20 @@ class DialogPassword(context: Context,
         })
         val buttonNegative = findViewById<Button>(R.id.passwordButtonNegative)
         buttonNegative.setOnClickListener { dismiss() }
+    }
+
+    override fun onStart() {
+        super.onStart()
+        // all the below code is to make sure that the soft kb shows up with the dialog:
+        window?.clearFlags(
+            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE or
+                                   WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM)
+        window?.setSoftInputMode(WindowManager.LayoutParams.SOFT_INPUT_STATE_ALWAYS_VISIBLE)
+        mInput1?.post {
+            mInput1?.requestFocus()
+            val imm = context.getSystemService(Context.INPUT_METHOD_SERVICE) as InputMethodManager
+            imm.showSoftInput(mInput1, InputMethodManager.SHOW_IMPLICIT)
+        }
     }
 
     private fun check() {
