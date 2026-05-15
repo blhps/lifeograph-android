@@ -695,7 +695,7 @@ class Diary : DiaryElement {
         try {
             val resolver = ctx.contentResolver
             val uri = nativeGetUri(mNativePtr).toUri()
-            val lockDoc = DiaryDirectoryUtil.createLockFile( ctx, uri, SUFFIX_LOCK)
+            val lockDoc = DiaryDirectoryUtil.getSuffixedFile( ctx, uri, SUFFIX_LOCK)
             if(lockDoc != null) {
                 return resolver.openInputStream(lockDoc.uri)
             }

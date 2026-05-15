@@ -74,8 +74,16 @@ object DiaryDirectoryUtil {
     fun isLocked(context: Context, fileUri: Uri, suffix: String): Boolean {
         val treeUri = getTreeUriFromFileUri(fileUri)
         val diaryFileName = FileUtil.getFileName(fileUri, context)
-        val lockName = "$diaryFileName.$suffix"
+        val lockName = "$diaryFileName$suffix"
         return findFileInTree(context, treeUri, lockName) != null
+    }
+
+    fun getSuffixedFile(context: Context, fileUri: Uri, suffix: String): DocumentFile? {
+        val treeUri = getTreeUriFromFileUri(fileUri)
+        val diaryFileName = FileUtil.getFileName(fileUri, context)
+        val lockName = "$diaryFileName$suffix"
+        val treeDocFile = DocumentFile.fromTreeUri(context, treeUri) ?: return null
+        return treeDocFile.findFile(lockName)
     }
 
     /**
