@@ -58,6 +58,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     var                  mFlagBlockFormatter = false
     private var          mFlagDismissOnExit = false
     var                  mFlagSearchIsOpen = false
+    private var          mFRestartSearch = false
     private val          mBrowsingHistory = ArrayList<Int>()
 
     companion object {
@@ -261,10 +262,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
 
             override fun onQueryTextChange(s: String): Boolean {
-                if(mFlagSearchIsOpen) {
-                    Diary.main.set_search_str(s)
-                    reparse()
-                }
+                if(mFlagSearchIsOpen) handleSearchTextChanged(s)
                 return true
             }
         })
@@ -421,6 +419,29 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 R.string.entry_dismiss_confirm,
                 R.string.dismiss
         ) { _: DialogInterface?, _: Int -> mFlagDismissOnExit = true }
+    }
+
+    private fun handleSearchTextChanged(text: String) {
+        val searchStr = text.lowercase(Locale.ROOT)
+        val dm = Diary.main
+        dm.set_search_str(searchStr)
+        if( dm.is_search_in_progress()) {
+            mFRestartSearch = true
+            dm.stop_search()
+        }
+        else {
+            dm.start_search()
+        }
+    }
+
+    fun handleSearchFinished() {
+        if( mFRestartSearch ) {
+            mFRestartSearch = false
+            Diary.main.start_search()
+        }
+        else {
+            reparse()
+        }
     }
 
 //    fun showStatusPickerDlg() {

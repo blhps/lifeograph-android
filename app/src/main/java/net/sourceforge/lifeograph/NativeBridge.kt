@@ -49,7 +49,10 @@ object NativeBridge {
     @JvmStatic
     fun handleSearchFinished() { // this func's purpose is to provide a static method bridge
         mainHandler.post {
-            (ActivityMain.mViewCurrent as? FragmentSearch)?.handleSearchFinished()
+            when (val view = ActivityMain.mViewCurrent) {
+                is FragmentSearch -> view.handleSearchFinished()
+                is FragmentEntry -> view.handleSearchFinished()
+            }
         }
     }
 
