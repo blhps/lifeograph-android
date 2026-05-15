@@ -37,8 +37,10 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.debug
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android-optimize.txt')
+            ndk.debugSymbolLevel = 'SYMBOL_TABLE'
         }
         debug {
             jniDebuggable true
@@ -55,7 +57,12 @@ android {
         buildConfig true
     }
 
-    return void // just to avoid warning
+    packaging {
+        resources {
+            excludes += '/META-INF/{AL2.0,LGPL2.1}'
+            excludes += 'META-INF/DEPENDENCIES'
+        }
+    }
 }
 
 kotlin {
@@ -64,12 +71,10 @@ kotlin {
     }
 }
 
-android.buildTypes.release.ndk.debugSymbolLevel = 'SYMBOL_TABLE'
-
 dependencies {
     implementation 'com.github.yukuku:ambilwarna:2.0.1'
     implementation 'androidx.appcompat:appcompat:1.7.1'
-    implementation 'com.google.android.material:material:1.13.0'
+    implementation 'com.google.android.material:material:1.14.0'
     implementation 'androidx.activity:activity-ktx:1.13.0'
     implementation 'androidx.preference:preference-ktx:1.2.1'
     implementation 'androidx.navigation:navigation-fragment-ktx:2.9.8'
