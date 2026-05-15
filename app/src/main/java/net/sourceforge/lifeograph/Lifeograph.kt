@@ -41,6 +41,41 @@ class Lifeograph : Application() {
         super.onCreate()
     }
 
+    override fun onTrimMemory(level: Int) {
+        super.onTrimMemory(level)
+
+        // secure and close the diary when the app moves to background or memory is low.
+        // this ensures data is safe and prevents crashes when returning to the app later.
+        if (level >= TRIM_MEMORY_UI_HIDDEN) {
+            secureAndCloseDiary()
+            Log.d(TAG, "Diary secured and closed due to memory trim (level: $level)")
+        }
+    }
+
+    override fun onLowMemory() {
+        super.onLowMemory()
+        secureAndCloseDiary()
+    }
+
+    private fun secureAndCloseDiary() {
+        val dm = Diary.main
+        if (dm.is_open()) {
+            if (dm.is_in_edit_mode()) {
+                dm.writeLock(this)
+            }
+            dm.clear()
+
+            // navigate back to the diary list to ensure a fresh start when the user returns
+            mActivityMain?.runOnUiThread {
+                try {
+                    mActivityMain?.navigateTo(R.id.nav_diaries)
+                } catch (e: Exception) {
+                    Log.e(TAG, "Navigation failed", e)
+                }
+            }
+        }
+    }
+
 //    class MutableBool {
 //        constructor() {
 //            v = false
@@ -80,7 +115,7 @@ class Lifeograph : Application() {
     companion object {
         // CONSTANTS ===============================================================================
         const val LANG_INHERIT_DIARY          = "d"
-        lateinit var mActivityMain: ActivityMain
+        var mActivityMain: ActivityMain? = null
 
         @JvmField
         var filesDir: File? = null
@@ -90,7 +125,7 @@ class Lifeograph : Application() {
             get() = mInstance!!
 
         fun getActionBar(): ActionBar {
-            return mActivityMain.mActionBar!!
+            return mActivityMain?.mActionBar!!
         }
 
         // VARIABLES ===============================================================================
@@ -138,7 +173,7 @@ class Lifeograph : Application() {
             if(BuildConfig.DEBUG && !Diary.main.is_open()) {
                 throw AssertionError("Assertion failed")
             }
-            mActivityMain.showElem(elem)
+            mActivityMain?.showElem(elem)
         }
 
         fun enableEditing(editor: FragmentDiaryEditor) {
@@ -168,7 +203,6 @@ class Lifeograph : Application() {
                                        R.string.logoutwosaving_confirm,
                                        R.string.logoutwosaving
                                       ) { _: DialogInterface?, _: Int ->
-                    dm.writeUnsaved(context)
                     dm.removeLockIfNecessary(context)
                     dm.clear()
                     view.findNavController().navigate(R.id.nav_diaries)
@@ -293,12 +327,13 @@ class Lifeograph : Application() {
         //    }
         fun updateScreenSizes(context: Context) {
             val wm = context.getSystemService(WINDOW_SERVICE) as WindowManager
-            val metrics = DisplayMetrics()
-            wm.defaultDisplay.getMetrics(metrics)
-            screenWidth = metrics.widthPixels / metrics.xdpi
-            screenHeight = metrics.heightPixels / metrics.ydpi
-            sDPIX = metrics.xdpi
-            sDPIY = metrics.ydpi
+            val metrics = wm.currentWindowMetrics
+            val bounds = metrics.bounds
+            val displayMetrics = context.resources.displayMetrics
+            sDPIX = displayMetrics.xdpi
+            sDPIY = displayMetrics.ydpi
+            screenWidth = bounds.width() / sDPIX
+            screenHeight = bounds.height() / sDPIY
             Log.d(TAG, "Updated the sizes: " + screenWidth + "x" + screenHeight)
         }
 

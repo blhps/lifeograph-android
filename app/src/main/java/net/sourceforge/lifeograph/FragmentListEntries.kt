@@ -63,7 +63,7 @@ class FragmentListEntries : FragmentListElems(), DialogPassword.Listener, RVAdap
         val dm = Diary.main
         return when(menuItem.itemId) {
             R.id.search_text -> {
-                Lifeograph.mActivityMain.navigateTo(R.id.nav_search)
+                Lifeograph.mActivityMain?.navigateTo(R.id.nav_search)
                 true
             }
             R.id.add_password -> {

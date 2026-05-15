@@ -990,7 +990,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         override fun onClick(widget: View) {
             Log.d( Lifeograph.TAG, "Clicked on Uri link")
             val browserIntent = Intent(Intent.ACTION_VIEW, mUri.toUri())
-            Lifeograph.mActivityMain.startActivity(browserIntent)
+            Lifeograph.mActivityMain?.startActivity(browserIntent)
         }
 
         override val type: Char

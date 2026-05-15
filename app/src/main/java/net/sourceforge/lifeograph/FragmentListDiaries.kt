@@ -213,9 +213,9 @@ class FragmentListDiaries : Fragment(), RViewAdapterBasic.Listener,
         fabNew.setOnClickListener { createNewDiary() }
         fabExisting.setOnClickListener { openFile() }
 
-        if(Lifeograph.mActivityMain.mStartUpPath != null) {
-            Log.d(Lifeograph.TAG, Lifeograph.mActivityMain.mStartUpPath!!.path!!)
-            val file = File(Lifeograph.mActivityMain.mStartUpPath!!.path!!)
+        if(Lifeograph.mActivityMain?.mStartUpPath != null) {
+            Log.d(Lifeograph.TAG, Lifeograph.mActivityMain?.mStartUpPath!!.path!!)
+            val file = File(Lifeograph.mActivityMain?.mStartUpPath!!.path!!)
             if(file.exists())
                 openDiary1(file.path) // TODO: 2.1 revisit
             else
