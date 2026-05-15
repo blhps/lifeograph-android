@@ -35,6 +35,7 @@ import androidx.navigation.NavOptions
 import androidx.navigation.fragment.NavHostFragment
 import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
+import androidx.navigation.ui.navigateUp
 import androidx.preference.PreferenceManager
 import com.google.android.material.navigation.NavigationView
 import net.sourceforge.lifeograph.helpers.Date
@@ -118,7 +119,7 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
                 mNavController!!.navigate(menuItem.itemId, null, options)
                 drawerLayout.closeDrawer(GravityCompat.START)
                 true
-            } catch (e: IllegalArgumentException) {
+            } catch (_: IllegalArgumentException) {
                 false
             }
         }
@@ -148,8 +149,13 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
     //    }
 
     override fun onSupportNavigateUp(): Boolean {
-        onBackPressedDispatcher.onBackPressed() // just delegate to the unified handler
-        return true
+        val drawerLayout = findViewById<DrawerLayout>(R.id.drawer_layout)
+        val appBarConfiguration =
+            AppBarConfiguration(mNavController!!.graph, drawerLayout)
+
+        return mNavController!!.navigateUp(appBarConfiguration) || super.onSupportNavigateUp()
+        //onBackPressedDispatcher.onBackPressed() // just delegate to the unified handler
+        //return true
     }
 
     override fun updateDrawerMenu(id: Int) {
