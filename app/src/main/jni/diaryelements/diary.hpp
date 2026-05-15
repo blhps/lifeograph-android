@@ -342,7 +342,7 @@ class Diary : public DiaryElement, public PropertyContainer
         Entry*                  get_entry_first_untrashed() const;
         Entry*                  get_entry_latest() const; // get last temporal entry
         Ustring                 get_entry_name( D::DEID ) const;
-        void                    set_entry_date( Entry*, DateV );
+        void                    update_entry_date( Entry* );
         void                    update_tag_refs( D::DEID, const Ustring& );
         void                    add_tag_to_cache( DiaryElemTag*, bool = true );
         void                    sort_entry_siblings( Entry*, EntryComparer&&, int );

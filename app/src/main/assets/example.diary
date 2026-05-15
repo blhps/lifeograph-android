@@ -153,7 +153,7 @@ EfT0|7|10043
 ID25312722
 E __n_DN___~~~~~~202605020000000
 Ec202605020221621
-Ee202605020230636
+Ee202605020233542
 Eha10032
 Emmajor milestone
 N 202605020221621|202605020222607|26930804
@@ -164,8 +164,8 @@ N 202605020221652|202605020221652|19309687
 Ep<S_E~0_____~~~~~What is new?
 N 202605020221652|202605020222815|96236163
 Ep<_-E~1_____~~~~~Completely replaced the core with the C++ core that is used in the desktop
-N 202605020222815|202605020223009|78827529
-Ep<_-E~2_____~~~~~This will improve performance while ensuring performance parity between the different versions
+N 202605020222815|202605020233542|78827529
+Ep<_-E~2_____~~~~~This will improve performance while ensuring feature parity between the different versions
 N 202605020223009|202605020223110|50505323
 Ep<_-E~1_____~~~~~As a result of above item, some of the  latest features in the desktop version are now available. Most prominently,
 N 202605020223110|202605020223252|98258227

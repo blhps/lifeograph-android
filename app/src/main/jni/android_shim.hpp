@@ -416,6 +416,14 @@ namespace Gdk {
                 }
             } catch (...) {}
         }
+
+        void set_rgba(double r_, double g_, double b_, double a_ ) {
+            r = r_;
+            g = g_;
+            b = b_;
+            a = a_;
+        }
+
         std::string to_string() const {
             char buf[10];
             snprintf(buf, sizeof(buf), "#%02X%02X%02X",

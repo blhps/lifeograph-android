@@ -366,6 +366,10 @@ class STR
 
         static bool             is_char_space( Wchar c )
         { return( c == ' ' || c == '\t' || c == '\n' ); }
+        static constexpr bool   is_char_space_requiring_before( Wchar c )
+        { return( std::string_view(")]} \t-,;!?.").find(c) == std::string_view::npos ); }
+        static constexpr bool   is_char_space_requiring_after( Wchar c )
+        { return( std::string_view("([{ \t-").find(c) == std::string_view::npos ); }
         static bool             is_char_name( Wchar c )
         { return( c == '_' || c == '-' || Glib::Unicode::isalnum( c ) ); }
         static bool             is_char_not_name( Wchar c )

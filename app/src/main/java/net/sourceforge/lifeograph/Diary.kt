@@ -242,8 +242,8 @@ class Diary : DiaryElement {
         nativeSetEntryName(mNativePtr, entry, name)
     }
 
-    fun set_entry_date(entry: Entry, date: Long) {
-        nativeSetEntryDate(mNativePtr, entry, date)
+    fun update_entry_date(entry: Entry) {
+        nativeUpdateEntryDate(mNativePtr, entry)
     }
 
     fun create_entry(date: Long, content: String?): Entry? {
@@ -775,7 +775,7 @@ class Diary : DiaryElement {
     private external fun nativeGetEntriesByFilter(ptr: Long, ptr_filter: Long): LongArray
     private external fun nativeGetEntryCountOnDay(ptr: Long, date: Long): Int
     private external fun nativeSetEntryName(ptr: Long, entry: Entry?, name: String?)
-    private external fun nativeSetEntryDate(ptr: Long, entry: Entry?, date: Long)
+    private external fun nativeUpdateEntryDate(ptr: Long, entry: Entry?)
     private external fun nativeCreateEntry(
         ptr: Long, entry_rel: Entry?, fParent: Boolean, date: Long,
         content: String?

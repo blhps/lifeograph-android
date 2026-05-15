@@ -730,56 +730,54 @@ contrast3( const Color& bg1, const Color& bg2, const Color& base )
     float l2 = get_luminance( bg2 );
     float base_l = get_luminance( base );
 
-    // if the background is a massive sweep (e.g. Black to White)
-    // we shouldn't try to outrun both. We aim for the middle.
-    float bg_span = std::abs( l1 - l2 );
-
-    // if the background is very "wide", the text color
-    // should ideally be a mid-tone or stay near its original.
-    if( bg_span > 0.8f )
-    {
-        // Background is extreme. Don't push too hard.
-        // If the base color is already mid-range, leave it alone!
-        if( base_l > 0.3f && base_l < 0.7f ) return base;
-    }
-
-    const float margin = 0.4f;
-    float target_l = base_l;
-
-    // use a weighted average to see where the "center of mass" is:
+    // the "Danger Zone": the average background brightness
     float avg_bg_l = ( l1 + l2 ) / 2.0f;
 
-    if( avg_bg_l < 0.5f )
+    // how much contrast do we want? (0.4 is a solid "readable" gap)
+    const float target_gap = 0.4f;
+
+    Color result = base;
+
+    // DECISION: do we go Lighter or Darker?
+    // if the background is dark, we MUST go lighter; if the background is light, we MUST go darker:
+    bool go_lighter = ( avg_bg_l < 0.5f );
+
+    // if the background is mid-range, we pick the direction...
+    // ...that the base color is already leaning toward:
+    if( avg_bg_l > 0.4f && avg_bg_l < 0.6f )
+        go_lighter = ( base_l >= avg_bg_l );
+
+    if( go_lighter )
     {
-        // generally dark background
-        float max_danger = std::max( l1, l2 );
-        // Only boost if we are below the danger zone
-        if( target_l < max_danger + 0.1f )
+        // find the brightest part of the BG to clear it
+        float target_l = std::min( 1.0f, std::max( l1, l2 ) + target_gap );
+
+        // if our base is already brighter than that, we're good!
+        if( base_l < target_l )
         {
-            target_l = std::min( 0.9f, max_danger + margin );
+            // MIX with White to reach target luminance this creates the #FFAAAA effect (tinting):
+            float factor = ( target_l - base_l ) / ( 1.0001f - base_l );
+            result.set_rgba( base.get_red() + ( 1.0f - base.get_red() ) * factor,
+                             base.get_green() + ( 1.0f - base.get_green() ) * factor,
+                             base.get_blue() + ( 1.0f - base.get_blue() ) * factor, 1.0 );
         }
     }
     else
     {
-        // generally light background
-        float min_danger = std::min( l1, l2 );
-        // Only darken if we are above the danger zone
-        if( target_l > min_danger - 0.1f )
+        // find the darkest part of the BG to clear it:
+        float target_l = std::max( 0.0f, std::min( l1, l2 ) - target_gap );
+
+        if( base_l > target_l )
         {
-            target_l = std::max( 0.1f, min_danger - margin );
+            // MIX with Black to reach target luminance (shading):
+            float factor = ( base_l - target_l ) / ( base_l + 0.0001f );
+            result.set_rgba( base.get_red() * ( 1.0f - factor ),
+                             base.get_green() * ( 1.0f - factor ),
+                             base.get_blue() * ( 1.0f - factor ), 1.0 );
         }
     }
 
-    // instead of a direct ratio, use a "Linear Interpolation" (Lerp)
-    // to nudge the color. This prevents the "snapping" to white.
-    float weight = 0.6f; // how much to favor the new target vs original
-    float final_l = ( target_l * weight ) + ( base_l * ( 1.0f - weight ) );
-
-    float scale = final_l / std::max( base_l, 0.01f );
-
-    return Color( clamp01( base.get_red() * scale ),
-                  clamp01( base.get_green() * scale ),
-                  clamp01( base.get_blue() * scale ) );
+    return result;
 }
 
 Color
@@ -1970,8 +1968,8 @@ FileChooserButton::init()
     m_icon = Gtk::make_managed< Gtk::Image >();
     m_icon->set_from_icon_name( "document-open-symbolic" );
 
-    m_label = Gtk::make_managed< Gtk::Label >();
-    m_label->set_ellipsize( Pango::EllipsizeMode::START );
+    m_label = Gtk::make_managed< Gtk::Label >( m_empty_text );
+    m_label->set_ellipsize( Pango::EllipsizeMode::MIDDLE );
     m_label->set_hexpand( true );
     m_label->set_halign( Gtk::Align::START );
 
@@ -1996,18 +1994,16 @@ FileChooserButton::handle_click()
                                 [ this ]( Glib::RefPtr< Gio::AsyncResult >& result )
                                 {
                                     auto file{ m_dlg->select_folder_finish( result ) };
-                                    m_uri = file->get_uri();
+                                    set_uri( file->get_uri() );
                                     m_signal_file_set.emit( m_uri );
-                                    m_label->set_text( file->get_parse_name() );
                                 } );
     else
         m_dlg->open(    *dynamic_cast< Gtk::Window* >( get_root() ),
                         [ this ]( Glib::RefPtr< Gio::AsyncResult >& result )
                         {
                             auto file{ m_dlg->open_finish( result ) };
-                            m_uri = file->get_uri();
+                            set_uri( file->get_uri() );
                             m_signal_file_set.emit( m_uri );
-                            m_label->set_text( file->get_parse_name() );
                         } );
 }
 
@@ -2105,13 +2101,15 @@ FileChooserButton::set_uri( const String& uri )
     if( uri.empty() )
     {
         m_label->set_text( m_empty_text );
+        set_tooltip_text( "" );
     }
     else
-{
-        auto file { Gio::File::create_for_path( uri ) };
+    {
+        auto file { Gio::File::create_for_uri( uri ) };
 
         m_dlg->set_initial_folder( file );
-        m_label->set_text( file->get_parse_name() );
+        m_label->set_text( file->get_basename() );
+        set_tooltip_text( file->get_parse_name() );
     }
 }
 
@@ -2223,16 +2221,21 @@ center_selected_LB_row( Gtk::ListBox* LB_ )
 }
 
 void
-ensure_selected_LB_row_in_view( Gtk::ListBox* LB_, Gtk::ListBoxRow* row )
+ensure_selected_LB_row_in_view( Gtk::ListBox* LB_, Gtk::ListBoxRow* row_ )
 {
-    if( !row ) return;
+    if( !row_ ) return;
 
-    Glib::signal_idle().connect_once( sigc::bind(
-        []( Gtk::ListBox* LB, Gtk::ListBoxRow* row )
+    static sigc::connection conn_;
+
+    if( conn_.connected() )
+        conn_.disconnect();
+
+    conn_ = Glib::signal_idle().connect( sigc::bind(
+        []( Gtk::ListBox* LB, Gtk::ListBoxRow* row ) -> bool
         {
             // get the vertical adjustment of the ListBox or its parent ScrolledWindow
             auto adj { LB->get_adjustment() };
-            if( !adj ) return;
+            if( !adj ) return false;
 
             double x, y;
             // translate the row's top-left (0,0) to the ListBox's coordinate space
@@ -2248,8 +2251,10 @@ ensure_selected_LB_row_in_view( Gtk::ListBox* LB_, Gtk::ListBoxRow* row )
             // if the row is below the visible area, scroll down
             else if( y + row_height > value + page_size )
                 adj->set_value( y + row_height - page_size );
+
+            return false;
         },
-        LB_, row ) );
+        LB_, row_ ) );
 }
 
 void

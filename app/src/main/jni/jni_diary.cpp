@@ -273,11 +273,11 @@ JNI_METHOD(void, Diary_nativeSetEntryName)(JNIEnv* env, jobject obj, jlong ptr, 
     env->ReleaseStringUTFChars(name, c_name);
 }
 
-JNI_METHOD(void, Diary_nativeSetEntryDate)(JNIEnv* env, jobject obj, jlong ptr, jobject entry, jlong date) {
+JNI_METHOD(void, Diary_nativeUpdateEntryDate)(JNIEnv* env, jobject obj, jlong ptr, jobject entry) {
     jclass clazz = env->GetObjectClass(entry);
     jfieldID fid = env->GetFieldID(clazz, "mNativePtr", "J");
     auto entry_ptr = reinterpret_cast<LoG::Entry*>(env->GetLongField(entry, fid));
-    reinterpret_cast<LoG::Diary*>(ptr)->set_entry_date(entry_ptr, static_cast<LoG::DateV>(date));
+    reinterpret_cast<LoG::Diary*>(ptr)->update_entry_date(entry_ptr);
 }
 
 JNI_METHOD(jlong, Diary_nativeCreateEntry)(JNIEnv* env, jobject obj, jlong ptr, jobject entry_rel, jboolean fParent, jlong date, jstring content) {

@@ -30,6 +30,7 @@
 #include <iostream>
 #include <gcrypt.h>
 #include <chrono>
+#include <unordered_set>
 
 #include "diary.hpp"
 #include "../strings.hpp"
@@ -322,8 +323,6 @@ Diary::clear()
     m_options = 0;
     m_opt_ext_panel_cur = 1;
 
-    m_parser_bg.m_F_spellchk_enabled = false;
-
     m_F_read_only = false;
     m_F_continue_from_lock = false;
     m_login_status = LOGGED_OUT;
@@ -491,7 +490,8 @@ Diary::set_path( const String& path0, SetPathType type )
     m_F_read_only = ( type == SPT_READ_ONLY );
 
     // CHECK IF LOCKED
-    if( !m_F_read_only && is_locked() )
+    if( !m_F_read_only && is_locked() && type != SPT_NEW )
+    // NOTE: ignoring locks in new files shouldn't be an issue as thep will be backed up
         return LoG::FILE_LOCKED;
     else
         return LoG::SUCCESS;
@@ -565,8 +565,6 @@ Diary::enable_editing()
         print_error( err.what() );
         return LoG::FAILURE;
     }
-
-    m_parser_bg.m_F_spellchk_enabled = true;
 
     m_login_status = LOGGED_IN_EDIT;
 
@@ -3142,19 +3140,21 @@ Diary::get_entry_name( D::DEID id ) const
 }
 
 void
-Diary::set_entry_date( Entry* entry, DateV date )
+Diary::update_entry_date( Entry* entry )
 {
     for( auto&& iter = m_entries.begin(); iter != m_entries.end(); ++iter )
     {
         if( iter->second == entry )
         {
+            // cancel operation if already there:
+            if( iter->first == Date::isolate_YMD( entry->m_date ) ) return;
+
             m_entries.erase( iter );
             break;
         }
     }
 
-    entry->m_date = date;
-    m_entries.emplace( Date::isolate_YMD( date ), entry );
+    m_entries.emplace( Date::isolate_YMD( entry->m_date ), entry );
 }
 
 void
@@ -3349,7 +3349,8 @@ Diary::create_entry( Entry* entry_rel, bool F_parent, DateV date, const Ustring&
         entry->set_theme( entry_rel->get_theme() );
     }
 
-    m_entries.emplace( Date::isolate_YMD( entry->m_date ), entry );
+    update_entry_date( entry ); // safely emplaces with duplicate check
+    // the rationale is the contents may have a date that have already emplaced the entry
     m_cache_tags[ entry->get_id() ] = entry;
 
     return( entry );
@@ -3533,7 +3534,7 @@ Diary::duplicate_entry( Entry* entry_rel )
     if( entry_rel->is_theme_set() )
         entry->set_theme( entry_rel->get_theme() );
 
-    m_entries.emplace( Date::isolate_YMD( entry->m_date ), entry );
+    update_entry_date( entry ); // safely emplaces with duplicate check
     m_cache_tags[ entry->get_id() ] = entry;
 
     return( entry );
@@ -3654,12 +3655,21 @@ Diary::move_entries( const EntrySelection* p2entries2move,
 {
     // CAUTION: tampers with the entry list order. list orders have to be updated after this func
     Entry* e_prev { nullptr };
+    std::unordered_set< Entry* > moved_entries;
+
     for( Entry* e2m : *p2entries2move )
     {
+        if( moved_entries.find( e2m ) != moved_entries.end() ) continue; // already moved
+
         if( e_prev == nullptr )
             move_entry( e2m, p2e_target, dp );
         else
             move_entry( e2m, e_prev, DropPosition::AFTER );
+
+        // add to moved entries with descendants:
+        moved_entries.insert( e2m );
+        e2m->do_for_each_descendant(
+            [ &moved_entries ]( Entry* ec ){ moved_entries.insert( ec ); } );
 
         e_prev = e2m;
     }

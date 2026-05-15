@@ -24,7 +24,7 @@
 #define LIFEOGRAPH_PARSER_STRIPPER_HEADER
 
 
-#include "parser_base.hpp"
+#include "../diaryelements/paragraph.hpp"
 
 
 namespace LoG
@@ -43,8 +43,9 @@ class ParserStripper
             // if any, add the plain text remnants first:
             if( m_flags & VT::TCT_FILTER_COMPONENT & VT::TCT_CMPNT_PLAIN )
             {
-                int offset
-                { ( m_stripped_text.empty() ||
+                const int offset
+                { ( m_flags & VT::TCT_F_INTACT_SPACING ) == 0 &&
+                  ( m_stripped_text.empty() ||
                     STR::is_char_space( m_stripped_text[ m_stripped_text.size() - 1 ] ) ) &&
                   STR::is_char_space( m_p2para->get_char( m_i_last ) ) ? 1 : 0 };
                 m_stripped_text += m_p2para->get_substr( m_i_last + offset, pos_bgn );

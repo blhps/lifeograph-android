@@ -441,7 +441,7 @@ const Color Theme::s_color_link( "#6666FF" );
 const Color Theme::s_color_broken( "#DD0000" );
 // const Color Theme::s_color_broken2( "#990000" );
 
-const Color Theme::s_color_todo( "#FF0000" );
+const Color Theme::s_color_todo( "#EE0000" );
 const Color Theme::s_color_done( "#66AA11" );
 const Color Theme::s_color_canceled( "#AA8855" );
 
@@ -514,7 +514,7 @@ Theme::calculate_derived_colors()
     color_open =          contrast3( color_base, color_tmp_base2, s_color_todo );
     // color_open_bg =       midtone( s_color_todo, color_base, 0.7 );
     color_done =          midtone( s_color_done, color_text, 0.8 );
-    color_done_bg =       contrast3( color_base, color_text, s_color_done );
+    color_done_bg =       midtone( s_color_done, color_base, 0.5 );
     color_canceled =      midtone( s_color_canceled, color_text );
     //color_canceled_bg =   midtone( s_color_canceled, color_base, 0.7 );
 }

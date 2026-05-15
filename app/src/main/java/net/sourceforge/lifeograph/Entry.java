@@ -397,7 +397,6 @@ public class Entry extends DiaryElemTag {
     private native int nativeGetDescendantDepth(long ptr);
     private native int nativeGetSize(long ptr);
     private native long nativeGetDate(long ptr);
-    private native void nativeSetDate(long ptr, long date);
     private native boolean nativeHasName(long ptr);
     private native String nativeGetName(long ptr);
     private native void nativeUpdateName(long ptr);

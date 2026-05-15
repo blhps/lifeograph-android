@@ -52,7 +52,11 @@ ParserBackGround::parse( Paragraph* para )
     if( para->is_code() )
         parse_code( 0, para->get_size() );
     else
+    {
+        m_F_spellchk_enabled =
+            ( Diary::d->is_in_edit_mode() && para->m_host && !para->m_host->is_locked() );
         ParserBase::parse( 0, para->get_size() );
+    }
 }
 
 void

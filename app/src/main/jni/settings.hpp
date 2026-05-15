@@ -40,8 +40,8 @@ static const int    IDLETIME_DEFAULT        = 90;
 static const int    WIDTH_DEFAULT           = 800;
 static const int    HEIGHT_DEFAULT          = 480;
 static const int    POSITION_NOTSET         = -0xFFFF;
-static const double PANEPOS_DEFAULT         { 0.8 };
-static const double PANEPOS_TAGS_DEFAULT    { 0.5 };
+static const double PANEPOS_MAIN_DEFAULT    { 0.8 };
+static const double PANEPOS_EXTRA_DEFAULT   { 0.5 };
 static const int    INDENT_SPACE_COUNT      { 4 };
 static const char   EXTENSION_DEFAULT[]     = ".diary";
 
@@ -79,8 +79,8 @@ class Settings
         bool                        state_maximized{ false };
         int                         position_x{ POSITION_NOTSET };
         int                         position_y{ POSITION_NOTSET };
-        double                      position_paned_main   { PANEPOS_DEFAULT };
-        double                      position_paned_extra  { PANEPOS_TAGS_DEFAULT };
+        double                      position_paned_main   { PANEPOS_MAIN_DEFAULT };
+        double                      position_paned_extra  { PANEPOS_EXTRA_DEFAULT };
 
         String                      python_path;
         String                      external_text_edit_cmd;

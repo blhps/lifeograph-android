@@ -250,9 +250,9 @@ class Paragraph : public DiaryElemTag
                 if( sub_heading_lvl < ths_heading_lvl )           return true;
                 if( sub_heading_lvl > ths_heading_lvl )           return false;
                 // empty paras cannot be parent by virtue of indentation:
-                if( STR::strip_spaces( m_text ).empty() )         return false;
+                if( is_empty_completely( false ) )                return false;
                 // empty paras are always sub unless they are the last one:
-                if( STR::strip_spaces( p_sub->m_text ).empty() )
+                if( p_sub->is_empty_completely( false ) )
                     return can_be_parent_of( p_sub->m_p2next );
 
                 const auto ths_indent_lvl  { this->get_indentation_any() };
@@ -314,6 +314,8 @@ class Paragraph : public DiaryElemTag
                 case VT::SO::PARA_COUNT::C: return 1;
             }
         }
+        int get_size_visible()
+        { return get_text_visible().length(); }
         int                         get_chain_char_count() const;
         int                         get_chain_para_count() const;
         DiaryElement::Type          get_type() const override
@@ -322,14 +324,16 @@ class Paragraph : public DiaryElemTag
         { return( abs( other->m_order_in_host - m_order_in_host ) + 1 ); }
 
         // TEXTUAL CONTENTS
-        bool                        is_empty() const
-        { return m_text.empty(); }
-        bool                        is_empty_completely() const
-        { return( m_text.empty() && !is_list() ); }
+        bool                        is_empty( bool F_spaces_are_things = true ) const
+        { return( F_spaces_are_things ? m_text.empty()
+                                      : STR::strip_spaces( m_text ).empty() ); }
+        bool                        is_empty_completely( bool F_spaces_are_things = true ) const
+        { return( is_empty( F_spaces_are_things ) && !is_list() && !is_image() ); }
         gunichar                    get_char( UstringSize i ) const
         { return m_text[ i ]; }
         const Ustring&              get_text() const
         { return m_text; }
+        Ustring                     get_text_visible() const;
         const std::string           get_text_std() const // for file output
         { return m_text; }
         String                      get_text_code() const;
@@ -357,7 +361,7 @@ class Paragraph : public DiaryElemTag
         std::tuple< UstringSize, UstringSize, UstringSize >
                                     insert_text_with_spaces( UstringSize, Ustring,
                                                              ParserBackGround*,
-                                                             bool = true, bool = false );
+                                                             bool = false, bool = false );
         void                        erase_text( UstringSize pos,
                                                 UstringSize size,
                                                 ParserBackGround* = nullptr,
@@ -689,7 +693,8 @@ class Paragraph : public DiaryElemTag
 
         // INDENTATION
         int                         get_indent_level() const
-        { return( m_style & VT::PS_FLT_INDENT ) >> 24; }
+        { return( get_alignment() == VT::PA::LEFT::I ? ( m_style & VT::PS_FLT_INDENT ) >> 24
+                                                     : 0 ); }
 
         bool                        set_indent_level( unsigned );
         bool                        indent( bool = true );

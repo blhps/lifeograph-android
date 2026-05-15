@@ -74,11 +74,6 @@ JNI_METHOD(jlong, Entry_nativeGetDate)(JNIEnv* env, jobject obj, jlong ptr) {
     return static_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_date());
 }
 
-JNI_METHOD(void, Entry_nativeSetDate)(JNIEnv* env, jobject obj, jlong ptr, jlong date) {
-    CHECK_PTR(ptr, )
-    reinterpret_cast<LoG::Entry*>(ptr)->get_diary()->set_entry_date(reinterpret_cast<LoG::Entry*>(ptr), static_cast<LoG::DateV>(date));
-}
-
 JNI_METHOD(jboolean, Entry_nativeHasName)(JNIEnv* env, jobject obj, jlong ptr) {
     CHECK_PTR(ptr, JNI_FALSE)
     return static_cast<jboolean>(reinterpret_cast<LoG::Entry*>(ptr)->has_name());

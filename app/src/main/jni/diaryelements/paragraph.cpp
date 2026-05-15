@@ -510,6 +510,15 @@ Paragraph::get_chain_para_count() const
 }
 
 // TEXT
+Ustring
+Paragraph::get_text_visible() const
+{
+    return( m_host && m_host->get_comment_style() == VT::CS::HIDDEN::I
+                 // gets rid of the comments:
+                 ? get_text_stripped( VT::TCT_CMPNT_ESSENTIAL | VT::TCT_F_INTACT_SPACING )
+                 : m_text );
+}
+
 String
 Paragraph::get_text_code() const
 {
@@ -533,6 +542,7 @@ Paragraph::get_text_code() const
 
     return str;
 }
+
 Ustring
 Paragraph::get_text_stripped( int flags ) const
 {
@@ -568,7 +578,7 @@ Paragraph::get_text_decorated() const
         case VT::PLS::CANCLD::I:   str += get_todo_status_as_text(); break;
     }
 
-    str += m_text;
+    str += get_text_visible();
 
     return str;
 }
@@ -674,26 +684,27 @@ Paragraph::insert_text( UstringSize pos, const Ustring& text, ParserBackGround* 
 }
 std::tuple< UstringSize, UstringSize, UstringSize >
 Paragraph::insert_text_with_spaces( UstringSize pos, Ustring text, ParserBackGround* parser,
-                                    bool F_space_bgn_punct, bool F_space_end_punct )
+                                    bool F_skip_bgn, bool F_skip_end )
 {
-    auto        c         { Wchar( m_text[ pos ] ) };
-    auto        ct        { Wchar( text[ text.size() - 1 ] ) };
-    UstringSize space_bgn { 0 };
-    UstringSize space_end { 0 };
+    const auto  ch_after    { Wchar( m_text[ pos ] ) };
+    const auto  ch_txt_end  { Wchar( text[ text.size() - 1 ] ) };
+    UstringSize space_bgn   { 0 };
+    UstringSize space_end   { 0 };
 
-    if( !STR::is_char_space( ct ) && ( F_space_end_punct ? !STR::is_char_space( c )
-                                                         : Glib::Unicode::isalnum( c ) ) )
+    // at the end:
+    if( !F_skip_end &&
+        !STR::is_char_space( ch_txt_end ) && STR::is_char_space_requiring_before( ch_after ) )
     {
-        text += " ";
+        text += ' ';
         space_end = 1;
     }
 
-    if( pos > 0 )
+    // at the start:
+    if( pos > 0 && !F_skip_bgn )
     {
-        c = m_text[ pos - 1 ];
-        ct = text[ 0 ];
-        if( !STR::is_char_space( ct ) && ( F_space_bgn_punct ? !STR::is_char_space( c )
-                                                             : Glib::Unicode::isalnum( c ) ) )
+        const auto ch_before  { m_text[ pos - 1 ] };
+        const auto ch_txt_bgn { text[ 0 ] };
+        if( !STR::is_char_space( ch_txt_bgn ) && STR::is_char_space_requiring_after( ch_before ) )
         {
             text.insert( 0, " " );
             space_bgn = 1;

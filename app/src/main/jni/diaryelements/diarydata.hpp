@@ -329,7 +329,9 @@ namespace VT
                          TCT_CMPNT_DATE         = 0x40,
                          TCT_CMPNT_COMMENT      = 0x80,
                          TCT_CMPNT_INDENT       = 0x100,
-                         TCT_CMPNT_NUMBER       = 0x200;
+                         TCT_CMPNT_NUMBER       = 0x200,
+                         TCT_F_INTACT_SPACING   = 0x1000;
+    static constexpr int TCT_CMPNT_ESSENTIAL    = TCT_CMPNT_PLAIN|TCT_CMPNT_TAG|TCT_CMPNT_DATE;
     // source fields:
     static constexpr int TCT_SRC_TITLE          = 0x0, // means text for paragraphs
                          TCT_SRC_ANCESTRAL      = 0x1,
@@ -577,7 +579,7 @@ namespace VT
                          HFT_LINK_EVAL      = 10 | HFT_F_LINK_MANUAL | HFT_F_LINK,
                          HFT_LINK_ID        = 11 | HFT_F_LINK_MANUAL | HFT_F_LINK | HFT_F_REFERENCE,
                          HFT_LINK_ONTHEFLY  = 12 | HFT_F_LINK | HFT_F_ONTHEFLY,
-                         HFT_LINK_BROKEN    = 13 | HFT_F_ONTHEFLY,
+                         //HFT_LINK_BROKEN    = 13 | HFT_F_ONTHEFLY,
                          HFT_TAG_VALUE      = 14 | HFT_F_ONTHEFLY | HFT_F_NUMERIC,
                          HFT_COMMENT        = 15 | HFT_F_ONTHEFLY,
                          HFT_TIME           = 16 | HFT_F_ONTHEFLY | HFT_F_NUMERIC,

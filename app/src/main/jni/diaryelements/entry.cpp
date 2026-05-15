@@ -823,33 +823,38 @@ Ustring
 Entry::get_text_partial( UstringSize pos_bgn, UstringSize pos_end, bool F_decorated ) const
 {
     Ustring     text;
-    UstringSize pos_p_bgn{ 0 };
+    UstringSize pos_p_bgn_g { 0 }; // global para bgn position in entry
 
     for( Paragraph* p = m_p2para_1st; p; p = p->m_p2next )
     {
         if( !p->is_visible() ) continue;
 
-        const auto pos_p_end{ pos_p_bgn + p->get_size() };
+        const auto para_l_vis   { p->get_size_visible() };
+        const auto pos_p_end_g  { pos_p_bgn_g + para_l_vis }; // global
 
-        if( pos_p_end > pos_bgn )
+        if( pos_p_end_g > pos_bgn )
         {
-            if( pos_bgn <= pos_p_bgn && pos_end >= pos_p_end )
-                text += ( F_decorated ? p->get_text_decorated() : p->get_text() );
+            const auto text_p  { F_decorated && !p->is_code() ? p->get_text_decorated()
+                                                              : p->get_text_visible() };
+            const auto decor_l { F_decorated ? text_p.length() - para_l_vis : 0 };
+
+            if( pos_bgn <= pos_p_bgn_g && pos_end >= pos_p_end_g ) // whole paragraph
+                text += text_p;
             else
             {
-                const auto pb { pos_bgn < pos_p_bgn ? 0ul : pos_bgn - pos_p_bgn };
-                text += p->get_text().substr( pb, pos_end > pos_p_end ? pos_p_end - pos_p_bgn - pb
-                                                                      : pos_end - pos_p_bgn - pb );
-                // no decoration except at the beginning, so no decorated version
+                const auto pb { pos_bgn <= pos_p_bgn_g ? 0ul : pos_bgn - pos_p_bgn_g + decor_l };
+                const auto sz { std::min( pos_end, pos_p_end_g ) - pos_p_bgn_g - pb + decor_l };
+                text += text_p.substr( pb, sz );
+                // no decoration except at the beginning, so no decoration here
             }
 
-            if( pos_end > pos_p_end )
+            if( pos_end > pos_p_end_g )
                 text += '\n';
             else
                 break;
         }
 
-        pos_p_bgn = ( pos_p_end + 1 ); // +1 is for \n
+        pos_p_bgn_g = ( pos_p_end_g + 1 ); // +1 is for \n
     }
 
     return text;
@@ -1780,7 +1785,7 @@ Entry::update_inline_dates( Paragraph* p_bgn, Paragraph* p_end )
 
     // DEID_OMIT is used for temoorary entries that are not part of the diary
     if( m_id != DEID::OMIT && Date::isolate_YMD( m_date ) != date_prev && m_p2diary )
-        m_p2diary->set_entry_date( this, m_date );
+        m_p2diary->update_entry_date( this );
 }
 
 void
