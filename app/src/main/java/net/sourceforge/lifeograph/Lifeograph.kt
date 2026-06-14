@@ -43,11 +43,17 @@ class Lifeograph : Application() {
     override fun onTrimMemory(level: Int) {
         super.onTrimMemory(level)
 
-        // secure and close the diary when the app moves to background or memory is low.
+        // secure and close the diary only when the system is low on memory.
         // this ensures data is safe and prevents crashes when returning to the app later.
-        if (level >= TRIM_MEMORY_UI_HIDDEN) {
+        if (level >= TRIM_MEMORY_BACKGROUND) {
             secureAndCloseDiary()
             Log.d(TAG, "Diary secured and closed due to memory trim (level: $level)")
+        }
+        else if(level >= TRIM_MEMORY_UI_HIDDEN) {
+            val dm = Diary.main
+            if (dm.is_in_edit_mode()) {
+                dm.writeLock(this)
+            }
         }
     }
 
