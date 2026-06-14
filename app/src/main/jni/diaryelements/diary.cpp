@@ -405,7 +405,6 @@ R2Pixbuf
 Diary::get_image_table( const String& uri, int width, const Pango::FontDescription& fd,
                         bool F_expanded )
 {
-    R2Pixbuf     buf;
     const auto&& rc_name { STR::compose( uri, "/", width ) };
     auto&&       iter    { m_map_images_t.find( rc_name ) };
 
@@ -413,16 +412,14 @@ Diary::get_image_table( const String& uri, int width, const Pango::FontDescripti
     {
         auto table{ get_element2< TableElem >( D::DEID( uri ) ) };
 
-        if( !table ) throw LoG::Error( "Table not found" );
-
-        buf = TableSurface::create_pixbuf( table, width, fd, F_expanded );
-
-        m_map_images_t[ rc_name ] = buf;
+        if( table )
+            return( m_map_images_t[ rc_name ] =
+                    TableSurface::create_pixbuf( table, width, fd, F_expanded ) );
     }
     else
-        buf = iter->second;
+        return iter->second;
 
-    return buf;
+    return {};
 }
 
 void
@@ -2622,7 +2619,7 @@ Diary::write()
     const Result result{ write( m_uri ) };
 
     // DAILY BACKUP SAVES
-    if( Lifeograph::settings.save_backups && !Lifeograph::settings.backup_folder_uri.empty() )
+    if( !Lifeograph::settings.backup_folder_uri.empty() )
     {
         const auto&&  name_strp
         { STR::ends_with( m_name, ".diary" ) ? m_name.substr( 0, m_name.size() - 6 ) : m_name };
@@ -3630,6 +3627,13 @@ Diary::remove_entry_from_hierarchy_with_descendants( Entry* entry )
 void
 Diary::move_entry( Entry* p2entry2move, Entry* p2entry_target, const DropPosition& position )
 {
+    // address the corner case where an entry is dropped to its descendant:
+    if( p2entry_target->is_descendant_of( p2entry2move ) )
+    {
+        remove_entry_from_hierarchy( p2entry_target );
+        p2entry2move->add_sibling_before( p2entry_target );
+    }
+
     remove_entry_from_hierarchy_with_descendants( p2entry2move );
 
     switch( position )

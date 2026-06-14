@@ -377,7 +377,7 @@ class Paragraph : public DiaryElemTag
         int                         predict_list_style_from_text();
         int                         predict_indent_from_text();
 
-        void                        join_with_next();
+        void                        join_with_next( bool = true );
         Paragraph*                  split_at( UstringSize, ParserBackGround* = nullptr );
 
         // STYLE

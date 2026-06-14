@@ -69,7 +69,6 @@ class Settings
 
         bool                        use_imperial_units{ false };
 
-        bool                        save_backups{ false };
         String                      backup_folder_uri;
 
         std::string                 diary_extension{ EXTENSION_DEFAULT };

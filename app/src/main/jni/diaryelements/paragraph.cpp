@@ -750,11 +750,13 @@ Paragraph::replace_text( UstringSize pos, UstringSize size, const Ustring& text,
     m_text.insert( pos, text );
     update_formats( pos, size, text.size() ); // erase + insert
 
-    const auto tag_boundary { get_tag_bound() };
-    if( pos + size <= tag_boundary ) // contained case
-        offset_tag_bound( text.size() - size );
-    else if( pos < tag_boundary ) // intersection case
-        set_tag_bound( pos );
+    if( const auto tag_boundary { get_tag_bound() }; tag_boundary > 0 )
+    {
+        if( pos + size <= tag_boundary ) // contained case
+            offset_tag_bound( text.size() - size );
+        else if( pos < tag_boundary ) // intersection case
+            set_tag_bound( pos );
+    }
 
     if( parser ) parser->parse( this );
 
@@ -1905,14 +1907,14 @@ Paragraph::predict_indent_from_text()
 }
 
 void
-Paragraph::join_with_next()
+Paragraph::join_with_next( bool F_inherit )
 {
     if( !m_p2next ) return;
 
     // if this para is not the title paragraph:
     if( m_p2prev )
     {
-        if( is_empty() ) // if this para is empty, inherit the next pararaph's style:
+        if( F_inherit && is_empty() ) // if this para is empty, inherit the next pararaph's style:
         {
             set_heading_level( m_p2next->get_heading_level() );
 

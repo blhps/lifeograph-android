@@ -1078,16 +1078,13 @@ Entry::insert_text( UstringSize pos, const Ustring& new_text, const ListHiddenFo
             if( !ic.is_empty() && para_inherit )
             {
                 ParaInhClasses ic_final { ic };
+                // detect move and add heading to ic:
                 if( !para_inherit->is_title() && para_inherit->is_empty() && !para->is_empty() )
                     ic_final |= ParaInhClass::HEADING_LVL;
-                // if( n_paras_changed == 1 )
-                //     ic_final |= ParaInhClass::INDENTATION;
-                // ^^^ INDENTATION is already default, why add it here? ^^^
-                // ...besides it breaks paste in code snippets due to added spaces after :
                 para->inherit_style_from( para_inherit, ic_final );
             }
 
-            // remove heading and hrule properties from empty paragraphs:
+            // remove heading and hrule properties from empty paragraphs (moved paragraphs case):
             if( para_inherit->is_empty() )
             {
                 para_inherit->set_hrule( false );
@@ -1136,6 +1133,9 @@ Entry::erase_text( const UstringSize pos_bgn, const UstringSize pos_end, bool F_
     UstringSize para_offset_end { 0 };
     if( !get_paragraph( pos_end, para_end, para_offset_end, true ) ) return;
 
+    const bool  F_last_para_completely_erased
+                                { pos_end == ( para_offset_end + para_end->get_size() ) };
+
     // TODO: 3.2: backspace at the beginning of a para after a collapsed para deletes
     // ...tthe unexposed paras silently
 
@@ -1157,7 +1157,8 @@ Entry::erase_text( const UstringSize pos_bgn, const UstringSize pos_end, bool F_
         m_p2para_last = para_bgn;
     for( int i = 0; i < n_deleted_paras; ++i )
     {
-        para_bgn->join_with_next();
+        para_bgn->join_with_next( i == ( n_deleted_paras - 1 ) && !F_last_para_completely_erased );
+        // a completely erased paragraph cannot be an inheritance source
     }
     // update host orders:
     for( Paragraph* p = para_bgn->m_p2next; p; p = p->m_p2next )
@@ -1197,6 +1198,9 @@ Entry::replace_text_with_styles( UstringSize pos_bgn, UstringSize pos_end, Parag
         UstringSize para_offset_end { 0 };
         if( !get_paragraph( pos_end, para_end, para_offset_end, true ) ) return;
 
+
+        const bool  F_last_para_completely_erased
+                                    { pos_end == ( para_offset_end + para_end->get_size() ) };
         const int   n_deleted_paras { para_end->m_order_in_host - para_bgn->m_order_in_host };
 
         // undo stack:
@@ -1208,8 +1212,13 @@ Entry::replace_text_with_styles( UstringSize pos_bgn, UstringSize pos_end, Parag
             m_p2para_last = para_bgn;
         for( int i = 0; i < n_deleted_paras; ++i )
         {
-            para_bgn->join_with_next();
+            para_bgn->join_with_next( i == ( n_deleted_paras - 1 ) &&
+                                      !F_last_para_completely_erased );
+            // a completely erased paragraph cannot be an inheritance source
         }
+        // update host orders:
+        for( Paragraph* p = para_bgn->m_p2next; p; p = p->m_p2next )
+            p->m_order_in_host = ( p->m_p2prev->m_order_in_host + 1 );
 
         // actually erase the text from para_bgn:
         para_bgn->erase_text( pos_bgn - para_offset_bgn, pos_end - pos_bgn - n_deleted_paras );
