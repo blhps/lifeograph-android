@@ -149,8 +149,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 if(item.itemId == R.id.visit_link) {
                     val buffer = mEditText.editableText
                     val link = buffer.getSpans(mEditText.selectionStart,
-                            mEditText.selectionEnd,
-                            ClickableSpan::class.java)
+                                               mEditText.selectionEnd,
+                                               ClickableSpan::class.java)
                     if(link.isNotEmpty())
                         link[0].onClick(mEditText)
                     else
@@ -220,7 +220,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         if(mEntry._size > 0) {
             requireActivity().window.setSoftInputMode(
-                    WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
+                WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         }
         show(savedInstanceState == null) // non-null on rotation
     }
@@ -364,17 +364,17 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             mActionBar.setIcon( m_ptr2entry.get_icon() );*/
         if(isMenuInitialized) {
             mMenu.findItem(R.id.toggle_favorite).setIcon(
-                    if(mEntry.is_favorite) R.drawable.ic_favorite_active
-                    else R.drawable.ic_favorite_inactive)
+                if(mEntry.is_favorite) R.drawable.ic_favorite_active
+                else R.drawable.ic_favorite_inactive)
 
             mMenu.findItem(R.id.change_todo_status).setIcon(
-                    when(mEntry._todo_status) {
-                        Entry.ES_TODO ->       R.drawable.ic_todo_open_inactive
-                        Entry.ES_PROGRESSED -> R.drawable.ic_todo_progressed_inactive
-                        Entry.ES_DONE ->       R.drawable.ic_todo_done_inactive
-                        Entry.ES_CANCELED ->   R.drawable.ic_todo_canceled_inactive
-                        else ->                R.drawable.ic_todo_auto_inactive
-                    } )
+                when(mEntry._todo_status) {
+                    Entry.ES_TODO ->       R.drawable.ic_todo_open_inactive
+                    Entry.ES_PROGRESSED -> R.drawable.ic_todo_progressed_inactive
+                    Entry.ES_DONE ->       R.drawable.ic_todo_done_inactive
+                    Entry.ES_CANCELED ->   R.drawable.ic_todo_canceled_inactive
+                    else ->                R.drawable.ic_todo_auto_inactive
+                } )
         }
     }
 
@@ -415,9 +415,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private fun dismiss() {
         Lifeograph.showConfirmationPrompt(
-                requireContext(),
-                R.string.entry_dismiss_confirm,
-                R.string.dismiss
+            requireContext(),
+            R.string.entry_dismiss_confirm,
+            R.string.dismiss
         ) { _: DialogInterface?, _: Int -> mFlagDismissOnExit = true }
     }
 
@@ -680,11 +680,11 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private fun toggleQuotation() {
         doForEachSelPara({ para ->
-                 if(para._quot_type == '_') // off
-                     para._quot_type = '*' // generic
-                 else
-                     para._quot_type = '_'
-             }, false)
+                             if(para._quot_type == '_') // off
+                                 para._quot_type = '*' // generic
+                             else
+                                 para._quot_type = '_'
+                         }, false)
     }
 
     // PARSING =====================================================================================
@@ -693,19 +693,20 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val offset = rawOffset.coerceIn(0, textLength)
         val offsetEnd = rawOffsetEnd.coerceIn(0, textLength)
 
-        if (offset >= offsetEnd) return
+        val isLastCharNewline = offsetEnd < textLength && edt[offsetEnd] == '\n'
+        val paraEndForStyle = if (isLastCharNewline) offsetEnd + 1 else offsetEnd
 
         val theme = mEntry._theme
 
         val classesToRemove = arrayOf(
             CharacterStyle::class.java, // Covers Bold, Italic, Color, Background
             ParagraphStyle::class.java, // Covers Alignment, LeadingMargin
-            SpanList::class.java        // Your custom span
+            SpanList::class.java        // Our custom span
                                      )
 
         // remove existing spans in this paragraph's range before re-applying
         for (clazz in classesToRemove) {
-            val spans = edt.getSpans(offset, offsetEnd, clazz)
+            val spans = edt.getSpans(offset, paraEndForStyle, clazz)
             for(span in spans) {
                 if(span is Selection) continue
                 edt.removeSpan(span)
@@ -720,28 +721,28 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             else -> null
         }
         alignment?.let {
-            edt.setSpan(AlignmentSpan.Standard(it), offset, offsetEnd, 0)
+            edt.setSpan(AlignmentSpan.Standard(it), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
         }
 
         // 2. HEADING TYPE
         when(p._heading_level) {
             'T' -> { // TITLE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
-                                       offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
+                            offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 edt.setSpan(ForegroundColorSpan(mEntry._theme.color_title), offset,
-                                       offsetEnd, 0)
+                            paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 // TODO: handle_title_edited logic would go here if needed for Android UI
             }
 
             'S' -> { // LARGE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
-                                       offset, offsetEnd, Spanned.SPAN_INTERMEDIATE)
+                            offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 edt.setSpan(ForegroundColorSpan(mEntry._theme.color_heading_L), offset,
-                                       offsetEnd, 0)
+                            paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
 
             'B' -> { // MEDIUM
-                edt.setSpan(StyleSpan(Typeface.BOLD), offset, offsetEnd, 0)
+                edt.setSpan(StyleSpan(Typeface.BOLD), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
         }
 
@@ -755,56 +756,56 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 edt.setSpan(
                     SpanList(requireContext(), p, label, theme),
                     offset,
-                    offsetEnd,
-                    Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-                                      )
+                    paraEndForStyle,
+                    Spanned.SPAN_INCLUSIVE_INCLUSIVE
+                           )
             }
 
             when(p._list_type) {
                 'O' -> { // open to-do
                     edt.setSpan(ForegroundColorSpan(theme.color_open), offset,
-                                           offsetEnd, 0)
+                                paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 }
 
 //                    '~' -> { // in progress: no special format
 //                    }
 
                 '+' -> { // done
-                    edt.setSpan(ForegroundColorSpan(theme.color_done), offset, offsetEnd, 0)
+                    edt.setSpan(ForegroundColorSpan(theme.color_done), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                     edt.setSpan(BackgroundColorSpan(theme.color_done_bg), offset,
-                                           offsetEnd, 0)
+                                paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 }
 
                 'X' -> { // canceled
-                    edt.setSpan(StrikethroughSpan(), offset, offsetEnd, 0)
+                    edt.setSpan(StrikethroughSpan(), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 }
             }
 
             if(p.is_code) {
-                edt.setSpan(TypefaceSpan("monospace"), offset, offsetEnd, 0)
+                edt.setSpan(TypefaceSpan("monospace"), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             } else if(p.is_quote) {
-                edt.setSpan(QuoteSpan(), offset, offsetEnd, 0)
-                edt.setSpan(StyleSpan(Typeface.ITALIC), offset, offsetEnd, 0)
+                edt.setSpan(QuoteSpan(), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(StyleSpan(Typeface.ITALIC), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
 
             // 4. INDENTATION
             val indentLevel = p._indent_level
-            if(indentLevel > 0) {
+            if(indentLevel > 0 && listType == 0.toChar()) {
                 val margin = indentLevel * INDENT_UNIT_WIDTH
-                edt.setSpan(LeadingMarginSpan.Standard(margin), offset, offsetEnd, 0)
+                edt.setSpan(LeadingMarginSpan.Standard(margin), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
         }
 
         // 5. FOLDING
         if( p.is_foldable ) { //&& !p.is_expanded )
             val spanFolding = SpanFolding(
-                    p.is_expanded,
-                    if (p._heading_level == 'S') theme.color_heading_L else theme.color_heading_M,
-                    p._indent_level
+                p.is_expanded,
+                if (p._heading_level == 'S') theme.color_heading_L else theme.color_heading_M,
+                p._indent_level
                                          )
 
             // We use a specific range (e.g., the first char or a hidden char) to attach the span
-            edt.setSpan(spanFolding, offset, offsetEnd, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE)
+            edt.setSpan(spanFolding, offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
         }
 
         // 6. HIDDEN FORMATS (Inline Spans)
@@ -813,37 +814,38 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             val fEnd = offset + format.posEnd
 
             // Ensure boundaries are valid
-            if(fStart < 0 || fEnd > edt.length || fStart >= fEnd) continue
+            if(fStart < 0 || fEnd > textLength || fStart > fEnd) continue
 
+            val flags = if (fStart == fEnd) Spanned.SPAN_INCLUSIVE_INCLUSIVE else 0
             val colorMid = theme.color_mid
 
             when(format.type) {
-                'B' -> edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
-                'I' -> edt.setSpan(StyleSpan(Typeface.ITALIC), fStart, fEnd, 0)
-                'H' -> edt.setSpan(BackgroundColorSpan(theme.color_highlight), fStart, fEnd, 0 )
-                'S' -> edt.setSpan(StrikethroughSpan(), fStart, fEnd, 0)
-                'U' -> edt.setSpan(UnderlineSpan(), fStart, fEnd, 0)
-                'F' -> edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
+                'B' -> edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, flags)
+                'I' -> edt.setSpan(StyleSpan(Typeface.ITALIC), fStart, fEnd, flags)
+                'H' -> edt.setSpan(BackgroundColorSpan(theme.color_highlight), fStart, fEnd, flags)
+                'S' -> edt.setSpan(StrikethroughSpan(), fStart, fEnd, flags)
+                'U' -> edt.setSpan(UnderlineSpan(), fStart, fEnd, flags)
+                'F' -> edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, flags)
                 'C' -> {
                     edt.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.subscriptSpan),
-                        fStart, fEnd, 0 ) // general span
+                        fStart, fEnd, flags ) // general span
                 }
                 'P' -> {
                     edt.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.superscriptSpan),
-                        fStart, fEnd, 0 ) // general span
+                        fStart, fEnd, flags ) // general span
                 }
                 'T' -> { // TAG
                     edt.setSpan(
-                        BackgroundColorSpan(theme.color_inline_tag), fStart, fEnd, 0)
+                        BackgroundColorSpan(theme.color_inline_tag), fStart, fEnd, flags)
                     edt.setSpan(
-                        LinkID(format.refId.toInt()), fStart, fEnd, 0)
+                        LinkID(format.refId.toInt()), fStart, fEnd, flags)
                 }
                 'L' -> { // Link: URI
-                    edt.setSpan( LinkUri(format.uri), fStart, fEnd, 0)
+                    edt.setSpan( LinkUri(format.uri), fStart, fEnd, flags)
                     // You already have LinkUri class defined in ParserEditText
-                    // edt.setSpan(LinkUri(format.uri), fStart, fEnd, 0)
+                    // edt.setSpan(LinkUri(format.uri), fStart, fEnd, flags)
                 }
                 'D' -> { // Link: ID
                     val element = Diary.main.get_tag_by_id(format.refId.toInt())
@@ -851,44 +853,44 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                             LinkID(format.refId.toInt())
                         else  // indicate dead links
                             ForegroundColorSpan(Color.RED)
-                    edt.setSpan(span, fStart, fEnd, 0)
+                    edt.setSpan(span, fStart, fEnd, flags)
                 }
                 'v' -> { // TAG VALUE
                     edt.setSpan(
-                        BackgroundColorSpan(theme.color_inline_tag), fStart, fEnd, 0)
+                        BackgroundColorSpan(theme.color_inline_tag), fStart, fEnd, flags)
                 }
                 'c' -> { // COMMENT / MARKUP
                     edt.setSpan(
                         TextAppearanceSpan(requireContext(), R.style.commentSpan),
-                        fStart, fEnd, 0 ) // general span
+                        fStart, fEnd, flags ) // general span
                     edt.setSpan( ForegroundColorSpan(colorMid), fStart,
-                                            fStart + 2, 0 ) // [[
+                                 fStart + 2, flags ) // [[
                     if(format.posBgn < format.posEnd - 4) {
                         edt.setSpan(
-                            ForegroundColorSpan(colorMid), fStart + 2, fEnd - 2, 0)
+                            ForegroundColorSpan(colorMid), fStart + 2, fEnd - 2, flags)
                     }
-                    edt.setSpan(ForegroundColorSpan(colorMid), fEnd - 2, fEnd, 0) // ]]
+                    edt.setSpan(ForegroundColorSpan(colorMid), fEnd - 2, fEnd, flags) // ]]
                 }
                 'd' -> { // DATE
-                    edt.setSpan(LinkDate(format.varD), fStart, fEnd, 0)
+                    edt.setSpan(LinkDate(format.varD), fStart, fEnd, flags)
                 }
                 'm' -> { // MATCH
                     edt.setSpan(
                         BackgroundColorSpan(theme.color_match_bg),
-                        fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
+                        fStart, fEnd, Spanned.SPAN_INTERMEDIATE or flags )
                     edt.setSpan(
                         ForegroundColorSpan(theme.color_base),
-                        fStart, fEnd, Spanned.SPAN_INTERMEDIATE )
+                        fStart, fEnd, Spanned.SPAN_INTERMEDIATE or flags )
                 }
                 'k' -> { // KEYWORD
-                    edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, 0)
-                    edt.setSpan(ForegroundColorSpan(theme.color_title), fStart, fEnd, 0)
+                    edt.setSpan(StyleSpan(Typeface.BOLD), fStart, fEnd, flags)
+                    edt.setSpan(ForegroundColorSpan(theme.color_title), fStart, fEnd, flags)
                 }
                 '#' -> { // CODE COMMENT
-                    edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, 0)
+                    edt.setSpan(ForegroundColorSpan(colorMid), fStart, fEnd, flags)
                 }
                 'g' -> { // CODE STRING
-                    edt.setSpan(ForegroundColorSpan(theme.color_match_bg), fStart, fEnd, 0)
+                    edt.setSpan(ForegroundColorSpan(theme.color_match_bg), fStart, fEnd, flags)
                 }
                 // Add other types (Date, ID, etc.) based on your ParserEditText.AdvancedSpan types
             }
@@ -926,7 +928,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
         mFlagBlockFormatter = false
 
-   }
+    }
     fun reparse() {
         mEditText.text?.let {  updateTextFormatting(it,
                                                     mEntry._paragraph_1st,
@@ -1028,10 +1030,11 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         private val para: Paragraph,
         private val label: String?, // For numbered lists
         private val theme: Theme,
-        private val gapWidth: Int = INDENT_UNIT_WIDTH
+        private val gapWidth: Int = ( INDENT_UNIT_WIDTH * .7f ).toInt()
                           ) : LeadingMarginSpan {
 
-        override fun getLeadingMargin(first: Boolean): Int = gapWidth
+        override fun getLeadingMargin(first: Boolean): Int =
+            (para._indent_level * INDENT_UNIT_WIDTH) + gapWidth
 
         override fun drawLeadingMargin(
             c: Canvas, p: Paint, x: Int, dir: Int,
@@ -1044,8 +1047,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             val oldColor = p.color
             val style = p.style
 
-            // Adjust x for direction
-            val drawX = (x + dir + para._indent_level * INDENT_UNIT_WIDTH).toFloat()
+            // x is the current margin start. If this is the only LeadingMarginSpan, x is 0.
+            val drawX = (x + para._indent_level * INDENT_UNIT_WIDTH).toFloat()
             val centerY = (top + bottom) / 2f
             val size = p.textSize * 0.6f
 
