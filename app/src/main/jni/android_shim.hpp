@@ -76,6 +76,31 @@ namespace Glib {
             return ustring(std::string::substr(start_byte, end_byte - start_byte));
         }
 
+        char32_t operator[](size_type char_pos) const {
+            size_type byte_idx = char_to_byte_idx(char_pos);
+            if (byte_idx >= std::string::length()) return 0;
+
+            unsigned char c1 = static_cast<unsigned char>(std::string::operator[](byte_idx));
+            if (c1 < 0x80) return c1;
+            if ((c1 & 0xE0) == 0xC0) {
+                if (byte_idx + 1 >= std::string::length()) return c1;
+                return ((c1 & 0x1F) << 6) | (static_cast<unsigned char>(std::string::operator[](byte_idx + 1)) & 0x3F);
+            }
+            if ((c1 & 0xF0) == 0xE0) {
+                if (byte_idx + 2 >= std::string::length()) return c1;
+                return ((c1 & 0x0F) << 12) | ((static_cast<unsigned char>(std::string::operator[](byte_idx + 1)) & 0x3F) << 6) | (static_cast<unsigned char>(std::string::operator[](byte_idx + 2)) & 0x3F);
+            }
+            if ((c1 & 0xF8) == 0xF0) {
+                if (byte_idx + 3 >= std::string::length()) return c1;
+                return ((c1 & 0x07) << 18) | ((static_cast<unsigned char>(std::string::operator[](byte_idx + 1)) & 0x3F) << 12) | ((static_cast<unsigned char>(std::string::operator[](byte_idx + 2)) & 0x3F) << 6) | (static_cast<unsigned char>(std::string::operator[](byte_idx + 3)) & 0x3F);
+            }
+            return c1;
+        }
+
+        char32_t at(size_type char_pos) const {
+            if (char_pos >= length()) throw std::out_of_range("ustring::at");
+            return (*this)[char_pos];
+        }
 
         size_type size() const { return length(); }
 
@@ -86,7 +111,7 @@ namespace Glib {
             size_type byte_idx = 0;
             size_type current_char = 0;
             while (current_char < char_pos && byte_idx < std::string::length()) {
-                unsigned char c = (*this)[byte_idx];
+                unsigned char c = static_cast<unsigned char>(std::string::operator[](byte_idx));
                 // UTF-8 lead byte check:
                 // 0xxxxxxx (ASCII) or 11xxxxxx (Lead byte of multi-byte)
                 if ((c & 0b11000000) != 0b10000000) {
@@ -96,7 +121,7 @@ namespace Glib {
                 byte_idx++;
                 // move past continuation bytes
                 while (byte_idx < std::string::length() &&
-                       ((*this)[byte_idx] & 0b11000000) == 0b10000000) {
+                       (static_cast<unsigned char>(std::string::operator[](byte_idx)) & 0b11000000) == 0b10000000) {
                     byte_idx++;
                 }
             }
@@ -291,8 +316,8 @@ namespace Glib {
     };
 
     namespace Unicode {
-        inline bool isalnum(char32_t c) { return std::isalnum(static_cast<unsigned char>(c)); }
-        inline bool isalpha(char32_t c) { return std::isalpha(static_cast<unsigned char>(c)); }
+        inline bool isalnum(char32_t c) { if (c > 127) return true; return std::isalnum(static_cast<unsigned char>(c)); }
+        inline bool isalpha(char32_t c) { if (c > 127) return true; return std::isalpha(static_cast<unsigned char>(c)); }
         inline bool isdigit(char32_t c) { return std::isdigit(static_cast<unsigned char>(c)); }
         inline bool isupper(char32_t c) { return std::isupper(static_cast<unsigned char>(c)); }
         inline char32_t tolower(char32_t c) { return std::tolower(static_cast<unsigned char>(c)); }
