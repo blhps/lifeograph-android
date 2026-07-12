@@ -1364,17 +1364,19 @@ STR::make_substr_vector( const Ustring& str, int length )
 Ustring
 STR::lowercase( const Ustring& str )
 {
-    // fixes the Glib problem with the Turkish capital i (İ)
-    Ustring result;
-    for( Ustring::size_type i = 0; i < str.length(); i++ )
-    {
-        if( str.at( i ) == L'İ' )
-            result += 'i';
-        else
-            result += Glib::Unicode::tolower( str.at( i ) );
-    }
-
-    return result;
+    // TODO: 3.2: does not fix the Glib problem with the Turkish capital I (ı)
+    //       figure out something that actually works
+    // Ustring result;
+    // for( Ustring::size_type i = 0; i < str.length(); i++ )
+    // {
+    //     if( str.at( i ) == L'İ' )
+    //         result += 'i';
+    //     else
+    //         result += Glib::Unicode::tolower( str.at( i ) );
+    // }
+    //
+    // return result;
+    return str.lowercase();
 }
 Ustring
 STR::sentencecase( const Ustring& str )
@@ -1442,6 +1444,32 @@ STR::titlecase( const Ustring& str )
     return result;
 }
 
+Ustring
+STR::strip_accents( const Ustring& str )
+{
+    Ustring result;
+    // decompose: 'é' (U+00E9) -> 'e' (U+0065) + combining acute (U+0301)
+    Ustring decomposed { str.normalize( Glib::NormalizeMode::ALL ) }; // NFKD
+
+    for( gunichar ch : decomposed )
+        if( g_unichar_type( ch ) != G_UNICODE_NON_SPACING_MARK ) result += ch;
+
+    return result;
+}
+
+// strip accents + lowercase
+Ustring
+STR::make_searchable( const Ustring& str )
+{
+    Ustring result;
+    // decompose: 'é' (U+00E9) -> 'e' (U+0065) + combining acute (U+0301)
+    Ustring decomposed { str.lowercase().normalize( Glib::NormalizeMode::ALL ) }; // NFKD
+
+    for( gunichar ch : decomposed )
+        if( g_unichar_type( ch ) != G_UNICODE_NON_SPACING_MARK ) result += ch;
+
+    return result;
+}
 int
 STR::find_sentence_start_backwards( const String& str, StringSize pos_bgn )
 {

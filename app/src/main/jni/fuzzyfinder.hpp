@@ -40,8 +40,8 @@ public:
             return true;
         }
 
-        auto q = STR::lowercase( query );
-        auto c = STR::lowercase( candidate );
+        auto q = STR::make_searchable( query );
+        auto c = STR::make_searchable( candidate );
 
         size_t qi = 0, ci = 0;
         int consecutive = 0;

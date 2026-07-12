@@ -103,6 +103,11 @@ struct HiddenFormat
 
     constexpr bool
     is_on_the_fly() const { return( type & VT::HFT_F_ONTHEFLY ); }
+    constexpr bool
+    is_saveable() const { return is_type_saveable( type  ); }
+    static constexpr bool
+    is_type_saveable( int t )
+    { return( ( t & ( VT::HFT_F_EPHEMERAL | VT::HFT_F_ONTHEFLY ) ) == 0 ); }
 };
 
 struct FuncCmpFormats
@@ -574,6 +579,8 @@ class Paragraph : public DiaryElemTag
         R2Pixbuf                    get_image( int, const Pango::FontDescription& ) noexcept;
 
         // MAP LOCATION
+        void                        clear_location()
+        { m_properties.remove( PROP::LOCATION ); }
         Coords*                     get_location()
         { return m_properties.get_or_create< Coords >( PROP::LOCATION ); }
         void                        set_location( double lat, double lon )

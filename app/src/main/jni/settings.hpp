@@ -85,7 +85,7 @@ class Settings
         String                      external_text_edit_cmd;
 
         std::string                 icon_theme;
-        bool                        small_lists{ true };
+        // bool                        small_lists{ true };
 
         // RUN-TIME FLAGS
         bool                        rtflag_force_welcome{ false };

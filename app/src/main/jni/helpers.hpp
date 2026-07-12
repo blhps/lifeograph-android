@@ -202,6 +202,10 @@ public:
         return *this;
     }
 
+    constexpr void
+    remove_flag( E flag )
+    { m_value &= ~static_cast< underlying >( flag ); }
+
     // bitwise and
     constexpr EnumFlags
     operator&( EnumFlags other ) const
@@ -301,6 +305,9 @@ class STR
         static Ustring          lowercase( const Ustring& );
         static Ustring          sentencecase( const Ustring& );
         static Ustring          titlecase( const Ustring& );
+
+        static Ustring          strip_accents( const Ustring& );
+        static Ustring          make_searchable( const Ustring& );
 
         static Ustring          get_substr_delim( const Ustring& line,
                                                   UstringSize& pos, char delimiter )

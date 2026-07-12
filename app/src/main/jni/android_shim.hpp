@@ -49,6 +49,13 @@ typedef size_t gsize;
 
 // Minimal Glib/Gtk stubs for Android build
 namespace Glib {
+    enum class NormalizeMode {
+        DEFAULT,
+        DEFAULT_COMPOSE,
+        ALL,
+        ALL_COMPOSE
+    };
+
     class ustring : public std::string {
     public:
         using std::string::string;
@@ -142,9 +149,103 @@ namespace Glib {
             return *this;
         }
 
+        class const_iterator {
+        public:
+            const_iterator(const char* p) : m_p(p) {}
+            char32_t operator*() const {
+                unsigned char c = static_cast<unsigned char>(*m_p);
+                if (c < 0x80) return c;
+                if ((c & 0xE0) == 0xC0) return ((c & 0x1F) << 6) | (static_cast<unsigned char>(m_p[1]) & 0x3F);
+                if ((c & 0xF0) == 0xE0) return ((c & 0x0F) << 12) | ((static_cast<unsigned char>(m_p[1]) & 0x3F) << 6) | (static_cast<unsigned char>(m_p[2]) & 0x3F);
+                if ((c & 0xF8) == 0xF0) return ((c & 0x07) << 18) | ((static_cast<unsigned char>(m_p[1]) & 0x3F) << 12) | ((static_cast<unsigned char>(m_p[2]) & 0x3F) << 6) | (static_cast<unsigned char>(m_p[3]) & 0x3F);
+                return c;
+            }
+            const_iterator& operator++() {
+                unsigned char c = static_cast<unsigned char>(*m_p);
+                if (c < 0x80) m_p++;
+                else if ((c & 0xE0) == 0xC0) m_p += 2;
+                else if ((c & 0xF0) == 0xE0) m_p += 3;
+                else if ((c & 0xF8) == 0xF0) m_p += 4;
+                else m_p++;
+                return *this;
+            }
+            bool operator!=(const const_iterator& other) const { return m_p != other.m_p; }
+            bool operator==(const const_iterator& other) const { return m_p == other.m_p; }
+        private:
+            const char* m_p;
+        };
+
+        const_iterator begin() const { return { c_str() }; }
+        const_iterator end() const { return { c_str() + std::string::length() }; }
+
+        void append_unichar(char32_t c) {
+            if (c < 0x80) {
+                push_back(static_cast<char>(c));
+            } else if (c < 0x800) {
+                push_back(static_cast<char>(0xC0 | (c >> 6)));
+                push_back(static_cast<char>(0x80 | (c & 0x3F)));
+            } else if (c < 0x10000) {
+                push_back(static_cast<char>(0xE0 | (c >> 12)));
+                push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+                push_back(static_cast<char>(0x80 | (c & 0x3F)));
+            } else {
+                push_back(static_cast<char>(0xF0 | (c >> 18)));
+                push_back(static_cast<char>(0x80 | ((c >> 12) & 0x3F)));
+                push_back(static_cast<char>(0x80 | ((c >> 6) & 0x3F)));
+                push_back(static_cast<char>(0x80 | (c & 0x3F)));
+            }
+        }
+
+        ustring normalize(NormalizeMode mode) const {
+            if (mode != NormalizeMode::ALL) return *this;
+            ustring res;
+            res.reserve(bytes());
+            for (char32_t c : *this) {
+                switch (c) {
+                    case 0x00C0: res += "A\xCC\x80"; break; case 0x00C1: res += "A\xCC\x81"; break;
+                    case 0x00C2: res += "A\xCC\x82"; break; case 0x00C3: res += "A\xCC\x83"; break;
+                    case 0x00C4: res += "A\xCC\x88"; break; case 0x00C5: res += "A\xCC\x8A"; break;
+                    case 0x00C7: res += "C\xCC\xA7"; break; case 0x00C8: res += "E\xCC\x80"; break;
+                    case 0x00C9: res += "E\xCC\x81"; break; case 0x00CA: res += "E\xCC\x82"; break;
+                    case 0x00CB: res += "E\xCC\x88"; break; case 0x00CC: res += "I\xCC\x80"; break;
+                    case 0x00CD: res += "I\xCC\x81"; break; case 0x00CE: res += "I\xCC\x82"; break;
+                    case 0x00CF: res += "I\xCC\x88"; break; case 0x00D1: res += "N\xCC\x83"; break;
+                    case 0x00D2: res += "O\xCC\x80"; break; case 0x00D3: res += "O\xCC\x81"; break;
+                    case 0x00D4: res += "O\xCC\x82"; break; case 0x00D5: res += "O\xCC\x83"; break;
+                    case 0x00D6: res += "O\xCC\x88"; break; case 0x00D9: res += "U\xCC\x80"; break;
+                    case 0x00DA: res += "U\xCC\x81"; break; case 0x00DB: res += "U\xCC\x82"; break;
+                    case 0x00DC: res += "U\xCC\x88"; break; case 0x00DD: res += "Y\xCC\x81"; break;
+                    case 0x00E0: res += "a\xCC\x80"; break; case 0x00E1: res += "a\xCC\x81"; break;
+                    case 0x00E2: res += "a\xCC\x82"; break; case 0x00E3: res += "a\xCC\x83"; break;
+                    case 0x00E4: res += "a\xCC\x88"; break; case 0x00E5: res += "a\xCC\x8A"; break;
+                    case 0x00E7: res += "c\xCC\xA7"; break; case 0x00E8: res += "e\xCC\x80"; break;
+                    case 0x00E9: res += "e\xCC\x81"; break; case 0x00EA: res += "e\xCC\x82"; break;
+                    case 0x00EB: res += "e\xCC\x88"; break; case 0x00EC: res += "i\xCC\x80"; break;
+                    case 0x00ED: res += "i\xCC\x81"; break; case 0x00EE: res += "i\xCC\x82"; break;
+                    case 0x00EF: res += "i\xCC\x88"; break; case 0x00F1: res += "n\xCC\x83"; break;
+                    case 0x00F2: res += "o\xCC\x80"; break; case 0x00F3: res += "o\xCC\x81"; break;
+                    case 0x00F4: res += "o\xCC\x82"; break; case 0x00F5: res += "o\xCC\x83"; break;
+                    case 0x00F6: res += "o\xCC\x88"; break; case 0x00F9: res += "u\xCC\x80"; break;
+                    case 0x00FA: res += "u\xCC\x81"; break; case 0x00FB: res += "u\xCC\x82"; break;
+                    case 0x00FC: res += "u\xCC\x88"; break; case 0x00FD: res += "y\xCC\x81"; break;
+                    case 0x00FF: res += "y\xCC\x88"; break;
+                    default: res.append_unichar(c); break;
+                }
+            }
+            return res;
+        }
+
         ustring uppercase() const {
             ustring res = *this;
-            std::transform(res.begin(), res.end(), res.begin(), [](unsigned char c){ return std::toupper(c); });
+            std::string& s = res;
+            std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c){ return std::toupper(c); });
+            return res;
+        }
+
+        ustring lowercase() const {
+            ustring res = *this;
+            std::string& s = res;
+            std::transform(s.begin(), s.end(), s.begin(), [](unsigned char c){ return std::tolower(c); });
             return res;
         }
 
@@ -396,7 +497,29 @@ namespace Glib {
     extern float get_chart_label_size_from_android();
 }
 
+enum GUnicodeType {
+    G_UNICODE_CONTROL, G_UNICODE_FORMAT, G_UNICODE_UNASSIGNED, G_UNICODE_PRIVATE_USE,
+    G_UNICODE_SURROGATE, G_UNICODE_LOWERCASE_LETTER, G_UNICODE_MODIFIER_LETTER,
+    G_UNICODE_OTHER_LETTER, G_UNICODE_TITLECASE_LETTER, G_UNICODE_UPPERCASE_LETTER,
+    G_UNICODE_SPACING_MARK, G_UNICODE_ENCLOSING_MARK, G_UNICODE_NON_SPACING_MARK,
+    G_UNICODE_DECIMAL_NUMBER, G_UNICODE_LETTER_NUMBER, G_UNICODE_OTHER_NUMBER,
+    G_UNICODE_CONNECT_PUNCTUATION, G_UNICODE_DASH_PUNCTUATION, G_UNICODE_CLOSE_PUNCTUATION,
+    G_UNICODE_FINAL_PUNCTUATION, G_UNICODE_INITIAL_PUNCTUATION, G_UNICODE_OPEN_PUNCTUATION,
+    G_UNICODE_OTHER_PUNCTUATION, G_UNICODE_CURRENCY_SYMBOL, G_UNICODE_MODIFIER_SYMBOL,
+    G_UNICODE_MATH_SYMBOL, G_UNICODE_OTHER_SYMBOL, G_UNICODE_LINE_SEPARATOR,
+    G_UNICODE_PARAGRAPH_SEPARATOR, G_UNICODE_SPACE_SEPARATOR
+};
+
 typedef char32_t gunichar;
+
+inline GUnicodeType g_unichar_type(gunichar c) {
+    if (c >= 0x0300 && c <= 0x036F) return G_UNICODE_NON_SPACING_MARK;
+    if (c >= 0x1AB0 && c <= 0x1AFF) return G_UNICODE_NON_SPACING_MARK;
+    if (c >= 0x1DC0 && c <= 0x1DFF) return G_UNICODE_NON_SPACING_MARK;
+    if (c >= 0x20D0 && c <= 0x20FF) return G_UNICODE_NON_SPACING_MARK;
+    if (c >= 0xFE20 && c <= 0xFE2F) return G_UNICODE_NON_SPACING_MARK;
+    return G_UNICODE_OTHER_LETTER;
+}
 
 namespace Gdk {
     enum class InterpType { BILINEAR };

@@ -1257,7 +1257,7 @@ bool
 TableLine::has_str( const Ustring& str ) const
 {
     for( unsigned int i = 0; i < m_values_txt.size(); ++i )
-        if( STR::lowercase( m_values_txt[ i ] ).find( str ) != Ustring::npos )
+        if( STR::make_searchable( m_values_txt[ i ] ).find( str ) != Ustring::npos )
             return true;
 
     return false;

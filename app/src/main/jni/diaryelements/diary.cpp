@@ -2481,7 +2481,7 @@ Diary::create_db_entry_text( const Entry* entry, FiltererContainer* fc_save, Str
             sstream << "\nEpr" << para->get_uri();
 
         for( auto format : para->m_formats )
-            if( !format->is_on_the_fly() )
+            if( format->is_saveable() )
                 sstream << "\nEf" << VT::get_v< VT::FMT, char, int >( format->type )
                                   << format->pos_bgn << "|"
                                   << format->pos_end << "|"
@@ -3317,16 +3317,24 @@ Diary::create_entry( Entry* entry_rel, bool F_parent, DateV date, const Ustring&
     if( !entry_rel )
     {
         if( F_parent && m_p2entry_1st )
+        {
             m_p2entry_1st->get_sibling_last()->add_sibling_after( entry );
+            entry->set_theme( entry->m_p2prev->get_theme() );
+        }
         else if( !m_p2entry_1st )
             m_p2entry_1st = entry;
         else
+        {
             m_p2entry_1st->add_sibling_before( entry );
+            entry->set_theme( entry->m_p2next->get_theme() );
+        }
     }
-    else if( F_parent )
-        entry_rel->add_child_1st( entry );
     else
-        entry_rel->add_sibling_after( entry );
+    {
+        if( F_parent )  entry_rel->add_child_1st( entry );
+        else            entry_rel->add_sibling_after( entry );
+        entry->set_theme( entry_rel->get_theme() );
+    }
 
     // Entry* entry_stylistic_src{ entry->m_p2prev ? entry->m_p2prev :
     //                                ( entry->m_p2next ? entry->m_p2next : entry->m_p2parent ) };
@@ -3340,11 +3348,6 @@ Diary::create_entry( Entry* entry_rel, bool F_parent, DateV date, const Ustring&
     }
     else
         entry->set_title_style( style );
-
-    if( entry_rel && entry_rel->is_theme_set() )
-    {
-        entry->set_theme( entry_rel->get_theme() );
-    }
 
     update_entry_date( entry ); // safely emplaces with duplicate check
     // the rationale is the contents may have a date that have already emplaced the entry
@@ -3869,8 +3872,8 @@ Diary::search_internal_entry( const Entry* entry )
         }
         else
         {
-            const Ustring&& para_text  { F_match_case ? para->get_text()
-                                                      : STR::lowercase( para->get_text() ) };
+            const Ustring&& para_text  { F_match_case ? STR::strip_accents( para->get_text() )
+                                                      : STR::make_searchable( para->get_text() ) };
 
             pos = 0;
             while( ( pos = para_text.find( m_search_text, pos ) ) != Ustring::npos )

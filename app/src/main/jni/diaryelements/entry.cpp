@@ -174,7 +174,7 @@ Entry::get_as_skvvec() const
                             "    " + PropertyStorage::get_variant_str( it_prop.second ) } );
 
         for( auto format : para->m_formats )
-            if( !format->is_on_the_fly() )
+            if( format->is_saveable() )
                 sv.push_back( { para->get_format_id_for_sync( format ),
                                 "    " + format->get_as_human_readable_str() } );
     }
@@ -1081,11 +1081,14 @@ Entry::insert_text( UstringSize pos, const Ustring& new_text, const ListHiddenFo
                 // detect move and add heading to ic:
                 if( !para_inherit->is_title() && para_inherit->is_empty() && !para->is_empty() )
                     ic_final |= ParaInhClass::HEADING_LVL;
+                // do not inherit list styles from headings:
+                if( para_inherit->is_heading() && para_inherit->is_list() )
+                    ic_final.remove_flag( ParaInhClass::LIST_TYPE );
                 para->inherit_style_from( para_inherit, ic_final );
             }
 
             // remove heading and hrule properties from empty paragraphs (moved paragraphs case):
-            if( para_inherit->is_empty() )
+            if( para_inherit && para_inherit->is_empty() )
             {
                 para_inherit->set_hrule( false );
                 para_inherit->set_heading_level( VT::PHS::NORMAL::I );
@@ -2065,12 +2068,18 @@ Entry::get_map_path_length() const
 void
 Entry::clear_map_path()
 {
-    // NOTE: does manipulation through other functions. so, does not update edit date
-
     if( m_F_map_path_old ) update_map_path();
 
     for( Paragraph* para : m_map_path )
-        remove_paragraphs( para );
+    {
+        if( para->is_empty_completely( false ) )
+            remove_paragraphs( para ); // updates the edit date
+        else
+        {
+            para->clear_location();
+            update_date_edited();
+        }
+    }
 
     m_map_path.clear();
 }
@@ -2100,9 +2109,13 @@ Entry::add_map_path_point( double lat, double lon, Paragraph* para_ref, bool F_a
 void
 Entry::remove_map_path_point( Paragraph* para )
 {
-    // NOTE: does manipulation through other functions. so, does not update edit date
-
-    remove_paragraphs( para );
+    if( para->is_empty_completely( false ) )
+        remove_paragraphs( para ); // updates the edit date
+    else
+    {
+        para->clear_location();
+        update_date_edited();
+    }
     m_F_map_path_old = true;
 }
 

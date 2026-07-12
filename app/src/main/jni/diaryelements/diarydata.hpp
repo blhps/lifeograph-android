@@ -558,7 +558,8 @@ namespace VT
 
     // HIDDEN FORMAT TYPES
     static constexpr int HFT_FILTER_CHARS   =   0x0'007F;  // to cover non-on-the-fly ones
-    static constexpr int HFT_F_ONTHEFLY     =   0x1'0000;
+    static constexpr int HFT_F_ONTHEFLY     =   0x1'0000;  // i.e. is created during parsing
+    static constexpr int HFT_F_EPHEMERAL    =   0x2'0000;  // not on-the-fly but not saved either
     static constexpr int HFT_F_LINK         =   0x4'0000;
     static constexpr int HFT_F_LINK_MANUAL  =   0x8'0000;
     static constexpr int HFT_F_ALWAYS       =  0x10'0000;
@@ -588,7 +589,7 @@ namespace VT
                          HFT_MISSPELLED     = 18 | HFT_F_ONTHEFLY,
                          HFT_DATE           = 19 | HFT_F_LINK | HFT_F_ONTHEFLY | HFT_F_NUMERIC,
                          HFT_LINK_THEME     = 20 | HFT_F_LINK | HFT_F_ONTHEFLY,
-                         HFT_MATCH          = 21 | HFT_F_ONTHEFLY,
+                         HFT_MATCH          = 21 | HFT_F_EPHEMERAL,
                          HFT_IMAGE          = 22 | HFT_F_LINK | HFT_F_ONTHEFLY,
                          HFT_ENTRY_MENU     = 23 | HFT_F_LINK | HFT_F_ALWAYS | HFT_F_ONTHEFLY
                                                  | HFT_F_R_CLICK_TOO,

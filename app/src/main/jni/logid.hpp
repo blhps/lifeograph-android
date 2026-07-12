@@ -169,7 +169,7 @@ DECLARE_LOGID_SUBTYPE( LoGID, PROP );
 #undef XE
 
 constexpr bool
-LoGID::is_stock() const { return *this < DEID::MIN_ACTUAL; }
+LoGID::is_stock() const { return *this < DEID::MIN; }
 
 // HASHER ==========================================================================================
 struct LoGIDHasher

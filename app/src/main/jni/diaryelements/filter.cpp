@@ -712,7 +712,7 @@ bool
 FiltererContainsText::filter( const Entry* entry ) const
 {
     const Ustring text { ( m_case_sensitive && !m_use_regex ) ? m_text
-                                                              : STR::lowercase( m_text ) };
+                                                              : STR::make_searchable( m_text ) };
 
     for( Paragraph* p = entry->get_paragraph_1st(); p; p = p->m_p2next )
     {
@@ -729,7 +729,7 @@ FiltererContainsText::filter( const Entry* entry ) const
             }
         }
         else
-            if( STR::lowercase( p->get_text() ).find( text ) != Ustring::npos )
+            if( STR::make_searchable( p->get_text() ).find( text ) != Ustring::npos )
                 return true;
 
         if( m_name_only ) break;
@@ -750,7 +750,7 @@ FiltererContainsText::filter( const Paragraph* para ) const
         return( para->get_text().find( m_text ) != Ustring::npos );
     }
     else
-        return( STR::lowercase( para->get_text() ).find( STR::lowercase( m_text ) )
+        return( STR::make_searchable( para->get_text() ).find( STR::lowercase( m_text ) )
                 !=
                 Ustring::npos );
 }

@@ -52,7 +52,7 @@ Paragraph::Paragraph( Paragraph* p, Diary* p2diary )
     m_text( p->m_text )
 {
     for( auto& format : p->m_formats )
-        if( !format->is_on_the_fly() )
+        if( format->is_saveable() )
             m_formats.insert( new HiddenFormat( *format ) );
 }
 
@@ -816,6 +816,10 @@ Paragraph::inherit_style_from( const Paragraph* para, ParaInhClasses ic )
 
     if( ic.contains( ParaInhClass::INDENTATION ) )
     {
+        // inherit hard indent:
+        set_indent_level( para->get_indent_level() );
+
+        // for code, also indent space indent:
         if( para->is_code() )
         {
             if( quot_type == VT::QT::PYTHON::C && STR::ends_with_trimmed( para->m_text, ':' ) )
@@ -823,8 +827,6 @@ Paragraph::inherit_style_from( const Paragraph* para, ParaInhClasses ic )
             else
                 set_space_indent( para->get_space_indent() );
         }
-        else
-            set_indent_level( para->get_indent_level() );
     }
 
     if( ic.contains( ParaInhClass::HEADING_LVL ) )
@@ -1694,7 +1696,7 @@ Paragraph::insert_format( HiddenFormat* f )
     if( f->type == VT::HFT_LINK_EVAL )
         f->set_id_lo( m_id );
 
-    if( !f->is_on_the_fly() )
+    if( f->is_saveable() )
         update_date_edited();
 }
 
@@ -1729,7 +1731,7 @@ Paragraph::remove_format( int type, UstringSize pos_bgn, UstringSize pos_end )
             // if contained within the erase region, delete:
             else
             {
-                if( !( type & VT::HFT_F_ONTHEFLY ) )
+                if( HiddenFormat::is_type_saveable( type ) )
                     update_date_edited();
 
                 delete format;
@@ -1747,7 +1749,7 @@ Paragraph::remove_format( const HiddenFormat* format )
     {
         if( f->type == format->type && f->pos_bgn == format->pos_bgn )
         {
-            if( !f->is_on_the_fly() )
+            if( f->is_saveable() )
                 update_date_edited();
             delete f;
             return true;
@@ -1783,7 +1785,7 @@ Paragraph::remove_formats_of_type( int t )
         return false;
     } );
 
-    if( !( t & VT::HFT_F_ONTHEFLY ) )
+    if( HiddenFormat::is_type_saveable( t ) )
         update_date_edited();
 }
 
