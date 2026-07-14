@@ -176,7 +176,9 @@ class TableColumn : public Named
         Value                       calculate_arithmetic( TableLine* ) const;
         void                        calculate_script( TableLine* ) noexcept;
 
+        void                        format_number( TableLine*, Value ) const;
         void                        format_number( TableLine* ) const;
+
 
         const int                   m_id;
 

@@ -1015,8 +1015,13 @@ TableColumn::calculate_script( TableLine* line ) noexcept
 void
 TableColumn::format_number( TableLine* line ) const
 {
+    format_number( line, line->get_value_num( m_index ) );
+}
+
+void
+TableColumn::format_number( TableLine* line, Value num_value ) const
+{
     String        formatted_str;
-    const Value   num_value       { line->get_value_num( m_index ) };
 
     if     ( is_percentage() )
         formatted_str = STR::format_percentage( num_value / line->get_col_weight( m_index ) );
@@ -2322,15 +2327,14 @@ TableData::update_delta_columns()
         for( int il = m_lines.size() - 1 ; il > 0; --il )
         {
             const auto v_num { get_value( il, ic ) - get_value( il - 1, ic ) };
-            m_lines[ il ]->set_value_num( ic, v_num );
-            col->format_number( m_lines[ il ] );
+            col->format_number( m_lines[ il ], v_num );
+            // NOTE: delta values are only stored in string values. so they are view-only
         }
 
         // first line:
         if( !m_lines.empty() )
         {
-            m_lines[ 0 ]->set_value_num( ic, 0 );
-            col->format_number( m_lines[ 0 ] );
+            col->format_number( m_lines[ 0 ], 0 );
         }
     }
 }

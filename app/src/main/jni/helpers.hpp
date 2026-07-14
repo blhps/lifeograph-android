@@ -70,6 +70,7 @@ using Value             = double;
 using VecInts           = std::vector< int >;
 
 using String            = std::string;
+using StringV           = std::string_view;
 using StringSize        = std::string::size_type;
 using VecStrings        = std::vector< String >;
 using ListStrings       = std::list< String >;
