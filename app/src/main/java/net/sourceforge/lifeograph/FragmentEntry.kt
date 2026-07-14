@@ -60,10 +60,13 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     var                  mFlagSearchIsOpen = false
     private var          mFRestartSearch = false
     private val          mBrowsingHistory = ArrayList<Int>()
+    private var          mFlagAdjustingSelection = false
 
     companion object {
         lateinit var mEntry: Entry
         const val INDENT_UNIT_WIDTH = 80
+
+        const val CHAR_EMPTY_PARA_ANCHOR = '\u200B' // zero-width space, view-only
     }
 
     // METHODS =====================================================================================
@@ -129,6 +132,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //                }
 //            }
 //        }
+
+        // keep the cursor before the dummy invisible last char:
+        mEditText.mOnSelectionChanged = { selStart, selEnd -> handleSelectionChanged(selStart, selEnd) }
 
         // the below method is much more reliable for links than LinkMovementMethod
         mEditText.customSelectionActionModeCallback = object : ActionMode.Callback {
@@ -321,6 +327,34 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         requireActivity().findViewById<View>(R.id.toolbar_text_edit).visibility = View.VISIBLE
         reparse()
+    }
+
+    /**
+     * The trailing CHAR_EMPTY_PARA_ANCHOR (see ensureTrailingEmptyParaAnchor) is a view-only
+     * character with no counterpart in the core model. If the cursor is ever allowed to sit
+     * at text.length() (i.e. past the anchor), any call site that forwards
+     * mEditText.selectionStart/End straight to mEntry.get_paragraph() etc. passes an offset
+     * one past the core text's valid range, and the C++ core throws.
+     *
+     * Mirrors the Desktop guard: whenever the cursor would land on/after the anchor, snap it
+     * back to just before the anchor instead.
+     */
+    private fun handleSelectionChanged(selStart: Int, selEnd: Int) {
+        if (mFlagAdjustingSelection || mFlagSetTextOperation) return
+
+        val text = mEditText.text ?: return
+        val len = text.length
+        if (len == 0 || text[len - 1] != CHAR_EMPTY_PARA_ANCHOR) return
+
+        val maxPos = len - 1 // position immediately before the anchor == valid end-of-text for core
+        val newStart = selStart.coerceAtMost(maxPos)
+        val newEnd = selEnd.coerceAtMost(maxPos)
+
+        if (newStart != selStart || newEnd != selEnd) {
+            mFlagAdjustingSelection = true
+            mEditText.setSelection(newStart, newEnd)
+            mFlagAdjustingSelection = false
+        }
     }
 
     override fun handleBack(): Boolean {
@@ -688,30 +722,19 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     // PARSING =====================================================================================
-    private fun processParagraph(edt: Editable, p: Paragraph, rawOffset: Int, rawOffsetEnd: Int) {
+    private fun processParagraph(edt: Editable, p: Paragraph, offset: Int, offsetEnd: Int) {
         val textLength = edt.length
-        val offset = rawOffset.coerceIn(0, textLength)
-        val offsetEnd = rawOffsetEnd.coerceIn(0, textLength)
+        // We use offsetEnd for paragraph-level styles to keep them strictly within paragraph boundaries.
+        // For an empty paragraph, offset == offsetEnd, which is still a valid (zero-length) range.
+        val styleEnd = offsetEnd.coerceAtMost(textLength)
+        val styleStart = offset.coerceAtMost(styleEnd)
 
-        val isLastCharNewline = offsetEnd < textLength && edt[offsetEnd] == '\n'
-        val paraEndForStyle = if (isLastCharNewline) offsetEnd + 1 else offsetEnd
+        val isAnchoredTrailingEmptyPara = p._size == 0 &&
+                p._id == mEntry._paragraph_last._id &&
+                styleEnd < textLength && edt[styleEnd] == CHAR_EMPTY_PARA_ANCHOR
+        val marginEnd = if (isAnchoredTrailingEmptyPara) styleEnd + 1 else styleEnd
 
         val theme = mEntry._theme
-
-        val classesToRemove = arrayOf(
-            CharacterStyle::class.java, // Covers Bold, Italic, Color, Background
-            ParagraphStyle::class.java, // Covers Alignment, LeadingMargin
-            SpanList::class.java        // Our custom span
-                                     )
-
-        // remove existing spans in this paragraph's range before re-applying
-        for (clazz in classesToRemove) {
-            val spans = edt.getSpans(offset, paraEndForStyle, clazz)
-            for(span in spans) {
-                if(span is Selection) continue
-                edt.removeSpan(span)
-            }
-        }
 
         // 1. ALIGNMENT
         val alignment = when(p._alignment) {
@@ -721,28 +744,29 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             else -> null
         }
         alignment?.let {
-            edt.setSpan(AlignmentSpan.Standard(it), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+            edt.setSpan(AlignmentSpan.Standard(it), styleStart, marginEnd, Spanned
+                .SPAN_INCLUSIVE_INCLUSIVE)
         }
 
         // 2. HEADING TYPE
         when(p._heading_level) {
             'T' -> { // TITLE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
-                            offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_title), offset,
-                            paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                            styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_title), styleStart,
+                            marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 // TODO: handle_title_edited logic would go here if needed for Android UI
             }
 
             'S' -> { // LARGE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
-                            offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_heading_L), offset,
-                            paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                            styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_heading_L), styleStart,
+                            marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
 
             'B' -> { // MEDIUM
-                edt.setSpan(StyleSpan(Typeface.BOLD), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(StyleSpan(Typeface.BOLD), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
         }
 
@@ -755,44 +779,44 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
                 edt.setSpan(
                     SpanList(requireContext(), p, label, theme),
-                    offset,
-                    paraEndForStyle,
+                    styleStart,
+                    marginEnd,
                     Spanned.SPAN_INCLUSIVE_INCLUSIVE
                            )
             }
 
-            when(p._list_type) {
+            when(listType) {
                 'O' -> { // open to-do
-                    edt.setSpan(ForegroundColorSpan(theme.color_open), offset,
-                                paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                    edt.setSpan(ForegroundColorSpan(theme.color_open), styleStart,
+                                marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 }
 
 //                    '~' -> { // in progress: no special format
 //                    }
 
                 '+' -> { // done
-                    edt.setSpan(ForegroundColorSpan(theme.color_done), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                    edt.setSpan(BackgroundColorSpan(theme.color_done_bg), offset,
-                                paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                    edt.setSpan(ForegroundColorSpan(theme.color_done), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                    edt.setSpan(BackgroundColorSpan(theme.color_done_bg), styleStart,
+                                marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 }
 
                 'X' -> { // canceled
-                    edt.setSpan(StrikethroughSpan(), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                    edt.setSpan(StrikethroughSpan(), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 }
             }
 
             if(p.is_code) {
-                edt.setSpan(TypefaceSpan("monospace"), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(TypefaceSpan("monospace"), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             } else if(p.is_quote) {
-                edt.setSpan(QuoteSpan(), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                edt.setSpan(StyleSpan(Typeface.ITALIC), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(QuoteSpan(), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(StyleSpan(Typeface.ITALIC), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
 
             // 4. INDENTATION
             val indentLevel = p._indent_level
             if(indentLevel > 0 && listType == 0.toChar()) {
                 val margin = indentLevel * INDENT_UNIT_WIDTH
-                edt.setSpan(LeadingMarginSpan.Standard(margin), offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                edt.setSpan(LeadingMarginSpan.Standard(margin), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
         }
 
@@ -805,7 +829,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                                          )
 
             // We use a specific range (e.g., the first char or a hidden char) to attach the span
-            edt.setSpan(spanFolding, offset, paraEndForStyle, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+            edt.setSpan(spanFolding, styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
         }
 
         // 6. HIDDEN FORMATS (Inline Spans)
@@ -898,19 +922,39 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     private fun updateTextFormatting(edt: Editable, paraBgn: Paragraph, paraEnd: Paragraph) {
-        var offset = paraBgn._bgn_offset_in_host
-        var offsetEnd: Int
+        ensureTrailingEmptyParaAnchor(edt)
 
+        val startOffset = paraBgn._bgn_offset_in_host
+        var endOffset = paraEnd._bgn_offset_in_host + paraEnd._size
+        if (endOffset < edt.length && (edt[endOffset] == '\n' || edt[endOffset] == CHAR_EMPTY_PARA_ANCHOR))
+            endOffset++
+
+        // 1. Clear all relevant spans in the entire range first to avoid boundary overlaps
+        val classesToRemove = arrayOf(
+            CharacterStyle::class.java,
+            ParagraphStyle::class.java,
+            SpanList::class.java,
+            AdvancedSpan::class.java
+        )
+        for (clazz in classesToRemove) {
+            val spans = edt.getSpans(startOffset, endOffset, clazz)
+            for (span in spans) {
+                if (span is Selection) continue
+                edt.removeSpan(span)
+            }
+        }
+
+        // 2. Process each paragraph
+        var offset = startOffset
         var p: Paragraph? = paraBgn
         while(p != null) {
-            offsetEnd = offset + p._size
+            val pSize = p._size
+            processParagraph(edt, p, offset, offset + pSize)
 
-            processParagraph(edt, p, offset, offsetEnd)
-
-            if(p._id == paraEnd._id) { break }
+            if(p._id == paraEnd._id) break
 
             // Move to next paragraph
-            offset = offsetEnd + 1
+            offset += pSize + 1
             p = p._next_visible
         }
 
@@ -918,16 +962,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         if( mFlagSetTextOperation ) return
         val selectionStart = mEditText.selectionStart
         val selectionEnd = mEditText.selectionEnd
-        // nudge the EditText to re-draw spans
-        mFlagBlockFormatter = true
-        //mEditText.setText(edt, TextView.BufferType.EDITABLE)
-        //mEditText.requestLayout()
         // restore selection
         if( selectionStart >= 0 && selectionEnd >= 0 ) {
             mEditText.setSelection(selectionStart, selectionEnd)
         }
-        mFlagBlockFormatter = false
-
     }
     fun reparse() {
         mEditText.text?.let {  updateTextFormatting(it,
@@ -940,6 +978,36 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     // PARSING HELPER FUNCTIONS ====================================================================
+    /**
+     * Android's Layout.getParagraphSpans() drops any ParagraphStyle span whose end offset
+     * equals the start of an empty line (start == end). That's normally correct - it stops a
+     * span from a preceding non-empty paragraph leaking onto a following blank one - but it
+     * also silently drops our own list/fold margin span on a genuinely empty *last* paragraph,
+     * since there's no character after it to give the span non-zero length.
+     *
+     * Fix: append one invisible anchor char after such a paragraph so its span range is never
+     * zero-length. Added/removed under mFlagSetTextOperation + mFlagBlockFormatter so this is
+     * never seen by the model or re-triggers formatting recursively.
+     */
+    private fun ensureTrailingEmptyParaAnchor(edt: Editable) {
+        val last = mEntry._paragraph_last
+        val needsAnchor = last._size == 0 &&
+                (last._list_type != 0.toChar() || last.is_foldable)
+        val hasAnchor = edt.isNotEmpty() && edt[edt.length - 1] == CHAR_EMPTY_PARA_ANCHOR
+
+        if (needsAnchor == hasAnchor) return
+
+        val prevBlock = mFlagBlockFormatter
+        mFlagBlockFormatter = true   // suppress recursive updateTextFormatting()
+        mFlagSetTextOperation = true // suppress model sync in onTextChanged()
+        if (needsAnchor)
+            edt.append(CHAR_EMPTY_PARA_ANCHOR)
+        else
+            edt.delete(edt.length - 1, edt.length)
+        mFlagSetTextOperation = false
+        mFlagBlockFormatter = prevBlock
+    }
+
 //    private fun startsLine(offset: Int): Boolean {
 //        if(offset < 0 || offset >= mEditText.text.length)
 //            return false
@@ -1115,7 +1183,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private class SpanFolding(
         private val isExpanded: Boolean,
         private val color: Int,
-        private val indentLevel: Int,
+        //private val indentLevel: Int,
         private val gapWidth: Int = 0
                              ) : LeadingMarginSpan {
 

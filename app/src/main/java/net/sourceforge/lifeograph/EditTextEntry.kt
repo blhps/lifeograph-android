@@ -39,4 +39,11 @@ class EditTextEntry @JvmOverloads constructor(
     override fun performClick(): Boolean {
         return super.performClick()
     }
+
+    var mOnSelectionChanged: ((selStart: Int, selEnd: Int) -> Unit)? = null
+
+    override fun onSelectionChanged(selStart: Int, selEnd: Int) {
+        super.onSelectionChanged(selStart, selEnd)
+        mOnSelectionChanged?.invoke(selStart, selEnd)
+    }
 }
