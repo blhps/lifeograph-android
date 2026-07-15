@@ -59,16 +59,18 @@ namespace Glib {
     class ustring : public std::string {
     public:
         using std::string::string;
+        using std::string::operator+=;   // keep char, const char*, const std::string&, initializer_list overloads visible
+        using std::string::push_back;    // keep push_back(char) visible
         ustring(const std::string& s) : std::string(s) {}
         ustring(const char* s) : std::string(s ? s : "") {}
         ustring() = default;
 
         [[nodiscard]] size_type length() const {
             size_type count = 0;
-            for( unsigned char c : *this )
-            {
-                if( ( c & 0b11000000 ) != 0b10000000 )
-                    ++count; // Only count leading bytes (start of new character)
+            for (size_type i = 0; i < std::string::length(); ++i) {
+                unsigned char c = static_cast<unsigned char>(std::string::operator[](i));
+                if ((c & 0b11000000) != 0b10000000)
+                    ++count;
             }
             return count;
         }
@@ -109,6 +111,16 @@ namespace Glib {
             return (*this)[char_pos];
         }
 
+        ustring& operator+=(char32_t c) {
+            append_unichar(c);
+            return *this;
+        }
+
+        ustring& push_back(char32_t c) {
+            append_unichar(c);
+            return *this;
+        }
+
         size_type size() const { return length(); }
 
         size_type bytes() const { return std::string::length(); }
@@ -122,7 +134,6 @@ namespace Glib {
                 // UTF-8 lead byte check:
                 // 0xxxxxxx (ASCII) or 11xxxxxx (Lead byte of multi-byte)
                 if ((c & 0b11000000) != 0b10000000) {
-                    if (current_char == char_pos) break;
                     current_char++;
                 }
                 byte_idx++;
@@ -151,32 +162,42 @@ namespace Glib {
 
         class const_iterator {
         public:
-            const_iterator(const char* p) : m_p(p) {}
+            const_iterator(const char* p, const char* end) : m_p(p), m_end(end) {}
             char32_t operator*() const {
                 unsigned char c = static_cast<unsigned char>(*m_p);
                 if (c < 0x80) return c;
-                if ((c & 0xE0) == 0xC0) return ((c & 0x1F) << 6) | (static_cast<unsigned char>(m_p[1]) & 0x3F);
-                if ((c & 0xF0) == 0xE0) return ((c & 0x0F) << 12) | ((static_cast<unsigned char>(m_p[1]) & 0x3F) << 6) | (static_cast<unsigned char>(m_p[2]) & 0x3F);
-                if ((c & 0xF8) == 0xF0) return ((c & 0x07) << 18) | ((static_cast<unsigned char>(m_p[1]) & 0x3F) << 12) | ((static_cast<unsigned char>(m_p[2]) & 0x3F) << 6) | (static_cast<unsigned char>(m_p[3]) & 0x3F);
+                if ((c & 0xE0) == 0xC0) {
+                    if (m_p + 1 >= m_end) return c;
+                    return ((c & 0x1F) << 6) | (static_cast<unsigned char>(m_p[1]) & 0x3F);
+                }
+                if ((c & 0xF0) == 0xE0) {
+                    if (m_p + 2 >= m_end) return c;
+                    return ((c & 0x0F) << 12) | ((static_cast<unsigned char>(m_p[1]) & 0x3F) << 6) | (static_cast<unsigned char>(m_p[2]) & 0x3F);
+                }
+                if ((c & 0xF8) == 0xF0) {
+                    if (m_p + 3 >= m_end) return c;
+                    return ((c & 0x07) << 18) | ((static_cast<unsigned char>(m_p[1]) & 0x3F) << 12) | ((static_cast<unsigned char>(m_p[2]) & 0x3F) << 6) | (static_cast<unsigned char>(m_p[3]) & 0x3F);
+                }
                 return c;
             }
             const_iterator& operator++() {
                 unsigned char c = static_cast<unsigned char>(*m_p);
-                if (c < 0x80) m_p++;
-                else if ((c & 0xE0) == 0xC0) m_p += 2;
-                else if ((c & 0xF0) == 0xE0) m_p += 3;
-                else if ((c & 0xF8) == 0xF0) m_p += 4;
-                else m_p++;
+                ptrdiff_t adv = 1;
+                if ((c & 0xE0) == 0xC0) adv = 2;
+                else if ((c & 0xF0) == 0xE0) adv = 3;
+                else if ((c & 0xF8) == 0xF0) adv = 4;
+                m_p += std::min(adv, m_end - m_p);
                 return *this;
             }
             bool operator!=(const const_iterator& other) const { return m_p != other.m_p; }
             bool operator==(const const_iterator& other) const { return m_p == other.m_p; }
         private:
             const char* m_p;
+            const char* m_end;
         };
 
-        const_iterator begin() const { return { c_str() }; }
-        const_iterator end() const { return { c_str() + std::string::length() }; }
+        const_iterator begin() const { return { c_str(), c_str() + std::string::length() }; }
+        const_iterator end()   const { return { c_str() + std::string::length(), c_str() + std::string::length() }; }
 
         void append_unichar(char32_t c) {
             if (c < 0x80) {
