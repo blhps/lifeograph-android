@@ -2011,12 +2011,6 @@ FileChooserButton::init()
 void
 FileChooserButton::handle_click()
 {
-    if( !m_uri.empty() )
-    {
-        auto file { Gio::File::create_for_uri( m_uri ) };
-        m_dlg->set_initial_folder( file->get_parent() );
-    }
-
     if( m_F_folder_mode )
         m_dlg->select_folder(   *dynamic_cast< Gtk::Window* >( get_root() ),
                                 [ this ]( Glib::RefPtr< Gio::AsyncResult >& result )
@@ -2142,6 +2136,17 @@ FileChooserButton::set_uri( const String& uri )
 }
 
 void
+FileChooserButton::clear_uri( bool F_keep_init_folder )
+{
+    m_uri.clear();
+    m_label->set_text( m_empty_text );
+    set_tooltip_text( "" );
+
+    if( !F_keep_init_folder )
+        m_dlg->set_initial_folder( Gio::File::create_for_uri( Glib::get_home_dir() ) );
+}
+
+void
 FileChooserButton::set_info_text( const String& text )
 {
     m_empty_text = text;
@@ -2149,6 +2154,7 @@ FileChooserButton::set_info_text( const String& text )
     if( m_uri.empty() )
         m_label->set_text( text );
 }
+
 // FRAME (for printing) ============================================================================
 // Gtk::Frame*
 // create_frame( const Glib::ustring& str_label, Gtk::Widget& content )
