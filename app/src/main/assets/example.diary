@@ -7,7 +7,7 @@ Do~~~~
 Dp5
 Dsen_US
 Df10034
-Dl43982327
+Dl69010138
 
 ID13509258
 T ~general
@@ -123,7 +123,7 @@ EfT0|7|10043
 ID10002
 E __n_BN___~~~~~~201501040173432
 Ec201501040173432
-Ee202605020221553
+Ee202607150004405
 Eha10033
 Emgeneral
 N 202603290215347|202603290215347|34033482
@@ -132,6 +132,8 @@ N 202603290215347|202603290215347|28213603
 EpD
 N 202603290215347|202603290220628|89220785
 EpDAndroid version provides most of the features in the Linux desktop version and the missing functionality —as long as it makes sense in Android environment— will be implemented in the future releases. The main functionality missing on Android are as follows:
+N 202607150004336|202607150004405|41798390
+Ep<_-E~1_____~~~~~Inserting tags, images and tables into entries
 N 202603290215347|202605020221553|55717093
 Ep<_-E~1_____~~~~~Several filterers are not available to add (the ones added in desktop versions work)
 N 202603290215347|202603290220637|80876489
@@ -150,11 +152,44 @@ N 202603290215347|202603290215347|60912033
 EpDgeneral
 EfT0|7|10043
 
+ID24595362
+E __nEBN___~~~~~~202607150004218
+Ec202607150004218
+Ee202607150004225
+Eha10032
+N 202607150004218|202607150004225|49572901
+EpDVersion History
+
+ID69010138
+E __n_DN___~~~~~~202607150000000
+Ec202607150004501
+Ee202607150005333
+Ehu24595362
+N 202607150004501|202607150004511|83587306
+EpD2.0.2 /
+N 202607150004501|202607150004519|85480113
+EpD2026.07.15
+N 202607150004501|202607150004501|86847849
+Ep<S_E~0_____~~~~~What is new?
+N 202607150004501|202607150004541|67760308
+Ep<_-E~1_____~~~~~Fixed formatting last empty lines in the text editor
+EfB17|21|
+N 202607150004501|202607150005310|24183997
+Ep<_-E~1_____~~~~~Improved upgrading old diaries
+N 202607150004501|202607150004639|54480830
+Ep<_-E~1_____~~~~~Synchronized with C++ core 3.1.3 which mainly brings:
+N 202607150004625|202607150004844|50670062
+Ep<_-E~2_____~~~~~Better theme assignment for new entries
+N 202607150004840|202607150005040|25375106
+Ep<_-E~2_____~~~~~Ignoring diacritics in search
+N 202607150005040|202607150005215|57150643
+Ep<_-E~2_____~~~~~Better style inheritance for new paragraphs
+
 ID43982327
 E __n_DN___~~~~~~202606150000000
 Ec202606150012448
-Ee202606150013031
-Eha10032
+Ee202606150014716
+Eha69010138
 N 202606150012448|202606150012505|20203248
 EpD2.0.1 /
 N 202606150012448|202606150012511|86991822
@@ -165,8 +200,8 @@ N 202606150012448|202606150012547|49477849
 Ep<_-E~1_____~~~~~Fixed formatting empty lines in the text editor
 N 202606150012922|202606150013031|72816254
 Ep<_-E~1_____~~~~~Improved the placement of list item icons in the text editor 
-N 202606150012735|202606150012803|52929196
-Ep<_-E~1_____~~~~~Do not close the active diary session when the app goes to backs-ground
+N 202606150012735|202606150014716|52929196
+Ep<_-E~1_____~~~~~Do not close the active diary session when the app goes to background
 N 202606150012549|202606150012622|44455903
 Ep<_-E~1_____~~~~~Updated the main icon background color
 
@@ -562,7 +597,7 @@ ID75351837
 E __n_NN___~~~~~~202603290215347
 Ec202603290215347
 Ee202603290215358
-Eha10006
+Eha24595362
 N 202603290215347|202603290215358|18843528
 EpDTags
 
