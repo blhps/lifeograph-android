@@ -6,14 +6,14 @@ plugins {
 
 android {
     namespace 'net.sourceforge.lifeograph'
-    compileSdk = 36
+    compileSdk 37
 
     defaultConfig {
         applicationId 'net.sourceforge.lifeograph'
         minSdk 33
-        targetSdk 36
-        versionCode 20010
-        versionName '2.0.1'
+        targetSdk 37
+        versionCode 20020
+        versionName '2.0.2'
         ndk.abiFilters 'armeabi-v7a','arm64-v8a','x86','x86_64'
 
         vectorDrawables.useSupportLibrary = true
@@ -48,8 +48,8 @@ android {
     }
 
     compileOptions {
-        sourceCompatibility JavaVersion.VERSION_1_8
-        targetCompatibility JavaVersion.VERSION_1_8
+        sourceCompatibility JavaVersion.VERSION_11
+        targetCompatibility JavaVersion.VERSION_11
     }
 
     buildFeatures {
@@ -63,11 +63,12 @@ android {
             excludes += 'META-INF/DEPENDENCIES'
         }
     }
+    compileSdkMinor 0
 }
 
 kotlin {
     compilerOptions {
-        jvmTarget = JvmTarget.JVM_1_8
+        jvmTarget = JvmTarget.JVM_11
     }
 }
 
@@ -81,7 +82,7 @@ dependencies {
     implementation 'androidx.navigation:navigation-ui-ktx:2.9.8'
     implementation 'androidx.constraintlayout:constraintlayout:2.2.1'
     implementation 'androidx.recyclerview:recyclerview:1.4.0'
-    implementation "androidx.core:core-ktx:1.18.0"
+    implementation 'androidx.core:core-ktx:1.19.0'
     implementation 'androidx.documentfile:documentfile:1.1.0'
 }
 java {
