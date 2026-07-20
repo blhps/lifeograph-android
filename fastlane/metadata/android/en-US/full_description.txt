@@ -1,0 +1,24 @@
+Lifeograph is a personal diary and note-taking app built around a clean,
+distraction-free editor and a strong focus on privacy.
+
+This Android version shares its core C++ engine with the desktop edition of
+Lifeograph (Linux, Windows, macOS), so diary files created on one platform
+open directly on the other with no conversion step.
+
+Key features:
+
+* Rich-text entries: bold, italic, underline, strikeout, highlighted and
+  faded text, headings and foldable paragraphs
+* To-do items with completion tracking
+* Flexible tagging, including parametric tags for structured notes
+* Full-text search and entry filtering
+* Statistical charts generated from tagged entries
+
+Lifeograph is free and open-source software, released under the GNU GPLv3.
+It does not include ads, trackers, or any network services beyond what you
+explicitly use (such as optional cloud sync of your own diary file).
+
+The Android app is under active development and does not yet have full
+feature parity with the desktop edition — printing, some chart types, and
+table support are not yet available on Android. See the project website for
+the current feature comparison.

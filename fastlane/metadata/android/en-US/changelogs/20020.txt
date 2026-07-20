@@ -1,0 +1,4 @@
+Lifeograph 2.0.2
+
+Maintenance release with bug fixes and stability improvements, keeping the
+Android app in sync with desktop Lifeograph 3.1.3.

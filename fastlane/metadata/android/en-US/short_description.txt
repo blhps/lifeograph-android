@@ -1,0 +1,1 @@
+Personal diary and note-taking app with rich text, tags, data extraction, and encryption
