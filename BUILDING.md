@@ -2,7 +2,15 @@
 
 ## Prerequisites
 
-* **JDK 17**
+* **JDK 17 must already be installed and discoverable by Gradle** (e.g. via
+  `JAVA_HOME`, your `PATH`, Android Studio's bundled JDK, SDKMAN, etc.).
+  `app/build.gradle` pins a Java 17 toolchain, and the project does **not**
+  use the `foojay-resolver-convention` plugin to auto-download a JDK if one
+  isn't found — that plugin was intentionally removed so the build doesn't
+  reach out to the network for a toolchain, which F-Droid's build
+  environment disallows. If no compatible JDK is available locally, the
+  build will fail with a "no matching toolchain" error rather than fetching
+  one automatically.
 * **Android SDK**, platform 37 (`compileSdk 37` / `targetSdk 37`)
 * **Android NDK 28.0.12433566** — the version is pinned in
   `app/build.gradle` (`ndkVersion`). Other NDK versions may not work with
@@ -37,17 +45,15 @@ These sources are not checked into the repo (see `.gitignore`) and must be
 placed manually before building:
 
 ```sh
-cd external
-
-# Download and extract upstream releases from https://gnupg.org/download/
-tar xf libgpg-error-1.6.1.tar.bz2
-mv libgpg-error-1.6.1 libgpg-error
-
-tar xf libgcrypt-1.12.2.tar.bz2
-mv libgcrypt-1.12.2 libgcrypt
-
-cd ..
+external/fetch-deps.sh
 ```
+
+This downloads and extracts the pinned versions (currently `libgpg-error
+1.61` and `libgcrypt 1.12.2`) from https://gnupg.org/ftp/gcrypt/ into
+`external/libgpg-error` and `external/libgcrypt`. It's idempotent — safe to
+re-run, and it skips any library that's already present. The exact pinned
+versions live in `external/fetch-deps.sh` itself; update them there if you
+bump either library.
 
 The CMake script automatically copies `external/libgpg-error` and
 `external/libgcrypt` into per-ABI directories (e.g.
