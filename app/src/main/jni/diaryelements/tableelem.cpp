@@ -490,7 +490,7 @@ TableColumn::calculate_value_txt( const Entry* entry ) const
             return text;
         }
         case TCT_THEME:
-            return entry->get_theme()->get_name();
+            return entry->get_theme_effective()->get_name();
         case TCT_SUBTAG:
             if( m_p2tag && !is_counting() && m_opt_int == VT::TCOS_ALL )
             {
@@ -759,7 +759,7 @@ TableColumn::calculate_value_txt( const Paragraph* para ) const
                     return para->get_text_stripped( m_opt_int );
             }
         case TCT_THEME:
-            return para->m_host->get_theme()->get_name();
+            return para->m_host->get_theme_effective()->get_name();
         case TCT_SUBTAG:
             if( m_p2tag && !is_counting() )
             {
@@ -1135,7 +1135,7 @@ TableLine::set_value_txt( int i, Ustring&& v )
     for( int i2 = m_values_txt.size(); i2 <= i; ++i2 )
         m_values_txt.push_back( "" );
 
-    m_values_txt[ i ] = v;
+    m_values_txt[ i ] = std::move( v );
 }
 
 void

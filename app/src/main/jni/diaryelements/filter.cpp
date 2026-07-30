@@ -602,7 +602,7 @@ FiltererBetweenDateOffsets::filter_v( DateV date ) const
     Date::offset_days( date_bgn, m_offset_bgn );
     Date::offset_days( date_end, m_offset_end );
 
-    return( date >= date_bgn && date <= date_end ); 
+    return( date >= date_bgn && date <= date_end );
 }
 
 void
@@ -624,12 +624,12 @@ bool
 FiltererBetweenEntries::filter( const Entry* entry ) const
 {
     std::list< int >&& num   { entry->get_number_array() };
-    std::list< int >&& num_b { m_entry_b ? m_entry_b->get_number_array() : std::list< int >() };
-    std::list< int >&& num_e { m_entry_e ? m_entry_e->get_number_array() : std::list< int >() };
     bool               res_b { true };
     bool               res_e { true };
 
-    auto less_than = []( std::list< int >& lil, std::list< int >& lim, bool F_or_equal )
+    auto less_than = []( const std::list< int >& lil,
+                         const std::list< int >& lim,
+                         bool F_or_equal )
     {
         auto&& it_l = lil.begin();
         auto&& it_m = lim.begin();
@@ -650,17 +650,25 @@ FiltererBetweenEntries::filter( const Entry* entry ) const
         return F_or_equal;
     };
 
-    if     ( m_F_incl_b )
+    if( m_entry_b )
     {
-        if( less_than( num, num_b, false ) ) res_b = false;
+        std::list< int > num_b { m_entry_b->get_number_array() };
+        if( m_F_incl_b )
+        {
+            if( less_than( num, num_b, false ) ) res_b = false;
+        }
+        else if( less_than( num, num_b, true ) ) res_b = false;
     }
-    else if( less_than( num, num_b, true ) ) res_b = false;
 
-    if( m_F_incl_e )
+    if( m_entry_e )
     {
-        if( less_than( num_e, num, false ) ) res_e = false;
+        std::list< int > num_e { m_entry_e->get_number_array() };
+        if( m_F_incl_e )
+        {
+            if( less_than( num_e, num, false ) ) res_e = false;
+        }
+        else if( less_than( num_e, num, true ) ) res_e = false;
     }
-    else if( less_than( num_e, num, true ) ) res_e = false;
 
     return( res_b && res_e );
 }
@@ -711,26 +719,22 @@ FiltererCompletion::get_as_human_readable_str() const
 bool
 FiltererContainsText::filter( const Entry* entry ) const
 {
-    const Ustring text { ( m_case_sensitive && !m_use_regex ) ? m_text
-                                                              : STR::make_searchable( m_text ) };
-
     for( Paragraph* p = entry->get_paragraph_1st(); p; p = p->m_p2next )
     {
-        if( m_use_regex || m_case_sensitive )
+        if     ( m_use_regex )
         {
-            if( !m_use_regex )
-            {
-                if( p->get_text().find( text ) != Ustring::npos ) return true;
-            }
-            else
-            {
-                Glib::MatchInfo match_info;
-                if( m_regex->match( p->get_text(), match_info ) ) return true;
-            }
+            Glib::MatchInfo match_info;
+            if( m_regex->match( p->get_text(), match_info ) ) return true;
+        }
+        else if( m_case_sensitive )
+        {
+            if( p->get_text().find( m_text ) != Ustring::npos ) return true;
         }
         else
-            if( STR::make_searchable( p->get_text() ).find( text ) != Ustring::npos )
+        {
+            if( STR::make_searchable( p->get_text() ).find( m_text_insensitive ) != Ustring::npos )
                 return true;
+        }
 
         if( m_name_only ) break;
     }
@@ -740,19 +744,31 @@ FiltererContainsText::filter( const Entry* entry ) const
 bool
 FiltererContainsText::filter( const Paragraph* para ) const
 {
+    Ustring str_to_search;
+
+    if( m_name_only )
+    {
+        if( !para->defines_tag() ) return false;
+        str_to_search = para->get_name();
+    }
+    else
+    {
+        str_to_search = para->get_text();
+    }
+
     if     ( m_use_regex )
     {
         Glib::MatchInfo match_info;
-        return( m_regex->match( para->get_text(), match_info ) );
+        return( m_regex->match( str_to_search, match_info ) );
     }
     else if( m_case_sensitive )
     {
-        return( para->get_text().find( m_text ) != Ustring::npos );
+        return( str_to_search.find( m_text ) != Ustring::npos );
     }
     else
-        return( STR::make_searchable( para->get_text() ).find( STR::lowercase( m_text ) )
-                !=
-                Ustring::npos );
+    {
+        return( STR::make_searchable( str_to_search ).find( m_text_insensitive ) != Ustring::npos );
+    }
 }
 
 void
@@ -775,8 +791,10 @@ FiltererContainsText::get_as_human_readable_str() const
 }
 
 void
-FiltererContainsText::update_regex()
+FiltererContainsText::init()
 {
+    m_text_insensitive = STR::make_searchable( m_text );
+
     if( m_use_regex )
     {
         try
@@ -871,6 +889,13 @@ FiltererChildFilter::get_as_human_readable_str() const
 
 // FILTERER IS IMAGE ===============================================================================
 bool
+FiltererHasImage::filter( const Entry* entry ) const
+{
+    for( Paragraph* p = entry->get_paragraph_1st(); p; p = p->m_p2next )
+        if( p->is_image() ) return true;
+    return false;
+}
+bool
 FiltererHasImage::filter( const Paragraph* para ) const
 {
     return( para->is_image() );
@@ -960,7 +985,7 @@ FiltererHeadingLevel::get_as_human_readable_str() const
     Ustring str { STR::compose( is_not() ? _( "Heading level is NOT one of" )
                                          : _( "Heading level is one of" ), " {" ) };
     bool    F_add_comma { false };
-    
+
     for( char c : m_H_levels )
     {
         if( F_add_comma ) str += ", "; else F_add_comma = true;
@@ -1232,7 +1257,7 @@ FiltererContainer::set_from_string( const Ustring& string )
             case 'f':   // favorite
                 container->add< FiltererFavorite >();
                 if( line[ 2 ] == 'n' ) // support for old diaries
-                    set_last_filterer_not();
+                    container->m_pipeline.back()->set_not( true );
                 break;
             case 'g':   // is image
                 container->add< FiltererHasImage >();
@@ -1244,7 +1269,7 @@ FiltererContainer::set_from_string( const Ustring& string )
                     const Ustring&& name{ line.substr( 3 ) };
                     container->add< FiltererTheme >( m_p2diary->get_theme( name ) );
                     if( line[ 2 ] == 'F' ) // support for old diaries
-                        set_last_filterer_not();
+                        container->m_pipeline.back()->set_not( true );
                 }
                 else
                 {
@@ -1259,7 +1284,7 @@ FiltererContainer::set_from_string( const Ustring& string )
                 const auto id { D::DEID{ line.substr( 3 ) } };
                 container->add< FiltererIs >( id, VT::OP_DEPTH::ITSELF::I );
                 if( line[ 2 ] == 'F' ) // support for old diaries
-                    set_last_filterer_not();
+                    container->m_pipeline.back()->set_not( true );
                 break;
             }
             case 'j':   // between date offsets
@@ -1298,7 +1323,7 @@ FiltererContainer::set_from_string( const Ustring& string )
                             id, VT::get_v< VT::OP_DEPTH, int, char>( line[ 4 ] ) );
 
                 if( line[ 2 ] == 'F' ) // support for old diaries
-                    set_last_filterer_not();
+                    container->m_pipeline.back()->set_not( true );
                 break;
             }
             case 'o':   // has map coordinates (bool)
@@ -1310,7 +1335,7 @@ FiltererContainer::set_from_string( const Ustring& string )
                 container->add< FiltererHasTag >( m_p2diary->get_tag_by_id( id ),
                                                   line[ 2 ] == 'P' );
                 if( line[ 2 ] == 'F' ) // support for old diaries
-                    set_last_filterer_not();
+                    container->m_pipeline.back()->set_not( true );
                 break;
             }
             case 's':   // status (ElemStatus)
@@ -1330,12 +1355,12 @@ FiltererContainer::set_from_string( const Ustring& string )
             case 't':   // trashed
                 container->add< FiltererTrashed >();
                 if( line[ 2 ] == 'n' ) // support for old diaries
-                    set_last_filterer_not();
+                    container->m_pipeline.back()->set_not( true );
                 break;
             case 'u':   // unit
                 container->add< FiltererUnit >( line.substr( 3 ) );
                 if( line[ 2 ] == 'F' ) // support for old diaries
-                    set_last_filterer_not();
+                    container->m_pipeline.back()->set_not( true );
                 break;
             case 'v':   // tag value
             {
@@ -1359,7 +1384,8 @@ FiltererContainer::set_from_string( const Ustring& string )
                     container->add< FiltererContainsText >( line.substr( 8 ),
                                                             line[ 6 ] == 'C', line[ 5 ] == 'R',
                                                             line[ 7 ] == 'N' );
-
+                else
+                    container->add< FiltererContainsText >( "", false, false, false );
                 break;
             case 'y':   // title style
                 container->add< FiltererTitleStyle >( line[ 2 ] );
@@ -1392,16 +1418,14 @@ FiltererContainer::set_from_string( const Ustring& string )
                 container->add< FiltererEquals >( line[ 1 ], value );
                 break;
             }
-            case '#':   // haeding level
-                if( line.size() > 6 )
-                    container->add< FiltererHeadingLevel >( line.substr( 6 ) );
+            case '#':   // heading level
+                container->add< FiltererHeadingLevel >( line.size() > 6 ? line.substr( 6 ) : "" );
                 break;
             case '*':   // para list type
                 container->add< FiltererListType >( VT::get_v< VT::PLS, int, char >( line[ 7 ] ) );
                 break;
             case '$':   // script
-                if( line.size() > 12 )
-                    container->add< FiltererScript >( line.substr( 12 ) );
+                container->add< FiltererScript >( line.size() > 12 ? line.substr( 12 ) : "" );
                 break;
             case '(':   // sub group
                 container = container->add< FiltererContainer >();
@@ -1419,7 +1443,7 @@ FiltererContainer::set_from_string( const Ustring& string )
                 m_F_or = false;
                 break;
             case '!':
-                set_last_filterer_not();
+                container->m_pipeline.back()->set_not( true );
                 break;
             default:
                 PRINT_DEBUG( "Unrecognized filter string: ", line );

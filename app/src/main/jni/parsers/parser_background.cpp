@@ -54,7 +54,7 @@ ParserBackGround::parse( Paragraph* para )
     else
     {
         m_F_spellchk_enabled =
-            ( Diary::d->is_in_edit_mode() && para->m_host && !para->m_host->is_locked() );
+            ( m_p2diary->is_in_edit_mode() && para->m_host && !para->m_host->is_locked() );
         ParserBase::parse( 0, para->get_size() );
     }
 }
@@ -119,7 +119,7 @@ ParserBackGround::process_paragraph()
             case VT::HFT_TAG:
             {
                 auto tag            { m_p2diary->get_tag_by_id( format->get_id_lo() ) };
-                auto host_theme     { m_parser_p2para_cur->m_host->get_theme() };
+                auto host_theme     { m_parser_p2para_cur->m_host->get_theme_effective() };
                 if( !tag ||
                     tag->get_name() != m_parser_p2para_cur->get_substr( format->pos_bgn,
                                                                         format->pos_end ) )

@@ -422,11 +422,13 @@ class Entry : public DiaryElemTag
         // THEMES
         void                    set_theme( const Theme* theme )
         { m_p2theme = theme; }
-        const Theme*            get_theme() const;
+        const Theme*            get_theme() const
+        { return m_p2theme; }
+        const Theme*            get_theme_effective() const;
         bool                    is_theme_set() const
         { return( m_p2theme != nullptr ); }
         bool                    has_theme( const Ustring& name ) const
-        { return( get_theme()->get_name() == name ); }
+        { return( get_theme_effective()->get_name() == name ); }
 
         // OTHER OPTIONS
         int                     get_title_style() const

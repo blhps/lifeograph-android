@@ -447,7 +447,7 @@ class FiltererContainsText : public Filterer
                               bool name_only = false )
         : Filterer( ctr ), m_text( text ), m_case_sensitive( case_sensitive ),
           m_use_regex( use_regex ), m_name_only( name_only )
-        { update_regex(); }
+        { init(); }
 
         void                    initialize_ui( FiltererContainerUI* ) override;
         bool                    filter( const Entry* ) const override;
@@ -458,8 +458,9 @@ class FiltererContainsText : public Filterer
         const static int        m_obj_classes { FOC::ENTRIES | FOC::PARAGRAPHS };
 
     // protected:
-        void                    update_regex();
+        void                    init();
         Ustring                 m_text;
+        Ustring                 m_text_insensitive;
         bool                    m_case_sensitive;
         bool                    m_use_regex;
         bool                    m_name_only;
@@ -519,11 +520,12 @@ class FiltererHasImage : public Filterer
         : Filterer( ctr ) {}
 
         void                    initialize_ui( FiltererContainerUI* ) override;
+        bool                    filter( const Entry* ) const override;
         bool                    filter( const Paragraph* ) const override;
         void                    get_as_string( Ustring& ) const override;
         Ustring                 get_as_human_readable_str() const override;
 
-        const static int        m_obj_classes { FOC::PARAGRAPHS };
+        const static int        m_obj_classes { FOC::ENTRIES | FOC::PARAGRAPHS };
 
     // protected:
 };
@@ -756,9 +758,6 @@ class FiltererContainer final : public Filterer
             return filterer;
         }
         bool                    remove_filterer( Filterer* );
-
-        void                    set_last_filterer_not()
-        { m_pipeline.back()->set_not( true ); }
 
         const static int        m_obj_classes { FOC::EVERYTHING };
 

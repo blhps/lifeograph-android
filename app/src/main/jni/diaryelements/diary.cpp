@@ -1500,7 +1500,11 @@ Diary::parse_db_body_text_3000()
                             m_p2entry_1st = p2entry;
                         break;
                     case 'm':
-                        p2entry->set_theme( m_themes[ line.substr( 2 ) ] );
+                        if( auto it = m_themes.find( line.substr( 2 ) ); it != m_themes.end() )
+                            p2entry->set_theme( it->second );
+                        else
+                            print_error( "Entry (", p2entry->get_id().get_raw(),
+                                         ") refers to a non-existing theme: ", line.substr( 2 ) );
                         break;
                     case 's':   // spell checking language
                         p2entry->set_lang( line.substr( 2 ) );

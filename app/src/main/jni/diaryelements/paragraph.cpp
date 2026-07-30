@@ -146,7 +146,6 @@ Paragraph::get_sibling_order() const
 
 bool
 Paragraph::is_descendant_of( const DiaryElemTag* pp ) const
-
 {
     if( pp->is_entry() ) return( dynamic_cast< const Entry* >( pp ) == m_host );
 

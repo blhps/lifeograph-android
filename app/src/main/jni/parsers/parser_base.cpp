@@ -440,10 +440,23 @@ ParserBase::process_char()
                     else
                         print_error( "Enchant error for language: ", lang );
                 }
-                if( dict && enchant_dict_check( dict, m_word_cur.c_str(), m_word_cur.length() ) )
-                    m_parser_p2para_cur->add_format( VT::HFT_MISSPELLED, "",
-                                                     m_parser_pos_cur - int( m_word_cur.length() ),
-                                                     m_parser_pos_cur );
+                if( dict )
+                {
+                    // remove single quotations as enchant doesn't like them:
+                    const auto word_len   { m_word_cur.length() };
+                    const auto substr_bgn { m_word_cur[ 0 ] == '\'' ? 1U : 0 };
+                    const auto substr_len { m_word_cur[ word_len - 1 ] == '\''
+                        ? word_len - substr_bgn - 1 : word_len - substr_bgn };
+
+                    if( substr_len < word_len )
+                        m_word_cur = m_word_cur.substr( substr_bgn, substr_len );
+
+                    if( enchant_dict_check( dict, m_word_cur.c_str(), substr_len ) )
+                        m_parser_p2para_cur->add_format( VT::HFT_MISSPELLED, "",
+                                                         m_parser_pos_cur - int( substr_len ),
+                                                         m_parser_pos_cur );
+                }
+
             }
         }
     }

@@ -485,12 +485,6 @@ static const char TAG_WITH_ENTRIES_CUMULATIVE[] =
 static const char NEW_THEME_NAME[] =
         N_( "New theme" );
 
-static const char NEW_CHAPTER_NAME[] =
-        N_( "New chapter" );
-
-static const char NEW_CATEGORY_NAME[] =
-        N_( "New category" );
-
 static const char DEFAULT[] =
         N_( "Default" );
 

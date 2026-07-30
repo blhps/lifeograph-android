@@ -249,7 +249,7 @@ class Paragraph : public DiaryElemTag
                 const auto ths_heading_lvl  { this->get_heading_level() };
                 const auto sub_heading_lvl  { p_sub->get_heading_level() };
 
-                // quotations cannot be parent of non-quptation paras:
+                // quotations cannot be parent of non-quotation paras:
                 if( get_quot_type() != VT::QT::OFF::C &&
                     p_sub->get_quot_type() == VT::QT::OFF::C )    return false;
                 if( sub_heading_lvl < ths_heading_lvl )           return true;

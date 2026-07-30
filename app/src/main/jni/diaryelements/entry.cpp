@@ -1818,7 +1818,7 @@ Entry::get_lang_final() const
 }
 
 const Theme*
-Entry::get_theme() const
+Entry::get_theme_effective() const
 {
     return( m_p2theme ? m_p2theme : ThemeSystem::get() );
 }
