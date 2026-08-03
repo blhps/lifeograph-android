@@ -33,7 +33,6 @@
 #include <vector>
 
 #include "../helpers.hpp"  // i18n headers
-#include "../settings.hpp"
 #include "diarydata.hpp"
 
 namespace LoG
@@ -120,8 +119,7 @@ using ListHiddenFormats = std::multiset< HiddenFormat*, FuncCmpFormats >;
 
 struct FormattedText
 {
-    FormattedText()
-    { }
+    FormattedText() {}
 
     FormattedText( const Ustring& text, const ListHiddenFormats* formats )
     : m_text( text )
@@ -194,7 +192,9 @@ class Paragraph : public DiaryElemTag
         { return m_p2next; }
         Paragraph*                  get_next_visible() const;
         Paragraph*                  get_next_sibling() const;
-        DiaryElemTag*               get_sibling_tag_prev( bool F_cyclic ) override
+
+        DiaryElemTag*
+        get_sibling_tag_prev( bool F_cyclic ) override
         {
             auto prev_sibl { get_prev_sibling() };
             if( !prev_sibl )
@@ -211,7 +211,8 @@ class Paragraph : public DiaryElemTag
                 return( prev_sibl->defines_tag() ? prev_sibl
                                                  : prev_sibl->get_sibling_tag_prev( F_cyclic ) );
         }
-        DiaryElemTag*               get_sibling_tag_next( bool F_cyclic ) override
+        DiaryElemTag*
+        get_sibling_tag_next( bool F_cyclic ) override
         {
             auto next_sibl { get_next_sibling() };
             if( !next_sibl )
@@ -242,7 +243,8 @@ class Paragraph : public DiaryElemTag
         Paragraph*                  get_sub_last() const;
         Paragraph*                  get_sub_last_visible( bool = false ) const;
         Paragraph*                  get_sub_last_invisible() const;
-        bool                        can_be_parent_of( const Paragraph* p_sub ) const
+        bool
+        can_be_parent_of( const Paragraph* p_sub ) const
         {
             if( p_sub )
             {
@@ -260,8 +262,8 @@ class Paragraph : public DiaryElemTag
                 if( p_sub->is_empty_completely( false ) )
                     return can_be_parent_of( p_sub->m_p2next );
 
-                const auto ths_indent_lvl  { this->get_indentation_any() };
-                const auto sub_indent_lvl  { p_sub->get_indentation_any() };
+                const auto ths_indent_lvl  { this->get_indentation_order() };
+                const auto sub_indent_lvl  { p_sub->get_indentation_order() };
                 if( sub_indent_lvl > ths_indent_lvl )             return true;
                 // bulleted paras are assumed to be parents of plain paras of same indent level:
                 if( sub_indent_lvl == ths_indent_lvl &&
@@ -708,8 +710,13 @@ class Paragraph : public DiaryElemTag
         bool                        unindent( bool = true );
         unsigned                    get_space_indent() const;
         void                        set_space_indent( const unsigned );
-        int                         get_indentation_any() const
-        { return( is_code() ? ( get_space_indent() / INDENT_SPACE_COUNT ) : get_indent_level() ); }
+        /** returns indentation level order for comparison
+          * uses hard indent as raw value to give it an unsurmountable weight against space indent
+          * bypasses alignment check in get_indent_level() as in ordering, indentation matters
+          * ...even when it is not displayed
+          */
+        int                         get_indentation_order() const
+        { return( ( m_style & VT::PS_FLT_INDENT ) + ( is_code() ? get_space_indent() : 0 ) ); }
         void                        convert_indentation_type( char );
 
         int                         m_style{ VT::PS_DEFAULT };

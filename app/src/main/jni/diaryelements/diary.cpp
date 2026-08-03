@@ -1772,7 +1772,7 @@ Diary::parse_db_body_text_2000()
                         {
                             p2para_coord =
                                     p2entry->add_map_path_point( STR::get_d( line.substr( 3 ) ),
-                                                                 0.0, nullptr );
+                                                                 0.0, nullptr, true, true );
                             if( !p2para_after )
                                 p2para_after = p2para_coord;
                         }

@@ -483,7 +483,8 @@ class Entry : public DiaryElemTag
             return m_map_path;
         }
         void                    clear_map_path();
-        Paragraph*              add_map_path_point( double, double, Paragraph*, bool = true );
+        Paragraph*              add_map_path_point( double, double, Paragraph*, bool = true,
+                                                                                bool = false );
         void                    remove_map_path_point( Paragraph* );
         double                  get_map_path_length() const;
 

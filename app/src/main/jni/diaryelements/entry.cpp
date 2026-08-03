@@ -2085,7 +2085,8 @@ Entry::clear_map_path()
 }
 
 Paragraph*
-Entry::add_map_path_point( double lat, double lon, Paragraph* para_ref, bool F_after )
+Entry::add_map_path_point( double lat, double lon, Paragraph* para_ref, bool F_after,
+                                                                        bool F_settext )
 {
     // NOTE: does manipulation through other functions. so, does not update edit date
 
@@ -2097,7 +2098,8 @@ Entry::add_map_path_point( double lat, double lon, Paragraph* para_ref, bool F_a
     if( para_ref && F_after )
         para_ref = para_ref->m_p2next;
 
-    para = add_paragraph_before( "", para_ref );
+    para = add_paragraph_before( "", para_ref, nullptr,
+                                 F_settext ? ParaInhClass::SET_TEXT : ParaInhClass::NONE );
     para->set_location( lat, lon );
 
     // update_map_path();
