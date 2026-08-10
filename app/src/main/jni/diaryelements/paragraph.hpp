@@ -403,10 +403,6 @@ class Paragraph : public DiaryElemTag
             else          m_style &= ~VT::PS_VISIBLE;
         }
         void                        make_accessible(); // expands collapsed parents recursively
-        bool                        is_foldable() const
-        {
-            return( !m_text.empty() && has_subs() );
-        }
 
         // COMMENT CHECKS
         bool                        has_hidden_comment() const;

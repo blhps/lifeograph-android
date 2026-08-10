@@ -212,6 +212,11 @@ public class Entry extends DiaryElemTag {
         return nativeGetDescription(mNativePtr);
     }
 
+    int
+    get_cursor_pos() { return nativeGetCursorPos(mNativePtr); }
+    void
+    set_cursor_pos( int pos ) { nativeSetCursorPos(mNativePtr, pos); }
+
     // FAVOREDNESS =================================================================================
     boolean
     is_favorite() {
@@ -417,6 +422,8 @@ public class Entry extends DiaryElemTag {
     private native long nativeAddParagraphBefore(long ptr, String text, long ptr_para_after);
     private native long nativeAddParagraphsAfter(long ptr, long ptr_para_bgn, long ptr_para_before);
     private native String nativeGetDescription(long ptr);
+    private native int nativeGetCursorPos(long ptr);
+    private native int nativeSetCursorPos(long ptr, int pos);
     private native boolean nativeIsFavorite(long ptr);
     private native void nativeToggleFavorite(long ptr);
     private native String nativeGetLangFinal(long ptr);

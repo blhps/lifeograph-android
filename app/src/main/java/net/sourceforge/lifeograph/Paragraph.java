@@ -31,6 +31,13 @@ public class Paragraph extends DiaryElemTag
 
     protected
     Paragraph(long nativePtr) { super(nativePtr); }
+
+    public Paragraph
+    duplicate() {
+        long ptr = nativeDuplicate(mNativePtr);
+        return ptr == 0 ? null : new Paragraph(ptr);
+    }
+
     public Paragraph
     get_prev() {
         long ptr = nativeGetPrev( mNativePtr );
@@ -137,7 +144,13 @@ public class Paragraph extends DiaryElemTag
     set_hrule( boolean fHasHRule ) { nativeSetHRule( mNativePtr, fHasHRule ); }
 
     public boolean
-    is_foldable() { return nativeIsFoldable(mNativePtr); }
+    has_subs() { return nativeHasSubs(mNativePtr); }
+    public boolean
+    is_expanded() { return nativeIsExpanded(mNativePtr); }
+    public Paragraph
+    get_sub_last_invisible() {
+        long ptr = nativeGetSubLastInvisible( mNativePtr );
+        return ptr == 0 ? null : new Paragraph( ptr ); }
 
     public int
     get_bgn_offset_in_host() { return nativeGetBgnOffsetInHost(mNativePtr); }
@@ -167,6 +180,7 @@ public class Paragraph extends DiaryElemTag
     }
 
     // NATIVE FUNCTIONS ============================================================================
+    private native long nativeDuplicate(long ptr);
     private native long nativeGetPrev(long ptr);
     private native long nativeGetNext(long ptr);
     private native long nativeGetNextVisible(long ptr);
@@ -192,7 +206,9 @@ public class Paragraph extends DiaryElemTag
     private native boolean nativeIsCode(long ptr);
     private native boolean nativeHasHRule(long ptr);
     private native void nativeSetHRule(long ptr, boolean fHasHRule);
-    private native boolean nativeIsFoldable(long ptr);
+    private native boolean nativeHasSubs(long ptr);
+    private native boolean nativeIsExpanded(long ptr);
+    private native long nativeGetSubLastInvisible(long ptr);
     private native int nativeGetBgnOffsetInHost(long ptr);
     private native int nativeGetEndOffsetInHost(long ptr);
     private native long nativeGetFormatAt(long ptr, char type, int pos);

@@ -36,9 +36,9 @@
     </style>
 
     <style name="LifeoAlertDlgTheme" parent="Theme.Material3.Light.Dialog">
-        <item name="colorPrimary">@color/t_darker</item>
+        <item name="colorPrimary">@color/t_lightest</item>
         <item name="colorSecondary">@color/t_lighter</item>
-        <item name="colorSecondaryContainer">@color/t_lighter</item>
+        <item name="colorSecondaryContainer">@color/t_darker</item>
         <item name="colorOnSecondaryContainer">@android:color/white</item>
         <item name="colorSurfaceVariant">@color/t_darkest</item>
         <item name="colorOutline">@android:color/white</item>

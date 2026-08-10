@@ -44,6 +44,7 @@
             android:padding="0dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_para_indent_less"
+            app:tint="@android:color/white"
             android:contentDescription="Indent less" />
 
         <com.google.android.material.button.MaterialButtonToggleGroup
@@ -65,6 +66,7 @@
                 android:insetBottom="0dp"
                 android:minHeight="0dp"
                 app:icon="@drawable/ic_para_align_left"
+                app:iconTint="@android:color/white"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 android:contentDescription="Align left" />
@@ -78,6 +80,7 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 app:icon="@drawable/ic_para_align_center"
+                app:iconTint="@android:color/white"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 android:contentDescription="Align center" />
@@ -91,6 +94,7 @@
                 android:insetTop="0dp"
                 android:insetBottom="0dp"
                 app:icon="@drawable/ic_para_align_right"
+                app:iconTint="@android:color/white"
                 app:iconGravity="textStart"
                 app:iconPadding="0dp"
                 android:contentDescription="Align right" />
@@ -104,6 +108,7 @@
             android:padding="0dp"
             android:scaleType="centerInside"
             android:src="@drawable/ic_para_indent_more"
+            app:tint="@android:color/white"
             android:contentDescription="Indent more" />
     </LinearLayout>
 
@@ -180,6 +185,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_open"
+            app:iconTint="@android:color/white"
             app:iconGravity="textStart"
             android:contentDescription="Open" />
 
@@ -190,6 +196,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_progressed"
+            app:iconTint="@android:color/white"
             app:iconGravity="textStart"
             android:contentDescription="In progress"/>
 
@@ -200,6 +207,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_done"
+            app:iconTint="@android:color/white"
             app:iconGravity="textStart"
             android:contentDescription="Done" />
 
@@ -210,6 +218,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_canceled"
+            app:iconTint="@android:color/white"
             app:iconGravity="textStart"
             android:contentDescription="Canceled" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
@@ -322,7 +331,7 @@
         android:layout_marginBottom="10dp"
         android:background="?attr/colorOnSurface" />
 
-    <!-- Row 6: Quotation / Code -->
+    <!-- Row 7: Quotation / Code -->
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -345,5 +354,23 @@
             android:minHeight="48dp"/>
 <!--            android:background="@drawable/bg_spinner_outlined" />-->
     </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:layout_marginTop="10dp"
+        android:layout_marginBottom="10dp"
+        android:background="?attr/colorOnSurface" />
+
+    <!-- Row 8: Duplicate -->
+    <Button
+        android:id="@+id/bt_duplicate"
+        style="?attr/materialButtonOutlinedStyle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/duplicate_paragraphs"
+        app:icon="@drawable/ic_action_copy"
+        app:iconTint="@android:color/white"
+        android:textAllCaps="false" />
 
 </LinearLayout>

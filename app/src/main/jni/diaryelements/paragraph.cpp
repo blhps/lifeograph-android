@@ -236,6 +236,7 @@ Paragraph::get_last() const
 
 Paragraph*
 Paragraph::get_sub_last() const
+// Caution: returns itself in the absence of any sub
 {
     Paragraph* p_sub{ const_cast< Paragraph* >( this ) };
 
@@ -275,22 +276,8 @@ Paragraph*
 Paragraph::get_sub_last_invisible() const
 // Caution: returns itself in the absence of any visible sub
 {
-    Paragraph* p_sub{ const_cast< Paragraph* >( this ) };
-
-    for( Paragraph* p = m_p2next; p; p = p->m_p2next )
-    {
-        if( can_be_parent_of( p ) )
-        {
-            if( !p->is_visible() )
-                p_sub = p;
-            else
-                continue;
-        }
-        else
-            break;
-    }
-
-    return p_sub;
+    if( is_expanded() ) return const_cast< Paragraph* >( this );
+    else                return get_sub_last();
 }
 
 bool

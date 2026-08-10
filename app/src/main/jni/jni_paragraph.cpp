@@ -8,6 +8,11 @@
 
 extern "C" {
 
+JNI_METHOD(jlong, Paragraph_nativeDuplicate)(JNIEnv* env, jobject obj, jlong ptr) {
+    CHECK_PTR(ptr, 0)
+    return reinterpret_cast<jlong>(new LoG::Paragraph(reinterpret_cast<LoG::Paragraph*>(ptr)));
+}
+
 JNI_METHOD(jlong, Paragraph_nativeGetPrev)(JNIEnv* env, jobject obj, jlong ptr) {
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_prev());
 }
@@ -107,8 +112,16 @@ JNI_METHOD(void, Paragraph_nativeSetHRule)(JNIEnv* env, jobject obj, jlong ptr, 
     reinterpret_cast<LoG::Paragraph*>(ptr)->set_hrule(fHasHRule);
 }
 
-JNI_METHOD(jboolean, Paragraph_nativeIsFoldable)(JNIEnv* env, jobject obj, jlong ptr) {
-    return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_foldable());
+JNI_METHOD(jboolean, Paragraph_nativeHasSubs)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->has_subs());
+}
+
+JNI_METHOD(jboolean, Paragraph_nativeIsExpanded)(JNIEnv* env, jobject obj, jlong ptr) {
+    return static_cast<jboolean>(reinterpret_cast<LoG::Paragraph*>(ptr)->is_expanded());
+}
+
+JNI_METHOD(jlong, Paragraph_nativeGetSubLastInvisible)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Paragraph*>(ptr)->get_sub_last_invisible());
 }
 
 JNI_METHOD(jint, Paragraph_nativeGetBgnOffsetInHost)(JNIEnv* env, jobject obj, jlong ptr) {

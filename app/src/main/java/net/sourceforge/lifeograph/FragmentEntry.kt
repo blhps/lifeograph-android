@@ -103,11 +103,13 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 if(!mFlagSetTextOperation && !mFlagBlockFormatter) {
                     if( before > 0 ) { // deletion
                         mEntry.erase_text(start, start + before)
+                        mEntry._cursor_pos = start
                     }
 
                     if( count > 0 ) { // insertion
                         val addedText = s.subSequence(start, start + count).toString()
                         mEntry.insert_text(start, addedText)
+                        mEntry._cursor_pos = start + count
                         // this method always inherits on Andro, and it may be an issue on paste
                     }
                 }
@@ -181,7 +183,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                         // Find the paragraph at this offset
                         val para = mEntry.get_paragraph(offset, true)
 
-                        if(para != null && para.is_foldable) {
+                        if(para != null && para.has_subs()) {
                             v.performClick()
                             para.is_expanded = !para.is_expanded
                             show(true)
@@ -344,9 +346,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         val text = mEditText.text ?: return
         val len = text.length
-        if (len == 0 || text[len - 1] != CHAR_EMPTY_PARA_ANCHOR) return
-
         val maxPos = len - 1 // position immediately before the anchor == valid end-of-text for core
+
+        if (len == 0 || text[maxPos] != CHAR_EMPTY_PARA_ANCHOR) return
+
         val newStart = selStart.coerceAtMost(maxPos)
         val newEnd = selEnd.coerceAtMost(maxPos)
 
@@ -432,6 +435,15 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         mFlagSetTextOperation = true
         if(fReset)
             mEditText.setText(mEntry._text_visible)
+        
+        val pos = mEntry._cursor_pos.coerceIn(0, mEditText.text?.length ?: 0)
+        mEditText.setSelection(pos)
+        // sometimes the system overrides the selection right after setText, 
+        // so we post it as well to be safe:
+        mEditText.post {
+            if(isAdded)
+                mEditText.setSelection(pos)
+        }
         mFlagSetTextOperation = false
 
         Lifeograph.getActionBar().subtitle = mEntry._name // TODO: _title_str
@@ -440,6 +452,23 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         // BROWSING HISTORY
         if(mBrowsingHistory.isEmpty() || mEntry._id != mBrowsingHistory.last()) // not going back
             mBrowsingHistory.add(mEntry._id)
+    }
+    
+    fun refresh() {
+        updateTheme()
+        
+        mFlagSetTextOperation = true
+        mEditText.setText(mEntry._text_visible)
+
+        val pos = mEntry._cursor_pos.coerceIn(0, mEditText.text?.length ?: 0)
+        mEditText.setSelection(pos)
+        mEditText.post {
+            if(isAdded)
+                mEditText.setSelection(pos)
+        }
+        mFlagSetTextOperation = false
+        
+        Lifeograph.getActionBar().subtitle = mEntry._name // TODO: _title_str
     }
 
     private fun toggleFavorite() {
@@ -541,6 +570,29 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 else
                     reparse()
             }
+
+            override fun onDuplicateParagraphs() {
+                val selectionStart = mEditText.selectionStart
+                val selectionEnd = mEditText.selectionEnd
+
+                val paraBgn: Paragraph = mEntry.get_paragraph(selectionStart, true)
+                val paraEnd: Paragraph =
+                    mEntry.get_paragraph(selectionEnd.coerceAtLeast(selectionStart), true)
+
+                var paraBefore: Paragraph = paraEnd._sub_last_invisible
+
+                var p: Paragraph? = paraBgn
+                while (p != null) {
+                    paraBefore = mEntry.add_paragraphs_after(p.duplicate(), paraBefore)
+
+                    if (p._id == paraEnd._id) break
+                    p = p.get_next()
+                }
+
+                mEntry._cursor_pos = mEditText.selectionStart
+                refresh()
+            }
+
             override fun getParagraph(): Paragraph {
                 val selectionStart = mEditText.selectionStart
                 val para: Paragraph = mEntry.get_paragraph(selectionStart, true)
@@ -821,7 +873,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
 
         // 5. FOLDING
-        if( p.is_foldable ) { //&& !p.is_expanded )
+        if( p.has_subs() ) { //&& !p.is_expanded )
             val spanFolding = SpanFolding(
                 p.is_expanded,
                 if (p._heading_level == 'S') theme.color_heading_L else theme.color_heading_M,
@@ -992,19 +1044,20 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private fun ensureTrailingEmptyParaAnchor(edt: Editable) {
         val last = mEntry._paragraph_last
         val needsAnchor = last._size == 0 &&
-                (last._list_type != 0.toChar() || last.is_foldable)
+                (last._list_type != 0.toChar() || last.has_subs())
         val hasAnchor = edt.isNotEmpty() && edt[edt.length - 1] == CHAR_EMPTY_PARA_ANCHOR
 
         if (needsAnchor == hasAnchor) return
 
         val prevBlock = mFlagBlockFormatter
         mFlagBlockFormatter = true   // suppress recursive updateTextFormatting()
+        val prevSetText = mFlagSetTextOperation
         mFlagSetTextOperation = true // suppress model sync in onTextChanged()
         if (needsAnchor)
             edt.append(CHAR_EMPTY_PARA_ANCHOR)
         else
             edt.delete(edt.length - 1, edt.length)
-        mFlagSetTextOperation = false
+        mFlagSetTextOperation = prevSetText
         mFlagBlockFormatter = prevBlock
     }
 

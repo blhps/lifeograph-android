@@ -183,6 +183,13 @@ JNI_METHOD(jstring, Entry_nativeGetDescription)(JNIEnv* env, jobject obj, jlong 
     return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_description().c_str());
 }
 
+JNI_METHOD(jint, Entry_nativeGetCursorPos)(JNIEnv* env, jobject obj, jlong ptr) {
+    return reinterpret_cast<LoG::Entry*>(ptr)->get_cursor_pos();
+}
+JNI_METHOD(void, Entry_nativeSetCursorPos)(JNIEnv* env, jobject obj, jlong ptr, jint pos) {
+    reinterpret_cast<LoG::Entry*>(ptr)->set_cursor_pos( pos );
+}
+
 JNI_METHOD(jboolean, Entry_nativeIsFavorite)(JNIEnv* env, jobject obj, jlong ptr) {
     CHECK_PTR(ptr, JNI_FALSE)
     return static_cast<jboolean>(reinterpret_cast<LoG::Entry*>(ptr)->is_favorite());

@@ -24,6 +24,7 @@ package net.sourceforge.lifeograph
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.widget.Button
 import android.widget.ImageButton
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
@@ -34,6 +35,7 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
 
     interface Listener {
         fun onApplyParaAction(action: (Paragraph) -> Unit, fRefreshFully: Boolean = false)
+        fun onDuplicateParagraphs()
         fun getParagraph(): Paragraph
     }
 
@@ -139,6 +141,11 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
         swHorzRule.setOnCheckedChangeListener { _, isChecked ->
             val action: (Paragraph) -> Unit = { p -> p.set_hrule( isChecked ) }
             listener.onApplyParaAction(action)
+            dismiss()
+        }
+
+        findViewById<android.widget.Button>(R.id.bt_duplicate).setOnClickListener {
+            listener.onDuplicateParagraphs()
             dismiss()
         }
     }

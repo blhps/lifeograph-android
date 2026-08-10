@@ -45,6 +45,8 @@
 
     <string name="dismiss_ctg_and_tags">Inklusive Stichworten verwerfen</string>
 
+    <string name="duplicate_entry">Eintrag duplizieren</string>
+    <string name="duplicate_paragraphs">Absatz duplizieren</string>
     <string name="entries">Einträge</string>
     <string name="tags">Stichworte</string>
     <string name="chapters">Abschnitte</string>
