@@ -185,7 +185,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_open"
-            app:iconTint="@android:color/white"
+            app:iconTint="@null"
             app:iconGravity="textStart"
             android:contentDescription="Open" />
 
@@ -196,7 +196,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_progressed"
-            app:iconTint="@android:color/white"
+            app:iconTint="@null"
             app:iconGravity="textStart"
             android:contentDescription="In progress"/>
 
@@ -207,7 +207,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_done"
-            app:iconTint="@android:color/white"
+            app:iconTint="@null"
             app:iconGravity="textStart"
             android:contentDescription="Done" />
 
@@ -218,7 +218,7 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             app:icon="@drawable/ic_todo_canceled"
-            app:iconTint="@android:color/white"
+            app:iconTint="@null"
             app:iconGravity="textStart"
             android:contentDescription="Canceled" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
