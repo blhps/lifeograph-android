@@ -1172,44 +1172,45 @@ Paragraph::get_workload() const
 DateV
 Paragraph::get_date_broad( bool F_explicit ) const
 {
-    if( m_date != Date::NOT_SET )
+    // if has at least date component, return right away:
+    if( Date::isolate_YMD( m_date ) != 0 )
         return m_date;
 
-    Paragraph* pp{ get_parent() };
-    if( pp )
-    {
-        const auto d { pp->get_date_broad( true ) };
-        if( Date::is_set( d ) )
-            return d;
-    }
+    // else, try to get date from parents while using own time if any:
+    DateV d_parent { Date::NOT_SET };
 
-    if( !F_explicit && m_host )
-        return m_host->get_date();
+    if( Paragraph* pp = get_parent(); pp )
+        d_parent = pp->get_date_broad( true );
+    else if( !F_explicit && m_host )
+        d_parent = m_host->get_date();
+
+    if( Date::isolate_YMD( d_parent ) ) // time without date is meaningless
+        // do not get time from parent unless m_date para has no time:
+        return( m_date == Date::NOT_SET ) ? d_parent : Date::make( d_parent, m_date );
 
     return Date::NOT_SET;
 }
 DateV
 Paragraph::get_date_finish_broad( bool F_explicit ) const
 {
-    if( Date::is_set( m_date_finish ) )
+    // if has at least date component, return right away:
+    if( Date::isolate_YMD( m_date_finish ) != 0 )
         return m_date_finish;
 
-    Paragraph* pp{ get_parent() };
-    if( pp )
-    {
-        const auto d { pp->get_date_finish_broad( true ) };
-        if( Date::is_set( d ) )
-            return d;
-    }
+    // else, try to get date from parents while using own time if any:
+    DateV d_parent { Date::NOT_SET };
 
-    if( !F_explicit )
-    {
-        if( Date::is_set( m_date ) )
-            return m_date;
+    // get finish date from start date if any:
+    if( Date::isolate_YMD( m_date ) != 0 )
+        d_parent = m_date;
+    else if( Paragraph* pp = get_parent(); pp )
+        d_parent = pp->get_date_finish_broad( true );
+    else if( !F_explicit && m_host )
+        d_parent = m_host->get_date_finish();
 
-        if( m_host )
-            return m_host->get_date_finish();
-    }
+    if( Date::isolate_YMD( d_parent ) ) // time without date is meaningless
+        // do not get time from parent unless m_date_finish has no time:
+        return( m_date_finish == Date::NOT_SET ) ? d_parent : Date::make( d_parent, m_date_finish );
 
     return Date::NOT_SET;
 }

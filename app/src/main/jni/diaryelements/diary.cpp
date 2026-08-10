@@ -659,6 +659,9 @@ Diary::parse_theme_line( Theme*& ptr2theme, const String& line )
             break;
         case 'f':   // font
             ptr2theme->font = Pango::FontDescription( line.substr( 2 ) );
+            // guard against family set failures (they are fatal on macOS):
+            if( int( ptr2theme->font.get_set_fields() & Pango::FontMask::FAMILY ) == 0 )
+                ptr2theme->font.set_family( "Sans" );
             break;
         case 'q':   // litreary quote font
             ptr2theme->font_literary = Pango::FontDescription( line.substr( 2 ) );

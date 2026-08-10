@@ -559,7 +559,7 @@ namespace Date
     static constexpr DateV LATEST  =  229912310235959;
     static constexpr DateV MIN_1ST =              100;
     static constexpr DateV HOR_1ST =            10000;
-    static constexpr DateV TIM_SEP =          1000000; // time separator
+    static constexpr DateV TIM_SEP =          1000000; // time separator; == 1 if time is set
     static constexpr DateV DAY_1ST =         10000000;
     static constexpr DateV MNT_1ST =       1000000000;
     static constexpr DateV YER_1ST =     100000000000;
@@ -608,6 +608,10 @@ namespace Date
     inline unsigned get_day( DateV d )   { return( ( d % MNT_1ST - d % DAY_1ST ) / DAY_1ST ); }
     inline unsigned get_month( DateV d ) { return( ( d % YER_1ST - d % MNT_1ST ) / MNT_1ST ); }
     inline unsigned get_year( DateV d )  { return( ( d % DAT_SEP - d % YER_1ST ) / YER_1ST ); }
+
+    // ANOTHER MAKER (here because uses isolators)
+    inline DateV make( DateV date, DateV time )
+    { return( isolate_YMD( date ) + get_time( time ) + TIM_SEP ); }
 
     bool is_leap_year_gen( const unsigned );
     inline bool is_leap_year( const DateV d ) { return is_leap_year_gen( get_year( d ) ); }
@@ -666,12 +670,21 @@ namespace Date
     inline bool set_hour( DateV& date, const unsigned h )
     {
         if( h > 23 ) return false;
-        date = ( date - ( date % TIM_SEP ) + ( date % HOR_1ST ) + make_hour( h ) );
+        date = ( date - ( date % DAY_1ST ) + ( date % HOR_1ST ) + make_hour( h ) + TIM_SEP );
+        // NOTE: only set_hour() adds TIM_SEP thinking that set_min and set_sec
+        //       should not be used alone
         return true;
     }
 
     inline void set_time( DateV& date, unsigned t )
-    { if( t <= TIME_MAX ) date = ( date - ( date % TIM_SEP ) + ( t % TIM_SEP ) ); }
+    {
+        const auto h { get_hours( t ) };
+        const auto m { get_mins( t ) };
+        const auto s { get_secs( t ) };
+        if( h < 24 && m < 60 && s < 60 )
+            date = ( date - ( date % DAY_1ST ) + ( t % TIM_SEP ) + TIM_SEP );
+            // TIM_SEP is added to mark that time is set. else 00:00:00 is identical to unset time
+    }
 
     inline void set_day( DateV& date, unsigned d )
     { if( d < 32 ) date = ( date - ( date % MNT_1ST - date % DAY_1ST ) + make_day( d ) ); }
@@ -684,6 +697,7 @@ namespace Date
 
     // CHECKERS
     inline bool is_set( const DateV date ) { return( date != NOT_SET ); }
+    inline bool is_time_set( const DateV date ) { return( ( date % DAY_1ST ) != 0 ); }
     inline bool is_valid( const DateV d )
     {
         const auto day    { get_day( d ) };

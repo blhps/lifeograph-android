@@ -1061,117 +1061,95 @@ ChartData::update_span()
 }
 
 // helper func: rounds a value down to the nearest multiple of 'step':
-static double
-floor_to( double value, double step )
-{
-    double result { std::floor( value / step ) * step };
-    // snap near-zero results to exactly 0 to avoid float drift
-    return( ( std::abs( result ) < step * 1e-9 ) ? 0.0 : result );
-}
+// static double
+// floor_to( double value, double step )
+// {
+//     double result { std::floor( value / step ) * step };
+//     // snap near-zero results to exactly 0 to avoid float drift
+//     return( ( std::abs( result ) < step * 1e-9 ) ? 0.0 : result );
+// }
 
 // helper func: returns the "nicest" step size >= raw_step by snapping to the nearest value...
-// ...of the form mantissa * 10^exponent:
-static double
-nice_step( double raw_step )
+// ...of the form mantissa * 10^exponent. always shows x-axis:
+static std::array< double, 2 >
+nice_step0( double min, double max, double raw_step )
 {
-    const double exponent = std::floor( std::log10( raw_step ) );
-    const double magnitude = std::pow( 10.0, exponent );
-    const double fraction = raw_step / magnitude; // in [1, 10)
+    // flat chart: use a fixed step size (this function is only called when flat chart is at y==0)
+    if( raw_step == 0.0 )
+        return { -2.0, 1.0 };
+
+    const double exponent   { std::floor( std::log10( raw_step ) ) };
+    const double magnitude  { std::pow( 10.0, exponent ) };
+    min += ( raw_step / 20 );
+    max -= ( raw_step / 10 );
+    min /= magnitude;
+    max /= magnitude;
 
     for( double m : ChartData::NICE_MANTISSAS )
-        if( fraction <= m + 1e-9 ) return m * magnitude;
+    {
+        for( int i = 0; i < ChartData::NUM_Y_STEPS; ++i )
+            if( i * m >= max && ( i - ChartData::NUM_Y_STEPS + 1 ) * m <= min )
+                return { ( i - ChartData::NUM_Y_STEPS + 1 ) * m * magnitude,
+                         m * magnitude };
+    }
 
     // fallback: next power of ten
-    return 10.0 * magnitude;
+    return { 0.0, 10.0 * magnitude };
+}
+// this version zooms to the range and does not necessarily show x-axis:
+static std::array< double, 2 >
+nice_step1( double min, double max, double raw_step )
+{
+    if( raw_step == 0.0 ) // flat chart: use a fixed step size
+        raw_step = 10;
+
+    const double exponent   { std::floor( std::log10( raw_step ) ) };
+    const double magnitude  { std::pow( 10.0, exponent ) };
+
+    if( min != max ) // if not flat
+    {
+        min += ( raw_step / 20 );
+        max -= ( raw_step / 10 );
+    }
+    min /= magnitude;
+    max /= magnitude;
+
+    for( double m : ChartData::NICE_MANTISSAS )
+    {
+        double min_round { 0.0 };
+
+        if( min < 0 )
+            while( min_round > min )
+                min_round -= m;
+        else
+            while( min_round < ( min - m ) )
+                min_round += m;
+
+        if( min_round + ( ChartData::NUM_Y_STEPS - 1 ) * m >= max )
+        {
+            if( min == max ) min_round -= ( m * 2 ); // re-align flat charts
+            return { min_round * magnitude, m * magnitude };
+        }
+    }
+
+    // fallback: next power of ten
+    return { 0.0, 10.0 * magnitude };
 }
 
-// calculates optimum axis parameters for a y-axis chart. guarantees:
-// - min_round_value <= value_min
-// - min_round_value + NUM_DIVISIONS * step_size >= value_max
-// - both values are "nicely" rounded
-// - if value_min <= 0 <= value_max, zero is exactly on a grid line
+// calculates optimum axis parameters for a y-axis chart
 void
 ChartData::calculate_grid()
 {
     // if( v_min > v_max ) throw std::invalid_argument( "value_min must be <= value_max" );
 
-    // handle degenerate flat-line case:
-    if( v_min == v_max )
-    {
-        double center = v_max;
-        v_grid_step = ( center == 0.0 ) ? 1.0
-                                        : nice_step( std::abs( center ) / ChartData::NUM_Y_STEPS );
-        v_grid_min = floor_to( center, v_grid_step ) - v_grid_step;
-    }
+    const double range        { v_max - v_min };
+    const double raw_step     { range / ( ChartData::NUM_Y_STEPS - 1 ) };
+    auto [ min_round, step ]  { ( v_min <= 0.0 && v_max >= 0.0 ) // touching x-axis
+                                ? nice_step0( v_min, v_max, raw_step )
+                                : nice_step1( v_min, v_max, raw_step ) };
 
-    const double range = v_max - v_min;
-    const double raw_step = range / ChartData::NUM_Y_STEPS;
-    double step = nice_step( raw_step );
-
-    // if the range spans zero, shift the grid so that zero lands exactly on a line:
-    if( v_min <= 0.0 && v_max >= 0.0 )
-    {
-        // with this step size, find the lowest grid line <= value_min that
-        // keeps 0.0 as an exact multiple of step.
-        double min_round = floor_to( v_min, step ); // already a multiple of step
-
-        // verify upper bound; if not satisfied, bump step up one notch and retry
-        while( min_round + ChartData::NUM_Y_STEPS * step < v_max )
-        {
-            // Advance to next nice step size
-            const double exponent = std::floor( std::log10( step ) );
-            const double magnitude = std::pow( 10.0, exponent );
-            const double fraction = step / magnitude;
-
-            double next_fraction = 10.0; // fallback
-            for( double m : ChartData::NICE_MANTISSAS )
-                if( m > fraction + 1e-9 )
-                {
-                    next_fraction = m;
-                    break;
-                }
-
-            step = next_fraction * magnitude;
-            min_round = floor_to( v_min, step );
-        }
-
-        v_grid_step = step;
-        v_grid_min = min_round;
-        return;
-    }
-
-    // normal (no zero-crossing) case:
-    double best_min = std::numeric_limits< double >::max();
-    double best_step = step;
-    double best_score = std::numeric_limits< double >::max();
-
-    // explore a small neighbourhood of nice steps around the computed one
-    const double exponent = std::floor( std::log10( raw_step ) );
-    const double magnitude = std::pow( 10.0, exponent );
-
-    for( double scale : { magnitude * 0.1, magnitude, magnitude * 10.0 } )
-    {
-        for( double m : ChartData::NICE_MANTISSAS )
-        {
-            double candidate = m * scale;
-            if( candidate < raw_step - 1e-9 ) continue; // too small
-
-            double min_round = floor_to( v_min, candidate );
-            if( min_round + ChartData::NUM_Y_STEPS * candidate < v_max ) continue; // doesn't cover
-
-            // score: prefer smallest total span
-            double score = min_round + ChartData::NUM_Y_STEPS * candidate - v_min;
-            if( score < best_score - 1e-9 )
-            {
-                best_score = score;
-                best_step = candidate;
-                best_min = min_round;
-            }
-        }
-    }
-
-    v_grid_step = best_step;
-    v_grid_min = best_min;
+    v_grid_min = min_round;
+    v_grid_step = step;
 }
 
 void
@@ -1186,9 +1164,9 @@ ChartData::update_min_max()
 
     // try to improve the min of the graph to optimize between screen real estate usage and...
     // ...giving a better idea of the actual ratios:
-    if( v_min > 0 /* MAYBE: && get_style() == STYLE_BARS */ )
+    if( v_min > 0 )
     {
-        if( v_min <= ( v_max - v_min ) )
+        if( get_style() == STYLE_BARS || v_min <= ( v_max - v_min ) )
             v_min = 0.0;
         else
             v_min -= ( v_max - v_min );

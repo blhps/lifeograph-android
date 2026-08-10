@@ -55,6 +55,15 @@ class TableColumn : public Named
         Type                        get_type() const
         { return m_type; }
 
+        Ustring                     get_title() const {
+            if( m_type == TCT_TAG_V && m_p2tag )
+            {
+                if( const auto unit = m_p2tag->get_unit(); !unit.empty() )
+                    return( get_name() + " (" + unit + ")" );
+            }
+            return get_name();
+        }
+
         void                        set_opt_int( int32_t value )
         { m_opt_int = value; }
         void                        set_opt_int_field( int32_t filter, int32_t value )

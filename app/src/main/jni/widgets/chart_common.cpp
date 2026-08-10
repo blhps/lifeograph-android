@@ -73,33 +73,33 @@ ChartCommon::is_zoom_possible() const
             m_data.get_type() == ChartData::TYPE_DATE );
 }
 
-double
-find_nearest_grid( double base, double amplitude, int exp )
-{
-    if( amplitude == 0 ) return amplitude;
-
-    const double step_5         { 5 * pow( 10, exp - 1 ) };
-    const double step_10        { pow( 10, exp ) };
-    const double rounded_out    { abs( std::fmod( base, step_10 ) ) };
-    const double nearest_grid_0 { abs( rounded_out ) };
-    const double nearest_grid_5 { abs( step_5 - rounded_out ) };
-    const double nearest_grid_10{ abs( step_10 - rounded_out ) };
-
-    double nearest_grid{ std::min( std::min( nearest_grid_0, nearest_grid_5 ),
-                                   nearest_grid_10 ) };
-
-    if( nearest_grid == nearest_grid_0 )
-        nearest_grid = ( base - rounded_out );
-    else if( nearest_grid == nearest_grid_10 )
-        nearest_grid = ( base - rounded_out + step_10 );
-    else
-        nearest_grid = ( base - rounded_out + step_5 );
-
-    if( abs( nearest_grid - base ) < amplitude / 10 )
-        return nearest_grid;
-
-    return find_nearest_grid( base, amplitude, exp - 1 );
-}
+// double
+// find_nearest_grid( double base, double amplitude, int exp )
+// {
+//     if( amplitude == 0 ) return amplitude;
+//
+//     const double step_5         { 5 * pow( 10, exp - 1 ) };
+//     const double step_10        { pow( 10, exp ) };
+//     const double rounded_out    { abs( std::fmod( base, step_10 ) ) };
+//     const double nearest_grid_0 { abs( rounded_out ) };
+//     const double nearest_grid_5 { abs( step_5 - rounded_out ) };
+//     const double nearest_grid_10{ abs( step_10 - rounded_out ) };
+//
+//     double nearest_grid{ std::min( std::min( nearest_grid_0, nearest_grid_5 ),
+//                                    nearest_grid_10 ) };
+//
+//     if( nearest_grid == nearest_grid_0 )
+//         nearest_grid = ( base - rounded_out );
+//     else if( nearest_grid == nearest_grid_10 )
+//         nearest_grid = ( base - rounded_out + step_10 );
+//     else
+//         nearest_grid = ( base - rounded_out + step_5 );
+//
+//     if( abs( nearest_grid - base ) < amplitude / 10 )
+//         return nearest_grid;
+//
+//     return find_nearest_grid( base, amplitude, exp - 1 );
+// }
 
 void
 ChartCommon::update_col_geom( bool F_new )
@@ -126,7 +126,6 @@ ChartCommon::update_col_geom( bool F_new )
         m_step_start = col_start_max;
 
     if( m_data.v_max != Constants::INFINITY_MNS ) // i.e. was initialized
-
         m_ampli_v = m_data.v_grid_step * ( ChartData::NUM_Y_STEPS - 1 );
     else
         m_ampli_v = 1;

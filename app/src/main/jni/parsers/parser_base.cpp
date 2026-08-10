@@ -548,7 +548,7 @@ ParserBase::check_inline_tag_value_date()
 
     if( Date::is_valid( m_date_last ) )
         apply_link();
-    // TODO 3.1 or later...
+    // TODO 3.2 or later...
 }
 
 void
@@ -566,7 +566,7 @@ void
 ParserBase::junction_date_dotym()
 {
     if( m_int_last >= Date::YEAR_MIN && m_int_last <= Date::YEAR_MAX )
-        Date::set_year( m_date_last, m_int_last );
+        m_date_last = Date::make_year( m_int_last ); // resets existng fields
     else
         m_recipe_cur->m_state = Recipe::RS_REJECTED;
 }
@@ -587,7 +587,7 @@ ParserBase::junction_date_dotmd()
 void
 ParserBase::junction_time_hm()
 {
-    Date::set_time( m_date_last, 0 );
+    m_date_last = 0; // reset
 
     if( ! Date::set_hour( m_date_last, m_int_last ) )
         m_recipe_cur->m_state = Recipe::RS_REJECTED;

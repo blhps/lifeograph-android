@@ -513,7 +513,7 @@ TableColumn::calculate_value_txt( const Entry* entry ) const
             {
                 Ustring tag_names;
                 bool    F_2nd_or_beyond { false };
-                for( auto t : entry->get_references() )
+                for( auto t : entry->get_references_sorted() )
                 {
                     if( F_2nd_or_beyond )
                         tag_names += "; ";
@@ -797,7 +797,7 @@ TableColumn::calculate_value_txt( const Paragraph* para ) const
             {
                 Ustring tag_names;
                 bool    F_2nd_or_beyond { false };
-                for( auto t : para->get_references() )
+                for( auto t : para->get_references_sorted() )
                 {
                     if( F_2nd_or_beyond )
                         tag_names += "; ";

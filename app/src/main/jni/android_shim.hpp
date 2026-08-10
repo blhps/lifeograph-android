@@ -767,6 +767,8 @@ namespace Pango {
 
         [[nodiscard]] std::string get_family() const { return m_family; }
 
+        void set_family(const std::string& family) { m_family = family; }
+
         FontMask get_set_fields() const { return m_family.empty() ? NONE: FAMILY; }
 
     private:

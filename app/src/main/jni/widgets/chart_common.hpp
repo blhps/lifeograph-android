@@ -90,7 +90,7 @@ class ChartCommon
     protected:
         void                        update_col_geom( bool = false );
 
-        const SetTagsByNameID&
+        const SetTagsByID&
         get_elems_at( int i )
         {
             switch( m_data.get_type() )

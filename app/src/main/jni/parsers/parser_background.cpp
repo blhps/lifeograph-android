@@ -191,6 +191,11 @@ ParserBackGround::process_paragraph()
                         m_parser_p2para_cur->add_date( format->ref_id );
                 }
                 break;
+            case VT::HFT_TIME:
+                // use date only when not in comment:
+                if( !m_parser_p2para_cur->get_format_at( VT::HFT_COMMENT, format->pos_bgn ) )
+                    m_parser_p2para_cur->add_time( format->ref_id );
+                break;
         }
     }
 }
@@ -205,9 +210,10 @@ ParserBackGround::apply_comment()
 void
 ParserBackGround::apply_time()
 {
-    m_parser_p2para_cur->add_time( m_date_last );
     m_parser_p2para_cur->add_format( VT::HFT_TIME, "", m_recipe_cur->m_pos_bgn,
-                                                       m_recipe_cur->m_pos_mid );
+                                                       m_recipe_cur->m_pos_mid )
+        ->ref_id = m_date_last;
+
     m_parser_p2para_cur->add_format( VT::HFT_TIME_MS, "", m_recipe_cur->m_pos_mid - 3,
                                                           m_recipe_cur->m_pos_mid );
 }

@@ -1050,7 +1050,7 @@ class DiaryElemTag; // forward declaration
 using VecTags                   = std::vector< DiaryElemTag* >;
 using ListTags                  = std::list< DiaryElemTag* >;
 using SetTagsByNameID           = std::set< DiaryElemTag*, FuncCmpDiaryElemByNameAndId >;
-using SetTagByID                = std::set< DiaryElemTag*, FuncCmpDiaryElemById >;
+using SetTagsByID               = std::set< DiaryElemTag*, FuncCmpDiaryElemById >;
 
 // DIARYELEMENT DATA SOURCE (Entries and Paragraphs) ===============================================
 class DiaryElemTag : public DiaryElement, public PropertyContainer
@@ -1199,8 +1199,15 @@ class DiaryElemTag : public DiaryElement, public PropertyContainer
         virtual String          get_lang_final() const = 0;
 
         // REFERENCES
-        const SetTagsByNameID&
+        const SetTagsByID&
         get_references() const { return m_referring_elems; }
+        SetTagsByNameID
+        get_references_sorted() const
+        {
+            SetTagsByNameID elems;
+            for( auto& e : m_referring_elems ) elems.insert( e );
+            return elems;
+        }
 
         int
         get_reference_count() const { return int( m_referring_elems.size() ); }
@@ -1226,7 +1233,7 @@ class DiaryElemTag : public DiaryElement, public PropertyContainer
         Restricted< DateV, DiaryElemTag >
                                 m_date_edited;
     protected:
-        SetTagsByNameID         m_referring_elems;
+        SetTagsByID             m_referring_elems;
 };
 
 // TYPEDEFS
@@ -1541,10 +1548,10 @@ class ChartData
     public:
         struct YValues
         {
-            Value v;
-            Value u;
-            int c;
-            SetTagsByNameID elems;
+            Value       v;
+            Value       u;
+            int         c;
+            SetTagsByID elems;
 
             void add_cumulative( Value vn, Value un, DiaryElemTag* t )
             {

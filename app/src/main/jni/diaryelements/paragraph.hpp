@@ -676,7 +676,9 @@ class Paragraph : public DiaryElemTag
         }
         void                        add_time( DateV time )
         {
-            if( Date::get_time( m_date ) ) // corner case: no way to distinguish 00:00 from NOT_SET
+            // if finish date has been touched once or m_dae's time is set,
+            // any new time data goes into finished:
+            if( Date::is_set( m_date_finish ) || Date::is_time_set( m_date ) )
                 Date::set_time( m_date_finish, time );
             else
                 Date::set_time( m_date, time );

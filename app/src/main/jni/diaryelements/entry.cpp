@@ -1727,6 +1727,9 @@ Entry::move_para_before( Paragraph* para2move, Paragraph* para_after )
         para2move->m_p2prev->m_p2next = para2move->m_p2next;
     if( para2move->m_p2next )
         para2move->m_p2next->m_p2prev = para2move->m_p2prev;
+    else
+        // update last entry pointer:
+        m_p2para_last = para2move->m_p2prev;
 
     // re-add the paragraph in the new location:
     if( para_after->m_p2prev )
