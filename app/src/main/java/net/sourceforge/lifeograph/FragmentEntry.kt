@@ -865,11 +865,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
 
             // 4. INDENTATION
-            val indentLevel = p._indent_level
-            if(indentLevel > 0 && listType == 0.toChar()) {
-                val margin = indentLevel * INDENT_UNIT_WIDTH
-                edt.setSpan(LeadingMarginSpan.Standard(margin), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-            }
+            val margin = (p._indent_level + 1) * INDENT_UNIT_WIDTH // +1 is for "gutter"
+            edt.setSpan(LeadingMarginSpan.Standard(margin), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
         }
 
         // 5. FOLDING
