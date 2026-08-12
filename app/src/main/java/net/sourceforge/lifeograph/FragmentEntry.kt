@@ -783,7 +783,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         val isAnchoredTrailingEmptyPara = p._size == 0 &&
                 p._id == mEntry._paragraph_last._id &&
-                styleEnd < textLength && edt[styleEnd] == CHAR_EMPTY_PARA_ANCHOR
+                styleEnd < textLength &&
+                edt[styleEnd] == CHAR_EMPTY_PARA_ANCHOR
         val marginEnd = if (isAnchoredTrailingEmptyPara) styleEnd + 1 else styleEnd
 
         val theme = mEntry._theme
@@ -825,7 +826,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         // 3. LIST ITEM TYPE & SPECIAL STYLES (Exempt for title)
         if(!p.is_title) {
             val listType = p._list_type
-            if (listType != 0.toChar()) {
+            if (listType != '_') {
                 // For numbered lists, you might need to get the actual order/number from the paragraph
                 val label = if ("1AaRr".contains(listType)) p._list_order_str else null
 
@@ -865,7 +866,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
 
             // 4. INDENTATION
-            val margin = (p._indent_level + 1) * INDENT_UNIT_WIDTH // +1 is for "gutter"
+            val margin = (p._indent_level + 2) * INDENT_UNIT_WIDTH // +2 is for "gutter"
             edt.setSpan(LeadingMarginSpan.Standard(margin), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
         }
 
@@ -873,8 +874,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         if( p.has_subs() ) { //&& !p.is_expanded )
             val spanFolding = SpanFolding(
                 p.is_expanded,
-                if (p._heading_level == 'S') theme.color_heading_L else theme.color_heading_M,
-                p._indent_level
+                if (p._heading_level == 'S') theme.color_heading_L else theme.color_heading_M
                                          )
 
             // We use a specific range (e.g., the first char or a hidden char) to attach the span
@@ -1147,12 +1147,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         private val context: Context,
         private val para: Paragraph,
         private val label: String?, // For numbered lists
-        private val theme: Theme,
-        private val gapWidth: Int = ( INDENT_UNIT_WIDTH * .7f ).toInt()
+        private val theme: Theme
                           ) : LeadingMarginSpan {
 
-        override fun getLeadingMargin(first: Boolean): Int =
-            (para._indent_level * INDENT_UNIT_WIDTH) + gapWidth
+        override fun getLeadingMargin(first: Boolean): Int = 0
 
         override fun drawLeadingMargin(
             c: Canvas, p: Paint, x: Int, dir: Int,
@@ -1166,14 +1164,15 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             val style = p.style
 
             // x is the current margin start. If this is the only LeadingMarginSpan, x is 0.
-            val drawX = (x + para._indent_level * INDENT_UNIT_WIDTH).toFloat()
+            val drawX = (x + (para._indent_level + 2) * INDENT_UNIT_WIDTH).toFloat()
             val centerY = (top + bottom) / 2f
             val size = p.textSize * 0.6f
 
             when(val type = para._list_type) {
                 '-' -> { // Bullet
+                    val left = drawX - 1.25f * size
                     p.color = theme.color_text
-                    c.drawCircle(drawX + gapWidth / 2f, centerY, size / 3f, p)
+                    c.drawCircle(left, centerY, size / 3f, p)
                 }
 
                 'O', '~', '+', 'X' -> { // Checkboxes
@@ -1194,7 +1193,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 //                            }
 //                            drawable.setTint(color)
                             val iconSize = (size * 1.3f).toInt()
-                            val left = drawX.toInt()
+                            val left = ( drawX - 1.7f * size ).toInt()
                             val topIcon = (centerY - iconSize / 2f).toInt()
                             drawable.setBounds(left, topIcon, left + iconSize, topIcon + iconSize)
                             drawable.draw(c)
@@ -1220,8 +1219,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 }
 
                 '1' -> { // Numbered list
+                    val left = drawX - 1.7f * size
+                    // TODO: factor in the width of the numeric label
                     p.color = theme.color_text
-                    label?.let { c.drawText(it, drawX, baseline.toFloat(), p) }
+                    label?.let { c.drawText(it, left, baseline.toFloat(), p) }
                 }
             }
 
@@ -1232,12 +1233,11 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
     private class SpanFolding(
         private val isExpanded: Boolean,
-        private val color: Int,
+        private val color: Int
         //private val indentLevel: Int,
-        private val gapWidth: Int = 0
                              ) : LeadingMarginSpan {
 
-        override fun getLeadingMargin(first: Boolean): Int = gapWidth
+        override fun getLeadingMargin(first: Boolean): Int = 0
 
         override fun drawLeadingMargin(
             c: Canvas, p: Paint, x: Int, dir: Int,
@@ -1255,8 +1255,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             p.isAntiAlias = true
 
             // x is the current margin start, dir is layout direction
-            val indentation = 0//indentLevel * INDENT_UNIT_WIDTH
-            val drawX = x + dir + indentation + 20f - INDENT_UNIT_WIDTH
+            val drawX: Float = (x + dir - INDENT_UNIT_WIDTH).toFloat()
             val centerY = (top + bottom) / 2f
             val size = 32f
 
