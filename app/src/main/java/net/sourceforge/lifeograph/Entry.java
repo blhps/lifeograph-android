@@ -243,8 +243,8 @@ public class Entry extends DiaryElemTag {
 
     // THEME =======================================================================================
     Theme
-    get_theme() {
-        long ptr = nativeGetTheme(mNativePtr);
+    get_theme_effective() {
+        long ptr = nativeGetThemeEffective(mNativePtr);
         return ptr != 0 ? new Theme(ptr) : null;
     }
 
@@ -439,7 +439,7 @@ public class Entry extends DiaryElemTag {
     private native long nativeGetSubTagLowest(long ptr, long tagPtr);
     private native long nativeGetSubTagHighest(long ptr, long tagPtr);
     private native void nativeAddTag(long ptr, long tagPtr, double value);
-    private native long nativeGetTheme(long ptr);
+    private native long nativeGetThemeEffective(long ptr);
     private native boolean nativeSetTheme(long ptr, long ptr_theme);
     private native boolean nativeIsThemeSet(long ptr);
     private native boolean nativeUpdateTodoStatus(long ptr);

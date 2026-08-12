@@ -265,9 +265,9 @@ JNI_METHOD(void, Entry_nativeAddTag)(JNIEnv* env, jobject obj, jlong ptr, jlong 
     reinterpret_cast<LoG::Entry*>(ptr)->add_tag(reinterpret_cast<LoG::Entry*>(tagPtr), value);
 }
 
-JNI_METHOD(jlong, Entry_nativeGetTheme)(JNIEnv* env, jobject obj, jlong ptr) {
+JNI_METHOD(jlong, Entry_nativeGetThemeEffective)(JNIEnv* env, jobject obj, jlong ptr) {
     CHECK_PTR(ptr, 0)
-    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_theme());
+    return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->get_theme_effective());
 }
 
 JNI_METHOD(void, Entry_nativeSetTheme)(JNIEnv* env, jobject obj, jlong ptr, jlong themePtr) {

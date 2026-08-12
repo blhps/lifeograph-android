@@ -416,7 +416,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     private fun updateTheme() {
-        val theme = mEntry._theme
+        val theme = mEntry._theme_effective
         mEditText.setBackgroundColor(theme.color_base)
         mEditText.setTextColor(theme.color_text)
         mButtonHighlight.setTextColor(theme.color_text)
@@ -542,7 +542,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                      object: DialogPicker.Listener{
                          override fun onItemClick(item: RViewAdapterBasic.Item) {
                              val theme = Diary.main.get_theme(item.mId)
-                             mEntry._theme = theme
+                             mEntry.set_theme( theme )
                              updateTheme()
                              reparse()
                          }
@@ -787,7 +787,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 edt[styleEnd] == CHAR_EMPTY_PARA_ANCHOR
         val marginEnd = if (isAnchoredTrailingEmptyPara) styleEnd + 1 else styleEnd
 
-        val theme = mEntry._theme
+        val theme = mEntry._theme_effective
 
         // 1. ALIGNMENT
         val alignment = when(p._alignment) {
@@ -806,7 +806,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             'T' -> { // TITLE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.headingSpan),
                             styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_title), styleStart,
+                edt.setSpan(ForegroundColorSpan(theme.color_title), styleStart,
                             marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
                 // TODO: handle_title_edited logic would go here if needed for Android UI
             }
@@ -814,7 +814,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             'S' -> { // LARGE
                 edt.setSpan(TextAppearanceSpan(requireContext(), R.style.subheadingSpan),
                             styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
-                edt.setSpan(ForegroundColorSpan(mEntry._theme.color_heading_L), styleStart,
+                edt.setSpan(ForegroundColorSpan(theme.color_heading_L), styleStart,
                             marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
             }
 
