@@ -593,6 +593,20 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 refresh()
             }
 
+            override fun onEraseParagraphs() {
+                val selectionStart = mEditText.selectionStart
+                val selectionEnd = mEditText.selectionEnd
+
+                val paraBgn: Paragraph = mEntry.get_paragraph(selectionStart, true)
+                val paraEnd: Paragraph =
+                    mEntry.get_paragraph(selectionEnd.coerceAtLeast(selectionStart), true)
+
+                mEntry.remove_paragraphs(paraBgn, paraEnd)
+
+                mEntry._cursor_pos = mEditText.selectionStart
+                refresh()
+            }
+
             override fun getParagraph(): Paragraph {
                 val selectionStart = mEditText.selectionStart
                 val para: Paragraph = mEntry.get_paragraph(selectionStart, true)

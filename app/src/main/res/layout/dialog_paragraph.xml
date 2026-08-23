@@ -362,15 +362,34 @@
         android:layout_marginBottom="10dp"
         android:background="?attr/colorOnSurface" />
 
-    <!-- Row 8: Duplicate -->
-    <Button
-        android:id="@+id/bt_duplicate"
-        style="?attr/materialButtonOutlinedStyle"
+    <!-- Row 8: Actions -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="@string/duplicate_paragraphs"
-        app:icon="@drawable/ic_action_copy"
-        app:iconTint="@android:color/white"
-        android:textAllCaps="false" />
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/bt_duplicate"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/duplicate_paragraphs"
+            app:icon="@drawable/ic_action_copy"
+            app:iconTint="@android:color/white"
+            android:textAllCaps="false" />
+
+        <Button
+            android:id="@+id/bt_erase"
+            style="?attr/materialButtonOutlinedStyle"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:layout_marginStart="8dp"
+            android:text="@string/erase_paragraphs"
+            app:icon="@drawable/ic_action_trash"
+            app:iconTint="@android:color/white"
+            android:textAllCaps="false" />
+    </LinearLayout>
 
 </LinearLayout>

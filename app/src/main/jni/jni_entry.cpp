@@ -178,6 +178,11 @@ JNI_METHOD(jlong, Entry_nativeAddParagraphsAfter)(JNIEnv* env, jobject obj, jlon
     return reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->add_paragraphs_after(reinterpret_cast<LoG::Paragraph*>(ptr_para_bgn), reinterpret_cast<LoG::Paragraph*>(ptr_para_after)));
 }
 
+JNI_METHOD(void, Entry_nativeRemoveParagraphs)(JNIEnv* env, jobject obj, jlong ptr, jlong ptr_para_bgn, jlong ptr_para_end) {
+    CHECK_PTR(ptr, )
+    reinterpret_cast<LoG::Entry*>(ptr)->remove_paragraphs(reinterpret_cast<LoG::Paragraph*>(ptr_para_bgn), reinterpret_cast<LoG::Paragraph*>(ptr_para_end));
+}
+
 JNI_METHOD(jstring, Entry_nativeGetDescription)(JNIEnv* env, jobject obj, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
     return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_description().c_str());

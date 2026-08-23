@@ -32,7 +32,8 @@
     <string name="edit_tags">Yaftaları Düzenle</string>
     <string name="empty_entry">&lt;boş giriş&gt;</string>
     <string name="duplicate_entry">Girişi Çoğalt</string>
-    <string name="duplicate_paragraphs">Paragraf(lar)ı Çoğalt</string>
+    <string name="duplicate_paragraphs">Çoğalt</string>
+    <string name="erase_paragraphs">Sil</string>
     <string name="entries">Girişler</string>
     <string name="entry">Giriş</string>
     <string name="entry_dismiss_confirm">Seçili girişi silmek istediğinizden emin misiniz?</string>

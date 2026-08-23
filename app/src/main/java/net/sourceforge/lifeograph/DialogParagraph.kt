@@ -36,6 +36,7 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
     interface Listener {
         fun onApplyParaAction(action: (Paragraph) -> Unit, fRefreshFully: Boolean = false)
         fun onDuplicateParagraphs()
+        fun onEraseParagraphs()
         fun getParagraph(): Paragraph
     }
 
@@ -146,6 +147,11 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
 
         findViewById<android.widget.Button>(R.id.bt_duplicate).setOnClickListener {
             listener.onDuplicateParagraphs()
+            dismiss()
+        }
+
+        findViewById<android.widget.Button>(R.id.bt_erase).setOnClickListener {
+            listener.onEraseParagraphs()
             dismiss()
         }
     }
