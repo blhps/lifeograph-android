@@ -101,15 +101,18 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(!mFlagSetTextOperation && !mFlagBlockFormatter) {
+                    val text = mEditText.text.toString()
+                    val startCP = text.codePointCount(0, start)
+                    // TODO: convert 'before' and 'count' for codepoints as well
                     if( before > 0 ) { // deletion
-                        mEntry.erase_text(start, start + before)
-                        mEntry._cursor_pos = start
+                        mEntry.erase_text(startCP, startCP + before)
+                        mEntry._cursor_pos = startCP
                     }
 
                     if( count > 0 ) { // insertion
                         val addedText = s.subSequence(start, start + count).toString()
-                        mEntry.insert_text(start, addedText)
-                        mEntry._cursor_pos = start + count
+                        mEntry.insert_text(startCP, addedText)
+                        mEntry._cursor_pos = startCP + count
                         // this method always inherits on Andro, and it may be an issue on paste
                     }
                 }
