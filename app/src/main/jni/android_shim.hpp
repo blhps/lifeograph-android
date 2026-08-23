@@ -39,6 +39,7 @@
 #include <re2/re2.h>
 
 #include <android/log.h>
+#include <jni.h>
 
 #define LOG_TAG "LFO"
 #define LOGD(...) __android_log_print(ANDROID_LOG_DEBUG, LOG_TAG, __VA_ARGS__)
@@ -64,6 +65,56 @@ namespace Glib {
         ustring(const std::string& s) : std::string(s) {}
         ustring(const char* s) : std::string(s ? s : "") {}
         ustring() = default;
+
+        static ustring create_from_jstring(JNIEnv* env, jstring jstr) {
+            if (!jstr) return ustring();
+            const jchar* utf16 = env->GetStringChars(jstr, nullptr);
+            jsize len = env->GetStringLength(jstr);
+
+            ustring result;
+            result.reserve(len * 3); // rough upper bound
+
+            for (jsize i = 0; i < len; ++i) {
+                char32_t cp = utf16[i];
+                if (cp >= 0xD800 && cp <= 0xDBFF && i + 1 < len) {
+                    char32_t lo = utf16[i + 1];
+                    if (lo >= 0xDC00 && lo <= 0xDFFF) {
+                        cp = 0x10000 + ((cp - 0xD800) << 10) + (lo - 0xDC00);
+                        ++i; // consumed the low surrogate too
+                    }
+                }
+                result.append_unichar(cp); // your existing 4-byte encoder handles this correctly
+            }
+
+            env->ReleaseStringChars(jstr, utf16);
+            return result;
+        }
+        static jstring convert_to_jstring(JNIEnv* env, const ustring& str) {
+            std::u16string utf16;
+            utf16.reserve(str.bytes()); // rough upper bound
+
+            for (char32_t cp : str) { // your const_iterator already decodes full codepoints
+                if (cp >= 0xD800 && cp <= 0xDFFF) {
+                    utf16.push_back(0xFFFD); // replacement character
+                }
+                else if (cp <= 0xFFFF) {
+                    // Note: this also lets lone surrogates (0xD800-0xDFFF) through unchanged
+                    // if they ever appear in `str` — shouldn't happen if data came from
+                    // jstring_to_ustring, but worth guarding against if `str` could come
+                    // from elsewhere (e.g. corrupted persisted data from the old bug).
+                    utf16.push_back(static_cast<char16_t>(cp));
+                } else {
+                    cp -= 0x10000;
+                    char16_t hi = static_cast<char16_t>(0xD800 + (cp >> 10));
+                    char16_t lo = static_cast<char16_t>(0xDC00 + (cp & 0x3FF));
+                    utf16.push_back(hi);
+                    utf16.push_back(lo);
+                }
+            }
+
+            return env->NewString(reinterpret_cast<const jchar*>(utf16.data()),
+                                  static_cast<jsize>(utf16.length()));
+        }
 
         [[nodiscard]] size_type length() const {
             size_type count = 0;

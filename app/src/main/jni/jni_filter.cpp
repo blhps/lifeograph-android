@@ -37,9 +37,10 @@ JNI_METHOD(jstring, FiltererContainer_nativeGetAsString)(JNIEnv* env, jobject ob
 }
 
 JNI_METHOD(void, FiltererContainer_nativeSetFromString)(JNIEnv* env, jobject, jlong ptr, jstring str) {
-    const char* c_str = env->GetStringUTFChars(str, nullptr);
-    reinterpret_cast<LoG::FiltererContainer*>(ptr)->set_from_string( c_str );
-    env->ReleaseStringUTFChars(str, c_str);
+    //const char* c_str = env->GetStringUTFChars(str, nullptr);
+    reinterpret_cast<LoG::FiltererContainer*>(ptr)->set_from_string(
+            Glib::ustring::create_from_jstring( env, str ) );
+    //env->ReleaseStringUTFChars(str, c_str);
 }
 
 JNI_METHOD(void, FiltererContainer_nativeToggleLogic)(JNIEnv* env, jobject, jlong ptr) {

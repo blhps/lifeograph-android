@@ -41,9 +41,10 @@ JNI_METHOD(jstring, DiaryElement_nativeGetTipStr)(JNIEnv* env, jobject obj, jlon
 
 JNI_METHOD(void, DiaryElement_nativeSetName)(JNIEnv* env, jobject obj, jlong ptr, jstring name) {
     if (ptr == 0) return;
-    const char* c_name = env->GetStringUTFChars(name, nullptr);
-    reinterpret_cast<LoG::DiaryElement*>(ptr)->set_name( c_name );
-    env->ReleaseStringUTFChars(name, c_name);
+    //const char* c_name = env->GetStringUTFChars(name, nullptr);
+    reinterpret_cast<LoG::DiaryElement*>(ptr)->set_name( Glib::ustring::create_from_jstring(env,
+    name) );
+    //env->ReleaseStringUTFChars(name, c_name);
 }
 
 // DIARYELEMTAG METHODS ============================================================================
@@ -166,32 +167,37 @@ JNI_METHOD(jstring, Theme_nativeGetColorDoneBG)(JNIEnv* env, jobject, jlong ptr)
 
 JNI_METHOD(void, Theme_nativeSetColorBase)(JNIEnv* env, jobject, jlong ptr, jstring color) {
     if (ptr == 0) return;
-    const char* c_color = env->GetStringUTFChars(color, nullptr);
-    reinterpret_cast<LoG::Theme*>(ptr)->color_base = LoG::Color( c_color );
-    env->ReleaseStringUTFChars(color, c_color);
+    //const char* c_color = env->GetStringUTFChars(color, nullptr);
+    reinterpret_cast<LoG::Theme*>(ptr)->color_base = LoG::Color(
+            Glib::ustring::create_from_jstring(env, color) );
+    //env->ReleaseStringUTFChars(color, c_color);
 }
 JNI_METHOD(void, Theme_nativeSetColorText)(JNIEnv* env, jobject, jlong ptr, jstring color) {
     if (ptr == 0) return;
-    const char* c_color = env->GetStringUTFChars(color, nullptr);
-    reinterpret_cast<LoG::Theme*>(ptr)->color_text = LoG::Color( c_color );
-    env->ReleaseStringUTFChars(color, c_color);
+    //const char* c_color = env->GetStringUTFChars(color, nullptr);
+    reinterpret_cast<LoG::Theme*>(ptr)->color_text = LoG::Color(
+            Glib::ustring::create_from_jstring(env, color) );
+    //env->ReleaseStringUTFChars(color, c_color);
 }
 JNI_METHOD(void, Theme_nativeSetColorTitle)(JNIEnv* env, jobject, jlong ptr, jstring color) {
     if (ptr == 0) return;
-    const char* c_color = env->GetStringUTFChars(color, nullptr);
-    reinterpret_cast<LoG::Theme*>(ptr)->color_title = LoG::Color( c_color );
-    env->ReleaseStringUTFChars(color, c_color);
+    //const char* c_color = env->GetStringUTFChars(color, nullptr);
+    reinterpret_cast<LoG::Theme*>(ptr)->color_title = LoG::Color(
+            Glib::ustring::create_from_jstring(env, color) );
+    //env->ReleaseStringUTFChars(color, c_color);
 }
 JNI_METHOD(void, Theme_nativeSetColorHeadingL)(JNIEnv* env, jobject, jlong ptr, jstring color) {
     if (ptr == 0) return;
-    const char* c_color = env->GetStringUTFChars(color, nullptr);
-    reinterpret_cast<LoG::Theme*>(ptr)->color_heading_L = LoG::Color( c_color );
-    env->ReleaseStringUTFChars(color, c_color);
+    //const char* c_color = env->GetStringUTFChars(color, nullptr);
+    reinterpret_cast<LoG::Theme*>(ptr)->color_heading_L = LoG::Color(
+            Glib::ustring::create_from_jstring(env, color) );
+    //env->ReleaseStringUTFChars(color, c_color);
 }
 JNI_METHOD(void, Theme_nativeSetColorHighlight)(JNIEnv* env, jobject, jlong ptr, jstring color) {
     if (ptr == 0) return;
-    const char* c_color = env->GetStringUTFChars(color, nullptr);
-    reinterpret_cast<LoG::Theme*>(ptr)->color_highlight = LoG::Color( c_color );
-    env->ReleaseStringUTFChars(color, c_color);
+    //const char* c_color = env->GetStringUTFChars(color, nullptr);
+    reinterpret_cast<LoG::Theme*>(ptr)->color_highlight = LoG::Color(
+            Glib::ustring::create_from_jstring(env, color ) );
+    //env->ReleaseStringUTFChars(color, c_color);
 }
 } // extern "C"

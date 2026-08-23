@@ -788,7 +788,10 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     }
 
     // PARSING =====================================================================================
-    private fun processParagraph(edt: Editable, p: Paragraph, offset: Int, offsetEnd: Int) {
+    private fun processParagraph(edt: Editable, p: Paragraph, offsetCP: Int, offsetEndCP: Int) {
+        val fullText = edt.toString()
+        val offset = fullText.offsetByCodePoints(0, offsetCP)
+        val offsetEnd = fullText.offsetByCodePoints(0, offsetEndCP)
         val textLength = edt.length
         // We use offsetEnd for paragraph-level styles to keep them strictly within paragraph boundaries.
         // For an empty paragraph, offset == offsetEnd, which is still a valid (zero-length) range.
@@ -897,8 +900,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         // 6. HIDDEN FORMATS (Inline Spans)
         for(format in p._formats) {
-            val fStart = offset + format.posBgn
-            val fEnd = offset + format.posEnd
+            val fStart = offset + p._text.offsetByCodePoints(0, format.posBgn)
+            val fEnd = offset + p._text.offsetByCodePoints(0, format.posEnd)
 
             // Ensure boundaries are valid
             if(fStart < 0 || fEnd > textLength || fStart > fEnd) continue

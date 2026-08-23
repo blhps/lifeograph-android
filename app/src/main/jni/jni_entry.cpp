@@ -81,7 +81,8 @@ JNI_METHOD(jboolean, Entry_nativeHasName)(JNIEnv* env, jobject obj, jlong ptr) {
 
 JNI_METHOD(jstring, Entry_nativeGetName)(JNIEnv* env, jobject obj, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_name_std().c_str());
+    //return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_name_std().c_str());
+    return Glib::ustring::convert_to_jstring(env, reinterpret_cast<LoG::Entry*>(ptr)->get_name_std());
 }
 
 JNI_METHOD(jchar, Entry_nativeGetTitleStyle)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -114,11 +115,13 @@ JNI_METHOD(jboolean, Entry_nativeIsEmpty)(JNIEnv* env, jobject obj, jlong ptr) {
 
 JNI_METHOD(jstring, Entry_nativeGetText)(JNIEnv* env, jobject, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_text().c_str());
+    //return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_text().c_str());
+    return Glib::ustring::convert_to_jstring(env, reinterpret_cast<LoG::Entry*>(ptr)->get_text());
 }
 JNI_METHOD(jstring, Entry_nativeGetTextVisible)(JNIEnv* env, jobject, jlong ptr) {
     //if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_text_visible().c_str());
+    return Glib::ustring::convert_to_jstring(env, reinterpret_cast<LoG::Entry*>(ptr)
+            ->get_text_visible());
 }
 
 JNI_METHOD(void, Entry_nativeClearText)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -128,16 +131,19 @@ JNI_METHOD(void, Entry_nativeClearText)(JNIEnv* env, jobject obj, jlong ptr) {
 
 JNI_METHOD(void, Entry_nativeSetText)(JNIEnv* env, jobject obj, jlong ptr, jstring text) {
     CHECK_PTR(ptr, )
-    const char* c_text = env->GetStringUTFChars(text, nullptr);
-    reinterpret_cast<LoG::Entry*>(ptr)->set_text(c_text, nullptr);
-    env->ReleaseStringUTFChars(text, c_text);
+    //const char* c_text = env->GetStringUTFChars(text, nullptr);
+    reinterpret_cast<LoG::Entry*>(ptr)->set_text(Glib::ustring::create_from_jstring(env, text),
+                                                 nullptr);
+    //env->ReleaseStringUTFChars(text, c_text);
 }
 
 JNI_METHOD(void, Entry_nativeInsertText)(JNIEnv* env, jobject obj, jlong ptr, jint pos, jstring text) {
     CHECK_PTR(ptr, )
-    const char* c_text = env->GetStringUTFChars(text, nullptr);
-    reinterpret_cast<LoG::Entry*>(ptr)->insert_text(static_cast<size_t>(pos), c_text, LoG::ParaInhClass::DEFAULT);
-    env->ReleaseStringUTFChars(text, c_text);
+    //const char* c_text = env->GetStringUTFChars(text, nullptr);
+    reinterpret_cast<LoG::Entry*>(ptr)->insert_text(static_cast<size_t>(pos),
+                                                    Glib::ustring::create_from_jstring(env, text),
+                                                    LoG::ParaInhClass::DEFAULT);
+    //env->ReleaseStringUTFChars(text, c_text);
 }
 
 JNI_METHOD(void, Entry_nativeEraseText)(JNIEnv* env, jobject obj, jlong ptr, jint pos_bgn, jint pos_end) {
@@ -167,9 +173,12 @@ JNI_METHOD(jlong, Entry_nativeGetParagraphLast)(JNIEnv* env, jobject obj, jlong 
 
 JNI_METHOD(jlong, Entry_nativeAddParagraphBefore)(JNIEnv* env, jobject obj, jlong ptr, jstring text, jlong ptr_para_after) {
     CHECK_PTR(ptr, 0)
-    const char* c_text = env->GetStringUTFChars(text, nullptr);
-    auto result = reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)->add_paragraph_before(c_text, reinterpret_cast<LoG::Paragraph*>(ptr_para_after)));
-    env->ReleaseStringUTFChars(text, c_text);
+    //const char* c_text = env->GetStringUTFChars(text, nullptr);
+    auto result = reinterpret_cast<jlong>(reinterpret_cast<LoG::Entry*>(ptr)
+            ->add_paragraph_before(Glib::ustring::create_from_jstring(env,text),
+                                   reinterpret_cast<LoG::Paragraph*>
+            (ptr_para_after)));
+    //env->ReleaseStringUTFChars(text, c_text);
     return result;
 }
 
@@ -185,7 +194,9 @@ JNI_METHOD(void, Entry_nativeRemoveParagraphs)(JNIEnv* env, jobject obj, jlong p
 
 JNI_METHOD(jstring, Entry_nativeGetDescription)(JNIEnv* env, jobject obj, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_description().c_str());
+    //return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_description().c_str());
+    return Glib::ustring::convert_to_jstring(env, reinterpret_cast<LoG::Entry*>(ptr)
+            ->get_description());
 }
 
 JNI_METHOD(jint, Entry_nativeGetCursorPos)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -207,7 +218,9 @@ JNI_METHOD(void, Entry_nativeToggleFavorite)(JNIEnv* env, jobject obj, jlong ptr
 
 JNI_METHOD(jstring, Entry_nativeGetLangFinal)(JNIEnv* env, jobject obj, jlong ptr) {
     if (ptr == 0) return env->NewStringUTF("");
-    return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_lang_final().c_str());
+    //return env->NewStringUTF(reinterpret_cast<LoG::Entry*>(ptr)->get_lang_final().c_str());
+    return Glib::ustring::convert_to_jstring(env, reinterpret_cast<LoG::Entry*>(ptr)->get_lang_final
+    ());
 }
 
 JNI_METHOD(jboolean, Entry_nativeIsTrashed)(JNIEnv* env, jobject obj, jlong ptr) {

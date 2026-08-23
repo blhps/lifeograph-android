@@ -33,7 +33,8 @@ JNI_METHOD(jboolean, Paragraph_nativeIsEmpty)(JNIEnv* env, jobject obj, jlong pt
 
 JNI_METHOD(jstring, Paragraph_nativeGetText)(JNIEnv* env, jobject obj, jlong ptr) {
     auto para = reinterpret_cast<LoG::Paragraph*>(ptr);
-    return env->NewStringUTF(para->get_text().c_str());
+    //return env->NewStringUTF(para->get_text().c_str());
+    return Glib::ustring::convert_to_jstring(env, para->get_text());
 }
 
 JNI_METHOD(jint, Paragraph_nativeGetIndentLevel)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -86,7 +87,8 @@ JNI_METHOD(void, Paragraph_nativeClearListType)(JNIEnv*, jobject, jlong ptr) {
 
 JNI_METHOD(jstring, Paragraph_nativeGetListOrderStr)(JNIEnv* env, jobject obj, jlong ptr) {
     auto para = reinterpret_cast<LoG::Paragraph*>(ptr);
-    return env->NewStringUTF(para->get_list_order_str().c_str());
+    //return env->NewStringUTF(para->get_list_order_str().c_str());
+    return Glib::ustring::convert_to_jstring(env, para->get_list_order_str());
 }
 
 JNI_METHOD(jchar, Paragraph_nativeGetQuotType)(JNIEnv* env, jobject obj, jlong ptr) {
@@ -179,12 +181,13 @@ JNI_METHOD(void, HiddenFormat_nativeSetType)(JNIEnv* env, jobject obj, jlong ptr
 }
 
 JNI_METHOD(jstring, HiddenFormat_nativeGetUri)(JNIEnv* env, jobject obj, jlong ptr) {
-    return env->NewStringUTF(reinterpret_cast<LoG::HiddenFormat*>(ptr)->uri.c_str());
+    //return env->NewStringUTF(reinterpret_cast<LoG::HiddenFormat*>(ptr)->uri.c_str());
+    return Glib::ustring::convert_to_jstring(env, reinterpret_cast<LoG::HiddenFormat*>(ptr)->uri );
 }
 JNI_METHOD(void, HiddenFormat_nativeSetUri)(JNIEnv* env, jobject obj, jlong ptr, jstring uri) {
-    const char* c_uri = env->GetStringUTFChars(uri, nullptr);
-    reinterpret_cast<LoG::HiddenFormat*>(ptr)->uri = c_uri;
-    env->ReleaseStringUTFChars(uri, c_uri);
+    //const char* c_uri = env->GetStringUTFChars(uri, nullptr);
+    reinterpret_cast<LoG::HiddenFormat*>(ptr)->uri = Glib::ustring::create_from_jstring(env, uri);
+    //env->ReleaseStringUTFChars(uri, c_uri);
 }
 JNI_METHOD(jint, HiddenFormat_nativeGetPosBgn)(JNIEnv* env, jobject obj, jlong ptr) {
     return reinterpret_cast<jint>( int( reinterpret_cast<LoG::HiddenFormat*>(ptr)->pos_bgn ) );
