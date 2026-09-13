@@ -1238,7 +1238,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                     }
                 }
 
-                '1' -> { // Numbered list
+                '1', 'A', 'a', 'R', 'r' -> { // Ordered list
                     val left = drawX - 1.7f * size
                     // TODO: factor in the width of the numeric label
                     p.color = theme.color_text

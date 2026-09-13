@@ -24,8 +24,10 @@ package net.sourceforge.lifeograph
 import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
+import android.view.View
 import android.widget.Button
 import android.widget.ImageButton
+import android.widget.LinearLayout
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 
@@ -54,6 +56,10 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
         val tgHeadingType = findViewById<MaterialButtonToggleGroup>(R.id.tg_heading_type)
         val tgTodoStatus = findViewById<MaterialButtonToggleGroup>(R.id.tg_checkboxes)
         val tgBullets = findViewById<MaterialButtonToggleGroup>(R.id.tg_bullets)
+        val btListLetter = findViewById<Button>(R.id.bt_para_letter)
+        val btListRoman = findViewById<Button>(R.id.bt_para_roman)
+        val llSmallLetters = findViewById<LinearLayout>(R.id.ll_small_letters)
+        val swSmallLetters = findViewById<MaterialSwitch>(R.id.sw_small_letters)
         val swHorzRule = findViewById<MaterialSwitch>(R.id.sw_horizontal_rule)
         val swExpanded = findViewById<MaterialSwitch>(R.id.sw_para_expanded)
 
@@ -71,9 +77,21 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
             'X' -> tgTodoStatus.check(R.id.bt_para_canceled)
             '-' -> tgBullets.check( R.id.bt_para_bullet )
             '1' -> tgBullets.check( R.id.bt_para_number )
-            'A' -> tgBullets.check( R.id.bt_para_letter )
-            'R' -> tgBullets.check( R.id.bt_para_roman )
+            'A' -> { tgBullets.check( R.id.bt_para_letter )
+                     swSmallLetters.isChecked = false }
+            'a' -> { tgBullets.check( R.id.bt_para_letter )
+                     swSmallLetters.isChecked = true }
+            'R' -> { tgBullets.check( R.id.bt_para_roman )
+                     swSmallLetters.isChecked = false }
+            'r' -> { tgBullets.check( R.id.bt_para_roman )
+                     swSmallLetters.isChecked = true }
         }
+        when( para._list_type ) {
+            'A', 'a', 'R', 'r' -> llSmallLetters.visibility = View.VISIBLE
+            else -> llSmallLetters.visibility = View.GONE
+        }
+        btListLetter.text = if(swSmallLetters.isChecked) "a-" else "A-"
+        btListRoman.text = if(swSmallLetters.isChecked) "i-" else "I-"
 
         swExpanded.isChecked = para.is_expanded
         swHorzRule.isChecked = para.has_hrule()
@@ -99,6 +117,7 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
             // when a checkbox is selected, clear the bullet/numbering row
             if (isChecked) {
                 tgBullets.clearChecked()
+                llSmallLetters.visibility = View.GONE
 
                 val action: (Paragraph) -> Unit = when(checkedId) {
                     R.id.bt_para_not_list -> { para -> para.clear_list_type() }
@@ -117,20 +136,37 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
         tgBullets.addOnButtonCheckedListener { _, checkedId, isChecked ->
             if (isChecked) {
                 tgTodoStatus.clearChecked()
+                llSmallLetters.visibility = View.VISIBLE
+                val fSmall = swSmallLetters.isChecked
 
                 val action: (Paragraph) -> Unit = when(checkedId) {
                     R.id.bt_para_bullet -> { para -> para._list_type = '-' }
                     R.id.bt_para_number -> { para -> para._list_type = '1' }
-                    R.id.bt_para_letter -> { para -> para._list_type = 'A' }
-                    R.id.bt_para_roman -> { para -> para._list_type = 'R' }
-                    R.id.bt_para_capital -> { para -> para._list_type = 'a' }
-                    // TODO: 2.0: implement capital variants properly
+                    R.id.bt_para_letter -> { para -> para._list_type = if(fSmall) 'a' else 'A' }
+                    R.id.bt_para_roman -> { para -> para._list_type = if(fSmall) 'r' else 'R' }
                     else -> { _ -> }
                 }
 
                 listener.onApplyParaAction(action)
                 dismiss()
             }
+            else
+                llSmallLetters.visibility = View.GONE
+        }
+
+        swSmallLetters.setOnCheckedChangeListener { _, isChecked ->
+            val listType = tgBullets.checkedButtonId
+
+            val action: (Paragraph) -> Unit = when(listType) {
+                R.id.bt_para_letter -> { para -> para._list_type = if(isChecked) 'a' else 'A' }
+                R.id.bt_para_roman -> { para -> para._list_type = if(isChecked) 'r' else 'R' }
+                else -> { _ -> }
+            }
+
+            btListLetter.text = if(swSmallLetters.isChecked) "a-" else "A-"
+            btListRoman.text = if(swSmallLetters.isChecked) "i-" else "I-"
+
+            listener.onApplyParaAction(action, true)
         }
 
         swExpanded.setOnCheckedChangeListener { _, isChecked ->

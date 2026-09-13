@@ -262,15 +262,30 @@
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:text="@string/list_roman_capital" />
-
-        <Button
-            android:id="@+id/bt_para_capital"
-            style="?attr/materialButtonOutlinedStyle"
-            android:layout_width="0dp"
-            android:layout_height="match_parent"
-            android:layout_weight="1"
-            android:text="^" />
     </com.google.android.material.button.MaterialButtonToggleGroup>
+
+    <LinearLayout
+        android:id="@+id/ll_small_letters"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="Small List Letters"
+            android:textAppearance="?attr/textAppearanceSubtitle1"
+            android:textColor="?android:attr/textColorPrimary" />
+
+        <com.google.android.material.materialswitch.MaterialSwitch
+            android:id="@+id/sw_small_letters"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:contentDescription="Small Letters"
+            app:showText="false" />
+    </LinearLayout>
 
     <View
         android:layout_width="match_parent"
