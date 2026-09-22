@@ -235,4 +235,28 @@
         <item>°F</item>
     </string-array>
 
+    <string-array name="array_quotation_code">
+        <item>Off</item>
+        <item>Literary Quote</item>
+        <item>Generic Code</item>
+        <item>Python</item>
+        <item>Bash</item>
+        <item>C/C++</item>
+        <item>Fortran</item>
+        <item>Go</item>
+        <item>Haskell</item>
+        <item>HTML</item>
+        <item>Java</item>
+        <item>Javascript</item>
+        <item>Kotlin</item>
+        <item>Lisp</item>
+        <item>Lua</item>
+        <item>Pascal</item>
+        <item>Perl</item>
+        <item>Ruby</item>
+        <item>Rust</item>
+        <item>Scala</item>
+        <item>SQL</item>
+    </string-array>
+
 </resources>

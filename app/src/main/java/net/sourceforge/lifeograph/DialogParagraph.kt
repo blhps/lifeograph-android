@@ -25,9 +25,12 @@ import android.app.Dialog
 import android.content.Context
 import android.os.Bundle
 import android.view.View
+import android.widget.AdapterView
+import android.widget.ArrayAdapter
 import android.widget.Button
 import android.widget.ImageButton
 import android.widget.LinearLayout
+import android.widget.Spinner
 import com.google.android.material.button.MaterialButtonToggleGroup
 import com.google.android.material.materialswitch.MaterialSwitch
 
@@ -95,6 +98,35 @@ class DialogParagraph(ctx: Context, private val listener: Listener) : Dialog(ctx
 
         swExpanded.isChecked = para.is_expanded
         swHorzRule.isChecked = para.has_hrule()
+
+        val spQuotationCode = findViewById<Spinner>(R.id.sp_quotation_code)
+        val adapter = ArrayAdapter.createFromResource(
+            context,
+            R.array.array_quotation_code,
+            android.R.layout.simple_spinner_item
+        )
+        adapter.setDropDownViewResource(android.R.layout.simple_spinner_dropdown_item)
+        spQuotationCode.adapter = adapter
+
+        val quotChars = charArrayOf(
+            '_', '"', '*', 'P', 'B', 'C', 'F', 'G', 'H', '<', 'J', 'V', 'K', '(', 'U', 'L', '$', 'R', 'T', 'S', 'Q'
+        )
+        val currentQuotType = para._quot_type
+        val itemIndex = quotChars.indexOf(currentQuotType).coerceAtLeast(0)
+        spQuotationCode.setSelection(itemIndex)
+
+        spQuotationCode.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
+            override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
+                val newQuotType = quotChars[position]
+                if (para._quot_type != newQuotType) {
+                    val action: (Paragraph) -> Unit = { p -> p._quot_type = newQuotType }
+                    listener.onApplyParaAction(action)
+                    dismiss()
+                }
+            }
+
+            override fun onNothingSelected(parent: AdapterView<*>?) {}
+        }
 
         // ASSIGNING LISTENERS =====================================================================
         btIndentMore.setOnClickListener { listener.onApplyParaAction( { p -> p.indent() } ) }
