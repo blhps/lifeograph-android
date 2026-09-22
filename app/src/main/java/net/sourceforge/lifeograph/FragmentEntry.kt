@@ -101,20 +101,33 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             override fun beforeTextChanged(s: CharSequence, start: Int, count: Int, after: Int) {}
             override fun onTextChanged(s: CharSequence, start: Int, before: Int, count: Int) {
                 if(!mFlagSetTextOperation && !mFlagBlockFormatter) {
-                    val text = mEditText.text.toString()
-                    val startCP = text.codePointCount(0, start)
-                    // TODO: convert 'before' and 'count' for codepoints as well
-                    if( before > 0 ) { // deletion
-                        mEntry.erase_text(startCP, startCP + before)
-                        mEntry._cursor_pos = startCP
+                    val oldText = mEntry.get_text_visible() ?: ""
+                    val newTextFull = s.toString()
+                    val cleanNewText = if (newTextFull.endsWith(CHAR_EMPTY_PARA_ANCHOR)) {
+                        newTextFull.substring(0, newTextFull.length - 1)
+                    } else {
+                        newTextFull
                     }
 
-                    if( count > 0 ) { // insertion
-                        val addedText = s.subSequence(start, start + count).toString()
-                        mEntry.insert_text(startCP, addedText)
-                        mEntry._cursor_pos = startCP + count
-                        // this method always inherits on Andro, and it may be an issue on paste
+                    // Capping indices to ensure they are within the clean boundaries
+                    val cleanStart = start.coerceAtMost(cleanNewText.length).coerceAtMost(oldText.length)
+                    val cleanBefore = before.coerceAtMost(oldText.length - cleanStart)
+                    val cleanCount = count.coerceAtMost(cleanNewText.length - cleanStart)
+
+                    val startCP = oldText.codePointCount(0, cleanStart)
+
+                    if( cleanBefore > 0 ) { // deletion
+                        val beforeCP = oldText.codePointCount(cleanStart, cleanStart + cleanBefore)
+                        mEntry.erase_text(startCP, startCP + beforeCP)
                     }
+
+                    if( cleanCount > 0 ) { // insertion
+                        val addedText = cleanNewText.substring(cleanStart, cleanStart + cleanCount)
+                        mEntry.insert_text(startCP, addedText)
+                    }
+
+                    // cursor position is stored as character index in the model
+                    mEntry._cursor_pos = cleanStart + cleanCount
                 }
             }
         })
@@ -793,8 +806,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     // PARSING =====================================================================================
     private fun processParagraph(edt: Editable, p: Paragraph, offsetCP: Int, offsetEndCP: Int) {
         val fullText = edt.toString()
-        val offset = fullText.offsetByCodePoints(0, offsetCP)
-        val offsetEnd = fullText.offsetByCodePoints(0, offsetEndCP)
+        val offset = fullText.safeOffsetByCodePoints(0, offsetCP)
+        val offsetEnd = fullText.safeOffsetByCodePoints(0, offsetEndCP)
         val textLength = edt.length
         // We use offsetEnd for paragraph-level styles to keep them strictly within paragraph boundaries.
         // For an empty paragraph, offset == offsetEnd, which is still a valid (zero-length) range.
@@ -903,8 +916,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
 
         // 6. HIDDEN FORMATS (Inline Spans)
         for(format in p._formats) {
-            val fStart = offset + p._text.offsetByCodePoints(0, format.posBgn)
-            val fEnd = offset + p._text.offsetByCodePoints(0, format.posEnd)
+            val pText = p._text ?: ""
+            val fStart = offset + pText.safeOffsetByCodePoints(0, format.posBgn)
+            val fEnd = offset + pText.safeOffsetByCodePoints(0, format.posEnd)
 
             // Ensure boundaries are valid
             if(fStart < 0 || fEnd > textLength || fStart > fEnd) continue
@@ -1299,5 +1313,13 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
     }
 
+    private fun String.safeOffsetByCodePoints(index: Int, codePointOffset: Int): Int {
+        if (index < 0 || index > this.length) return index.coerceIn(0, this.length)
+        return try {
+            this.offsetByCodePoints(index, codePointOffset)
+        } catch (e: IndexOutOfBoundsException) {
+            if (codePointOffset > 0) this.length else 0
+        }
+    }
 
 }
