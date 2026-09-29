@@ -794,15 +794,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         }
     }
 
-    private fun toggleQuotation() {
-        doForEachSelPara({ para ->
-                             if(para._quot_type == '_') // off
-                                 para._quot_type = '*' // generic
-                             else
-                                 para._quot_type = '_'
-                         }, false)
-    }
-
     // PARSING =====================================================================================
     private fun processParagraph(edt: Editable, p: Paragraph, offsetCP: Int, offsetEndCP: Int) {
         val fullText = edt.toString()
@@ -899,8 +890,9 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             }
 
             // 4. INDENTATION
-            val margin = (p._indent_level + 2) * INDENT_UNIT_WIDTH // +2 is for "gutter"
-            edt.setSpan(LeadingMarginSpan.Standard(margin), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+            val firstMargin = (p._indent_level + 2) * INDENT_UNIT_WIDTH // +2 is for "gutter"
+            val restMargin = p._indent_level * INDENT_UNIT_WIDTH
+            edt.setSpan(LeadingMarginSpan.Standard(firstMargin, restMargin), styleStart, marginEnd, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
         }
 
         // 5. FOLDING
@@ -1198,7 +1190,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             val style = p.style
 
             // x is the current margin start. If this is the only LeadingMarginSpan, x is 0.
-            val drawX = (x + (para._indent_level + 2) * INDENT_UNIT_WIDTH).toFloat()
+            val drawX = (x - INDENT_UNIT_WIDTH).toFloat()
             val centerY = (top + bottom) / 2f
             val size = p.textSize * 0.6f
 
@@ -1268,7 +1260,6 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private class SpanFolding(
         private val isExpanded: Boolean,
         private val color: Int
-        //private val indentLevel: Int,
                              ) : LeadingMarginSpan {
 
         override fun getLeadingMargin(first: Boolean): Int = 0
