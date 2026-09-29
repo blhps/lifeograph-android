@@ -455,6 +455,8 @@ class TableData
         }
 
         bool                        populate_lines( bool, Entry* = nullptr );
+        bool                        is_sum_line_populated() const
+        { return !m_master_header.m_values_txt.empty(); }
         void                        update_lines_cache();
         void                        update_delta_columns();
         void                        update_order_column();

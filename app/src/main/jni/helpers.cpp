@@ -2294,19 +2294,17 @@ ensure_selected_LB_row_in_view( Gtk::ListBox* LB_, Gtk::ListBoxRow* row_ )
 void
 select_LB_item_prev( Gtk::ListBox* LB )
 {
-    auto row{ LB->get_selected_row() };
-    if( row )
+    if( auto row = LB->get_selected_row(); row )
     {
-        auto prev{ row->get_prev_sibling() };
-        if( prev )
+        if( const auto idx = row->get_index(); idx > 0 )
         {
-            LB->select_row( * dynamic_cast< Gtk::ListBoxRow* >( prev ) );
+            LB->select_row( * LB->get_row_at_index( idx - 1 ) );
             return; // to prevent the default action
         }
     }
 
     // default action (is also used to wrap around):
-    const int item_c{ get_LB_item_count( LB ) };
+    const int item_c { get_LB_item_count( LB ) };
     if( item_c > 0 )
         LB->select_row( * LB->get_row_at_index( item_c - 1 ) );
 }
@@ -2316,17 +2314,16 @@ select_LB_item_next( Gtk::ListBox* LB )
     auto row{ LB->get_selected_row() };
     if( row )
     {
-        auto next{ row->get_next_sibling() };
+        auto next{ LB->get_row_at_index( row->get_index() + 1 ) };
         if( next )
         {
-            LB->select_row( * dynamic_cast< Gtk::ListBoxRow* >( next ) );
+            LB->select_row( * next );
             return; // to prevent the default action
         }
     }
-
     // default action (is also used to wrap around):
-    if( LB->get_first_child() )
-        LB->select_row( * LB->get_row_at_index( 0 ) );
+    if( auto first{ LB->get_row_at_index( 0 ) } )
+        LB->select_row( * first );
 }
 
 Ustring

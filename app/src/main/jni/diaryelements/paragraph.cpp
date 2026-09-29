@@ -274,10 +274,22 @@ Paragraph::get_sub_last_visible( bool F_force_1st_gen ) const
 }
 Paragraph*
 Paragraph::get_sub_last_invisible() const
-// Caution: returns itself in the absence of any visible sub
+// Caution: returns itself in the absence of any invisible sub
 {
-    if( is_expanded() ) return const_cast< Paragraph* >( this );
-    else                return get_sub_last();
+    Paragraph* p_sub { const_cast< Paragraph* >( this ) };
+
+    if( !is_expanded() )
+    {
+        for( Paragraph* p = m_p2next;
+             p && !p->is_visible() && this->can_be_parent_of( p );
+             p = p->m_p2next )
+        // NOTE: during paragraph moves, a collapsed paragraph may have visible subs
+        {
+            p_sub = p;
+        }
+    }
+
+    return p_sub;
 }
 
 bool
@@ -356,7 +368,10 @@ Paragraph::get_list_order() const
     {
         const int indent_lvl_cur{ para->get_indent_level() };
         const int headng_lvl_cur{ para->get_heading_level() };
-        if( indent_lvl_cur < indent_lvl || headng_lvl_cur > headng_lvl )
+        if( headng_lvl_cur > headng_lvl )
+            break;
+        // indentation decrease does not break bigger headings:
+        else if( indent_lvl_cur < indent_lvl && headng_lvl_cur == headng_lvl )
             break;
         else
         if( indent_lvl_cur == indent_lvl && headng_lvl_cur == headng_lvl &&
@@ -453,9 +468,10 @@ Paragraph::set_tag_bound( int pos_end )
     {
         m_properties.set( PROP::TAG_END_POS, pos_end );
         m_properties.set( PROP::TAG_END_POS_CHANGED, true );
-        if( m_p2diary )
-            m_p2diary->add_tag_to_cache( this, pos_end > 0 );
     }
+
+    if( m_p2diary )
+        m_p2diary->add_tag_to_cache( this, pos_end > 0 );
 
     update_date_edited();
 }

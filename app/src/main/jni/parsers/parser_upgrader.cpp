@@ -247,14 +247,17 @@ ParserUpgrader::apply_inline_tag_old()
     Entry* tag = m_parser_p2para_cur->m_host->get_diary()->get_entry_by_name(
             get_substr( pos_bgn, pos_end ) );
 
-    if( !tag ) return;
+    //if( !tag ) return; <-- add as a broken tag as they were possible pre-3.0
 
     if( m_recipe_cur->m_pos_mid == 0 )
     {
         auto format = apply_markup( VT::FMT::TAG::I, pos_bgn - 1, pos_end );
 
-        format->set_id_lo( tag->get_id() );
-        m_parser_p2para_cur->set_tag( tag->get_id(), 1.0 );
+        if( tag )
+        {
+            format->set_id_lo( tag->get_id() );
+            m_parser_p2para_cur->set_tag( tag->get_id(), 1.0 );
+        }
     }
     else // value
     {
@@ -264,9 +267,10 @@ ParserUpgrader::apply_inline_tag_old()
                                                         m_parser_pos_extra_1 ) ) };
             const Value v_plan{ STR::get_d( get_substr( m_parser_pos_extra_1 + 1,
                                                         m_parser_pos_extra_2 + 1 ) ) };
-            m_parser_p2para_cur->set_tag( tag->get_id(), v_real, v_plan );
+            if( tag )
+                m_parser_p2para_cur->set_tag( tag->get_id(), v_real, v_plan );
         }
-        else
+        else if( tag )
             m_parser_p2para_cur->set_tag( tag->get_id(),
                                           STR::get_d( get_substr( m_recipe_cur->m_pos_mid + 1,
                                                                   m_parser_pos_extra_2 + 1 ) ) );

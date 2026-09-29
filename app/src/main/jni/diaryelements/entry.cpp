@@ -1070,9 +1070,8 @@ Entry::insert_text( UstringSize pos, const Ustring& new_text, const ListHiddenFo
             // please note that when pos==end, split_at just creates an empty new paragraph
             para = add_paragraphs_after( para->split_at( pos_split + para_text.length(), parser ),
                                          para,
-                                         !para_inherit ? ( ic | ParaInhClass::SET_TEXT )
-                                                           : ParaInhClass::SET_TEXT );
-                                         // if para inherit is set, inheritance is applied below
+                                         ParaInhClass::SET_TEXT );
+                                         // NOTE: inheritance is handled separately below
             pos_split = 0;
 
             if( !ic.is_empty() && para_inherit )
@@ -1081,8 +1080,14 @@ Entry::insert_text( UstringSize pos, const Ustring& new_text, const ListHiddenFo
                 // detect move and add heading to ic:
                 if( !para_inherit->is_title() && para_inherit->is_empty() && !para->is_empty() )
                     ic_final |= ParaInhClass::HEADING_LVL;
+                // do not inherit list style and indent from empty paras:
+                if( para_inherit->is_empty() && para->is_empty() && !para_inherit->is_code() )
+                {
+                    ic_final.remove_flag( ParaInhClass::LIST_TYPE );
+                    ic_final.remove_flag( ParaInhClass::INDENTATION );
+                }
                 // do not inherit list styles from headings:
-                if( para_inherit->is_heading() && para_inherit->is_list() )
+                else if( para_inherit->is_heading() && para_inherit->is_list() )
                     ic_final.remove_flag( ParaInhClass::LIST_TYPE );
                 para->inherit_style_from( para_inherit, ic_final );
             }
@@ -1577,11 +1582,11 @@ Entry::add_paragraphs_after( Paragraph* const para_chain_bgn, Paragraph* const p
             set_paragraph_1st( para_chain_bgn );
     }
 
-    if( para_before && !para_before->is_empty() )
-        para_chain_bgn->inherit_style_from( para_before, ic );
-
     if( !ic.contains( ParaInhClass::SET_TEXT ) )
     {
+        if( para_before && !para_before->is_empty() )
+            para_chain_bgn->inherit_style_from( para_before, ic );
+
         // UNDO (on add operations undo is added after the operation):
         const int offset { para_before ? para_before->get_end_offset_in_host() : 0 };
 

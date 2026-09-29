@@ -173,7 +173,9 @@ TableColumn::get_alignment() const
     if( m_type == TCT_TODO_STATUS )
         return Pango::Alignment::CENTER;
     else
-    if( is_numeric() )
+    if( is_numeric() || ( m_p2data->m_grouping_depth == 0 && m_type == TCT_ORDER ) )
+        // NOTE: it only makes sense to right align simple orders like 1, 2, 3...
+        //       but not composite ones like 1.1.2, 1.1.3, etc...
         return Pango::Alignment::RIGHT;
     else
         return Pango::Alignment::LEFT;
@@ -1413,8 +1415,6 @@ TableLine::subtract_line_from_total( TableLine* line )
         // case TableColumn::TCT_GANTT:
         // case TableColumn::TCT_BOOL:
         // case TableColumn::TCT_SUB:
-
-        col->format_number( this ); // use set_total_value_strings?
     }
 
     if( m_p2parent )
