@@ -808,11 +808,14 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         val styleEnd = offsetEnd.coerceAtMost(textLength)
         val styleStart = offset.coerceAtMost(styleEnd)
 
-        val isAnchoredTrailingEmptyPara = p._size == 0 &&
-                p._id == mEntry._paragraph_last._id &&
+        // An empty paragraph would get zero-length spans, which Layout mishandles.
+        // Let them cover the line terminator ('\n' or the trailing anchor) instead.
+        val coversTerminator = p._size == 0 &&
                 styleEnd < textLength &&
-                edt[styleEnd] == CHAR_EMPTY_PARA_ANCHOR
-        val marginEnd = if (isAnchoredTrailingEmptyPara) styleEnd + 1 else styleEnd
+                (edt[styleEnd] == '\n' || edt[styleEnd] == CHAR_EMPTY_PARA_ANCHOR)
+        val marginEnd = if (coversTerminator) styleEnd + 1 else styleEnd
+
+        if(marginEnd == styleStart) return
 
         val theme = mEntry._theme_effective
 
@@ -1070,7 +1073,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private fun ensureTrailingEmptyParaAnchor(edt: Editable) {
         val last = mEntry._paragraph_last
         val needsAnchor = last._size == 0 &&
-                (last._list_type != '_' || last.has_subs())
+                (last._list_type != '_' || last.has_subs() || last._indent_level > 0)
         val hasAnchor = edt.isNotEmpty() && edt[edt.length - 1] == CHAR_EMPTY_PARA_ANCHOR
 
         if (needsAnchor == hasAnchor) return
