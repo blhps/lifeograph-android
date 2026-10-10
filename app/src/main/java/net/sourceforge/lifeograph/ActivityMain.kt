@@ -37,6 +37,10 @@ import androidx.navigation.ui.AppBarConfiguration
 import androidx.navigation.ui.NavigationUI
 import androidx.navigation.ui.navigateUp
 import androidx.preference.PreferenceManager
+import android.view.View
+import androidx.core.view.ViewCompat
+import androidx.core.view.WindowInsetsCompat
+import androidx.core.view.updatePadding
 import com.google.android.material.navigation.NavigationView
 import net.sourceforge.lifeograph.helpers.Date
 
@@ -79,6 +83,22 @@ class ActivityMain : AppCompatActivity(), FragmentHost {
 
         // CONTENT
         setContentView(R.layout.home)
+
+        // DrawerLayout (fitsSystemWindows) swallows the IME inset, so handle it above it:
+        val contentRoot = findViewById<View>(android.R.id.content)
+        ViewCompat.setOnApplyWindowInsetsListener(contentRoot) { v, insets ->
+            val ime  = insets.getInsets(WindowInsetsCompat.Type.ime())
+            val bars = insets.getInsets(WindowInsetsCompat.Type.systemBars())
+
+            // the DrawerLayout already pads for the system bars, so only pad for what the keyboard adds
+            v.updatePadding(bottom = (ime.bottom - bars.bottom).coerceAtLeast(0))
+
+            // hide the IME inset from the DrawerLayout so it doesn't pad for it a second time
+            WindowInsetsCompat.Builder(insets)
+                .setInsets(WindowInsetsCompat.Type.ime(), androidx.core.graphics.Insets.NONE)
+                .build()
+        }
+
         val toolbar = findViewById<Toolbar>(R.id.toolbar_main)
         setSupportActionBar(toolbar)
         mActionBar = supportActionBar
