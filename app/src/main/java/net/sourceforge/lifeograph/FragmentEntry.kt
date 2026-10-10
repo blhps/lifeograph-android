@@ -76,6 +76,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         //Lifeograph.updateScreenSizes( this );
 
         mEditText = view.findViewById(R.id.editTextEntry)
+        mEditText.isSaveEnabled = false
+
         if(!Diary.main.is_in_edit_mode()) {
             // allows the user to move the cursor and select text,
             // but prevents the keyboard from popping up and changing text
@@ -246,7 +248,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             requireActivity().window.setSoftInputMode(
                 WindowManager.LayoutParams.SOFT_INPUT_STATE_HIDDEN)
         }
-        show(savedInstanceState == null) // non-null on rotation
+        //show(savedInstanceState == null) // non-null on rotation
+        show( true ) // this fixed the rotation issues
     }
 
     /*@Override
