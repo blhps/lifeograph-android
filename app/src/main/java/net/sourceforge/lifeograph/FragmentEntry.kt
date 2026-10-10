@@ -858,7 +858,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
                 val label = if ("1AaRr".contains(listType)) p._list_order_str else null
 
                 edt.setSpan(
-                    SpanList(requireContext(), p, label, theme),
+                    SpanList(requireContext(), p, label, theme, p._indent_level),
                     styleStart,
                     marginEnd,
                     Spanned.SPAN_INCLUSIVE_INCLUSIVE
@@ -1070,7 +1070,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
     private fun ensureTrailingEmptyParaAnchor(edt: Editable) {
         val last = mEntry._paragraph_last
         val needsAnchor = last._size == 0 &&
-                (last._list_type != 0.toChar() || last.has_subs())
+                (last._list_type != '_' || last.has_subs())
         val hasAnchor = edt.isNotEmpty() && edt[edt.length - 1] == CHAR_EMPTY_PARA_ANCHOR
 
         if (needsAnchor == hasAnchor) return
@@ -1176,7 +1176,8 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
         private val context: Context,
         private val para: Paragraph,
         private val label: String?, // For numbered lists
-        private val theme: Theme
+        private val theme: Theme,
+        private val indentLevel: Int
                           ) : LeadingMarginSpan {
 
         override fun getLeadingMargin(first: Boolean): Int = 0
@@ -1193,7 +1194,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             val style = p.style
 
             // x is the current margin start. If this is the only LeadingMarginSpan, x is 0.
-            val drawX = (x - INDENT_UNIT_WIDTH).toFloat()
+            val drawX = ((indentLevel + 2 ) * INDENT_UNIT_WIDTH).toFloat()
             val centerY = (top + bottom) / 2f
             val size = p.textSize * 0.6f
 
@@ -1283,7 +1284,7 @@ class FragmentEntry : FragmentDiaryEditor(), ToDoObject, DialogInquireText.Liste
             p.isAntiAlias = true
 
             // x is the current margin start, dir is layout direction
-            val drawX: Float = (x + dir - INDENT_UNIT_WIDTH).toFloat()
+            val drawX: Float = INDENT_UNIT_WIDTH / 2f
             val centerY = (top + bottom) / 2f
             val size = 32f
 
